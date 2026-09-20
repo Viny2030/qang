@@ -1,40 +1,88 @@
 """
-Closed-form transformations between qang-parameterized states.
+Tests for qang.transformations.transition_probability_qang.
 
-This module backs Section 13 of the full reference notebook
-(``qang_full_reference.ipynb``, "Reformulating the results: where qang
-actually accelerates hybrid/quantum code"), which measures a ~1.7x speedup
-from using ``transition_probability_qang`` in place of an explicit
-statevector overlap when evaluating many transition probabilities (e.g.
-building a kernel matrix for a quantum-kernel-method prototype).
-
-Note on scope: the closed form below assumes both states have the same
-azimuthal phase phi (i.e. real amplitudes on the great circle qang already
-parameterizes via theta alone -- see Section 2 of the paper). It is not a
-general two-qubit-state fidelity formula.
+Includes the exact cross-check referenced by Section 13 of the full
+reference notebook: 200 random pairs checked against an explicit
+statevector overlap computation, independent of the closed form.
 """
 
 import math
+import sys
+import os
 
-__all__ = ["transition_probability_qang"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+import numpy as np
+import pytest
+
+from qang.transformations import transition_probability_qang
 
 
-def transition_probability_qang(q1: float, q2: float) -> float:
-    """Born-rule transition probability / fidelity between two qang states
-    that share the same azimuthal phase phi:
+def _transition_probability_via_statevectors(q1: float, q2: float) -> float:
+    """Reference implementation via explicit real-amplitude statevectors,
+    used only to independently verify the closed form above."""
+    theta1, theta2 = math.acos(q1), math.acos(q2)
+    psi1 = np.array([math.cos(theta1 / 2), math.sin(theta1 / 2)])
+    psi2 = np.array([math.cos(theta2 / 2), math.sin(theta2 / 2)])
+    return float(np.dot(psi1, psi2)) ** 2
 
-        P(q1 -> q2) = |<psi1|psi2>|^2
-                     = [1 + q1*q2 + sqrt((1 - q1^2)(1 - q2^2))] / 2
 
-    where q1 = qg_Z(theta1) = cos(theta1) and q2 = qg_Z(theta2) = cos(theta2).
+def test_anchor_north_pole_to_t_gate():
+    # matches the paper's own anchor values: |0> (qg_Z=1.0) -> T-gate state (qg_Z=1/sqrt(2))
+    p = transition_probability_qang(1.0, 1.0 / math.sqrt(2.0))
+    expected = (1.0 + 1.0 / math.sqrt(2.0)) / 2.0
+    assert abs(p - expected) < 1e-9
 
-    This is the standard single-qubit fidelity cos^2((theta1 - theta2)/2)
-    rewritten directly in terms of qg_Z, avoiding an explicit trip through
-    theta or a statevector construction. Raises ValueError if either qg_Z
-    value lies outside [-1, 1].
-    """
-    if not (-1.0 <= q1 <= 1.0 and -1.0 <= q2 <= 1.0):
-        raise ValueError("q1 and q2 must lie in [-1.0, 1.0].")
-    sin1 = math.sqrt(max(0.0, 1.0 - q1**2))
-    sin2 = math.sqrt(max(0.0, 1.0 - q2**2))
-    return float((1.0 + q1 * q2 + sin1 * sin2) / 2.0)
+
+def test_identity_transition_is_certain():
+    for q in [-1.0, -0.5, 0.0, 0.5, 1.0]:
+        assert abs(transition_probability_qang(q, q) - 1.0) < 1e-9
+
+
+def test_orthogonal_poles_never_transition():
+    assert abs(transition_probability_qang(1.0, -1.0)) < 1e-9
+
+
+def test_symmetry():
+    rng = np.random.default_rng(42)
+    for _ in range(50):
+        a, b = rng.uniform(-1.0, 1.0, size=2)
+        assert abs(
+            transition_probability_qang(a, b) - transition_probability_qang(b, a)
+        ) < 1e-12
+
+
+def test_rejects_out_of_range():
+    with pytest.raises(ValueError):
+        transition_probability_qang(1.5, 0.0)
+    with pytest.raises(ValueError):
+        transition_probability_qang(0.0, -1.5)
+
+
+def test_cross_check_against_statevector_overlap_200_random_pairs():
+    """The exact cross-check Section 13 of the notebook refers to:
+    200 random (q1, q2) pairs, closed form vs. explicit statevector overlap."""
+    rng = np.random.default_rng(0)
+    pairs = rng.uniform(-1.0, 1.0, size=(200, 2))
+    max_err = max(
+        abs(transition_probability_qang(a, b) - _transition_probability_via_statevectors(a, b))
+        for a, b in pairs
+    )
+    assert max_err < 1e-9
+
+
+if __name__ == "__main__":
+    tests = [obj for name, obj in list(globals().items()) if name.startswith("test_")]
+    failures = 0
+    for t in tests:
+        try:
+            t()
+            print(f"PASS  {t.__name__}")
+        except AssertionError as e:
+            failures += 1
+            print(f"FAIL  {t.__name__}: {e}")
+        except Exception as e:
+            failures += 1
+            print(f"ERROR {t.__name__}: {e!r}")
+    print(f"\n{len(tests) - failures}/{len(tests)} tests passed")
+    sys.exit(1 if failures else 0)
