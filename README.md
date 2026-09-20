@@ -21,3 +21,83 @@ Reference implementation and computational toolkit for:
 Install the minimal core library (NumPy only):
 ```bash
 pip install .
+
+
+
+
+
+Bash
+pip install ".[qiskit]"   # Native Qiskit gate integration
+pip install ".[cirq]"     # Native Cirq gate integration
+pip install ".[all]"      # Everything (Qiskit, Cirq, Pytest, Matplotlib)
+Quickstart
+1. Basic Unit Conversions & Inversion
+Python
+from quang import Qang
+
+# Anchor values
+q_zero = Qang.from_angles(0.0, mode="polar")
+print(q_zero.value)  # +1.0 (|0>)
+
+q_max_ent = Qang.from_angles(1.5707963, mode="entropic")
+print(q_max_ent.value)  # 1.0 (Maximum measurement uncertainty)
+
+# Full Bloch sphere and statevector round-trip
+q = Qang.from_angles(theta=0.9, phi=1.1, mode="polar")
+bx, by, bz = q.to_bloch_vector()
+alpha, beta = q.to_statevector()
+
+# Engineering subunit (milliqang)
+print(Qang(0.5).milliqang)  # 500.0 m-qg
+2. Qiskit Native Gate Integration
+Python
+from quang import Qang
+from quang.qiskit_gate import FullRQangGate
+from qiskit import QuantumCircuit
+
+qc = QuantumCircuit(1, 1)
+# Append gate directly parameterized in qg_Z without manual arccos conversion
+qc.append(FullRQangGate(Qang(0.5, phi=0.3)), [0])
+qc.measure(0, 0)
+3. Cirq Native Gate Integration
+Python
+import cirq
+from quang import Qang
+from quang.cirq_gate import full_rqang_gate
+
+q = cirq.LineQubit(0)
+circuit = cirq.Circuit(
+    full_rqang_gate(Qang(0.5, phi=0.3)).on(q),
+    cirq.measure(q, key="m")
+)
+4. Error Propagation & Shot Budgeting
+Python
+from quang.statistics import propagated_theta_std, confidence_interval_theta
+
+# First-order delta-method uncertainty: invariant across the Bloch sphere (~1/sqrt(N))
+std_theta = propagated_theta_std(theta=1.0, n_shots=10000)
+ci_lower, ci_upper = confidence_interval_theta(theta_hat=1.0, n_shots=10000, confidence=0.95)
+print(f"Theta 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}] rad")
+Testing
+The package includes an extensive test suite (116 tests) verifying analytical anchors, numerical stability, gradient regularizations, and backend fidelity:
+
+Bash
+pytest -v
+Contributing & Community
+We welcome contributions, bug reports, and suggestions!
+
+Issues: Please use the GitHub Issue Tracker to report bugs or request features.
+
+Contributions: See CONTRIBUTING.md for local development and pull request guidelines.
+
+Citation
+If you use quang in your research, please cite:
+
+Fragmento de código
+@article{monteverde2026qang,
+  title={The Qang (qg): A Unified Angular-Probability Unit and Metric for Parametric Quantum Circuit Design},
+  author={Monteverde, Vicente Humberto},
+  year={2026},
+  publisher={Zenodo},
+  doi={10.5281/zenodo.22832150}
+}
