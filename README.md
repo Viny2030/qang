@@ -1,5 +1,6 @@
 # qang — The Qang (qg) Python Framework
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_full_reference.ipynb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22832150.svg)](https://doi.org/10.5281/zenodo.22832150)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
@@ -85,6 +86,16 @@ std_theta = propagated_theta_std(theta=1.0, n_shots=10000)
 ci_lower, ci_upper = confidence_interval_theta(theta_hat=1.0, n_shots=10000, confidence=0.95)
 print(f"Theta 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}] rad")
 ```
+
+## Full Reference Notebook
+
+`notebooks/qang_full_reference.ipynb` is the single canonical, self-contained walkthrough
+of the whole project — the `Qang` class, the Section 4.1 gradient singularity (regularized
+and benchmarked), mixed states/POVMs, multi-qubit profiles, the native Qiskit and Cirq
+gates, shot-noise error propagation, Quantum Natural Gradient, a live round-trip against
+IonQ's cloud simulator, and a closing section that reformulates every result above into
+concrete, measured speed/cost comparisons (including one negative result, kept in on
+purpose). Open it directly in Colab with the badge above.
 
 ## Testing
 The package includes an extensive test suite (116 tests) verifying analytical anchors, numerical stability, gradient regularizations, and backend fidelity:
