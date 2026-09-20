@@ -50,3 +50,43 @@ Existing quantum computing frameworks handle parameterizations and state diagnos
 # Software Design and Architecture
 
 `quang` is architected as a lightweight package with minimal overhead, requiring only `NumPy` as a core runtime dependency, with optional integration extras for `qiskit`, `cirq`, and development toolchains. The codebase is organized into seven specialized modules:
+quang/
+├── init.py           # Public API exposure
+├── core.py               # Qang class, conversions, milliqang, branch inversion
+├── gradients.py          # Jacobian inverses, clipped and Tikhonov regularizations
+├── statistics.py         # Binomial shot-noise propagation, confidence intervals
+├── mixed.py              # Density matrix qg_Z, von Neumann entropy, POVM metrics
+├── multiqubit.py         # Marginal profiles, joint qg_S, entanglement witness
+├── qiskit_gate.py        # Qiskit native RQangGate and FullRQangGate
+└── cirq_gate.py          # Cirq native rqang_gate and full_rqang_gate
+
+### Core Representations and Branch Inversion (`quang.core`)
+The `Qang` class encapsulates both $qg_Z$ and $qg_S$ operational modes. Because $qg_S(\theta) = qg_S(\pi - \theta)$, inversion from entropy to angle is non-injective over $[0, \pi]$. `quang.core` formalizes the half-domain invertibility: it enforces monotonic branches via bisection over $H(p)$ for $\theta \in [0, \pi/2]$ (`branch='lower'`) and $\theta \in [\pi/2, \pi]$ (`branch='upper'`), providing bidirectional consistency within $10^{-4}$ rad.
+
+### Gradient Regularization (`quang.gradients`)
+To handle the divergence of $dE/dqg = -(1/\sin\theta) \cdot dE/d\theta$ at the poles, `quang.gradients` provides two bounded alternatives:
+- **Clipped Inverse Jacobian:** Clamps the denominator magnitude to $\max(\vert{}\sin\theta\vert{}, \epsilon)$, bounding the update step to $1/\epsilon$.
+- **Tikhonov Regularization:** Computes $-\sin\theta / (\sin^2\theta + \epsilon^2)$. This formulation smoothly suppresses updates directly at the poles ($0$ push at $\theta \in \{0, \pi\}$), preventing boundary overshooting during variational optimization.
+
+### Shot-Noise Error Propagation (`quang.statistics`)
+`quang.statistics` implements analytical error propagation using the first-order delta method. Given $N$ measurement shots, the variance of the estimator $\widehat{qg}_Z$ is $\operatorname{Var}(\widehat{qg}_Z) = \sin^2\theta / N$. Propagating through the inverse Jacobian yields:
+$$\operatorname{Var}(\hat{\theta}) \approx \operatorname{Var}(\widehat{qg}_Z) \left(\frac{d\theta}{dqg_Z}\right)^2 = \left[\frac{\sin^2\theta}{N}\right] \left[\frac{1}{\sin^2\theta}\right] = \frac{1}{N}$$
+The angular variance is invariant to $\theta$ to first order ($\operatorname{std}(\hat{\theta}) \approx 1/\sqrt{N}$). The module provides analytical confidence intervals and validates this behavior against empirical bootstrap trials executed via Qiskit's `AerSimulator`.
+
+### Open Quantum Systems and Multi-Qubit Registers (`quang.mixed`, `quang.multiqubit`)
+The framework generalizably evaluates mixed states via $\operatorname{Tr}(\rho \sigma_z)$ and POVM measurements normalized by $\log_2(n_{\text{outcomes}})$. For multi-qubit systems, it computes both single-qubit marginal projection profiles and joint registration entropy ($qg_S^{\text{joint}}$). For maximally entangled states (e.g., Bell pairs), `quang.multiqubit` acts as an operational entanglement witness: marginal states exhibit maximal mixing ($\operatorname{Tr}(\rho_i \sigma_z) = 0, S(\rho_i) = 1$), while the global state remains strictly pure ($S(\rho_{\text{global}}) = 0$).
+
+# Research Impact Statement
+
+`quang` provides a reproducible, standardized foundation for quantum software engineering and education:
+1. **Algorithm Development:** In variational optimization (VQE/QAOA), using regularized $qg$-gradients allows researchers to optimize directly in expectation-value space while avoiding numerical instabilities at computational basis states.
+2. **Error Budgeting and Calibration:** Experimentalists can directly estimate necessary shot budgets $N$ required to achieve angular fidelity benchmarks without running bespoke Monte Carlo noise simulations.
+3. **Cross-Platform Reproducibility:** By providing unified single-qubit gate implementations matching unitary conventions across Qiskit's `UGate` and Cirq's `MatrixGate`, the software guarantees statevector equivalence across backends.
+
+The library includes an automated test suite comprising 116 unit and regression tests reproducing all analytical tables and validation benchmarks.
+
+# AI Usage Disclosure
+
+Generative AI assistance (Claude 3.5 Sonnet / OpenAI GPT-4o) was utilized during code refactoring, test-suite expansion, and documentation drafting. All mathematical derivations, numerical algorithms, architectural implementations, and scientific validations were reviewed, verified, and confirmed by the author.
+
+# References
