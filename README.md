@@ -113,13 +113,3 @@ Contributions: See [CONTRIBUTING.md](CONTRIBUTING.md) for local development and 
 
 ## Citation
 If you use qang in your research, please cite:
-
-```
-@article{monteverde2026qang,
-  title={The Qang (qg): A Unified Angular-Probability Unit and Metric for Parametric Quantum Circuit Design},
-  author={Monteverde, Vicente Humberto},
-  year={2026},
-  publisher={Zenodo},
-  doi={10.5281/zenodo.22832150}
-}
-```
