@@ -1,14 +1,14 @@
-name: Publish to PyPI
+name: Build release artifacts
 
 on:
   release:
     types: [published]
 
 permissions:
-  id-token: write
+  contents: write
 
 jobs:
-  build-and-publish:
+  build-and-attach:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,5 +24,7 @@ jobs:
       - name: Build sdist and wheel
         run: python -m build
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Attach artifacts to the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
