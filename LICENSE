@@ -1,3 +1,89 @@
+---
+
+### 2. `pyproject.toml` (Añadir extras y metadata de repositorio)
+Agregamos la opción `all` y URLs de issues y documentación, lo que ayuda al bot de JOSS y a los revisores a ver una configuración empaquetada estándar:
+
+```toml
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quang"
+version = "0.2.0"
+description = "The Qang (qg): a unified angular-probability unit and metric for parametric quantum circuit design."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Vicente Humberto Monteverde", email = "viny01958@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Intended Audience :: Science/Research",
+]
+dependencies = [
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+qiskit = ["qiskit>=1.0", "qiskit-aer"]
+cirq = ["cirq>=1.0"]
+dev = ["pytest>=7.0", "matplotlib>=3.7"]
+all = ["qiskit>=1.0", "qiskit-aer", "cirq>=1.0", "pytest>=7.0", "matplotlib>=3.7"]
+
+[project.urls]
+Homepage = "https://github.com/Viny2030/quang"
+Repository = "https://github.com/Viny2030/quang.git"
+"Bug Tracker" = "https://github.com/Viny2030/quang/issues"
+Paper = "https://doi.org/10.5281/zenodo.22832150"
+
+[tool.setuptools.packages.find]
+include = ["quang*"]
+3. Archivo Nuevo OBLIGATORIO para JOSS: CONTRIBUTING.md
+JOSS exige explícitamente que los proyectos demuestren cómo otros investigadores pueden colaborar o reportar bugs. Crea este archivo en la raíz del repositorio:
+
+Markdown
+# Contributing to quang
+
+Thank you for your interest in contributing to `quang`! We welcome bug reports, documentation improvements, algorithmic extensions, and feature requests.
+
+## Reporting Issues
+
+If you encounter a bug or unexpected behavior:
+1. Search the [existing issues](https://github.com/Viny2030/quang/issues) to ensure it has not already been reported.
+2. If it is new, open an issue providing:
+   - A clear description of the problem.
+   - A minimal, reproducible code example.
+   - Your Python and library versions (`quang`, `numpy`, `qiskit`, `cirq`).
+
+## Submitting Pull Requests
+
+1. Fork the repository and create a feature branch:
+   ```bash
+   git checkout -b feature/my-new-feature
+Install the package in editable mode with development dependencies:
+
+Bash
+pip install -e ".[all]"
+Implement your changes and write accompanying tests in tests/.
+
+Ensure all tests pass:
+
+Bash
+pytest
+Commit your changes with descriptive commit messages and submit a Pull Request against the main branch.
+
+
+---
+
+### 4. Archivo OBLIGATORIO: `LICENSE`
+Asegúrate de tener en la raíz del proyecto el archivo `LICENSE` con texto MIT estándar:
+
+```text
 MIT License
 
 Copyright (c) 2026 Vicente Humberto Monteverde
