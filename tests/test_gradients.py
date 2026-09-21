@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from quang.gradients import (
+from qang.gradients import (
     benchmark,
     inverse_jacobian_clipped,
     inverse_jacobian_raw,
