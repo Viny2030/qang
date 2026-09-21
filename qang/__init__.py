@@ -28,4 +28,4 @@ This package covers, in order:
 from .core import Qang, MILLIQANG_PER_QANG
 
 __all__ = ["Qang", "MILLIQANG_PER_QANG"]
-__version__ = "0.2.0"
+__version__ = "0.2.2"
