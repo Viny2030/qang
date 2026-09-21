@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from quang.core import Qang, MILLIQANG_PER_QANG
+from qang.core import Qang, MILLIQANG_PER_QANG
 
 PI = math.pi
 
