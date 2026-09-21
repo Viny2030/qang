@@ -15,7 +15,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from quang.gradients import benchmark, toy_vqe_grad_theta
+from qang.gradients import benchmark, toy_vqe_grad_theta
 
 # --- dataviz-skill validated categorical palette (light mode, slots 1-4) ---
 BLUE, ORANGE, AQUA, YELLOW = "#2a78d6", "#eb6834", "#1baf7a", "#eda100"
@@ -41,7 +41,7 @@ def main():
     results = {
         "theta": None,  # filled below with a matching lr for a fair baseline
     }
-    from quang.gradients import run_gradient_descent
+    from qang.gradients import run_gradient_descent
 
     results["theta"] = run_gradient_descent("theta", THETA0, lr=LR, steps=STEPS)
     results["qg_raw"] = run_gradient_descent("qg_raw", THETA0, lr=LR, steps=STEPS)
