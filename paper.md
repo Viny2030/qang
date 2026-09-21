@@ -39,7 +39,7 @@ Translating raw angles into observable spaces presents non-trivial software and 
 
 `quang` addresses these needs by supplying a lightweight, modular library that automates these conversions, resolves numerical singularities, and embeds directly into existing quantum circuit compilation pipelines.
 
-# State of the Field
+# State of the field
 
 Existing quantum computing frameworks handle parameterizations and state diagnostics across distinct, disjoint modules:
 - **Circuit Construction (Qiskit, Cirq, Pennylane):** Standard libraries focus on unitary execution and statevector manipulation using raw angles. Users must manually compose parameterized gates with custom cost functions, without native types representing bias or entropy metrics directly inside the circuit DAG.
@@ -47,7 +47,7 @@ Existing quantum computing frameworks handle parameterizations and state diagnos
 
 `quang` fills this distinct niche by introducing a dedicated unit abstraction layer. It does not replace quantum execution backends; rather, it augments Qiskit and Cirq circuits with native gate classes (`RQangGate`, `full_rqang_gate`) that accept $qg$ instances directly, eliminating boilerplates and providing built-in domain validation, branch inversion, and noise propagation.
 
-# Software Design and Architecture
+# Software Design 
 
 `quang` is architected as a lightweight package with minimal overhead, requiring only `NumPy` as a core runtime dependency, with optional integration extras for `qiskit`, `cirq`, and development toolchains. The codebase is organized into seven specialized modules:
 quang/
@@ -76,7 +76,7 @@ The angular variance is invariant to $\theta$ to first order ($\operatorname{std
 ### Open Quantum Systems and Multi-Qubit Registers (`quang.mixed`, `quang.multiqubit`)
 The framework generalizably evaluates mixed states via $\operatorname{Tr}(\rho \sigma_z)$ and POVM measurements normalized by $\log_2(n_{\text{outcomes}})$. For multi-qubit systems, it computes both single-qubit marginal projection profiles and joint registration entropy ($qg_S^{\text{joint}}$). For maximally entangled states (e.g., Bell pairs), `quang.multiqubit` acts as an operational entanglement witness: marginal states exhibit maximal mixing ($\operatorname{Tr}(\rho_i \sigma_z) = 0, S(\rho_i) = 1$), while the global state remains strictly pure ($S(\rho_{\text{global}}) = 0$).
 
-# Research Impact Statement
+# Research impact statement
 
 `quang` provides a reproducible, standardized foundation for quantum software engineering and education:
 1. **Algorithm Development:** In variational optimization (VQE/QAOA), using regularized $qg$-gradients allows researchers to optimize directly in expectation-value space while avoiding numerical instabilities at computational basis states.
@@ -85,7 +85,7 @@ The framework generalizably evaluates mixed states via $\operatorname{Tr}(\rho \
 
 The library includes an automated test suite comprising 116 unit and regression tests reproducing all analytical tables and validation benchmarks.
 
-# AI Usage Disclosure
+# AI usage disclosure
 
 Generative AI assistance (Claude 3.5 Sonnet / OpenAI GPT-4o) was utilized during code refactoring, test-suite expansion, and documentation drafting. All mathematical derivations, numerical algorithms, architectural implementations, and scientific validations were reviewed, verified, and confirmed by the author.
 
