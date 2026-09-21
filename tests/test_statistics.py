@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from quang.statistics import (
+from qang.statistics import (
     confidence_interval_theta,
     p0_from_theta,
     propagated_theta_std,
@@ -95,7 +95,7 @@ def test_confidence_interval_rejects_unsupported_confidence():
 def test_empirical_theta_std_matches_analytical_away_from_pole():
     qiskit = pytest.importorskip("qiskit")
     pytest.importorskip("qiskit_aer")
-    from quang.statistics import empirical_theta_std
+    from qang.statistics import empirical_theta_std
 
     result = empirical_theta_std(theta=PI / 2, n_shots=2000, n_trials=300, seed=42)
     # empirical std should land within ~30% of the analytical 1/sqrt(N) prediction
@@ -110,7 +110,7 @@ def test_empirical_theta_std_breaks_down_very_close_to_a_pole():
     -- the Gaussian delta-method formula."""
     qiskit = pytest.importorskip("qiskit")
     pytest.importorskip("qiskit_aer")
-    from quang.statistics import empirical_theta_std
+    from qang.statistics import empirical_theta_std
 
     result = empirical_theta_std(theta=0.05, n_shots=50, n_trials=300, seed=7)
     assert result.n_at_pole_boundary > 0
