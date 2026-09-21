@@ -29,6 +29,56 @@ Two regularizations of the inverse Jacobian are provided:
 Both coincide with the exact -1/sin(theta) away from the poles as eps -> 0,
 and both are finite everywhere, which is the property the paper's Section
 4.1 "Limitation" paragraph asks for.
+
+A fifth optimization space: ``theta_pole_damped``
+--------------------------------------------------
+The three qg-space variants above all share a second, independent problem,
+demonstrated on a real molecule in examples/vqe_h2_qg_vs_theta.py: every
+qg-space step round-trips through ``qg = cos(theta)`` and back via
+``theta = acos(qg)``, and ``acos`` only ever returns a value in [0, pi].
+Since cos(theta) = cos(-theta) = cos(2*pi - theta), that round trip is not
+just numerically delicate near the poles, it is *structurally* unable to
+reach a minimum that lies in the other half of the circle -- for H2,
+started at the physical Hartree-Fock point, all three variants converge
+to exactly the Hartree-Fock energy and recover zero correlation energy,
+not because of slow convergence but because that energy is a hard ceiling
+on what arccos's range can reach.
+
+``theta_pole_damped`` keeps every update in theta-space -- there is no
+qg-space round trip, so this second failure mode cannot occur -- and reuses
+only the same pole-proximity floor already defined for the regularized
+Jacobians, applied directly as a per-step damping factor:
+
+    pole_damping_factor(theta, eps) = max(|sin(theta)|, eps)
+    theta_new = theta - lr * pole_damping_factor(theta, eps) * dE/d(theta)
+
+This is a position-dependent trust-region-style damping of the raw
+theta-space step, in the spirit of Levenberg-Marquardt damping (Levenberg,
+1944; Marquardt, 1963) -- it is *not* a new class of optimizer, and the
+underlying idea (shrink the step where the local problem is
+ill-conditioned) is a long-established one. What is specific to this
+framework is where the damping schedule comes from: it is not a free
+hyperparameter tuned by hand, but falls directly out of the same Bloch
+-sphere pole geometry already used for the regularized Jacobians above
+(and empirically, the resulting robustness is insensitive to the exact
+choice of eps -- see tests/test_gradients.py).
+
+The concrete, measured effect (see examples/pole_damped_gradient_descent_robustness.py
+for the full study, and examples/vqe_h2_qg_vs_theta.py for a real-molecule
+demonstration): at a *safe*, well-tuned learning rate, ``theta_pole_damped``
+matches plain theta-space gradient descent, at the cost of a modest number
+of extra iterations spent near the pole. At a *badly-tuned, too-aggressive*
+learning rate -- exactly the kind of hyperparameter mistake that is easy to
+make when trying a new ansatz on real NISQ hardware -- plain theta-space
+gradient descent frequently overshoots and diverges, while
+``theta_pole_damped`` continues to converge reliably, across a 300-trial
+statistical study over random one-qubit cost landscapes and, deterministically,
+on the real H2 molecular Hamiltonian. This comes with two honestly-measured
+costs, not hidden: the extra iterations already mentioned at safe learning
+rates, and a small (roughly 2-5% in the aggressive-learning-rate regime of
+the statistical study) failure mode where the optimizer gets "trapped"
+oscillating near the pole it started at instead of escaping toward the
+true optimum.
 """
 
 from __future__ import annotations
@@ -71,6 +121,18 @@ def inverse_jacobian_tikhonov(theta: float, eps: float = 0.05) -> float:
     """
     s = math.sin(theta)
     return -s / (s * s + eps * eps)
+
+
+def pole_damping_factor(theta: float, eps: float = 0.05) -> float:
+    """
+    |sin(theta)|, floored at eps: a position-dependent, Levenberg-Marquardt
+    -style trust-region damping factor for a *theta-space* gradient step
+    (see this module's docstring, "A fifth optimization space"). Always in
+    (0, 1], so it only ever shrinks (never enlarges) the raw theta-space
+    step: 1.0 away from the poles (no effect), down to eps exactly at a
+    pole (maximal damping).
+    """
+    return max(abs(math.sin(theta)), eps)
 
 
 # --------------------------------------------------------------------- #
@@ -118,15 +180,26 @@ def run_gradient_descent(
 ) -> GDHistory:
     """
     Minimize energy_fn(theta) by gradient descent, parameterized either
-    directly in theta-space, or in qg-space (raw or regularized).
+    directly in theta-space, in qg-space (raw or regularized), or in
+    theta-space with pole-proximity damping applied to the raw step.
 
-    space : {"theta", "qg_raw", "qg_clipped", "qg_tikhonov"}
+    space : {"theta", "qg_raw", "qg_clipped", "qg_tikhonov", "theta_pole_damped"}
     """
     theta = float(theta0)
     hist = GDHistory(space=space)
 
     for _ in range(steps):
-        theta = min(max(theta, 1e-9), math.pi - 1e-9)  # stay in the physical domain
+        if space != "theta_pole_damped":
+            # "theta" and every qg-space variant are kept inside [0, pi]:
+            # the qg-space ones because acos(qg) never returns anything
+            # else, and plain "theta" for consistency with the rest of
+            # this benchmark. "theta_pole_damped" is deliberately exempt
+            # from this clamp -- it is a *theta-space* update with no
+            # qg round trip at all, and letting theta range freely is
+            # exactly what lets it recover from an overshoot that would
+            # otherwise look like divergence (see this module's
+            # docstring and tests/test_gradients.py).
+            theta = min(max(theta, 1e-9), math.pi - 1e-9)  # stay in the physical domain
         qg = math.cos(theta)
         e = energy_fn(theta, h_z, h_x)
         hist.theta.append(theta)
@@ -141,6 +214,8 @@ def run_gradient_descent(
 
         if space == "theta":
             theta = theta - lr * dE_dtheta
+        elif space == "theta_pole_damped":
+            theta = theta - lr * pole_damping_factor(theta, eps=eps) * dE_dtheta
         else:
             if space == "qg_raw":
                 dtheta_dqg = inverse_jacobian_raw(theta)
@@ -150,7 +225,8 @@ def run_gradient_descent(
                 dtheta_dqg = inverse_jacobian_tikhonov(theta, eps=eps)
             else:
                 raise ValueError(
-                    "space must be one of 'theta', 'qg_raw', 'qg_clipped', 'qg_tikhonov'."
+                    "space must be one of 'theta', 'qg_raw', 'qg_clipped', "
+                    "'qg_tikhonov', 'theta_pole_damped'."
                 )
             dE_dqg = dE_dtheta * dtheta_dqg
             new_qg = max(-1.0, min(1.0, qg - lr * dE_dqg))
@@ -171,8 +247,8 @@ def benchmark(
     h_z: float = 0.0,
     h_x: float = -1.0,
 ) -> Dict[str, GDHistory]:
-    """Run all four optimization spaces from the same near-pole start point."""
-    spaces = ["theta", "qg_raw", "qg_clipped", "qg_tikhonov"]
+    """Run all five optimization spaces from the same near-pole start point."""
+    spaces = ["theta", "qg_raw", "qg_clipped", "qg_tikhonov", "theta_pole_damped"]
     return {
         s: run_gradient_descent(s, theta0, lr=lr, steps=steps, eps=eps, h_z=h_z, h_x=h_x)
         for s in spaces
