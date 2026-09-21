@@ -3,8 +3,8 @@ import math
 import numpy as np
 import pytest
 
-from quang.core import Qang
-from quang.multiqubit import (
+from qang.core import Qang
+from qang.multiqubit import (
     bell_state,
     joint_qg_s,
     marginal_qg_s,
@@ -103,7 +103,7 @@ def test_bell_state_is_globally_pure_but_locally_maximally_mixed():
 
 def test_partial_trace_of_full_system_is_identity_map():
     psi = bell_state("psi_minus")
-    from quang.multiqubit import _as_density
+    from qang.multiqubit import _as_density
 
     rho_full = _as_density(psi, 2)
     traced = partial_trace(rho_full, n_qubits=2, keep=[0, 1])
@@ -112,7 +112,7 @@ def test_partial_trace_of_full_system_is_identity_map():
 
 def test_partial_trace_rejects_bad_indices():
     psi = bell_state("phi_plus")
-    from quang.multiqubit import _as_density
+    from qang.multiqubit import _as_density
 
     rho = _as_density(psi, 2)
     with pytest.raises(ValueError):
