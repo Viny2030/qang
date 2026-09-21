@@ -8,6 +8,7 @@ from qang.gradients import (
     inverse_jacobian_raw,
     inverse_jacobian_tikhonov,
     jacobian,
+    pole_damping_factor,
     run_gradient_descent,
     toy_vqe_energy,
     toy_vqe_grad_theta,
@@ -115,8 +116,82 @@ def test_regularized_qg_space_gd_converges_from_near_pole_start(space):
     assert abs(toy_vqe_grad_theta(hist.theta[-1])) < 0.1
 
 
-def test_benchmark_runs_all_four_spaces():
+def test_benchmark_runs_all_five_spaces():
     results = benchmark(theta0=0.05, lr=0.05, steps=100)
-    assert set(results.keys()) == {"theta", "qg_raw", "qg_clipped", "qg_tikhonov"}
+    assert set(results.keys()) == {
+        "theta",
+        "qg_raw",
+        "qg_clipped",
+        "qg_tikhonov",
+        "theta_pole_damped",
+    }
     for hist in results.values():
         assert len(hist.theta) > 0
+
+
+# --------------------------------------------------------------------- #
+# theta_pole_damped: a fifth space that stays entirely in theta-space
+# (no qg round trip, so no arccos-range trapping), with a
+# Levenberg-Marquardt-style damping factor derived from the same
+# pole-proximity floor as the regularized Jacobians above.
+# --------------------------------------------------------------------- #
+def test_pole_damping_factor_is_one_away_from_poles():
+    assert pole_damping_factor(PI / 2, eps=0.05) == pytest.approx(1.0, abs=1e-9)
+
+
+@pytest.mark.parametrize("theta", [0.0, 1e-6, PI])
+def test_pole_damping_factor_floors_at_eps_near_poles(theta):
+    assert pole_damping_factor(theta, eps=0.05) == pytest.approx(0.05, abs=1e-9)
+
+
+def test_pole_damping_factor_matches_sin_between_the_floor_and_one():
+    theta = 0.3  # sin(0.3) ~= 0.2955, above the default eps=0.05 floor
+    assert pole_damping_factor(theta, eps=0.05) == pytest.approx(abs(math.sin(theta)), abs=1e-9)
+
+
+def test_theta_pole_damped_matches_plain_theta_at_a_safe_learning_rate():
+    """Away from any divergence risk, damping should cost (at most) a
+    negligible difference in the converged optimum -- it is not a
+    different optimizer, just a step-size modulator that has no effect
+    once the raw step is already safe."""
+    h_z, h_x = 1.0, -0.3
+    h_plain = run_gradient_descent("theta", theta0=0.02, lr=0.3, steps=300, h_z=h_z, h_x=h_x)
+    h_damped = run_gradient_descent(
+        "theta_pole_damped", theta0=0.02, lr=0.3, steps=300, eps=0.05, h_z=h_z, h_x=h_x
+    )
+    assert not h_plain.diverged and not h_damped.diverged
+    assert h_damped.energy[-1] == pytest.approx(h_plain.energy[-1], abs=1e-6)
+
+
+def test_theta_pole_damped_survives_an_aggressive_learning_rate_where_plain_fails():
+    """The headline finding for this space (see qang.gradients' module
+    docstring and examples/pole_damped_gradient_descent_robustness.py for
+    the full statistical study, and examples/vqe_h2_qg_vs_theta.py for the
+    same effect on a real molecule): at a badly-tuned, too-aggressive
+    learning rate, plain theta-space gradient descent overshoots and never
+    recovers the true minimum, while theta_pole_damped -- started from the
+    exact same near-pole point -- still reaches it."""
+    h_z, h_x = 1.0, -0.3
+    true_min = -math.hypot(h_z, h_x)
+    theta0 = 0.02
+
+    for lr in (2.0, 3.0, 5.0):
+        h_plain = run_gradient_descent("theta", theta0=theta0, lr=lr, steps=300, h_z=h_z, h_x=h_x)
+        h_damped = run_gradient_descent(
+            "theta_pole_damped", theta0=theta0, lr=lr, steps=300, eps=0.05, h_z=h_z, h_x=h_x
+        )
+        assert abs(h_plain.energy[-1] - true_min) > 1e-3  # plain fails to converge
+        assert h_damped.energy[-1] == pytest.approx(true_min, abs=1e-6)  # damped succeeds
+
+
+def test_theta_pole_damped_is_not_clamped_to_zero_pi_domain():
+    """theta_pole_damped deliberately opts out of the [0, pi] domain clamp
+    that the other spaces use (see run_gradient_descent's implementation):
+    that clamp is what would otherwise reproduce the qg-space variants'
+    arccos-range trapping. This checks the escape hatch is actually wired
+    up, not just documented."""
+    h_z, h_x = 1.0, -0.3
+    hist = run_gradient_descent(
+        "theta_pole_damped", theta0=0.02, lr=5.0, steps=5, eps=0.05, h_z=h_z, h_x=h_x
+    )
+    assert any(theta < 0.0 or theta > math.pi for theta in hist.theta)
