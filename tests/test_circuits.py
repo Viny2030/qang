@@ -1,7 +1,7 @@
 """
-Tests for qang.circuits: standard state circuits (Bell, GHZ, W), the
-promoted circuit-to-qg-profile bridge, and their closed-form qg
-predictions.
+Tests for qang.circuits: standard state circuits (Bell, GHZ, W, graph
+states, cluster states, generalized Dicke states), the promoted
+circuit-to-qg-profile bridge, and their closed-form qg predictions.
 
 Checked:
   1. bell_circuit() matches qang.multiqubit.bell_state() exactly, for all
@@ -13,6 +13,16 @@ Checked:
      w_qg_z_profile) -- the circuit-level and analytic answers agree.
   4. n=2 special cases: ghz_circuit(2) is bell_circuit('phi_plus');
      w_circuit(2) is bell_circuit('psi_plus') up to global phase.
+  5. graph_state_circuit() / linear_cluster_state_circuit() satisfy the
+     stabilizer condition X_i * prod_{j in N(i)} Z_j = +1 for every
+     vertex i, for several graph topologies -- and, regardless of graph
+     structure, always have qg_Z = 0 on every qubit and joint qg_S = 1.0
+     (the "qg_S is blind to graph-state entanglement" boundary case
+     documented in qang.circuits' module docstring).
+  6. dicke_state_circuit(n, k) matches the closed-form Dicke amplitudes
+     exactly for every n in 2..6 and every k in 0..n, its qg_Z profile
+     matches dicke_qg_z_profile, and dicke_state_circuit(n, 1) equals
+     w_circuit(n) up to global phase (k=1 is the W state).
 """
 
 import sys
@@ -27,15 +37,21 @@ import pytest
 
 qiskit = pytest.importorskip("qiskit")
 
-from qiskit.quantum_info import Statevector
+from qiskit.quantum_info import Pauli, Statevector
 
 from qang.multiqubit import bell_state, joint_qg_s, per_qubit_qg_z
 from qang.circuits import (
     bell_circuit,
+    dicke_qg_z_profile,
+    dicke_state_circuit,
     ghz_circuit,
     ghz_joint_qg_s,
     ghz_qg_z_profile,
+    graph_state_circuit,
+    graph_state_joint_qg_s,
+    graph_state_qg_z_profile,
     joint_qg_s_of_circuit,
+    linear_cluster_state_circuit,
     qg_z_profile_of_circuit,
     w_circuit,
     w_qg_z_profile,
@@ -163,6 +179,148 @@ def test_joint_qg_s_of_circuit_matches_manual_computation():
     manual_sv = Statevector.from_instruction(qc).data
     manual = joint_qg_s(manual_sv, n_qubits=3, normalize=True)
     assert joint_qg_s_of_circuit(qc, 3, normalize=True) == pytest.approx(manual, abs=1e-12)
+
+
+def _stabilizer_expectation(qc, vertex, neighbors, n_qubits):
+    """X on ``vertex``, Z on each of ``neighbors``, I elsewhere -- built as
+    a Qiskit Pauli label with index 0 as the *rightmost* character
+    (Qiskit's own convention), then evaluated exactly via Statevector."""
+    label = ["I"] * n_qubits
+    label[vertex] = "X"
+    for j in neighbors:
+        label[j] = "Z"
+    label_str = "".join(reversed(label))
+    sv = Statevector.from_instruction(qc)
+    return sv.expectation_value(Pauli(label_str)).real
+
+
+@pytest.mark.parametrize("n_qubits", [3, 4, 5])
+def test_star_graph_state_satisfies_stabilizer_condition(n_qubits):
+    edges = [(0, i) for i in range(1, n_qubits)]
+    qc = graph_state_circuit(n_qubits, edges)
+    neighbors = {0: list(range(1, n_qubits))}
+    for i in range(1, n_qubits):
+        neighbors[i] = [0]
+    for vertex in range(n_qubits):
+        val = _stabilizer_expectation(qc, vertex, neighbors[vertex], n_qubits)
+        assert val == pytest.approx(1.0, abs=1e-9)
+
+
+def test_linear_cluster_state_satisfies_stabilizer_condition():
+    n_qubits = 4
+    qc = linear_cluster_state_circuit(n_qubits)
+    neighbors = {0: [1], 1: [0, 2], 2: [1, 3], 3: [2]}
+    for vertex in range(n_qubits):
+        val = _stabilizer_expectation(qc, vertex, neighbors[vertex], n_qubits)
+        assert val == pytest.approx(1.0, abs=1e-9)
+
+
+@pytest.mark.parametrize("n_qubits", [3, 4, 5])
+def test_graph_state_qg_z_is_always_zero_regardless_of_graph(n_qubits):
+    """The honest boundary case documented in qang.circuits' module
+    docstring: H^n gives every qubit a 50/50 marginal, and CZ is
+    diagonal (phase-only), so qg_Z = 0 on every qubit no matter which
+    edges are present -- checked here for a star graph."""
+    edges = [(0, i) for i in range(1, n_qubits)]
+    qc = graph_state_circuit(n_qubits, edges)
+    numeric = qg_z_profile_of_circuit(qc, n_qubits)
+    assert np.allclose(numeric, graph_state_qg_z_profile(n_qubits), atol=1e-9)
+    assert np.allclose(numeric, [0.0] * n_qubits, atol=1e-9)
+
+
+def test_graph_state_joint_qg_s_is_always_maximal_regardless_of_graph():
+    """Same boundary case for joint qg_S: every graph state's outcome
+    distribution is exactly uniform over all 2**n basis states, so
+    normalized joint qg_S = 1.0 (maximal) regardless of the graph."""
+    n_qubits = 4
+    # path plus one isolated vertex (vertex 3 has no edges at all)
+    edges = [(0, 1), (1, 2)]
+    qc = graph_state_circuit(n_qubits, edges)
+    numeric = joint_qg_s_of_circuit(qc, n_qubits, normalize=True)
+    assert numeric == pytest.approx(graph_state_joint_qg_s(n_qubits, normalize=True), abs=1e-9)
+    assert numeric == pytest.approx(1.0, abs=1e-9)
+    # and the isolated vertex still has qg_Z = 0, same as every other qubit
+    profile = qg_z_profile_of_circuit(qc, n_qubits)
+    assert np.allclose(profile, [0.0] * n_qubits, atol=1e-9)
+
+
+def test_graph_state_circuit_rejects_invalid_edge():
+    with pytest.raises(ValueError):
+        graph_state_circuit(3, [(0, 3)])  # qubit 3 doesn't exist
+    with pytest.raises(ValueError):
+        graph_state_circuit(3, [(1, 1)])  # self-loop
+
+
+def _analytic_dicke_statevector(n_qubits, k):
+    from math import comb
+
+    dim = 2 ** n_qubits
+    sv = np.zeros(dim, dtype=complex)
+    if comb(n_qubits, k) == 0:
+        return sv
+    norm = 1.0 / math.sqrt(comb(n_qubits, k))
+    for x in range(dim):
+        bits = [(x >> i) & 1 for i in range(n_qubits)]  # Qiskit little-endian: bit i = qubit i
+        if sum(bits) == k:
+            sv[x] = norm
+    return sv
+
+
+@pytest.mark.parametrize("n_qubits", [2, 3, 4, 5, 6])
+def test_dicke_state_circuit_matches_analytic_amplitudes_for_every_k(n_qubits):
+    for k in range(n_qubits + 1):
+        qc = dicke_state_circuit(n_qubits, k)
+        sv = Statevector.from_instruction(qc).data
+        analytic = _analytic_dicke_statevector(n_qubits, k)
+        assert np.allclose(np.abs(sv), np.abs(analytic), atol=1e-9)
+
+
+@pytest.mark.parametrize("n_qubits", [2, 3, 4, 5, 6])
+def test_dicke_qg_z_profile_matches_circuit_for_every_k(n_qubits):
+    for k in range(n_qubits + 1):
+        qc = dicke_state_circuit(n_qubits, k)
+        numeric = qg_z_profile_of_circuit(qc, n_qubits)
+        assert np.allclose(numeric, dicke_qg_z_profile(n_qubits, k), atol=1e-9)
+
+
+@pytest.mark.parametrize("n_qubits", [2, 3, 4, 5])
+def test_dicke_k1_matches_w_circuit_up_to_global_phase(n_qubits):
+    sv_dicke = Statevector.from_instruction(dicke_state_circuit(n_qubits, 1)).data
+    sv_w = Statevector.from_instruction(w_circuit(n_qubits)).data
+    phase = None
+    for a, b in zip(sv_w, sv_dicke):
+        if abs(a) > 1e-9:
+            phase = b / a
+            break
+    assert phase is not None
+    assert np.allclose(sv_dicke, sv_w * phase, atol=1e-9)
+
+
+def test_dicke_state_circuit_k_equals_zero_and_n():
+    n_qubits = 4
+    sv_zero = Statevector.from_instruction(dicke_state_circuit(n_qubits, 0)).data
+    expected_zero = np.zeros(2 ** n_qubits, dtype=complex)
+    expected_zero[0] = 1.0
+    assert np.allclose(sv_zero, expected_zero, atol=1e-9)
+
+    sv_all = Statevector.from_instruction(dicke_state_circuit(n_qubits, n_qubits)).data
+    expected_all = np.zeros(2 ** n_qubits, dtype=complex)
+    expected_all[-1] = 1.0
+    assert np.allclose(sv_all, expected_all, atol=1e-9)
+
+
+def test_dicke_state_circuit_rejects_invalid_k():
+    with pytest.raises(ValueError):
+        dicke_state_circuit(4, -1)
+    with pytest.raises(ValueError):
+        dicke_state_circuit(4, 5)
+
+
+def test_dicke_qg_z_profile_rejects_invalid_k():
+    with pytest.raises(ValueError):
+        dicke_qg_z_profile(4, -1)
+    with pytest.raises(ValueError):
+        dicke_qg_z_profile(4, 5)
 
 
 if __name__ == "__main__":
