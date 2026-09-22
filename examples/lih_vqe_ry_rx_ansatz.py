@@ -341,3 +341,4 @@ if __name__ == "__main__":
                 f"error = {abs(final - ANSATZ_OPTIMUM):.2e}  steps = {steps_str}"
             )
         print()
+Commit con mensaje "Fix upload: replace corrupted content" → Commit changes.
