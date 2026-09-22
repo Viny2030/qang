@@ -268,4 +268,4 @@ if __name__ == "__main__":
     energies = run_vqe_lih("theta_pole_damped", theta0, lr=4.0, steps=300)
     assert energies[-1] == pytest.approx(ANSATZ_OPTIMUM, abs=1e-6)
     print("Smoke check passed.")
-Commit con mensaje "Add tests for LiH VQE mixed Ry/Rx ansatz" → Commit new file
+
