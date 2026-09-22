@@ -3,9 +3,10 @@ import math
 import numpy as np
 import pytest
 
-from qang.core import Qang
+from qang.core import Qang, qg_s_from_qg_z
 from qang.multiqubit import (
     bell_state,
+    ghz_state,
     joint_qg_s,
     joint_qg_s_from_counts,
     marginal_qg_s,
@@ -13,6 +14,7 @@ from qang.multiqubit import (
     partial_trace,
     per_qubit_qg_z,
     product_state,
+    qg_correlation,
     shannon_entropy_miller_madow_bits,
     shannon_entropy_plugin_bits,
 )
@@ -210,3 +212,75 @@ def test_joint_qg_s_from_counts_converges_to_exact_joint_qg_s_at_large_shot_coun
 def test_joint_qg_s_from_counts_rejects_unknown_bias_correction():
     with pytest.raises(ValueError):
         joint_qg_s_from_counts({"00": 5, "11": 5}, n_qubits=2, bias_correction="bogus")
+
+
+# --------------------------------------------------------------------- #
+# the direct qg_Z <-> qg_S identity, applied per-qubit (see qang.core's
+# docstring and this module's "qg-native correlation" section), and
+# qg_correlation, the always-non-negative gap it leaves open at the joint
+# (whole-register) level.
+# --------------------------------------------------------------------- #
+def test_per_qubit_qg_z_and_marginal_qg_s_satisfy_the_exact_identity_on_random_haar_states():
+    """marginal_qg_s[i] must equal qg_s_from_qg_z(per_qubit_qg_z[i]) exactly
+    for every qubit of every state -- not just the canonical product/Bell
+    examples above -- since both are computed from the very same
+    partial-traced single-qubit diagonal. Checked against random Haar-random
+    pure states (which reduce to genuinely MIXED single-qubit marginals
+    whenever the qubits are entangled), not just hand-picked examples."""
+    rng = np.random.default_rng(0)
+    n_qubits = 3
+    dim = 2 ** n_qubits
+    for _ in range(20):
+        vec = rng.normal(size=dim) + 1j * rng.normal(size=dim)
+        vec = vec / np.linalg.norm(vec)
+        qz = per_qubit_qg_z(vec, n_qubits)
+        qs = marginal_qg_s(vec, n_qubits)
+        for i in range(n_qubits):
+            assert qs[i] == pytest.approx(qg_s_from_qg_z(qz[i]), abs=1e-9)
+
+
+def test_ghz_state_matches_bell_state_at_n_equals_2():
+    assert np.allclose(ghz_state(2), bell_state("phi_plus"))
+
+
+def test_ghz_state_rejects_non_positive_n_qubits():
+    with pytest.raises(ValueError):
+        ghz_state(0)
+
+
+@pytest.mark.parametrize("n_qubits", [1, 2, 3, 4, 5])
+def test_ghz_state_every_qubit_is_maximally_mixed(n_qubits):
+    psi = ghz_state(n_qubits)
+    profile = per_qubit_qg_z(psi, n_qubits)
+    assert profile == pytest.approx([0.0] * n_qubits, abs=1e-9)
+
+
+def test_qg_correlation_is_zero_for_product_states():
+    """No correlation between independent qubits: the per-qubit qg_S
+    budget exactly accounts for the joint qg_S, with nothing left over."""
+    psi0 = _single_qubit_statevector(0.0)
+    psi1 = _single_qubit_statevector(PI / 3)
+    rho = product_state([psi0, psi1])
+    assert qg_correlation(rho, n_qubits=2) == pytest.approx(0.0, abs=1e-9)
+
+
+@pytest.mark.parametrize("n_qubits", [1, 2, 3, 4, 5, 6])
+def test_qg_correlation_of_ghz_state_matches_closed_form(n_qubits):
+    """Every qubit of an n-qubit GHZ state is individually maximally mixed
+    (1 bit of marginal qg_S each, n bits total), while the joint outcome
+    distribution carries only 1 bit (two equally likely outcomes) --
+    leaving a gap of exactly n_qubits - 1 bits, for every n."""
+    psi = ghz_state(n_qubits)
+    assert qg_correlation(psi, n_qubits) == pytest.approx(float(n_qubits - 1), abs=1e-9)
+
+
+def test_qg_correlation_is_never_negative_on_random_haar_states():
+    """Subadditivity of Shannon entropy: this must hold for ANY state, not
+    just the hand-picked product/GHZ examples above."""
+    rng = np.random.default_rng(1)
+    n_qubits = 3
+    dim = 2 ** n_qubits
+    for _ in range(30):
+        vec = rng.normal(size=dim) + 1j * rng.normal(size=dim)
+        vec = vec / np.linalg.norm(vec)
+        assert qg_correlation(vec, n_qubits) >= -1e-9
