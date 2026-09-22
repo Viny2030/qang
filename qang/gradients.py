@@ -79,6 +79,36 @@ rates, and a small (roughly 2-5% in the aggressive-learning-rate regime of
 the statistical study) failure mode where the optimizer gets "trapped"
 oscillating near the pole it started at instead of escaping toward the
 true optimum.
+
+Generalizing to a vector of parameters
+---------------------------------------
+Everything above is stated for a single angle theta. A real ansatz has
+many independent rotation angles (for example, one Ry per qubit in a
+hardware-efficient layer), so ``multi_param_gradient_descent`` generalizes
+``run_gradient_descent`` to a vector ``theta_1, ..., theta_n``, minimizing
+the *separable* toy energy
+
+    E(theta_1, ..., theta_n) = sum_i [ h_z[i]*cos(theta_i) + h_x[i]*sin(theta_i) ]
+
+by applying the exact same per-parameter rule -- plain theta-space update,
+or ``pole_damping_factor(theta_i, eps)`` applied to that parameter's own
+partial gradient -- independently to each coordinate. Because the
+landscape is separable (no cross terms between parameters), this is
+deliberately *not* claimed as a new phenomenon: it is a direct check that
+the single-parameter mechanism above continues to hold, coordinate by
+coordinate, when many parameters are optimized at once, which is what any
+real multi-parameter ansatz needs. Concretely (see
+examples/multi_parameter_pole_damped_vqe.py for the full demonstration):
+a parameter that starts near a pole benefits from damping exactly as in
+the single-parameter case, while a parameter that starts away from a pole
+(in particular, one already at its own optimum) is left completely
+undisturbed by the damping of every other coordinate -- the per-parameter
+damping factor depends only on that parameter's own current value, never
+on any other parameter's state or gradient. Only the "theta" and
+"theta_pole_damped" spaces are generalized here; the qg-space variants are
+not, since their arccos-range trapping (documented above and in
+examples/vqe_h2_qg_vs_theta.py) is an orthogonal problem to the
+multi-parameter question addressed here.
 """
 
 from __future__ import annotations
@@ -253,3 +283,93 @@ def benchmark(
         s: run_gradient_descent(s, theta0, lr=lr, steps=steps, eps=eps, h_z=h_z, h_x=h_x)
         for s in spaces
     }
+
+
+# --------------------------------------------------------------------- #
+# Multi-parameter generalization (see this module's docstring, section
+# "Generalizing to a vector of parameters").
+# --------------------------------------------------------------------- #
+@dataclass
+class MultiGDHistory:
+    space: str
+    thetas: List[List[float]] = field(default_factory=list)  # thetas[step][param_index]
+    energy: List[float] = field(default_factory=list)  # total (summed) energy per step
+    diverged: bool = False
+
+
+def multi_param_gradient_descent(
+    space: str,
+    thetas0: List[float],
+    lr: float = 0.05,
+    steps: int = 200,
+    eps: float = 0.05,
+    h_z: List[float] = None,
+    h_x: List[float] = None,
+) -> MultiGDHistory:
+    """
+    Generalizes run_gradient_descent to a vector of independent parameters
+    theta_1, ..., theta_n, each entering its own separable term of the toy
+    VQE energy:
+
+        E(theta_1, ..., theta_n) = sum_i [ h_z[i]*cos(theta_i) + h_x[i]*sin(theta_i) ]
+
+    space : {"theta", "theta_pole_damped"} only -- the qg-space variants
+    are not generalized here (see this module's docstring).
+
+    thetas0, h_z, h_x : sequences of equal length n, one entry per
+    parameter. h_z / h_x default to the same (0.0, -1.0) per-parameter
+    default as toy_vqe_energy / toy_vqe_grad_theta when omitted.
+
+    Because the landscape is separable, each parameter's update depends
+    only on its own current value and its own (h_z[i], h_x[i]) -- there is
+    no cross-parameter coupling, so this is a direct, honest check that
+    the single-parameter mechanism (plain update, or pole-proximity
+    damping) continues to behave exactly as it does in isolation when
+    applied to many parameters side by side, not a claim of any new
+    multi-parameter effect.
+    """
+    if space not in ("theta", "theta_pole_damped"):
+        raise ValueError(
+            "multi_param_gradient_descent supports 'theta' and "
+            "'theta_pole_damped' only (see this function's docstring)."
+        )
+
+    n = len(thetas0)
+    if h_z is None:
+        h_z = [0.0] * n
+    if h_x is None:
+        h_x = [-1.0] * n
+    if len(h_z) != n or len(h_x) != n:
+        raise ValueError("thetas0, h_z, and h_x must all have the same length.")
+
+    thetas = [float(t) for t in thetas0]
+    hist = MultiGDHistory(space=space)
+
+    for _ in range(steps):
+        if space != "theta_pole_damped":
+            # Same per-parameter domain clamp as run_gradient_descent, and
+            # the same exemption for theta_pole_damped, for the same reason
+            # (see this module's docstring and run_gradient_descent above).
+            thetas = [min(max(t, 1e-9), math.pi - 1e-9) for t in thetas]
+        energy = sum(toy_vqe_energy(t, hz, hx) for t, hz, hx in zip(thetas, h_z, h_x))
+        hist.thetas.append(list(thetas))
+        hist.energy.append(energy)
+
+        if not math.isfinite(energy) or any(abs(t) > 1e6 for t in thetas):
+            hist.diverged = True
+            break
+
+        grads = [toy_vqe_grad_theta(t, hz, hx) for t, hz, hx in zip(thetas, h_z, h_x)]
+        if space == "theta":
+            thetas = [t - lr * g for t, g in zip(thetas, grads)]
+        else:
+            thetas = [
+                t - lr * pole_damping_factor(t, eps=eps) * g
+                for t, g in zip(thetas, grads)
+            ]
+
+        if any(not math.isfinite(t) for t in thetas):
+            hist.diverged = True
+            break
+
+    return hist
