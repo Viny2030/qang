@@ -24,6 +24,23 @@ single-qubit qg_Z / qg_S when n_qubits == 1:
                              every single-qubit marginal is maximally mixed
                              (qg_Z = 0) while the joint state is exactly
                              pure (von Neumann entropy 0).
+
+Finite-shot qg_S (Miller-Madow bias correction)
+-------------------------------------------------
+``joint_qg_s`` needs the full state (or density matrix), which is only
+ever available in simulation. On real hardware -- or any shot-based
+simulator -- you only ever have a finite number of measurement counts,
+and the plug-in (maximum-likelihood) Shannon entropy estimator built
+directly from those counts is well known to be negatively biased: it
+systematically UNDERESTIMATES the true entropy, worst when the shot
+budget N is small relative to the number of possible outcomes 2^n_qubits
+(exactly the regime that matters as a benchmarked circuit grows). See
+examples/quantum_volume_qg_s_finite_shots.py for a direct, quantitative
+measurement of that bias and of how much the Miller-Madow correction
+below closes it. ``shannon_entropy_miller_madow_bits`` and
+``joint_qg_s_from_counts`` require nothing about the true distribution --
+only the observed counts and the total shot number -- which is exactly
+the information available from a real device.
 """
 
 from __future__ import annotations
@@ -184,3 +201,82 @@ def joint_qg_s(
     if normalize and n_qubits > 1:
         h = h / n_qubits
     return float(h)
+
+
+# --------------------------------------------------------------------- #
+# finite-shot qg_S (see this module's docstring, "Finite-shot qg_S")
+# --------------------------------------------------------------------- #
+def shannon_entropy_plugin_bits(counts: Union[dict, Sequence[int]]) -> float:
+    """
+    Plug-in (maximum-likelihood) Shannon entropy estimate, in bits, from
+    observed outcome counts -- a dict mapping outcome to count, or a
+    plain sequence of per-outcome counts. Known to be negatively biased
+    at finite sample size (see shannon_entropy_miller_madow_bits for a
+    first-order correction).
+    """
+    values = list(counts.values()) if isinstance(counts, dict) else list(counts)
+    n = float(sum(values))
+    if n <= 0:
+        raise ValueError("counts must contain at least one observed shot.")
+    h = 0.0
+    for c in values:
+        if c <= 0:
+            continue
+        p = c / n
+        h -= p * np.log2(p)
+    return float(h)
+
+
+def shannon_entropy_miller_madow_bits(counts: Union[dict, Sequence[int]]) -> float:
+    """
+    Miller-Madow bias-corrected Shannon entropy estimate, in bits:
+
+        H_MM = H_plugin + (K_observed - 1) / (2 * N * ln(2))
+
+    K_observed is the number of DISTINCT outcomes actually observed in
+    this sample (never the full 2^n_qubits alphabet size -- an outcome
+    that happens not to appear contributes nothing), and N is the total
+    shot count. This is the classic first-order correction (Miller, 1955;
+    Madow, 1948) for the plug-in estimator's negative bias; it reduces,
+    but does not eliminate, that bias -- see
+    examples/quantum_volume_qg_s_finite_shots.py for a direct, quantified
+    measurement of by how much, across a range of shot budgets.
+    """
+    values = list(counts.values()) if isinstance(counts, dict) else list(counts)
+    n = float(sum(values))
+    if n <= 0:
+        raise ValueError("counts must contain at least one observed shot.")
+    k_observed = sum(1 for c in values if c > 0)
+    h_plugin = shannon_entropy_plugin_bits(counts)
+    correction = (k_observed - 1) / (2.0 * n * np.log(2.0))
+    return float(h_plugin + correction)
+
+
+def joint_qg_s_from_counts(
+    counts: Union[dict, Sequence[int]],
+    n_qubits: int,
+    normalize: bool = True,
+    bias_correction: str = "miller_madow",
+) -> float:
+    """
+    Finite-shot estimate of joint_qg_s, built directly from observed
+    measurement counts -- a dict mapping outcome to count, or a plain
+    sequence of per-outcome counts -- exactly the information available
+    from real hardware or a shot-based simulator, as opposed to
+    joint_qg_s, which needs the full state and is only ever available in
+    simulation.
+
+    bias_correction: "miller_madow" (default; see
+    shannon_entropy_miller_madow_bits) or "none" (the uncorrected
+    plug-in estimate, provided for direct comparison).
+    """
+    if bias_correction == "miller_madow":
+        h = shannon_entropy_miller_madow_bits(counts)
+    elif bias_correction == "none":
+        h = shannon_entropy_plugin_bits(counts)
+    else:
+        raise ValueError(f"bias_correction must be 'miller_madow' or 'none', got {bias_correction!r}.")
+    if normalize and n_qubits > 1:
+        h = h / n_qubits
+    return float(h)
+
