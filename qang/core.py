@@ -15,6 +15,29 @@ Section 2.2 "Domain and Invertibility" note -- so entropic-mode instances only
 support probability-level operations, plus an explicit half-domain inversion
 (:meth:`Qang.theta_from_entropic`) that formalizes exactly the restriction the
 paper calls for.
+
+The direct qg_Z <-> qg_S relationship (no theta, no branch)
+-------------------------------------------------------------
+Both qg_Z and qg_S are, by their Section 2.1/2.2 definitions, functions of
+the very same quantity: p0 = P(measure 0) = cos^2(theta/2). Eliminating
+theta (rather than going through it) gives a single closed form that is
+valid over qg_Z's *entire* domain [-1, 1] with no branch ambiguity at all,
+unlike the qg_S -> theta direction:
+
+    qg_S = H((1 + qg_Z) / 2)
+
+:func:`qg_s_from_qg_z` and :meth:`Qang.to_entropic` implement exactly this.
+Because the derivation never used Ry (or any specific preparation) -- only
+the fact that qg_Z = Tr(rho . sigma_z) and qg_S = H(p0) both depend on rho
+purely through its Z-diagonal population p0 -- this identity holds for
+*any* single-qubit state, pure or mixed, however it was prepared. The same
+identity, applied per-qubit to a reduced (partial-traced) single-qubit
+density matrix, is exactly what makes
+:func:`qang.multiqubit.per_qubit_qg_z` and
+:func:`qang.multiqubit.marginal_qg_s` two views of the same per-qubit
+information in *any* multi-qubit register -- entangled or not (see that
+module's "qg-native correlation" section for what the *joint* qg_S adds
+on top of this per-qubit identity).
 """
 
 from __future__ import annotations
@@ -32,6 +55,27 @@ def _binary_entropy(p: float) -> float:
         return 0.0
     q = 1.0 - p
     return -(p * math.log2(p) + q * math.log2(q))
+
+
+def qg_s_from_qg_z(qg_z: float) -> float:
+    """
+    The exact, branch-free relationship between qg_Z and qg_S for a single
+    qubit's Z-basis measurement statistics (see this module's docstring,
+    "The direct qg_Z <-> qg_S relationship"):
+
+        qg_S = H((1 + qg_Z) / 2)
+
+    Valid over the whole domain qg_Z in [-1, 1], with no branch choice
+    needed (this is the *forward* direction; qg_S -> qg_Z is genuinely
+    2-to-1 and needs Qang.theta_from_entropic's explicit branch instead).
+    Holds for any single-qubit state, pure or mixed, regardless of how it
+    was prepared -- see Qang.to_entropic for the Qang-instance version of
+    this same conversion.
+    """
+    if not (-1.0 <= qg_z <= 1.0):
+        raise ValueError(f"qg_Z must lie in [-1.0, 1.0], got {qg_z}.")
+    p0 = (1.0 + qg_z) / 2.0
+    return _binary_entropy(p0)
 
 
 class Qang:
@@ -187,6 +231,18 @@ class Qang:
         # report the symmetric pair rather than pretending there is one answer.
         p0 = self._invert_binary_entropy(self._value, branch="lower")
         return p0, 1.0 - p0
+
+    def to_entropic(self) -> "Qang":
+        """
+        Direct, branch-free conversion of this polar-mode qg_Z value to its
+        entropic-mode qg_S counterpart, via qg_s_from_qg_z (see this
+        module's docstring, "The direct qg_Z <-> qg_S relationship").
+        Unlike the qg_S -> qg_Z direction (theta_from_entropic), this
+        direction needs no branch choice: qg_S is a genuine (single-valued,
+        if many-to-one) function of qg_Z.
+        """
+        self._require_polar("to_entropic()")
+        return Qang(qg_s_from_qg_z(self._value), phi=0.0, mode="entropic")
 
     def to_bloch_vector(self) -> Tuple[float, float, float]:
         self._require_polar("to_bloch_vector()")
