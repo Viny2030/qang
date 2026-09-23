@@ -1,7 +1,3 @@
-bash
-
-cat /tmp/claude-0/-home-claude/0f095fba-ee27-5ef0-bc6c-bd81ba55699a/scratchpad/qang_circuits/examples/lih_vqe_ry_rx_ansatz.py
-Salida
 
 """
 LiH VQE with a genuinely mixed-axis ansatz: three Ry rotations plus one Rx
@@ -341,4 +337,4 @@ if __name__ == "__main__":
                 f"error = {abs(final - ANSATZ_OPTIMUM):.2e}  steps = {steps_str}"
             )
         print()
-Commit con mensaje "Fix upload: replace corrupted content" → Commit changes.
+
