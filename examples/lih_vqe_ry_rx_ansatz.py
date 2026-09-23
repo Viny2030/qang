@@ -12,10 +12,11 @@ The molecule and Hamiltonian
 -----------------------------
 LiH at bond length 1.5459 Angstrom, STO-3G basis, via PySCF + qiskit-nature
 (ActiveSpaceTransformer(num_electrons=2, num_spatial_orbitals=3),
-ParityMapper). This active-space reduction keeps the 2 electrons/2 spatial
-orbitals closest to the frontier (roughly, Li's 2s/2p-derived orbitals and
-H's 1s orbital) and freezes the rest, giving a 4-qubit, 52-term qubit
-Hamiltonian -- the same scale as the 4-qubit LiH problems studied in the
+ParityMapper). This active-space reduction keeps 2 electrons in the 3
+spatial orbitals closest to the frontier (roughly, Li's 2s/2p-derived
+orbitals and H's 1s orbital) and freezes the rest: 3 spatial orbitals are
+6 spin-orbitals, which the parity mapping's two-qubit reduction brings
+down to a 4-qubit, 52-term qubit Hamiltonian -- the same scale as the 4-qubit LiH problems studied in the
 early VQE hardware literature (Kandala et al. 2017; O'Malley et al. 2016).
 LIH_ELECTRONIC and NUCLEAR_REPULSION below are exactly this derivation's
 output, hard-coded the same way examples/h2_vqe_multi_parameter_ansatz.py
