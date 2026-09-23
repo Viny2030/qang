@@ -15,6 +15,11 @@ Checked:
      mid-circuit dephasing (which both rise monotonically); at full
      damping (gamma = 1.0) qg_S collapses to exactly 0, since total T1
      decay sends the circuit deterministically to the ground state.
+  4. Finding D: mean qg_Z (qang.multiqubit.mean_qg_z) separates operating
+     points that qg_S alone confuses under amplitude damping, rises
+     monotonically with gamma on the reference circuit, stays near 0
+     under dephasing, and is NOT monotonic on every circuit (the n=3,
+     seed=1 counterexample is pinned so the claim stays honest).
 """
 
 import sys
@@ -33,11 +38,12 @@ from qiskit.circuit.library import quantum_volume
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, amplitude_damping_error, depolarizing_error, phase_damping_error
 
-from qang.multiqubit import joint_qg_s
+from qang.multiqubit import joint_qg_s, mean_qg_z
 from quantum_volume_qg_s_realistic_noise import (
     _density_matrix,
     layered_noisy_density_matrix,
     readout_only_noisy_density_matrix,
+    t1_aware_profile,
 )
 
 
@@ -120,3 +126,48 @@ if __name__ == "__main__":
     rho = layered_noisy_density_matrix(qc, n_qubits, amplitude_damping_error(1.0))
     assert joint_qg_s(rho, n_qubits, normalize=True) == pytest.approx(0.0, abs=1e-9)
     print("Smoke check passed.")
+
+
+# --------------------------------------------------------------------- #
+# Finding D: mean qg_Z as the T1-aware companion to qg_S
+# --------------------------------------------------------------------- #
+def _t1_sweep(n_qubits, seed, gammas):
+    qc = quantum_volume(n_qubits, depth=n_qubits, seed=seed)
+    return [
+        t1_aware_profile(
+            layered_noisy_density_matrix(qc, n_qubits, amplitude_damping_error(g)), n_qubits
+        )
+        for g in gammas
+    ]
+
+
+def test_finding_d_pair_separates_points_qg_s_alone_confuses():
+    (s0, b0), (s4, b4) = _t1_sweep(4, 0, [0.0, 0.4])
+    assert s0 == pytest.approx(0.9193, abs=1e-4)
+    assert s4 == pytest.approx(0.9176, abs=1e-4)
+    assert abs(s0 - s4) < 0.002          # qg_S alone: nearly indistinguishable
+    assert b0 == pytest.approx(-0.0289, abs=1e-4)
+    assert b4 == pytest.approx(0.3099, abs=1e-4)
+    assert b4 - b0 > 0.3                 # mean qg_Z: clearly different
+
+
+def test_finding_d_mean_qg_z_rises_monotonically_on_reference_circuit():
+    gammas = np.linspace(0.0, 1.0, 21)
+    biases = [b for _, b in _t1_sweep(4, 0, gammas)]
+    assert np.all(np.diff(biases) > 0)
+    assert biases[-1] == pytest.approx(1.0, abs=1e-9)
+
+
+def test_finding_d_counterexample_mean_qg_z_is_not_always_monotonic():
+    gammas = np.linspace(0.0, 1.0, 21)
+    biases = [b for _, b in _t1_sweep(3, 1, gammas)]
+    assert np.diff(biases).min() < -0.01    # dips before rising
+    assert biases[-1] == pytest.approx(1.0, abs=1e-9)
+
+
+@pytest.mark.parametrize("lam", [0.1, 0.4, 0.7, 1.0])
+def test_finding_d_dephasing_keeps_mean_qg_z_near_zero(lam):
+    n_qubits = 4
+    qc = quantum_volume(n_qubits, depth=n_qubits, seed=0)
+    rho = layered_noisy_density_matrix(qc, n_qubits, phase_damping_error(lam))
+    assert abs(mean_qg_z(rho, n_qubits)) < 0.03

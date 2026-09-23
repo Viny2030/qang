@@ -4,8 +4,8 @@ import pytest
 
 qiskit = pytest.importorskip("qiskit")
 
-from qang.core import Qang
-from qang.qiskit_gate import FullRQangGate, RQangGate, append_qang
+from quang.core import Qang
+from quang.qiskit_gate import FullRQangGate, RQangGate, append_qang
 
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
