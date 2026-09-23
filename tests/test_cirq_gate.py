@@ -4,8 +4,8 @@ import pytest
 
 cirq = pytest.importorskip("cirq")
 
-from quang.core import Qang
-from quang.cirq_gate import append_qang, full_rqang_gate, rqang_gate
+from qang.core import Qang
+from qang.cirq_gate import append_qang, full_rqang_gate, rqang_gate
 
 PI = math.pi
 SHOTS = 20000
