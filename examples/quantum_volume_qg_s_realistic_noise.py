@@ -56,6 +56,21 @@ Three findings, all on the same 4-qubit, depth-4 Quantum Volume circuit
   monotonic "more noise -> higher qg_S" behavior, relied on throughout
   examples/quantum_volume_qg_s.py, is a property of the noise channel's
   fixed point (maximally mixed), not a universal property of qg_S itself.
+
+  Finding D (the practical fix for Finding C): pair qg_S with mean qg_Z
+  (qang.multiqubit.mean_qg_z), the register-averaged <sigma_z>. Unital
+  noise (depolarizing, dephasing) drives mean qg_Z towards 0; amplitude
+  damping drives it towards +1, its |00...0> fixed point. On the
+  reference circuit, gamma = 0.0 and gamma = 0.4 give almost the same
+  qg_S (0.9193 vs 0.9176) but clearly different mean qg_Z (-0.029 vs
+  +0.310), so the pair (qg_S, mean qg_Z) separates operating points qg_S
+  alone confuses. mean qg_Z rises monotonically with gamma on this
+  circuit, but NOT on every circuit (n=3, seed=1 dips before rising --
+  pinned in the tests), so this is an observed regularity, not a theorem.
+
+WARNING: if T1 relaxation may be significant on your device, do not
+report qg_S alone -- always report it together with mean qg_Z (see
+t1_aware_profile below).
 """
 
 import numpy as np
@@ -63,7 +78,7 @@ from qiskit.circuit.library import quantum_volume
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, amplitude_damping_error, phase_damping_error
 
-from qang.multiqubit import joint_qg_s
+from qang.multiqubit import joint_qg_s, mean_qg_z
 
 
 def _density_matrix(qc) -> np.ndarray:
@@ -103,6 +118,14 @@ def layered_noisy_density_matrix(qc, n_qubits: int, error_1q, gate_name: str = "
     return np.asarray(result.data(0)["density_matrix"])
 
 
+def t1_aware_profile(rho: np.ndarray, n_qubits: int):
+    """(qg_S, mean qg_Z) for a density matrix: the T1-aware pair of
+    Finding D. qg_S alone cannot tell "a little noise" from "a lot of
+    amplitude damping"; mean qg_Z (near 0 for unital noise, towards +1
+    for amplitude damping) resolves that ambiguity."""
+    return joint_qg_s(rho, n_qubits, normalize=True), mean_qg_z(rho, n_qubits)
+
+
 if __name__ == "__main__":
     n_qubits = 4
     qc = quantum_volume(n_qubits, depth=n_qubits, seed=0)
@@ -129,3 +152,11 @@ if __name__ == "__main__":
         rho = layered_noisy_density_matrix(qc, n_qubits, amplitude_damping_error(gamma))
         qs = joint_qg_s(rho, n_qubits, normalize=True)
         print(f"  gamma={gamma:.2f}  qg_S={qs:.4f}")
+    print()
+
+    print("Finding D: the pair (qg_S, mean qg_Z) separates what qg_S alone confuses.")
+    for gamma in [0.0, 0.05, 0.1, 0.2, 0.4, 0.7, 1.0]:
+        rho = layered_noisy_density_matrix(qc, n_qubits, amplitude_damping_error(gamma))
+        qs, bias = t1_aware_profile(rho, n_qubits)
+        print(f"  gamma={gamma:.2f}  qg_S={qs:.4f}  mean_qg_Z={bias:+.4f}")
+
