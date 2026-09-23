@@ -28,7 +28,8 @@ pip install .
 ```bash
 pip install ".[qiskit]"   # Native Qiskit gate integration
 pip install ".[cirq]"     # Native Cirq gate integration
-pip install ".[all]"      # Everything (Qiskit, Cirq, Pytest, Matplotlib)
+pip install ".[hardware]" # IBM Quantum hardware / calibrated fake backends
+pip install ".[all]"      # Everything (Qiskit, IBM Runtime, Cirq, Pytest, Matplotlib)
 ```
 
 ## Quickstart
@@ -99,7 +100,7 @@ concrete, measured speed/cost comparisons (including one negative result, kept i
 purpose). Open it directly in Colab with the badge above.
 
 ## Testing
-The package includes an extensive test suite (116 tests) verifying analytical anchors, numerical stability, gradient regularizations, and backend fidelity:
+The package includes an extensive test suite (633 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v
@@ -113,4 +114,16 @@ Issues: Please use the [GitHub Issue Tracker](https://github.com/Viny2030/qang/i
 Contributions: See [CONTRIBUTING.md](CONTRIBUTING.md) for local development and pull request guidelines.
 
 ## Citation
-If you use qang in your research, please cite:
+If you use qang in your research, please cite the paper that defines the unit:
+
+```bibtex
+@article{monteverde2026qang,
+  title     = {The Qang (qg): A Unified Angular-Probability Unit and Metric for Parametric Quantum Circuit Design},
+  author    = {Monteverde, Vicente Humberto},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.22832150}
+}
+```
+
+and, for the software itself, the repository: <https://github.com/Viny2030/qang>.
