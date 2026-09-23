@@ -19,7 +19,7 @@ QEC (§13). Appendix A records the functional-analysis foundation
 limitation in one place.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (610 tests at the time of
+pinned by a regression test in `tests/` (633 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -27,7 +27,7 @@ writing); re-running the named script reproduces it.
 | 7 | qg_Z ↔ qg_S identity, `qg_correlation` | `qang.core`, `qang.multiqubit` | `test_core.py`, `test_multiqubit.py` |
 | 8 | Blind spots (graph states, arccos range) | `qang.circuits`, `examples/vqe_h2_qg_vs_theta.py` | `test_circuits.py`, `test_vqe_h2.py` |
 | 9 | Pole-damped gradient descent | `qang.gradients`, 5 examples | `test_gradients.py` + 5 example tests |
-| 10 | qg_S vs HOP / XEB / finite shots / T1–T2 | `examples/quantum_volume_qg_s*.py` | `test_quantum_volume_qg_s*.py` |
+| 10 | qg_S vs HOP / XEB / finite shots / T1–T2, `mean_qg_z`, device-calibrated run | `examples/quantum_volume_qg_s*.py`, `examples/nisq_hardware_validation.py` | `test_quantum_volume_qg_s*.py`, `test_nisq_hardware_validation.py` |
 | 11 | RB and ZNE | `examples/randomized_benchmarking_qg_z.py`, `examples/zne_qg_vs_theta_space.py` | matching tests |
 | 12 | Barren plateaus | `qang.ansatze`, `examples/barren_plateaus_qg_vs_theta.py` | `test_barren_plateaus_qg_vs_theta.py` |
 | 13 | qg_Phi, QPE, QEC, algorithms | `qang.phase`, `qang.qec`, `qang.algorithms` | `test_phase.py`, `test_qec*.py`, `test_algorithms.py`, `test_quantum_phase_estimation_qg_phi.py` |
@@ -526,9 +526,65 @@ ideal `qg_S = 0.9193`.
 property of noise channels whose fixed point is maximally mixed. It is
 not a property of qg_S. At γ = 0.4 the register gives almost the ideal
 value (0.918 vs 0.919) while being badly damaged. qg_S alone therefore
-cannot certify a T1-dominated device. It should be paired with a quantity
-that separates the two regimes, such as the population of `|0…0>` or the
-purity.
+cannot certify a T1-dominated device.
+
+* **Finding D — the fix: pair qg_S with the register's mean qg_Z.**
+  `qang.multiqubit.mean_qg_z`, the average of every qubit's own qg_Z,
+  measures the relaxation bias. Unital noise pulls it towards 0, and T1
+  pulls it towards +1, the value at the fixed point of amplitude damping.
+  At γ = 0 and γ = 0.4 the pair is (0.9193, -0.029) vs (0.9176, +0.310),
+  so qg_S alone confuses the two operating points and the pair does not.
+  Under mid-circuit dephasing, mean qg_Z stays within 0.03 of 0.
+  Along a 21-point γ grid it rises monotonically in **23 of 24** QV
+  circuits (n = 3, 4, 5; seeds 0–7). The exception (n = 3, seed 1) dips by
+  about 0.015 before rising, and that counterexample is pinned in the
+  tests. Monotonicity is therefore a strong empirical regularity, not a
+  theorem.
+
+  The population of `|0…0>` was also considered. It was monotone less
+  often (22 of 24). Purity was rejected because it is non-monotone under
+  T1 as well and cannot be estimated from Z-basis counts. mean qg_Z has two
+  further advantages: it needs only counts (`mean_qg_z_from_counts`), and
+  because it is linear in ρ its estimator is exactly unbiased at any shot
+  count (Appendix A).
+
+### 10.5 Device-calibrated validation (`examples/nisq_hardware_validation.py`)
+
+The same QV circuit is run through Qiskit Runtime's `SamplerV2` on the
+`fake_brisbane` backend. That backend is a local Aer simulation using a
+real IBM Eagle device's published calibration data: per-qubit T1/T2,
+gate and readout errors, and the device's native gates and coupling
+map. An idle delay before readout serves as a controlled T1 knob. The
+qubits are chosen by `choose_layout`: a connected line with valid
+calibration data (T2 ≤ 2·T1) whose worst T1 is maximal. 4,000 shots,
+seed 42:
+
+| delay | qg_S | mean qg_Z | HOP | linear XEB |
+|---|---|---|---|---|
+| ideal | 0.9193 | -0.0289 | 0.7722 | +0.3662 |
+| 0 µs | 0.9684 | -0.0361 | 0.6852 | +0.2447 |
+| 25 µs | 0.9732 | +0.0209 | 0.6625 | +0.2270 |
+| 50 µs | 0.9774 | +0.0690 | 0.6282 | +0.1774 |
+| 100 µs | 0.9634 | +0.1863 | 0.5575 | +0.0911 |
+| 200 µs | **0.8915** | +0.3702 | 0.4483 | -0.0325 |
+
+HOP and XEB fall at every step, and mean qg_Z rises at every step. qg_S
+rises and then falls. At 200 µs it is **below the noiseless value**, so
+qg_S alone would rank the most broken operating point as the least noisy.
+Findings C and D thus survive the move from one idealized channel to
+full device-level noise (all channels at once, per-qubit rates, a
+transpiled circuit). Seeds 1 and 7 give the same pattern.
+
+The same script evaluates the LiH ansatz (§9.4) with `EstimatorV2` and no
+error mitigation. The raw error is +0.036 Ha at the HF point and +0.035 Ha
+at the ansatz optimum (standard error ≈ 0.010 Ha). That is about 20× chemical
+accuracy and about 150× the 0.23 mHa the optimizer is trying to resolve.
+Without mitigation, a device at this noise level cannot see the
+correlation energy that the noiseless pole-damped optimizer recovers.
+
+With `--mode ibm` the same script runs unchanged on a real device through
+`QiskitRuntimeService`. That run needs an IBM Quantum account and has not
+been done yet.
 
 ## 11. Randomized benchmarking and ZNE in qg units
 
@@ -603,8 +659,10 @@ Stated together so the paper can cite them in one place:
    `qg_correlation`.
 4. **`qg_correlation` is not an entanglement measure** (§7.2). It is
    positive for classical mixtures and zero for graph states.
-5. **qg_S is not monotonic under T1** (§10.4 C). It cannot certify a
-   device dominated by amplitude damping on its own.
+5. **qg_S is not monotonic under T1** (§10.4 C, §10.5). It cannot
+   certify a device dominated by amplitude damping on its own. Pair it
+   with `mean_qg_z` (§10.4 D). That pair is monotone in 23/24 circuits
+   tested, not in all of them.
 6. **Finite-shot bias** of qg_S (§10.2). Use Miller–Madow. XEB does not
    have this problem.
 7. **Pole damping** costs 3–20× more iterations at a safe lr when optimal
@@ -615,12 +673,12 @@ Stated together so the paper can cite them in one place:
 
 ## Suggested next steps
 
-* **Hardware validation.** Run the §10.4 T1/T2 study and the §9 LiH VQE on
-  a real NISQ backend, or at least on a noise model taken from a real
-  device's calibration data.
-* **A T1-robust companion to qg_S** (§10.4 C). Pair qg_S with the
-  `|0…0>` population or the purity, and add tests showing the pair is
-  monotone where qg_S alone is not.
+* **Real-device run.** Run `examples/nisq_hardware_validation.py
+  --mode ibm` and compare with §10.5. Everything except the account is in
+  place.
+* **Mitigated LiH on hardware.** Add readout correction and ZNE (§11.2)
+  to the §10.5 energy evaluation. Then run the pole-damped optimizer
+  itself with shot-based parameter-shift gradients.
 * **Multi-qubit error propagation.** Extend §5 to the mixed-state and
   multi-qubit settings of §3–4, where the Jacobian is no longer the scalar
   `-1/sin θ`.

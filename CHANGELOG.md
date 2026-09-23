@@ -17,8 +17,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   vs HOP / linear XEB / finite shots / T1-T2 gate-level noise, randomized
   benchmarking, ZNE, barren plateaus, QPE.
 
+- `qang.multiqubit.mean_qg_z` / `mean_qg_z_from_counts`: the register's
+  relaxation bias, a T1-aware companion to qg_S (Finding D in
+  `examples/quantum_volume_qg_s_realistic_noise.py`).
+- `examples/nisq_hardware_validation.py`: qg_S / mean qg_Z / HOP / XEB under
+  an idle-delay T1 sweep and raw LiH energies, via Qiskit Runtime on a
+  calibration-based fake backend (default) or a real IBM device
+  (`--mode ibm`). New `[hardware]` extra (`qiskit-ibm-runtime`), also in
+  `[all]`.
+- `manuscript/`: arXiv-style preprint draft (`main.tex`, figure script).
+
+### Fixed
+- Leftover `quang` names in module docstrings, user-facing ImportError
+  messages and the reference notebook (including its repository link).
+- `README.md`: the Citation section was cut off; test count was stale (116).
+- `qang/__init__.py` docstring listed only 5 of the 14 modules.
+- Docstring numbers that no longer matched the scripts' output
+  (pole-trapping rate, finite-shot bias growth, H2 behaviour at lr=5).
+- Unused imports in `qang.algorithms`, `qang.mixed` and three examples.
+- `examples/quantum_volume_qg_s.py` now warns that qg_S is not monotonic
+  under amplitude damping.
+
 ### Documentation
-- `paper.md` updated to the current module set, test count (610) and
+- `paper.md` updated to the current module set, test count (633) and
   findings; package name corrected from `quang` to `qang`; references added.
 - `RESEARCH_NOTES.md` Part II (§7–§14) and Appendix A (Riesz–Fréchet).
 - Fixed the active-space description in `examples/lih_vqe_ry_rx_ansatz.py`
