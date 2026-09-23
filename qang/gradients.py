@@ -1,5 +1,5 @@
 """
-quang.gradients — the coordinate-singularity limitation from Section 4.1 of
+qang.gradients — the coordinate-singularity limitation from Section 4.1 of
 the paper, a regularized alternative, and a toy VQE benchmark comparing
 optimizer convergence in theta-space vs raw qg-space vs regularized qg-space.
 
@@ -75,8 +75,8 @@ gradient descent frequently overshoots and diverges, while
 statistical study over random one-qubit cost landscapes and, deterministically,
 on the real H2 molecular Hamiltonian. This comes with two honestly-measured
 costs, not hidden: the extra iterations already mentioned at safe learning
-rates, and a small (roughly 2-5% in the aggressive-learning-rate regime of
-the statistical study) failure mode where the optimizer gets "trapped"
+rates, and a small failure mode (2-4% for learning rates 2-5 in the
+statistical study, rising to 6.7% at lr=10) where the optimizer gets "trapped"
 oscillating near the pole it started at instead of escaping toward the
 true optimum.
 

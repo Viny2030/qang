@@ -23,6 +23,16 @@ This package covers, in order:
   - qang.qiskit_gate  qg as a native single-qubit gate for Qiskit
                        (Future Research Direction #1). Optional: only
                        importable if qiskit is installed.
+  - qang.cirq_gate    the same for Cirq (optional: needs cirq).
+  - qang.statistics   shot-noise error propagation theta <-> qg.
+  - qang.phase        the qg_Phi phase unit.
+  - qang.transformations  closed-form transition probabilities.
+  - qang.circuits, qang.ansatze, qang.qec, qang.algorithms
+                       Qiskit circuit builders, variational ansatze, the
+                       3-qubit bit-flip code, and textbook algorithms
+                       (optional: need qiskit).
+
+See RESEARCH_NOTES.md for the derivations and results behind each module.
 """
 
 from .core import Qang, MILLIQANG_PER_QANG

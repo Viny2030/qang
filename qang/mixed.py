@@ -1,5 +1,5 @@
 """
-quang.mixed — generalization of the qang unit to mixed states and POVMs.
+qang.mixed — generalization of the qang unit to mixed states and POVMs.
 
 This addresses the first half of Future Research Direction #4: "extend the
 binary framework to POVMs and multi-outcome measurements, to mixed states
@@ -23,13 +23,13 @@ Two generalizations are provided:
                               two-outcome Z-basis projective measurement.
 
 All functions accept plain 2x2 (or, for multi-outcome POVMs, an element
-list of 2x2) NumPy-compatible arrays, so they compose with quang.multiqubit
+list of 2x2) NumPy-compatible arrays, so they compose with qang.multiqubit
 and with Qiskit density matrices without any conversion layer.
 """
 
 from __future__ import annotations
 
-from typing import List, Sequence, Tuple
+from typing import List, Sequence
 
 import numpy as np
 
@@ -80,7 +80,7 @@ def qg_z_density(rho: np.ndarray) -> float:
 
     For a pure state rho = |psi><psi| with |psi> = cos(theta/2)|0> +
     e^{i*phi} sin(theta/2)|1>, this reduces exactly to cos(theta), matching
-    quang.core.Qang.from_angles(theta, mode="polar").value.
+    qang.core.Qang.from_angles(theta, mode="polar").value.
     """
     rho = np.asarray(rho, dtype=complex)
     if rho.shape != (2, 2):
@@ -153,7 +153,7 @@ def qg_s_povm(rho: np.ndarray, povm: Sequence[np.ndarray], normalize: bool = Tru
     """
     Generalized entropic qang: the Shannon entropy of an n-outcome POVM
     measurement on rho. With ``povm=standard_z_povm()`` and a pure-state rho,
-    this reduces exactly to qg_S(theta) from quang.core.
+    this reduces exactly to qg_S(theta) from qang.core.
 
     normalize=True divides by log2(n_outcomes) so the result stays in
     [0, 1] regardless of how many outcomes the POVM has, matching qg_S's

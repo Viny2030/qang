@@ -1,7 +1,7 @@
 """
-quang.core — The qang (qg) unit, exactly as defined in Sections 2.1 and 2.2 of
+qang.core — The qang (qg) unit, exactly as defined in Sections 2.1 and 2.2 of
 the paper, plus the full (theta, phi) Bloch-sphere representation consolidated
-from the author's exploratory notebook ("quang 1.ipynb").
+from the author's exploratory notebook ("quang 1.ipynb", the original Colab).
 
 Two operational definitions coexist on the same class, selected by ``mode``:
 
