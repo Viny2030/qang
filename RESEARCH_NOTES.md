@@ -8,6 +8,30 @@ covered: gradient regularization (§1), error-propagation bounds (§5),
 mixed states / POVMs (§3), multi-qubit generalization (§4), and native-SDK
 integration for both Qiskit and Cirq (§6).
 
+Part II (§7–§13) goes beyond the original roadmap: new exact identities
+(§7), the structural blind spots of Z-basis metrics (§8), a pole-damped
+optimizer validated on H2 and LiH (§9), qg_S as a benchmarking signal
+compared against Heavy Output Probability, linear XEB and realistic T1/T2
+noise (§10), qg_Z reformulations of randomized benchmarking and
+zero-noise extrapolation (§11), barren plateaus (§12), and qg_Phi / QPE /
+QEC (§13). Appendix A records the functional-analysis foundation
+(Riesz–Fréchet) for the paper's conceptual section. §14 lists every known
+limitation in one place.
+
+Every number quoted below is produced by a script in `examples/` and is
+pinned by a regression test in `tests/` (610 tests at the time of
+writing); re-running the named script reproduces it.
+
+| § | Topic | Code | Tests |
+|---|---|---|---|
+| 7 | qg_Z ↔ qg_S identity, `qg_correlation` | `qang.core`, `qang.multiqubit` | `test_core.py`, `test_multiqubit.py` |
+| 8 | Blind spots (graph states, arccos range) | `qang.circuits`, `examples/vqe_h2_qg_vs_theta.py` | `test_circuits.py`, `test_vqe_h2.py` |
+| 9 | Pole-damped gradient descent | `qang.gradients`, 5 examples | `test_gradients.py` + 5 example tests |
+| 10 | qg_S vs HOP / XEB / finite shots / T1–T2 | `examples/quantum_volume_qg_s*.py` | `test_quantum_volume_qg_s*.py` |
+| 11 | RB and ZNE | `examples/randomized_benchmarking_qg_z.py`, `examples/zne_qg_vs_theta_space.py` | matching tests |
+| 12 | Barren plateaus | `qang.ansatze`, `examples/barren_plateaus_qg_vs_theta.py` | `test_barren_plateaus_qg_vs_theta.py` |
+| 13 | qg_Phi, QPE, QEC, algorithms | `qang.phase`, `qang.qec`, `qang.algorithms` | `test_phase.py`, `test_qec*.py`, `test_algorithms.py`, `test_quantum_phase_estimation_qg_phi.py` |
+
 ## 1. Regularizing the Section 4.1 gradient singularity
 
 The paper defines the qg-space gradient as
@@ -27,7 +51,7 @@ alternatives to the exact inverse Jacobian `-1/sin(theta)`:
   saturating at `1/eps`) — it *suppresses* the update at a pole instead of
   clamping it to a large-but-finite value.
 
-Both are implemented in `quang.gradients` alongside the exact
+Both are implemented in `qang.gradients` alongside the exact
 `inverse_jacobian_raw`, and `tests/test_gradients.py` checks that (a) the
 raw version is genuinely unbounded near the poles (`>1000` at `theta =
 0.001`, matching the paper's own worked example), and (b) both
@@ -90,7 +114,7 @@ inverse on each half exactly this way (bisection on the monotonic branch of
 `H`, then closed-form `theta = 2*arccos(sqrt(p0))`), and
 `tests/test_core.py` round-trips both branches to `1e-4` rad.
 
-## 3. Mixed states and POVMs (`quang.mixed`)
+## 3. Mixed states and POVMs (`qang.mixed`)
 
 `qg_Z = <sigma_z>` generalizes to any state, pure or mixed, as
 `Tr(rho @ sigma_z)` — `qg_z_density` reduces exactly to `qg_Z(theta)` for
@@ -115,7 +139,7 @@ standard_z_povm())` reduces exactly to `qg_S(theta)` (tested for every
 Table-2 anchor angle); `trine_povm()` is included as a worked 3-outcome
 example.
 
-## 4. Multi-qubit tensor-product profiles (`quang.multiqubit`)
+## 4. Multi-qubit tensor-product profiles (`qang.multiqubit`)
 
 Two complementary generalizations, both reducing exactly to the
 single-qubit definitions at `n_qubits = 1` (tested):
@@ -140,7 +164,7 @@ it is the standard textbook entanglement witness; `marginal_von_neumann_entropy`
 is the piece of this package that can detect it, while `per_qubit_qg_z`
 alone cannot.
 
-## 5. Error propagation between probability-space and theta/qg-space (`quang.statistics`)
+## 5. Error propagation between probability-space and theta/qg-space (`qang.statistics`)
 
 This is the other half of Future Research Direction #2 (the half not
 covered by §2 above, which handled the *domain of invertibility*; this
@@ -187,7 +211,7 @@ the minority outcome is itself well approximated by a Gaussian (rule of
 thumb: `N * min(p0, p1) >> 1`). Very close to a pole, for fixed `N`, that
 condition fails — the minority outcome becomes a rare event, `theta_hat`
 is usually exactly the pole itself (zero error) with an occasional large
-jump when the rare outcome does appear. `quang.statistics.empirical_theta_std`
+jump when the rare outcome does appear. `qang.statistics.empirical_theta_std`
 makes this breakdown directly visible: it bootstraps `theta_hat` across many
 simulated trials on Qiskit's `AerSimulator` and reports how many of them
 landed exactly on a domain boundary (`n_at_pole_boundary`), rather than
@@ -202,11 +226,11 @@ clipped to `[0, pi]`) — e.g. "10,000 shots pins down theta to about
 `+/- 0.02` rad (95% CI), for any state that isn't extremely close to a
 computational basis state."
 
-## 6. qg as a native gate, for both Qiskit and Cirq (`quang.qiskit_gate`, `quang.cirq_gate`)
+## 6. qg as a native gate, for both Qiskit and Cirq (`qang.qiskit_gate`, `qang.cirq_gate`)
 
 Future Research Direction #1 asked for qg as a native unit/type across
-multiple SDKs. `quang.qiskit_gate` (`RQangGate`, `FullRQangGate`) was
-already there; `quang.cirq_gate` completes the Cirq side with the same two
+multiple SDKs. `qang.qiskit_gate` (`RQangGate`, `FullRQangGate`) was
+already there; `qang.cirq_gate` completes the Cirq side with the same two
 constructors:
 
 * `rqang_gate(qang)` — qg_Z-only preparation, built directly on Cirq's own
@@ -220,11 +244,424 @@ constructors:
   probabilities and via direct statevector fidelity against
   `Qang.to_statevector()`.
 
+# Part II — Results beyond the original roadmap
+
+Citation keys such as `[@cross2019]` refer to entries in `paper.bib`.
+
+## 7. Exact identities: qg_Z ↔ qg_S, and `qg_correlation`
+
+### 7.1 The branch-free qg_Z ↔ qg_S identity (`qang.core.qg_s_from_qg_z`)
+
+Both metrics are functions of one quantity, the Z-basis population
+`p0 = P(0) = cos^2(theta/2)`: `qg_Z = 2*p0 - 1` and `qg_S = H(p0)`.
+Eliminating `p0` gives
+
+```
+qg_S = H((1 + qg_Z) / 2)            valid on all of qg_Z in [-1, 1]
+```
+
+§2 needed two branches to invert `qg_S -> theta`. This direction needs
+none: it is a single-valued function of `qg_Z`. The derivation uses only
+`qg_Z = Tr(rho sigma_z)` and `qg_S = H(<0|rho|0>)`, never a specific gate.
+So it holds for **every single-qubit state, pure or mixed, however it was
+prepared** (Ry, Rx, U, a noisy channel, or a partial trace of a larger
+register). Its derivative,
+
+```
+d(qg_S)/d(qg_Z) = (1/2) * log2((1 - qg_Z) / (1 + qg_Z))
+```
+
+(checked numerically by finite differences), diverges at `qg_Z = ±1`. That
+is the entropy-side counterpart of the §1 Jacobian singularity: near a
+pole, a tiny change in bias produces an unboundedly large relative change
+in entropy.
+
+Consequence for multi-qubit registers: applied to each reduced
+single-qubit density matrix, the identity makes `per_qubit_qg_z` and
+`marginal_qg_s` two encodings of the **same** per-qubit information.
+`tests/test_multiqubit.py` checks this on random Haar states, not only on
+Bell/GHZ/product states.
+
+### 7.2 `qg_correlation`: the Z-basis total correlation
+
+Since the per-qubit profile carries no information beyond `qg_Z`, anything
+new must come from the joint distribution. Define
+
+```
+qg_correlation(state) = sum_i H(X_i) - H(X_1, ..., X_n)
+                      = sum_i marginal_qg_s[i] - joint_qg_s(normalize=False)
+```
+
+where `X_i` is qubit i's Z-basis outcome. This is Watanabe's *total
+correlation* [@watanabe1960] of the measurement outcomes. For n = 2 it is
+exactly the classical mutual information `I(X_1; X_2)`. Properties
+(proved by subadditivity of Shannon entropy; checked in the test suite):
+
+* `0 <= qg_correlation <= n - 1` bits, and it is 0 **iff** the Z-basis
+  outcomes are independent.
+* Product states: exactly 0.
+* Bell: 1 bit. GHZ_n: exactly `n - 1` bits (attains the upper bound;
+  verified for n = 3, 4, 5).
+* Never negative on random Haar states (tested).
+
+**Scope, stated plainly.** `qg_correlation` measures *classical*
+correlation in the Z basis. It is not an entanglement measure in either
+direction:
+
+* It is **positive without entanglement**: the classical mixture
+  `(|00><00| + |11><11|)/2` has `qg_correlation = 1` bit, the same as a
+  Bell state.
+* It is **zero despite entanglement**: every graph state (e.g. the 4-qubit
+  linear cluster state) has `qg_correlation = 0`, because its outcome
+  distribution is exactly uniform (see §8.1).
+
+Combining it with `marginal_von_neumann_entropy` (§4) separates the cases
+that matter: the Bell state has both quantities positive, the classical
+mixture has correlation 1 but global von Neumann entropy 1, and the graph
+state needs a measurement outside the Z basis.
+
+## 8. Structural blind spots of Z-basis metrics
+
+These are exact results, not numerical accidents. They belong in the paper
+next to the Section 4.1 singularity, as limits of what the unit can detect.
+
+### 8.1 Graph states are invisible (`qang.circuits`)
+
+A graph state is `H^{⊗n}` followed by CZ gates on the graph's edges. `H^{⊗n}`
+makes every `|amplitude|^2` equal to `2^-n`. CZ is diagonal, so it only
+changes phases. Therefore, **for every graph**:
+`qg_Z = 0` on every qubit, `joint_qg_s = 1` (maximal), and
+`qg_correlation = 0`. All of the entanglement (certified independently in
+`tests/test_circuits.py` through the stabilizers `X_i prod_{j∈N(i)} Z_j = +1`)
+lives in phases that no Z-diagonal statistic can see. Readout-only
+dephasing (§10.4, Finding A) is the same blind spot, showing up for a
+class of noise instead of a class of states.
+
+### 8.2 The arccos range trap (`examples/vqe_h2_qg_vs_theta.py`)
+
+Every qg-space update goes through `theta = arccos(qg)`, which only
+returns values in `[0, pi]`. On the H2 Hamiltonian (0.735 Å, STO-3G, 2-qubit
+parity mapping, independently derived with PySCF [@sun2018pyscf]), the
+optimum lies at `theta ≈ -0.22`, in the half that arccos cannot reach.
+Starting from Hartree-Fock (lr = 0.3):
+
+| space | final E (Ha) | error vs FCI | steps to chem. accuracy |
+|---|---|---|---|
+| theta | -1.1373060348 | 9.1e-10 | 5 |
+| qg raw / clipped / Tikhonov | -1.1169989956 (= HF) | 2.0e-2 | never |
+| theta_pole_damped | -1.1373060348 | 9.1e-10 | 61 |
+
+All three qg-space variants stop exactly at the Hartree-Fock energy and
+recover **zero** correlation energy. This is a hard limit of the range,
+separate from the Jacobian singularity, and regularization cannot fix it.
+It motivates keeping updates in theta-space (§9).
+
+## 9. Pole-damped gradient descent (`theta_pole_damped`)
+
+### 9.1 Definition and honest framing
+
+```
+pole_damping_factor(theta, eps) = max(|sin(theta)|, eps)      in (0, 1]
+theta_new = theta - lr * pole_damping_factor(theta, eps) * dE/d(theta)
+```
+
+The update stays in theta-space, so the §8.2 trap cannot occur, and the
+step shrinks near the poles. This is a position-dependent trust-region
+damping in the tradition of Levenberg–Marquardt
+[@levenberg1944; @marquardt1963]. **It is not a new optimizer class.**
+The framework-specific part is that the damping schedule is not tuned:
+it is `|d qg_Z / d theta|`, the same pole geometry as §1. Robustness is
+insensitive to `eps` (tested). For vectors of parameters the factor is
+applied per coordinate and depends only on that coordinate's own value
+(`qang.gradients.multi_param_gradient_descent`). A parameter already
+at its optimum is therefore left untouched by damping on the others
+(`examples/multi_parameter_pole_damped_vqe.py`).
+
+### 9.2 Statistical robustness (300 random one-qubit landscapes per lr)
+
+`E = h_z cos(theta) + h_x sin(theta)`, started near a pole
+(`examples/pole_damped_gradient_descent_robustness.py`):
+
+| lr | plain success | damped success | damped trapped |
+|---|---|---|---|
+| 0.3 | 0.997 | 0.963 | 0.017 |
+| 1.0 | 0.773 | 1.000 | 0.000 |
+| 2.0 | 0.187 | 0.477 | 0.030 |
+| 3.0 | 0.087 | 0.357 | 0.023 |
+| 5.0 | 0.057 | 0.253 | 0.040 |
+| 10.0 | 0.027 | 0.130 | 0.067 |
+
+At a safe lr, damping costs a few percent. At lr = 1 it succeeds 100%
+of the time vs 77%. From lr = 2 on, it wins by 2.5–5×. The trapped rate (the optimizer oscillating at its starting pole)
+grows with lr, up to 6.7% at lr = 10. That is higher than the "2–5%"
+figure in `qang.gradients`' docstring, which covers only lr ≤ 5.
+
+### 9.3 H2 with two coupled parameters (`examples/h2_vqe_multi_parameter_ansatz.py`)
+
+Ansatz `Ry(θ0)⊗Ry(θ1)` then `CX(1→0)`. The optimum is at `θ0 = π` exactly
+(a pole) and `θ1 ≈ -0.2235`. Start: `(1.0, 1e-6)`.
+
+* **Finding A (cost).** At safe lr, damping needs ~3× more steps to reach
+  chemical accuracy (1.6 mHa): 603 vs 196 at lr = 0.05, 29 vs 9 at lr = 1.0.
+  The reason is that `θ0`'s own target is a pole, and the step keeps
+  shrinking as it gets there.
+* **Finding B (benefit).** At lr = 2.5, 3.0 and 4.0, plain gradient descent
+  never reaches chemical accuracy (final errors 0.048, 0.43 and 0.93 Ha).
+  The damped optimizer reaches the FCI energy (error 9e-10) in 10, 8 and 6
+  steps. At lr = 5.0, plain gradient descent touches chemical accuracy
+  once (step 90) and then leaves it, ending 0.45 Ha away. Damped
+  converges in 5 steps.
+
+(A start near `θ0 = 0` was rejected on purpose: the landscape has a
+spurious stationary point at `(0, -π/2)` where both partial derivatives
+vanish. That is a bad local minimum, not a pole effect, and damping is
+not designed to fix it.)
+
+### 9.4 LiH with a mixed Ry/Rx ansatz (`examples/lih_vqe_ry_rx_ansatz.py`)
+
+**Hamiltonian.** LiH at 1.5459 Å, STO-3G, active space (2 electrons, 3
+spatial orbitals), ParityMapper, giving 4 qubits and 52 Pauli terms. This
+is the scale of early hardware VQE work [@omalley2016; @kandala2017]. The
+coefficients were derived once with PySCF + qiskit-nature and hard-coded,
+so neither library is a runtime or test dependency.
+
+**Ansatz.** `Ry(θ0), Ry(θ1)` on the two occupied spin-orbitals, `Ry(θ2),
+Rx(θ3)` on the two virtual ones, then `CX(2→0), CX(3→1)`. At `(π, π, 0, 0)`
+the statevector overlap with qiskit-nature's official `HartreeFock`
+circuit is 1.0 to machine precision, and the energy equals
+`HF = -0.0437813056 Ha` (electronic energy of the active space).
+
+| energy (active space) | Ha |
+|---|---|
+| Hartree-Fock | -0.0437813056 |
+| best attainable with this ansatz | -0.0440152421 |
+| exact (FCI) | -0.0448309020 |
+
+The HF–FCI gap (1.05 mHa) is the genuine correlation energy, not a bug.
+It happens to be smaller than chemical accuracy, so convergence is
+measured against the ansatz's own optimum instead.
+
+**Generalization beyond Ry, settled mathematically.** From `|0>`,
+`Rx(θ)|0> = cos(θ/2)|0> - i sin(θ/2)|1>` has exactly the same populations
+as `Ry(θ)|0>`. They differ only by a relative phase. So `qg_Z(θ) = cos θ`
+and `pole_damping_factor(θ)` are the same function for both axes. The
+factor was never axis-specific, only population-specific, and needs no
+generalization. The phase is still physically real: after `CX(3→1)` it
+changes the joint state and the energy. The test suite checks both halves
+(equal single-qubit populations, different register energies).
+
+* **Finding A (cost, larger than for H2).** All four optimal parameters
+  sit at or within ~0.04 rad of a pole (`θ1* = π` and `θ3* = 0` exactly).
+  At lr = 0.3 damping needs 355 steps vs 17; at lr = 1.0, 106 vs 5 (~20×).
+* **Finding B (benefit).** For lr from 2 to 10, plain gradient descent never
+  converges (final errors 0.14–0.40 Ha). Damped always does, to
+  errors ≤ 1.1e-7, and in **fewer** steps as lr grows: 53, 42, 26, 15 and 10
+  at lr = 2, 2.5, 4, 7 and 10.
+
+**Take-away across §9.** Damping trades iterations at a well-tuned lr for
+robustness to a badly tuned one. The cost grows with the number of
+parameters whose optimum sits on a pole, which is typical of
+Hartree-Fock-referenced chemistry ansätze.
+
+## 10. qg_S as a benchmarking signal
+
+### 10.1 Versus Heavy Output Probability (`examples/quantum_volume_qg_s.py`)
+
+Across 10 random 4-qubit Quantum Volume circuits [@cross2019] × 11 levels
+of global depolarizing noise (110 points), Pearson r(HOP, qg_S) = **-0.926**.
+qg_S needs no heavy set and no ideal simulation. Caveat: the noise model
+is depolarizing on the output distribution, whose fixed point is uniform.
+§10.4 shows what happens when it is not.
+
+### 10.2 Finite shots: plug-in bias and Miller–Madow (`quantum_volume_qg_s_finite_shots.py`)
+
+The plug-in entropy estimator is biased low. The Miller–Madow correction
+[@miller1955], implemented as `joint_qg_s_from_counts`, removes most of that
+bias:
+
+| shots (4 qubits) | plug-in bias | Miller–Madow bias |
+|---|---|---|
+| 50 | -0.0535 | -0.0097 |
+| 100 | -0.0292 | -0.0055 |
+| 500 | -0.0055 | -0.0003 |
+| 1,000 | -0.0027 | ~0 |
+
+At a fixed 1,000 shots, the plug-in bias grows about 6× from 3 to 6 qubits
+(-0.0012 → -0.0075). Miller–Madow stays at or below 5e-4 in magnitude.
+
+### 10.3 Versus linear XEB (`quantum_volume_qg_s_vs_xeb.py`)
+
+* **Finding A.** Linear XEB [@arute2019] has noiseless value `A - 1`, where
+  `A = 2^n Σ p_ideal^2`. This equals 1 only for Porter–Thomas statistics. On
+  QV circuits `A` = 1.23, 1.37, 2.33 and 2.02 for n = 3–6. So raw XEB needs
+  a circuit-specific calibration. qg_S does not.
+* **Finding B.** Linear XEB is **unbiased** at any shot count (tested down
+  to 10 shots, always within 5 SE). It is a sample mean of a bounded
+  per-shot quantity. qg_S is a strictly concave functional, so its plug-in
+  estimator is biased by Jensen's inequality. Appendix A gives the
+  structural reason: XEB is linear in the outcome distribution, and
+  entropy is not.
+
+Neither metric dominates. qg_S is calibration-free; XEB is unbiased.
+
+### 10.4 Realistic gate-level noise: T1 and T2 (`quantum_volume_qg_s_realistic_noise.py`)
+
+Qiskit Aer density-matrix simulation, 4-qubit depth-4 QV circuit (seed 0),
+ideal `qg_S = 0.9193`.
+
+* **Finding A — readout-only dephasing is exactly invisible.** `qg_S` =
+  0.919303 for λ = 0, 0.3, 0.7 and 1.0. Dephasing preserves the diagonal,
+  and qg_S depends only on the diagonal.
+* **Finding B — mid-circuit dephasing is visible.** After every 2-qubit
+  block, qg_S rises monotonically: 0.9193 → 0.9615 → 0.9952 → 0.9991 →
+  0.9999 (λ = 0 → 1). Later entangling gates turn lost coherence into
+  randomized populations.
+* **Finding C — amplitude damping makes qg_S non-monotonic.** Mid-circuit
+  T1 with γ = 0, 0.05, 0.1, 0.2, 0.4, 0.7, 1.0 gives qg_S = 0.919, 0.972,
+  **0.983**, 0.974, 0.918, 0.713, **0.000**. The fixed point of amplitude
+  damping is `|0…0>`, which has zero entropy, not the maximally mixed
+  state.
+
+**Consequence for the benchmark.** "More noise → higher qg_S" is a
+property of noise channels whose fixed point is maximally mixed. It is
+not a property of qg_S. At γ = 0.4 the register gives almost the ideal
+value (0.918 vs 0.919) while being badly damaged. qg_S alone therefore
+cannot certify a T1-dominated device. It should be paired with a quantity
+that separates the two regimes, such as the population of `|0…0>` or the
+purity.
+
+## 11. Randomized benchmarking and ZNE in qg units
+
+### 11.1 RB (`examples/randomized_benchmarking_qg_z.py`)
+
+With per-gate depolarizing noise, the survival signal after m random
+single-qubit Cliffords plus the recovery gate is exactly
+
+```
+qg_Z(m) = (1 - p)^(m + 1)
+```
+
+independent of which Cliffords were drawn: across 4 seeds, identical to 10
+digits at m = 0, 5 and 10. Depolarizing noise shrinks the Bloch vector
+isotropically, and Cliffords are rotations. Fitting `log qg_Z` against
+`m + 1` recovers `f = 1 - p = 0.95` and `F_avg = (1 + f)/2 = 0.975` to
+machine precision [@magesan2011]. The general RB result is statistical
+(it comes from averaging); in this idealized case it holds exactly.
+
+### 11.2 ZNE: which space to extrapolate in (`examples/zne_qg_vs_theta_space.py`)
+
+Ground truth `θ0 = π/3`, `qg_Z = 0.5`:
+
+| noise model | ZNE in qg_Z-space | ZNE in theta-space |
+|---|---|---|
+| Bloch shrinkage (depolarizing-like) | exact (4e-16) | biased (1.4e-3) |
+| coherent angle drift (miscalibration) | biased (1.8e-3) | exact (4e-16) |
+
+Guideline: extrapolate in whichever space makes the noise linear
+[@temme2017]. The `θ ↔ qg_Z` round trip makes checking both cheap.
+
+## 12. Barren plateaus in qg-space (`examples/barren_plateaus_qg_vs_theta.py`)
+
+Hardware-efficient ansatz with a global `Z^{⊗n}` cost
+[@mcclean2018; @cerezo2021]. In theta-space, Var(∂E/∂θ) falls from 7.2e-2
+(n = 4) to 2.0e-3 (n = 10), a log-linear slope of -0.59 per qubit. After
+the clipped qg conversion, the exponential decay survives: 3.7 → 0.054.
+Regularization only rescales the variance by an O(1) factor. At a pole
+(θ[0] = 1e-4, n = 6) the single-sample gradient is -0.072 in theta and
++721 in raw qg, versus 1.44 clipped and 0.0029 Tikhonov. **The Section 4.1
+singularity and the barren plateau are independent and compound.** A
+qg-space landscape can be exponentially flat almost everywhere and
+divergent at isolated points.
+
+## 13. qg_Phi, QPE, QEC and textbook algorithms
+
+* **qg_Phi** (`qang.phase`): `qg_Phi(φ) = e^{i2πφ}`, φ ∈ [0, 1), is invertible
+  on its **whole** domain, unlike qg_Z and qg_S. QPE on the T, S and Z phase
+  gates (`examples/quantum_phase_estimation_qg_phi.py`) recovers φ =
+  1/8, 1/4, 1/2 with probability 1 once the counting register is wide
+  enough. QPE computes on a circuit what `QangPhi.from_complex` computes in
+  closed form.
+* **QEC** (`qang.qec`): in the 3-qubit bit-flip code, the syndrome ancillas
+  always end at an exact qg_Z pole (±1). Syndrome extraction is therefore
+  a qg_Z readout, and the full encode–error–correct–decode cycle has
+  fidelity 1.0 for any logical amplitude.
+* **Algorithms** (`qang.algorithms`): teleportation (in deferred-measurement
+  form, verified by exact fidelity), superdense coding (note: with this
+  gate ordering, qubit 0 decodes the Z bit and qubit 1 the X bit), and
+  Grover at the optimal iteration count.
+
+## 14. Consolidated list of known limitations
+
+Stated together so the paper can cite them in one place:
+
+1. **Jacobian singularity** at θ ∈ {0, π} (§1). Regularizing it costs
+   exactness near the poles.
+2. **arccos range trap** (§8.2). qg-space updates cannot reach θ < 0. On H2
+   they lose 100% of the correlation energy.
+3. **Z-basis blindness** (§8.1, §10.4 A). Graph-state entanglement and
+   readout dephasing are exactly invisible to qg_Z, qg_S and
+   `qg_correlation`.
+4. **`qg_correlation` is not an entanglement measure** (§7.2). It is
+   positive for classical mixtures and zero for graph states.
+5. **qg_S is not monotonic under T1** (§10.4 C). It cannot certify a
+   device dominated by amplitude damping on its own.
+6. **Finite-shot bias** of qg_S (§10.2). Use Miller–Madow. XEB does not
+   have this problem.
+7. **Pole damping** costs 3–20× more iterations at a safe lr when optimal
+   parameters sit on poles, and has a trapping rate of up to 6.7% at
+   lr = 10 (§9).
+8. **§5's `1/N` result is first-order only**. It breaks down when
+   `N·min(p0, p1)` is O(1).
+
 ## Suggested next steps
 
-* Benchmark the regularized gradients on a real multi-parameter VQE
-  Ansatz (H2 or similar) rather than the single-parameter toy loss here.
-* A PennyLane counterpart to `quang.qiskit_gate` / `quang.cirq_gate`.
-* Extend the error-propagation analysis (§5) to the mixed-state /
-  multi-qubit settings of §3–4, where the relevant Jacobian is no longer a
-  simple scalar `-1/sin(theta)`.
+* **Hardware validation.** Run the §10.4 T1/T2 study and the §9 LiH VQE on
+  a real NISQ backend, or at least on a noise model taken from a real
+  device's calibration data.
+* **A T1-robust companion to qg_S** (§10.4 C). Pair qg_S with the
+  `|0…0>` population or the purity, and add tests showing the pair is
+  monotone where qg_S alone is not.
+* **Multi-qubit error propagation.** Extend §5 to the mixed-state and
+  multi-qubit settings of §3–4, where the Jacobian is no longer the scalar
+  `-1/sin θ`.
+* **A PennyLane counterpart** to `qang.qiskit_gate` / `qang.cirq_gate`.
+
+## Appendix A. Functional-analysis foundation: Riesz–Fréchet
+
+This appendix is conceptual. It adds no new result. It records why qg_Z
+is the canonical linear readout of a quantum state, and why qg_S cannot
+be one.
+
+**Setting.** For n qubits, operators on `C^{2^n}` form a finite-dimensional
+Hilbert space under the Hilbert–Schmidt inner product
+`<A, B> = Tr(A† B)`. Density matrices live in it.
+
+**Riesz–Fréchet representation** [@riesz1907; @frechet1907]. Every
+continuous linear functional `f` on a Hilbert space `H` has the form
+`f(x) = <y_f, x>` for a unique `y_f ∈ H`. In finite dimension continuity
+is automatic, and the theorem reduces to basic linear algebra. That is why
+this is a foundation, not a result.
+
+**Application.** The map `ρ ↦ qg_Z(ρ) = Tr(ρ σ_z)` is linear in ρ, so it
+has a unique Hilbert–Schmidt representative, `σ_z` (on one qubit; on
+qubit i of a register, `σ_z^{(i)} ⊗ I`). Every linear readout of a state
+(an expectation value, a population, a per-shot average such as linear
+XEB) is of this form. qg_Z is the one whose representative is the
+Z observable.
+
+**What does not have a representative.** `qg_S(ρ) = H(<0|ρ|0>)` is
+strictly concave in ρ, not linear, so no operator represents it. This is
+the same structural fact behind:
+
+* §10.3 B: linear functionals have unbiased sample-mean estimators, and
+  entropy does not (Jensen's inequality).
+* §7.1: the identity `qg_S = H((1 + qg_Z)/2)` expresses the non-linear
+  metric as a fixed scalar function of the linear one. qg_S carries no
+  information about the state beyond what qg_Z's representative already
+  extracts.
+
+**On Riesz's lemma (1918), for the record.** The almost-orthogonal-vector
+lemma is used to show that the closed unit ball of an infinite-dimensional
+normed space is not compact. In the finite dimensions used here it is
+trivial, since an exactly orthogonal vector always exists. It plays no
+role in qang and should not be cited as if it did.
