@@ -2,12 +2,14 @@ import math
 
 import pytest
 
-from quang.gradients import (
+from qang.gradients import (
     benchmark,
     inverse_jacobian_clipped,
     inverse_jacobian_raw,
     inverse_jacobian_tikhonov,
     jacobian,
+    multi_param_gradient_descent,
+    pole_damping_factor,
     run_gradient_descent,
     toy_vqe_energy,
     toy_vqe_grad_theta,
@@ -115,8 +117,186 @@ def test_regularized_qg_space_gd_converges_from_near_pole_start(space):
     assert abs(toy_vqe_grad_theta(hist.theta[-1])) < 0.1
 
 
-def test_benchmark_runs_all_four_spaces():
+def test_benchmark_runs_all_five_spaces():
     results = benchmark(theta0=0.05, lr=0.05, steps=100)
-    assert set(results.keys()) == {"theta", "qg_raw", "qg_clipped", "qg_tikhonov"}
+    assert set(results.keys()) == {
+        "theta",
+        "qg_raw",
+        "qg_clipped",
+        "qg_tikhonov",
+        "theta_pole_damped",
+    }
     for hist in results.values():
         assert len(hist.theta) > 0
+
+
+# --------------------------------------------------------------------- #
+# theta_pole_damped: a fifth space that stays entirely in theta-space
+# (no qg round trip, so no arccos-range trapping), with a
+# Levenberg-Marquardt-style damping factor derived from the same
+# pole-proximity floor as the regularized Jacobians above.
+# --------------------------------------------------------------------- #
+def test_pole_damping_factor_is_one_away_from_poles():
+    assert pole_damping_factor(PI / 2, eps=0.05) == pytest.approx(1.0, abs=1e-9)
+
+
+@pytest.mark.parametrize("theta", [0.0, 1e-6, PI])
+def test_pole_damping_factor_floors_at_eps_near_poles(theta):
+    assert pole_damping_factor(theta, eps=0.05) == pytest.approx(0.05, abs=1e-9)
+
+
+def test_pole_damping_factor_matches_sin_between_the_floor_and_one():
+    theta = 0.3  # sin(0.3) ~= 0.2955, above the default eps=0.05 floor
+    assert pole_damping_factor(theta, eps=0.05) == pytest.approx(abs(math.sin(theta)), abs=1e-9)
+
+
+def test_theta_pole_damped_matches_plain_theta_at_a_safe_learning_rate():
+    """Away from any divergence risk, damping should cost (at most) a
+    negligible difference in the converged optimum -- it is not a
+    different optimizer, just a step-size modulator that has no effect
+    once the raw step is already safe."""
+    h_z, h_x = 1.0, -0.3
+    h_plain = run_gradient_descent("theta", theta0=0.02, lr=0.3, steps=300, h_z=h_z, h_x=h_x)
+    h_damped = run_gradient_descent(
+        "theta_pole_damped", theta0=0.02, lr=0.3, steps=300, eps=0.05, h_z=h_z, h_x=h_x
+    )
+    assert not h_plain.diverged and not h_damped.diverged
+    assert h_damped.energy[-1] == pytest.approx(h_plain.energy[-1], abs=1e-6)
+
+
+def test_theta_pole_damped_survives_an_aggressive_learning_rate_where_plain_fails():
+    """The headline finding for this space (see qang.gradients' module
+    docstring and examples/pole_damped_gradient_descent_robustness.py for
+    the full statistical study, and examples/vqe_h2_qg_vs_theta.py for the
+    same effect on a real molecule): at a badly-tuned, too-aggressive
+    learning rate, plain theta-space gradient descent overshoots and never
+    recovers the true minimum, while theta_pole_damped -- started from the
+    exact same near-pole point -- still reaches it."""
+    h_z, h_x = 1.0, -0.3
+    true_min = -math.hypot(h_z, h_x)
+    theta0 = 0.02
+
+    for lr in (2.0, 3.0, 5.0):
+        h_plain = run_gradient_descent("theta", theta0=theta0, lr=lr, steps=300, h_z=h_z, h_x=h_x)
+        h_damped = run_gradient_descent(
+            "theta_pole_damped", theta0=theta0, lr=lr, steps=300, eps=0.05, h_z=h_z, h_x=h_x
+        )
+        assert abs(h_plain.energy[-1] - true_min) > 1e-3  # plain fails to converge
+        assert h_damped.energy[-1] == pytest.approx(true_min, abs=1e-6)  # damped succeeds
+
+
+def test_theta_pole_damped_is_not_clamped_to_zero_pi_domain():
+    """theta_pole_damped deliberately opts out of the [0, pi] domain clamp
+    that the other spaces use (see run_gradient_descent's implementation):
+    that clamp is what would otherwise reproduce the qg-space variants'
+    arccos-range trapping. This checks the escape hatch is actually wired
+    up, not just documented."""
+    h_z, h_x = 1.0, -0.3
+    hist = run_gradient_descent(
+        "theta_pole_damped", theta0=0.02, lr=5.0, steps=5, eps=0.05, h_z=h_z, h_x=h_x
+    )
+    assert any(theta < 0.0 or theta > math.pi for theta in hist.theta)
+
+
+# --------------------------------------------------------------------- #
+# multi_param_gradient_descent: the vector-of-parameters generalization
+# (see qang.gradients' module docstring, "Generalizing to a vector of
+# parameters", and examples/multi_parameter_pole_damped_vqe.py for the
+# full demonstration).
+# --------------------------------------------------------------------- #
+def test_multi_param_rejects_unsupported_space():
+    with pytest.raises(ValueError):
+        multi_param_gradient_descent("qg_raw", [0.02, 0.02])
+
+
+def test_multi_param_rejects_mismatched_lengths():
+    with pytest.raises(ValueError):
+        multi_param_gradient_descent("theta", [0.02, 0.02], h_z=[1.0], h_x=[1.0, 1.0])
+
+
+@pytest.mark.parametrize("space", ["theta", "theta_pole_damped"])
+def test_multi_param_matches_independent_single_param_dynamics(space):
+    """The landscape is separable (no cross terms between parameters), so
+    running several parameters at once must give EXACTLY the same
+    trajectory, coordinate by coordinate, as calling run_gradient_descent
+    independently for each one -- this is the core honesty check for this
+    generalization: it is not claimed to do anything a single parameter
+    couldn't already do on its own."""
+    h_z_list = [1.0, 0.0, -0.5]
+    h_x_list = [-0.3, -1.0, 0.7]
+    theta0_list = [0.02, 1.5, 3.1]
+
+    multi_hist = multi_param_gradient_descent(
+        space, theta0_list, lr=0.3, steps=300, h_z=h_z_list, h_x=h_x_list
+    )
+    for i in range(3):
+        single_hist = run_gradient_descent(
+            space, theta0_list[i], lr=0.3, steps=300, h_z=h_z_list[i], h_x=h_x_list[i]
+        )
+        assert multi_hist.thetas[-1][i] == pytest.approx(single_hist.theta[-1], abs=1e-12)
+
+
+def _four_param_scenario():
+    """Two parameters start near a pole (one near theta=0, one near
+    theta=pi) and need damping to reach their true minimum at an
+    aggressive learning rate; two more start already AT their own
+    global minimum (h_z=0 puts the minimum at exactly theta=pi/2), so
+    a correctly-implemented per-parameter damping factor should leave
+    them completely undisturbed regardless of what happens to the other
+    two parameters or how aggressive the learning rate is."""
+    h_z_list = [1.0, 1.0, 0.0, 0.0]
+    h_x_list = [-0.3, -0.5, -0.05, -0.15]
+    theta0_list = [0.02, math.pi - 0.02, math.pi / 2, math.pi / 2]
+    true_mins = [-math.hypot(hz, hx) for hz, hx in zip(h_z_list, h_x_list)]
+    return h_z_list, h_x_list, theta0_list, true_mins
+
+
+@pytest.mark.parametrize("lr", [2.0, 3.0])
+def test_multi_param_pole_damped_helps_only_the_near_pole_parameters(lr):
+    h_z_list, h_x_list, theta0_list, true_mins = _four_param_scenario()
+
+    h_plain = multi_param_gradient_descent(
+        "theta", theta0_list, lr=lr, steps=300, h_z=h_z_list, h_x=h_x_list
+    )
+    h_damped = multi_param_gradient_descent(
+        "theta_pole_damped", theta0_list, lr=lr, steps=300, eps=0.05, h_z=h_z_list, h_x=h_x_list
+    )
+
+    for i in (0, 1):  # the two near-pole parameters
+        e_plain = toy_vqe_energy(h_plain.thetas[-1][i], h_z_list[i], h_x_list[i])
+        e_damped = toy_vqe_energy(h_damped.thetas[-1][i], h_z_list[i], h_x_list[i])
+        assert abs(e_plain - true_mins[i]) > 1e-3  # plain fails
+        assert e_damped == pytest.approx(true_mins[i], abs=1e-6)  # damped succeeds
+
+    for i in (2, 3):  # the two already-converged, pole-free parameters
+        assert h_plain.thetas[-1][i] == pytest.approx(theta0_list[i], abs=1e-9)
+        assert h_damped.thetas[-1][i] == pytest.approx(theta0_list[i], abs=1e-9)
+
+
+@pytest.mark.parametrize("lr", [0.3, 1.0, 2.0, 3.0, 5.0, 10.0])
+def test_multi_param_pole_free_parameters_are_undisturbed_by_others_damping(lr):
+    """A parameter's damping factor depends only on that parameter's own
+    theta -- never on any other parameter's value, gradient, or whether it
+    is being damped. This checks that directly: the two pole-free
+    parameters in the four-parameter scenario stay exactly at their own
+    optimum across the whole learning-rate range, including the most
+    aggressive ones where the near-pole parameters are struggling or being
+    rescued."""
+    h_z_list, h_x_list, theta0_list, _ = _four_param_scenario()
+    h_damped = multi_param_gradient_descent(
+        "theta_pole_damped", theta0_list, lr=lr, steps=300, eps=0.05, h_z=h_z_list, h_x=h_x_list
+    )
+    for i in (2, 3):
+        assert h_damped.thetas[-1][i] == pytest.approx(theta0_list[i], abs=1e-9)
+
+
+def test_multi_param_theta_pole_damped_is_not_clamped_to_zero_pi_domain():
+    h_z_list, h_x_list, theta0_list, _ = _four_param_scenario()
+    hist = multi_param_gradient_descent(
+        "theta_pole_damped", theta0_list, lr=5.0, steps=5, eps=0.05, h_z=h_z_list, h_x=h_x_list
+    )
+    assert any(
+        theta < 0.0 or theta > math.pi
+        for step_thetas in hist.thetas
+        for theta in step_thetas
+    )

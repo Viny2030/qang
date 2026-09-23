@@ -3,8 +3,8 @@ import math
 import numpy as np
 import pytest
 
-from quang.core import Qang
-from quang.mixed import (
+from qang.core import Qang
+from qang.mixed import (
     density_from_statevector,
     is_valid_density_matrix,
     is_valid_povm,

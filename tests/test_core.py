@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from quang.core import Qang, MILLIQANG_PER_QANG
+from qang.core import Qang, MILLIQANG_PER_QANG, qg_s_from_qg_z
 
 PI = math.pi
 
@@ -160,3 +160,52 @@ def test_equality():
     c = Qang.from_angles(1.0, phi=0.6, mode="polar")
     assert a == b
     assert a != c
+
+
+# --------------------------------------------------------------------- #
+# the direct qg_Z <-> qg_S relationship (this module's docstring, "The
+# direct qg_Z <-> qg_S relationship (no theta, no branch)")
+# --------------------------------------------------------------------- #
+@pytest.mark.parametrize("theta", [0.1, 0.5, 1.0, 2.0, 2.9])
+def test_qg_s_from_qg_z_matches_the_theta_roundtrip(theta):
+    """qg_s_from_qg_z(qg_Z(theta)) must agree exactly with computing qg_S
+    directly from theta, for every theta -- these are two routes to the
+    same number, not two different definitions."""
+    qg_z = Qang.from_angles(theta, mode="polar").value
+    direct = qg_s_from_qg_z(qg_z)
+    via_theta = Qang.from_angles(theta, mode="entropic").value
+    assert direct == pytest.approx(via_theta, abs=1e-9)
+
+
+@pytest.mark.parametrize("qg_z", [-1.0, -0.5, 0.0, 0.3, 1.0])
+def test_qg_s_from_qg_z_anchors(qg_z):
+    """qg_Z = +-1 (a computational basis state) has zero measurement
+    entropy; qg_Z = 0 (the equator) has maximal entropy."""
+    s = qg_s_from_qg_z(qg_z)
+    if abs(qg_z) == 1.0:
+        assert s == pytest.approx(0.0, abs=1e-9)
+    elif qg_z == 0.0:
+        assert s == pytest.approx(1.0, abs=1e-9)
+    else:
+        assert 0.0 < s < 1.0
+
+
+def test_qg_s_from_qg_z_rejects_out_of_range_input():
+    with pytest.raises(ValueError):
+        qg_s_from_qg_z(1.5)
+    with pytest.raises(ValueError):
+        qg_s_from_qg_z(-1.5)
+
+
+@pytest.mark.parametrize("theta", [0.1, 0.5, 1.0, 2.0, 2.9])
+def test_to_entropic_matches_qg_s_from_qg_z(theta):
+    q = Qang.from_angles(theta, mode="polar")
+    qe = q.to_entropic()
+    assert qe.mode == "entropic"
+    assert qe.value == pytest.approx(qg_s_from_qg_z(q.value), abs=1e-12)
+
+
+def test_to_entropic_requires_polar_mode():
+    q = Qang(0.5, mode="entropic")
+    with pytest.raises(NotImplementedError):
+        q.to_entropic()
