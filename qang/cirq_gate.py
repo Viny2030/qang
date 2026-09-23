@@ -1,11 +1,11 @@
 """
-quang.cirq_gate — qg as native gates for Cirq.
+qang.cirq_gate — qg as native gates for Cirq.
 
 Completes Future Research Direction #1 ("implement qg as a native unit/type
 in quantum-computing SDKs (Qiskit, Cirq, PennyLane wrappers) ...") for
-Cirq, alongside the existing Qiskit integration in quang.qiskit_gate.
+Cirq, alongside the existing Qiskit integration in qang.qiskit_gate.
 
-Two constructors, mirroring quang.qiskit_gate's RQangGate / FullRQangGate:
+Two constructors, mirroring qang.qiskit_gate's RQangGate / FullRQangGate:
 
   * ``rqang_gate(qang)``       qg_Z only -> ``cirq.ry(theta)``, Cirq's own
                                  native Y-rotation gate (no wrapper class
@@ -15,7 +15,7 @@ Two constructors, mirroring quang.qiskit_gate's RQangGate / FullRQangGate:
                                  unitary, exactly matching
                                  Qang.to_statevector().
 
-This module is optional: importing ``quang`` itself never requires Cirq.
+This module is optional: importing ``qang`` itself never requires Cirq.
 Only importing *this* module does, and it raises a clear, actionable error
 if Cirq is not installed.
 """
@@ -40,7 +40,7 @@ except ImportError:  # pragma: no cover - exercised only when cirq is absent
 def _require_cirq():
     if not _CIRQ_AVAILABLE:
         raise ImportError(
-            "quang.cirq_gate requires Cirq. Install it with `pip install cirq`."
+            "qang.cirq_gate requires Cirq. Install it with `pip install cirq`."
         )
 
 
@@ -69,7 +69,7 @@ if _CIRQ_AVAILABLE:
         i.e. it prepares exactly the state Qang.to_statevector() describes,
         starting from |0>. Built as an explicit 2x2 unitary
         (U(theta, phi, lambda=0), the same convention as Qiskit's UGate)
-        wrapped in cirq.MatrixGate, so it matches quang.qiskit_gate's
+        wrapped in cirq.MatrixGate, so it matches qang.qiskit_gate's
         FullRQangGate bit-for-bit.
         """
         qg = _as_polar_qang(qang)

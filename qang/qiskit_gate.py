@@ -1,5 +1,5 @@
 """
-quang.qiskit_gate — qg as a native single-qubit gate for Qiskit.
+qang.qiskit_gate — qg as a native single-qubit gate for Qiskit.
 
 This addresses Future Research Direction #1: "implement qg as a native
 unit/type in quantum-computing SDKs (Qiskit, Cirq, PennyLane wrappers), so
@@ -12,9 +12,9 @@ Two gates, consolidated from the author's exploratory notebook:
   * ``RQangGate``      single-parameter, qg_Z only (decomposes to RY(theta)).
   * ``FullRQangGate``  full (qg_Z, phi) Bloch-sphere gate (decomposes to the
                         native U(theta, phi, 0) gate), i.e. the qubit
-                        analogue of quang.core.Qang.to_statevector().
+                        analogue of qang.core.Qang.to_statevector().
 
-This module is optional: importing ``quang`` itself never requires Qiskit.
+This module is optional: importing ``qang`` itself never requires Qiskit.
 Only importing *this* module does, and it raises a clear, actionable error
 if Qiskit is not installed rather than failing on an obscure import line.
 """
@@ -37,7 +37,7 @@ except ImportError:  # pragma: no cover - exercised only when qiskit is absent
 def _require_qiskit():
     if not _QISKIT_AVAILABLE:
         raise ImportError(
-            "quang.qiskit_gate requires Qiskit. Install it with "
+            "qang.qiskit_gate requires Qiskit. Install it with "
             "`pip install qiskit` (and, to run circuits, `pip install qiskit-aer`)."
         )
 
@@ -68,7 +68,7 @@ if _QISKIT_AVAILABLE:
         """
         A single-qubit gate parameterized by the full (qg_Z, phi) Bloch-sphere
         Qang, i.e. it prepares exactly the state
-        quang.core.Qang.to_statevector() describes, starting from |0>.
+        qang.core.Qang.to_statevector() describes, starting from |0>.
         """
 
         def __init__(self, qang: Qang, label: str = "RQang3D"):

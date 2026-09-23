@@ -1,10 +1,10 @@
 """
-quang.statistics — error propagation between probability-space (finite-shot
+qang.statistics — error propagation between probability-space (finite-shot
 measurement) and theta-space / qg-space.
 
 This addresses the still-open half of Future Research Direction #2: "prove
 the stated bounds, the domain over which qg_Z and qg_S are each invertible
-(Section 2.2) [done in quang.core], and error-propagation bounds when
+(Section 2.2) [done in qang.core], and error-propagation bounds when
 converting between theta-space and qg-space [done HERE]; complement this
 with empirical benchmarking of qang-parameterized optimizers on NISQ
 hardware and simulators [the empirical half is done here via Qiskit's
@@ -14,7 +14,7 @@ The question: you never observe P(|0>) directly. You estimate it from N
 measurement shots as p0_hat = counts0 / N, a Binomial(N, p0) / N estimator
 with Var(p0_hat) = p0*(1-p0) / N. Since qg_Z_hat = 2*p0_hat - 1, that shot
 noise propagates directly into qg_Z_hat, and then -- through the *same*
-singular Jacobian studied in quang.gradients for optimization steps --
+singular Jacobian studied in qang.gradients for optimization steps --
 into theta_hat = arccos(qg_Z_hat).
 
 The closed-form result (delta method, first order)
@@ -33,7 +33,7 @@ Bloch sphere, independent of theta -- the shrinking shot-noise variance
 near a pole (fewer "wrong-outcome" events to measure) exactly offsets the
 growing sensitivity of arccos there (the Section 4.1 singularity). This is
 a genuinely different statement from the *optimization*-step story in
-quang.gradients, where the (non-vanishing) energy gradient dE/d(theta) does
+qang.gradients, where the (non-vanishing) energy gradient dE/d(theta) does
 NOT shrink near the poles the way sqrt(Var(qg_Z_hat)) does here -- so a
 qg-space *gradient step* still blows up near a pole even though qg-space
 *measurement* uncertainty does not.
@@ -44,7 +44,7 @@ itself well approximated by a Gaussian (rule of thumb: N * min(p0, p1) >> 1).
 Very close to a pole, for fixed N, that condition fails -- the minority
 outcome becomes a rare event, theta_hat is usually exactly the pole itself
 (zero error) with an occasional large jump when the rare outcome appears --
-and quang.statistics.empirical_theta_std lets you see that breakdown
+and qang.statistics.empirical_theta_std lets you see that breakdown
 directly by simulating it, rather than assuming the asymptotic formula
 holds everywhere.
 """
@@ -86,7 +86,7 @@ def propagated_theta_variance(theta: float, n_shots: int) -> float:
     """
     First-order (delta-method) propagated variance of theta_hat =
     arccos(qg_Z_hat), reusing the exact inverse Jacobian from
-    quang.gradients (the same -1/sin(theta) that diverges at the poles in
+    qang.gradients (the same -1/sin(theta) that diverges at the poles in
     the *optimization* story). Away from the poles this evaluates to
     (very nearly) 1/n_shots for ANY theta -- see the module docstring for
     why the sin^2(theta) factors cancel.
@@ -151,18 +151,18 @@ def empirical_theta_std(
     for direct comparison against propagated_theta_std(theta, n_shots).
 
     Requires Qiskit + qiskit-aer (raises ImportError with an install hint
-    if unavailable, same pattern as quang.qiskit_gate).
+    if unavailable, same pattern as qang.qiskit_gate).
     """
     try:
         from qiskit import QuantumCircuit, transpile
         from qiskit_aer import AerSimulator
     except ImportError as exc:  # pragma: no cover
         raise ImportError(
-            "quang.statistics.empirical_theta_std requires Qiskit + qiskit-aer. "
+            "qang.statistics.empirical_theta_std requires Qiskit + qiskit-aer. "
             "Install with `pip install qiskit qiskit-aer`."
         ) from exc
 
-    from .qiskit_gate import RQangGate  # local import: keeps quang.statistics importable without qiskit
+    from .qiskit_gate import RQangGate  # local import: keeps qang.statistics importable without qiskit
 
     qg = Qang.from_angles(theta, mode="polar")
     qc = QuantumCircuit(1, 1)

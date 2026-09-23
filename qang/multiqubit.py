@@ -1,5 +1,5 @@
 """
-quang.multiqubit — generalization of the qang unit to multi-qubit
+qang.multiqubit — generalization of the qang unit to multi-qubit
 tensor-product projection profiles.
 
 This addresses the second half of Future Research Direction #4: "... and to
@@ -345,3 +345,74 @@ def qg_correlation(state: Union[np.ndarray, Sequence[complex]], n_qubits: int) -
     marg = marginal_qg_s(state, n_qubits)
     joint = joint_qg_s(state, n_qubits, normalize=False)
     return float(sum(marg) - joint)
+
+
+# --------------------------------------------------------------------- #
+# Relaxation bias: a T1-aware companion to joint qg_S
+# --------------------------------------------------------------------- #
+# joint_qg_s rises with noise only when the noise channel's fixed point
+# is the maximally mixed state (depolarizing, dephasing). Amplitude
+# damping (T1) drives the register towards |00...0> instead, so under
+# strong enough T1 decay qg_S FALLS again, all the way to 0 -- see
+# examples/quantum_volume_qg_s_realistic_noise.py, Findings C and D.
+# The register-averaged qg_Z below tells the two regimes apart: unital
+# noise pulls it towards 0, while T1 decay pulls it towards +1.
+#
+# Being a mean of per-qubit <sigma_z> values, it is LINEAR in the state
+# (a Hilbert-Schmidt inner product with (1/n) * sum_i Z_i), so its
+# finite-shot estimator below is an exactly unbiased sample mean -- unlike
+# the entropy-based qg_S, which needs the Miller-Madow correction above.
+def mean_qg_z(state: Union[np.ndarray, Sequence[complex]], n_qubits: int) -> float:
+    """
+    Register-averaged qg_Z, (1/n) * sum_i Tr(rho_i sigma_z): the
+    "relaxation bias" of the register. +1 means every qubit is in |0>
+    (the fixed point of amplitude damping), 0 is what any unital noise
+    channel (depolarizing, dephasing) drives it towards.
+
+    Independent of qubit ordering, since it averages over all qubits.
+    """
+    return float(np.mean(per_qubit_qg_z(state, n_qubits)))
+
+
+def mean_qg_z_from_counts(counts: Union[dict, Sequence[int]], n_qubits: int) -> float:
+    """
+    Finite-shot estimate of mean_qg_z from measurement counts: the
+    average, over shots and qubits, of +1 for each measured 0 and -1 for
+    each measured 1. Exactly unbiased at any shot count (it is a sample
+    mean).
+
+    ``counts`` is either a dict mapping outcome to count -- the outcome
+    being a bitstring such as Qiskit's ``"0101"`` (spaces allowed) or an
+    integer basis index -- or a plain sequence of per-outcome counts
+    indexed by basis index. Qubit ordering does not matter, since only
+    the total number of 1s in each outcome is used.
+    """
+    if n_qubits < 1:
+        raise ValueError("n_qubits must be >= 1.")
+    items = counts.items() if isinstance(counts, dict) else enumerate(counts)
+
+    total_shots = 0
+    total_ones = 0
+    for outcome, c in items:
+        c = int(c)
+        if c < 0:
+            raise ValueError("counts must be non-negative.")
+        if c == 0:
+            continue
+        if isinstance(outcome, str):
+            bits = outcome.replace(" ", "")
+            if len(bits) != n_qubits or set(bits) - {"0", "1"}:
+                raise ValueError(f"outcome {outcome!r} is not a {n_qubits}-bit bitstring.")
+            ones = bits.count("1")
+        else:
+            idx = int(outcome)
+            if not 0 <= idx < 2**n_qubits:
+                raise ValueError(f"outcome index {idx} out of range for {n_qubits} qubits.")
+            ones = bin(idx).count("1")
+        total_shots += c
+        total_ones += c * ones
+
+    if total_shots == 0:
+        raise ValueError("counts contain no shots.")
+    # mean over shots and qubits of (+1 for a 0, -1 for a 1)
+    return float(1.0 - 2.0 * total_ones / (total_shots * n_qubits))

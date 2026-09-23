@@ -37,7 +37,7 @@ if Qiskit is not installed (same pattern as qang.qiskit_gate / qang.circuits).
 from __future__ import annotations
 
 import math
-from typing import List, Sequence, Tuple
+from typing import Tuple
 
 try:
     from qiskit import QuantumCircuit
