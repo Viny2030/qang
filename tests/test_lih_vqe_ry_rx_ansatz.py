@@ -1,7 +1,3 @@
-bash
-
-cat /tmp/claude-0/-home-claude/0f095fba-ee27-5ef0-bc6c-bd81ba55699a/scratchpad/qang_circuits/tests/test_lih_vqe_ry_rx_ansatz.py
-Salida
 
 """
 Tests for examples/lih_vqe_ry_rx_ansatz.py: a mixed Ry/Rx, four-parameter,
