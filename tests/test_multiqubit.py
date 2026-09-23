@@ -284,3 +284,55 @@ def test_qg_correlation_is_never_negative_on_random_haar_states():
         vec = rng.normal(size=dim) + 1j * rng.normal(size=dim)
         vec = vec / np.linalg.norm(vec)
         assert qg_correlation(vec, n_qubits) >= -1e-9
+
+
+# --------------------------------------------------------------------- #
+# mean_qg_z / mean_qg_z_from_counts
+# --------------------------------------------------------------------- #
+def test_mean_qg_z_equals_average_of_per_qubit_profile_on_random_states():
+    from qang.multiqubit import mean_qg_z, per_qubit_qg_z
+    rng = np.random.default_rng(7)
+    for n in (1, 2, 3, 4):
+        psi = rng.normal(size=2**n) + 1j * rng.normal(size=2**n)
+        psi /= np.linalg.norm(psi)
+        assert mean_qg_z(psi, n) == pytest.approx(np.mean(per_qubit_qg_z(psi, n)))
+
+
+def test_mean_qg_z_of_all_zeros_is_one_and_of_ghz_is_zero():
+    from qang.multiqubit import mean_qg_z
+    zeros = np.zeros(8, dtype=complex)
+    zeros[0] = 1.0
+    assert mean_qg_z(zeros, 3) == pytest.approx(1.0)
+    assert mean_qg_z(ghz_state(3), 3) == pytest.approx(0.0)
+
+
+def test_mean_qg_z_from_counts_accepts_all_count_formats():
+    from qang.multiqubit import mean_qg_z_from_counts
+    assert mean_qg_z_from_counts({"000": 5, "111": 5}, 3) == pytest.approx(0.0)
+    assert mean_qg_z_from_counts({"0 1": 3, 1: 1}, 2) == pytest.approx(0.0)
+    assert mean_qg_z_from_counts([10, 0, 0, 0], 2) == pytest.approx(1.0)
+    assert mean_qg_z_from_counts({"11": 4}, 2) == pytest.approx(-1.0)
+
+
+def test_mean_qg_z_from_counts_converges_to_exact_value_and_is_unbiased():
+    from qang.multiqubit import mean_qg_z, mean_qg_z_from_counts
+    rng = np.random.default_rng(3)
+    n = 3
+    psi = rng.normal(size=2**n) + 1j * rng.normal(size=2**n)
+    psi /= np.linalg.norm(psi)
+    probs = np.abs(psi) ** 2
+    exact = mean_qg_z(psi, n)
+    # tiny shot budget, many repetitions: the average estimate is unbiased
+    estimates = [mean_qg_z_from_counts(rng.multinomial(5, probs), n) for _ in range(20000)]
+    se = np.std(estimates) / np.sqrt(len(estimates))
+    assert abs(np.mean(estimates) - exact) < 5 * se
+
+
+@pytest.mark.parametrize(
+    "counts, n",
+    [({"012": 1}, 3), ({"01": 1}, 3), ({4: 1}, 2), ({"00": -1}, 2), ({"00": 0}, 2)],
+)
+def test_mean_qg_z_from_counts_rejects_bad_input(counts, n):
+    from qang.multiqubit import mean_qg_z_from_counts
+    with pytest.raises(ValueError):
+        mean_qg_z_from_counts(counts, n)
