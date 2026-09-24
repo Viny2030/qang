@@ -28,7 +28,7 @@ trapped-ion noise models. §21 compares classical chemistry with a noisy
 quantum energy, with and without a qg-based correction.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (736 tests at the time of
+pinned by a regression test in `tests/` (737 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1003,6 +1003,25 @@ The measured ⟨X₀⟩ tracks qg within 0.05 under device noise, and the
 cutting cost estimated from it is within 3% of the true γ. The largest
 deviations exceed the shot noise (±0.02), so they include gate errors of
 the noise model, not only sampling.
+
+**Experiment 3: H2 chemistry on trapped-ion noise** (§21's method, 2000
+shots per circuit, three runs per noise model; energy error vs FCI in
+mHa):
+
+| noise model | witness mean qg_Z (ideal 0) | shots kept | raw | + readout | + readout + qg filter |
+|---|---|---|---|---|---|
+| aria-1 | +0.004 | 98% | 29.6 | 29.2 | **12.2** |
+| forte-1 | +0.005 | 97% | 33.1 | 33.1 | **12.7** |
+| IBM model (§21, for comparison) | +0.011 | 91% | 74 | 18 | 5.5 |
+
+(run-to-run spread about ±8 mHa, from shot noise). As predicted for ions,
+the witness barely moves (+0.004, about 3× less than the IBM model at zero
+delay and 30× less than with a 50 µs idle time) and only 2–3% of the shots
+violate the electron number. Yet dropping those few shots still lowers
+the error by 14–23 mHa in every paired run, because number-violating
+outcomes sit at very high energy. Readout mitigation does nothing on
+these noise models. The mean result with the filter (~12 mHa) is below
+classical Hartree–Fock (20.3 mHa), with the caveat of the ±8 mHa spread.
 
 Not yet done: the same runs on IonQ hardware (the script prints circuit
 sizes — QV: 132 one-qubit and 24 two-qubit gates — and refuses to submit

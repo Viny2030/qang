@@ -49,3 +49,12 @@ def test_qpu_mode_refuses_without_explicit_cost_acceptance(capsys):
     assert "NOT submitted" in out
     one_q, two_q = circuit_sizes()["qv"]
     assert two_q > 0 and one_q > 0
+
+
+def test_h2_experiment_noiseless_reaches_fci_and_witness_is_zero(backend):
+    from ionq_validation import experiment_h2_chemistry
+
+    r = experiment_h2_chemistry(backend, shots=20000)
+    assert r["kept_fraction"] == pytest.approx(1.0)
+    assert r["mean_qg_z"] == pytest.approx(0.0, abs=1e-12)
+    assert abs(r["readout_qg_filter"]) < 5e-3

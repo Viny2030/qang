@@ -45,6 +45,7 @@ from qiskit.quantum_info import Statevector
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from qang.knitting import pauli_rotation_cut_gamma  # noqa: E402
 from qang.multiqubit import (  # noqa: E402
@@ -176,6 +177,39 @@ def experiment_rzz_qg(backend, shots=1000, noise=None, thetas=RZZ_THETAS):
     return rows
 
 
+def experiment_h2_chemistry(backend, shots=4000, noise=None):
+    """H2 (Jordan-Wigner, 4 qubits) energy at the exact VQE point, raw,
+    with readout mitigation, and with the qg electron-number filter
+    (examples/chemistry_qg_symmetry_witness.py). On trapped ions T1 is
+    negligible, so the witness mean qg_Z should stay near its ideal 0
+    and the filter should matter less than on the IBM T1 model."""
+    import chemistry_qg_symmetry_witness as chem
+
+    t = chem.optimal_angle()
+    circuits = [chem._measure_circuit(t, "ZZZZ", 0)] + [chem._measure_circuit(t, l, 0) for l in chem.XY_TERMS]
+    circuits += chem._calibration_circuits()
+    counts = run_counts(backend, circuits, shots, noise)
+    P = []
+    for c in counts:
+        idx = _to_index(c)
+        p = np.zeros(16)
+        for i, n in idx.items():
+            p[i] += n
+        P.append(p / p.sum())
+    inv = chem._readout_inverse(P[-2], P[-1])
+    p_z, p_xy = P[0], {l: P[1 + k] for k, l in enumerate(chem.XY_TERMS)}
+    p_z_ro, p_xy_ro = inv @ p_z, {l: inv @ p for l, p in p_xy.items()}
+    w = np.array([bin(i).count("1") for i in range(16)])
+    return {
+        "mean_qg_z": float(np.sum(p_z * (1 - 2 * w / 4))),
+        "kept_fraction": float(np.sum(p_z * (w == 2))),
+        "hf_error": chem.HF_ENERGY - chem.FCI_ENERGY,
+        "raw": chem._energy(p_z, p_xy) - chem.FCI_ENERGY,
+        "readout": chem._energy(p_z_ro, p_xy_ro) - chem.FCI_ENERGY,
+        "readout_qg_filter": chem._energy(chem.qg_filter(p_z_ro), p_xy_ro) - chem.FCI_ENERGY,
+    }
+
+
 def circuit_sizes():
     _, measured = qv_circuits()
     qv_t = transpile(measured, basis_gates=["rx", "ry", "rz", "cx"], optimization_level=1)
@@ -192,6 +226,7 @@ def main(argv=None):
     ap.add_argument("--device", default="qpu.aria-1", help="IonQ QPU name (ionq_qpu only)")
     ap.add_argument("--shots", type=int, default=1000)
     ap.add_argument("--yes-i-accept-qpu-cost", action="store_true")
+    ap.add_argument("--only", choices=["all", "qv", "rzz", "h2"], default="all")
     args = ap.parse_args(argv)
 
     sizes = circuit_sizes()
@@ -206,20 +241,26 @@ def main(argv=None):
     label = f"{args.mode}" + (f" (noise model {noise})" if noise else "")
     print(f"Backend: {label}")
 
-    ideal, meas = experiment_noise_benchmark(backend, args.shots, noise)
-    print("\nExperiment 1: 4-qubit QV (seed 0)")
-    print(f"  {'':10s} {'qg_S':>7} {'mean_qg_Z':>10} {'HOP':>7} {'XEB':>8}")
-    print(f"  {'ideal':10s} {ideal['qg_s']:7.4f} {ideal['mean_qg_z']:+10.4f} {ideal['hop']:7.4f} {ideal['xeb']:+8.4f}")
-    print(f"  {'measured':10s} {meas['qg_s']:7.4f} {meas['mean_qg_z']:+10.4f} {meas['hop']:7.4f} {meas['xeb']:+8.4f}")
-    print(f"  shift in mean qg_Z: {meas['mean_qg_z'] - ideal['mean_qg_z']:+.4f}  "
-          f"(standard error {meas['mean_qg_z_stderr']:.4f})")
-
-    print("\nExperiment 2: RZZ(theta) on |+>|+>, <X_0> should equal qg = cos(theta)")
-    print(f"  {'theta':>6} {'qg ideal':>9} {'<X_0> meas':>11} {'gamma ideal':>12} {'gamma from meas':>16}")
-    for r in experiment_rzz_qg(backend, args.shots, noise):
-        print(f"  {r['theta']:6.3f} {r['qg_ideal']:+9.4f} {r['x0_measured']:+11.4f} "
-              f"{r['gamma_ideal']:12.4f} {r['gamma_from_measurement']:16.4f}")
-
+    if args.only in ("all", "qv"):
+        ideal, meas = experiment_noise_benchmark(backend, args.shots, noise)
+        print("\nExperiment 1: 4-qubit QV (seed 0)")
+        print(f"  {'':10s} {'qg_S':>7} {'mean_qg_Z':>10} {'HOP':>7} {'XEB':>8}")
+        print(f"  {'ideal':10s} {ideal['qg_s']:7.4f} {ideal['mean_qg_z']:+10.4f} {ideal['hop']:7.4f} {ideal['xeb']:+8.4f}")
+        print(f"  {'measured':10s} {meas['qg_s']:7.4f} {meas['mean_qg_z']:+10.4f} {meas['hop']:7.4f} {meas['xeb']:+8.4f}")
+        print(f"  shift in mean qg_Z: {meas['mean_qg_z'] - ideal['mean_qg_z']:+.4f}  "
+              f"(standard error {meas['mean_qg_z_stderr']:.4f})")
+    if args.only in ("all", "rzz"):
+        print("\nExperiment 2: RZZ(theta) on |+>|+>, <X_0> should equal qg = cos(theta)")
+        print(f"  {'theta':>6} {'qg ideal':>9} {'<X_0> meas':>11} {'gamma ideal':>12} {'gamma from meas':>16}")
+        for r in experiment_rzz_qg(backend, args.shots, noise):
+            print(f"  {r['theta']:6.3f} {r['qg_ideal']:+9.4f} {r['x0_measured']:+11.4f} "
+                  f"{r['gamma_ideal']:12.4f} {r['gamma_from_measurement']:16.4f}")
+    if args.only in ("all", "h2"):
+        r = experiment_h2_chemistry(backend, args.shots, noise)
+        print("\nExperiment 3: H2 energy error vs FCI (mHa)")
+        print(f"  witness mean qg_Z {r['mean_qg_z']:+.4f} (ideal 0), shots kept by the filter {r['kept_fraction']:.2f}")
+        print(f"  classical HF {1e3 * r['hf_error']:.1f} | raw {1e3 * r['raw']:.1f} | +readout {1e3 * r['readout']:.1f}"
+              f" | +readout+qg filter {1e3 * r['readout_qg_filter']:.1f}")
 
 if __name__ == "__main__":
     main()
