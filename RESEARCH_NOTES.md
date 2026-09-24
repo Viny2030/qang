@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (741 tests at the time of
+pinned by a regression test in `tests/` (749 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1139,6 +1139,56 @@ error against the exact solution:
   their extra parameters. At this size classical spectral methods win
   outright; the result tells a quantum DE solver which encoding to use,
   not that it beats classical solvers.
+
+## 23. Barren plateaus: global cost vs qg local cost, and the light-cone control (`examples/barren_plateau_qg_local_cost.py`)
+
+Motivated by the "QML hype" discussion (barren plateaus, dequantization).
+Task: train a hardware-efficient ansatz (L layers of Ry Rz + CZ chain) so
+that V(p)|0…0⟩ reaches a random product target; after the known inverse
+of the target, measure Z. Two costs, both zero only at the target:
+global `C_G = 1 − P(0…0)` (1 − fidelity) and qg local
+`C_L = (1 − mean qg_Z)/2`, the local cost of Cerezo et al. (2021)
+written as the register's mean qg_Z (the same witness as §21).
+
+**A. Gradient variance** (200 random initialisations, derivative w.r.t.
+the first parameter, n = 2…12):
+
+| | n = 2 | n = 8 | n = 12 | scaling |
+|---|---|---|---|---|
+| global, L = 2 | 2.7e-2 | 2.6e-5 | 6.8e-8 | ≈ 2^−1.8 per qubit |
+| **qg local, L = 2** | 1.8e-2 | 9.4e-4 | **3.8e-4** | ≈ 1/n² |
+| global, L = 4n | 2.4e-2 | 6.7e-6 | 3.1e-8 | exponential |
+| qg local, L = 4n | 1.6e-2 | 7.3e-5 | 4.4e-6 | exponential |
+
+At n = 12 and L = 2 the qg local gradient has 5,600× the variance of
+the global one (≈ 5,600× fewer shots for the same signal-to-noise). With
+deep circuits the qg local cost does **not** cure the barren plateau.
+
+**B. Finite shots (L = 2).** Fraction of random initialisations whose
+whole shot-estimated gradient is exactly zero, 100 shots per circuit:
+global 0 / 0.06 / 0.22 / 0.35 at n = 6 / 8 / 10 / 12; qg local 0 at
+every n. Training at n = 10 with 100 shots (Adam, parameter shift, 6
+seeds): median steps to fidelity 0.5 is 11 (qg local, range 7–16) vs 20
+(global, range 10–68, one seed stuck at fidelity 0 for 50 steps); final
+fidelity 0.987–0.990 vs 0.972–0.983. At n ≤ 8 both train equally well:
+the training advantage is modest at simulable sizes and grows with n.
+
+**C. Classical control.** With depth L each ⟨Z_i⟩ depends only on the
+2L + 1 qubits in its light cone, so mean qg_Z and its exact gradient
+cost O(n·2^(2L+1)) classically (matches the statevector to 1e-16 at
+n = 12). L-BFGS on the light-cone cost trains n = 50 and n = 100 qubits
+(300 / 600 parameters) to C_L < 1e-13, fidelity ≥ 1 − n·C_L > 0.99999999999,
+in ~30 s and ~100 s on one CPU core, without shots.
+
+* **Measurable qg advantage:** over the global cost, for the same
+  quantum model (A, B).
+* **Not a quantum advantage:** the regime where the qg local cost is
+  trainable (shallow circuit, local cost) is the regime the classical
+  light cone simulates efficiently (C), in line with Cerezo et al.,
+  "Does provable absence of barren plateaus imply classical
+  simulability?" (arXiv:2312.09121).
+
+![Barren plateau](examples/barren_plateau_qg_local_cost.png)
 
 ## Suggested next steps
 
