@@ -22,10 +22,11 @@ cost of circuit cutting in qg units, and few-shot estimation under the
 Haar prior. §16 compares qg data encoding with angle encoding in
 quantum machine learning. §17 and §18 compare qg against standard
 practice in finite-precision control and in identifying the type of
-noise.
+noise. §19 takes the QML result of §16 to two qubits, two input
+features and finite-shot training.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (702 tests at the time of
+pinned by a regression test in `tests/` (723 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -41,6 +42,7 @@ writing); re-running the named script reproduces it.
 | 16 | QML data encoding: qg (arccos) vs angle | `examples/qml_encoding_qg_vs_angle.py` | `test_qml_encoding_qg_vs_angle.py` |
 | 17 | Finite-precision control: θ grid vs qg grid, distribution loading | `examples/control_quantization_qg_vs_theta.py` | `test_control_quantization_qg_vs_theta.py` |
 | 18 | Noise-type detection: mean qg_Z vs XEB / HOP | `examples/noise_type_detection_qg_vs_xeb.py` | `test_noise_type_detection_qg_vs_xeb.py` |
+| 19 | QML beyond one qubit: 2 qubits, 2D input, shot-noise training, classical control | `examples/qml_multiqubit_and_shots.py` | `test_qml_multiqubit_and_shots.py` |
 
 ## 1. Regularizing the Section 4.1 gradient singularity
 
@@ -909,6 +911,54 @@ ideal value is known, such as the idle-delay probe of §10.5, not a
 passive detector on arbitrary payload circuits. Subtracting the ideal
 value and correcting with the XEB-estimated fidelity lifts weak-noise
 accuracy only to ~0.8 in exploratory runs (not pinned).
+
+## 19. QML beyond one qubit (`examples/qml_multiqubit_and_shots.py`)
+
+The model of §16 extended to n qubits: in each of L layers every qubit
+loads a feature with Ry(θ(x)), then a CZ ring and a trainable Rz Ry Rz on
+every qubit; output ⟨Z₀⟩. Best of 6 L-BFGS restarts, test MSE.
+
+| Setting | Target | qg | angle π/2 | angle π |
+|---|---|---|---|---|
+| 1D input, 2 qubits, L = 2 | x³ − 0.5x | **1e-13** | 5e-5 | 1e-2 |
+| | random degree-4 polynomial | **2.7e-3** | 5.8e-3 | 8.9e-3 |
+| | sin(πx) | 3e-3 | 6e-13 | **2e-14** |
+| | tanh(4x) | 1.6e-2 | **1.2e-3** | 6.2e-2 |
+| 2D input, 2 qubits, L = 2 | x₁x₂ | **2e-16** | 2.4e-4 | 8.3e-2 |
+| | 0.5 T₂(x₁) + 0.5 x₁x₂² | **2.1e-3** | 6.4e-3 | 4.7e-2 |
+| | sin(πx₁) cos(πx₂) | 9.1e-2 | 3.0e-2 | **9e-18** |
+| | tanh(2(x₁ + x₂)) | 4.4e-2 | **1.9e-2** | 0.29 |
+
+* **The polynomial bias survives more qubits and more features:** qg is
+  best on every polynomial target and angle encoding on every periodic or
+  saturating one.
+* **n·L is a bound, not a guarantee.** The random degree-4 polynomial is
+  inside the n·L = 4 budget but is not fitted exactly by this shallow
+  CZ-ring architecture (the mixed 2D polynomial neither). The single-qubit
+  statement of §16 — L layers reach every degree-L polynomial — does not
+  carry over to every multi-qubit architecture.
+
+**Finite shots.** x³ − 0.5x on one qubit, L = 3, trained with Adam and
+parameter-shift gradients estimated from N shots per circuit (1500 steps,
+lr 0.02, median of 5 seeds):
+
+| N | qg | angle π/2 |
+|---|---|---|
+| exact | 1.8e-5 | 4.2e-4 |
+| 10,000 | 4.5e-5 | 4.2e-4 |
+| 1,000 | 6.2e-5 | 5.5e-4 |
+
+The advantage survives shot noise but shrinks from exact (noiseless
+L-BFGS) to about 10×; a gradient optimizer does not reach
+machine-precision fits in 1500 steps either way.
+
+**Classical control.** Least-squares Chebyshev regression of degree 3 on
+the same 80 points reaches 6e-33 with NumPy alone. These models are
+classically simulable: the result says which inductive bias to give a
+quantum model — qg encoding for polynomial-like targets — not that the
+quantum model beats classical regression. A claim of quantum advantage
+would need models that are hard to simulate, which this study does not
+test.
 
 ## Suggested next steps
 
