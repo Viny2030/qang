@@ -58,6 +58,25 @@ delay before measurement amplifies T1):
   * Classically, FCI is exact and cheap at 4 qubits. The comparison
     shows what the qg correction buys a quantum computation, not a
     quantum advantage over classical chemistry.
+
+Dissociation curve (no delay, mean of 3 seeds; Hamiltonians in
+examples/data/h2_dissociation_jw.json). Stretching the bond makes
+Hartree-Fock fail while the noisy quantum energy with the qg filter stays
+within ~6-20 mHa, so the quantum + qg estimate beats classical
+Hartree-Fock at every geometry and by 11x at 2.5 Angstrom:
+
+    R (A) | HF    | raw  | +readout | +readout +qg filter
+    0.50  |  12.2 |  92  |   19     |   5.9
+    0.735 |  20.3 |  74  |   18     |   5.5
+    1.00  |  35.0 |  63  |   17     |   6.4
+    1.50  |  87.3 |  60  |   20     |  11.4
+    2.00  | 164.8 |  67  |   22     |  16.3
+    2.50  | 233.1 |  72  |   24     |  20.1
+
+  The filter's gain over readout mitigation alone shrinks as the bond
+  stretches (3.2x at 0.735 A, 1.2x at 2.5 A). For a deeper 6-qubit
+  circuit where the filter stops helping see
+  examples/chemistry_lih_deep_circuit.py.
 """
 
 import os
@@ -83,7 +102,11 @@ CHEMICAL_ACCURACY = 1.6e-3
 N_QUBITS, N_ELECTRONS = 4, 2
 IDEAL_MEAN_QG_Z = 1.0 - 2.0 * N_ELECTRONS / N_QUBITS  # = 0
 
-_TERMS = [(p.to_label(), float(c.real)) for p, c in zip(H2_JW.paulis, H2_JW.coeffs)]
+def _terms(h):
+    return [(p.to_label(), float(c.real)) for p, c in zip(h.paulis, h.coeffs)]
+
+
+_TERMS = _terms(H2_JW)
 XY_TERMS = [l for l, _ in _TERMS if any(ch in "XY" for ch in l)]
 _WEIGHT = np.array([bin(i).count("1") for i in range(2**N_QUBITS)])
 
@@ -101,12 +124,13 @@ def ansatz(t: float) -> QuantumCircuit:
     return qc
 
 
-def exact_energy(t: float) -> float:
-    return float(Statevector(ansatz(t)).expectation_value(H2_JW).real)
+def exact_energy(t: float, hamiltonian=H2_JW) -> float:
+    return float(Statevector(ansatz(t)).expectation_value(hamiltonian).real)
 
 
-def optimal_angle() -> float:
-    res = minimize_scalar(exact_energy, bounds=(-np.pi, np.pi), method="bounded", options={"xatol": 1e-12})
+def optimal_angle(hamiltonian=H2_JW) -> float:
+    res = minimize_scalar(lambda t: exact_energy(t, hamiltonian), bounds=(-np.pi, np.pi),
+                          method="bounded", options={"xatol": 1e-12})
     return float(res.x)
 
 
@@ -150,9 +174,9 @@ def _expval(p, label):
     return float(np.sum(p * signs))
 
 
-def _energy(p_z, p_xy):
+def _energy(p_z, p_xy, terms=None):
     e = 0.0
-    for label, c in _TERMS:
+    for label, c in (terms or _TERMS):
         if label == "IIII":
             e += c
         elif label in p_xy:
@@ -179,7 +203,7 @@ def qg_filter(p_z):
     return kept / kept.sum()
 
 
-def run_noisy(delay_us=0.0, shots=20000, seed=11, backend=None, layout=None):
+def run_noisy(delay_us=0.0, shots=20000, seed=11, backend=None, layout=None, hamiltonian=H2_JW):
     """Energies (Hartree) and diagnostics on a noisy backend."""
     from qiskit_aer import AerSimulator
 
@@ -191,7 +215,8 @@ def run_noisy(delay_us=0.0, shots=20000, seed=11, backend=None, layout=None):
         from nisq_hardware_validation import choose_layout
 
         layout = choose_layout(backend, N_QUBITS)
-    t = optimal_angle()
+    t = optimal_angle(hamiltonian)
+    terms = _terms(hamiltonian)
     circuits = [_measure_circuit(t, "ZZZZ", delay_us)] + [_measure_circuit(t, l, delay_us) for l in XY_TERMS]
     tc = transpile(circuits + _calibration_circuits(), backend=backend, initial_layout=layout,
                    optimization_level=1, seed_transpiler=1, scheduling_method="alap")
@@ -204,10 +229,29 @@ def run_noisy(delay_us=0.0, shots=20000, seed=11, backend=None, layout=None):
         "delay_us": delay_us,
         "mean_qg_z": float(np.sum(p_z * (1 - 2 * _WEIGHT / N_QUBITS))),
         "kept_fraction": float(np.sum(p_z * (_WEIGHT == N_ELECTRONS))),
-        "raw": _energy(p_z, p_xy),
-        "readout": _energy(p_z_ro, p_xy_ro),
-        "readout_qg_filter": _energy(qg_filter(p_z_ro), p_xy_ro),
+        "raw": _energy(p_z, p_xy, terms),
+        "readout": _energy(p_z_ro, p_xy_ro, terms),
+        "readout_qg_filter": _energy(qg_filter(p_z_ro), p_xy_ro, terms),
     }
+
+
+def dissociation_curve(seeds=(11, 12, 13)):
+    """Rows (R, HF error, raw, readout, readout+qg) in Hartree, no delay."""
+    import json
+
+    from qiskit.quantum_info import SparsePauliOp as _SPO
+
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "h2_dissociation_jw.json")
+    with open(path, encoding="utf-8") as fh:
+        data = json.load(fh)
+    rows = []
+    for r_str, v in data.items():
+        h = _SPO.from_list(list(v["terms"].items()))
+        runs = [run_noisy(0, seed=s, hamiltonian=h) for s in seeds]
+        m = lambda k: float(np.mean([x[k] for x in runs]))
+        rows.append((float(r_str), v["hf"] - v["fci"], m("raw") - v["fci"],
+                     m("readout") - v["fci"], m("readout_qg_filter") - v["fci"]))
+    return rows
 
 
 if __name__ == "__main__":
@@ -222,3 +266,7 @@ if __name__ == "__main__":
         print(f"{delay:4d}us | {m('mean_qg_z'):+9.3f} {m('kept_fraction'):5.2f} | "
               f"{1e3 * (m('raw') - FCI_ENERGY):6.1f} {1e3 * (m('readout') - FCI_ENERGY):9.1f} "
               f"{1e3 * (m('readout_qg_filter') - FCI_ENERGY):12.1f}")
+    print("\nDissociation curve (mHa above FCI, no delay):")
+    print(f"{'R (A)':>6} | {'HF':>6} | {'raw':>6} {'+readout':>9} {'+readout+qg':>12}")
+    for r, hf, raw, ro, qg in dissociation_curve():
+        print(f"{r:6.3f} | {1e3 * hf:6.1f} | {1e3 * raw:6.1f} {1e3 * ro:9.1f} {1e3 * qg:12.1f}")

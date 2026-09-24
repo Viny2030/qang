@@ -17,7 +17,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `examples/chemistry_qg_symmetry_witness.py`: H2 (Jordan-Wigner) classical
   Hartree-Fock / FCI vs noisy quantum energies, raw, with readout
   mitigation, and with the qg electron-number witness and filter
-  (RESEARCH_NOTES §21).
+  (RESEARCH_NOTES §21), including the H2 dissociation curve
+  (`examples/data/h2_dissociation_jw.json`).
+- `examples/chemistry_lih_deep_circuit.py`: 6-qubit LiH at 3.0 Angstrom,
+  where the qg witness diagnoses unital noise and the qg filter does not
+  help (data in `examples/data/lih_3p0_jw.json`).
 
 ## [0.3.0] - 2026-09-24
 

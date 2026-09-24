@@ -64,3 +64,18 @@ def test_qg_filter_beats_readout_mitigation_and_hartree_fock(noisy_rows):
     assert err["readout_qg_filter"] < hf_err / 2
     r50 = noisy_rows[50]
     assert abs(r50["readout_qg_filter"] - FCI_ENERGY) < abs(r50["readout"] - FCI_ENERGY) / 4
+
+
+def test_stretched_h2_quantum_with_qg_filter_beats_hartree_fock():
+    pytest.importorskip("qiskit_aer")
+    pytest.importorskip("qiskit_ibm_runtime")
+    import json
+
+    from qiskit.quantum_info import SparsePauliOp
+
+    path = os.path.join(os.path.dirname(__file__), "..", "examples", "data", "h2_dissociation_jw.json")
+    v = json.load(open(path, encoding="utf-8"))["2.5"]
+    h = SparsePauliOp.from_list(list(v["terms"].items()))
+    assert exact_energy(optimal_angle(h), h) == pytest.approx(v["fci"], abs=1e-8)
+    r = run_noisy(0, seed=11, hamiltonian=h)
+    assert abs(r["readout_qg_filter"] - v["fci"]) * 5 < v["hf"] - v["fci"]

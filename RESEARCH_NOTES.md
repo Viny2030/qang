@@ -28,7 +28,7 @@ trapped-ion noise models. §21 compares classical chemistry with a noisy
 quantum energy, with and without a qg-based correction.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (733 tests at the time of
+pinned by a regression test in `tests/` (736 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -46,7 +46,7 @@ writing); re-running the named script reproduces it.
 | 18 | Noise-type detection: mean qg_Z vs XEB / HOP | `examples/noise_type_detection_qg_vs_xeb.py` | `test_noise_type_detection_qg_vs_xeb.py` |
 | 19 | QML beyond one qubit: 2 qubits, 2D input, shot-noise training, classical control | `examples/qml_multiqubit_and_shots.py` | `test_qml_multiqubit_and_shots.py` |
 | 20 | IonQ trapped-ion noise models: QV benchmark and the qg of an RZZ coupling | `examples/ionq_validation.py` | `test_ionq_validation.py` (local mode) |
-| 21 | Chemistry: classical HF/FCI vs noisy quantum energy with and without the qg electron-number filter | `examples/chemistry_qg_symmetry_witness.py` | `test_chemistry_qg_symmetry_witness.py` |
+| 21 | Chemistry: classical HF/FCI vs noisy quantum energy with and without the qg electron-number filter (H2 curve, LiH limit) | `examples/chemistry_qg_symmetry_witness.py`, `examples/chemistry_lih_deep_circuit.py` | `test_chemistry_qg_symmetry_witness.py`, `test_chemistry_lih_deep_circuit.py` |
 
 ## 1. Regularizing the Section 4.1 gradient singularity
 
@@ -1054,6 +1054,37 @@ the fake_brisbane noise model, 20,000 shots per circuit, mean of 3 seeds
 * FCI is exact and cheap at this size. The table measures what the qg
   correction buys a noisy quantum computation, not a quantum advantage
   over classical chemistry.
+
+**Dissociation curve.** Stretching the bond is where mean-field theory
+fails. Error vs FCI in mHa, no delay, mean of 3 seeds:
+
+| R (Å) | classical HF | quantum raw | + readout | **+ readout + qg filter** |
+|---|---|---|---|---|
+| 0.50 | 12.2 | 92 | 19 | **5.9** |
+| 0.735 | 20.3 | 74 | 18 | **5.5** |
+| 1.00 | 35.0 | 63 | 17 | **6.4** |
+| 1.50 | 87.3 | 60 | 20 | **11.4** |
+| 2.00 | 164.8 | 67 | 22 | **16.3** |
+| 2.50 | 233.1 | 72 | 24 | **20.1** |
+
+The quantum estimate with the qg filter beats classical Hartree–Fock at
+every geometry, by 11× at 2.5 Å. The filter's gain over readout
+mitigation alone shrinks as the bond stretches (3.2× → 1.2×).
+
+**Where it stops helping: LiH at 3.0 Å, 6 qubits**
+(`examples/chemistry_lih_deep_circuit.py`). Frozen Li 1s, 2 electrons
+in 3 orbitals; ideal mean qg_Z = 1/3. The ansatz alternates XX+YY
+rotations with controlled phases (pure Givens rotations cannot leave the
+mean-field manifold); noiseless it is 0.66 mHa above FCI, classical HF
+16.3 mHa. Transpiled it needs 60 ECR gates, and on fake_brisbane every
+quantum estimate is ~9× worse than HF: raw ~153, readout ~137, readout +
+qg filter ~150 mHa. The filter does not help, and the witness says why:
+mean qg_Z falls from +0.333 to +0.18 — towards 0, not +1. The dominant
+error is unital scrambling from 60 noisy two-qubit gates, not T1 loss of
+electrons; only 53% of shots survive the filter and those are still
+scrambled. So the witness diagnoses the regime correctly, and the filter
+pays off only when number-violating T1 errors dominate (shallow circuits
+or long idle times).
 
 ## Suggested next steps
 

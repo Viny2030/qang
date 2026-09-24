@@ -116,7 +116,7 @@ Every example script in `examples/` has a companion regression test that pins it
 2. **Error Budgeting and Calibration:** Experimentalists can directly estimate necessary shot budgets $N$ required to achieve angular fidelity benchmarks without running bespoke Monte Carlo noise simulations, and can see which noise channels an entropy-based benchmark can and cannot detect.
 3. **Cross-Platform Reproducibility:** By providing unified single-qubit gate implementations matching unitary conventions across Qiskit's `UGate` [@javadiabhari2024qiskit] and Cirq's `MatrixGate`, the software guarantees statevector equivalence across backends.
 
-The library includes an automated test suite of 733 unit and regression tests, run in continuous integration on Python 3.9–3.12. It reproduces all analytical tables and every numerical finding cited above.
+The library includes an automated test suite of 736 unit and regression tests, run in continuous integration on Python 3.9–3.12. It reproduces all analytical tables and every numerical finding cited above.
 
 # AI usage disclosure
 
