@@ -14,7 +14,7 @@ Reference implementation and computational toolkit for:
 `qang` bridges the gap between continuous Bloch-sphere rotation angles ($\theta \in [0, \pi]$) and projective measurement spaces in parameterized quantum circuits (PQAs). It provides native representations for:
 - **Polar Bias Qang ($qg_Z$):** $qg_Z(\theta) = \cos\theta = \langle\sigma_z\rangle \in [-1, 1]$.
 - **Measurement-Outcome Entropy Qang ($qg_S$):** $qg_S(\theta) = H(\cos^2(\theta/2)) \in [0, 1]$ (Shannon entropy of computational-basis outcomes).
-- Native SDK gate classes for **Qiskit** and **Cirq**, regularized gradient optimizers, shot-noise error propagation, and density matrix/POVM metrics.
+- Native SDK gate classes for **Qiskit**, **Cirq** and **PennyLane** (differentiable in qg_Z), regularized gradient optimizers, shot-noise error propagation, and density matrix/POVM metrics.
 
 ---
 
@@ -28,8 +28,9 @@ pip install .
 ```bash
 pip install ".[qiskit]"   # Native Qiskit gate integration
 pip install ".[cirq]"     # Native Cirq gate integration
+pip install ".[pennylane]" # Native PennyLane operations (autodiff in qg_Z)
 pip install ".[hardware]" # IBM Quantum hardware / calibrated fake backends
-pip install ".[all]"      # Everything (Qiskit, IBM Runtime, Cirq, Pytest, Matplotlib)
+pip install ".[all]"      # Everything (Qiskit, IBM Runtime, Cirq, PennyLane, Pytest, Matplotlib)
 ```
 
 ## Quickstart
@@ -77,6 +78,23 @@ circuit = cirq.Circuit(
     full_rqang_gate(Qang(0.5, phi=0.3)).on(q),
     cirq.measure(q, key="m")
 )
+```
+
+### 3b. PennyLane: optimize directly in qg_Z
+```python
+import pennylane as qml
+from pennylane import numpy as pnp
+from qang.pennylane_gate import rqang
+
+dev = qml.device("default.qubit", wires=1)
+
+@qml.qnode(dev)
+def z_expval(qg):
+    rqang(qg, wires=0)          # RY(arccos(qg)), differentiable in qg
+    return qml.expval(qml.PauliZ(0))
+
+qg = pnp.array(0.3, requires_grad=True)
+print(qml.grad(z_expval)(qg))   # 1.0: <Z> = qg_Z exactly
 ```
 
 ### 4. Error Propagation & Shot Budgeting

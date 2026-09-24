@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.pennylane_gate`: `rqang`, `full_rqang`, `append_qang` for PennyLane,
+  the third SDK after Qiskit and Cirq. Accepts a `Qang` or a raw, trainable
+  qg_Z (autograd / torch / jax / tf), so gradients flow directly to qg_Z.
+  Same U(theta, phi, 0) convention as Qiskit's UGate. New `[pennylane]`
+  extra, also in `[all]`; pinned in `tests/test_pennylane_gate.py`.
 - `qang.core.qg_s_from_qg_z`: exact, branch-free identity qg_S = H((1 + qg_Z)/2).
 - `qang.multiqubit.qg_correlation` (Z-basis total correlation) and the
   Miller-Madow finite-shot estimator `joint_qg_s_from_counts`.
