@@ -20,10 +20,12 @@ limitation in one place. §15 adds three results checked against
 independent references: the natural gradient in qg coordinates, the
 cost of circuit cutting in qg units, and few-shot estimation under the
 Haar prior. §16 compares qg data encoding with angle encoding in
-quantum machine learning.
+quantum machine learning. §17 and §18 compare qg against standard
+practice in finite-precision control and in identifying the type of
+noise.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (682 tests at the time of
+pinned by a regression test in `tests/` (702 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -37,6 +39,8 @@ writing); re-running the named script reproduces it.
 | 13 | qg_Phi, QPE, QEC, algorithms | `qang.phase`, `qang.qec`, `qang.algorithms` | `test_phase.py`, `test_qec*.py`, `test_algorithms.py`, `test_quantum_phase_estimation_qg_phi.py` |
 | 15 | Natural gradient in qg, cutting cost, Haar-prior estimation | `qang.gradients`, `qang.knitting`, `qang.statistics`, `notebooks/qang_verificado.ipynb` | `test_gradients.py`, `test_knitting.py`, `test_statistics.py` |
 | 16 | QML data encoding: qg (arccos) vs angle | `examples/qml_encoding_qg_vs_angle.py` | `test_qml_encoding_qg_vs_angle.py` |
+| 17 | Finite-precision control: θ grid vs qg grid, distribution loading | `examples/control_quantization_qg_vs_theta.py` | `test_control_quantization_qg_vs_theta.py` |
+| 18 | Noise-type detection: mean qg_Z vs XEB / HOP | `examples/noise_type_detection_qg_vs_xeb.py` | `test_noise_type_detection_qg_vs_xeb.py` |
 
 ## 1. Regularizing the Section 4.1 gradient singularity
 
@@ -821,6 +825,78 @@ the better choice only when the target is polynomial-like. Open: whether
 the polynomial bias survives multi-qubit, entangling re-uploading models
 and shot noise, and how it compares with the Chebyshev-tower maps of
 Kyriienko et al.
+
+## 17. Finite-precision control: θ grid vs qg grid (`examples/control_quantization_qg_vs_theta.py`)
+
+Control electronics set each angle from a grid of 2^b values. A grid
+uniform in θ is the usual choice; a grid uniform in `qg = cos θ` is
+uniform in the Born probability and, on the Bloch sphere, is made of
+equal-area bands. Each is minimax-optimal for a different error:
+
+| b bits | worst \|ΔP(0)\|, θ grid | worst \|ΔP(0)\|, qg grid | worst infidelity, θ grid | worst infidelity, qg grid |
+|---|---|---|---|---|
+| 4 | 5.2e-2 | 3.3e-2 | 2.7e-3 | 1.7e-2 |
+| 8 | 3.1e-3 | 2.0e-3 | 9.5e-6 | 9.8e-4 |
+| 10 | 7.7e-4 | 4.9e-4 | 5.9e-7 | 2.4e-4 |
+
+The qg grid's worst probability error is exactly π/2 times smaller (it
+saves log₂(π/2) ≈ 0.65 bits), and its mean error on Haar-random targets
+is about 1.23 times smaller. Its worst infidelity is worse by a factor
+that grows like 2^b, because it is coarse near the poles.
+
+**Application: loading a distribution** with a Grover–Rudolph tree of Ry
+rotations, the state-preparation step of quantum Monte Carlo. In qg
+units each rotation is set directly by a conditional probability,
+`qg = 2p − 1`. Over 45 cases (n = 4, 6, 8 qubits; b = 4, 6, 8 bits; five
+distributions):
+
+* the total variation distance of the loaded distribution is lower with
+  the qg grid in 43 of 45 cases (median 1.56×, up to 2.9×);
+* for smooth distributions (normal, log-normal, Dirichlet(1)) the
+  infidelity is also lower with the qg grid in 25 of 27 cases (median
+  2.0×): their conditional probabilities cluster near ½, where the qg
+  grid is denser;
+* for sparse or sharply peaked distributions (Dirichlet(0.1), a narrow
+  normal) the θ grid gives lower infidelity in 15 of 18 cases (median
+  3.3×, up to 56×): their conditional probabilities sit near 0 or 1.
+
+**Design rule:** a qg-uniform grid when the task is to reproduce
+probabilities (sampling, Monte Carlo, smooth distributions); a θ-uniform
+grid when state fidelity matters and targets sit near the poles.
+
+## 18. Which kind of noise? mean qg_Z vs XEB / HOP (`examples/noise_type_detection_qg_vs_xeb.py`)
+
+Task: from N shots of a 4-qubit QV circuit, decide whether the noise is
+dissipative (T1) or unital (dephasing, depolarizing). 24 circuits, three
+channels applied after every two-qubit block, 10 strengths; every feature
+is turned into a classifier by a single threshold fitted on 16 circuits
+and scored on the 8 held-out ones, so the comparison is between features,
+not models. XEB and HOP need the ideal distribution (a classical
+simulation); mean qg_Z and qg_S need only counts. Held-out accuracy
+(0.67 = always answering "unital"):
+
+| Noise per gate | N | mean qg_Z | qg_S | XEB | HOP |
+|---|---|---|---|---|---|
+| strong, 2–50% | 100 | **0.88** | 0.72 | 0.70 | 0.71 |
+| strong, 2–50% | 10,000 | **0.90** | 0.73 | 0.76 | 0.75 |
+| weak, 0.5–5% | 100,000 | 0.67 | 0.67 | 0.67 | 0.67 |
+
+* **Finding A.** With strong damping, mean qg_Z identifies T1 far better
+  than the standard benchmarks, from only 100 shots and without the ideal
+  distribution. Its accuracy rises with the strength (0.75 below 10% per
+  gate, 0.98 above 25%). XEB and HOP measure how much noise there is,
+  not which kind.
+* **Finding B.** At realistic per-gate strengths every feature is at
+  chance, even with 100,000 shots. The limit is not shot noise: the ideal
+  mean qg_Z of a random 4-qubit QV circuit already varies from circuit to
+  circuit (standard deviation 0.14, range −0.33 to +0.33), more than the
+  T1 shift.
+
+**Practical consequence:** mean qg_Z is a T1 detector on circuits whose
+ideal value is known, such as the idle-delay probe of §10.5, not a
+passive detector on arbitrary payload circuits. Subtracting the ideal
+value and correcting with the XEB-estimated fidelity lifts weak-noise
+accuracy only to ~0.8 in exploratory runs (not pinned).
 
 ## Suggested next steps
 

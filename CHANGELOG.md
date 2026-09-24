@@ -41,6 +41,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `examples/qml_encoding_qg_vs_angle.py`: qg (arccos) data encoding vs angle
   encoding in a single-qubit re-uploading regressor (RESEARCH_NOTES §16);
   also added as §7 of `notebooks/qang_verificado.ipynb`.
+- `examples/control_quantization_qg_vs_theta.py`: b-bit angle grids uniform
+  in theta vs uniform in qg, including Grover-Rudolph distribution loading
+  (RESEARCH_NOTES §17).
+- `examples/noise_type_detection_qg_vs_xeb.py`: T1-vs-unital detection from
+  counts, mean qg_Z vs qg_S / XEB / HOP on held-out circuits (§18).
 
 ### Changed
 - `examples/lih_vqe_ry_rx_ansatz.lih_energy` builds the statevector with
