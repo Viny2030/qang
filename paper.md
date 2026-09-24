@@ -30,7 +30,7 @@ In quantum state engineering, quantum optimal control, and parameterized quantum
 
 The two are linked by an exact, branch-free identity, $qg_S = H\big((1 + qg_Z)/2\big)$, valid for any single-qubit state, pure or mixed. A third unit, $qg_\Phi(\phi) = e^{i 2\pi\phi}$, covers the relative phase. `qang` also provides:
 
-- SDK-native gate interfaces for Qiskit and Cirq.
+- SDK-native gate interfaces for Qiskit, Cirq and PennyLane (differentiable in $qg_Z$).
 - Regularized gradients and a pole-damped optimizer for variational algorithms.
 - Analytical shot-noise error propagation.
 - Extensions to mixed states, POVMs, and multi-qubit registers.
@@ -73,6 +73,7 @@ qang/
 ├── transformations.py  # Closed-form transition probabilities between qang states
 ├── qiskit_gate.py      # Qiskit native RQangGate and FullRQangGate
 ├── cirq_gate.py        # Cirq native rqang_gate and full_rqang_gate
+├── pennylane_gate.py   # PennyLane rqang / full_rqang (autodiff in qg_Z)
 ├── circuits.py         # Bell/GHZ/W/Dicke/graph-state builders and circuit -> qg profile
 ├── ansatze.py          # Excitation and hardware-efficient ansatze, incl. qg-native layers
 ├── qec.py              # 3-qubit bit-flip code with qg_Z syndrome readout

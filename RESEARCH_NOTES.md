@@ -6,7 +6,7 @@ results, so they can be folded into a future revision of the paper or a
 companion technical report. All four directions listed in Section 6 are now
 covered: gradient regularization (§1), error-propagation bounds (§5),
 mixed states / POVMs (§3), multi-qubit generalization (§4), and native-SDK
-integration for both Qiskit and Cirq (§6).
+integration for Qiskit, Cirq and PennyLane (§6).
 
 Part II (§7–§13) goes beyond the original roadmap: new exact identities
 (§7), the structural blind spots of Z-basis metrics (§8), a pole-damped
@@ -236,7 +236,7 @@ clipped to `[0, pi]`) — e.g. "10,000 shots pins down theta to about
 `+/- 0.02` rad (95% CI), for any state that isn't extremely close to a
 computational basis state."
 
-## 6. qg as a native gate, for both Qiskit and Cirq (`qang.qiskit_gate`, `qang.cirq_gate`)
+## 6. qg as a native gate for Qiskit, Cirq and PennyLane (`qang.qiskit_gate`, `qang.cirq_gate`, `qang.pennylane_gate`)
 
 Future Research Direction #1 asked for qg as a native unit/type across
 multiple SDKs. `qang.qiskit_gate` (`RQangGate`, `FullRQangGate`) was
@@ -253,6 +253,18 @@ constructors:
   is used. `tests/test_cirq_gate.py` checks this both via measured Z-basis
   probabilities and via direct statevector fidelity against
   `Qang.to_statevector()`.
+
+`qang.pennylane_gate` adds the PennyLane side with the same pair,
+`rqang` (`qml.RY(arccos qg_Z)`) and `full_rqang` (`qml.U3(theta, phi, 0)`,
+whose matrix equals Qiskit's `UGate(theta, phi, 0)`). What PennyLane adds
+is autodiff: both accept a raw, trainable qg_Z, and the arccos is taken
+with `qml.math`, so a circuit can be optimized directly in qg coordinates.
+`tests/test_pennylane_gate.py` pins that `d<Z>/d(qg_Z) = 1` exactly in the
+interior (the two singular factors `-sin θ` and `-1/sin θ` cancel), the
+analytic `d<X>/d(qg_Z) = -qg_Z cos φ / sqrt(1 - qg_Z²)`, and a gradient
+descent run in qg_Z. At `|qg_Z| = 1` autodiff returns nan: the §4.1
+singularity survives the cancellation numerically, so trainable qg_Z
+values must stay strictly inside (-1, 1).
 
 # Part II — Results beyond the original roadmap
 
@@ -909,7 +921,7 @@ accuracy only to ~0.8 in exploratory runs (not pinned).
 * **Multi-qubit error propagation.** Extend §5 to the mixed-state and
   multi-qubit settings of §3–4, where the Jacobian is no longer the scalar
   `-1/sin θ`.
-* **A PennyLane counterpart** to `qang.qiskit_gate` / `qang.cirq_gate`.
+
 ## Appendix A. Functional-analysis foundation: Riesz–Fréchet
 
 This appendix is conceptual. It adds no new result. It records why qg_Z
