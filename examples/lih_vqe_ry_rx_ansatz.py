@@ -127,8 +127,9 @@ own true optimum values happen to sit at or extremely close to a pole:
 
 import math
 
+import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector, SparsePauliOp
+from qiskit.quantum_info import Operator, Statevector, SparsePauliOp
 
 from qang.gradients import pole_damping_factor
 
@@ -227,7 +228,50 @@ def lih_ansatz(thetas, axis3: str = "rx") -> QuantumCircuit:
     return qc
 
 
+# Fast path for lih_energy: the ansatz is a product of single-qubit
+# rotations followed by a fixed CX permutation, so its statevector can be
+# built directly with NumPy instead of simulating a new QuantumCircuit on
+# every call (the optimizers below call lih_energy thousands of times).
+# tests/test_lih_vqe_ry_rx_ansatz.py checks it against the circuit-based
+# Statevector computation to floating-point precision.
+_H_MATRIX = None
+_CX_PERM = None
+
+
+def _fast_statevector(thetas, axis3: str) -> np.ndarray:
+    global _CX_PERM
+    if _CX_PERM is None:
+        qc = QuantumCircuit(4)
+        qc.cx(2, 0)
+        qc.cx(3, 1)
+        _CX_PERM = Operator(qc).data
+    t0, t1, t2, t3 = thetas
+
+    def ry0(t):  # Ry(t)|0>
+        return np.array([math.cos(t / 2), math.sin(t / 2)], dtype=complex)
+
+    if axis3 == "rx":
+        q3 = np.array([math.cos(t3 / 2), -1j * math.sin(t3 / 2)], dtype=complex)
+    elif axis3 == "ry":
+        q3 = ry0(t3)
+    else:
+        raise ValueError(f"axis3 must be 'rx' or 'ry', got {axis3!r}.")
+    # Qiskit ordering: qubit 0 is the least significant bit.
+    psi = np.kron(q3, np.kron(ry0(t2), np.kron(ry0(t1), ry0(t0))))
+    return _CX_PERM @ psi
+
+
 def lih_energy(thetas, axis3: str = "rx") -> float:
+    global _H_MATRIX
+    if _H_MATRIX is None:
+        _H_MATRIX = LIH_ELECTRONIC.to_matrix()
+    psi = _fast_statevector(thetas, axis3)
+    return float(np.real(np.vdot(psi, _H_MATRIX @ psi))) + NUCLEAR_REPULSION
+
+
+def lih_energy_circuit(thetas, axis3: str = "rx") -> float:
+    """Reference implementation via Qiskit's Statevector (slow; used only
+    to cross-check lih_energy's NumPy fast path)."""
     sv = Statevector.from_instruction(lih_ansatz(thetas, axis3=axis3))
     return float(sv.expectation_value(LIH_ELECTRONIC).real) + NUCLEAR_REPULSION
 
