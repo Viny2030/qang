@@ -23,10 +23,11 @@ Haar prior. §16 compares qg data encoding with angle encoding in
 quantum machine learning. §17 and §18 compare qg against standard
 practice in finite-precision control and in identifying the type of
 noise. §19 takes the QML result of §16 to two qubits, two input
-features and finite-shot training.
+features and finite-shot training. §20 runs the qg metrics on IonQ's
+trapped-ion noise models.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (723 tests at the time of
+pinned by a regression test in `tests/` (726 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -43,6 +44,7 @@ writing); re-running the named script reproduces it.
 | 17 | Finite-precision control: θ grid vs qg grid, distribution loading | `examples/control_quantization_qg_vs_theta.py` | `test_control_quantization_qg_vs_theta.py` |
 | 18 | Noise-type detection: mean qg_Z vs XEB / HOP | `examples/noise_type_detection_qg_vs_xeb.py` | `test_noise_type_detection_qg_vs_xeb.py` |
 | 19 | QML beyond one qubit: 2 qubits, 2D input, shot-noise training, classical control | `examples/qml_multiqubit_and_shots.py` | `test_qml_multiqubit_and_shots.py` |
+| 20 | IonQ trapped-ion noise models: QV benchmark and the qg of an RZZ coupling | `examples/ionq_validation.py` | `test_ionq_validation.py` (local mode) |
 
 ## 1. Regularizing the Section 4.1 gradient singularity
 
@@ -959,6 +961,50 @@ quantum model — qg encoding for polynomial-like targets — not that the
 quantum model beats classical regression. A claim of quantum advantage
 would need models that are hard to simulate, which this study does not
 test.
+
+## 20. IonQ trapped-ion noise models (`examples/ionq_validation.py`)
+
+Trapped ions have T1 of seconds, so the idle-delay T1 probe of §10.5 does
+not apply. The same script runs locally (Aer), on IonQ's cloud simulator
+with a device noise model (free), or on IonQ hardware (only with an
+explicit cost flag). Runs on 24 Sep 2026, IonQ cloud simulator:
+
+**Experiment 1: 4-qubit QV circuit (seed 0).**
+
+| | qg_S | mean qg_Z | HOP | XEB |
+|---|---|---|---|---|
+| ideal | 0.9193 | −0.0289 | 0.7722 | +0.3662 |
+| noise model aria-1, 1000 shots | 0.9615 | −0.0250 | 0.6980 | +0.2669 |
+| noise model forte-1, 2000 shots | 0.9657 | −0.0217 | 0.6690 | +0.2454 |
+
+qg_S rises and HOP / XEB fall, as for any noise, but mean qg_Z does not
+move: the shifts (+0.004 ± 0.014 and +0.007 ± 0.010, standard errors
+from the per-shot register average) are consistent with zero. That is
+the signature of unital noise predicted for trapped ions (§10.4 D, §18),
+and the opposite of the T1-dominated IBM device model, where mean qg_Z
+rises by +0.40 over a 200 µs idle delay (§10.5). Caveat: at zero delay
+the IBM model's shift is also small (+0.005), so the contrast appears
+only when relaxation is given time; running the same delay sweep on
+IonQ hardware would make it a direct test.
+
+**Experiment 2: the qg of an RZZ coupling from one qubit.** For RZZ(θ) on
+`|+⟩|+⟩`, `⟨X₀⟩ = cos θ = qg` (§15.2):
+
+| θ | qg ideal | ⟨X₀⟩ aria-1 | ⟨X₀⟩ forte-1 | cut γ ideal | γ from forte-1 |
+|---|---|---|---|---|---|
+| 0 | +1.000 | +1.000 | +1.000 | 1.000 | 1.000 |
+| π/4 | +0.707 | +0.748 | +0.731 | 2.414 | 2.365 |
+| π/2 | 0.000 | −0.020 | +0.030 | 3.000 | 2.999 |
+| 2π/3 | −0.500 | −0.446 | −0.449 | 2.732 | 2.787 |
+
+The measured ⟨X₀⟩ tracks qg within 0.05 under device noise, and the
+cutting cost estimated from it is within 3% of the true γ. The largest
+deviations exceed the shot noise (±0.02), so they include gate errors of
+the noise model, not only sampling.
+
+Not yet done: the same runs on IonQ hardware (the script prints circuit
+sizes — QV: 132 one-qubit and 24 two-qubit gates — and refuses to submit
+without `--yes-i-accept-qpu-cost`).
 
 ## Suggested next steps
 

@@ -9,6 +9,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `examples/qml_multiqubit_and_shots.py`: qg vs angle encoding on two qubits,
   with two input features and with finite-shot parameter-shift training,
   plus a classical Chebyshev-regression control (RESEARCH_NOTES §19).
+- `examples/ionq_validation.py`: QV noise benchmark and the qg of an RZZ
+  coupling on IonQ (local Aer, IonQ noisy cloud simulator, or hardware only
+  with `--yes-i-accept-qpu-cost`); key read from `IONQ_API_KEY` or a
+  git-ignored `.ionq_key`. Results on the aria-1 and forte-1 noise models
+  in RESEARCH_NOTES §20.
 
 ## [0.3.0] - 2026-09-24
 
