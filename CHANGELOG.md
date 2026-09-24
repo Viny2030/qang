@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/ode_qg_vs_angle.py`: differentiable-quantum-circuit ODE solver
+  with qg vs angle encoding and a classical Chebyshev spectral control
+  (RESEARCH_NOTES §22).
 - `examples/qml_multiqubit_and_shots.py`: qg vs angle encoding on two qubits,
   with two input features and with finite-shot parameter-shift training,
   plus a classical Chebyshev-regression control (RESEARCH_NOTES §19).

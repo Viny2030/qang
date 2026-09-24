@@ -25,10 +25,11 @@ practice in finite-precision control and in identifying the type of
 noise. §19 takes the QML result of §16 to two qubits, two input
 features and finite-shot training. §20 runs the qg metrics on IonQ's
 trapped-ion noise models. §21 compares classical chemistry with a noisy
-quantum energy, with and without a qg-based correction.
+quantum energy, with and without a qg-based correction. §22 solves
+differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (737 tests at the time of
+pinned by a regression test in `tests/` (741 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -47,6 +48,7 @@ writing); re-running the named script reproduces it.
 | 19 | QML beyond one qubit: 2 qubits, 2D input, shot-noise training, classical control | `examples/qml_multiqubit_and_shots.py` | `test_qml_multiqubit_and_shots.py` |
 | 20 | IonQ trapped-ion noise models: QV benchmark and the qg of an RZZ coupling | `examples/ionq_validation.py` | `test_ionq_validation.py` (local mode) |
 | 21 | Chemistry: classical HF/FCI vs noisy quantum energy with and without the qg electron-number filter (H2 curve, LiH limit) | `examples/chemistry_qg_symmetry_witness.py`, `examples/chemistry_lih_deep_circuit.py` | `test_chemistry_qg_symmetry_witness.py`, `test_chemistry_lih_deep_circuit.py` |
+| 22 | Differential equations: DQC solver with qg vs angle encoding, classical spectral control | `examples/ode_qg_vs_angle.py` | `test_ode_qg_vs_angle.py` |
 
 ## 1. Regularizing the Section 4.1 gradient singularity
 
@@ -1104,6 +1106,39 @@ electrons; only 53% of shots survive the filter and those are still
 scrambled. So the witness diagnoses the regime correctly, and the filter
 pays off only when number-violating T1 errors dominate (shallow circuits
 or long idle times).
+
+## 22. Differential equations (`examples/ode_qg_vs_angle.py`)
+
+Differentiable-quantum-circuit solver (Kyriienko, Paine & Elfving 2021)
+with the single-qubit re-uploading model of §16: `u(x) = u0 + s·(f(x) −
+f(0))`, `f = ⟨Z⟩`, exact derivatives by parameter shift through the
+encoding gates, trained on the ODE residual at 40 collocation points
+(x ∈ [0, 1] mapped to z ∈ [−0.9, 0.9], away from the arccos poles). Max
+error against the exact solution:
+
+| Problem | L | qg | angle π/2 | angle π | classical, same degree | classical, same #params |
+|---|---|---|---|---|---|---|
+| u′ = −2u | 2 | **4.4e-3** | 1.0e-2 | 0.72 | 2.7e-2 | 2e-11 |
+| | 3 | **9.7e-5** | 1.7e-3 | 0.63 | 3.6e-3 | 1e-15 |
+| | 4 | **3.8e-5** | 2.5e-4 | 0.53 | 3.9e-4 | 2e-16 |
+| u′ = 4u(1 − u) (logistic) | 3 | 1.2e-3 | **6.6e-4** | 0.76 | 1.6e-2 | 8e-8 |
+| damped oscillation (Kyriienko) | 3 | **3.3e-3** | 6.5e-3 | 2.0 | 0.18 | 1e-11 |
+| u′ = π cos πx | 3 | 1.4e-3 | **5.4e-5** | 2.9e-2 | 5.8e-2 | 2e-12 |
+
+* **qg wins clearly on exponential decay** (2.3×, 17× and 6.6× better
+  than the best angle scale at L = 2, 3, 4; 4× for u′ = −4u), the same
+  with another seed.
+* **It does not win in general:** angle π/2 is ~2× better on the logistic
+  equation and 25× on the sine; on the damped oscillation the two
+  alternate (angle at L = 2 and 4, qg at L = 3). The angle scale matters
+  (α = π fails everywhere); qg has no scale to tune.
+* **Classical control:** Chebyshev spectral collocation with as many
+  coefficients as the quantum model has parameters solves every problem
+  to 1e-7 or better, usually to machine precision. With the same degree
+  (fewer parameters) the quantum models do better, which only reflects
+  their extra parameters. At this size classical spectral methods win
+  outright; the result tells a quantum DE solver which encoding to use,
+  not that it beats classical solvers.
 
 ## Suggested next steps
 
