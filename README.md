@@ -22,7 +22,7 @@ Reference implementation and computational toolkit for:
 
 Install the minimal core library (NumPy only):
 ```bash
-pip install qang          # from PyPI
+pip install "qang @ git+https://github.com/Viny2030/qang.git@v0.3.0"   # from GitHub
 pip install .             # or from a local clone
 ```
 
