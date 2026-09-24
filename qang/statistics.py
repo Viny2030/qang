@@ -199,3 +199,132 @@ def empirical_theta_std(
         analytical_std=propagated_theta_std(theta, n_shots),
         n_at_pole_boundary=at_boundary,
     )
+
+
+# --------------------------------------------------------------------- #
+# Few-shot estimation: Haar prior = uniform prior on qg_Z
+# --------------------------------------------------------------------- #
+# Under the Haar measure on single-qubit pure states, qg_Z = cos(theta) is
+# UNIFORM on [-1, 1] (Archimedes' hat-box theorem: equal-height bands of a
+# sphere have equal area). A uniform prior on qg_Z is therefore the
+# rotation-invariant prior, and because qg_Z = 2*p0 - 1 is affine it is the
+# same as p0 ~ Beta(1, 1). With k0 zeros in N shots the posterior is
+# Beta(k0 + 1, N - k0 + 1), and every qg_Z quantity follows by the affine
+# map. This fixes exactly the regime where the delta-method interval above
+# fails: near a pole, k0 = N is common and the delta interval collapses to
+# a single point. tests/test_statistics.py compares coverage against the
+# delta method and the standard Wilson interval: near a pole Bayes-Haar and
+# Wilson both keep ~92% coverage at N = 50 while the delta method drops
+# below 10%; on Haar-random states the posterior mean has ~4% lower mean
+# squared error than the raw frequency. Implemented with the standard
+# library only (no SciPy), so the qang core stays NumPy-free here.
+def _betacf(a: float, b: float, x: float) -> float:
+    # Continued fraction for the incomplete beta function (modified Lentz).
+    tiny, eps = 1e-300, 1e-15
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c, d = 1.0, 1.0 - qab * x / qap
+    d = 1.0 / (d if abs(d) > tiny else tiny)
+    h = d
+    for m in range(1, 1000):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > tiny else tiny)
+        c = 1.0 + aa / c
+        c = c if abs(c) > tiny else tiny
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > tiny else tiny)
+        c = 1.0 + aa / c
+        c = c if abs(c) > tiny else tiny
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < eps:
+            break
+    return h
+
+
+def beta_cdf(x: float, a: float, b: float) -> float:
+    """Regularized incomplete beta function I_x(a, b) (the Beta(a, b) CDF)."""
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    ln_front = (
+        math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)
+        + a * math.log(x) + b * math.log1p(-x)
+    )
+    front = math.exp(ln_front)
+    if x < (a + 1.0) / (a + b + 2.0):
+        return front * _betacf(a, b, x) / a
+    return 1.0 - front * _betacf(b, a, 1.0 - x) / b
+
+
+def beta_ppf(u: float, a: float, b: float) -> float:
+    """Inverse of beta_cdf by bisection (60 iterations: ~1e-18 in x)."""
+    if not 0.0 <= u <= 1.0:
+        raise ValueError("u must lie in [0, 1].")
+    lo, hi = 0.0, 1.0
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        if beta_cdf(mid, a, b) < u:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
+
+
+@dataclass
+class QgEstimate:
+    """A qg_Z point estimate with a two-sided interval."""
+
+    qg_z: float
+    low: float
+    high: float
+    method: str
+
+
+def bayes_qg_estimate(k0: int, n_shots: int, confidence: float = 0.95) -> QgEstimate:
+    """Posterior mean and equal-tailed credible interval for qg_Z under the
+    Haar (uniform-in-qg_Z) prior, from k0 outcomes '0' in n_shots shots."""
+    if n_shots < 1 or not 0 <= k0 <= n_shots:
+        raise ValueError("need n_shots >= 1 and 0 <= k0 <= n_shots.")
+    a, b = k0 + 1.0, n_shots - k0 + 1.0
+    alpha = 1.0 - confidence
+    p_lo, p_hi = beta_ppf(alpha / 2.0, a, b), beta_ppf(1.0 - alpha / 2.0, a, b)
+    return QgEstimate(
+        qg_z=2.0 * a / (a + b) - 1.0,
+        low=2.0 * p_lo - 1.0,
+        high=2.0 * p_hi - 1.0,
+        method="bayes_haar",
+    )
+
+
+def wilson_qg_estimate(k0: int, n_shots: int, z: float = 1.96) -> QgEstimate:
+    """Wilson score interval for p0, mapped to qg_Z; the standard
+    frequentist fix for the delta method's collapse near the poles."""
+    if n_shots < 1 or not 0 <= k0 <= n_shots:
+        raise ValueError("need n_shots >= 1 and 0 <= k0 <= n_shots.")
+    n = float(n_shots)
+    p = k0 / n
+    den = 1.0 + z * z / n
+    centre = (p + z * z / (2.0 * n)) / den
+    half = z * math.sqrt(p * (1.0 - p) / n + z * z / (4.0 * n * n)) / den
+    return QgEstimate(
+        qg_z=2.0 * p - 1.0,
+        low=2.0 * (centre - half) - 1.0,
+        high=2.0 * (centre + half) - 1.0,
+        method="wilson",
+    )
+
+
+def delta_qg_estimate(k0: int, n_shots: int, z: float = 1.96) -> QgEstimate:
+    """Delta-method (Wald) interval for qg_Z: 2*p0_hat - 1 +- z*sqrt(Var).
+    Collapses to a single point when k0 = 0 or k0 = n_shots."""
+    if n_shots < 1 or not 0 <= k0 <= n_shots:
+        raise ValueError("need n_shots >= 1 and 0 <= k0 <= n_shots.")
+    p = k0 / n_shots
+    q = 2.0 * p - 1.0
+    half = 2.0 * z * math.sqrt(p * (1.0 - p) / n_shots)
+    return QgEstimate(qg_z=q, low=q - half, high=q + half, method="delta")

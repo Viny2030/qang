@@ -24,9 +24,11 @@ This package covers, in order:
                        (Future Research Direction #1). Optional: only
                        importable if qiskit is installed.
   - qang.cirq_gate    the same for Cirq (optional: needs cirq).
-  - qang.statistics   shot-noise error propagation theta <-> qg.
+  - qang.statistics   shot-noise error propagation theta <-> qg, and
+                       few-shot qg_Z intervals (Haar-prior Bayes, Wilson).
   - qang.phase        the qg_Phi phase unit.
   - qang.transformations  closed-form transition probabilities.
+  - qang.knitting     the sampling cost of circuit cutting in qg units.
   - qang.circuits, qang.ansatze, qang.qec, qang.algorithms
                        Qiskit circuit builders, variational ansatze, the
                        3-qubit bit-flip code, and textbook algorithms
