@@ -24,10 +24,11 @@ quantum machine learning. §17 and §18 compare qg against standard
 practice in finite-precision control and in identifying the type of
 noise. §19 takes the QML result of §16 to two qubits, two input
 features and finite-shot training. §20 runs the qg metrics on IonQ's
-trapped-ion noise models.
+trapped-ion noise models. §21 compares classical chemistry with a noisy
+quantum energy, with and without a qg-based correction.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (726 tests at the time of
+pinned by a regression test in `tests/` (733 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -45,6 +46,7 @@ writing); re-running the named script reproduces it.
 | 18 | Noise-type detection: mean qg_Z vs XEB / HOP | `examples/noise_type_detection_qg_vs_xeb.py` | `test_noise_type_detection_qg_vs_xeb.py` |
 | 19 | QML beyond one qubit: 2 qubits, 2D input, shot-noise training, classical control | `examples/qml_multiqubit_and_shots.py` | `test_qml_multiqubit_and_shots.py` |
 | 20 | IonQ trapped-ion noise models: QV benchmark and the qg of an RZZ coupling | `examples/ionq_validation.py` | `test_ionq_validation.py` (local mode) |
+| 21 | Chemistry: classical HF/FCI vs noisy quantum energy with and without the qg electron-number filter | `examples/chemistry_qg_symmetry_witness.py` | `test_chemistry_qg_symmetry_witness.py` |
 
 ## 1. Regularizing the Section 4.1 gradient singularity
 
@@ -1005,6 +1007,53 @@ the noise model, not only sampling.
 Not yet done: the same runs on IonQ hardware (the script prints circuit
 sizes — QV: 132 one-qubit and 24 two-qubit gates — and refuses to submit
 without `--yes-i-accept-qpu-cost`).
+
+## 21. Chemistry: classical vs quantum, with and without qg (`examples/chemistry_qg_symmetry_witness.py`)
+
+H2 (STO-3G, 0.735 Å) in the Jordan–Wigner encoding: 4 qubits, one per
+spin-orbital, 2 electrons (Hamiltonian derived with PySCF + OpenFermion,
+hard-coded). There the occupation of spin-orbital i is `(1 − Zᵢ)/2`, so
+
+```
+N = Σᵢ (1 − Zᵢ)/2      and      mean qg_Z = 1 − 2N/n.
+```
+
+For any number-conserving circuit the ideal mean qg_Z is known in advance
+(0 for N = 2, n = 4), which removes the obstacle of §18 Finding B: a
+deviation of mean qg_Z from `1 − 2N/n` is a reference-free witness that
+the hardware added or removed electrons (T1 decay pushes it towards +1).
+Taken shot by shot, the same quantity is a filter: keep only the Z-basis
+shots whose register qg_Z equals `1 − 2N/n`. That filter is the standard
+symmetry verification of the error-mitigation literature (Bonet-Monroig
+et al. 2018; McArdle et al. 2019); the qg contribution is the witness and
+the reading, not the filter itself.
+
+The ansatz `cos(t/2)|0011⟩ + sin(t/2)|1100⟩` conserves N and reaches the
+FCI energy without noise (error 5e-11 mHa). Energy error vs FCI, mHa, on
+the fake_brisbane noise model, 20,000 shots per circuit, mean of 3 seeds
+(an idle delay before measurement amplifies T1):
+
+| Method | 0 µs | 20 µs | 50 µs |
+|---|---|---|---|
+| classical Hartree–Fock | 20.3 | 20.3 | 20.3 |
+| classical FCI (reference) | 0 | 0 | 0 |
+| quantum, raw | 74 | 140 | 231 |
+| quantum + standard readout mitigation | 18 | 90 | 188 |
+| **quantum + readout + qg filter** | **5.5** | **20** | **30** |
+| witness: mean qg_Z (ideal 0) | +0.011 | +0.057 | +0.122 |
+| shots kept by the filter | 91% | 83% | 72% |
+
+* The witness tracks the loss of electrons, rising from its known ideal
+  0 as the fraction of valid shots falls.
+* With the filter the quantum energy is 3.2× better than with readout
+  mitigation alone at 0 µs (4.5× at 20 µs, 6× at 50 µs) and, at 0 µs,
+  3.7× better than classical Hartree–Fock.
+* It remains 3.4× above chemical accuracy. The residual comes from the
+  four XXYY-type terms, which a Z-basis filter cannot reach, and from gate
+  errors that preserve N.
+* FCI is exact and cheap at this size. The table measures what the qg
+  correction buys a noisy quantum computation, not a quantum advantage
+  over classical chemistry.
 
 ## Suggested next steps
 
