@@ -49,6 +49,7 @@ from lih_vqe_ry_rx_ansatz import (
     HF_ENERGY,
     lih_ansatz,
     lih_energy,
+    lih_energy_circuit,
     lih_energy_grad,
     run_vqe_lih,
     steps_to_sustained_convergence,
@@ -258,10 +259,22 @@ def test_run_vqe_lih_rejects_unknown_space():
         run_vqe_lih("qg_raw", [math.pi, math.pi, 1e-6, 1e-6], lr=0.1, steps=5)
 
 
+@pytest.mark.parametrize("axis3", ["rx", "ry"])
+def test_fast_numpy_energy_matches_circuit_statevector(axis3):
+    """lih_energy's NumPy fast path must agree with a full Qiskit
+    Statevector simulation of lih_ansatz at arbitrary parameters."""
+    import numpy as np
+    rng = np.random.default_rng(3)
+    for _ in range(50):
+        thetas = rng.uniform(-2 * math.pi, 2 * math.pi, 4)
+        assert lih_energy(thetas, axis3=axis3) == pytest.approx(
+            lih_energy_circuit(thetas, axis3=axis3), abs=1e-12
+        )
+
+
 if __name__ == "__main__":
     print("Run via `pytest tests/test_lih_vqe_ry_rx_ansatz.py -v`.")
     theta0 = [math.pi, math.pi, 1e-6, 1e-6]
     energies = run_vqe_lih("theta_pole_damped", theta0, lr=4.0, steps=300)
     assert energies[-1] == pytest.approx(ANSATZ_OPTIMUM, abs=1e-6)
     print("Smoke check passed.")
-

@@ -300,3 +300,46 @@ def test_multi_param_theta_pole_damped_is_not_clamped_to_zero_pi_domain():
         for step_thetas in hist.thetas
         for theta in step_thetas
     )
+
+
+# --------------------------------------------------------------------- #
+# QFI and natural gradient in qg coordinates
+# --------------------------------------------------------------------- #
+@pytest.mark.parametrize("theta", [0.3, 0.9, PI / 2, 2.2, 2.9])
+def test_qfi_qg_matches_finite_difference_fidelity(theta):
+    from qang.gradients import qfi_qg
+
+    def psi(q):
+        t = math.acos(q)
+        return (math.cos(t / 2), math.sin(t / 2))
+
+    q, d = math.cos(theta), 1e-5
+    a, b = psi(q), psi(q + d)
+    fidelity = (a[0] * b[0] + a[1] * b[1]) ** 2
+    qfi_fd = 4.0 * (1.0 - fidelity) / d**2
+    assert qfi_fd == pytest.approx(qfi_qg(q), rel=1e-3)
+
+
+def test_qfi_qg_diverges_at_the_poles():
+    from qang.gradients import qfi_qg
+
+    assert qfi_qg(1.0) == float("inf")
+    assert qfi_qg(-1.0) == float("inf")
+    assert qfi_qg(0.0) == pytest.approx(1.0)
+
+
+def test_natural_gradient_in_qg_equals_plain_descent_in_theta():
+    from qang.gradients import natural_gradient_step_qg
+
+    hz, hx = 1.0, -0.4  # minimum inside (0, pi), reachable from both parametrizations
+    dE = lambda t: -hz * math.sin(t) + hx * math.cos(t)
+    for lr in (0.05, 0.01):
+        t, q = 1.0, math.cos(1.0)
+        gap = 0.0
+        for _ in range(int(15 / lr)):
+            t -= lr * dE(t)
+            th = math.acos(q)
+            q = natural_gradient_step_qg(q, -(1.0 / math.sin(th)) * dE(th), lr)
+            gap = max(gap, abs(math.cos(t) - q))
+        assert q == pytest.approx(-hz / math.hypot(hz, hx), abs=1e-6)
+        assert gap < 0.1 * lr  # trajectories agree to O(lr^2) per step
