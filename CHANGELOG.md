@@ -5,7 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-24
+
 ### Added
+- First release published to PyPI (`pip install qang`), via Trusted
+  Publishing from `.github/workflows/publish.yml`.
 - `qang.pennylane_gate`: `rqang`, `full_rqang`, `append_qang` for PennyLane,
   the third SDK after Qiskit and Cirq. Accepts a `Qang` or a raw, trainable
   qg_Z (autograd / torch / jax / tf), so gradients flow directly to qg_Z.

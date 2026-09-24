@@ -22,7 +22,8 @@ Reference implementation and computational toolkit for:
 
 Install the minimal core library (NumPy only):
 ```bash
-pip install .
+pip install qang          # from PyPI
+pip install .             # or from a local clone
 ```
 
 ```bash
