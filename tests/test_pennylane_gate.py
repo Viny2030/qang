@@ -38,13 +38,13 @@ def test_rqang_with_finite_shots():
     qg = Qang(0.4, mode="polar")
     dev = qml.device("default.qubit", wires=1, seed=7)
 
-    @qml.set_shots(SHOTS)
     @qml.qnode(dev)
     def circuit():
         rqang(qg, wires=0)
         return qml.probs(wires=0)
 
-    p0, _ = circuit()
+    # functional form: works on every PennyLane that has set_shots (>= 0.42)
+    p0, _ = qml.set_shots(circuit, shots=SHOTS)()
     assert p0 == pytest.approx(0.7, abs=0.02)
 
 
