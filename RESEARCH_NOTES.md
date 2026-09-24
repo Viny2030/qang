@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (749 tests at the time of
+pinned by a regression test in `tests/` (755 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1189,6 +1189,52 @@ in ~30 s and ~100 s on one CPU core, without shots.
   simulability?" (arXiv:2312.09121).
 
 ![Barren plateau](examples/barren_plateau_qg_local_cost.png)
+
+## 24. Decoherence and error mitigation: qg filter vs ZNE (`examples/error_mitigation_qg_vs_zne.py`)
+
+Same H2 state as §21 (ideal mean qg_Z = 1 − 2N/n = 0). Methods, all on
+top of readout mitigation: the qg filter (§21), zero-noise extrapolation
+(every CX folded to CX³ and CX⁵, Richardson to zero noise) and both
+combined. Controlled noise acts on every CX (so folding scales it
+exactly) or on readout only; the realistic case is fake_brisbane, with
+an optional idle delay. Error vs FCI in mHa, mean ± std over 10 seeds,
+20,000 shots per circuit:
+
+| noise | mean qg_Z | kept | raw | qg filter | ZNE | ZNE + qg |
+|---|---|---|---|---|---|---|
+| T1 p = 0.03 | +0.029 | 0.94 | 36.6 | **2.0 ± 1.6** | −4.0 ± 3.1 | −2.0 ± 2.9 |
+| T1 p = 0.10 | +0.099 | 0.81 | 128.9 | 7.4 ± 1.5 | −5.7 ± 5.3 | **−0.6 ± 3.5** |
+| dephasing p = 0.03 | 0.000 | 1.00 | 2.9 | 2.9 ± 1.7 | **−0.8 ± 3.2** | −0.8 ± 3.2 |
+| dephasing p = 0.10 | 0.000 | 1.00 | 10.2 | 10.2 ± 1.7 | **2.1 ± 3.3** | 2.1 ± 3.3 |
+| depolarizing p = 0.03 | +0.007 | 0.96 | 60.8 | 23.2 ± 2.3 | **0.3 ± 4.5** | −2.3 ± 3.8 |
+| depolarizing p = 0.10 | +0.021 | 0.86 | 193.5 | 81.3 ± 3.8 | 17.5 ± 8.2 | **−3.3 ± 8.8** |
+| readout p = 0.03 | 0.000 | 0.89 | −0.6 | −0.6 ± 1.2 | −1.9 ± 2.9 | −1.9 ± 2.1 |
+| fake_brisbane | +0.011 | 0.90 | 20.6 | 6.5 ± 1.6 | 6.8 ± 5.9 | **2.0 ± 3.9** |
+| fake_brisbane, 50 µs idle | +0.122 | 0.72 | 189.3 | 31.1 ± 1.3 | 176.6 ± 4.1 | **27.2 ± 4.1** |
+
+* **The qg witness predicts whether the filter will work.** Dephasing
+  preserves the electron number: mean qg_Z stays at 0, every shot is
+  kept, and the filter changes nothing, so only ZNE helps. T1 moves
+  mean qg_Z up by ≈ p, and the filter removes 94–95 % of the error with
+  no extra circuits and less spread than ZNE.
+* **The two methods are complementary.** ZNE overshoots under T1 (−4 to
+  −6 mHa) and doubles or triples the spread; the filter cannot touch
+  errors that preserve the symmetry. With strong depolarizing noise only
+  the combination is within a few mHa.
+* **Idle decoherence defeats ZNE.** Gate folding does not scale the
+  50 µs idle T1 (189 → 177 mHa), while mean qg_Z flags it (+0.122) and
+  the filter removes 84 % of the error. No method reaches chemical
+  accuracy there.
+* **Realistic noise:** ZNE + qg gives 2.0 ± 3.9 mHa on fake_brisbane,
+  10× better than raw and better than Hartree-Fock (20.3), at 3× the
+  circuits of the filter alone (6.5 ± 1.6).
+* **Decision rule:** if mean qg_Z moves away from 1 − 2N/n or the kept
+  fraction drops, apply the filter (free); if the residual stays large
+  with the kept fraction ≈ 1, the remaining noise preserves the symmetry
+  and needs ZNE. FCI is exact at this size: this ranks mitigation
+  strategies for a quantum computation, not quantum vs classical.
+
+![Error mitigation](examples/error_mitigation_qg_vs_zne.png)
 
 ## Suggested next steps
 

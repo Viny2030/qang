@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/error_mitigation_qg_vs_zne.py`: H2 under T1, dephasing,
+  depolarizing, readout and fake_brisbane noise; qg symmetry filter vs
+  zero-noise extrapolation vs both, with the qg witness as decision rule
+  (RESEARCH_NOTES §24).
 - `examples/barren_plateau_qg_local_cost.py`: barren plateaus with the global
   cost vs the qg local cost (1 - mean qg_Z)/2, finite-shot training, and a
   classical light-cone control that trains 100 qubits (RESEARCH_NOTES §23).
