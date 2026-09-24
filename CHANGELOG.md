@@ -26,6 +26,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   (`--mode ibm`). New `[hardware]` extra (`qiskit-ibm-runtime`), also in
   `[all]`.
 - `manuscript/`: arXiv-style preprint draft (`main.tex`, figure script).
+- `qang.knitting`: sampling cost of circuit cutting in qg units,
+  gamma = 1 + 2*sqrt(1 - qg^2) for RXX/RYY/RZZ/RZX and
+  1 + 2*sqrt((1 - qg)/2) for controlled rotations, pinned against
+  `qiskit-addon-cutting`. New `[knitting]` extra, also in `[all]`.
+- `qang.gradients.qfi_qg` and `natural_gradient_step_qg`: the quantum
+  natural gradient in qg coordinates, shown to equal plain descent in theta.
+- `qang.statistics.bayes_qg_estimate`, `wilson_qg_estimate`,
+  `delta_qg_estimate` (and SciPy-free `beta_cdf` / `beta_ppf`): few-shot
+  qg_Z intervals under the Haar (uniform-in-qg_Z) prior.
+- `notebooks/qang_verificado.ipynb`: executed notebook that checks every
+  claim against an independent reference (RESEARCH_NOTES §15).
+
+### Changed
+- `examples/lih_vqe_ry_rx_ansatz.lih_energy` builds the statevector with
+  NumPy instead of simulating a circuit per call (30x faster, identical to
+  1e-15; cross-checked by a new test). Full test suite: ~3 min -> ~1 min.
+- CI caches pip downloads and reports the slowest tests.
 
 ### Fixed
 - Leftover `quang` names in module docstrings, user-facing ImportError
