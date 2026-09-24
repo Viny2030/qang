@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write   # PyPI Trusted Publishing (no API token stored)
 
 jobs:
   build-and-release:
@@ -41,3 +42,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release edit ${{ steps.version.outputs.tag }} --draft=false --repo ${{ github.repository }}
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
