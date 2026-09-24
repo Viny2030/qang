@@ -19,10 +19,11 @@ QEC (§13). Appendix A records the functional-analysis foundation
 limitation in one place. §15 adds three results checked against
 independent references: the natural gradient in qg coordinates, the
 cost of circuit cutting in qg units, and few-shot estimation under the
-Haar prior.
+Haar prior. §16 compares qg data encoding with angle encoding in
+quantum machine learning.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (672 tests at the time of
+pinned by a regression test in `tests/` (682 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -35,6 +36,7 @@ writing); re-running the named script reproduces it.
 | 12 | Barren plateaus | `qang.ansatze`, `examples/barren_plateaus_qg_vs_theta.py` | `test_barren_plateaus_qg_vs_theta.py` |
 | 13 | qg_Phi, QPE, QEC, algorithms | `qang.phase`, `qang.qec`, `qang.algorithms` | `test_phase.py`, `test_qec*.py`, `test_algorithms.py`, `test_quantum_phase_estimation_qg_phi.py` |
 | 15 | Natural gradient in qg, cutting cost, Haar-prior estimation | `qang.gradients`, `qang.knitting`, `qang.statistics`, `notebooks/qang_verificado.ipynb` | `test_gradients.py`, `test_knitting.py`, `test_statistics.py` |
+| 16 | QML data encoding: qg (arccos) vs angle | `examples/qml_encoding_qg_vs_angle.py` | `test_qml_encoding_qg_vs_angle.py` |
 
 ## 1. Regularizing the Section 4.1 gradient singularity
 
@@ -772,6 +774,54 @@ same coverage; the gain over good frequentist practice is in the point
 estimate, and it is modest. qg does not reduce the number of shots a
 given precision requires.
 
+## 16. QML data encoding: qg (arccos) vs angle (`examples/qml_encoding_qg_vs_angle.py`)
+
+A single-qubit data re-uploading regressor (Pérez-Salinas et al. 2020):
+the feature `x ∈ [-1, 1]` is loaded L times with `Ry(θ(x))`, with a
+trainable `Rz Ry Rz` rotation between loads, so every encoding has the
+same `3(L + 1)` parameters, and the output is `⟨Z⟩`.
+
+* **Angle encoding** `θ = αx`: the model is a truncated Fourier series in
+  x with frequencies `kα` (Schuld, Sweke & Meyer 2021); α must be chosen.
+* **qg encoding** `θ = arccos x`, i.e. the encoded state's `qg_Z` equals
+  the feature: since `cos kθ = T_k(x)` and `sin kθ = √(1 - x²) U_{k-1}(x)`,
+  the model is a Chebyshev polynomial of degree L (plus `√(1 - x²)` times
+  a polynomial of degree L - 1). With identity processing it is exactly
+  `T_L(x)` (checked to 1e-15). This is the single-qubit case of quantum
+  signal processing (Low & Chuang 2017; Martyn et al. 2021) and of the
+  Chebyshev feature maps of Kyriienko et al. (2021); the contribution
+  here is the qg reading and a controlled comparison.
+
+80 training points, 201 test points, best of 8 L-BFGS restarts, test MSE:
+
+| Target | L | qg | best fixed α | trainable α, offset (+2L params) |
+|---|---|---|---|---|
+| x³ − 0.5x | 3 | **2e-15** | 1.5e-4 | 3e-5 |
+| random bounded polynomial, degree d | d | ≤ 1e-10 | — | — |
+| same | d − 1 | 3e-4 to 3e-3 | — | — |
+| sin(πx) | 1 | 0.20 | **3e-16** (α = π) | 6e-15 |
+| tanh(4x) | 4 | 7.6e-3 | 3.2e-4 | **2e-7** |
+| Runge 1/(1+25x²) | 4 | 7.1e-2 | 2.2e-3 | **7e-6** |
+| \|x\| | 4 | 4.9e-3 | 8.4e-4 | **1.7e-4** |
+
+* **Finding A (the qg advantage).** L qg layers fit any bounded
+  polynomial of degree L to machine precision, and L − 1 layers do not:
+  the layer count is the polynomial degree. That gives a direct sizing
+  rule when the target is (close to) a low-degree polynomial of a bounded
+  feature — expectation values, smooth physical responses, solutions of
+  differential equations — and there is no scale hyperparameter.
+* **Finding B (no universal winner).** For periodic or
+  non-polynomial targets the Fourier bias of angle encoding wins, by 1.5
+  to 4.5 orders of magnitude with a trainable scale. The price of angle
+  encoding is the scale: with the wrong one (α = 1 on cos 2πx) it fails
+  completely (MSE 0.34 at L = 4).
+
+qg encoding swaps the Fourier inductive bias for a polynomial one; it is
+the better choice only when the target is polynomial-like. Open: whether
+the polynomial bias survives multi-qubit, entangling re-uploading models
+and shot noise, and how it compares with the Chebyshev-tower maps of
+Kyriienko et al.
+
 ## Suggested next steps
 
 * **Real-device run.** Run `examples/nisq_hardware_validation.py
@@ -784,14 +834,6 @@ given precision requires.
   multi-qubit settings of §3–4, where the Jacobian is no longer the scalar
   `-1/sin θ`.
 * **A PennyLane counterpart** to `qang.qiskit_gate` / `qang.cirq_gate`.
-* **qg data encoding for QML.** Encoding a feature as
-  `θ = arccos(x)` (x = tanh of a classical pre-activation) makes the
-  qubit's `⟨Z⟩` equal the classical activation, and L re-uploadings
-  produce Chebyshev polynomials `T_L(x)` instead of the Fourier series
-  of plain angle encoding (Schuld et al. 2021; Chebyshev feature maps in
-  Kyriienko et al. 2021). Worth a controlled comparison against angle
-  encoding on the same tasks, with the literature cited.
-
 ## Appendix A. Functional-analysis foundation: Riesz–Fréchet
 
 This appendix is conceptual. It adds no new result. It records why qg_Z

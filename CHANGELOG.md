@@ -38,6 +38,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `notebooks/qang_verificado.ipynb`: executed notebook that checks every
   claim against an independent reference (RESEARCH_NOTES §15).
 
+- `examples/qml_encoding_qg_vs_angle.py`: qg (arccos) data encoding vs angle
+  encoding in a single-qubit re-uploading regressor (RESEARCH_NOTES §16);
+  also added as §7 of `notebooks/qang_verificado.ipynb`.
+
 ### Changed
 - `examples/lih_vqe_ry_rx_ansatz.lih_energy` builds the statevector with
   NumPy instead of simulating a circuit per call (30x faster, identical to
