@@ -114,3 +114,78 @@ def test_empirical_theta_std_breaks_down_very_close_to_a_pole():
 
     result = empirical_theta_std(theta=0.05, n_shots=50, n_trials=300, seed=7)
     assert result.n_at_pole_boundary > 0
+
+
+# --------------------------------------------------------------------- #
+# Few-shot estimation: Haar prior = uniform on qg_Z
+# --------------------------------------------------------------------- #
+def test_haar_random_states_have_uniform_qg_z():
+    import numpy as np
+
+    rng = np.random.default_rng(0)
+    v = rng.normal(size=(200_000, 2)) + 1j * rng.normal(size=(200_000, 2))
+    v /= np.linalg.norm(v, axis=1, keepdims=True)
+    qz = np.abs(v[:, 0]) ** 2 - np.abs(v[:, 1]) ** 2
+    hist, _ = np.histogram(qz, bins=10, range=(-1, 1))
+    assert np.all(np.abs(hist / hist.sum() - 0.1) < 0.005)
+
+
+@pytest.mark.parametrize("a,b", [(1, 1), (50, 2), (3, 48), (26, 26), (51, 1)])
+def test_beta_ppf_matches_scipy(a, b):
+    scipy_stats = pytest.importorskip("scipy.stats")
+    from qang.statistics import beta_cdf, beta_ppf
+
+    for u in (0.025, 0.5, 0.975):
+        assert beta_ppf(u, a, b) == pytest.approx(scipy_stats.beta.ppf(u, a, b), abs=1e-9)
+    for x in (0.1, 0.5, 0.9, 0.99):
+        assert beta_cdf(x, a, b) == pytest.approx(scipy_stats.beta.cdf(x, a, b), abs=1e-10)
+
+
+def test_bayes_interval_does_not_collapse_when_all_shots_agree():
+    from qang.statistics import bayes_qg_estimate, delta_qg_estimate
+
+    d = delta_qg_estimate(50, 50)
+    b = bayes_qg_estimate(50, 50)
+    assert d.low == d.high == 1.0
+    assert 0.99 < b.high <= 1.0
+    assert b.low < 0.9
+    assert b.low < b.qg_z < b.high
+    assert b.qg_z == pytest.approx(2 * 51 / 52 - 1)
+
+
+def _coverage(p_true, estimator, n_shots=50, trials=4000, seed=1):
+    import numpy as np
+
+    rng = np.random.default_rng(seed)
+    k = rng.binomial(n_shots, p_true)
+    q = 2 * p_true - 1
+    hits = 0
+    for ki, qi in zip(k, q):
+        e = estimator(int(ki), n_shots)
+        hits += e.low <= qi <= e.high
+    return hits / len(k)
+
+
+def test_near_a_pole_bayes_and_wilson_keep_coverage_while_delta_collapses():
+    import numpy as np
+    from qang.statistics import bayes_qg_estimate, delta_qg_estimate, wilson_qg_estimate
+
+    p = np.full(4000, math.cos(0.04) ** 2)  # theta = 0.08 rad
+    assert _coverage(p, delta_qg_estimate) < 0.10
+    assert _coverage(p, wilson_qg_estimate) > 0.90
+    assert _coverage(p, bayes_qg_estimate) > 0.90
+
+
+def test_on_haar_states_bayes_mean_beats_raw_frequency():
+    import numpy as np
+    from qang.statistics import bayes_qg_estimate
+
+    rng = np.random.default_rng(2)
+    n = 50
+    q_true = rng.uniform(-1, 1, 20000)
+    k = rng.binomial(n, (1 + q_true) / 2)
+    mse_raw = np.mean((2 * k / n - 1 - q_true) ** 2)
+    post_mean = np.array([bayes_qg_estimate(kk, n).qg_z for kk in range(n + 1)])
+    mse_bayes = np.mean((post_mean[k] - q_true) ** 2)
+    assert mse_bayes < mse_raw
+    assert 0.02 < 1 - mse_bayes / mse_raw < 0.06
