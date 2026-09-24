@@ -166,6 +166,53 @@ def pole_damping_factor(theta: float, eps: float = 0.05) -> float:
 
 
 # --------------------------------------------------------------------- #
+# Quantum Fisher information and the natural gradient in qg coordinates
+# --------------------------------------------------------------------- #
+# For |psi(theta)> = Ry(theta)|0>, the quantum Fisher information (QFI)
+# with respect to theta is F_theta = 1 everywhere. Changing coordinates to
+# q = qg_Z = cos(theta) gives
+#
+#     F_q = F_theta * (d theta / d q)^2 = 1 / (1 - q^2),
+#
+# so the "singular Jacobian" of Section 4.1 is nothing but the Fubini-Study
+# metric written in qg coordinates. The quantum natural gradient step
+# (Stokes et al. 2020) in q,
+#
+#     dq = -lr * F_q^{-1} * dE/dq = -lr * (1 - q^2) * (-1/sin(theta)) * dE/dtheta
+#        = lr * sin(theta) * dE/dtheta,
+#
+# maps back to d(theta) = -lr * dE/dtheta + O(lr^2): the natural gradient
+# in qg space IS plain gradient descent in theta. Natural gradients are
+# reparametrization-invariant, so it could not be otherwise. Two
+# consequences:
+#   * raw qg-space descent (no metric) is the pathological case -- it
+#     applies the inverse metric's reciprocal, 1/sin^2(theta), which is why
+#     it diverges near the poles;
+#   * the pole-damped theta step equals the natural-gradient step
+#     multiplied by |sin(theta)| = sqrt(1 - q^2), which for these real
+#     states is also the l1-norm of coherence, 2|rho_01|. Pole damping
+#     therefore slows the optimizer in proportion to how little coherence
+#     the qubit has left.
+# tests/test_gradients.py checks F_q against a finite-difference fidelity
+# computation and the natural-step / theta-step equivalence numerically.
+def qfi_qg(q: float) -> float:
+    """Quantum Fisher information of Ry(theta)|0> in the coordinate
+    q = qg_Z = cos(theta): 1 / (1 - q^2). Diverges at the poles."""
+    q = float(q)
+    if not -1.0 < q < 1.0:
+        return float("inf")
+    return 1.0 / (1.0 - q * q)
+
+
+def natural_gradient_step_qg(q: float, dE_dq: float, lr: float) -> float:
+    """One quantum-natural-gradient step in qg coordinates:
+    q - lr * (1 - q^2) * dE/dq, clipped to [-1, 1]. To first order in lr
+    this is identical to a plain gradient step in theta (see above)."""
+    q_new = float(q) - lr * (1.0 - float(q) ** 2) * dE_dq
+    return max(-1.0, min(1.0, q_new))
+
+
+# --------------------------------------------------------------------- #
 # Toy VQE loss: E(theta) = <psi(theta)| h_z*sigma_z + h_x*sigma_x |psi(theta)>
 # for the real (phi=0) state |psi(theta)> = cos(theta/2)|0> + sin(theta/2)|1>,
 # for which <sigma_z> = cos(theta) = qg_Z(theta) and <sigma_x> = sin(theta).
