@@ -1236,6 +1236,97 @@ an optional idle delay. Error vs FCI in mHa, mean ± std over 10 seeds,
 
 ![Error mitigation](examples/error_mitigation_qg_vs_zne.png)
 
+## 25. Thermal states: qg_Z = tanh(βh) (`examples/thermal_states_qg_tanh.py`)
+
+A qubit with H = −hZ in equilibrium at temperature T (k_B = 1) is the
+Gibbs state ρ = e^(−βH)/Z, and its polar qang is **qg_Z = tanh(βh)**.
+This was listed as conceptual only, with no advantage expected; the
+results confirm it. Everything below is an exact rewriting of textbook
+thermodynamics in qg, or a comparison between ways of estimating the
+same qg.
+
+**A. One qubit, every quantity a function of qg alone** (checked
+against e^(−βH) to 5·10⁻¹² for βh ∈ [0.01, 8]):
+
+| quantity | in qg |
+|---|---|
+| energy | U = −h·qg |
+| entropy (bits) | S = qg_S(qg), exact because ρ is diagonal in Z |
+| free energy | F = −T ln(2/√(1 − qg²)) |
+| heat capacity | C/k_B = artanh(qg)²·(1 − qg²) |
+| preparation angle | θ = arccos(qg) = π/2 − gd(βh) (Gudermannian) |
+
+Nernst: as T → 0, qg → 1 and both qg_S and C go to 0.
+
+**B. Thermometry.** A Z measurement is an energy measurement, so it is
+the optimal measurement on a Gibbs qubit, and the Fisher information on
+T per shot is C/T². The best relative precision is at maximal C:
+
+    qg · artanh(qg) = 1   →   qg* = 0.8336,  βh = 1.1997,  β·gap = 2.3994
+
+That is the peak of the Schottky anomaly, the known optimal operating
+point of a two-level thermometer [Correa et al., PRL 114, 220405
+(2015)], here as a one-line condition on qg.
+
+Few shots: the plug-in T = h/artanh(2k₀/N − 1) gives T = 0 when every
+shot is 0 and T = ∞ when qg_hat ≤ 0. The posterior median of qg under
+the Haar prior (uniform in qg, §15.3), restricted to qg > 0 (positive
+temperature), maps exactly to the posterior median of T, because T(qg)
+is monotone. Control: Jeffreys' prior with the same restriction. Exact
+enumeration over the binomial; error = median |T̂/T − 1| (failures
+count as infinite):
+
+| true qg | shots | failures: raw | Haar>0 | Jeffreys>0 | error: raw | Haar>0 | Jeffreys>0 | Cramér–Rao std/T |
+|---|---|---|---|---|---|---|---|---|
+| 0.8336 (optimal) | 10 | 0.42 | 0 | 0 | 0.73 | 0.37 | 0.37 | 0.48 |
+| | 30 | 0.07 | 0 | 0 | 0.28 | 0.19 | 0.25 | 0.28 |
+| | 100 | 0 | 0 | 0 | 0.09 | 0.10 | 0.10 | 0.15 |
+| 0.99 | 10 | 0.95 | 0 | 0 | ∞ | 0.94 | 0.39 | 0.85 |
+| | 30 | 0.86 | 0 | 0 | ∞ | 0.40 | 0.08 | 0.49 |
+| | 100 | 0.61 | 0 | 0 | ∞ | 0.06 | 0.13 | 0.27 |
+
+* Near the ground state the plug-in estimate says T = 0 in 61 % of runs
+  even with 100 shots; the restricted posteriors never fail.
+* Neither prior wins everywhere (Jeffreys at 10–30 shots near qg = 1,
+  Haar at 30 shots near qg*). The prior and the positivity restriction
+  do the work, not qg: the same conclusion as §15.3.
+* By 100 shots at qg* the three estimators agree. (A median absolute
+  error can sit below the Cramér–Rao bound, which bounds the standard
+  deviation; the curves are jagged because k₀ is discrete.)
+
+**C. Circuits and hardware.** A Gibbs qubit is half of a 2-qubit pure
+state: Ry(θ) on q0 and CX q0→q1 with cos θ = tanh(βh). On Aer (20,000
+shots) it gives 0.2022 / 0.7642 / 0.9958 against tanh = 0.1974 /
+0.7616 / 0.9951. The idle qg_Z of a real qubit is a temperature: with
+residual excited population p₁, qg = 1 − 2p₁ and
+T_eff = hf / (2k_B artanh(qg)); a 5 GHz qubit with p₁ = 1 % sits at
+52 mK. Separating that from asymmetric readout error is item 7 of the
+roadmap (hardware characterization).
+
+**D. Where the tanh law stops being exact: a 6-qubit Ising ring**
+(H = −J ΣZᵢZᵢ₊₁ − h ΣZᵢ − g ΣXᵢ, J = h = 1).
+
+* Classical Ising (g = 0, ρ diagonal in Z): the thermodynamic entropy is
+  exactly **Σᵢ qg_S,ᵢ − qg_correlation** (§7.2), to 10⁻¹³ at every
+  temperature. The Z-basis qg quantities are the full thermodynamics.
+* The mean-field law qg = tanh(β(h + 2J·qg)) overshoots the exact
+  per-site qg by up to 0.095 (β = 0.38); the free-spin tanh(βh) is far
+  below both. Correlations, measured by qg_correlation, are what the
+  single-site tanh misses.
+* A transverse field (coherence) breaks the decomposition: the Z-basis
+  entropy only bounds the true one from above, and the gap grows with g
+  and as T falls. At β = 1.5 it is 0.36 bits (g = 0.5) and 2.1 bits
+  (g = 1.5) while the true entropy is ~0.01 bits: the ground state is
+  pure but not a Z product state.
+
+**Honest summary.** qg = tanh(βh) is a clean coordinate for a thermal
+qubit: all thermodynamic quantities and the optimal-thermometer
+condition are one-line functions of it, and for diagonal Gibbs states
+the qg entropy decomposition is exact. It is not a quantum advantage,
+and the few-shot gain comes from the prior, not from qg.
+
+![Thermal states](examples/thermal_states_qg_tanh.png)
+
 ## Suggested next steps
 
 * **Real-device run.** Run `examples/nisq_hardware_validation.py

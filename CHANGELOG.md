@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/thermal_states_qg_tanh.py`: thermal states with qg_Z = tanh(beta h):
+  single-qubit thermodynamics in qg, the optimal-thermometer condition
+  qg * artanh(qg) = 1, few-shot thermometry (plug-in vs Haar vs Jeffreys
+  posteriors), a purification circuit, qubit effective temperature, and a
+  6-qubit Ising ring where the qg entropy decomposition is exact without
+  and breaks with a transverse field (RESEARCH_NOTES §25).
 - `examples/error_mitigation_qg_vs_zne.py`: H2 under T1, dephasing,
   depolarizing, readout and fake_brisbane noise; qg symmetry filter vs
   zero-noise extrapolation vs both, with the qg witness as decision rule
