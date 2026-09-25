@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (801 tests at the time of
+pinned by a regression test in `tests/` (809 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1608,6 +1608,60 @@ the random-feasible level after filtering (P(opt) 0.09–0.12, ratio
   relative to QAOA, not relative to classical optimization.
 
 ![QAOA exactly K](examples/qaoa_k_constraint_qg.png)
+
+## 31. Hardware characterization in qg: T1, T2, effective temperature and readout from one sweep (`examples/hardware_characterization_qg.py`)
+
+A real qubit idles with residual excited population p, so qg_eq = 1 − 2p
+= tanh(hf/2k_BT_eff) (§25). Its readout flips 0→1 with probability e01
+and 1→0 with e10. In qg the readout is affine: **measured qg = a + b·qg**,
+with a = e10 − e01 and b = 1 − e01 − e10. The standard suite calibrates
+readout on "|0⟩" and "|1⟩", which are really the thermal state and X on
+it. Z-basis data alone see only a + b·qg_eq and b·qg_eq, so thermal
+population is counted as readout error.
+
+**qg protocol.** Herald (measure), apply I, X or Ry(π/2), wait t, rotate
+back, measure again. The t = 0 pairs give, in closed form,
+
+    m = E[r1] = a + b·qg_eq
+    V = E[r1 r2 | I] − m² = b²(1 − qg_eq²)        (readout covariance)
+    C_X = E[r1 r2 | X] = a² − b²
+    u = b·qg_eq = (m² − V − C_X)/(2m),  b = √(V + u²),  a = m − u
+
+The delays add T1 (after X) and T2 (the decay of qg_X, after Ry(π/2)). A
+joint maximum-likelihood fit of all joint counts returns (a, b, qg_eq,
+T1, T2). Both protocols use 16 circuits × 2000 shots; the exact
+single-qubit model is cross-checked against a Qiskit Aer circuit
+(thermal start by purification, §25).
+
+Truth: T1 = 100 µs, T2 = 70 µs, e01 = 0.015, e10 = 0.04, 5 GHz. Median ±
+std over 100 repetitions:
+
+| true p (T_eff) | e01 standard | e01 qg | T_eff standard | T_eff qg |
+|---|---|---|---|---|
+| 0 (0 mK) | 0.0150 | 0.0149 | 0 | 11 ± 14 mK |
+| 0.01 (52 mK) | 0.0245 | **0.0151** | 0 | **52.3 ± 1.0** |
+| 0.03 (69 mK) | 0.0415 | **0.0148** | 0 | **69.0 ± 0.8** |
+| 0.08 (98 mK) | 0.0915 | **0.0152** | 0 | **98.2 ± 0.9** |
+
+* **The standard suite reads temperature as readout error.** e01 is
+  overestimated by exactly p·b (e10 similarly), and the qubit looks
+  perfectly cold at every temperature.
+* **The qg sweep is unbiased** for e01, e10, p and T_eff, and resolves
+  T_eff to ~1 mK from 52 mK up (at p = 0 it only gives an upper bound).
+* **T1 and T2 are unbiased in both.** The qg joint fit is ~1.5× more
+  precise (T1 ± 1.6–2.0 vs ± 2.6–3.6 µs, T2 ± 2.1–2.5 vs ± 3.4–4.9 µs,
+  T_φ ± 5–6 vs ± 8–12 µs), partly because of the joint maximum-likelihood
+  fit itself.
+* **Robust to a non-QND herald:** with 5 % relaxation of |1⟩ during the
+  herald, the estimates move by ~0.001.
+* **Scope.** Perfect gates and a QND herald are assumed. The protocol
+  needs mid-circuit measurement (available on IBM, not on every
+  platform). Repeated-measurement separation of thermal population is
+  known practice; what qg adds is the closed form (m, V, C_X) and T_eff
+  read directly from qg_eq. This is the protocol to run first on real
+  hardware.
+
+![Characterization](examples/hardware_characterization_qg.png)
 
 ## Suggested next steps
 

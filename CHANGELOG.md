@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/hardware_characterization_qg.py`: heralded qg sweep that separates
+  thermal population (effective temperature) from asymmetric readout error and
+  fits T1 and T2, vs the standard calibration suite (RESEARCH_NOTES §31).
 - `examples/qaoa_k_constraint_qg.py`: QAOA for maximum K-vertex cover with the
   qg constraint filter, qg budget and warm starts, vs penalty QAOA, XY-mixer
   QAOA, greedy and brute force (RESEARCH_NOTES §30).
