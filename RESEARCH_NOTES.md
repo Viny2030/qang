@@ -1388,6 +1388,67 @@ allocated in proportion to the QPD weights.
 
 ![Circuit knitting](examples/circuit_knitting_qg_cut_selection.png)
 
+## 27. QEC under T1-biased noise: choosing a repetition code with the qg witness (`examples/qec_repetition_code_choice_qg.py`)
+
+Code-capacity setting: one round of amplitude damping γ (T1) and then
+dephasing p (T_φ) on every data qubit, followed by perfect syndrome
+extraction and correction. There are three ways to store one logical
+qubit: a bare qubit, the 3-qubit bit-flip code (corrects one X) and the
+3-qubit phase-flip code (corrects one Z). The score is the logical
+average infidelity, computed exactly from the Kraus operators. A Qiskit
+density-matrix circuit, which reads the syndrome as the qg_Z of two
+ancillas and corrects coherently, reproduces it to 10⁻⁶.
+
+| noise | no code | bit-flip | phase-flip |
+|---|---|---|---|
+| T1 only, γ = 0.02 | **0.0067** | 0.0101 | 0.0197 |
+| dephasing only, p = 0.02 | 0.0133 | 0.0384 | **0.0008** |
+| γ = p = 0.02 | **0.0199** | 0.0474 | 0.0204 |
+
+* **Neither repetition code corrects T1.** Amplitude damping has an
+  X + iY jump and a no-jump part that shrinks |1⟩ on every qubit, and a
+  3-qubit repetition code fixes neither at first order. The bit-flip
+  code is worse than a bare qubit everywhere. The real choice is
+  "phase code or no code".
+* **The boundary is p = γ** (crossover p/γ = 1.00, 1.02 and 1.10 at
+  γ = 0.002, 0.01 and 0.04).
+
+**Witness.** Two idle experiments read in qg: prepare |1⟩ and measure Z,
+which gives qg_Z = −1 + 2γ; prepare |+⟩ and measure X, which gives
+qg_X = √(1 − γ)(1 − 2p). Inverting them gives γ̂ and p̂, and the policy
+picks the option with the lowest predicted infidelity. In qg terms, use
+the phase code when qg_X < √(1 − γ̂)(1 − 2γ̂). Results over 400 random
+instances (γ and p log-uniform in [10⁻³, 5·10⁻²], 1,000 shots per
+witness experiment):
+
+| policy | mean infidelity | regret vs oracle | right choice |
+|---|---|---|---|
+| oracle | 0.00844 | – | 100 % |
+| **qg witness (qg_Z and qg_X)** | 0.00867 | +2.7 % | 85 % |
+| always phase code | 0.01231 | +46 % | 53 % |
+| always no code | 0.01258 | +49 % | 48 % |
+| always bit-flip code | 0.03023 | +258 % | 0 % |
+| qg_Z only (the §24 witness) | 0.01258 | +49 % | 48 % |
+
+* **qg_Z alone is blind here.** It sees T1 but not dephasing, so it
+  always recommends no code. The witness needs both Bloch components,
+  which makes it T1/T2 characterization written in qg.
+* **Its mistakes come from shot noise near the boundary**, where the
+  options cost almost the same. Regret is 16 %, 2.7 %, 0.3 % and 0.06 %
+  (right choice 70 %, 85 %, 95 % and 97 %) at 100, 1,000, 10,000 and
+  100,000 shots per experiment.
+* **The syndrome ancillas are a running witness.** In the phase code the
+  nontrivial-syndrome rate (1 − qg_Z)/2 of each ancilla is 0.044 at
+  γ = 0.01, p = 0.02, close to the dephasing-only value 2p(1 − p) = 0.039.
+
+**Honest summary.** This is neither a new code nor an advantage over
+standard characterization. It is a correct, cheap decision rule, and it
+confirms the known result that repetition codes do not correct
+amplitude damping. A T1-tailored code (for example the 4-qubit Leung
+code) is the natural next test.
+
+![QEC code choice](examples/qec_repetition_code_choice_qg.png)
+
 ## Suggested next steps
 
 * **Real-device run.** Run `examples/nisq_hardware_validation.py

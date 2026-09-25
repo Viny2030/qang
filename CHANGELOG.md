@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qec_repetition_code_choice_qg.py`: bit-flip vs phase-flip
+  repetition code vs no code under T1 + dephasing, with a qg_Z / qg_X
+  witness that picks the option, cross-checked with a Qiskit
+  density-matrix circuit (RESEARCH_NOTES §27).
 - `examples/circuit_knitting_qg_cut_selection.py`: choosing which gates to cut
   with the closed-form qg cost, vs counting gates and cutting the weakest
   bonds, checked against qiskit-addon-cutting's find_cuts and end to end
