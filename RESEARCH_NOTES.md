@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (792 tests at the time of
+pinned by a regression test in `tests/` (801 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1561,6 +1561,53 @@ ECR per step), |error| at 1 and 2 steps:
   not quantum vs classical.
 
 ![Hubbard dynamics](examples/hubbard_trotter_qg_filters.png)
+
+## 30. Constrained optimization: QAOA with "exactly K" and qg (`examples/qaoa_k_constraint_qg.py`)
+
+Maximum K-vertex cover (choose exactly K = 3 of n = 8 vertices to cover
+the most edges) on 5 random graphs G(8, ½). The constraint Σx_i = K is
+**mean qg_Z = 1 − 2K/n = 0.25**, the same identity as the electron number
+(§21). qg ingredients: the per-shot **filter** (Hamming weight K), a
+**budget start** (every qubit at qg = 0.25, mixer rotated about it, no
+classical pre-solve), and a **warm start** (qg_i = 1 − 2c_i from the LP
+relaxation, clipped to |qg| ≤ 0.5, i.e. Egger's ε = 0.25 as pole
+damping). Baselines: standard penalty QAOA, the constraint-preserving
+XY-mixer QAOA from a Dicke state, brute force, greedy and a random
+feasible guess (P(opt) 0.096, approximation ratio 0.772). 4000 shots.
+
+P(optimal) per shot, noiseless / noisy / noisy + qg filter, all-to-all
+device (0.6 % depolarizing per CX):
+
+| variant | p = 1 | p = 2 |
+|---|---|---|
+| standard (penalty) | 0.053 / 0.046 / 0.101 | 0.099 / 0.079 / 0.176 |
+| qg budget start | 0.066 / 0.058 / 0.108 | 0.087 / 0.062 / 0.136 |
+| qg warm start (LP) | 0.195 / 0.155 / 0.297 | 0.169 / 0.110 / 0.256 |
+| XY mixer (Dicke) | 0.346 / 0.150 / **0.278** | 0.511 / 0.177 / **0.366** |
+
+On fake_brisbane (heavy-hex routing, 134–497 ECR) every variant ends at
+the random-feasible level after filtering (P(opt) 0.09–0.12, ratio
+0.77–0.79); the only exception is the warm start at p = 1 (0.173, 0.813).
+
+* **The qg filter is free and never hurts.** With the XY mixer the ideal
+  output is 100 % feasible, so the kept fraction is a pure error witness
+  (0.54). The filter doubles P(opt) under noise (0.150 → 0.278 at p = 1,
+  0.177 → 0.366 at p = 2).
+* **Penalty QAOA at p ≤ 2 does no better than guessing.** After filtering it
+  sits at the random-feasible level. The budget start raises the raw
+  feasibility (kept 0.46 → 0.54) but not the quality of the feasible
+  shots.
+* **The warm start's value is classical.** It is the best penalty variant
+  (3× the random guess), but its LP relaxation is already integral (the
+  answer) on 3 of 5 graphs.
+* **The witness says when nothing is left.** On fake_brisbane the kept
+  fraction falls to 0.24–0.33, close to 56/256 = 0.22 for a fully mixed
+  register, and the filtered samples are then random feasible sets.
+* **Classical wins.** Greedy reaches 98.5 % of the optimum (optimal on 4 of
+  5 graphs) and brute force is instant. The qg ingredients improve QAOA
+  relative to QAOA, not relative to classical optimization.
+
+![QAOA exactly K](examples/qaoa_k_constraint_qg.png)
 
 ## Suggested next steps
 

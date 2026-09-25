@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qaoa_k_constraint_qg.py`: QAOA for maximum K-vertex cover with the
+  qg constraint filter, qg budget and warm starts, vs penalty QAOA, XY-mixer
+  QAOA, greedy and brute force (RESEARCH_NOTES §30).
 - `examples/hubbard_trotter_qg_filters.py`: 1D Fermi-Hubbard Trotter dynamics
   (8 qubits) with N and spin-resolved qg filters vs ZNE, on an all-to-all
   depolarizing device and on fake_brisbane (RESEARCH_NOTES §29).
