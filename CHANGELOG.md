@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/chemistry_spin_resolved_qg_filter.py`: H2 with separate
+  spin-up / spin-down qg filters vs the total-N filter, with a spin-leak
+  witness, on fake_brisbane and controlled noise (RESEARCH_NOTES §28).
 - `examples/qec_repetition_code_choice_qg.py`: bit-flip vs phase-flip
   repetition code vs no code under T1 + dephasing, with a qg_Z / qg_X
   witness that picks the option, cross-checked with a Qiskit

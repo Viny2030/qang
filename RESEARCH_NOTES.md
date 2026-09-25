@@ -1449,6 +1449,55 @@ code) is the natural next test.
 
 ![QEC code choice](examples/qec_repetition_code_choice_qg.png)
 
+## 28. Chemistry with spin-resolved qg filters (`examples/chemistry_spin_resolved_qg_filter.py`)
+
+H2 as in §21. With interleaved spin-orbitals in the Jordan–Wigner
+encoding, qubits 0 and 2 hold spin up and qubits 1 and 3 spin down. The
+Hamiltonian conserves N↑ and N↓ separately (checked in the tests), so
+each spin register has a known ideal mean qg_Z (0 here, one electron
+per register). Two filters on the Z-basis shots, both applied after
+readout mitigation:
+
+* **total**: Hamming weight 2 (§21), which keeps 6 of 16 bit strings.
+* **spin**: one up and one down electron, which keeps 4 of 16. It also
+  removes |0101⟩ and |1010⟩, where both electrons have the same spin.
+
+New witness: the **spin leak**, the fraction of weight-2 shots that sit
+in the wrong spin sector. Error vs FCI in mHa, mean ± std over 10
+seeds, 20,000 shots per circuit:
+
+| noise | qg↑ | qg↓ | spin leak | readout | total filter | spin filters |
+|---|---|---|---|---|---|---|
+| fake_brisbane, 0 µs | +0.012 | +0.010 | 0.002 | 20.2 | 6.5 ± 1.5 | 5.9 ± 1.5 |
+| fake_brisbane, 20 µs | +0.060 | +0.056 | 0.005 | 92.4 | 20.2 ± 1.4 | 20.0 ± 1.4 |
+| fake_brisbane, 50 µs | +0.124 | +0.121 | 0.008 | 189.0 | 31.0 ± 1.3 | 31.4 ± 1.5 |
+| T1 p = 0.10 | +0.101 | +0.098 | 0.001 | 128.9 | 7.4 ± 1.5 | 6.7 ± 1.4 |
+| depolarizing p = 0.03 | −0.013 | +0.028 | 0.015 | 60.8 | 23.2 ± 2.3 | **14.7 ± 2.2** |
+| depolarizing p = 0.10 | −0.040 | +0.082 | 0.052 | 193.5 | 81.3 ± 3.8 | **53.9 ± 3.6** |
+| dephasing p = 0.10 | 0.000 | 0.000 | 0.000 | 10.2 | 10.2 ± 1.7 | 10.2 ± 1.7 |
+
+* **The second filter helps only when the spin leak is clearly
+  nonzero.** Depolarizing noise on the CXs flips pairs of qubits into
+  the wrong spin sector. There the spin filters remove a further 37 %
+  (p = 0.03) and 34 % (p = 0.10) of the error left by the total filter.
+* **On fake_brisbane the gain is within the seed spread** (6.5 → 5.9
+  mHa, and nothing with an idle delay), because the spin leak is below
+  1 %. The expectation that a second filter would cut the §21 residual
+  does not hold: that residual sits in the XXYY terms and in errors that
+  preserve both N and spin.
+* **The spin witnesses separate where the total one does not.** Under
+  depolarizing noise qg↑ = −0.040 and qg↓ = +0.082 (p = 0.10), while
+  their average, the §21 witness, reads +0.021. The asymmetry follows
+  the circuit, whose CXs fan out of an up qubit.
+
+**Honest summary.** A second, free filter from a second conserved
+quantity, using the same shots and no extra circuits. It pays off only
+when the spin-leak witness says so, and on the realistic noise model it
+does not. FCI is exact at this size, so this is not a classical-vs-quantum
+comparison.
+
+![Spin-resolved filters](examples/chemistry_spin_resolved_qg_filter.png)
+
 ## Suggested next steps
 
 * **Real-device run.** Run `examples/nisq_hardware_validation.py
