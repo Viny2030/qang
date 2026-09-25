@@ -1327,6 +1327,67 @@ and the few-shot gain comes from the prior, not from qg.
 
 ![Thermal states](examples/thermal_states_qg_tanh.png)
 
+## 26. Circuit knitting in practice: which gates to cut (`examples/circuit_knitting_qg_cut_selection.py`)
+
+§15.2 prices one cut in closed form, γ² = (1 + 2√(1 − qg²))² with
+qg = cos θ. Here that price decides where to split a circuit too large
+for one device. An 8-qubit circuit of RZZ couplings on a sparse graph
+(ring plus 4 chords, 12 couplings) must run on devices of at most 4
+qubits. Two angle regimes: **trotter** (2 steps of a disordered Ising
+model, θ = 2J·dt ∈ [0.1, 0.75]) and **qaoa** (one weighted-MaxCut layer,
+θ = 2γw ∈ [0.9, 5.4]). Rules, each scored by the true shot multiplier
+(product of γ² over the cut gates):
+
+* **count**: fewest cut gates (angle-blind; ties averaged);
+* **weakest**: smallest total |θ| cut ("cut the weakest bonds");
+* **qg**: smallest Σ log γ²(qg), the exact optimum over all 3,795
+  partitions into blocks of ≤ 4 qubits;
+* **addon**: `qiskit-addon-cutting`'s `find_cuts`, gate cuts only.
+
+Geometric-mean shot multiplier over 200 random instances per regime:
+
+| regime | count | weakest | qg | addon | qg strictly cheaper than count / weakest |
+|---|---|---|---|---|---|
+| trotter | 7,254 | 3,838 | **3,642** | 3,642 | 60 % / 12 % |
+| qaoa | 976 | 2,174 | **753** | 753 | 52 % / 62 % |
+
+* **Small angles:** γ grows with |θ|, so "cut the weakest bonds" is
+  nearly the qg rule (5 % more shots). Counting gates costs 2.0×.
+* **Large angles:** the cost is not monotone in the coupling, because
+  RZZ(θ ≈ π) is almost a local Z⊗Z and nearly free to cut. "Cut the
+  weakest bonds" becomes the worst rule (2.9× the optimum, worse than
+  counting); qg is 1.3× cheaper than counting.
+* **The reference tool already does this.** `find_cuts` reaches the
+  qg optimum in all 400 instances, because it prices each gate by its
+  own QPD 1-norm. What qg adds is the closed form: exhaustive scoring of
+  all 3,795 partitions takes 1–3 ms, against 17–170 ms for the addon's
+  search. The enumeration grows exponentially and the search does not,
+  so this timing only holds at small sizes.
+
+**End to end** (6 qubits on two 3-qubit devices, 60,000 shots, 10
+seeds, RMSE of the six ⟨Xᵢ⟩). The count rule's unique choice cuts 2
+gates at θ = π/2 (overhead 81); the qg choice cuts 3 gates at θ = 0.2
+(overhead 7.4):
+
+| shot allocation | count cut | qg cut | ratio |
+|---|---|---|---|
+| ∝ \|cᵢ\| per QPD term | 0.037 | **0.013** | 2.9× (predicted √(81/7.4) = 3.3) |
+| equal per subexperiment | **0.037** | 0.083 | 0.44× |
+
+The γ² law assumes importance sampling of the QPD terms. With equal
+shots per subexperiment, the cost grows with the number of
+subexperiments (6ᵏ for k cuts), and cutting fewer gates wins. The qg
+price is the right criterion only with proportional allocation, which
+the addon uses when `num_samples` is finite.
+
+**Honest summary.** This is a cost saving, not a physical advantage,
+and the leading tool already makes the angle-aware choice. The
+measurable gain is against angle-blind and magnitude-based rules. It is
+largest when gate angles pass π/2, and it only appears with shots
+allocated in proportion to the QPD weights.
+
+![Circuit knitting](examples/circuit_knitting_qg_cut_selection.png)
+
 ## Suggested next steps
 
 * **Real-device run.** Run `examples/nisq_hardware_validation.py

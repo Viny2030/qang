@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/circuit_knitting_qg_cut_selection.py`: choosing which gates to cut
+  with the closed-form qg cost, vs counting gates and cutting the weakest
+  bonds, checked against qiskit-addon-cutting's find_cuts and end to end
+  with proportional vs uniform shot allocation (RESEARCH_NOTES §26).
 - `examples/thermal_states_qg_tanh.py`: thermal states with qg_Z = tanh(beta h):
   single-qubit thermodynamics in qg, the optimal-thermometer condition
   qg * artanh(qg) = 1, few-shot thermometry (plug-in vs Haar vs Jeffreys
