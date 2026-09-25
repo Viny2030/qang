@@ -3,7 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,amsthm}
-\usepackage{booktabs}
+\usepackage{booktabs,array}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage[numbers,sort&compress]{natbib}
@@ -13,6 +13,7 @@
 \newtheorem{remark}{Remark}
 \newcommand{\qgZ}{qg_Z}
 \newcommand{\qgS}{qg_S}
+\newcommand{\qgX}{qg_X}
 \newcommand{\Tr}{\operatorname{Tr}}
 
 \title{Z-basis metrics for parameterized quantum circuits:\\
@@ -21,7 +22,7 @@ and a relaxation-aware entropy benchmark}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 23 September 2026}
+\date{\small Draft of 23 September 2026; revised 26 September 2026}
 
 \begin{document}
 \maketitle
@@ -43,7 +44,11 @@ learning rates for convergence where plain gradient descent diverges. Fourth, as
 tracks heavy output probability ($r=-0.93$) and needs no calibration, unlike linear XEB. However,
 it is \emph{not} monotonic under amplitude damping: under device-calibrated noise with added idle
 relaxation it falls below its own noiseless value. Pairing $\qgS$ with the register-averaged $\qgZ$
-removes the ambiguity in 23 of 24 circuits tested. Every number is reproduced by a script and
+removes the ambiguity in 23 of 24 circuits tested. A summary section lists seventeen follow-up
+studies (QML encoding, control quantization, noise-type detection, circuit knitting, chemistry,
+error mitigation, thermal states, error correction, Hubbard dynamics, constrained QAOA and qubit
+characterization), each with its classical or standard control; the symmetry-witness results are
+developed in a companion paper. Every number is reproduced by a script and
 pinned by a regression test in the public repository.
 \end{abstract}
 
@@ -61,8 +66,8 @@ implementation \texttt{qang}, with the aim of stating where the metrics are exac
 blind, and where they mislead. Section~\ref{sec:identities} gives exact identities,
 Section~\ref{sec:blind} the structural blind spots, Section~\ref{sec:opt} a pole-damped optimizer
 on molecular Hamiltonians, and Section~\ref{sec:bench} the behavior of $\qgS$ as a benchmark,
-including a device-calibrated validation. Section~\ref{sec:limits} lists the limitations
-together.
+including a device-calibrated validation. Section~\ref{sec:further} summarizes later results, and
+Section~\ref{sec:limits} lists the limitations together.
 
 All results are produced by scripts in the \texttt{examples/} folder of the repository and pinned
 by regression tests (Section~\ref{sec:code}). Molecular Hamiltonians were derived once with
@@ -252,6 +257,44 @@ $\theta$-space shows the reverse. One should extrapolate in whichever space make
 In barren-plateau settings~\cite{mcclean2018,cerezo2021}, regularized qg-space gradients keep the
 exponential variance decay, and raw qg-space gradients still diverge at the poles.
 
+\section{Further results (summary)}\label{sec:further}
+
+After the first draft, the same code base was used for seventeen further studies. Each compares a
+qg-based choice with the standard one and with a classical control, and each is documented in
+\texttt{RESEARCH\_NOTES.md} (section numbers below) with a script and pinned tests.
+Table~\ref{tab:further} lists them. The column ``gain'' states against what the qg choice wins,
+if at all. None of them is a quantum advantage over classical computation. Where a classical
+method was run, it matched or beat the quantum model at these sizes. The symmetry-witness studies
+(§20, §21, §24, §28--§31) are developed in a companion paper~\cite{monteverde2026witness}.
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Follow-up studies (section numbers of \texttt{RESEARCH\_NOTES.md}).}
+\label{tab:further}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{5.8cm}>{\raggedright\arraybackslash}p{3.2cm}}
+\toprule
+§ & topic & main number & gain \\
+\midrule
+15 & natural gradient, cut cost, few-shot $\qgZ$ & QFI $=1/(1-\qgZ^2)$; cut $\gamma=1+2\sqrt{1-\qgZ^2}$; Haar prior 92\% vs 8\% coverage near a pole & closed forms; vs delta method \\
+16, 19 & QML encoding $\theta=\arccos x$ & Chebyshev models fit polynomials to $10^{-13}$ vs $5\times10^{-5}$; $\sim10\times$ with shots & vs angle encoding~\cite{schuld2021}; classical Chebyshev fit wins \\
+17 & control grid uniform in $\qgZ$ & probability error $\pi/2$ smaller; distribution loading TVD lower in 43/45 cases & vs $\theta$ grid; loses on fidelity near poles \\
+18 & T1 vs unital noise from counts & accuracy 0.88--0.91 vs 0.70--0.76 (XEB, HOP), strong noise only & vs XEB/HOP \\
+20 & IonQ noise models & H$_2$ + $\qgZ$ filter $\sim$12 vs $\sim$30~mHa, 2--3\% shots dropped & vs readout mitigation \\
+21 & H$_2$ electron-number witness & 5.5 vs 18~mHa (HF 20.3); $11\times$ below HF at 2.5~\AA; no gain on 6-qubit LiH & vs readout mitigation, HF \\
+22 & ODE solver~\cite{kyriienko2021} & exponential decay up to $17\times$ better; not in general & vs angle encoding; spectral method wins \\
+23 & local cost $(1-\bar{\qgZ})/2$ & gradient variance $5600\times$ larger at 12 qubits; light cone trains 100 qubits classically & vs global cost~\cite{cerezo2021}; classically simulable~\cite{cerezo2023simulability} \\
+24 & $\qgZ$ filter vs ZNE by noise type & witness predicts when the filter works; ZNE + filter 2.0~mHa on \texttt{fake\_brisbane} & complementary to ZNE \\
+25 & thermal qubit, $\qgZ=\tanh\beta h$ & optimal thermometer $\qgZ\operatorname{artanh}\qgZ=1$~\cite{correa2015} & none (prior, not qg) \\
+26 & which gates to cut & exact optimum over 3795 partitions; $2\times$ fewer shots than counting & vs angle-blind rules; same as \texttt{find\_cuts} \\
+27 & repetition code choice under T1 & $\qgZ$+$\qgX$ policy regret 2.7\% vs 46--258\% & decision rule \\
+28 & spin-resolved filters & 23.2 $\to$ 14.7~mHa under depolarizing noise; none on \texttt{fake\_brisbane} & conditional \\
+29 & 1D Hubbard, 8 qubits & ZNE + spin filters 6--9$\times$ below raw; wall at $\geq$188 ECR & vs raw, ZNE \\
+30 & QAOA, exactly $K$ & filter doubles $P(\mathrm{opt})$ of XY-QAOA; penalty QAOA $\approx$ random guess & vs QAOA; greedy wins \\
+31 & qubit characterization & unbiased $T_\mathrm{eff}$ ($\pm1$~mK) and readout error, where the standard suite reads 0~K & vs standard calibration \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Limitations}\label{sec:limits}
 
 (i) The Jacobian singularity at $\theta\in\{0,\pi\}$; regularization costs exactness there.
@@ -262,12 +305,14 @@ exponential variance decay, and raw qg-space gradients still diverge at the pole
 23 of 24 circuits, not provably.
 (vi) Finite-shot bias of $\qgS$.
 (vii) Pole damping costs iterations and has a trapping mode.
-(viii) The device result is a calibration-based simulation. A run on real hardware
-(\texttt{--mode ibm}) is prepared but has not yet been performed.
+(viii) All device results, here and in the follow-up studies, are calibration-based or
+vendor-model simulations. Runs on real hardware (\texttt{--mode ibm}, IonQ) are prepared but have
+not yet been performed.
 
 \section{Code availability}\label{sec:code}
 
-The library, every example, and the regression tests pinning every number above are available at
+The library, every example, and the regression tests pinning every number above (809 tests at
+the time of this revision) are available at
 \url{https://github.com/Viny2030/qang} (MIT license). Figure~\ref{fig:t1} is regenerated by
 \texttt{manuscript/make\_figures.py}. Derivations with additional detail are in
 \texttt{RESEARCH\_NOTES.md}.

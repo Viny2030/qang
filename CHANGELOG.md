@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `manuscript/witness/`: companion preprint on the register-mean qg_Z as a
+  symmetry witness (chemistry, noise-type decision rule vs ZNE, Hubbard,
+  constrained QAOA, qubit characterization).
+
+### Changed
+- `manuscript/main.tex`: revised with a summary table of the follow-up studies
+  (RESEARCH_NOTES §15–§31), updated limitations and test count.
 - `examples/hardware_characterization_qg.py`: heralded qg sweep that separates
   thermal population (effective temperature) from asymmetric readout error and
   fits T1 and T2, vs the standard calibration suite (RESEARCH_NOTES §31).
