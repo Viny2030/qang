@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qec_leung_code_t1_qg.py`: the 4-qubit Leung code for amplitude
+  damping vs no code and repetition codes, the p < gamma/4 (T2 > T1) rule, and
+  the qg witness policy with the Leung option (RESEARCH_NOTES §32).
 - `manuscript/witness/`: companion preprint on the register-mean qg_Z as a
   symmetry witness (chemistry, noise-type decision rule vs ZNE, Hubbard,
   constrained QAOA, qubit characterization).

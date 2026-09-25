@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (809 tests at the time of
+pinned by a regression test in `tests/` (818 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1662,6 +1662,66 @@ std over 100 repetitions:
   hardware.
 
 ![Characterization](examples/hardware_characterization_qg.png)
+
+## 32. A code built for T1: the Leung [[4,1]] code and a T2/T1 rule (`examples/qec_leung_code_t1_qg.py`)
+
+§27 found that neither repetition code corrects amplitude damping. The
+4-qubit code of Leung, Nielsen, Chuang and Yamamoto (PRA 56, 2567, 1997),
+|0_L⟩ = (|0000⟩ + |1111⟩)/√2 and |1_L⟩ = (|0011⟩ + |1100⟩)/√2, corrects
+the no-jump distortion and any single jump to first order. It cannot
+correct single phase flips (Z₁ and Z₃ act identically on the code up to
+a logical Z). The setting is the same as §27: one round of damping γ,
+then dephasing p on each data qubit, perfect recovery, exact logical
+average infidelity. The recovery is channel-adapted: each image E_j V of
+{no jump, jump on qubit j} is mapped back by its polar isometry. The Petz
+recovery is a cross-check, and a Qiskit Aer density-matrix circuit
+matches to 10⁻¹⁵.
+
+**Pure T1** (logical infidelity):
+
+| γ | no code | bit-flip | phase-flip | **Leung** |
+|---|---|---|---|---|
+| 0.001 | 3.3e-4 | 5.0e-4 | 1.0e-3 | **9.2e-7** |
+| 0.01 | 3.3e-3 | 5.0e-3 | 9.9e-3 | **9.2e-5** |
+| 0.03 | 1.0e-2 | 1.5e-2 | 2.9e-2 | **8.2e-4** |
+
+* **The Leung code corrects T1.** Its infidelity is ≈ 0.92 γ², which is 36×
+  below no code at γ = 0.01 and 360× at 0.001. It beats no code up to
+  γ = 0.44. The Petz recovery is ~1.3× worse.
+* **It is fragile to dephasing.** It beats no code only for **p < γ/4**
+  (boundary p/γ = 0.249, 0.247, 0.237 at γ = 0.002, 0.01, 0.04). At
+  γ = 0.02 its gain falls from 18× (p = 0) to 1.9× (p = 0.002) and to none
+  at p = 0.005.
+* **In device terms it is a rule on T2/T1 alone.** One idle round gives
+  γ = t/T1 and p = t/2T_φ, so p = γ/4 ⇔ T_φ = 2T1 ⇔ **T2 = T1**, and p = γ
+  ⇔ **T2 = 0.4 T1**. The best option is the **Leung code if T2 > T1**, **no
+  code if 0.4 T1 < T2 < T1**, and the **phase-flip code if T2 < 0.4 T1**
+  (checked at t/T1 = 0.002, 0.01, 0.03). A transmon with T1 = 100 µs and
+  T2 = 70 µs (§31) sits in the "no code" band. Since T2 ≤ 2T1, the
+  Leung code suits qubits close to the T1 limit.
+
+**Policy** (300 instances, γ and p log-uniform in [10⁻³, 5·10⁻²], the
+§27 witness qg_Z of |1⟩ and qg_X of |+⟩ with 1000 shots each):
+
+| policy | regret vs oracle | right choice |
+|---|---|---|
+| **qg witness, options none / phase / Leung** | **+6.4 %** | 79 % |
+| §27 policy (none / phase) | +14.7 % | 65 % |
+| always phase | +66 % | 51 % |
+| always none | +64 % | 28 % |
+| always Leung | +220 % | 21 % |
+
+The oracle picks Leung in 21 % of instances. The regret is +30.7 %,
++0.7 % and +0.1 % at 100, 10,000 and 100,000 shots.
+
+**Honest summary.** The code and its recovery are known, and the
+setting is code capacity: noiseless encoding and recovery, one round.
+What is new here is the decision rule, in qg and equivalently T2 > T1,
+together with its cost against the simpler options. It closes the §27
+gap. It also links to §31, which measures exactly the T1 and T2 the rule
+needs.
+
+![Leung code](examples/qec_leung_code_t1_qg.png)
 
 ## Suggested next steps
 
