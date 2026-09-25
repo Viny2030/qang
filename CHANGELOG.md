@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/ising_coherence_witness_qg.py`: the §25 entropy gap as the relative
+  entropy of coherence, a superadditive single-qubit qg lower bound (92-100%
+  tight on thermal transverse-field Ising states), the failing basis-entropy
+  bound and the graph-state counterexample (RESEARCH_NOTES §34).
 - `examples/qec_syndrome_drift_tracking_qg.py`: syndrome ancillas as a continuous
   qg witness (closed forms <XXXX> = qg_X^4, <X1X2> = qg_X^2), drift tracking and
   adaptive switching between no code, phase code and Leung code (RESEARCH_NOTES §33).

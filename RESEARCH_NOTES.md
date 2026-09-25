@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (827 tests at the time of
+pinned by a regression test in `tests/` (837 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1781,6 +1781,60 @@ readout error, which §31 calibrates, and extraction adds noise. The loop
 the adaptive protocol to run on a device.
 
 ![Syndrome tracking](examples/qec_syndrome_drift_tracking_qg.png)
+
+## 34. Is the §25 entropy gap a coherence witness? Transverse-field Ising (`examples/ising_coherence_witness_qg.py`)
+
+§25 found that the Z-basis entropy written in qg,
+Σ qg_S,i − qg_correlation, equals the thermal entropy of a 6-qubit Ising
+ring only without a transverse field. **That gap is a known quantity:**
+the relative entropy of coherence in the Z basis (Baumgratz, Cramer and
+Plenio, PRL 113, 140401, 2014), C(ρ) = H(diag ρ) − S(ρ) ≥ 0, which is 0
+iff ρ is diagonal. It is exact but needs S(ρ), which Z counts cannot
+give. We test three measurable lower bounds on thermal states of
+H = −J ΣZZ − h ΣZ − g ΣX (6-qubit ring, J = h = 1):
+
+* **single-qubit (qg):** partial trace is incoherent, so C(ρ) ≥ C(ρᵢ) =
+  qg_S(qg_Z) − qg_S(|r|), with |r| = √(qg_X² + qg_Y² + qg_Z²);
+* **sum (qg):** C is superadditive over qubits, because
+  C(ρ) − Σᵢ C(ρᵢ) = T(ρ) − qg_correlation ≥ 0 (T is the quantum total
+  correlation, and local dephasing cannot raise it). So
+  **C ≥ Σᵢ [qg_S(qg_Z,i) − qg_S(|rᵢ|)]**, still from two single-qubit qg
+  values per site;
+* **basis:** S(ρ) ≤ H in any basis, so C ≥ H_Z − H_X (joint entropies of
+  2⁶ outcomes).
+
+| β \ g | 0.25 | 0.5 | 1.0 | 1.5 | 2.0 |
+|---|---|---|---|---|---|
+| 0.25 | 0.015 / 96 % | 0.061 / 96 % | 0.241 / 97 % | 0.523 / 97 % | 0.889 / 97 % |
+| 0.5 | 0.044 / 92 % | 0.174 / 93 % | 0.657 / 93 % | 1.352 / 94 % | 2.146 / 95 % |
+| 1.5 | 0.107 / 100 % | 0.356 / 99 % | 1.117 / 98 % | 2.085 / 96 % | 3.086 / 95 % |
+| 3.0 | 0.111 / 100 % | 0.361 / 99 % | 1.126 / 98 % | 2.097 / 96 % | 3.098 / 95 % |
+
+(exact C in bits / fraction captured by the qg sum bound)
+
+* **The qg sum bound captures 92–100 % of the coherence.** The missing
+  part is T − qg_correlation, the correlation the Z basis does not see.
+  The single-qubit bound alone gets ~16 % (1/n of the sum, by
+  translation invariance).
+* **The basis-entropy bound is useless here.** It is negative almost
+  everywhere, down to −6 bits, because the X-basis outcomes are nearly
+  uniform. It turns positive only for g > ~2.1.
+* **Few shots are enough.** The sum bound reads 0.26 ± 0.11, 0.32 ± 0.04 and
+  0.35 ± 0.02 bits at 100, 1000 and 10,000 shots (exact 0.354, β = 1.5,
+  g = 0.5). At g = 0 it reads ~0.001 bits, and a 3σ test on |qg_X| fires
+  in 0.3–0.5 % of runs, the nominal rate.
+* **Where it fails.** On a ring cluster (graph) state every reduced qubit
+  is I/2, so the qg bounds are 0 while C = 6 bits. This is the Z-basis
+  blind spot of the first preprint. The tightness is a property of
+  these thermal states, not a general law.
+
+**Honest summary.** The gap is a known coherence measure, and its
+superadditivity is known in the coherence literature. The qg reading
+adds a cheap, tight bound for these states (two single-qubit qg values
+per site, few shots), with the §25 decomposition naming exactly the
+term it misses.
+
+![Coherence witness](examples/ising_coherence_witness_qg.png)
 
 ## Suggested next steps
 
