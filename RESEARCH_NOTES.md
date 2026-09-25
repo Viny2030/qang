@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (837 tests at the time of
+pinned by a regression test in `tests/` (851 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1835,6 +1835,97 @@ per site, few shots), with the §25 decomposition naming exactly the
 term it misses.
 
 ![Coherence witness](examples/ising_coherence_witness_qg.png)
+
+## 35. Few-shot single-qubit tomography (`examples/few_shot_tomography_qg.py`)
+
+The Bloch vector is (qg_X, qg_Y, qg_Z). With N shots per axis we compare
+six estimators: linear inversion (LI), LI projected onto the ball, MLE,
+the per-axis Haar posterior mean (uniform in each qg, §15.3:
+r_a = (2k_a − N)/(N + 2), then projected), the per-axis Jeffreys mean
+(control asked for by §25), and the full Bloch-ball Bayes mean under the
+prior that matches the test ensemble. Mean squared Bloch error, 2000
+states, 10 shots per axis:
+
+| ensemble | LI | LI+proj | MLE | **qg-Haar** | Jeffreys | Bayes (matched) |
+|---|---|---|---|---|---|---|
+| Haar pure | 0.203 | 0.157 | 0.150 | 0.165 | 0.159 | 0.143 |
+| uniform mixed | 0.247 | 0.211 | 0.210 | **0.185** | 0.196 | 0.171 |
+| pure near pole | 0.199 | 0.159 | 0.109 | 0.163 | 0.159 | 0.036 |
+| strongly mixed (\|r\| < 0.3) | 0.298 | 0.293 | 0.293 | **0.208** | 0.245 | 0.046 |
+
+* **LI is unphysical** in 52–88 % of runs on pure states.
+* **On mixed states qg-Haar is the best closed form.** It is 12 % below MLE
+  on uniform mixed states and 29 % below on strongly mixed ones, and
+  6–15 % below Jeffreys. It shrinks towards the centre.
+* **On pure states that shrinkage is wrong:** qg-Haar is 10 % worse than
+  MLE (Haar pure) and 50 % worse near a pole. The per-axis prior is the
+  Haar *marginal*; the joint Haar prior lives on the sphere, and the
+  full-sphere Bayes estimator that uses it is the best on pure states.
+* **By 100 shots** the estimators agree within ~10 %, except near a pole,
+  where MLE stays 25 % ahead (15 % at 1000). A mismatched prior is
+  costly: a sphere prior on strongly mixed states gives 0.591 (matched
+  0.046).
+* **Verdict (as §15.3 and §25):** the prior does the work, not the qg
+  coordinates. qg-Haar is a good free default for expected-mixed
+  (noisy) states; use MLE or a sphere prior for expected-pure ones.
+
+![Tomography](examples/few_shot_tomography_qg.png)
+
+## 36. Ramsey sensing: where to operate (`examples/ramsey_qg_operating_point.py`)
+
+Ramsey gives qg = a + bV cos(φ − α), with visibility V, operating point α
+and the §31 readout map (a, b). The per-shot Fisher information is
+F = b²V² sin²(φ − α)/(1 − qg²). With a = 0 and b = 1 this becomes
+**F = (V² − qg²)/(1 − qg²)**. For V = 1 it is flat (F = 1 everywhere): the
+1/(1 − qg²) gain at the poles is exactly cancelled by the Jacobian. For
+V < 1 the optimum is the mid-fringe, qg = 0, and F → 0 at the bright
+fringe.
+
+* **Readout asymmetry moves the optimum off quadrature, but it does not
+  matter.** The gain is +0.17 % with the §31 readout (optimum at
+  qg* = +0.09) and +1.6 % even with e10 = 0.10.
+* **Few shots**, φ ∈ [0, 0.5] rad, √N × RMSE, V = 1 (CRB 1): plug-in
+  inversion gives 0.89–1.12 at both points, although 82 % of 10-shot
+  runs at the pole give identical outcomes. The Bayesian posterior mean
+  is ~2× better at 10 shots (0.41), because the prior range carries
+  information.
+* **V = 0.9:** the pole gets *worse* with more shots (plug-in 1.09 → 2.50
+  from N = 10 to 1000), because small phases become invisible there. The
+  mid-fringe tracks its bound (1.11–1.24, CRB 1.12).
+* **Honest summary:** a clean qg form of known Ramsey practice (operate at
+  mid-fringe, use a prior at few shots). It gives no gain over it.
+
+![Ramsey](examples/ramsey_qg_operating_point.png)
+
+## 37. Grover amplitude estimation as Chebyshev polynomials in qg (`examples/amplitude_estimation_chebyshev_qg.py`)
+
+With amplitude a = sin²t and the good/bad flag read as a qubit
+(qg₀ = 1 − 2a), k Grover iterations give **qg_k = T_{2k+1}(qg₀)**, the
+Chebyshev structure of §16. Because T_m′ = m U_{m−1} and
+1 − T_m² = (1 − q²)U_{m−1}², the one-shot Fisher information is
+**F_m = m²/(1 − qg₀²)**: depth m multiplies the §15.1 qg information by m²,
+uniformly along the fringe. This is checked to machine precision and
+against a Qiskit circuit. It is the qg form of the known 4m² for the
+angle (Suzuki et al. 2020).
+
+Maximum-likelihood amplitude estimation (MLAE; depths 0, 1, 2, 4, …, 2^j,
+100 shots each) against Monte Carlo at equal oracle queries:
+
+* **Noiseless:** the error falls as queries^(−0.93…−1.12) against
+  queries^(−0.5) for Monte Carlo, 8.4–9.3× lower at 26,200 queries
+  (a = 0.1, 0.3, 0.5). With depths 0 and 1 only it can lose (0.6× at
+  a = 0.3), because T₃ is not one-to-one.
+* **Depolarizing p = 0.01 per iteration:** MLAE that ignores the noise ends
+  worse than Monte Carlo (6.8·10⁻³ vs 2.7·10⁻³). The noise-aware
+  likelihood keeps a 4× advantage (6.7·10⁻⁴).
+* **p = 0.05:** even noise-aware MLAE plateaus at the Monte Carlo level
+  (3.2·10⁻³ vs 2.8·10⁻³). Depths beyond ~1/p carry almost no signal.
+* **Honest summary:** the results are known; qg gives the Chebyshev
+  picture and the m²/(1 − qg²) factor. The practical points are that the
+  noise must be in the likelihood, and that the advantage ends near
+  depth 1/p.
+
+![Amplitude estimation](examples/amplitude_estimation_chebyshev_qg.png)
 
 ## Suggested next steps
 

@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/few_shot_tomography_qg.py`, `examples/ramsey_qg_operating_point.py`,
+  `examples/amplitude_estimation_chebyshev_qg.py`: few-shot tomography (qg-Haar
+  vs Jeffreys, LI, MLE, Bayes), Ramsey Fisher information F = (V^2 - qg^2)/(1 - qg^2),
+  and Grover amplitude estimation as T_{2k+1}(qg) with F = m^2/(1 - qg^2), MLAE vs
+  Monte Carlo with noise (RESEARCH_NOTES §35-§37).
 - `examples/ising_coherence_witness_qg.py`: the §25 entropy gap as the relative
   entropy of coherence, a superadditive single-qubit qg lower bound (92-100%
   tight on thermal transverse-field Ising states), the failing basis-entropy
