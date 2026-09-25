@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/hubbard_trotter_qg_filters.py`: 1D Fermi-Hubbard Trotter dynamics
+  (8 qubits) with N and spin-resolved qg filters vs ZNE, on an all-to-all
+  depolarizing device and on fake_brisbane (RESEARCH_NOTES §29).
 - `examples/chemistry_spin_resolved_qg_filter.py`: H2 with separate
   spin-up / spin-down qg filters vs the total-N filter, with a spin-leak
   witness, on fake_brisbane and controlled noise (RESEARCH_NOTES §28).

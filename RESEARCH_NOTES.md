@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (755 tests at the time of
+pinned by a regression test in `tests/` (792 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1497,6 +1497,70 @@ does not. FCI is exact at this size, so this is not a classical-vs-quantum
 comparison.
 
 ![Spin-resolved filters](examples/chemistry_spin_resolved_qg_filter.png)
+
+## 29. Materials simulation: 1D Hubbard dynamics with N and spin qg filters (`examples/hubbard_trotter_qg_filters.py`)
+
+1D Fermi–Hubbard, L = 4 sites (8 qubits, spin-up and spin-down blocks in
+Jordan–Wigner), J = 1, U = 2, first-order Trotter with dt = 0.25, from a
+charge-density wave (sites 0 and 2 doubly occupied). H conserves N↑ and
+N↓, so each spin register has ideal mean qg_Z = 0 at every time. Unlike
+H2, **every observable is in the Z basis** (charge imbalance I, double
+occupancy D), so the filters act on all of them. Reference: the
+noiseless output of the same Trotter circuit. Methods on top of readout
+mitigation: N filter (§21), spin filters (§28), ZNE (every two-qubit gate
+of the routed circuit folded ×3, ×5; §24), ZNE + spin filters. 20,000
+shots per circuit, 5 seeds.
+
+**All-to-all, depolarizing-dominated device** (0.6 % per CX, no
+routing, 20 CX per step), |error| of D:
+
+| steps (t) | 1 (0.25) | 2 | 4 | 6 | 8 (2.0) | time average |
+|---|---|---|---|---|---|---|
+| readout-mitigated | .008 | .002 | .017 | .027 | .042 | .019 |
+| + N filter | .003 | .001 | .010 | .020 | .030 | .013 |
+| + spin filters | .003 | .001 | .007 | .014 | .021 | .009 |
+| + ZNE | .001 | .002 | .002 | .009 | .017 | .006 |
+| **+ ZNE + spin filters** | .001 | .001 | .002 | .004 | .007 | **.003** |
+
+Mean qg_Z of both registers stays at 0 (unital noise), but the kept
+fraction falls from 0.88 to 0.50 and the spin leak grows from 0 to 0.08.
+For I the time averages are .026 raw, .013 N, .011 spin, .006 ZNE and
+.008 ZNE + spin.
+
+**fake_brisbane** (heavy-hex: routing the hop/interaction ladder costs 56
+ECR per step), |error| at 1 and 2 steps:
+
+| | D, 1 step | D, 2 steps | I, 1 step | I, 2 steps |
+|---|---|---|---|---|
+| readout-mitigated | .081 | .056 | .206 | .111 |
+| + N filter | .050 | .029 | .124 | .070 |
+| + spin filters | .039 | .016 | .100 | .047 |
+| + ZNE | .031 | .031 | .036 | **.010** |
+| + ZNE + spin filters | **.009** | **.006** | **.035** | .071 |
+
+* **Filters on every observable.** The qg filters roughly halve the
+  error on the all-to-all device, and ZNE + spin filters gives the best
+  double occupancy on both devices (6–9× below raw).
+* **Routing creates spin leak, and then the second filter pays.** On
+  fake_brisbane 8 %, 16 %, 41 %, 45 % and 47 % of the right-N shots sit in the
+  wrong spin sector (1, 2, 4, 6 and 8 steps; H2 in §28: < 1 %), so the
+  spin filters clearly beat the N filter.
+* **The per-register witnesses localize T1.** With the current
+  fake_brisbane snapshot mostly the spin-down register drifts to +1; with
+  an older snapshot both do. That is a property of the calibration, not
+  of the method.
+* **Limit.** From 4 steps on fake_brisbane (≥ 188 ECR, 18 % of shots
+  kept) every method sits on the noise floor: D → 1/4, the value of the
+  maximally mixed state inside the spin sector, and I → 0. This is the
+  same wall as LiH (§21).
+* **Honest scope.** On the all-to-all device the mitigated error is
+  already comparable to the Trotter error itself (0.01–0.02 vs exact
+  evolution). The 1D Hubbard model at this size, and up to ~20 sites by
+  exact diagonalization (much further with tensor networks), is
+  classically easy. This ranks error mitigation for quantum simulation,
+  not quantum vs classical.
+
+![Hubbard dynamics](examples/hubbard_trotter_qg_filters.png)
 
 ## Suggested next steps
 
