@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qec_syndrome_drift_tracking_qg.py`: syndrome ancillas as a continuous
+  qg witness (closed forms <XXXX> = qg_X^4, <X1X2> = qg_X^2), drift tracking and
+  adaptive switching between no code, phase code and Leung code (RESEARCH_NOTES §33).
 - `examples/qec_leung_code_t1_qg.py`: the 4-qubit Leung code for amplitude
   damping vs no code and repetition codes, the p < gamma/4 (T2 > T1) rule, and
   the qg witness policy with the Leung option (RESEARCH_NOTES §32).

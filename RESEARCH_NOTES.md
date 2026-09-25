@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (818 tests at the time of
+pinned by a regression test in `tests/` (827 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1722,6 +1722,65 @@ gap. It also links to §31, which measures exactly the T1 and T2 the rule
 needs.
 
 ![Leung code](examples/qec_leung_code_t1_qg.png)
+
+## 33. The syndrome as a continuous qg witness: tracking drift and switching code (`examples/qec_syndrome_drift_tracking_qg.py`)
+
+§32 gave a rule on T2/T1: use the Leung code if T2 > T1, no code if
+0.4 T1 < T2 < T1, and the phase code if T2 < 0.4 T1. On real qubits T2
+fluctuates as two-level defects switch T_φ, so a choice made at
+calibration goes stale. Each syndrome ancilla returns a stabilizer
+expectation, qg_Z(ancilla) = ⟨S⟩, so the running code is itself a
+witness.
+
+**Closed forms** (exact against the Kraus computation). Every stabilizer
+expectation is a power of the §27 single-qubit witness
+qg_X = √(1 − γ)(1 − 2p):
+
+    Leung:  ⟨Z0Z1⟩ = 1 − 2γ(1 − γ),   ⟨XXXX⟩ = qg_X⁴
+    phase:  ⟨X1X2⟩ = qg_X²
+
+The ancilla qg_Z therefore inverts in one line to γ and p. From one
+window of 1000 QEC rounds the Leung syndromes give γ to ±23 % and p to
+±28 % at T2/T1 = 0.6, enough to separate the three regimes (> 80 %
+correct).
+
+**Drift.** Code capacity, as in §27 and §32, with γ ≈ 0.01 per round.
+T2/T1 follows a random telegraph between 1.6, 0.6 and 0.3 (one level
+per regime), with a mean dwell of 20 windows. T1 is stable, so all
+γ information is pooled. Averages over 400 windows × 5 seeds:
+
+| strategy | regret vs oracle | extra probe shots / window |
+|---|---|---|
+| probe every window (§27 witness, 2000 shots) | +6.6 % | 2000 |
+| **hybrid: syndromes, probes only when uncoded** | **+7.2 %** | **481** |
+| **syndrome tracking only** | **+13.1 %** | **5** |
+| probe every 10 windows | +20.4 % | 200 |
+| fixed no code | +25.9 % | 0 |
+| fixed phase code | +46.0 % | 0 |
+| calibrate once at t = 0 | +57.7 % | 5 |
+| fixed Leung code | +129.5 % | 0 |
+
+* **The syndromes are free information.** Tracking by syndrome alone
+  beats recalibrating every 10 windows without any probe shots. The
+  hybrid comes within 0.6 points of probing every window with 4× fewer
+  probe shots.
+* **A one-time calibration is worse than never coding** once the noise
+  drifts (+58 % vs +26 %).
+* **What limits it.** Each switch lags by one window, and without a code
+  there are no syndromes, so the tracker must explore (one Leung window
+  every 5) or probe (the hybrid). Smoothing the p counts over past
+  windows made it worse (+18.5 % and +27.6 % with forgetting 0.5 and 0.8),
+  because this drift is abrupt. Pooling γ matters: without it (±30 % from
+  each 1000-shot probe) the hybrid stayed in the phase code near the
+  T2 = 0.4 T1 boundary (+11.3 %).
+
+**Honest scope.** This is code capacity with perfect syndrome extraction
+and a synthetic drift model. On hardware the ancillas have their own
+readout error, which §31 calibrates, and extraction adds noise. The loop
+§31 → §32 → §33 (measure T1/T2, choose the code, watch the syndromes) is
+the adaptive protocol to run on a device.
+
+![Syndrome tracking](examples/qec_syndrome_drift_tracking_qg.png)
 
 ## Suggested next steps
 
