@@ -23,7 +23,7 @@ error mitigation, constrained optimization and qubit characterization in qg unit
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 26 September 2026}
+\date{\small Draft of 26 September 2026; revised with the trapped-ion and syndrome sections}
 
 \begin{document}
 \maketitle
@@ -47,7 +47,12 @@ constraint, the filter doubles the success probability of the constraint-preserv
 QAOA at depth $\le2$ does not beat a random feasible guess, and a greedy algorithm beats all quantum
 variants. (v) The witness relies on calibrated readout. A heralded sweep separates thermal
 population from asymmetric readout error, which the standard calibration conflates, and gives an
-unbiased effective temperature ($\pm1$~mK) together with $T_1$ and $T_2$. We also report where the
+unbiased effective temperature ($\pm1$~mK) together with $T_1$ and $T_2$. (vi) On IonQ's trapped-ion
+noise models the filter doubles the constraint-preserving QAOA success and halves the H$_2$ error in
+every run, while zero-noise extrapolation, which must fold native gates because CX folding is undone by
+the compiler, is nearly unbiased but too noisy at the 2000-shot limit. (vii) Beyond symmetries, every
+stabilizer expectation of the repetition and Leung codes is a power of one single-qubit qg, so the
+syndromes track noise drift for free and choose between codes by the rule $T_2>T_1$. We also report where the
 method stops: a 6-qubit LiH circuit and Hubbard circuits beyond $\sim$190 two-qubit gates, where
 the witness correctly reports unital scrambling. No result is a quantum advantage over classical
 computation. Every number is reproduced by a script and pinned by a regression test.
@@ -339,6 +344,72 @@ mid-circuit measurement.
 \label{fig:char}
 \end{figure}
 
+\section{Trapped-ion noise models}\label{sec:ionq}
+
+IonQ devices are all-to-all, so the routing that dominated Sections~\ref{sec:hubbard} and \ref{sec:qaoa}
+disappears. We reran the Hubbard, QAOA and H$_2$ experiments on IonQ's cloud simulator with its
+\texttt{aria-1} and \texttt{forte-1} noise models (2000 shots per circuit, the simulator's limit; vendor
+noise models, not hardware).
+
+\paragraph{Hubbard.} Without routing the spin leak is small at shallow depth (0.1\% at one step, against
+8\% on \fb), as expected. It still grows with depth (8.3\% and 11.5\% at six steps), and there the spin
+filters beat the $N$ filter. Averaged over 1, 2, 4 and 6 steps, the error of the double occupancy is
+0.022 / 0.016 / 0.013 (readout-mitigated / $N$ filter / spin filters) on \texttt{aria-1} and 0.029 /
+0.021 / 0.017 on \texttt{forte-1}. The register witnesses stay at 0 (unital noise); the kept fraction
+does the reporting.
+
+\paragraph{QAOA.} The filter raises the probability that a shot is optimal for the XY ansatz from 0.155
+to 0.276 (depth 1) and from 0.174 to 0.363 (depth 2) on \texttt{aria-1}, and from 0.120 to 0.256 and
+0.111 to 0.293 on \texttt{forte-1}. This reproduces the all-to-all result of Section~\ref{sec:qaoa},
+while on \fb\ the same circuits fell to the random-guess level: connectivity is what keeps the signal.
+
+\paragraph{H$_2$: filter vs ZNE at a small shot budget.} Folding CX gates does not amplify the noise
+on IonQ: the service recompiles circuits written in the standard gate set and the folded pairs vanish (a
+Bell pair keeps $P(00)+P(11)=0.99$ with 1 to 21 CX). We therefore fold the native M{\o}lmer--S{\o}rensen
+gates, $\mathrm{MS}\to\mathrm{MS}\,\mathrm{MS}(\phi_0+\tfrac12,\phi_1)\,\mathrm{MS}$, which the service
+runs as written (raw error 31 $\to$ 84 $\to$ 133~mHa at scales 1, 3, 5). Over six runs per model
+(Table~\ref{tab:ionq}) the filter halves the error in every run and its mean is below Hartree--Fock,
+whereas ZNE is nearly unbiased but its extrapolation amplifies shot noise to $\pm$17--20~mHa, so its
+typical error is larger. This reverses Section~\ref{sec:zne}, where 20{,}000 shots per circuit favoured
+ZNE + qg: the preferred method depends on the shot budget.
+
+\begin{table}[t]
+\centering\small
+\caption{H$_2$ on IonQ noise models, error vs FCI (mHa), mean $\pm$ std over 6 runs, 2000 shots per
+circuit. Hartree--Fock: 20.3~mHa.}
+\label{tab:ionq}
+\begin{tabular}{lcccc}
+\toprule
+noise model & readout-mitigated & + qg filter & + ZNE (MS folding) & + ZNE + qg\\
+\midrule
+\texttt{aria-1} & $31.5\pm7.8$ & $\mathbf{14.7\pm5.8}$ & $4.2\pm20.3$ & $5.5\pm16.9$\\
+\texttt{forte-1} & $34.8\pm6.3$ & $\mathbf{13.9\pm5.4}$ & $6.6\pm19.0$ & $3.0\pm17.8$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Beyond symmetries: syndromes as qg witnesses}\label{sec:qec}
+
+In a code-capacity model with amplitude damping $\gamma$ and dephasing $p$ per round, the single-qubit
+witness is $\qgX=\sqrt{1-\gamma}\,(1-2p)$ for $|+\rangle$ and $\qgZ=-1+2\gamma$ for $|1\rangle$. Every
+stabilizer expectation of the codes we consider is a power of it: $\langle X_1X_2\rangle=\qgX^{2}$ for
+the phase-flip code, and $\langle XXXX\rangle=\qgX^{4}$, $\langle Z_0Z_1\rangle=1-2\gamma(1-\gamma)$ for
+the 4-qubit amplitude-damping code of Leung \emph{et al.} So the qg of each syndrome ancilla inverts in
+one line to $(\gamma,p)$ while the code runs.
+
+\paragraph{Which code.} Repetition codes do not correct T1; the Leung code does, with logical infidelity
+$\approx0.92\gamma^2$ instead of $\gamma/3$, but it is fragile to dephasing and beats no code only for
+$p<\gamma/4$. For one idle round ($\gamma=t/T_1$, $p=t/2T_\phi$) this is a rule on $T_2/T_1$ alone: Leung
+code if $T_2>T_1$, no code if $0.4\,T_1<T_2<T_1$, phase-flip code if $T_2<0.4\,T_1$. A transmon with
+$T_1=100~\mu$s and $T_2=70~\mu$s is in the ``no code'' band; trapped ions (no T1) never need the Leung code.
+
+\paragraph{Tracking drift.} When $T_2/T_1$ switches between the three regimes (telegraph model, 400
+windows of 1000 rounds), choosing the code from the running syndromes costs 13\% more infidelity than an
+oracle with essentially no extra shots, against 20\% for recalibrating every 10 windows and 58\% for
+calibrating once. A hybrid that probes only while no code is running reaches 7\%, within 0.6 points of
+probing every window with $4\times$ fewer probe shots. These are idealized models (perfect syndrome
+extraction, synthetic drift), and the codes are known; the contribution is the qg reading and the rules.
+
 \section{Discussion and limitations}\label{sec:limits}
 
 \begin{enumerate}
@@ -353,9 +424,11 @@ unital scrambling dominates and no method helps. The witness then reports a drif
 kept fraction near $\binom nN/2^n$.
 \item \emph{Rotated-basis terms} such as $XXYY$ cannot be filtered with Z-basis shots; they hold most
 of the residual H$_2$ error.
-\item \emph{Simulation only.} All devices are calibration-based or vendor noise models. Hardware runs
-are prepared (IBM, IonQ) but not yet performed. The characterization protocol assumes perfect gates
-and a nearly QND herald.
+\item \emph{Simulation only.} All devices are calibration-based or vendor noise models, including
+the IonQ runs, which used IonQ's own simulator. Hardware runs are prepared (IBM, IonQ) but not yet
+performed. The characterization protocol assumes perfect gates and a nearly QND herald.
+\item \emph{Shot budget.} Whether the filter or ZNE is preferable depends on the number of shots: at
+2000 shots per circuit ZNE's variance dominates, at 20{,}000 its lower bias wins.
 \item \emph{Snapshot dependence.} Per-register asymmetries depend on the calibration snapshot of the
 fake backend.
 \end{enumerate}
@@ -363,12 +436,16 @@ fake backend.
 \section{Code availability}
 \sloppy
 
-All scripts, data and the regression tests that pin every number (809 tests at the time of writing)
+All scripts, data and the regression tests that pin every number (859 tests at the time of writing)
 are at \url{https://github.com/Viny2030/qang} (MIT license): \texttt{examples/chemistry\_*.py},
 \texttt{error\_mitigation\_qg\_vs\_zne.py}, \texttt{hubbard\_trotter\_qg\_filters.py},
-\texttt{qaoa\_k\_constraint\_qg.py}, \texttt{hardware\_characterization\_qg.py} and
-\texttt{ionq\_validation.py}. Sections 20, 21, 24 and 28--31 of \texttt{RESEARCH\_NOTES.md} give
-further detail.
+\texttt{qaoa\_k\_constraint\_qg.py}, \texttt{hardware\_characterization\_qg.py},
+\texttt{qec\_leung\_code\_t1\_qg.py}, \texttt{qec\_syndrome\_drift\_tracking\_qg.py},
+\texttt{ionq\_validation.py}, \texttt{ionq\_sim\_hubbard\_qaoa.py} and
+\texttt{ionq\_sim\_zne\_grover.py}; the IonQ simulator results are recorded in
+\texttt{examples/data/ionq\_sim\_results.json}. Sections 20, 21, 24, 28--33, 38 and 39 of
+\texttt{RESEARCH\_NOTES.md} give further detail, and \texttt{notebooks/qang\_avances\_colab.ipynb}
+reproduces fast versions in Colab.
 
 \section*{Acknowledgments and use of AI tools}
 Generative AI tools (Anthropic Claude Opus 5.5) assisted with code generation, numerical experiments,

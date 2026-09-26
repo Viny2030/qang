@@ -34,6 +34,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   constrained QAOA, qubit characterization).
 
 ### Changed
+- Preprints: `manuscript/main.tex` summary table extended to §32-§39; companion witness paper
+  gains the trapped-ion (IonQ noise models) and syndrome-witness sections; PDFs regenerated
+  (`manuscript/preprint_qang_revisado.pdf`, `manuscript/preprint_testigo_simetria.pdf`).
 - `manuscript/main.tex`: revised with a summary table of the follow-up studies
   (RESEARCH_NOTES §15–§31), updated limitations and test count.
 - `examples/hardware_characterization_qg.py`: heralded qg sweep that separates
