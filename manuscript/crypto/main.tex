@@ -34,7 +34,9 @@ witness. Natural relaxation raises it, while intercept-resend adds symmetric err
 unchanged. A likelihood-ratio monitor built on it detects intercept-resend as well as the standard
 QBER monitor, but raises no false alarms when the memory's T1 degrades, where the QBER monitor fires in
 48--100\% of windows. By construction it misses an attacker who mimics T1, which the QBER monitor
-catches, so the two are complementary and neither changes the secret-key rate. (ii) For a qubit
+catches, so the two are complementary and neither changes the secret-key rate. With finite keys~\cite{tomamichel2012} the
+diagnosis comes free from the error-corrected block: at $10^5$ key bits it attributes every block
+correctly, including a small attack hidden under drift. (ii) For a qubit
 random-number generator with a trusted measurement, the certified min-entropy is
 $H_{\min}(Z|E)=-\log_2\big[(1+\sqrt{1-\qgX^2-\qgY^2})/2\big]$, independent of $\qgZ$. The usual
 output-bias estimate is unsafe whenever the state is mixed: it certifies 0.97 bits per shot where
@@ -115,6 +117,71 @@ of change it is.
 \item \emph{No security gain.} The secret fraction falls in the same way in all cases. A security
 proof must attribute every error to Eve~\cite{scarani2009}. The qg monitor is an operational
 diagnostic.
+\end{itemize}
+
+\section{BB84 with finite keys}\label{sec:finite}
+
+Real links distil keys from finite blocks. We use the bound of Tomamichel \emph{et
+al.}~\cite{tomamichel2012} on the channel of Sec.~\ref{sec:bb84}: $n$ key bits in Z, $k$ test bits in
+X, abort if the test error exceeds $Q_{\rm tol}$, and
+\begin{equation}
+\ell=n\big[1-h(Q_{\rm tol}+\mu)\big]-1.1\,n\,h(Q_Z)-\log_2\frac{2}{\varepsilon_{\rm sec}^2\varepsilon_{\rm cor}},\qquad
+\mu=\sqrt{\frac{n+k}{nk}\,\frac{k+1}{k}\,\ln\frac{2}{\varepsilon_{\rm sec}}},
+\end{equation}
+with $\varepsilon_{\rm sec}=\varepsilon_{\rm cor}=5\times10^{-11}$, $M=(\sqrt n+\sqrt k)^2$ signals, and
+rate $(1-\varepsilon_{\rm rob})\ell/M$, where $k$ and $Q_{\rm tol}$ are optimized for each $n$. On the
+baseline, $10^4$, $10^5$, $10^6$ and $10^7$ key bits keep 17\%, 38\%, 58\% and 73\% of the asymptotic
+rate of 0.707 bits per signal, and there is no key below about $1.2\times10^3$ bits
+(Fig.~\ref{fig:finite}, left). Drift and attack cost key alike.
+
+\paragraph{The diagnosis is free.} After error correction and its check, Bob knows Alice's key bits.
+He therefore has the four error counts, which are the four qg values of Sec.~\ref{sec:bb84}, over
+all $n$ key bits, without disclosing anything; announcing an alarm costs at most one bit. An aborted
+block's key bits are discarded anyway, so they can be revealed. We use two nested likelihood ratios
+on the joint model (T1 $\gamma$ and intercept-resend $f$, both free). The \emph{attack-like} ratio
+tests for symmetric error beyond any T1; the \emph{drift-like} ratio tests for T1 beyond the baseline,
+whatever the attack. Each is calibrated to 1\% false alarms on the baseline.
+
+\begin{table}[t]
+\centering\small
+\caption{Protocol tuned on the baseline at $n=10^5$ ($k=7609$, $Q_{\rm tol}=2.67\%$): fraction of
+400 blocks that abort and that raise each qg flag.}
+\label{tab:finite}
+\begin{tabular}{lccc}
+\toprule
+scenario & aborts & attack-like & drift-like\\
+\midrule
+baseline & 0.010 & 0.020 & 0.015\\
+T1 drift $\gamma=0.03$ & 0.100 & 0.005 & \textbf{1.000}\\
+T1 drift $\gamma=0.04$ & 0.557 & 0.005 & \textbf{1.000}\\
+T1 drift $\gamma=0.06$ & 0.995 & 0.007 & \textbf{1.000}\\
+intercept-resend $f=0.02$ & 0.495 & \textbf{1.000} & 0.043\\
+intercept-resend $f=0.05$ & 1.000 & \textbf{1.000} & 0.040\\
+drift 0.04 + intercept 0.02 & 0.995 & \textbf{1.000} & \textbf{1.000}\\
+T1-mimicking attack & 0.995 & 0.013 & 1.000\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{bb84_finite_key_qg.png}
+\caption{Left: finite-key rate vs block size (thin lines: asymptotic). Right: aborts and qg flags
+for a protocol tuned on the baseline at $n=10^5$.}
+\label{fig:finite}
+\end{figure}
+
+\paragraph{Results} (Table~\ref{tab:finite}).
+\begin{itemize}
+\item \emph{An abort does not say why; the qg flags do.} Every drifting block, aborted or not, is
+flagged as drift and not as an attack. Every intercept-resend block is flagged as an attack,
+including the half that did not abort. At $n=10^4$ the flags are already 0.97--1.00 (0.81 for
+$\gamma=0.03$).
+\item \emph{An attack hidden under drift is caught.} Intercept-resend at $f=0.02$ on a drifting
+memory raises both flags in every block. The one-parameter monitor of Sec.~\ref{sec:bb84} misses
+it (0.5\% attack flags).
+\item \emph{Early warning.} At $\gamma=0.03$ only 10\% of blocks abort, but the drift flag is up in
+all of them. A $Q_Z$ trend would also warn; what qg adds is the attribution.
 \end{itemize}
 
 \section{Certified random numbers}\label{sec:qrng}
@@ -215,15 +282,16 @@ $\theta$ (turns) & truth & naive & qg one-sided & qg $\pm$\\
 
 (i) Everything is simulation: single-qubit models with i.i.d.\ rounds, and vendor noise models on IonQ's simulator, not hardware. (ii) The QRNG is
 device-dependent (trusted measurement), not device-independent. (iii) Eq.~\eqref{eq:hmin} and the
-BB84 security bound are standard results; qg writes them in measured quantities. (iv) The BB84
+BB84 security bounds, asymptotic and finite-key, are standard results; qg writes them in measured quantities. (iv) The BB84
 monitor is a diagnostic: an attacker who mimics relaxation is invisible to it, and the key rate is
 unchanged. (v) The BB84 setting needs a relaxation mechanism (matter qubits); it does not describe
-photon-polarization links.
+photon-polarization links. (vi) The finite-key diagnosis models only two error families (T1 and
+intercept-resend); other attacks may fall outside both flags.
 
 \section{Code availability}
 \sloppy
-\texttt{examples/bb84\_qg\_eve\_vs\_noise.py} and \texttt{examples/qrng\_qg\_certified.py} and \texttt{examples/ionq\_sim\_qrng.py} in
-\url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 40--42 of
+\texttt{examples/bb84\_qg\_eve\_vs\_noise.py}, \texttt{examples/bb84\_finite\_key\_qg.py}, \texttt{examples/qrng\_qg\_certified.py} and \texttt{examples/ionq\_sim\_qrng.py} in
+\url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 40--43 of
 \texttt{RESEARCH\_NOTES.md} give more detail, and \texttt{notebooks/qang\_criptografia\_colab.ipynb}
 reproduces fast versions in Colab.
 

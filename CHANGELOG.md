@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/bb84_finite_key_qg.py`: BB84 finite-key rate (Tomamichel et al. 2012) on the §40
+  channel and a qg diagnosis of every block from post-error-correction counts (joint T1 +
+  intercept-resend likelihood ratios; catches an attack hidden under drift) (RESEARCH_NOTES §43).
 - `examples/ionq_sim_qrng.py`: certified QRNG (§41) on IonQ's noisy simulator with an
   environment ion that learns the output through a partial MS gate; naive vs qg estimators,
   native-gate circuits, recorded results (RESEARCH_NOTES §42).

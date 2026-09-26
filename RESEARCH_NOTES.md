@@ -2159,6 +2159,78 @@ Certified bits per shot, mean of 3 runs (aria-1 / forte-1 where they differ):
 * **Honest scope.** Vendor noise models on a simulator, not hardware; the
   leak is a designed interaction, not an adversary's strategy search.
 
+## 43. BB84 with finite keys: realistic block sizes and the qg diagnosis (`examples/bb84_finite_key_qg.py`)
+
+§40 used monitoring windows and the asymptotic key rate. Real links cut
+the key into finite blocks. This section uses the finite-key bound of
+Tomamichel, Lim, Gisin and Renner (Nat. Commun. 3, 634, 2012) on the §40
+channel (T1 γ₀ = 0.02, dephasing 0.01, asymmetric detector; Q_Z = 1.74 %,
+Q_X = 2.22 %):
+
+    ℓ = n[1 − h(Q_tol + μ)] − 1.1·n·h(Q_Z) − log₂(2/(ε_sec² ε_cor)),
+    μ = √[(n+k)/(nk) · (k+1)/k · ln(2/ε_sec)],   ε = 10⁻¹⁰
+
+The key comes from n Z bits and the test from k X bits. The protocol
+aborts if the test error exceeds Q_tol. The rate is (1 − ε_rob)ℓ/M, with
+M = (√n + √k)² signals. For each n, k and Q_tol are optimised.
+
+**Where qg enters, at no key cost.** After error correction and its
+check, Bob knows Alice's key bits, so he has the four error counts, which
+are the four qg values of §40, over all n key bits, without disclosing
+anything. Announcing an alarm bit costs at most one key bit. An aborted
+block's key bits are discarded anyway, so they can be revealed.
+Two nested likelihood ratios on the joint model (T1 γ and intercept-resend
+f, both free) give an "attack-like" flag (symmetric error beyond any T1)
+and a "drift-like" flag (T1 beyond the baseline, whatever the attack).
+Each is set to 1 % false alarms on the baseline.
+
+Finite-key rate (secret bits per signal):
+
+| scenario | n_min | n = 10⁴ | 10⁵ | 10⁶ | 10⁷ | asymptotic |
+|---|---|---|---|---|---|---|
+| baseline | 1.2·10³ | 0.120 | 0.268 | 0.407 | 0.516 | 0.707 |
+| T1 drift γ = 0.04 | 1.6·10³ | 0.091 | 0.223 | 0.348 | 0.446 | 0.622 |
+| T1 drift γ = 0.06 | 2.0·10³ | 0.068 | 0.182 | 0.294 | 0.383 | 0.544 |
+| intercept-resend f = 0.05 | 1.7·10³ | 0.079 | 0.201 | 0.318 | 0.410 | 0.575 |
+
+Protocol tuned on the baseline at n = 10⁵ (k = 7609, Q_tol = 2.67 %),
+400 blocks per scenario:
+
+| scenario | protocol aborts | qg: attack-like | qg: drift-like |
+|---|---|---|---|
+| baseline | 0.010 | 0.020 | 0.015 |
+| T1 drift 0.03 | 0.100 | 0.005 | **1.000** |
+| T1 drift 0.04 | 0.557 | 0.005 | **1.000** |
+| T1 drift 0.06 | 0.995 | 0.007 | **1.000** |
+| intercept f = 0.02 | 0.495 | **1.000** | 0.043 |
+| intercept f = 0.05 | 1.000 | **1.000** | 0.040 |
+| drift 0.04 + intercept 0.02 | 0.995 | **1.000** | **1.000** |
+| T1-mimicking attack | 0.995 | 0.013 | 1.000 |
+
+* **Finite keys are expensive.** A block of 10⁴ key bits keeps 17 % of the
+  asymptotic rate; 10⁵ keeps 38 %, 10⁶ 58 % and 10⁷ 73 %. Below about
+  10³ key bits there is no key. Drift and attack cost key alike.
+* **An abort does not say why; qg does.** With 10⁵ key bits the
+  attribution is essentially exact. Every drifting block, aborted or not,
+  is flagged as drift and not as an attack. Every intercept-resend block
+  is flagged as an attack, including the half that did not abort. At
+  n = 10⁴ the flags are already 0.97–1.00, and 0.81 for drift 0.03.
+* **An attack hidden under drift is caught.** An intercept-resend at
+  f = 0.02 on a drifting memory (γ = 0.04) raises both flags in 100 % of
+  blocks (97 % at n = 10⁴). The one-parameter GLRT of §40 misses it: it
+  gives 0.5 % attack flags and calls 99 % of blocks "drift". The joint
+  model fixes a real weakness of §40.
+* **Early warning.** At γ = 0.03 only 10 % of blocks abort, but the drift
+  flag is up in every block, so the memory can be serviced before the
+  link stops. A Q_Z trend would also warn; what qg adds is the
+  attribution.
+* **Honest scope.** The key length is the standard one: qg does not change
+  it, and every error is still charged to Eve. An attacker who mimics T1
+  exactly is flagged as drift, by construction. Only two error families
+  are modelled, on a single-qubit simulation.
+
+![BB84 finite key](examples/bb84_finite_key_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
