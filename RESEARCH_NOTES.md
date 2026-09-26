@@ -242,7 +242,8 @@ checks both regimes.
 result into a practical normal-approximation CI (`theta_hat +/- z/sqrt(N)`,
 clipped to `[0, pi]`) — e.g. "10,000 shots pins down theta to about
 `+/- 0.02` rad (95% CI), for any state that isn't extremely close to a
-computational basis state."
+computational basis state." (Pure states only: for mixed states and
+registers see §45.)
 
 ## 6. qg as a native gate for Qiskit, Cirq and PennyLane (`qang.qiskit_gate`, `qang.cirq_gate`, `qang.pennylane_gate`)
 
@@ -2286,6 +2287,71 @@ Flag rates, observed / predicted by the fitted model (16 blocks each):
   hardware. The memory and the attack are designed circuits. The key
   rate is unchanged (§43).
 
+## 45. §5 beyond one pure qubit: mixed states and registers (`qang.statistics`, `examples/multiqubit_error_propagation_qg.py`)
+
+**A. Mixed qubit.** §5's cancellation, Var(θ̂) = 1/N for every θ,
+relies on the outcome becoming certain at a pole. A qubit with Bloch
+length r < 1 (noisy, or one qubit of an entangled register) never gives
+a certain outcome, so with θ̂ = arccos(qg_Z/r):
+
+    Var(θ̂) = (1 − r² cos²θ)/(N r² sin²θ) = [1 + (1 − r²)/(r² sin²θ)]/N
+
+This equals the quantum Cramér–Rao bound 1/(N r²) at the equator and
+diverges at the poles. It is the inverse of the Ramsey Fisher information
+of §36 with V = r (`propagated_theta_variance_mixed`, `theta_qcrb_variance`).
+
+N·Var(θ̂) with N = 10⁴: delta formula / sampled (share of trials stuck
+at the pole):
+
+| θ | r = 1 | r = 0.95 | r = 0.8 |
+|---|---|---|---|
+| π/2 | 1.00 / 0.99 | 1.11 / 1.10 | 1.56 / 1.55 |
+| π/8 | 1.00 / 1.00 | 1.74 / 1.74 | 4.84 / 4.90 |
+| π/16 | 1.00 / 1.01 | 3.84 / 3.93 | 15.8 / 19.4 (1 %) |
+| π/64 | 1.00 / 1.11 | 45.9 / 18.6 (38 %) | 235 / 38 (45 %) |
+
+With 5 % less purity, the angular error at π/16 is already twice as
+large. At π/64, 38–45 % of the estimates land exactly on the pole: the
+sampled variance falls below the formula only because the estimate is
+biased there. **§5's "the measurement error self-regularizes" is a
+pure-state statement.**
+
+**B. Registers.** Per-qubit qg values measured from the same joint shots
+are correlated:
+
+    Cov(qg_i, qg_j) = (⟨Z_i Z_j⟩ − qg_i qg_j)/N
+
+Any aggregate needs this covariance (`qg_covariance`,
+`delta_method_variance`, `register_witness_variance`), including the
+symmetry witness mean(qg_i) of §20–§30, parities and energies.
+Standard deviation of the witness for 4 qubits and N = 1000 (×10⁻³):
+
+| state | correct | naive (independent qubits) | sampled |
+|---|---|---|---|
+| product, θ = π/3 | 13.7 | 13.7 | 13.8 |
+| GHZ | 31.6 | 15.8 | 32.1 |
+| W | 0.0 | 13.7 | 0.0 |
+| Dicke D(4,2) | 0.0 | 15.8 | 0.0 |
+| D(4,1) + 2 % bit flips | 4.4 | 13.9 | 4.4 |
+
+The naive error bar can be wrong in either direction. For GHZ it is n
+times too small in variance. For a fixed-excitation state it is infinitely
+too large: the witness has no shot noise at all.
+
+**C. Consequence for leak detection.** On D(4,1) with 2 % bit flips, the
+witness moves by 0.020. A 3σ detection takes 441 shots with the correct
+error bar and 4329 with the naive one, about 10× more. If full bitstrings
+are kept, counting wrong-weight shots (the kept fraction of the qg
+filter) is better still: 7.6 % of shots leak, so on an ideal device the
+first such shot is conclusive. The witness error bar matters when only
+averages are recorded.
+
+**Honest scope.** These are standard delta-method statistics. The
+contribution is to mark where §5 stops holding and which covariance the
+register witnesses need.
+
+![Error propagation](examples/multiqubit_error_propagation_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
@@ -2296,11 +2362,8 @@ Flag rates, observed / predicted by the fitted model (16 blocks each):
   (syndrome tracking) need mid-circuit measurement, which IBM devices offer
   on the free plan; `examples/nisq_hardware_validation.py --mode ibm` is
   also ready (compare with §10.5).
-* **Preprints.** Add §32–§39 to `manuscript/main.tex` and the companion
-  witness paper, and regenerate the PDFs.
-* **Multi-qubit error propagation.** Extend §5 to the mixed-state and
-  multi-qubit settings of §3–4, where the Jacobian is no longer the scalar
-  `-1/sin θ`.
+* **Publishing.** Package the preprints for arXiv and the library for
+  PyPI; optionally a Spanish version of the cryptography note (§40–§44).
 
 ## Appendix A. Functional-analysis foundation: Riesz–Fréchet
 

@@ -328,3 +328,77 @@ def delta_qg_estimate(k0: int, n_shots: int, z: float = 1.96) -> QgEstimate:
     q = 2.0 * p - 1.0
     half = 2.0 * z * math.sqrt(p * (1.0 - p) / n_shots)
     return QgEstimate(qg_z=q, low=q - half, high=q + half, method="delta")
+
+
+# --------------------------------------------------------------------- #
+# mixed states and multi-qubit registers (RESEARCH_NOTES §45)
+# --------------------------------------------------------------------- #
+def propagated_theta_variance_mixed(theta: float, r: float, n_shots: int) -> float:
+    """Delta-method variance of theta_hat = arccos(qg_Z_hat / r) for a qubit
+    whose Bloch vector has known length r (0 < r <= 1) at polar angle theta:
+
+        Var(theta_hat) = (1 - r^2 cos^2 theta) / (N r^2 sin^2 theta)
+                       = [1 + (1 - r^2) / (r^2 sin^2 theta)] / N.
+
+    For r = 1 this is the theta-independent 1/N of §5; for any r < 1 the
+    shot noise no longer vanishes at the poles (it tends to (1 - r^2)/N)
+    while the Jacobian still diverges, so the error blows up there. At the
+    equator it equals the quantum Cramer-Rao bound 1/(N r^2)."""
+    if not 0.0 < r <= 1.0:
+        raise ValueError(f"r must be in (0, 1], got {r}.")
+    if n_shots <= 0:
+        raise ValueError(f"n_shots must be positive, got {n_shots}.")
+    s2 = math.sin(theta) ** 2
+    if s2 == 0.0:
+        return 0.0 if r == 1.0 else float("inf")
+    return (1.0 - (r * math.cos(theta)) ** 2) / (n_shots * r * r * s2)
+
+
+def theta_qcrb_variance(r: float, n_shots: int) -> float:
+    """Quantum Cramer-Rao bound 1/(N r^2) for a polar rotation of a qubit
+    with Bloch length r."""
+    return 1.0 / (n_shots * r * r)
+
+
+def _z_values(n_qubits: int):
+    import numpy as np
+
+    idx = np.arange(2 ** n_qubits)
+    return np.array([1 - 2 * ((idx >> i) & 1) for i in range(n_qubits)], dtype=float)  # (n, 2^n)
+
+
+def qg_covariance(probs, n_qubits: int, n_shots: int):
+    """Per-qubit qg_Z (vector) and the exact covariance matrix of their
+    estimators from the SAME n_shots joint Z-basis shots:
+
+        Cov(qg_i_hat, qg_j_hat) = (<Z_i Z_j> - qg_i qg_j) / N.
+
+    probs: the 2^n outcome distribution, bit i of the index = qubit i
+    (Qiskit ordering)."""
+    import numpy as np
+
+    p = np.asarray(probs, dtype=float)
+    z = _z_values(n_qubits)
+    q = z @ p
+    zz = (z * p) @ z.T
+    return q, (zz - np.outer(q, q)) / n_shots
+
+
+def delta_method_variance(gradient, covariance) -> float:
+    """Var(f) ~= grad^T Cov grad for any smooth function of the qg vector."""
+    import numpy as np
+
+    g = np.asarray(gradient, dtype=float)
+    return float(g @ np.asarray(covariance, dtype=float) @ g)
+
+
+def register_witness_variance(probs, n_qubits: int, n_shots: int, independent: bool = False) -> float:
+    """Variance of the register witness (1/n) sum_i qg_i_hat. independent=True
+    gives the naive value that ignores the correlations between qubits
+    (the diagonal of the covariance only)."""
+    import numpy as np
+
+    _, cov = qg_covariance(probs, n_qubits, n_shots)
+    if independent:
+        cov = np.diag(np.diag(cov))
+    return max(0.0, delta_method_variance(np.full(n_qubits, 1.0 / n_qubits), cov))  # clip rounding below 0

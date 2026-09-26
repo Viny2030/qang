@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.statistics`: `propagated_theta_variance_mixed`, `theta_qcrb_variance`, `qg_covariance`,
+  `delta_method_variance`, `register_witness_variance`; `examples/multiqubit_error_propagation_qg.py`
+  (RESEARCH_NOTES §45: §5 error propagation for mixed states and correlated registers).
 - `examples/ionq_sim_bb84.py`: BB84 with an ancilla-built T1 memory and a measure-and-resend
   Eve as native circuits on IonQ's noisy simulator; the §43 flags with a fitted device-noise
   model, observed vs predicted flag rates (RESEARCH_NOTES §44).
