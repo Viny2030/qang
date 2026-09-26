@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (851 tests at the time of
+pinned by a regression test in `tests/` (854 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1926,6 +1926,52 @@ Maximum-likelihood amplitude estimation (MLAE; depths 0, 1, 2, 4, …, 2^j,
   depth 1/p.
 
 ![Amplitude estimation](examples/amplitude_estimation_chebyshev_qg.png)
+
+## 38. IonQ noisy simulator: Hubbard dynamics and constrained QAOA without routing (`examples/ionq_sim_hubbard_qaoa.py`)
+
+On fake_brisbane, routing dominated §29 (56 ECR per Trotter step, and
+spin leak created by routing) and §30 (134–497 ECR, XY-QAOA drowned).
+IonQ devices are all-to-all, so we reran both on IonQ's cloud simulator
+with the vendor noise models aria-1 and forte-1 (free, 2000 shots per
+circuit; results recorded in `examples/data/ionq_sim_results.json`).
+This is not hardware.
+
+**Hubbard** (3 repetitions; |error| averaged over 1, 2, 4 and 6 steps,
+double occupancy / charge imbalance):
+
+| noise model | readout-mitigated | + N filter | + spin filters |
+|---|---|---|---|
+| aria-1 | 0.022 / 0.029 | 0.016 / 0.021 | **0.013 / 0.020** |
+| forte-1 | 0.029 / 0.042 | 0.021 / 0.023 | **0.017 / 0.019** |
+
+* **Without routing the spin leak is small at shallow depth**, as
+  predicted: 0.1 % at one step, against 8 % on fake_brisbane. It still grows
+  with depth under depolarizing-dominated noise: 8.3 % (aria-1) and 11.5 %
+  (forte-1) at 6 steps. There the spin filters beat the N filter (double
+  occupancy 0.032 → 0.023 and 0.044 → 0.033).
+* **The witnesses behave as for unital noise.** The per-register mean qg_Z
+  stays at 0 (±0.012 on average), and the kept fraction does the
+  reporting (0.53 and 0.45 at 6 steps). The filters cut the time-averaged
+  error by 30–55 %, in line with the generic all-to-all model of §29.
+
+**QAOA exactly K** (5 graphs; P(opt), noisy → noisy + qg filter; random
+feasible guess 0.096):
+
+| | standard | qg budget | qg warm | **XY mixer** |
+|---|---|---|---|---|
+| aria-1, p = 1 | 0.047 → 0.102 | 0.062 → 0.114 | 0.163 → 0.311 | **0.155 → 0.276** |
+| aria-1, p = 2 | 0.080 → 0.178 | 0.066 → 0.143 | 0.114 → 0.263 | **0.174 → 0.363** |
+| forte-1, p = 1 | 0.046 → 0.106 | 0.053 → 0.098 | 0.146 → 0.299 | **0.120 → 0.256** |
+| forte-1, p = 2 | 0.074 → 0.168 | 0.062 → 0.146 | 0.093 → 0.235 | **0.111 → 0.293** |
+
+* **The filter doubles the XY-mixer success (1.8–2.6×) on both models.** This
+  reproduces §30's all-to-all result. On fake_brisbane the same circuits
+  fell to the random-guess level, so connectivity is what keeps the
+  signal.
+* **Penalty QAOA again ends at the random-feasible level**, and greedy (98.5 %
+  of the optimum) still beats every variant (ratio ≤ 0.87).
+* **Next:** the same scripts can target IonQ hardware only with an explicit
+  cost approval. H2 (§20) remains the cheapest first hardware run.
 
 ## Suggested next steps
 

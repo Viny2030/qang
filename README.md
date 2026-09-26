@@ -119,7 +119,7 @@ concrete, measured speed/cost comparisons (including one negative result, kept i
 purpose). Open it directly in Colab with the badge above.
 
 ## Testing
-The package includes an extensive test suite (851 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (854 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

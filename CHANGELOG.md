@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/ionq_sim_hubbard_qaoa.py`: Hubbard dynamics and constrained QAOA on
+  IonQ's noisy cloud simulator (aria-1, forte-1), resumable job submission, recorded
+  results in `examples/data/ionq_sim_results.json` (RESEARCH_NOTES §38).
 - `examples/few_shot_tomography_qg.py`, `examples/ramsey_qg_operating_point.py`,
   `examples/amplitude_estimation_chebyshev_qg.py`: few-shot tomography (qg-Haar
   vs Jeffreys, LI, MLE, Bayes), Ramsey Fisher information F = (V^2 - qg^2)/(1 - qg^2),
