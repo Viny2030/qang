@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `notebooks/qang_avances_colab.ipynb`: Colab notebook (Spanish) reproducing fast versions of
+  RESEARCH_NOTES §20-§39 with a for/against reading per section; README badge.
 - `examples/ionq_sim_zne_grover.py`: native-gate (MS) folding for ZNE on IonQ (CX folding
   is undone by the service), ZNE vs the qg filter on H2 and 3-qubit Grover amplitude
   estimation on IonQ noise models (RESEARCH_NOTES §39).

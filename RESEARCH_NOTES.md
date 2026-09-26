@@ -2021,12 +2021,16 @@ damping (trapped-ion T1 is effectively infinite), so by the §32 rule
 
 ## Suggested next steps
 
-* **Real-device run.** Run `examples/nisq_hardware_validation.py
-  --mode ibm` and compare with §10.5. Everything except the account is in
-  place.
-* **Mitigated LiH on hardware.** Add readout correction and ZNE (§11.2)
-  to the §10.5 energy evaluation. Then run the pole-damped optimizer
-  itself with shot-based parameter-shift gradients.
+* **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
+  small circuits; then native-MS ZNE (§39) and XY-QAOA with the filter (§38).
+  Research credits have been requested; nothing is submitted without an
+  explicit cost approval (`--yes-i-accept-qpu-cost`).
+* **IBM run of the adaptive loop.** §31 (heralded characterization) and §33
+  (syndrome tracking) need mid-circuit measurement, which IBM devices offer
+  on the free plan; `examples/nisq_hardware_validation.py --mode ibm` is
+  also ready (compare with §10.5).
+* **Preprints.** Add §32–§39 to `manuscript/main.tex` and the companion
+  witness paper, and regenerate the PDFs.
 * **Multi-qubit error propagation.** Extend §5 to the mixed-state and
   multi-qubit settings of §3–4, where the Jacobian is no longer the scalar
   `-1/sin θ`.

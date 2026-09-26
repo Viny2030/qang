@@ -118,6 +118,16 @@ IonQ's cloud simulator, and a closing section that reformulates every result abo
 concrete, measured speed/cost comparisons (including one negative result, kept in on
 purpose). Open it directly in Colab with the badge above.
 
+Two further notebooks (in Spanish) cover the research notes:
+
+* `notebooks/qang_verificado.ipynb` — §1–§19: exact identities, blind spots, noise
+  diagnostics, optimization, knitting, few-shot estimation, QML, control quantization.
+* `notebooks/qang_avances_colab.ipynb` — §20–§39: the qg symmetry witness and filter
+  (chemistry, Hubbard, constrained QAOA), filter vs ZNE, qubit characterization, error
+  correction (Leung code, syndrome tracking), coherence, few-shot estimation, and the
+  recorded IonQ noisy-simulator runs, each with an honest "for / against" reading.
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_avances_colab.ipynb)
+
 ## Testing
 The package includes an extensive test suite (859 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
