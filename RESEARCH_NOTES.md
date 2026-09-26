@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (863 tests at the time of
+pinned by a regression test in `tests/` (871 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -2073,6 +2073,51 @@ not a security improvement, and it does not apply to photon-polarization
 links, whose noise is mostly unital.
 
 ![BB84](examples/bb84_qg_eve_vs_noise.png)
+
+## 41. Certified quantum random numbers (`examples/qrng_qg_certified.py`)
+
+A qubit QRNG prepares |+⟩ and measures Z. Dephasing (T2) and thermal
+mixing (§31) leave the output unbiased, but the randomness then becomes
+classical noise that an adversary holding the environment can know.
+With a trusted measurement and an adversary holding the purification,
+her two conditional states are pure with overlap r_⊥/2. By Helstrom:
+
+    P_guess(Z|E) = (1 + √(1 − r_⊥²))/2,   H_min(Z|E) = −log₂ P_guess,
+    r_⊥ = √(qg_X² + qg_Y²)
+
+The result does not depend on qg_Z: only the coherence in the measured
+basis is private. It is checked against an explicit purification and
+Helstrom computation. Readout flips add no certified randomness.
+
+Certified bits per shot, 10⁴ test rounds per setting, §31 readout
+(e01 = 0.015, e10 = 0.04). Each cell gives the mean estimate and, in
+parentheses, the fraction of runs above the truth (unsafe):
+
+| scenario | truth | naive (output bias) | qg ± pairs | **qg + §31 calibration** |
+|---|---|---|---|---|
+| ideal \|+⟩ | 1.000 | 0.965 (0) | 0.512 (0) | 0.681 (0) |
+| T2: V = 0.8 | 0.322 | 0.964 (**1.00**) | 0.245 (0) | **0.286 (0)** |
+| T2: V = 0.5 | 0.100 | 0.965 (**1.00**) | 0.077 (0) | **0.087 (0)** |
+| T2: V = 0.2 | 0.015 | 0.965 (**1.00**) | 0.009 (0) | **0.010 (0)** |
+| thermal p = 0.05, V = 0.9 | 0.334 | 0.965 (**1.00**) | 0.254 (0) | **0.297 (0)** |
+| e10 = 0.10, V = 0.95 | 0.608 | 0.876 (**1.00**) | 0.341 (0) | **0.513 (0)** |
+
+* **The usual bias-based estimate is unsafe whenever the state is not
+  pure.** At V = 0.2 it certifies 0.97 bits per shot where 0.015 are
+  private.
+* **The qg estimate is safe in every run** when each axis is measured with
+  both rotations, because the readout offset cancels. With a single
+  rotation the offset inflates r_⊥ and overestimates in 7 % of runs at
+  V = 0.2.
+* **The §31 calibration of b recovers 10–50 % more certified bits.**
+* **Near a perfect source certification is shot-hungry.** H_min has an
+  infinite slope at r_⊥ = 1, the qg pole again, so a 3σ bound gives 0.68,
+  0.81 and 0.89 bits per shot with 10⁴, 10⁵ and 10⁶ test rounds.
+* **Honest scope.** This is a device-dependent QRNG (trusted measurement,
+  i.i.d. rounds), not device-independent randomness. The formula is
+  standard; qg writes it in measured quantities and shows why §31 matters.
+
+![QRNG](examples/qrng_qg_certified.png)
 
 ## Suggested next steps
 

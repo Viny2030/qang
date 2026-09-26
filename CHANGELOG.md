@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Cryptography line kept separate: `notebooks/qang_criptografia_colab.ipynb` and the note
+  `manuscript/crypto/main.tex` (PDF `manuscript/qang_criptografia.pdf`) on §40-§41 and why qg
+  does not apply to post-quantum cryptography.
+- `examples/qrng_qg_certified.py`: certified min-entropy of a qubit QRNG,
+  H_min(Z|E) = -log2[(1 + sqrt(1 - qg_X^2 - qg_Y^2))/2], naive vs qg estimators with the
+  §31 readout calibration (RESEARCH_NOTES §41).
 - `examples/bb84_qg_eve_vs_noise.py`: BB84 on a noisy qubit channel; qg asymmetry monitor vs
   QBER monitor for intercept-resend, T1 drift and a T1-mimicking attack (RESEARCH_NOTES §40).
 - `notebooks/qang_avances_colab.ipynb`: Colab notebook (Spanish) reproducing fast versions of

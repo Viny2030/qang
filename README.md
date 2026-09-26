@@ -118,7 +118,7 @@ IonQ's cloud simulator, and a closing section that reformulates every result abo
 concrete, measured speed/cost comparisons (including one negative result, kept in on
 purpose). Open it directly in Colab with the badge above.
 
-Two further notebooks (in Spanish) cover the research notes:
+Three further notebooks (in Spanish) cover the research notes:
 
 * `notebooks/qang_verificado.ipynb` — §1–§19: exact identities, blind spots, noise
   diagnostics, optimization, knitting, few-shot estimation, QML, control quantization.
@@ -127,9 +127,13 @@ Two further notebooks (in Spanish) cover the research notes:
   correction (Leung code, syndrome tracking), coherence, few-shot estimation, and the
   recorded IonQ noisy-simulator runs, each with an honest "for / against" reading.
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_avances_colab.ipynb)
+* `notebooks/qang_criptografia_colab.ipynb` — cryptography line, kept separate: why qg does
+  not apply to post-quantum cryptography, BB84 drift-vs-eavesdropper monitoring (§40) and
+  certified quantum random numbers (§41); companion PDF `manuscript/qang_criptografia.pdf`.
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (863 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (871 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v
