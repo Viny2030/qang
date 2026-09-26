@@ -114,7 +114,7 @@ class Pending(Exception):
     """Jobs submitted but not finished; rerun the same command later."""
 
 
-def _run(backend, circuits, noise, mode, key=None, wait_s=120):
+def _run(backend, circuits, noise, mode, key=None, wait_s=120, prebuilt=False):
     if mode == "local":
         from qiskit import transpile
         from qiskit_aer import AerSimulator
@@ -130,7 +130,8 @@ def _run(backend, circuits, noise, mode, key=None, wait_s=120):
 
     pending = load_results(PENDING)
     if key not in pending:
-        tc = transpile(circuits, backend=backend, optimization_level=1)
+        # prebuilt: already in IonQ's native gate set; transpiling again could cancel folded gates
+        tc = circuits if prebuilt else transpile(circuits, backend=backend, optimization_level=1)
         pending[key] = [backend.run(qc, shots=SHOTS, noise_model=noise).job_id() for qc in tc]
         save_results(pending, PENDING)
     jobs = [backend.retrieve_job(j) for j in pending[key]]

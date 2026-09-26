@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/ionq_sim_zne_grover.py`: native-gate (MS) folding for ZNE on IonQ (CX folding
+  is undone by the service), ZNE vs the qg filter on H2 and 3-qubit Grover amplitude
+  estimation on IonQ noise models (RESEARCH_NOTES §39).
 - `examples/ionq_sim_hubbard_qaoa.py`: Hubbard dynamics and constrained QAOA on
   IonQ's noisy cloud simulator (aria-1, forte-1), resumable job submission, recorded
   results in `examples/data/ionq_sim_results.json` (RESEARCH_NOTES §38).

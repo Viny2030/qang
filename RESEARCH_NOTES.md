@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (854 tests at the time of
+pinned by a regression test in `tests/` (859 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -1972,6 +1972,52 @@ feasible guess 0.096):
   of the optimum) still beats every variant (ratio ≤ 0.87).
 * **Next:** the same scripts can target IonQ hardware only with an explicit
   cost approval. H2 (§20) remains the cheapest first hardware run.
+
+## 39. IonQ noisy simulator: ZNE vs the qg filter on H2, and Grover amplitude estimation (`examples/ionq_sim_zne_grover.py`)
+
+**A practical finding first.** Folding CX gates (CX → CX³) does *not*
+amplify noise on IonQ. The service recompiles circuits written in the
+standard gate set, so the folded pairs vanish: a Bell pair with 1, 3, 9
+and 21 CX keeps P(00) + P(11) = 0.99 on aria-1. Folding has to be done in
+IonQ's native gate set, where each Mølmer–Sørensen gate becomes
+MS · MS(φ₀ + ½, φ₁) · MS. The service runs native circuits as written:
+the same test drops to 0.94 and 0.87 with 9 and 21 MS gates, and the
+H2 raw error grows 31 → 84 → 133 mHa at scales 1, 3, 5.
+
+**H2** (the §21/§24 state, energy error vs FCI in mHa, 6 runs per model,
+2000 shots per circuit, the simulator's limit; Hartree–Fock 20.3):
+
+| noise model | readout-mitigated | **+ qg filter** | + ZNE | + ZNE + qg |
+|---|---|---|---|---|
+| aria-1 | 31.5 ± 7.8 | **14.7 ± 5.8** | 4.2 ± 20.3 | 5.5 ± 16.9 |
+| forte-1 | 34.8 ± 6.3 | **13.9 ± 5.4** | 6.6 ± 19.0 | 3.0 ± 17.8 |
+
+* **The qg filter halves the error in every run, at no cost.** Its mean
+  sits below Hartree–Fock (RMS error 15.8 and 14.9 mHa).
+* **ZNE is nearly unbiased but too noisy at this shot budget.**
+  Extrapolation amplifies shot noise (± 17–20 mHa), so its RMS error (20.7
+  and 20.1) is worse than the filter's. It would need ~10–15× more shots
+  per noise scale to match the filter's spread. This reverses §24, where
+  20,000 shots per circuit made ZNE + qg the best on fake_brisbane: which
+  method to prefer depends on the shot budget.
+* **The witness barely moves** (mean qg_Z +0.004, 2–3 % of shots dropped),
+  as in §20. The noise is unital, but the few number-violating shots
+  cost a lot of energy.
+
+**Grover amplitude estimation** (3 qubits, a = 0.3, depths 0, 1, 2, 4,
+36,000 oracle queries, 3 runs):
+
+* **MLAE is accurate.** The error of â has RMS 0.0005–0.0015 (naive and
+  noise-aware), with fitted visibility 0.965–0.985 per iteration.
+* **It is 7–30× better than a realistic Monte Carlo.** Monte Carlo with
+  the same queries would have a binomial error of 0.0024, but on the
+  noisy device its depth-0 circuit is biased (RMS 0.011–0.019).
+* **Modelling the visibility does not matter at this noise level.** It
+  would at depths near 1/p (§37).
+
+**Leung code: not run.** The IonQ noise models contain no amplitude
+damping (trapped-ion T1 is effectively infinite), so by the §32 rule
+(Leung only if T2 > T1) it cannot help there.
 
 ## Suggested next steps
 
