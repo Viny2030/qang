@@ -29,7 +29,7 @@ quantum energy, with and without a qg-based correction. §22 solves
 differential equations with a quantum model.
 
 Every number quoted below is produced by a script in `examples/` and is
-pinned by a regression test in `tests/` (859 tests at the time of
+pinned by a regression test in `tests/` (863 tests at the time of
 writing); re-running the named script reproduces it.
 
 | § | Topic | Code | Tests |
@@ -2018,6 +2018,61 @@ H2 raw error grows 31 → 84 → 133 mHa at scales 1, 3, 5.
 **Leung code: not run.** The IonQ noise models contain no amplitude
 damping (trapped-ion T1 is effectively infinite), so by the §32 rule
 (Leung only if T2 > T1) it cannot help there.
+
+## 40. BB84: eavesdropper or natural noise? (`examples/bb84_qg_eve_vs_noise.py`)
+
+Post-quantum cryptography (lattice schemes such as ML-KEM) is classical
+and has no place for qg. Quantum key distribution does, because its
+data are qg values. In BB84 each sent state gives
+qg(0) = 1 − 2e(0→1), qg(1) = −1 + 2e(1→0), and likewise |±⟩ in X. Their
+sum **A_Z = qg(0) + qg(1) = 2[e(1→0) − e(0→1)]** is the T1 witness of §24.
+Natural relaxation of a stored qubit gives only 1→0 errors, while a naive
+intercept-resend attack adds symmetric errors in both bases.
+
+**Setting.** A matter-qubit link or an on-chip demonstration: baseline
+channel γ₀ = 0.02 (T1), p₀ = 0.01 (dephasing), asymmetric detector
+e01 = 0.005, e10 = 0.01. Two monitors run on windows of N compared bits,
+each with 1 % false alarms on the baseline:
+
+* **QBER monitor:** a one-sided test on the total error count.
+* **qg monitor:** a generalized likelihood ratio on the four error counts,
+  where "attack" (intercept fraction f > 0) must beat both "baseline" and
+  "T1 drift" (γ free).
+
+Alarm rates, QBER / qg, N = 2000 compared bits (N = 500 and 10,000 in
+the script):
+
+| scenario | QBER monitor | qg monitor |
+|---|---|---|
+| baseline | 0.007 | 0.006 |
+| T1 drift, γ 0.02 → 0.04 | 0.478 | **0.009** |
+| T1 drift, γ 0.02 → 0.06 | 0.962 | **0.006** |
+| intercept-resend f = 0.02 | 0.218 | 0.271 |
+| intercept-resend f = 0.05 | 0.861 | 0.823 |
+| intercept-resend f = 0.10 | 1.000 | 0.994 |
+| T1-mimicking attack (extra γ 0.04) | **0.962** | 0.006 |
+
+* **Detection is equal, false alarms are not.** The qg monitor catches
+  intercept-resend as well as the QBER monitor at every N and f. It stays
+  quiet when the memory's T1 worsens, where the QBER monitor fires in
+  48–100 % of windows. A_Z is what separates them: it grows with T1
+  (0.049 → 0.128) and does not move under intercept-resend.
+* **The price, by design.** An attacker who couples the qubit to her
+  ancilla through an amplitude-damping interaction looks exactly like T1
+  drift. The qg monitor misses her (0.6 %) and the QBER monitor does not
+  (96 %). The two monitors are complementary: QBER says "something
+  changed", and qg says "symmetric (attack-like)" or "T1-like (drift, or
+  an attacker hiding as one)".
+* **No security gain.** The Shor–Preskill secret fraction falls the same
+  way in both cases (0.72 → 0.57 for T1 drift to 0.06, 0.72 → 0.59 for
+  f = 0.05). A security proof must still attribute every error to Eve.
+
+**Honest summary.** This is an operational diagnostic that tells
+hardware drift from naive tampering, which the QBER total cannot. It is
+not a security improvement, and it does not apply to photon-polarization
+links, whose noise is mostly unital.
+
+![BB84](examples/bb84_qg_eve_vs_noise.png)
 
 ## Suggested next steps
 
