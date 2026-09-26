@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/ionq_sim_qrng.py`: certified QRNG (§41) on IonQ's noisy simulator with an
+  environment ion that learns the output through a partial MS gate; naive vs qg estimators,
+  native-gate circuits, recorded results (RESEARCH_NOTES §42).
 - Cryptography line kept separate: `notebooks/qang_criptografia_colab.ipynb` and the note
   `manuscript/crypto/main.tex` (PDF `manuscript/qang_criptografia.pdf`) on §40-§41 and why qg
   does not apply to post-quantum cryptography.

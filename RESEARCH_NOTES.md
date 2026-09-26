@@ -2119,6 +2119,46 @@ parentheses, the fraction of runs above the truth (unsafe):
 
 ![QRNG](examples/qrng_qg_certified.png)
 
+## 42. Certified random numbers on IonQ's noisy simulator (`examples/ionq_sim_qrng.py`)
+
+§41 on a trapped-ion noise model, with a leak that the adversary really
+holds. A source ion q starts in |0⟩ and its output is read in X. A second
+ion e plays the environment: an MS(0, 0, θ) interaction lets e learn the
+X value of q. The output stays a fair coin, but the private randomness
+falls to H_min(X|E) = −log₂[(1 + √(1 − r²))/2] with r = |cos 2πθ| (the
+§41 formula with X and Z exchanged). Test rounds measure ±Z and ±Y; two
+circuits calibrate the readout (§31). All circuits are in IonQ's native
+gates (GPI, GPI2, MS) and submitted with `gateset="native"`, so the
+service cannot merge the rotations; 5 (q, e) pairs per circuit give 10⁴
+samples per setting. Three repetitions per noise model, 132 jobs in all,
+free simulator (nothing sent to a QPU).
+
+Certified bits per shot, mean of 3 runs (aria-1 / forte-1 where they differ):
+
+| θ (turns) | truth | naive | qg one-sided | **qg ± pairs** |
+|---|---|---|---|---|
+| 0 (no leak) | 1.000 | 0.98 | 0.69 | 0.73 |
+| 0.04 | 0.680 | 0.99 | 0.53 | **0.56 / 0.55** |
+| 0.08 | 0.433 | 0.98 / 0.97 | 0.37 / 0.36 | **0.38 / 0.37** |
+| 0.12 | 0.248 | 0.99 | 0.22 / 0.21 | **0.22** |
+
+* **The naive estimate is blind to the leak**: 0.97–1.00 bits per shot in
+  every run, above the truth in 100 % of runs with θ > 0 (it certifies
+  four times the private randomness at θ = 0.12).
+* **The qg estimate is safe in all 24 run × θ cells** and captures
+  82–90 % of the truth when there is a leak, 73 % without one (the pole
+  at r = 1; §41).
+* **Calibration adds nothing here**: the simulator's readout is almost
+  perfect (b = 0.9998–1.0000, |a| < 3·10⁻⁴). The 10–50 % gain of §41
+  needs hardware-like readout errors; this is a limit of the noise model,
+  to be checked on a QPU.
+* **Gate noise is counted as lost privacy**: the measured r (0.954, 0.866,
+  0.72) is 1–1.5 % below the ideal (0.969, 0.876, 0.729), the MS error.
+  The ± estimator is higher than one-sided mainly because it uses twice
+  the test rounds; the offset it cancels is negligible on this model.
+* **Honest scope.** Vendor noise models on a simulator, not hardware; the
+  leak is a designed interaction, not an adversary's strategy search.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

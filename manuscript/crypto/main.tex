@@ -39,7 +39,9 @@ random-number generator with a trusted measurement, the certified min-entropy is
 $H_{\min}(Z|E)=-\log_2\big[(1+\sqrt{1-\qgX^2-\qgY^2})/2\big]$, independent of $\qgZ$. The usual
 output-bias estimate is unsafe whenever the state is mixed: it certifies 0.97 bits per shot where
 0.015 are private. A qg estimate from $\pm$-rotation test rounds is safe in every run, and a readout
-calibration recovers 10--50\% more certified bits. All results are simulations, reproduced by scripts
+calibration recovers 10--50\% more certified bits. On IonQ trapped-ion noise models, with an
+environment ion that learns the output, the naive estimate stays near 1 bit while the qg estimate
+remains safe and captures 82--90\% of the private randomness. All results are simulations, reproduced by scripts
 and pinned by regression tests.
 \end{abstract}
 
@@ -178,9 +180,40 @@ $r_\perp=1$, the qg pole, so the $3\sigma$ bound gives 0.68, 0.81 and 0.89 bits 
 $10^4$, $10^5$ and $10^6$ test rounds.
 \end{itemize}
 
+\paragraph{On a trapped-ion noise model.} We ran the certifier on IonQ's cloud simulator with the
+aria-1 and forte-1 noise models (free; nothing sent to a QPU), with a leak the adversary really holds.
+A source ion starts in $|0\rangle$ and is read in X; a second ion, the environment, learns the X
+value through a partial M{\o}lmer--S{\o}rensen gate $\mathrm{MS}(0,0,\theta)$. The output stays a fair
+coin, while $H_{\min}(X|E)$ falls as in Eq.~\eqref{eq:hmin} with $r=|\cos2\pi\theta|$ (X and Z
+exchanged). All circuits use native gates, so the service cannot merge rotations; each setting has
+$10^4$ samples, three repetitions per model (Table~\ref{tab:qrngionq}). The naive estimate stays at
+0.97--1.00 bits and overestimates in every run with a leak (four times the truth at $\theta=0.12$).
+The qg $\pm$ estimate is safe in all 24 cells and captures 82--90\% of the truth with a leak. The
+simulator's readout is almost perfect ($b\ge0.9998$), so calibration adds nothing there: the gain of
+Table~\ref{tab:qrng} needs hardware-like readout errors and remains to be checked on a device. The
+measured $r$ sits 1--1.5\% below the ideal, which is the MS gate error, correctly counted as lost
+privacy.
+
+\begin{table}[t]
+\centering\small
+\caption{Certified bits per shot on IonQ noise models (mean of 3 runs; aria-1 / forte-1 where they
+differ). No qg estimate exceeds the truth in any run.}
+\label{tab:qrngionq}
+\begin{tabular}{lcccc}
+\toprule
+$\theta$ (turns) & truth & naive & qg one-sided & qg $\pm$\\
+\midrule
+0 (no leak) & 1.000 & 0.98 & 0.69 & 0.73\\
+0.04 & 0.680 & 0.99 (\textbf{unsafe}) & 0.53 & \textbf{0.56 / 0.55}\\
+0.08 & 0.433 & 0.98 / 0.97 (\textbf{unsafe}) & 0.37 / 0.36 & \textbf{0.38 / 0.37}\\
+0.12 & 0.248 & 0.99 (\textbf{unsafe}) & 0.22 / 0.21 & \textbf{0.22}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Limitations}
 
-(i) Everything is a simulation of a single-qubit model with i.i.d.\ rounds. (ii) The QRNG is
+(i) Everything is simulation: single-qubit models with i.i.d.\ rounds, and vendor noise models on IonQ's simulator, not hardware. (ii) The QRNG is
 device-dependent (trusted measurement), not device-independent. (iii) Eq.~\eqref{eq:hmin} and the
 BB84 security bound are standard results; qg writes them in measured quantities. (iv) The BB84
 monitor is a diagnostic: an attacker who mimics relaxation is invisible to it, and the key rate is
@@ -189,8 +222,8 @@ photon-polarization links.
 
 \section{Code availability}
 \sloppy
-\texttt{examples/bb84\_qg\_eve\_vs\_noise.py} and \texttt{examples/qrng\_qg\_certified.py} in
-\url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 40 and 41 of
+\texttt{examples/bb84\_qg\_eve\_vs\_noise.py} and \texttt{examples/qrng\_qg\_certified.py} and \texttt{examples/ionq\_sim\_qrng.py} in
+\url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 40--42 of
 \texttt{RESEARCH\_NOTES.md} give more detail, and \texttt{notebooks/qang\_criptografia\_colab.ipynb}
 reproduces fast versions in Colab.
 
