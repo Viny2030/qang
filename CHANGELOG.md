@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Pre-registered Forte-1 predictions for the IonQ hardware plan (RESEARCH_NOTES §46):
+  `examples/ionq_sim_h2_stretched.py` (H2 at 1.5 and 2.5 A on the forte-1 noise model),
+  `examples/ionq_hardware_plan.py`, and `tests/test_ionq_hardware_predictions.py` pinning them.
 - `qang.statistics`: `propagated_theta_variance_mixed`, `theta_qcrb_variance`, `qg_covariance`,
   `delta_method_variance`, `register_witness_variance`; `examples/multiqubit_error_propagation_qg.py`
   (RESEARCH_NOTES §45: §5 error propagation for mixed states and correlated registers).

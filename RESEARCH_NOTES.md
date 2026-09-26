@@ -2352,6 +2352,30 @@ register witnesses need.
 
 ![Error propagation](examples/multiqubit_error_propagation_qg.png)
 
+## 46. Pre-registered predictions for the Forte-1 hardware plan (`examples/ionq_hardware_plan.py`)
+
+Frozen on 2026-09-26, before any QPU run. The plan sent with the IonQ
+research-credit request has seven tracks (A1–E) on Forte-1, with no
+variational loop on hardware. Each prediction below comes from IonQ's
+noisy simulator with the forte-1 model. The simulator caps shots at
+2000, so the plan's 5000 shots for H₂ will only narrow the spreads.
+Track A2 was simulated for this section (`examples/ionq_sim_h2_stretched.py`,
+3 runs); the others reuse §38, §39 and §42.
+
+| Track | Simulator prediction (forte-1) | Holds if (hardware) | Fails if |
+|---|---|---|---|
+| **A1, decisive:** H₂ at 0.735 Å, qg filter, 3 days | readout-corrected 34.8 ± 6.3 → filtered 13.9 ± 5.4 mHa (HF 20.3); 2.5 % of shots discarded | filter cuts the error ≥ 40 % in each run and ends below HF | cut < 20 %: the errors conserve electron number and the witness has nothing to act on |
+| A2: H₂ at 1.5 and 2.5 Å | 17.4 ± 2.2 → 9.7 ± 2.4 mHa (−44 %); 11.1 ± 2.7 → 8.8 ± 2.8 mHa (−21 %); HF 87 and 233 | filtered < readout-corrected at both bonds; gain smaller at 2.5 Å | no reduction at 1.5 Å |
+| A3: A1 with debiasing | not simulable (debiasing is a hardware feature) | reported: does the filter still add after IonQ's own mitigation? | — |
+| B: native-MS ZNE | raw 34.8, 89.2, 140.7 mHa at fold 1, 3, 5; ZNE 6.6 ± 19.0, ZNE + filter 3.0 ± 17.8 | error grows monotonically with the fold | no growth: folding does not amplify the real noise |
+| C: XY-QAOA, 5 graphs | P(opt) 0.120 → 0.256 with the filter (×2.09–2.19 on every graph), kept 0.47; random feasible 0.096 | filtered/raw ≥ 1.5 on ≥ 4 of 5 graphs | ratio < 1.2: the XY mixer does not keep the signal on hardware |
+| D: Hubbard, 1/2/4 steps | spin leak 0.1 %, 1.8 %, 6.8 %; imbalance error 0.038 → 0.013 (1 step), 0.042 → 0.027 (4 steps, spin filter) | the filters cut the error at every depth; spin leak grows with depth | no gain at 1 step |
+| E: QRNG, θ = 0 and 0.08 | readout nearly perfect in the simulator (b ≈ 1); qg ± 0.73 and 0.37 bits (truth 1 and 0.433); naive ≈ 0.97–1 | qg estimates ≤ truth; calibration adds bits because real readout has b < 1 | a qg estimate above truth; or b = 1 on hardware too (then calibration is moot) |
+
+The recorded simulator data behind every number are in
+`examples/data/ionq_sim_results.json`, pinned by tests. Whatever the
+hardware gives will be reported against this table, including failures.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
