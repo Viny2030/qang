@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/ionq_sim_bb84.py`: BB84 with an ancilla-built T1 memory and a measure-and-resend
+  Eve as native circuits on IonQ's noisy simulator; the §43 flags with a fitted device-noise
+  model, observed vs predicted flag rates (RESEARCH_NOTES §44).
 - `examples/bb84_finite_key_qg.py`: BB84 finite-key rate (Tomamichel et al. 2012) on the §40
   channel and a qg diagnosis of every block from post-error-correction counts (joint T1 +
   intercept-resend likelihood ratios; catches an attack hidden under drift) (RESEARCH_NOTES §43).

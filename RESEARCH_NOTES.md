@@ -2231,6 +2231,61 @@ Protocol tuned on the baseline at n = 10⁵ (k = 7609, Q_tol = 2.67 %),
 
 ![BB84 finite key](examples/bb84_finite_key_qg.png)
 
+## 44. BB84 on IonQ's noisy simulator: the §43 flags with trapped-ion noise (`examples/ionq_sim_bb84.py`)
+
+§40 and §43 used an analytic channel. Here every part of BB84 is a circuit
+run on IonQ's aria-1 and forte-1 noise models (free simulator; nothing sent
+to a QPU), and the model behind the flags is fitted, not given.
+
+* **The memory** is amplitude damping built with an ancilla,
+  CRY(2 asin √γ) q→m followed by CX m→q. The healthy memory has γ₀ = 0.02;
+  drift raises it to 0.03–0.06.
+* **Eve** measures and resends: CX q→e in Z, H·CX·H in X, never reading her
+  ancilla. A fraction f of the rounds is attacked; the block draws that
+  share of its shots, without replacement, from the Eve circuits.
+* **The runs**: 32 circuits in native gates, 4 copies each (12 qubits),
+  2000 shots, 4 repetitions per noise model, 256 jobs. Each copy is a block
+  of n = k = 4000 bits.
+* **The flag model** is the joint (γ, f) model of §43 plus two symmetric
+  device flip rates ε_Z and ε_X. It is fitted leave-one-repetition-out on
+  baseline blocks, with thresholds from a parametric bootstrap at 1 %.
+
+The device adds a nearly symmetric 2.3–2.4 % (aria-1) and 2.8–3.1 %
+(forte-1) error per bit, mostly from the two MS gates of the memory
+circuit. The fit recovers the designed γ₀ (0.020–0.0225) in every fold.
+
+Flag rates, observed / predicted by the fitted model (16 blocks each):
+
+| scenario | aria-1 QBER | aria-1 attack | aria-1 drift | forte-1 QBER | forte-1 attack | forte-1 drift |
+|---|---|---|---|---|---|---|
+| baseline | 0.00/0.01 | 0.00/0.00 | 0.00/0.02 | 0.00/0.01 | 0.06/0.00 | 0.06/0.00 |
+| drift 0.03 | 0.56/0.36 | 0.00/0.00 | 0.31/0.12 | 0.06/0.20 | 0.06/0.01 | 0.00/0.06 |
+| drift 0.04 | 0.94/0.93 | 0.00/0.01 | 0.81/0.73 | 0.38/0.75 | 0.00/0.01 | 0.38/0.46 |
+| drift 0.06 | 1.00/1.00 | 0.00/0.00 | **1.00**/1.00 | 1.00/1.00 | 0.00/0.00 | **1.00**/0.99 |
+| intercept f = 0.02 | 0.62/0.58 | 0.38/0.21 | 0.00/0.02 | 0.31/0.38 | 0.25/0.15 | 0.00/0.01 |
+| intercept f = 0.05 | 1.00/1.00 | **0.88**/0.96 | 0.00/0.01 | 1.00/0.99 | **0.81**/0.88 | 0.06/0.01 |
+| intercept f = 0.10 | 1.00/1.00 | **1.00**/1.00 | 0.00/0.01 | 1.00/1.00 | **1.00**/1.00 | 0.06/0.01 |
+| drift 0.04 + f = 0.05 | 1.00/1.00 | 0.81/0.94 | 0.81/0.57 | 1.00/1.00 | 0.75/0.84 | 0.31/0.42 |
+
+* **The attribution transfers.** A drifting memory is never taken for an
+  attack on aria-1 (0 of 48 blocks) and once in 48 on forte-1. An attack
+  is taken for drift in at most 1 of 16 blocks. Large changes (drift 0.06,
+  f = 0.10) are attributed in every block.
+* **Small blocks, noisy device.** With 4000-bit blocks and 2–3 % device
+  noise, small changes are only partly detected: 31–81 % for drift
+  0.03–0.04 and 81–88 % for f = 0.05. In the mixed block the drift flag
+  falls to 31–81 %. The QBER monitor sees changes as often or more often,
+  but cannot say which kind.
+* **The model predicts which flag rises.** Most observed rates fall within
+  the ±0.12 spread of 16 blocks. The largest misses are near threshold:
+  forte-1 QBER at drift 0.04 (0.38 vs 0.75) and aria-1 drift flag at drift
+  0.03 (0.31 vs 0.12). Extrapolated with the fitted noise to n = 10⁵ key
+  bits, the §43 regime, every scenario is attributed correctly in 99–100 %
+  of blocks, with 0.3–2 % cross-flags.
+* **Honest scope.** These are vendor noise models on a simulator, not
+  hardware. The memory and the attack are designed circuits. The key
+  rate is unchanged (§43).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

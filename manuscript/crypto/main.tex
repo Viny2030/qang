@@ -184,6 +184,39 @@ it (0.5\% attack flags).
 all of them. A $Q_Z$ trend would also warn; what qg adds is the attribution.
 \end{itemize}
 
+\paragraph{On a trapped-ion noise model.} We rebuilt the whole protocol as circuits on IonQ's cloud
+simulator with the aria-1 and forte-1 noise models. The memory is amplitude damping made with an
+ancilla, ${\rm CRY}(2\arcsin\sqrt\gamma)$ followed by a CX back, with $\gamma_0=0.02$ healthy and
+0.03--0.06 drifting. Eve measures and resends through an unread ancilla (CX, or H--CX--H). There
+are 16 blocks of $n=k=4000$ bits per scenario and model. The device adds a nearly symmetric 2.3--3.1\%
+error per bit, so the flag model gets two fitted flip rates, $\varepsilon_Z$ and $\varepsilon_X$, and a
+fitted $\gamma_0$, all fitted leave-one-out on baseline blocks.
+
+The attribution transfers (Table~\ref{tab:ionqbb84}). A drifting memory is taken for an attack in
+at most 1 of 48 blocks, and an attack for drift in at most 1 of 16. Drift 0.06 and $f=0.10$ are
+attributed in every block. At this block size and noise level, small changes are only partly
+flagged. The fitted model predicts which flag rises, and most rates within the spread of 16 blocks.
+Extrapolated to $n=10^5$ key bits, it attributes every scenario in 99--100\% of blocks.
+
+\begin{table}[t]
+\centering\small
+\caption{BB84 circuits on IonQ noise models, $n=k=4000$ per block, 16 blocks: fraction of blocks
+raising the attack-like / drift-like flags, observed (predicted by the fitted model).}
+\label{tab:ionqbb84}
+\begin{tabular}{lcc}
+\toprule
+scenario & aria-1 & forte-1\\
+\midrule
+baseline & 0.00 / 0.00 & 0.06 / 0.06\\
+drift 0.04 & 0.00 / 0.81 (0.73) & 0.00 / 0.38 (0.46)\\
+drift 0.06 & 0.00 / \textbf{1.00} & 0.00 / \textbf{1.00}\\
+intercept $f=0.05$ & \textbf{0.88} (0.96) / 0.00 & \textbf{0.81} (0.88) / 0.06\\
+intercept $f=0.10$ & \textbf{1.00} / 0.00 & \textbf{1.00} / 0.06\\
+drift 0.04 + $f=0.05$ & 0.81 / 0.81 & 0.75 / 0.31\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Certified random numbers}\label{sec:qrng}
 
 A qubit QRNG~\cite{herrero2017} prepares $|+\rangle$ and measures Z. Dephasing and thermal
@@ -286,12 +319,13 @@ BB84 security bounds, asymptotic and finite-key, are standard results; qg writes
 monitor is a diagnostic: an attacker who mimics relaxation is invisible to it, and the key rate is
 unchanged. (v) The BB84 setting needs a relaxation mechanism (matter qubits); it does not describe
 photon-polarization links. (vi) The finite-key diagnosis models only two error families (T1 and
-intercept-resend); other attacks may fall outside both flags.
+intercept-resend); other attacks may fall outside both flags. (vii) The IonQ runs use the vendor noise models on a simulator, and the memory and the
+attack are designed circuits.
 
 \section{Code availability}
 \sloppy
-\texttt{examples/bb84\_qg\_eve\_vs\_noise.py}, \texttt{examples/bb84\_finite\_key\_qg.py}, \texttt{examples/qrng\_qg\_certified.py} and \texttt{examples/ionq\_sim\_qrng.py} in
-\url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 40--43 of
+\texttt{examples/bb84\_qg\_eve\_vs\_noise.py}, \texttt{examples/bb84\_finite\_key\_qg.py}, \texttt{examples/ionq\_sim\_bb84.py}, \texttt{examples/qrng\_qg\_certified.py} and \texttt{examples/ionq\_sim\_qrng.py} in
+\url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 40--44 of
 \texttt{RESEARCH\_NOTES.md} give more detail, and \texttt{notebooks/qang\_criptografia\_colab.ipynb}
 reproduces fast versions in Colab.
 
