@@ -2880,6 +2880,64 @@ from 95.4 to **67.5**.
 
 ![Spin checks](examples/spin_checks_qg.png)
 
+## 56. Qubit quantum batteries in qg: storage, certification and locked charge (`examples/battery_ergotropy_qg.py`)
+
+A qubit with H = ω|1⟩⟨1| and Bloch vector (qg_X, qg_Y, qg_Z), of length r,
+stores energy ω(1 − qg_Z)/2. Its ergotropy, the work a unitary can
+extract, is
+
+    W = (ω/2)(r − qg_Z) = W_inc + W_coh,
+    W_inc = ω·max(0, −qg_Z),     W_coh = (ω/2)(r − |qg_Z|)
+
+These match the general eigenvalue formula to 3·10⁻¹⁶ on 200 random
+states, and the storage formula matches an integrated Lindblad equation.
+
+**Storage under T1 and T2.** A battery charged at polar angle θ ages as
+qg_Z(t) = 1 − (1 − cos θ)e^{−t/T1} and r⊥(t) = sin θ·e^{−t/T2}. Best angle
+and ergotropy (best / fully inverted / equator, in units of ω):
+
+| T2/T1 | crossover t_c | t = 0.5 T1 | t = T1 | t = 2 T1 |
+|---|---|---|---|---|
+| 2 | 0.288 T1 = ln(4/3) | 0.70π: .297 / .213 / .240 | 0.58π: .129 / 0 / .122 | .038 / 0 / .038 |
+| 1 | 0.405 T1 = ln(3/2) | 0.78π: .234 / .213 / .165 | 0.59π: .054 / 0 / .050 | .005 / 0 / .005 |
+| 0.5 | 0.618 T1 | π: .213 / .213 / .073 | 0.60π: .008 / 0 / .007 | ≈ 0 |
+| 0.2 | 0.692 T1 | π: .213 / .213 / .004 | ≈ 0 | ≈ 0 |
+
+* **Charging rule.** Charge fully (θ = π) if the battery will be used
+  before t_c. Otherwise tilt it, to about 0.6π at t = T1.
+  - t_c solves x^{2T1/T2 − 1} = 2(2x − 1), with x = e^{−t/T1}. This comes
+    from a small-tilt analysis and equals the numerical optimum to 10⁻⁶.
+  - As T2 shrinks, t_c tends to T1 ln 2, the moment the inverted battery
+    stops storing anything.
+* **Coherence buys storage time only when T2 is comparable to T1.** At
+  t = T1, a tilted battery stores 0.13ω (T2 = 2T1) or 0.05ω (T2 = T1),
+  where the inverted one stores nothing. At T2 = 0.2 T1 it buys nothing.
+  Trapped ions (no T1) should always charge fully.
+* **Certification from shots.**
+  - The plug-in estimate overestimates in more than half of the runs, and
+    it reports positive ergotropy for a passive state in every run: the
+    three-axis shot noise inflates r.
+  - A 3σ lower bound is never unsafe, but it is expensive. With 1000
+    shots per axis it certifies 0.086 of 0.213ω, and nothing for a nearly
+    discharged battery.
+* **Locked charge in registers** (n = 4, two excitations, T2 = T1). The
+  Dicke state D(4,2) stores 2ω, all globally extractable, but every qubit
+  alone is passive (qg_Z = 0, no coherence).
+  - The sum of local ergotropies is 0 for Dicke, against 2ω for a product
+    battery with the same energy.
+  - The register mean qg_Z is identical for both, so it cannot tell them
+    apart; the local sum can.
+  - The locked charge is also more fragile under local noise: 0.71 vs
+    1.05ω at 0.3 T1, and 0.05 vs 0.41ω at 0.7 T1.
+* **Honest scope.** The formulas are standard single-qubit ergotropy
+  written in qg. Coherence-assisted storage and locally passive, globally
+  charged batteries are known in the literature. The contributions are
+  the T2/T1 charging rule with its closed-form crossover, the
+  certification cost, and the qg reading of which charge is locally
+  extractable.
+
+![Quantum battery](examples/battery_ergotropy_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
