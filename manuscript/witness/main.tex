@@ -23,7 +23,7 @@ error mitigation, constrained optimization and qubit characterization in qg unit
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 26 September 2026; revised with the trapped-ion and syndrome sections}
+\date{\small Draft of 26 September 2026; revised 27 September 2026 with coherent errors and rotated-basis checks}
 
 \begin{document}
 \maketitle
@@ -34,7 +34,7 @@ $\qgZ=\langle\sigma_z\rangle$. When a circuit conserves a Hamming weight, the av
 over the register is fixed in advance: $\mqg=1-2N/n$ for $N$ excitations on $n$ qubits. This one
 number is a reference-free witness of noise that changes the conserved quantity, and its shot-level
 version is the known symmetry-verification filter~\cite{bonetmonroig2018,mcardle2019}. We measure
-when the witness and the filter help, and when they do not, on six problems with classical controls,
+when the witness and the filter help, and when they do not, on six problems with classical controls and on four molecules for the rotated-basis extension,
 using calibration-based and vendor noise models. (i) On H$_2$ the filter lowers the energy error from
 18 to 5.5~mHa, below Hartree--Fock (20.3~mHa), and it stays below Hartree--Fock along the
 dissociation curve. (ii) Across noise channels the witness predicts the outcome: it moves under T1
@@ -52,9 +52,15 @@ noise models the filter doubles the constraint-preserving QAOA success and halve
 every run, while zero-noise extrapolation, which must fold native gates because CX folding is undone by
 the compiler, is nearly unbiased but too noisy at the 2000-shot limit. (vii) Beyond symmetries, every
 stabilizer expectation of the repetition and Leung codes is a power of one single-qubit qg, so the
-syndromes track noise drift for free and choose between codes by the rule $T_2>T_1$. We also report where the
-method stops: a 6-qubit LiH circuit and Hubbard circuits beyond $\sim$190 two-qubit gates, where
-the witness correctly reports unital scrambling. No result is a quantum advantage over classical
+syndromes track noise drift for free and choose between codes by the rule $T_2>T_1$. (viii) Z-basis
+filtering cannot reach Hamiltonian terms measured in rotated bases, which hold most of the LiH error.
+Parity and $N$~mod~4 checks on two ancillas do reach them: they cut the LiH error $6\times$ (below
+Hartree--Fock on a generic model, $3.8\times$ on IonQ's forte-1 model) and approach the full
+number-projection ceiling up to 12 qubits (H$_4$, H$_2$O, H$_6$). That ceiling shrinks with depth,
+because number-conserving errors grow. Coherent over-rotation of the entangling gate passes through
+native-gate ZNE untouched, while the filter removes 94\% of it. We also report where the method stops:
+Hubbard circuits beyond $\sim$190 two-qubit gates, where the witness correctly reports unital
+scrambling. No result is a quantum advantage over classical
 computation. Every number is reproduced by a script and pinned by a regression test.
 \end{abstract}
 
@@ -199,6 +205,22 @@ depolarizing noise only the combination comes within a few mHa.
 This gives a decision rule. If $\mqg$ leaves $1-2N/n$ or the kept fraction drops, apply the filter,
 which is free. If the error stays large with the kept fraction near 1, the remaining noise
 preserves the symmetry and needs ZNE.
+
+\paragraph{Coherent gate errors.} Vendor noise models are stochastic, but real two-qubit gates also
+over-rotate. We scaled every native M{\o}lmer--S{\o}rensen angle by $1+\epsilon$ in an exact
+density-matrix simulation of the native H$_2$ circuits, with Forte-like stochastic noise on top.
+Native folding cannot amplify such an error: $\mathrm{MS}(\phi_0+\tfrac12)$ is the exact inverse of the
+same over-rotated gate, so $\mathrm{MS}\,\mathrm{MS}^{-1}\mathrm{MS}=\mathrm{MS}$ to $10^{-16}$.
+\begin{itemize}
+\item \emph{ZNE passes the coherent error through.} At $\epsilon=5\%$ its result moves by $+2.96$~mHa,
+which is the coherent-only error (2.97~mHa).
+\item \emph{The filter removes 94\% of it.} An over-rotated CX leaks weight out of the two-electron
+sector to first order, and the filter removes that leaked weight.
+\item \emph{The combination is the most robust.} ZNE + filter stays at 1.6--1.8~mHa over the whole
+range.
+\item \emph{Drift.} When $\epsilon$ drifts between jobs, the filter does not move, while ZNE's spread
+grows.
+\end{itemize}
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
@@ -388,6 +410,68 @@ noise model & readout-mitigated & + qg filter & + ZNE (MS folding) & + ZNE + qg\
 \end{tabular}
 \end{table}
 
+\section{Reaching the rotated bases: parity and $N$ mod 4 checks}\label{sec:rotated}
+
+The filter acts on Z-basis shots only. Every Hamiltonian group measured in a rotated (X/Y) basis is
+untouched. This is why it failed on LiH, and it was not the reason given earlier. We split the energy
+error of the 6-qubit LiH circuit (60 two-qubit gates, error against the noiseless circuit) by
+measurement group:
+\begin{itemize}
+\item \emph{Where the error sits.} In H$_2$, 13.0 of 13.9~mHa sit in the single Z group, which the
+filter reaches. In LiH, 26--166~mHa sit in the 16 X/Y groups.
+\item \emph{Why it is not routing.} The ansatz is nearest-neighbour and needs the same 20/40/60 gates
+on an all-to-all device.
+\item \emph{A witness-based fix fails.} Rescaling the X/Y groups by the depolarizing strength read from
+the kept fraction overcorrects by 2--3$\times$, because local gate noise is not global depolarizing.
+\end{itemize}
+
+Two checks do reach every group, because both commute with every number-conserving term. They are
+measured on ancillas before the basis rotation:
+\begin{itemize}
+\item \emph{Parity.} The electron-number parity $Z_0\cdots Z_{n-1}$, read with $n$ CNOTs.
+\item \emph{$N$ mod 4.} A Hadamard test of $e^{i\pi N/2}=\prod_j S_j$, read with $n$ controlled phases.
+On the even sector it gives $N$ mod 4, so it also rejects the errors that change $N$ by two, which
+parity cannot see.
+\end{itemize}
+Table~\ref{tab:rotated} gives the ideal projections on the noisy density matrix and the full
+number-projection ceiling.
+
+\begin{table}[t]
+\centering\small
+\caption{Error vs the noiseless circuit (mHa) with ideal projections on the noisy density matrix
+(generic all-to-all model, 3 ansatz layers).}
+\label{tab:rotated}
+\begin{tabular}{lcccccc}
+\toprule
+molecule & qubits & CX & no check & parity & $N$ mod 4 & $N$ (ceiling)\\
+\midrule
+LiH & 6 & 60 & 76.1 & 49.4 & 6.9 & 6.2\\
+H$_4$ (1.5~\AA) & 8 & 84 & 238.5 & 146.4 & 72.2 & 70.5\\
+H$_2$O (4e, 4o) & 8 & 84 & 292.2 & 187.5 & 48.8 & 44.0\\
+H$_6$ (1.5~\AA) & 12 & 132 & 407.6 & 279.9 & 143.8 & 135.2\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+\item \emph{Once the checks reach every group, symmetry verification works for LiH.} Built with two real
+(noisy) ancillas and 18 extra CNOT-equivalents, the checks cut the error from 83.9 to 13.4~mHa. That is
+about 14~mHa above FCI, just below Hartree--Fock (16.3) on this noise model. Parity alone recovers only
+about a third.
+\item \emph{On IonQ's \texttt{forte-1} model} (5 runs, 2000 shots), the same checks cut the error from
+$145\pm10$ to $39\pm9$~mHa (3.8$\times$), which stays above Hartree--Fock. We record this as a
+pre-registered hardware prediction.
+\item \emph{Scaling.} $N$ mod 4 comes within 2--10\% of the full number projection up to 12 qubits, so
+two ancillas suffice. What shrinks is the ceiling itself: the share of the error that changes $N$ falls
+from 92\% (LiH, 60 CX) to 67\% (H$_6$, 132 CX). The rest conserves the electron number and needs a
+partner method (ZNE, or other symmetries).
+\item \emph{Stretched hydrogen chains.} There Hartree--Fock fails, and the checked estimates fall below
+it (H$_4$ with ancillas: about 151 vs 167~mHa above exact).
+\end{itemize}
+Parity checks with an ancilla are standard symmetry verification~\cite{bonetmonroig2018}, and $N$ mod 4
+is its direct extension. What the qg analysis adds is the diagnosis that led to them and the measurement
+of how their reach and ceiling scale.
+
 \section{Beyond symmetries: syndromes as qg witnesses}\label{sec:qec}
 
 In a code-capacity model with amplitude damping $\gamma$ and dephasing $p$ per round, the single-qubit
@@ -419,11 +503,15 @@ computation.
 \item \emph{The filter is known}~\cite{bonetmonroig2018,mcardle2019}. The contributions are the
 witness as a decision rule, the systematic comparison with ZNE and with classical baselines, and the
 calibration protocol.
-\item \emph{Walls.} Beyond $\sim$60 (LiH) or $\sim$190 (Hubbard, heavy-hex) noisy two-qubit gates,
-unital scrambling dominates and no method helps. The witness then reports a drift towards 0 and a
-kept fraction near $\binom nN/2^n$.
-\item \emph{Rotated-basis terms} such as $XXYY$ cannot be filtered with Z-basis shots; they hold most
-of the residual H$_2$ error.
+\item \emph{Walls.} Beyond $\sim$190 noisy two-qubit gates on heavy-hex (Hubbard), unital scrambling
+dominates and no method helps. The witness then reports a drift towards 0 and a kept fraction near
+$\binom nN/2^n$. In chemistry, the share of the error that any number check can remove falls from
+92\% to 67\% between 60 and 132 two-qubit gates.
+\item \emph{Rotated-basis terms} cannot be filtered with Z-basis shots. Reaching them requires parity or
+$N$ mod 4 ancillas coupled to every qubit: natural on trapped ions, SWAP-heavy on heavy-hex, and 14--44\%
+of the shots are discarded.
+\item \emph{Coherent errors.} Native-gate ZNE is blind to a coherent over-rotation of the entangling gate.
+Only the part of that error that breaks the symmetry is removed by the checks.
 \item \emph{Simulation only.} All devices are calibration-based or vendor noise models, including
 the IonQ runs, which used IonQ's own simulator. Hardware runs are prepared (IBM, IonQ) but not yet
 performed. The characterization protocol assumes perfect gates and a nearly QND herald.
@@ -436,14 +524,16 @@ fake backend.
 \section{Code availability}
 \sloppy
 
-All scripts, data and the regression tests that pin every number (859 tests at the time of writing)
+All scripts, data and the regression tests that pin every number (970 tests at the time of writing)
 are at \url{https://github.com/Viny2030/qang} (MIT license): \texttt{examples/chemistry\_*.py},
 \texttt{error\_mitigation\_qg\_vs\_zne.py}, \texttt{hubbard\_trotter\_qg\_filters.py},
 \texttt{qaoa\_k\_constraint\_qg.py}, \texttt{hardware\_characterization\_qg.py},
 \texttt{qec\_leung\_code\_t1\_qg.py}, \texttt{qec\_syndrome\_drift\_tracking\_qg.py},
-\texttt{ionq\_validation.py}, \texttt{ionq\_sim\_hubbard\_qaoa.py} and
-\texttt{ionq\_sim\_zne\_grover.py}; the IonQ simulator results are recorded in
-\texttt{examples/data/ionq\_sim\_results.json}. Sections 20, 21, 24, 28--33, 38 and 39 of
+\texttt{ionq\_validation.py}, \texttt{ionq\_sim\_hubbard\_qaoa.py},
+\texttt{ionq\_sim\_zne\_grover.py}, \texttt{coherent\_drift\_filter\_zne.py},
+\texttt{filter\_scaling\_lih\_qg.py}, \texttt{lih\_parity\_verification\_qg.py},
+\texttt{ionq\_sim\_lih\_mod4.py} and \texttt{symmetry\_checks\_scaling\_qg.py}; the IonQ simulator results are recorded in
+\texttt{examples/data/ionq\_sim\_results.json}. Sections 20, 21, 24, 28--33, 38, 39, 48 and 50--54 of
 \texttt{RESEARCH\_NOTES.md} give further detail, and \texttt{notebooks/qang\_avances\_colab.ipynb}
 reproduces fast versions in Colab.
 
