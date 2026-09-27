@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/coherent_drift_filter_zne.py`: coherent MS over-rotation and drift on the native
+  circuits of the hardware plan; native folding is blind to coherent angle errors, the qg
+  filter removes 94 % of them (RESEARCH_NOTES §48).
 - `examples/rbm_mutual_information_qg.py`: the I-eta bounds of RBM neural quantum states
   (Singh et al., Academia Quantum 2026) written in qg marginals; lower-bound saturation traced
   to Z2 symmetry and broken by a longitudinal field or a symmetry-broken learner (RESEARCH_NOTES §47).

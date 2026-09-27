@@ -2447,6 +2447,77 @@ enumeration, 3 seeds (medians):
 
 ![RBM I-eta](examples/rbm_mutual_information_qg.png)
 
+## 48. Coherent MS over-rotation and drift: what survives for the filter and for ZNE (`examples/coherent_drift_filter_zne.py`)
+
+IonQ's cloud noise models are stochastic and gate-level (§42). Real
+trapped-ion gates also over- or under-rotate the Mølmer–Sørensen angle by
+a small fraction ε, and ε drifts between calibrations. This is what we
+told IonQ the simulator cannot test.
+
+**Setup.** Exact density-matrix simulation of the plan's own native
+circuits (GPI, GPI2, MS), with:
+
+* every MS angle θ → θ(1 + ε);
+* drift: ε drawn per circuit (per job), ε̄ + σN(0, 1);
+* stochastic noise: 2-qubit depolarizing 0.005 per MS, 1-qubit 3·10⁻⁴;
+* symmetric readout error 0.5 %, corrected with calibration circuits.
+
+Predictions made before running:
+
+* **Folding cannot amplify a coherent angle error.** MS(φ₀+½) is the exact
+  inverse of MS(φ₀) for the same over-rotated angle, so MS·MS⁻¹·MS = MS
+  (checked to 10⁻¹⁶). ZNE should extrapolate to the coherent-only error,
+  not to zero.
+* **The filter should catch the number-breaking part.** The H₂ ansatz
+  and the XY mixer conserve particle number only if every CX is exact.
+
+H₂ at equilibrium, error vs FCI in mHa (HF 20.3), infinite shots:
+
+| ε | readout-corrected | qg filter | ZNE | ZNE + filter | coherent error alone (raw / filtered) |
+|---|---|---|---|---|---|
+| 0 | 13.54 | 5.59 | 3.21 | 1.62 | 0 / 0 |
+| 1 % | 13.66 | 5.60 | 3.33 | 1.63 | 0.12 / 0.01 |
+| 2 % | 14.01 | 5.63 | 3.68 | 1.65 | 0.48 / 0.03 |
+| 5 % | 16.47 | 5.80 | **6.17** | 1.81 | 2.97 / **0.19** |
+
+* **ZNE passes the coherent error through.** At ε = 5 % its result moves
+  by +2.96 mHa, which is the coherent-only error (2.97). The folds grow
+  with the stochastic part alone: the same slope, shifted.
+* **The filter removes 94 % of the coherent error.** An over-rotated CX
+  leaks weight out of the two-electron sector to first order. The error
+  that stays in the sector is second order, because the ansatz sits at
+  its energy minimum.
+* **ZNE + filter is the most robust combination:** 1.6–1.8 mHa across the
+  whole range.
+* **Drift** (ε ~ 2 % + 2 % N) leaves the filter at 5.7 mHa and widens ZNE
+  (RMS 3.2 → 4.8 mHa). With 5000 shots per circuit, ZNE's RMS is 10.3 mHa
+  against 6.6 for the filter, dominated by extrapolated shot noise as in
+  §39.
+* **XY-QAOA (graph 0, 8 qubits, 150 MS).** P(opt) goes from 0.125 to
+  0.238 with the filter at ε = 0, and from 0.075 to 0.197 at ε = 5 %. The
+  doubling survives and grows to 2.6×, because the over-rotation breaks
+  the mixer's number conservation and the filter removes most of what it
+  breaks.
+
+**For the hardware plan (§46).** Coherent MS errors and drift do not
+threaten the decisive prediction (A1). They bias ZNE (track B) by the
+coherent error, so B must be read against the filter, not alone. IonQ's
+debiasing (A3) randomises gate frames and should turn part of the
+coherent error into stochastic error, which ZNE can then extrapolate.
+This adds a second, qualitative prediction to A3.
+
+**Honest scope.** A model, not a device:
+
+* one type of coherent error (the MS angle) and Gaussian drift;
+* stochastic noise below IonQ's forte-1 model (raw 13.5 vs 34.8 mHa), so
+  the absolute numbers are not predictions.
+
+The claim is qualitative and follows from the structure: ZNE by folding
+is blind to coherent angle errors, and the qg filter removes their
+number-breaking part.
+
+![Coherent errors](examples/coherent_drift_filter_zne.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
