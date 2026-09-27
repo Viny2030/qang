@@ -2623,6 +2623,74 @@ readout correction everywhere and 200,000 shots.
 
 ![Filter reach](examples/filter_scaling_lih_qg.png)
 
+## 51. Error bars for qg_S from finite shots (`qang.statistics.qg_s_estimate`, `examples/qg_s_error_bars.py`)
+
+§10.2 fixed the **bias** of the qg_S estimator with Miller–Madow. What was
+still missing is an honest **error bar**. Shannon entropy is flat at its
+maximum, so the delta method gives a zero standard error exactly where
+qg_S ≈ 1 (an equatorial qubit, a scrambled register).
+
+**The qg-native fix for one qubit.** Use the §7 identity
+qg_S = H((1 + qg_Z)/2): take the Wilson interval for qg_Z (§15) and map it
+through H. H is unimodal with its maximum at qg_Z = 0, so the image is
+[min H(ends), 1] when the qg_Z interval contains 0. Its coverage is at
+least that of the qg_Z interval.
+
+Coverage of 95 % intervals over 2000 trials (Wald = delta method; boot =
+bootstrap percentile; Bayes = Haar prior, equal-tailed; qg-Wilson =
+Wilson interval for qg_Z mapped through H):
+
+| qg_Z | qg_S | N = 20: Wald / boot / Bayes / **qg-Wilson** | N = 100 | N = 1000 |
+|---|---|---|---|---|
+| 0 | 1.000 | 1.00* / .93 / .00 / **.95** | 1.00* / .85 / .00 / **.93** | 1.00* / .20 / .00 / **.95** |
+| 0.3 | 0.934 | .92 / .96 / .98 / **.99** | .91 / .95 / .95 / **.95** | .94 / .96 / .95 / **.96** |
+| 0.9 | 0.286 | .62 / .64 / .93 / **.92** | .95 / .95 / .96 / **.96** | .94 / .94 / .94 / **.94** |
+| 0.99 | 0.045 | .09 / .10 / .90 / **.90** | .39 / .39 / .91 / **.91** | .95 / .95 / .96 / **.96** |
+
+\* The Wald interval is clipped at the boundary; its width there is 0.003
+at N = 1000, so this is not a real interval.
+
+* **The mapped Wilson interval is the only one that never fails**
+  (0.90–0.99).
+  - Wald and the bootstrap collapse near a pole when shots are few.
+  - The bootstrap also fails at the maximum (20 % coverage at N = 1000).
+  - An equal-tailed Bayesian interval can never contain qg_S = 1.
+* **Best point estimate: Miller–Madow**, with bias of at most 0.02.
+
+**4-qubit register (normalized qg_S; Porter–Thomas distribution mixed
+with uniform at weight λ).** Coverage is given at N = 100 / 1000:
+
+| λ | qg_S | Wald around Miller–Madow | bootstrap | Bayes, Haar prior Dirichlet(1) |
+|---|---|---|---|---|
+| 0 | 0.858 | .91 / .95 | .81 / .93 | **.97** / .95 |
+| 0.5 | 0.964 | .94 / .95 | .73 / .92 | .41 / .89 |
+| 0.9 | 0.998 | .97 / .97 | .55 / .77 | .00 / .00 |
+| 0.99 | 1.000 | .97 / .99 | .50 / .63 | .00 / .00 |
+
+* **For the register the delta method around Miller–Madow works.** With
+  16 outcomes the sample distribution is never flat enough for the
+  variance to vanish.
+* **The bootstrap fails as the register is depolarized**, because
+  resampling doubles the downward bias of the entropy.
+* **The Haar prior only helps when the state is Haar-like.** For a
+  Haar-random state the outcome distribution is exactly Dirichlet(1).
+  There this prior is the best choice (0.97 coverage, bias −0.001 at 100
+  shots, against −0.028 for the plug-in). Near uniform it is the worst
+  (0 %).
+
+**Recommendation, now in the library:**
+
+* single qubit: `qg_s_estimate(k0, n)`, which gives the Miller–Madow
+  point estimate with the mapped Wilson interval;
+* register: Miller–Madow with the delta-method interval;
+* never the bootstrap or a Haar-prior credible interval near the maximum.
+
+**Honest scope.** The estimators are standard. The contribution is the
+single-qubit interval built on the qg_Z ↔ qg_S identity, and the map of
+where each method fails.
+
+![qg_S error bars](examples/qg_s_error_bars.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

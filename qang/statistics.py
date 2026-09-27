@@ -402,3 +402,48 @@ def register_witness_variance(probs, n_qubits: int, n_shots: int, independent: b
     if independent:
         cov = np.diag(np.diag(cov))
     return max(0.0, delta_method_variance(np.full(n_qubits, 1.0 / n_qubits), cov))  # clip rounding below 0
+
+
+# --------------------------------------------------------------------- #
+# qg_S from finite shots: point estimates and intervals (RESEARCH_NOTES §51)
+# --------------------------------------------------------------------- #
+def _h2(p: float) -> float:
+    if p <= 0.0 or p >= 1.0:
+        return 0.0
+    return -p * math.log2(p) - (1.0 - p) * math.log2(1.0 - p)
+
+
+def qg_s_from_qg_z_interval(low: float, high: float) -> tuple:
+    """Map an interval for qg_Z through the exact identity qg_S = H((1+qg_Z)/2)
+    (§7). H is unimodal with its maximum 1 at qg_Z = 0, so the image of
+    [low, high] is [min(H(low), H(high)), 1] when the interval contains 0 and
+    the ordered endpoint values otherwise. Coverage of the qg_S interval is at
+    least that of the qg_Z interval."""
+    low, high = max(-1.0, low), min(1.0, high)
+    h_lo, h_hi = _h2((1.0 + low) / 2.0), _h2((1.0 + high) / 2.0)
+    if low <= 0.0 <= high:
+        return min(h_lo, h_hi), 1.0
+    return min(h_lo, h_hi), max(h_lo, h_hi)
+
+
+def qg_s_estimate(k0: int, n_shots: int, method: str = "qg_wilson", z: float = 1.96) -> tuple:
+    """(point estimate, low, high) for a single qubit's qg_S from k0 zeros in
+    n_shots. method:
+      "qg_wilson"  Miller-Madow point estimate; interval = Wilson interval for
+                   qg_Z mapped through qg_S = H((1+qg_Z)/2)  (recommended)
+      "wald"       plug-in +- z * delta-method standard error (collapses at
+                   qg_Z = 0, where dH/dp = 0, and at the poles)
+    """
+    if n_shots < 1 or not 0 <= k0 <= n_shots:
+        raise ValueError("need n_shots >= 1 and 0 <= k0 <= n_shots.")
+    p = k0 / n_shots
+    plug = _h2(p)
+    if method == "wald":
+        se = 0.0 if p in (0.0, 1.0) else math.sqrt(p * (1 - p) / n_shots) * abs(math.log2((1 - p) / p))
+        return plug, max(0.0, plug - z * se), min(1.0, plug + z * se)
+    if method != "qg_wilson":
+        raise ValueError("method must be 'qg_wilson' or 'wald'.")
+    mm = plug + (1.0 / (2.0 * n_shots * math.log(2)) if 0 < k0 < n_shots else 0.0)
+    w = wilson_qg_estimate(k0, n_shots, z)
+    lo, hi = qg_s_from_qg_z_interval(w.low, w.high)
+    return min(mm, 1.0), lo, hi

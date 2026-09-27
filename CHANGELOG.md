@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.statistics.qg_s_estimate`, `qg_s_from_qg_z_interval`: qg_S point estimate (Miller-Madow)
+  and interval (Wilson interval for qg_Z mapped through qg_S = H((1+qg_Z)/2));
+  `examples/qg_s_error_bars.py`: coverage of qg_S intervals (RESEARCH_NOTES §51).
 - `examples/filter_scaling_lih_qg.py`: why the qg filter helps H2 and not LiH -- the LiH error sits
   in the X/Y measurement groups a Z-basis filter cannot reach; witness-based rescaling of those
   groups overcorrects (RESEARCH_NOTES §50).
