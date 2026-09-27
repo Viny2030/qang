@@ -2449,6 +2449,9 @@ enumeration, 3 seeds (medians):
 
 ![RBM I-eta](examples/rbm_mutual_information_qg.png)
 
+Written up as a short comment: `manuscript/rbm_comment/main.tex`
+(PDF `manuscript/qang_rbm_comment.pdf`).
+
 ## 48. Coherent MS over-rotation and drift: what survives for the filter and for ZNE (`examples/coherent_drift_filter_zne.py`)
 
 IonQ's cloud noise models are stochastic and gate-level (§42). Real

@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `manuscript/rbm_comment/`: short comment on the RBM mutual-information bounds (§47), PDF
+  `manuscript/qang_rbm_comment.pdf`; preprints updated with §47-§54.
 - `examples/symmetry_checks_scaling_qg.py`: parity and N mod 4 checks on H4, H2O (8 qubits) and
   H6 (12 qubits); mod 4 reaches the number-projection ceiling, but the ceiling shrinks with depth
   (RESEARCH_NOTES §54). Needs pyscf, openfermion, openfermionpyscf.
