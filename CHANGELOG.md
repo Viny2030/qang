@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/rbm_mutual_information_qg.py`: the I-eta bounds of RBM neural quantum states
+  (Singh et al., Academia Quantum 2026) written in qg marginals; lower-bound saturation traced
+  to Z2 symmetry and broken by a longitudinal field or a symmetry-broken learner (RESEARCH_NOTES §47).
 - Pre-registered Forte-1 predictions for the IonQ hardware plan (RESEARCH_NOTES §46):
   `examples/ionq_sim_h2_stretched.py` (H2 at 1.5 and 2.5 A on the forte-1 noise model),
   `examples/ionq_hardware_plan.py`, and `tests/test_ionq_hardware_predictions.py` pinning them.

@@ -2376,6 +2376,77 @@ The recorded simulator data behind every number are in
 `examples/data/ionq_sim_results.json`, pinned by tests. Whatever the
 hardware gives will be reported against this table, including failures.
 
+## 47. The I–η plane of RBM quantum states is swept by the qg marginals (`examples/rbm_mutual_information_qg.py`)
+
+The review by Singh, Bhatia, Saggi, Sajjan and Kais (*Academia Quantum*
+3, 2026, doi:10.20935/AcadQuant8243, Sec. 3.2 and Fig. 4) looks at an
+RBM learner through its Ising Hamiltonian H(X) = Σaᵢsᵢ + Σbⱼhⱼ + ΣWᵢⱼsᵢhⱼ
+and the thermal state P(v, h) ∝ e^(−H). For each visible–hidden pair it
+plots:
+
+* η = Cov(s, h), which is read from the imaginary part of the OTOC;
+* I, the mutual information between the two units.
+
+The pair (I, η) lies between two analytic bounds, LB(η) and UB(η).
+Trained RBMs on transverse-field Ising drivers sit on LB for every size
+and field ratio g. The review reads this as a learning principle: the
+network uses the least mutual information compatible with the
+covariance.
+
+**qg reading.** A pair of ±1 spins is fixed by three numbers: qg_v =
+⟨s⟩, qg_h = ⟨h⟩ and η. Then
+p(s,t) = [1 + s·qg_v + t·qg_h + st(η + qg_v qg_h)]/4 and
+I = qg_S(qg_v) + qg_S(qg_h) − H(p) (§7). Checked on a grid:
+
+* **LB(η)** is exactly the case qg_v = qg_h = 0, and it is the minimum of
+  I over the marginals at fixed η.
+* **UB(η)** is the locked pair with |qg_v| = |qg_h| = √(1 − η).
+* **In between**, to leading order, I − LB ≈ η²(qg_v² + qg_h²)/(2 ln 2).
+
+**The symmetry explanation, and its test.** The transverse-field Ising
+driver is Z₂-symmetric, so its ground state has ⟨Z⟩ = 0. A symmetric RBM
+(a = b = 0) then has zero marginals. On this reading, LB saturation is
+forced by the symmetry. Prediction, which could have failed: a
+longitudinal field moves the same learner off LB, by the amount the
+marginals set.
+
+Setup: real positive RBM, n = 6, α = 1, periodic chain, exact
+enumeration, 3 seeds (medians):
+
+| g | h_z | fidelity | \|qg_v\| | \|qg_h\| | mean I − LB | max I − LB |
+|---|---|---|---|---|---|---|
+| 1.0 | 0 | 1.0000 | 0.0001 | 0.0016 | 3·10⁻⁷ | 1·10⁻⁵ |
+| 2.0 | 0 | 1.0000 | 0.0000 | 0.0034 | 7·10⁻⁷ | 2·10⁻⁵ |
+| 1.0 | 0.1 | 1.0000 | 0.39 | 0.45 | 1.6·10⁻² | 0.10 |
+| 1.0 | 0.3 | 1.0000 | 0.52 | 0.42 | 1.4·10⁻² | 0.17 |
+| 2.0 | 0.1 | 1.0000 | 0.07 | 0.09 | 5.2·10⁻⁴ | 5·10⁻³ |
+| 2.0 | 0.3 | 1.0000 | 0.18 | 0.19 | 2.7·10⁻³ | 3·10⁻² |
+| 0.5 | 0 (random start) | 0.50 | 0.81 | 0.77 | 1.1·10⁻² | 0.12 |
+| 0.5 | 0 (a = b = 0 start) | 1.0000 | 0.0002 | 0.0001 | 1.5·10⁻⁸ | 1·10⁻⁷ |
+
+* **The review's observation is reproduced.** With the symmetric driver,
+  trained RBMs sit on LB (gap below 2·10⁻⁵ bits) because their marginals
+  vanish.
+* **The prediction holds.** A longitudinal field moves the same learner
+  off LB, in step with the marginals. The small-bias formula matches the
+  gap at g = 2: 5.3·10⁻⁴ vs 5.2·10⁻⁴, and 2.6·10⁻³ vs 2.7·10⁻³.
+* **Same physics, two positions.** In the ordered phase the same target
+  admits two RBMs:
+  - from a random start, training breaks the symmetry (fidelity 0.50,
+    marginals 0.8) and the points leave LB;
+  - from a = b = 0, it finds the symmetric ground state exactly and the
+    points sit on LB.
+
+  The position in the I–η plane is set by the marginals, not by a
+  minimum-information principle.
+* **Honest scope.** Small n with exact enumeration. The review's
+  stochastic reconfiguration and Monte Carlo sampling at larger N are not
+  reproduced. The claim is limited: LB saturation is what zero marginals
+  imply, and breaking the symmetry (by a field or by the learner) removes
+  it by the amount the marginals predict.
+
+![RBM I-eta](examples/rbm_mutual_information_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
