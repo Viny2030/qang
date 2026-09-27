@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/ionq_sim_xxz_filter.py`: the §60 chain in IonQ native gates on the forte-1 noise model;
+  MS vs ZZ compilation give the same filter gain (ratio 0.82, predicted 0.8-1.25), no T1-like
+  signature in the vendor model (RESEARCH_NOTES §61).
 - `examples/xxz_trotter_filter_qg.py`: XXZ Trotter dynamics with the qg number filter; per-noise reach,
   half of the T1 error leaks through a 3-CNOT compilation and none through number-conserving gates;
   filter + ZNE at a finite shot budget; trapped-ion compilations: native MS rotations barely leak,

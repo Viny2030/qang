@@ -3252,6 +3252,47 @@ CNOTs. The test (share of the T1 error removed, 4 steps, γ = 0.01):
 
 ![XXZ Trotter filter](examples/xxz_trotter_filter_qg.png)
 
+## 61. The §60 chain on IonQ's forte-1 noise model (`examples/ionq_sim_xxz_filter.py`)
+
+The §60 E rule (avoid basis changes around two-qubit gates) was tested in
+IonQ's native gates on the free noisy simulator.
+
+* IonQ rejects circuits that mix MS and ZZ gates (preflight error). The
+  test therefore uses the XY model (Δ = 0), which each gate family can
+  express alone:
+  - `xy_ms`: MS rotations, small angles, no basis change;
+  - `xy_zz`: native ZZ wrapped in GPI2 basis changes;
+  - `xxz_basis`: the XXZ chain in MS only, with the ZZ term by basis change.
+* n = 6, dt = 0.25, 1–6 steps; 5 runs × 12 circuits × 2000 shots.
+* The prediction was written before the run: if the vendor model is
+  depolarizing-type, the share of the error the filter removes should be
+  the same for both XY compilations (ratio within 0.8–1.25). A ratio
+  above 1.5 would mean T1-like errors. The local stand-in gives 1.4 with
+  T1 γ = 0.005, and 1.0 without T1.
+
+| compilation | raw bias, 4 / 6 steps | filtered bias | kept |
+|---|---|---|---|
+| xy_ms | −0.070 / +0.073 | −0.043 / +0.036 | 0.72 / 0.61 |
+| xy_zz | −0.066 / +0.078 | −0.034 / +0.033 | 0.70 / 0.59 |
+| xxz_basis | −0.037 / +0.229 | −0.011 / +0.161 | 0.61 / 0.52 |
+
+Pooled share removed over 4 and 6 steps: xy_ms 0.45 ± 0.08, xy_zz
+0.55 ± 0.12, ratio 0.82.
+
+* **The prediction holds.** The ratio is inside the band, and on the side
+  opposite to a T1 effect. The raw errors are equal, so the extra GPI2
+  gates cost nothing visible.
+* **The filter removes about half of the error on forte-1** in both XY
+  compilations, as the depolarizing stand-in predicts (49–57 %).
+* **Consequence.** On trapped ions the MS-vs-ZZ choice does not matter
+  for the filter. The §60 leak is a T1 effect and belongs to platforms
+  with T1, such as superconducting qubits. The simulator cannot test it;
+  on hardware the prediction is the same ratio band unless the gates
+  carry T1-like errors.
+* **Honest scope.** A vendor noise model is not hardware. The ratio sits
+  at the edge of its band, and the per-run spread (0.08–0.12) is
+  comparable to the difference.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
