@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/lih_parity_verification_qg.py`: electron-parity and N mod 4 checks on ancillas reach every
+  LiH measurement group; error cut 6-8x, below Hartree-Fock at 3 layers (RESEARCH_NOTES §52).
 - `qang.statistics.qg_s_estimate`, `qg_s_from_qg_z_interval`: qg_S point estimate (Miller-Madow)
   and interval (Wilson interval for qg_Z mapped through qg_S = H((1+qg_Z)/2));
   `examples/qg_s_error_bars.py`: coverage of qg_S intervals (RESEARCH_NOTES §51).

@@ -2691,6 +2691,61 @@ where each method fails.
 
 ![qg_S error bars](examples/qg_s_error_bars.png)
 
+## 52. LiH: symmetry checks that reach every measurement group (`examples/lih_parity_verification_qg.py`)
+
+§50 found that the LiH error sits in the 16 X/Y measurement groups, where
+a Z-basis filter never looks. Two checks reach every group, because both
+commute with every number-conserving term:
+
+* **Parity.** The electron-number parity P = Z₀⋯Z₅, measured on one
+  ancilla with 6 CNOTs before the basis rotation.
+* **N mod 4.** A Hadamard test of U = e^{iπN/2} = S₀⋯S₅ on a second
+  ancilla, using 6 controlled phases. On the even sector U = ±1, so it
+  reads N mod 4 and also rejects the errors that change N by 2.
+
+**A. Ideal projections, exact density matrix.** Error vs the noiseless
+circuit in mHa, kept fraction in brackets:
+
+| | no check | parity | N mod 4 | N = 2 (ceiling) |
+|---|---|---|---|---|
+| all-to-all L1 | 23.7 | 15.3 (0.93) | 0.3 (0.91) | 0.2 (0.91) |
+| all-to-all L3 | 76.1 | 49.4 (0.83) | 6.9 (0.77) | 6.2 (0.77) |
+| brisbane L1 | 41.0 | 25.5 (0.86) | 0.7 (0.82) | 0.4 (0.82) |
+| brisbane L3 | 135.6 | 98.4 (0.69) | 17.3 (0.59) | 13.3 (0.59) |
+
+**B. With ancillas.** All-to-all noise, 200,000 shots. "Raw" includes the
+noise the ancilla gates add to the system:
+
+| | raw | checked | kept | extra CX |
+|---|---|---|---|---|
+| L1 parity | 25.2 | 15.9 | 0.92 | 6 |
+| L1 parity + mod 4 | 30.1 | **3.8** | 0.86 | 18 |
+| L3 parity | 79.2 | 52.1 | 0.81 | 6 |
+| L3 parity + mod 4 | 83.9 | **13.4** | 0.72 | 18 |
+
+* **Symmetry verification works for LiH once it reaches every group.**
+  The full number projection cuts the error 10–100×, so the failure in
+  §21 and §50 was reach, not a limit of the method.
+* **Parity alone recovers about a third.** Most of the remaining errors
+  change N by 2 (a two-qubit error that flips both qubits of a pair).
+  The N mod 4 check catches those and lands within 10–30 % of the ceiling.
+* **The ancilla version keeps most of the ideal gain,** despite 6–18
+  extra noisy gates. Parity + mod 4 cuts the LiH error 6–8×; at L3 it
+  goes from 83.9 to 13.4 mHa, where §50's best was 76.6.
+* **First LiH case in the repository to beat Hartree–Fock.** The
+  noiseless L3 circuit is 0.66 mHa above FCI, so 13.4 mHa here is about
+  14 mHa above FCI, just below Hartree–Fock (16.3). That holds on this
+  noise model only.
+* **Cost:** one or two ancillas coupled to every qubit (natural on
+  trapped ions, SWAP-heavy on heavy-hex), and 14–28 % of shots discarded.
+* **Honest scope.** Parity checks with an ancilla are standard symmetry
+  verification (Bonet-Monroig et al. 2018), and N mod 4 is the obvious
+  extension. The qg content is the diagnosis that led here (§50) and the
+  witness reading of the kept fraction. The heavy-hex numbers are ideal
+  projections only; the ancilla circuits were not routed.
+
+![LiH parity](examples/lih_parity_verification_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
