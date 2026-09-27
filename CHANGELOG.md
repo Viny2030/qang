@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/ionq_sim_lih_mod4.py`: LiH with parity + N mod 4 checks on IonQ's forte-1 noise model;
+  error cut 3.8x, recorded as a pre-registered hardware prediction (RESEARCH_NOTES §53).
 - `examples/lih_parity_verification_qg.py`: electron-parity and N mod 4 checks on ancillas reach every
   LiH measurement group; error cut 6-8x, below Hartree-Fock at 3 layers (RESEARCH_NOTES §52).
 - `qang.statistics.qg_s_estimate`, `qg_s_from_qg_z_interval`: qg_S point estimate (Miller-Madow)

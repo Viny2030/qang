@@ -2746,6 +2746,34 @@ noise the ancilla gates add to the system:
 
 ![LiH parity](examples/lih_parity_verification_qg.png)
 
+## 53. LiH with the mod-4 check on IonQ's forte-1 noise model (`examples/ionq_sim_lih_mod4.py`)
+
+§52 run on IonQ's free noisy simulator, as a candidate hardware track
+recorded before any QPU run. The circuits: the 3-layer LiH ansatz, a
+parity ancilla and an N mod 4 ancilla (8 qubits, 17 measurement groups
+plus 2 calibration circuits), 2000 shots per circuit, 5 runs. All
+numbers are the error in mHa against the noiseless circuit:
+
+| | forte-1 (5 runs) | generic all-to-all (§52) |
+|---|---|---|
+| raw | 145.5 ± 10.1 | 83.9 |
+| parity (kept 0.70) | 116.3 ± 11.6 | 52.1 |
+| parity + mod 4 (kept 0.56) | **38.6 ± 8.7** | **13.4** |
+
+* **The mod-4 check survives the vendor noise model.** It cuts the error
+  3.8×; parity alone cuts it only 1.25×.
+* **The "beats Hartree–Fock" result of §52 does not carry over.** forte-1
+  is noisier than the generic model, so the checked estimate (about 39 mHa
+  above FCI) stays above Hartree–Fock (16.3).
+* **Pre-registered criterion for a hardware run:**
+  - it holds if parity + mod 4 cuts the error at least 2.5× in each run,
+    while parity alone gives less than 1.5×;
+  - it fails if the cut is below 1.5×.
+* **Cost** (public estimator, rough): about $110–120 per circuit at 1000
+  shots, so about $2,200 for the 19 circuits, or about $1,100 at 500
+  shots. That does not fit in the current request without dropping other
+  tracks.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
