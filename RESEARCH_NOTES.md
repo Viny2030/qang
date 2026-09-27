@@ -2518,6 +2518,56 @@ number-breaking part.
 
 ![Coherent errors](examples/coherent_drift_filter_zne.png)
 
+## 49. BB84 beyond intercept-resend: partial cloning, one-basis attacks and T2 drift (`examples/bb84_attacks_beyond_ir_qg.py`)
+
+The §43 flags know two error families: T1 drift and intercept-resend in
+both bases. From Bob's side, any individual attack is a Pauli channel
+(p_x, p_y, p_z). Z-basis errors come from p_x + p_y, and X-basis errors
+from p_z + p_y:
+
+| attack | (p_x, p_y, p_z) | same counts as |
+|---|---|---|
+| intercept-resend, both bases, fraction f | (f/4, 0, f/4) | — |
+| optimal phase-covariant cloner, disturbance D | (0, D, 0) | intercept-resend with f = 4D |
+| Z-only intercept, fraction f | (0, 0, f/2) | **T2 drift** (1−2p′) = (1−2p₀)(1−f) |
+| X-only intercept, fraction f | (f/2, 0, 0) | no natural noise |
+
+These identities hold to 10⁻¹⁶. Setup as §43: n = 10⁵, k = 7609, 400
+blocks per scenario. The model is extended with a dephasing family and
+three one-sided nested flags: attack-like, T1-like (γ > γ₀) and T2-like
+(p > p₀).
+
+| scenario | attack | T1 | T2 | §43 model: attack |
+|---|---|---|---|---|
+| baseline | 0.020 | 0.005 | 0.033 | 0.020 |
+| T1 drift 0.04 | 0.018 | **1.00** | 0.033 | 0.015 |
+| T2 drift p = 0.02 / 0.03 | 0.007 / 0.020 | 0.01 | **1.00** | **0.075 / 0.268** |
+| intercept-resend f = 0.05 | **1.00** | 0.055 | 0.028 | 1.00 |
+| cloner D = 0.0125 / 0.025 | **1.00** | 0.055 | 0.02–0.04 | 1.00 |
+| Z-only intercept f = 0.02 / 0.04 | 0.013 | 0.02–0.03 | **1.00** | 0.06 / 0.27 |
+| X-only intercept f = 0.04 | **1.00** | 0.048 | 0.000 | 1.00 |
+| T2 drift + cloner | **1.00** | 0.043 | **0.995** | 1.00 |
+
+* **Partial cloning is caught.** The optimal cloner is flagged in every
+  block, exactly like intercept-resend with f = 4D. What no error
+  statistic can show is that the cloner gives Eve more information per
+  error; the key rate already charges every error to Eve.
+* **§43 had a false alarm, now fixed.** Without a dephasing family, T2
+  drift raised the attack flag in 7.5 % and 27 % of blocks. With the
+  family, the false alarm drops to 0.7–2 % and the verdict is T2-like in
+  every block.
+* **A second blind spot, by construction.** A Z-only intercept produces
+  exactly the counts of T2 drift. It is flagged T2-like and not as an
+  attack. This is the twin of the T1-mimicking attack of §40: an attacker
+  who hides inside an error type the hardware makes naturally. An X-only
+  intercept has no natural twin and is caught every time.
+* **Mixtures are resolved:** T2 drift plus a cloner raises both flags.
+* **Honest scope.** Only individual attacks, modelled as Pauli channels;
+  collective and detector attacks are not modelled. This is diagnosis, not
+  security.
+
+![BB84 attacks](examples/bb84_attacks_beyond_ir_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

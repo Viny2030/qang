@@ -184,6 +184,15 @@ it (0.5\% attack flags).
 all of them. A $Q_Z$ trend would also warn; what qg adds is the attribution.
 \end{itemize}
 
+\paragraph{Beyond intercept-resend.} From Bob's side, any individual attack is a Pauli channel
+$(p_x,p_y,p_z)$, with Z-basis errors from $p_x+p_y$ and X-basis errors from $p_z+p_y$. The optimal
+phase-covariant cloner with disturbance $D$, which is $(0,D,0)$, therefore gives exactly the counts of
+intercept-resend with $f=4D$, and it is flagged as an attack in every block. A Z-only intercept,
+$(0,0,f/2)$, gives exactly the counts of extra dephasing (T2 drift). The two-family model above had no
+dephasing family, so T2 drift raised false attack alarms in 7.5--27\% of blocks. With the family added,
+T2 drift is flagged as T2-like and the false alarms fall to 0.7--2\%. The Z-only intercept then hides as
+T2 drift: it is a second blind spot, the twin of the T1-mimicking attack.
+
 \paragraph{On a trapped-ion noise model.} We rebuilt the whole protocol as circuits on IonQ's cloud
 simulator with the aria-1 and forte-1 noise models. The memory is amplitude damping made with an
 ancilla, ${\rm CRY}(2\arcsin\sqrt\gamma)$ followed by a CX back, with $\gamma_0=0.02$ healthy and
@@ -324,8 +333,8 @@ attack are designed circuits.
 
 \section{Code availability}
 \sloppy
-\texttt{examples/bb84\_qg\_eve\_vs\_noise.py}, \texttt{examples/bb84\_finite\_key\_qg.py}, \texttt{examples/ionq\_sim\_bb84.py}, \texttt{examples/qrng\_qg\_certified.py} and \texttt{examples/ionq\_sim\_qrng.py} in
-\url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 40--44 of
+\texttt{examples/bb84\_qg\_eve\_vs\_noise.py}, \texttt{examples/bb84\_finite\_key\_qg.py}, \texttt{examples/ionq\_sim\_bb84.py}, \texttt{examples/bb84\_attacks\_beyond\_ir\_qg.py}, \texttt{examples/qrng\_qg\_certified.py} and \texttt{examples/ionq\_sim\_qrng.py} in
+\url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 40--44 and 49 of
 \texttt{RESEARCH\_NOTES.md} give more detail, and \texttt{notebooks/qang\_criptografia\_colab.ipynb}
 reproduces fast versions in Colab.
 

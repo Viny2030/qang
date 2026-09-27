@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/bb84_attacks_beyond_ir_qg.py`: BB84 attacks as Pauli channels (phase-covariant
+  cloner, one-basis intercepts) and T2 drift; a dephasing family removes the §43 false alarm and
+  exposes a Z-only-intercept blind spot (RESEARCH_NOTES §49).
 - `examples/coherent_drift_filter_zne.py`: coherent MS over-rotation and drift on the native
   circuits of the hardware plan; native folding is blind to coherent angle errors, the qg
   filter removes 94 % of them (RESEARCH_NOTES §48).
