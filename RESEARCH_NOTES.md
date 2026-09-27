@@ -3007,6 +3007,135 @@ Latest storage time with a positive secret fraction (units of T1):
 
 ![Bell pairs](examples/bell_pairs_network_qg.png)
 
+## 58. GHZ metrology in qg: when entanglement beats N independent qubits (`examples/ghz_metrology_qg.py`)
+
+Sensing a frequency ω with N qubits for a time t. Product: each qubit is
+a Ramsey qubit with qg_X = V₁ cos(ωt), V₁ = e^{−t/T2}(1 − 2e). GHZ: the
+parity X₁⋯X_N is one qg of the whole register, qg_P = V_N cos(Nωt),
+V_N = e^{−Nt/T2}(1 − 2e)^N, with e the readout error per qubit. At
+mid-fringe (the §36 operating point) the Fisher information per shot is
+V², so per unit time:
+
+    product  N t e^{−2t/T2} (1 − 2e)²
+    GHZ      N² t e^{−2Nt/T2} (1 − 2e)^{2N}
+
+Exact N = 3, 4 density-matrix checks reproduce the parity
+cos(Nφ)(1 − 2p)^N(1 − γ)^{N/2}(1 − 2e)^N to 6 digits with dephasing,
+amplitude damping and readout error.
+
+Fisher-rate gain GHZ / product, interrogation time optimised:
+
+| N | Markov e=0 | e=0.002 | e=0.01 | Gauss e=0 | e=0.002 | e=0.01 |
+|---|---|---|---|---|---|---|
+| 2 | 1.000 | 0.992 | 0.960 | 1.414 | 1.403 | 1.358 |
+| 10 | 1.000 | 0.930 | 0.695 | 3.162 | 2.942 | 2.198 |
+| 30 | 1.000 | 0.793 | 0.310 | 5.477 | 4.341 | 1.697 |
+| 100 | 1.000 | 0.452 | 0.018 | 10.00 | 4.522 | 0.183 |
+| 300 | 1.000 | 0.091 | 0.000 | 17.32 | 1.576 | 0.000 |
+
+* **Markovian dephasing:** no gain for any N (Huelga et al. 1997). With
+  readout error, N independent qubits are strictly better.
+* **Gaussian (slow) dephasing:** gain √N, the N^{−3/4} Zeno-limit scaling
+  (Matsuzaki et al. 2011; Chin, Huelga, Plenio 2012).
+* **Readout caps it.** The parity carries (1 − 2e)^N, the §31 readout
+  gain to the N-th power. The best GHZ size is
+  N* = 3/(4|ln(1 − 2e)|): 187, 75, 37, 18 for e = 0.002, 0.005, 0.01,
+  0.02, equal to the grid optimum. The gain there is only 3.1, 2.0, 1.4
+  and 1.06. At e ≈ 0.005 a GHZ sensor is worth at most about 2× in Fisher
+  rate (1.4× in sensitivity), at N ≈ 75.
+* **Fixed short window** (t ≤ 0.01 T2): gain 1.96, 8.4, 16.8 at N = 2,
+  10, 30, then flat at 1/(2e_E·0.0098) = 18.8 once T2/(2N) < t_max.
+  Readout cuts it to 13.3 (e = 0.002) and 5.2 (e = 0.01) at N = 30.
+* **T1 witness.** T1 and dephasing both shrink the parity fringe, and the
+  parity cannot tell them apart. The register-mean qg_Z is γ under T1
+  and 0 under dephasing, the §20 witness on a sensor.
+* **Honest scope.**
+  - The Markovian, Gaussian and short-window results are textbook.
+  - Contributed: the closed-form readout cap N* and the small gain it
+    leaves, and the T1/dephasing separation from mean qg_Z.
+  - Limits: independent noise only (no correlated dephasing), no GHZ
+    preparation errors (these would lower every GHZ number), parity read
+    as a product of N single-qubit readouts.
+
+![GHZ metrology](examples/ghz_metrology_qg.png)
+
+## 59. The d = 3 surface code read in qg (`examples/surface_code_d3_qg.py`)
+
+Rotated d = 3 code, 9 data qubits. Z stabilizers {0,1,3,4}, {4,5,7,8}
+(weight 4) and {2,5}, {3,6} (weight 2); Z_L = Z₀Z₁Z₂. A Z-memory: prepare
+|0_L⟩ or |1_L⟩, let noise act, read the data in Z, rebuild the syndrome,
+decode. Each stabilizer average is a qg of a parity, and
+qg_L = 1 − 2p_L.
+
+**A. Code capacity, exact over 512 patterns.** p_L = 1.79·10⁻⁵,
+1.73·10⁻³, 1.44·10⁻² at p = 0.001, 0.01, 0.03 (p_L → 18p²: eighteen
+weight-2 patterns defeat the decoder). Minimum weight equals maximum
+likelihood here. Pseudo-threshold p_L = p at p = 0.0753.
+
+**B. Two weights separate data errors from ancilla readout.** A weight-w
+stabilizer reads qg_w = b(1 − 2p)^w, with b = 1 − 2q the §31 readout
+gain. The ratio qg₄/qg₂ gives p, and qg₂²/qg₄ gives b.
+
+| p | q | p from qg₄ alone | two-weight p | b | 2000 shots: p |
+|---|---|---|---|---|---|
+| 0.01 | 0 | 0.0100 | 0.0100 | 1.000 | 0.0099 ± 0.0020 |
+| 0.01 | 0.02 | **0.0150** | 0.0100 | 0.960 | 0.0098 ± 0.0025 |
+| 0.03 | 0.02 | 0.0348 | 0.0300 | 0.960 | 0.0298 ± 0.0036 |
+| 0.03 | 0.05 | **0.0422** | 0.0300 | 0.900 | 0.0302 ± 0.0050 |
+
+**C. T1 on the data.** The 9-qubit density matrix confirms ⟨Z_i⟩ = γ on
+every qubit and the classical decay model (to 4·10⁻¹⁷).
+
+* **The syndromes are practically blind to T1.** A weight-w syndrome
+  reads qg_w = (1 − γ)^w + γ^w exactly, against (1 − γ)^w for the Pauli
+  twirl (bit flip p = γ/2). At γ = 0.01 and w = 2 that is 0.98020 vs
+  0.98010, a γ^w difference that needs about 10⁸ shots.
+* **Mean qg_Z sees it.** It is γ under T1 and 0 for any symmetric flip,
+  and it comes from the same bits as the syndrome.
+* **Decoding.** Logical error averaged over |0_L⟩ and |1_L⟩:
+
+| γ | twirl, MW | T1, MW | T1, MW on bits read 0 | T1, ML |
+|---|---|---|---|---|
+| 0.01 | 4.41·10⁻⁴ | 4.90·10⁻⁴ | 1.99·10⁻⁴ | 1.99·10⁻⁴ |
+| 0.03 | 3.82·10⁻³ | 4.22·10⁻³ | 1.77·10⁻³ | 1.77·10⁻³ |
+| 0.1 | 3.69·10⁻² | 4.03·10⁻² | 1.89·10⁻² | 1.89·10⁻² |
+| 0.3 | 0.217 | 0.231 | 0.144 | 0.144 |
+
+  - The twirl underestimates the minimum-weight p_L by 6–11 %.
+  - A decoder that puts errors only on bits read 0 (a decay leaves a 0)
+    cuts p_L 2.1–2.5× for γ ≤ 0.1, and equals maximum likelihood.
+
+**D. The limit of C.** Add symmetric flips p on top of the decay:
+
+| γ | p | MW | MW on bits read 0 | ML (γ, p from qg) |
+|---|---|---|---|---|
+| 0.03 | 0 | 4.22·10⁻³ | 1.77·10⁻³ | 1.77·10⁻³ |
+| 0.03 | 0.003 | 5.77·10⁻³ | **1.05·10⁻²** | 5.73·10⁻³ |
+| 0.03 | 0.01 | 1.03·10⁻² | **3.03·10⁻²** | 1.03·10⁻² |
+| 0.1 | 0.01 | 5.26·10⁻² | 4.83·10⁻² | 4.49·10⁻² |
+| 0.1 | 0.05 | 0.112 | **0.154** | 0.112 |
+
+* The hard "bits read 0" rule breaks as soon as p ≈ γ/10: it is 1.8×
+  worse than minimum weight.
+* The maximum-likelihood decoder with γ and p estimated from
+  mean qg_Z = γ(1 − 2p) and qg₄ ≈ ((1 − γ)(1 − 2p))⁴ (recovered to 4
+  digits) never loses. Its gain shrinks fast: 2.4× at p = 0, 1 % at
+  p = γ/10, 17 % at γ = 0.1, p = 0.01.
+* The qg readout says which decoder to use. The benefit is large only
+  when T1 dominates the data-qubit noise.
+* **Honest scope.**
+  - Syndrome-based noise estimation and asymmetric-channel decoding are
+    known ideas.
+  - Contributed: the two-weight separation of p and b, the exact
+    (1 − γ)^w + γ^w syndrome showing the syndromes are blind to T1 while
+    mean qg_Z is not, and the exact d = 3 numbers with the robustness
+    limit.
+  - Limits: code capacity only (one round, perfect extraction apart from
+    b in B), Z-memory only (an X-memory reads in X and gets no qg_Z),
+    no circuit-level noise, leakage or repeated rounds, d = 3 only.
+
+![Surface code d=3](examples/surface_code_d3_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

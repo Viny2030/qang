@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `manuscript/battery_network/`: short note combining qubit batteries (§56) and Bell pairs (§57),
+  PDF `manuscript/qang_baterias_redes.pdf`.
+- `examples/surface_code_d3_qg.py`: the d = 3 rotated surface code read in qg -- exact code capacity,
+  two-weight separation of data and ancilla-readout error, syndromes blind to T1 while mean qg_Z is
+  not, T1-aware decoding and its robustness limit (RESEARCH_NOTES §59).
+- `examples/ghz_metrology_qg.py`: GHZ vs N independent qubits under Markovian / Gaussian dephasing;
+  readout cap N* = 3/(4|ln(1-2e)|); mean qg_Z as a T1 witness on a GHZ sensor (RESEARCH_NOTES §58).
 - `examples/bell_pairs_network_qg.py`: Bell pairs read in qg -- noise signatures and a T1 witness, the
   DEJMPS slot rule from finite-shot data, closed-form memory cutoffs for BBM92 (RESEARCH_NOTES §57).
 - `examples/battery_ergotropy_qg.py`: qubit battery ergotropy in qg; T2/T1 charging rule with closed-form
