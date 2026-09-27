@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/symmetry_checks_scaling_qg.py`: parity and N mod 4 checks on H4, H2O (8 qubits) and
+  H6 (12 qubits); mod 4 reaches the number-projection ceiling, but the ceiling shrinks with depth
+  (RESEARCH_NOTES §54). Needs pyscf, openfermion, openfermionpyscf.
 - `examples/ionq_sim_lih_mod4.py`: LiH with parity + N mod 4 checks on IonQ's forte-1 noise model;
   error cut 3.8x, recorded as a pre-registered hardware prediction (RESEARCH_NOTES §53).
 - `examples/lih_parity_verification_qg.py`: electron-parity and N mod 4 checks on ancillas reach every

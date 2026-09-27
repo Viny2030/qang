@@ -2774,6 +2774,58 @@ numbers are the error in mHa against the noiseless circuit:
   shots. That does not fit in the current request without dropping other
   tracks.
 
+## 54. Do the electron-number checks scale beyond LiH? (`examples/symmetry_checks_scaling_qg.py`)
+
+The §52 checks (parity and N mod 4, on ancillas) applied to larger,
+strongly correlated molecules:
+
+* **Hamiltonians:** STO-3G, Jordan–Wigner, built with PySCF and
+  OpenFermion.
+* **Ansatz:** the number-conserving brick, 3 layers, optimized
+  classically, with spin-orbitals ordered spin-blocked (the interleaved
+  order traps the brick at Hartree–Fock).
+* **Noise and metric:** the all-to-all noise model; error against the
+  noiseless circuit.
+
+Ideal projections (mHa, kept fraction in brackets):
+
+| | CX | no check | parity | N mod 4 | N (ceiling) |
+|---|---|---|---|---|---|
+| LiH 6 q, N=2 (§52) | 60 | 76.1 | 49.4 (0.83) | 6.9 (0.77) | 6.2 (0.77) |
+| H₄ 8 q, N=4 | 84 | 238.5 | 146.4 (0.77) | 72.2 (0.72) | 70.5 (0.72) |
+| H₂O 8 q, N=4 (4e, 4o) | 84 | 292.2 | 187.5 (0.77) | 48.8 (0.71) | 44.0 (0.71) |
+| H₆ 12 q, N=6 | 132 | 407.6 | 279.9 (0.69) | 143.8 (0.60) | 135.2 (0.59) |
+
+With ancillas (exact noisy 10-qubit circuits): H₄ goes 272.8 → 100.0 mHa
+(2.7×) and H₂O goes 324.5 → 77.0 (4.2×), against 6× for LiH.
+
+* **The checks keep working, with a smaller factor.**
+  - N mod 4 comes within 2–10 % of the full number projection in every
+    case, so two ancillas suffice up to 12 qubits.
+  - Parity alone recovers 35–40 %.
+* **What shrinks is the ceiling itself.**
+  - The share of the error that changes N falls from 92 % (LiH, 60 CX) to
+    70–85 % (84 CX) and to 67 % (H₆, 132 CX).
+  - The rest is number-conserving (two-qubit errors on a hopping pair,
+    dephasing), which no number check can see.
+* **Against Hartree–Fock**, stretched hydrogen chains are where mean
+  field fails:
+  - The noiseless H₄ circuit is 50.8 mHa above exact (HF 167.0).
+  - With checks the noisy estimate is about 123 mHa above exact (ideal
+    projections) or about 151 (with ancillas), both below HF.
+  - H₆: about 232 vs HF 245, with ideal projections only.
+  - H₂O at equilibrium (HF only 7.4 above exact) is far from HF in every
+    case.
+* **Scaling reading.** Number checks do not stop working as molecules
+  grow, but they catch a shrinking share of the error. Beyond about 100
+  two-qubit gates they need a partner for in-sector errors: ZNE (§48), or
+  other symmetries such as S_z and S².
+* **Honest scope.** One noise model and one ansatz family. The 12-qubit
+  case uses ideal projections only. The checks are standard symmetry
+  verification; the contribution is how their reach and ceiling scale.
+
+![Symmetry checks scaling](examples/symmetry_checks_scaling_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
