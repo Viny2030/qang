@@ -3136,6 +3136,98 @@ every qubit and the classical decay model (to 4·10⁻¹⁷).
 
 ![Surface code d=3](examples/surface_code_d3_qg.png)
 
+## 60. XXZ Trotter dynamics: where the filter reaches everything, and what compilation does to it (`examples/xxz_trotter_filter_qg.py`)
+
+An open XXZ chain, H = Σ J(X_iX_{i+1} + Y_iY_{i+1}) + Δ Z_iZ_{i+1}, conserves
+the number N of 1s. Start from the Néel state (N = n/2) and follow the
+imbalance I(t) = (1/n) Σ (−1)^i qg_Z,i. Every quantity is read in Z, so
+the qg filter (keep shots with register mean qg = 0, §20) checks every
+shot. In LiH (§50) the error sat where the filter could not reach; here
+nothing is out of reach. Setup:
+
+* n = 6 and 8, dt = 0.25, J = Δ = 1, 1–8 Trotter steps.
+* Noise on every two-qubit gate (depolarizing p2, amplitude damping γ on
+  both qubits), readout error e; exact density matrices (qiskit-aer).
+* Two compilations of each bond, both exact to 10⁻¹⁵:
+  - three CNOTs;
+  - two number-conserving gates (an XY interaction and a ZZ interaction),
+    with the per-gate noise scaled by 3/2 so the budget per bond is equal.
+* Errors are |I − I_noiseless Trotter|.
+
+**A. One noise at a time (4 steps): share of the error the filter removes**
+
+| noise | 3 CNOT | number-conserving |
+|---|---|---|
+| 2q depolarizing p2 = 0.01 | 41 % (n = 8: 36 %) | 41 % (36 %) |
+| readout e = 0.02 | 94 % | — |
+| Z dephasing | 2 % | 0 % |
+| amplitude damping γ = 0.01 | **49 % (38 %)** | **99.5 % (99.4 %)** |
+
+* Depolarizing: the Paulis that keep N pass the filter.
+* **T1 leaks through a CNOT compilation.** Every decay lowers N, and the
+  no-jump part is uniform inside a fixed-N sector: with decay applied
+  between Trotter steps the filter removes it to 10⁻¹⁵. Inside a 3-CNOT
+  bond, however, the intermediate states are not in the sector, so a
+  decay mid-gate can be rotated back to N = n/2 and pass. About half of
+  the T1 error gets through. Gates that keep N at every point close the
+  leak.
+
+**B. Mixed noise, 3 CNOT** (p2 = 0.01, γ = 0.005, e = 0.01), error at 1/2/4/6/8 steps:
+
+| method | 1 | 2 | 4 | 6 | 8 |
+|---|---|---|---|---|---|
+| raw | 0.036 | 0.031 | 0.048 | 0.224 | 0.112 |
+| filter | 0.015 | 0.016 | 0.030 | 0.146 | 0.090 |
+| ZNE (1×, 3×) | 0.011 | 0.008 | 0.029 | 0.168 | 0.091 |
+| filter + ZNE | **0.001** | **0.003** | **0.006** | 0.059 | 0.058 |
+
+Filter + ZNE is 2.6–8× below the best single method up to 4 steps.
+
+**C. Same T1-dominated budget** (p2 = 0.002, γ = 0.02, e = 0.01), filter alone:
+
+| compilation | 1 | 2 | 4 | 6 | 8 |
+|---|---|---|---|---|---|
+| 3 CNOT | 0.031 | 0.025 | 0.050 | 0.207 | 0.116 |
+| number-conserving | 0.005 | 0.005 | 0.012 | 0.081 | 0.052 |
+
+* Against raw, the filter cuts the error 2.3–9× with number-conserving
+  gates and 1.1–1.9× with CNOTs.
+* With filter + ZNE the number-conserving circuit reaches 0.026 and 0.006
+  at 6 and 8 steps, against 0.135 and 0.094 for CNOTs.
+
+**D. The price.** The kept fraction is itself a qg noise meter.
+
+* For the number-conserving circuit it is 0.70, 0.52, 0.30, 0.17, 0.11
+  over 1–8 steps (0.61 to 0.05 at n = 8). It is lower than with CNOTs
+  because more decays are now caught.
+* With 2000 shots per circuit at 4 steps, the RMSE (bias and shot noise)
+  of the number-conserving circuit is: raw 0.050, filter 0.028, ZNE 0.035,
+  filter + ZNE 0.048. Once the filter has removed the bias, ZNE only adds
+  variance.
+* With CNOTs, filter + ZNE is the best (RMSE 0.028 and 0.041 for the two
+  noise cases).
+
+**Honest scope.**
+
+* Symmetry verification by post-selection is known (Bonet-Monroig et al.
+  2018; McArdle et al. 2019). Google's Fermi-Hubbard experiment (Arute et
+  al. 2020) used it with number-conserving fSim gates.
+* Contributed:
+  - the per-noise reach of the qg filter on a problem where every
+    observable is in Z (the contrast with LiH, §50);
+  - the measured leak of mid-gate decay under a CNOT compilation (about
+    half of the T1 error), and its closure with number-conserving gates;
+  - the combination with ZNE at a finite shot budget.
+* Limits: small chains; gate-attached noise models; the number-conserving
+  gates are ideal unitaries with an equal error budget, with no model of
+  how a device implements them; open boundaries; one initial state and
+  one observable.
+* Trapped ions: an MS gate does not conserve N, so an XY interaction
+  built from MS gates would leak like the CNOT compilation. This is a
+  prediction to test before any IonQ run.
+
+![XXZ Trotter filter](examples/xxz_trotter_filter_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

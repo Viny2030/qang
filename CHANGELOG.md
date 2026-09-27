@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/xxz_trotter_filter_qg.py`: XXZ Trotter dynamics with the qg number filter; per-noise reach,
+  half of the T1 error leaks through a 3-CNOT compilation and none through number-conserving gates;
+  filter + ZNE at a finite shot budget (RESEARCH_NOTES §60).
 - `manuscript/battery_network/`: short note combining qubit batteries (§56) and Bell pairs (§57),
   PDF `manuscript/qang_baterias_redes.pdf`.
 - `examples/surface_code_d3_qg.py`: the d = 3 rotated surface code read in qg -- exact code capacity,
