@@ -2829,6 +2829,57 @@ With ancillas (exact noisy 10-qubit circuits): H₄ goes 272.8 → 100.0 mHa
 
 ![Symmetry checks scaling](examples/symmetry_checks_scaling_qg.png)
 
+## 55. Spin-resolved checks: N_up and N_down separately (`examples/spin_checks_qg.py`)
+
+§54 found that the share of the error a total-number check can remove
+shrinks with circuit size. The Hamiltonian conserves more than N: it
+conserves N_up and N_down separately. In qg terms the witness splits into
+one register mean per spin block, as the spin filters of §28 did for
+Hubbard.
+
+**Setup.**
+
+* **Ansatz:** XX+YY rotations and controlled phases inside each spin
+  block, plus an up–down controlled phase on each spatial orbital. It
+  keeps the ideal state entirely in the (N_up, N_down) sector (weight
+  1.000000).
+* **Noise:** the all-to-all model; errors are against the noiseless
+  circuit.
+* **With ancillas:** a parity ancilla and an N mod 4 ancilla per spin
+  block (4 ancillas), against the total checks of §54 (2 ancillas). Both
+  add the same 24 two-qubit gates.
+
+Ideal projections (mHa, kept fraction in brackets):
+
+| | CX | no check | N (ceiling of §54) | spin parities | N_up and N_down |
+|---|---|---|---|---|---|
+| H₄ 8 q | 96 | 285.9 | 75.7 (0.68) | 135.1 (0.71) | **66.8** (0.67) |
+| H₂O 8 q | 96 | 366.4 | 57.8 (0.67) | 173.1 (0.71) | **46.2** (0.66) |
+| H₆ 12 q | 156 | 404.3 | 113.9 (0.54) | 222.8 (0.60) | **90.4** (0.51) |
+
+With ancillas: H₄ goes from 106.4 (total) to **89.3** (spin), and H₂O
+from 95.4 to **67.5**.
+
+* **Checking N_up and N_down separately removes a further 12–21 %** of
+  the error beyond the total-number ceiling with ideal projections, and
+  16–29 % with real ancillas.
+  - The two-qubit-gate cost is the same; the checks need two more
+    ancillas and discard 1–2 points more shots.
+  - On H₆ the removable share rises from 72 % to 78 %.
+* **The gain is real but modest.** Most of the residual error conserves
+  both number and spin (ZZ-type two-qubit errors, for example), and no
+  check of these symmetries sees it.
+* **Parities alone are weak** (135–223 mHa). The per-spin mod-4 ancillas
+  carry the benefit.
+* **Honest scope.**
+  - The ansatz differs from §54's, because it must conserve spin, so
+    the numbers are not directly comparable.
+  - H₆ uses ideal projections only.
+  - This is standard symmetry verification; the contribution is how
+    much a second conserved quantity adds.
+
+![Spin checks](examples/spin_checks_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

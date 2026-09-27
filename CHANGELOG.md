@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/spin_checks_qg.py`: spin-resolved (N_up, N_down) checks vs total-number checks on H4, H2O,
+  H6; a further 12-29 % of the error at the same gate cost (RESEARCH_NOTES §55).
 - `manuscript/rbm_comment/`: short comment on the RBM mutual-information bounds (§47), PDF
   `manuscript/qang_rbm_comment.pdf`; preprints updated with §47-§54.
 - `examples/symmetry_checks_scaling_qg.py`: parity and N mod 4 checks on H4, H2O (8 qubits) and
