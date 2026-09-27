@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/filter_scaling_lih_qg.py`: why the qg filter helps H2 and not LiH -- the LiH error sits
+  in the X/Y measurement groups a Z-basis filter cannot reach; witness-based rescaling of those
+  groups overcorrects (RESEARCH_NOTES §50).
 - `examples/bb84_attacks_beyond_ir_qg.py`: BB84 attacks as Pauli channels (phase-covariant
   cloner, one-basis intercepts) and T2 drift; a dephasing family removes the §43 false alarm and
   exposes a Z-only-intercept blind spot (RESEARCH_NOTES §49).

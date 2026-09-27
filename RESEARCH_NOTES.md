@@ -1106,7 +1106,9 @@ error is unital scrambling from 60 noisy two-qubit gates, not T1 loss of
 electrons; only 53% of shots survive the filter and those are still
 scrambled. So the witness diagnoses the regime correctly, and the filter
 pays off only when number-violating T1 errors dominate (shallow circuits
-or long idle times).
+or long idle times). §50 revises this: the LiH error sits mainly in the
+X/Y measurement groups, which a Z-basis filter cannot reach, and the 60
+gates are intrinsic to the ansatz, not routing.
 
 ## 22. Differential equations (`examples/ode_qg_vs_angle.py`)
 
@@ -2567,6 +2569,59 @@ three one-sided nested flags: attack-like, T1-like (γ > γ₀) and T2-like
   security.
 
 ![BB84 attacks](examples/bb84_attacks_beyond_ir_qg.png)
+
+## 50. Why the filter helps H2 and not LiH: reach, not routing (`examples/filter_scaling_lih_qg.py`)
+
+§21 found the electron-number filter cutting the H₂ error 3× and doing
+nothing for 6-qubit LiH. It read the witness as "unital scrambling from 60
+routed gates". Here that explanation is split into parts that can each be
+measured:
+
+* **reach:** the filter acts on Z-basis shots only;
+* **routing:** all-to-all vs heavy-hex;
+* **depth:** 1, 2 or 3 ansatz layers.
+
+All errors are against the noiseless energy of the same circuit, with
+readout correction everywhere and 200,000 shots.
+
+| case | 2q gates | groups | kept | Z group raw → filtered | X/Y groups raw | total raw → +filter | ceiling (Z exact) |
+|---|---|---|---|---|---|---|---|
+| H₂ all-to-all | 3 | 5 | 0.991 | 13.0 → 4.9 | 0.9 | 13.9 → 5.9 | 0.9 |
+| H₂ brisbane | 6 | 5 | 0.973 | 20.6 → 2.8 | 2.4 | 23.0 → 5.2 | 2.4 |
+| LiH all-to-all L1 | 20 | 17 | 0.910 | −2.2 → −1.9 | 26.2 | 24.0 → 24.3 | 26.2 |
+| LiH all-to-all L3 | 60 | 17 | 0.766 | −20.8 → −12.4 | 97.4 | 76.6 → 85.0 | 97.4 |
+| LiH brisbane L2 | 40 | 17 | 0.686 | 14.4 → −2.0 | 71.9 | 86.3 → 69.8 | 71.9 |
+| LiH brisbane L3 | 60 | 17 | 0.585 | −30.5 → −18.0 | 165.8 | 135.3 → 147.9 | 165.8 |
+
+* **Reach is the main reason.**
+  - In H₂ the hardware error sits in the Z group (13.0 of 13.9 mHa), where
+    the filter can act.
+  - In LiH it sits in the 16 X/Y groups (26–166 mHa). Even a perfect
+    Z-basis filter would leave the "ceiling" column.
+* **Routing is not the reason.** The LiH ansatz is nearest-neighbour, so
+  it needs the same 20/40/60 two-qubit gates on an all-to-all device.
+  The "60 routed gates" of §21 were not routing. The all-to-all model
+  cuts the error by about 40 % without changing the picture.
+* **Scrambling is real but secondary.** The kept fraction falls from 0.91
+  to 0.59 with depth, and the filter does fix the Z group. But that group
+  carries a small part of the LiH error.
+* **The qg remedy for the X/Y groups fails.**
+  - The idea: rescale them by the depolarizing strength read from the
+    kept fraction, 1 − δ = (K − c)/(1 − c).
+  - The result: it overcorrects by 2–3×, e.g. +97 → −124 mHa.
+  - The reason: the actual shrink of the X/Y groups is 0.72–0.95, while K
+    implies 0.46–0.88, and the ratio between them is not constant (0.34–0.53
+    for LiH, above 1 for H₂). Reading the witness as global depolarizing
+    is wrong for local gate noise.
+* **Scaling.** For larger molecules the X/Y groups grow in number (about
+  n⁴ terms) and carry most of the correlation energy. A Z-basis number
+  filter therefore reaches a shrinking share of the error. qg symmetry
+  checks would have to act inside the rotated bases, for example through
+  the electron-number parity, which commutes with every number-conserving
+  term. That needs an ancilla or an entangled basis and is not tested
+  here.
+
+![Filter reach](examples/filter_scaling_lih_qg.png)
 
 ## Suggested next steps
 
