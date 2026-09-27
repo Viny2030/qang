@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/bell_pairs_network_qg.py`: Bell pairs read in qg -- noise signatures and a T1 witness, the
+  DEJMPS slot rule from finite-shot data, closed-form memory cutoffs for BBM92 (RESEARCH_NOTES §57).
 - `examples/battery_ergotropy_qg.py`: qubit battery ergotropy in qg; T2/T1 charging rule with closed-form
   crossover, certification from shots, locked charge of Dicke registers (RESEARCH_NOTES §56).
 - `examples/spin_checks_qg.py`: spin-resolved (N_up, N_down) checks vs total-number checks on H4, H2O,

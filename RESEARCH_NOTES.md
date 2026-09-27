@@ -2938,6 +2938,75 @@ and ergotropy (best / fully inverted / equator, in units of ω):
 
 ![Quantum battery](examples/battery_ergotropy_qg.png)
 
+## 57. Bell pairs in a quantum network, read in qg (`examples/bell_pairs_network_qg.py`)
+
+A shared pair meant to be |Φ+⟩ is described by three two-qubit
+correlations and two single-qubit polar biases: c_x = ⟨XX⟩, c_y = ⟨YY⟩,
+c_z = ⟨ZZ⟩, m_A = ⟨Z_A⟩ and m_B = ⟨Z_B⟩. Three measurement settings
+give all five. From them:
+
+* the fidelity, exact for any state: F = (1 + c_x − c_y + c_z)/4;
+* the Bell-diagonal weights, which say which error dominates: Φ− is a
+  phase flip, Ψ+ a bit flip, Ψ− both;
+* a T1 witness from m_A and m_B.
+
+**A. Noise signatures** (p = 0.1 on each half):
+
+| noise | c_x | c_y | c_z | m_A = m_B | F | largest error |
+|---|---|---|---|---|---|---|
+| dephasing | +0.64 | −0.64 | **+1.00** | 0 | 0.820 | Φ− |
+| bit flip | **+1.00** | −0.64 | +0.64 | 0 | 0.820 | Ψ+ |
+| Y flip | +0.64 | **−1.00** | +0.64 | 0 | 0.820 | Ψ− |
+| depolarizing | +0.81 | −0.81 | +0.81 | 0 | 0.858 | all equal |
+| amplitude damping | +0.90 | −0.90 | +0.82 | **+0.10** | 0.905 | Ψ+ |
+
+Each Pauli noise leaves one correlation at its ideal value. Only memory
+T1 moves the local polar biases.
+
+**B. Which distillation.** DEJMPS combines the Φ+ weight with the error
+sitting in one slot (B), and local rotations choose which error goes
+there. Output fidelity of one round (success probability in brackets):
+
+| input | F_in | textbook slot (Ψ−) | best slot | qg rule, 200 shots per setting |
+|---|---|---|---|---|
+| dephasing 0.1 | 0.820 | 0.954 (0.705) | 0.954 | 0.954 (right slot 100 %) |
+| Y flip 0.1 | 0.820 | **0.705** (1.000) | 0.954 | 0.954 (100 %) |
+| amplitude damping 0.2 | 0.820 | 0.828 (0.820) | 0.920 | 0.915 (94 %) |
+
+* **The textbook order can make things worse.** For Y-flip noise one
+  round lowers the fidelity, and for amplitude damping it gains almost
+  nothing.
+* **The rule "smallest estimated error in slot B" fixes it.** Read from
+  the three qg correlations with 200 shots per setting, it reaches the
+  best output.
+
+**C. Memory cutoff for BBM92.** The aged correlations have closed forms:
+
+    c_x = −c_y = e^{−2t/T2},   c_z = 1 − 2g + 2g²,   m = g,   g = 1 − e^{−t/T1}
+
+Latest storage time with a positive secret fraction (units of T1):
+
+| T2/T1 | 2 | 1 | 0.5 | 0.2 |
+|---|---|---|---|---|
+| no distillation | 0.184 | 0.129 | 0.088 | 0.051 |
+| one DEJMPS round | 0.395 | 0.232 | 0.144 | 0.076 |
+| distil only after | 0.085 | 0.083 | 0.056 | 0.032 |
+
+* **Distillation roughly doubles the usable storage time** when T1
+  limits it.
+* **It costs half the pairs,** so it pays only after the crossover time
+  in the last row.
+* **Honest scope.**
+  - The fidelity formula, the Bell-diagonal reading, DEJMPS with local
+    rotations and memory cutoffs are all known.
+  - What is contributed: the qg signatures (including the T1 witness on a
+    shared pair), the slot rule applied from finite-shot data, and the
+    closed-form cutoff and crossover.
+  - Assumptions: the twirled state is used for distillation, and local
+    gates are perfect.
+
+![Bell pairs](examples/bell_pairs_network_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
