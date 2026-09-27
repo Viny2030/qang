@@ -70,6 +70,27 @@ Findings (python examples/xxz_trotter_filter_qg.py):
      filter has removed the bias, ZNE adds only variance. For 3 CNOTs,
      filter+ZNE is the best (0.028 and 0.041 for the two cases).
 
+  E. Trapped-ion compilations (tested after the prediction in the notes
+     that MS gates would leak like CNOTs; the prediction was only half
+     right). Share of the T1 error removed, 4 steps, gamma = 0.01:
+       dt     3 CNOT   N-cons.   MS XX,YY,ZZ   MS with ZZ by Ry basis change
+       0.10   85 %     98 %      99.6 %        22 %
+       0.25   49 %     99.5 %    96.7 %        70 %
+       0.50   61 %     99.9 %    90 %          69 %
+       0.75   54 %     100 %     83 %          80 %
+     * XX and YY rotations by a small angle leave the sector only by an
+       amplitude ~sin(theta): native MS rotations leak little, and more as
+       dt grows (99.6 % -> 83 %).
+     * What leaks is a basis change around a two-qubit gate: the CNOT
+       compilation, and a ZZ built as Ry(pi/2) MS Ry(-pi/2). Inside the
+       rotated frame a decay (or a Z error: the filter then removes 22 %
+       of the dephasing error, kept 0.69) is no longer an N-changing event.
+     * Practical rule for an IonQ run: use a native ZZ interaction if the
+       device offers one, or the XY model (Delta = 0, no ZZ term), rather
+       than a ZZ by basis change. With the basis-change ZZ, filter + ZNE
+       still works at 4 steps (0.002) but the filter alone reaches only
+       0.027 against 0.012-0.015 for the leak-free compilations.
+
   What is new and what is not. Symmetry verification by post-selection is
   known (Bonet-Monroig et al. 2018, McArdle et al. 2019) and was used with
   number-conserving fSim gates in Google's Fermi-Hubbard experiment (Arute
@@ -115,15 +136,41 @@ def bond(qc, a, b, theta_xy, theta_zz, fold=1):
     qc.rz(math.pi / 2, a)
 
 
-def bond_native(qc, a, b, theta_xy, theta_zz, fold=1):
-    """The same bond from two number-conserving native gates, an XY
-    (XX+YY) interaction and a ZZ interaction (they commute). Every
-    intermediate state keeps N. Folding: G G^dag G."""
-    from qiskit.circuit.library import RZZGate, UnitaryGate, XXPlusYYGate
+def bond_native(qc, a, b, theta_xy, theta_zz, fold=1, mode=True):
+    """The same bond from native two-qubit interactions, each a labelled
+    unitary so the noise model can attach to it. Folding: G G^dag G.
+
+    mode=True  : number-conserving, an XY (XX+YY) interaction and a ZZ
+                 interaction (they commute); every intermediate keeps N.
+    mode="ms"  : trapped-ion style, three Molmer-Sorensen-type rotations
+                 exp(-i theta XX), exp(-i theta YY), exp(-i theta_zz ZZ).
+                 The product is the same bond, but after the XX rotation
+                 alone the state has left the fixed-N sector."""
+    from qiskit.circuit.library import RXXGate, RYYGate, RZZGate, UnitaryGate, XXPlusYYGate
     from qiskit.quantum_info import Operator
 
-    # custom unitaries labelled so the noise model can attach to them
-    for g, lab in ((XXPlusYYGate(4 * theta_xy), "xyg"), (RZZGate(2 * theta_zz), "zzg")):
+    if mode == "ionq":
+        # MS gates are XX-type in a chosen phase: XX and YY are native, ZZ is
+        # an XX rotation conjugated by single-qubit Ry(pi/2) basis changes
+        bond_native(qc, a, b, theta_xy, 0.0, fold, "ms_xy")
+        for q in (a, b):
+            qc.ry(math.pi / 2, q)
+        g = RXXGate(2 * theta_zz)
+        u = Operator(g).data
+        qc.append(UnitaryGate(u, label="msg"), [a, b])
+        for _ in range((fold - 1) // 2):
+            qc.append(UnitaryGate(u.conj().T, label="msg"), [a, b])
+            qc.append(UnitaryGate(u, label="msg"), [a, b])
+        for q in (a, b):
+            qc.ry(-math.pi / 2, q)
+        return
+    if mode == "ms_xy":
+        gates = ((RXXGate(2 * theta_xy), "msg"), (RYYGate(2 * theta_xy), "msg"))
+    elif mode == "ms":
+        gates = ((RXXGate(2 * theta_xy), "msg"), (RYYGate(2 * theta_xy), "msg"), (RZZGate(2 * theta_zz), "msg"))
+    else:
+        gates = ((XXPlusYYGate(4 * theta_xy), "xyg"), (RZZGate(2 * theta_zz), "zzg"))
+    for g, lab in gates:
         u = Operator(g).data
         qc.append(UnitaryGate(u, label=lab), [a, b])
         for _ in range((fold - 1) // 2):
@@ -138,7 +185,10 @@ def trotter_circuit(n, steps, dt, J=1.0, delta=1.0, fold=1, measure=True, native
     for _ in range(steps):
         for start in (0, 1):
             for i in range(start, n - 1, 2):
-                (bond_native if native else bond)(qc, i, i + 1, J * dt, delta * dt, fold)
+                if native:
+                    bond_native(qc, i, i + 1, J * dt, delta * dt, fold, mode=native)
+                else:
+                    bond(qc, i, i + 1, J * dt, delta * dt, fold)
     if measure:
         qc.measure_all()
     return qc
@@ -172,7 +222,8 @@ def probabilities(n, steps, dt, p2=0.0, gamma=0.0, e=0.0, fold=1, delta=1.0, pz=
         qc2.save_probabilities()
         return np.asarray(sim.run(transpile(qc2, sim, optimization_level=0)).result().data()["probabilities"])
     if native:
-        nm = noise_model(1.5 * p2, 1.5 * gamma, 0.0, 1.5 * pz, gates=("xyg", "zzg"))
+        k = 1.0 if native in ("ms", "ionq") else 1.5  # equal noise budget per bond (3 gates vs 2)
+        nm = noise_model(k * p2, k * gamma, 0.0, k * pz, gates=("xyg", "zzg", "msg"))
         basis = None
     else:
         nm = noise_model(p2, gamma, 0.0, pz)
@@ -225,7 +276,7 @@ def study(n=6, steps_list=(1, 2, 4, 6, 8), dt=0.25, p2=0.01, gamma=0.005, e=0.01
         f3, _ = imbalance(p3, n, True)
         zne = 1.5 * raw1 - 0.5 * raw3
         fzne = 1.5 * f1 - 0.5 * f3
-        rows.append(dict(steps=s, t=s * dt, cnots=(2 if native else 3) * (n - 1) * s, ideal=ideal, raw=raw1, filt=f1,
+        rows.append(dict(steps=s, t=s * dt, cnots=(2 if native is True else 3) * (n - 1) * s, ideal=ideal, raw=raw1, filt=f1,
                          zne=zne, fzne=fzne, kept=kept1))
     return rows
 
@@ -239,14 +290,31 @@ def noise_decomposition(n=6, steps=4, dt=0.25):
                      ("amplitude damping gamma = 0.01", dict(gamma=0.01)),
                      ("readout e = 0.02", dict(e=0.02)),
                      ("Z dephasing pz = 0.01", dict(pz=0.01))):
-        for native in (False, True):
+        for native in (False, True, "ms", "ionq"):
             if native and "readout" in name:
                 continue
             p = probabilities(n, steps, dt, native=native, **kw)
             raw, _ = imbalance(p, n)
             f, kept = imbalance(p, n, True)
-            out.append((name, "N-conserving" if native else "3 CNOT", abs(raw - ideal), abs(f - ideal), kept))
+            comp = {False: "3 CNOT", True: "N-conserving", "ms": "MS XX,YY,ZZ", "ionq": "MS, ZZ by Ry"}[native]
+            out.append((name, comp, abs(raw - ideal), abs(f - ideal), kept))
     return ideal, out
+
+
+def reach_vs_dt(n=6, steps=4, dts=(0.1, 0.25, 0.5, 0.75), gamma=0.01):
+    """Share of the amplitude-damping error the filter removes, against the
+    Trotter step, for the four compilations."""
+    out = []
+    for dt in dts:
+        ideal, _ = imbalance(probabilities(n, steps, dt), n)
+        row = {}
+        for native in (False, True, "ms", "ionq"):
+            p = probabilities(n, steps, dt, gamma=gamma, native=native)
+            raw, _ = imbalance(p, n)
+            f, _ = imbalance(p, n, True)
+            row[native] = 1 - abs(f - ideal) / abs(raw - ideal)
+        out.append((dt, row))
+    return out
 
 
 def idle_decay_check(n=6, steps=4, dt=0.25, gamma=0.03):
@@ -297,7 +365,7 @@ def make_figure(path, rows_by_case):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig, axes = plt.subplots(1, len(rows_by_case), figsize=(5.5 * len(rows_by_case), 4))
+    fig, axes = plt.subplots(1, len(rows_by_case), figsize=(5.2 * len(rows_by_case), 4))
     if len(rows_by_case) == 1:
         axes = [axes]
     for ax, (title, rows) in zip(axes, rows_by_case):
@@ -324,6 +392,7 @@ CASES = [
     ("3 CNOT: p2 = 0.01, gamma = 0.005, e = 0.01", dict(p2=0.01, gamma=0.005, e=0.01)),
     ("3 CNOT, T1-dominated: p2 = 0.002, gamma = 0.02, e = 0.01", dict(p2=0.002, gamma=0.02, e=0.01)),
     ("N-conserving gates, same T1-dominated budget", dict(p2=0.002, gamma=0.02, e=0.01, native=True)),
+    ("MS gates, ZZ by basis change (IonQ-style), same budget", dict(p2=0.002, gamma=0.02, e=0.01, native="ionq")),
 ]
 
 
@@ -341,6 +410,10 @@ if __name__ == "__main__":
             print(f"{r['steps']:5d} {r['cnots']:5d} {r['ideal']:+7.3f} | {abs(r['raw'] - r['ideal']):9.4f}"
                   f" {abs(r['filt'] - r['ideal']):7.4f} {abs(r['zne'] - r['ideal']):7.4f}"
                   f" {abs(r['fzne'] - r['ideal']):7.4f} | {r['kept']:.3f}")
+    print("\nShare of the T1 error removed vs Trotter step (4 steps, gamma = 0.01):")
+    print(f"  {'dt':>5} | {'3 CNOT':>7} {'N-cons.':>7} {'MS XX,YY,ZZ':>11} {'MS, ZZ by Ry':>12}")
+    for dt, row in reach_vs_dt(n):
+        print(f"  {dt:5.2f} | {row[False]:7.1%} {row[True]:7.1%} {row['ms']:11.1%} {row['ionq']:12.1%}")
     er, ef = idle_decay_check(n)
     print(f"\nDecay between Trotter steps only (gamma = 0.03): |err| raw {er:.4f}, filtered {ef:.1e}")
     ideal4, dec = noise_decomposition(n)

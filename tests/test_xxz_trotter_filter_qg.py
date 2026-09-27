@@ -25,6 +25,7 @@ from xxz_trotter_filter_qg import (
     imbalance,
     noise_decomposition,
     probabilities,
+    reach_vs_dt,
     study,
 )
 
@@ -33,12 +34,15 @@ Y = np.array([[0, -1j], [1j, 0]])
 Z = np.diag([1, -1])
 
 
-@pytest.mark.parametrize("gate", [bond, bond_native])
+@pytest.mark.parametrize("mode", [None, True, "ms", "ionq"])
 @pytest.mark.parametrize("fold", [1, 3])
-def test_bond_is_exact(gate, fold):
+def test_bond_is_exact(mode, fold):
     a, b = 0.3, 0.2
     qc = QuantumCircuit(2)
-    gate(qc, 0, 1, a, b, fold)
+    if mode is None:
+        bond(qc, 0, 1, a, b, fold)
+    else:
+        bond_native(qc, 0, 1, a, b, fold, mode)
     target = sl.expm(-1j * (a * (np.kron(X, X) + np.kron(Y, Y)) + b * np.kron(Z, Z)))
     assert abs(np.vdot(target.flatten(), Operator(qc).data.flatten())) / 4 == pytest.approx(1, abs=1e-12)
 
@@ -65,6 +69,16 @@ def test_noise_decomposition():
     assert removed[("amplitudedamping", "N-conserving")] > 0.99
     assert removed[("readoute", "3 CNOT")] > 0.9
     assert removed[("Zdephasing", "N-conserving")] < 0.01
+    assert removed[("amplitudedamping", "MS XX,YY,ZZ")] > 0.95
+    assert removed[("amplitudedamping", "MS, ZZ by Ry")] < 0.75
+    assert removed[("Zdephasing", "MS, ZZ by Ry")] > 0.15
+
+
+def test_ms_leak_grows_with_dt():
+    rows = dict(reach_vs_dt(dts=(0.1, 0.75)))
+    assert rows[0.1]["ms"] > 0.99
+    assert rows[0.75]["ms"] < 0.9
+    assert all(r[True] > 0.97 for r in rows.values())
 
 
 def test_compilation_changes_filter_reach():

@@ -3207,6 +3207,31 @@ Filter + ZNE is 2.6–8× below the best single method up to 4 steps.
 * With CNOTs, filter + ZNE is the best (RMSE 0.028 and 0.041 for the two
   noise cases).
 
+**E. Trapped-ion compilations: the prediction was only half right.** The
+first version of this section predicted that MS gates would leak like
+CNOTs. The test (share of the T1 error removed, 4 steps, γ = 0.01):
+
+| dt | 3 CNOT | number-conserving | MS: XX, YY, ZZ rotations | MS, ZZ by Ry basis change |
+|---|---|---|---|---|
+| 0.10 | 85 % | 98 % | 99.6 % | 22 % |
+| 0.25 | 49 % | 99.5 % | 96.7 % | 70 % |
+| 0.50 | 61 % | 99.9 % | 90 % | 69 % |
+| 0.75 | 54 % | 100 % | 83 % | 80 % |
+
+* Small-angle XX and YY rotations leave the fixed-N sector only by an
+  amplitude of order sin θ. Native MS rotations therefore leak little, and
+  more as dt grows (99.6 % → 83 %).
+* What leaks is a basis change around a two-qubit gate: the CNOT
+  compilation, and a ZZ built as Ry(π/2)·MS·Ry(−π/2). In the rotated frame
+  a decay no longer changes N. A Z error there does change it, so the
+  filter removes 22 % of the dephasing error (kept 0.69).
+* **Rule for an IonQ run:** use a native ZZ interaction if the device
+  offers one, or the XY model (Δ = 0, no ZZ term), rather than a ZZ built
+  by basis change.
+  - With the basis-change ZZ, filter + ZNE still reaches 0.002 at 4 steps.
+  - The filter alone reaches only 0.027 there, against 0.012–0.015 for
+    the leak-free compilations.
+
 **Honest scope.**
 
 * Symmetry verification by post-selection is known (Bonet-Monroig et al.
@@ -3222,9 +3247,8 @@ Filter + ZNE is 2.6–8× below the best single method up to 4 steps.
   gates are ideal unitaries with an equal error budget, with no model of
   how a device implements them; open boundaries; one initial state and
   one observable.
-* Trapped ions: an MS gate does not conserve N, so an XY interaction
-  built from MS gates would leak like the CNOT compilation. This is a
-  prediction to test before any IonQ run.
+* Trapped ions: see E. Native MS rotations barely leak; a ZZ built by a
+  basis change does.
 
 ![XXZ Trotter filter](examples/xxz_trotter_filter_qg.png)
 
