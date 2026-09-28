@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `requirements.txt`, and optional-dependency groups `ionq` (qiskit-ionq), `qec` (pymatching),
+  `chemistry` (pyscf, openfermion; not on native Windows) and `examples` (scipy, matplotlib);
+  `all` now includes qiskit-ionq, pymatching and scipy, which examples and tests already used.
 - `examples/surface_code_circuit_t1_qg.py`: circuit-level Z-memory (d = 3, 5; d rounds) with decay,
   depolarizing and readout noise; the T1-aware decoder of §59 gains 2.2x (d = 3) and 3.3x (d = 5)
   under pure T1, costs 15 % when depolarizing noise dominates, and a qg witness picks the right

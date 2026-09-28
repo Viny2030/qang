@@ -31,7 +31,11 @@ pip install ".[qiskit]"   # Native Qiskit gate integration
 pip install ".[cirq]"     # Native Cirq gate integration
 pip install ".[pennylane]" # Native PennyLane operations (autodiff in qg_Z)
 pip install ".[hardware]" # IBM Quantum hardware / calibrated fake backends
-pip install ".[all]"      # Everything (Qiskit, IBM Runtime, Cirq, PennyLane, Pytest, Matplotlib)
+pip install ".[ionq]"     # IonQ simulator / hardware scripts (qiskit-ionq)
+pip install ".[qec]"      # Surface-code decoding examples (pymatching)
+pip install ".[chemistry]" # PySCF/OpenFermion molecules (Linux/macOS or WSL)
+pip install ".[all]"      # Everything except chemistry (Qiskit, IBM Runtime, IonQ, pymatching, Cirq, PennyLane, SciPy, Pytest, Matplotlib)
+pip install -r requirements.txt  # same as .[all], without installing qang itself
 ```
 
 ## Quickstart
