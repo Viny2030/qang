@@ -114,13 +114,38 @@ class Pending(Exception):
     """Jobs submitted but not finished; rerun the same command later."""
 
 
+def _unroll_native(circuits):
+    """Replace IonQ native gates (GPI, GPI2, MS, ZZ) by plain unitaries so that
+    Qiskit can transpile them for the local simulator. Newer Qiskit releases
+    have no equivalence rules for these gates."""
+    from qiskit.circuit.library import UnitaryGate
+    from qiskit.quantum_info import Operator
+
+    native = {"gpi", "gpi2", "ms", "zz"}
+    out = []
+    for qc in circuits:
+        if not any(inst.operation.name in native for inst in qc.data):
+            out.append(qc)
+            continue
+        new = qc.copy_empty_like()
+        for inst in qc.data:
+            op = inst.operation
+            if op.name in native:
+                new.append(UnitaryGate(Operator(op).data), inst.qubits)
+            else:
+                new.append(op, inst.qubits, inst.clbits)
+        out.append(new)
+    return out
+
+
 def _run(backend, circuits, noise, mode, key=None, wait_s=120, prebuilt=False):
     if mode == "local":
         from qiskit import transpile
         from qiskit_aer import AerSimulator
 
         sim = AerSimulator(noise_model=HB.all_to_all_noise_model())
-        tc = transpile(circuits, basis_gates=["cx", "rz", "sx", "x"], optimization_level=1, seed_transpiler=1)
+        tc = transpile(_unroll_native(circuits), basis_gates=["cx", "rz", "sx", "x"], optimization_level=1,
+                       seed_transpiler=1)
         res = sim.run(tc, shots=SHOTS, seed_simulator=11).result()
         return [res.get_counts(i) for i in range(len(tc))]
     # IonQ: submit every circuit at once, remember the job ids, collect later
