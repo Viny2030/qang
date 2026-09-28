@@ -3354,6 +3354,69 @@ part of that gap (Huang, Kueng, Preskill 2021; Hadfield et al. 2022).
 * The numbers are for n = 6 and two states. The 3^k and 3⁻ⁿ factors are
   general.
 
+## 63. Grover search with noise: the qg reading loses to the histogram (`examples/grover_noise_qg.py`)
+
+**Setup.**
+
+* Grover search on n = 4, 5, 6 qubits, one marked item.
+* Each multi-controlled Z is compiled to 14, 36 and 84 CNOTs, and there
+  are two per iteration.
+* Exact density matrices, with depolarizing p2 on every CNOT, optionally
+  T1.
+* Cost is the number of oracle calls per verified success, (k + 1)/P_k.
+  Classical search needs about N/2.
+
+**The qg idea tested.** If the unmarked outcomes are uniform, each
+qubit's polar bias is
+
+    qg_Z,i = ± (NP − 1)/(N − 1).
+
+The sign would then give each bit of the answer, and the magnitude would
+give the success probability P without knowing the answer.
+
+**A. Noise moves the best iteration earlier and eats the speed-up.**
+
+| n | noiseless best k, cost | with noise |
+|---|---|---|
+| 4 | 2, 3.3 | p2 = 0.02 → k = 1, 6.5 |
+| 5 | 3, 4.5 | p2 = 0.002 / 0.005 / 0.01 → k = 2 / 2 / 1, cost 6.3 / 8.9 / 13.3 (classical 16) |
+| 6 | 4, 6.1 | p2 = 0.001 / 0.002 / 0.005 → k = 3 / 2 / 1, cost 10.2 / 15.0 / 27.6 (classical 32) |
+
+This behaviour is known; the numbers are ours.
+
+**B. The qg formula fails under gate noise.**
+
+* Depolarizing noise on the gates is not uniform after the diffusion
+  operator. The formula is off by up to 0.015 (n = 4) and 0.067 (n = 5).
+* The label-free estimate of P from qg magnitudes is worse than the
+  frequency of the most common outcome in every case: RMSE 0.037–0.074
+  against 0.015–0.045.
+* With 500 shots per k, the k it picks costs 0.5–9 % extra, against
+  0.6–2.4 % for the mode.
+
+**C. Reading the answer: per-qubit signs lose.**
+
+* At n = 5 (P = 0.12), 100 shots find the marked item 66 % of the time
+  with qg signs and 91 % with the most common bitstring.
+* At n = 6 (P = 0.085), the same comparison gives 40 % and 87 %.
+* The reason is structural:
+  - the qg margin per qubit is about P with unit per-shot variance, so
+    the sign test needs about 1/P² shots;
+  - the marked bitstring stands out after a few/P shots.
+* Marginals throw away the joint information that Grover concentrates in
+  one bitstring.
+
+**D. T1.** It moves the register-mean qg_Z up (+0.039 at γ = 0.02), which
+is the §20 witness. By then, however, P is near 1/N, and the qg reading
+has already failed.
+
+**Verdict (negative).** For algorithms whose answer is one bitstring,
+qg adds nothing measurable: use the histogram. qg is the right readout
+when the answer is a set of expectation values, as in VQE or dynamics
+(§60).
+
+![Grover with noise](examples/grover_noise_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

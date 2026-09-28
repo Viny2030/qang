@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/grover_noise_qg.py`: Grover search with gate noise; best iteration and cost per verified
+  success; negative result: per-qubit qg signs and magnitudes lose to the outcome histogram
+  (~1/P^2 vs ~1/P shots) (RESEARCH_NOTES §63).
 - `examples/shadows_vs_direct_qg.py`: classical shadows vs direct measurement for the qg quantities;
   direct is 3-41x cheaper for Z-basis qg, the register-mean witness and the filter, ties for all
   local Paulis with a balanced (L18) design, 4x cheaper for the LiH energy (RESEARCH_NOTES §62).
