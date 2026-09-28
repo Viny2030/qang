@@ -3417,6 +3417,77 @@ when the answer is a set of expectation values, as in VQE or dynamics
 
 ![Grover with noise](examples/grover_noise_qg.png)
 
+## 64. The T1-aware decoder under circuit-level noise (`examples/surface_code_circuit_t1_qg.py`)
+
+This tests whether the §59 gain survives the full syndrome-extraction
+circuit and repeated rounds.
+
+**Setup.**
+
+* A rotated surface code of distance d = 3 and 5, running as a Z-memory.
+* Z-type ancillas, four CNOT layers, and R = d rounds, followed by a final
+  data readout.
+* Noise: depolarizing p2 on every CNOT, decay γ on both CNOT qubits and
+  on idle qubits, decay 2γ before each readout, and readout or reset
+  flips q.
+* The simulation is exact without density matrices. Only X errors matter
+  in a Z-memory, decay keeps the state diagonal in Z, and the Z-basis
+  populations then evolve as a Markov chain on bits.
+* The X-stabilizer circuits are left out; this is the main approximation.
+* Decoders: minimum-weight matching (pymatching) on the detector graph,
+  built by enumerating every single fault.
+  - The standard decoder uses average weights.
+  - The T1-aware decoder reweights each data qubit's decay faults by its
+    final readout: a qubit read 1 almost never decayed, and a qubit read 0
+    gets twice the average weight. Depolarizing and measurement faults
+    keep their weights.
+
+Logical error after d rounds (100 000 shots at d = 3, 20 000 at d = 5).
+"Paired z" compares the two decoders on the same shots (McNemar test).
+
+| noise (p2, γ, q) | d | standard | T1-aware | ratio | paired z |
+|---|---|---|---|---|---|
+| pure T1 (0, 0.003, 0.001) | 3 | 0.0131 | 0.0060 | **2.19** | +25 |
+| | 5 | 0.0065 | 0.0019 | **3.33** | +9 |
+| T1-dominated (0.0005, 0.003, 0.002) | 3 | 0.0149 | 0.0091 | 1.63 | +17 |
+| | 5 | 0.0080 | 0.0040 | 2.04 | +7 |
+| mixed (0.002, 0.002, 0.002) | 3 | 0.0095 | 0.0084 | 1.14 | +5.5 |
+| | 5 | 0.0050 | 0.0027 | 1.91 | +5.7 |
+| depolarizing-dominated (0.004, 0.0005, 0.002) | 3 | 0.0030 | 0.0034 | 0.87 | −4.3 |
+| | 5 | 0.0011 | 0.0011 | 0.96 | −0.4 |
+
+* **The gain survives and grows with distance.**
+  - Pure T1: 2.2× at d = 3 (the §59 code-capacity value was 2.1–2.5×) and
+    3.3× at d = 5.
+  - T1-dominated: 1.6× and 2.0×. Mixed noise: 1.1× and 1.9×.
+* **It is not free.** When depolarizing noise dominates, the reweighting
+  costs 15 % at d = 3 (significant) and nothing measurable at d = 5.
+* **The qg witness chooses the decoder without labels.**
+  - The ratio is the register-mean qg_Z of the final data readout divided
+    by the detector firing rate, measured on a separate calibration
+    batch.
+  - It is 1.3–2.6 where the T1-aware decoder wins, and 0.34–0.54 where it
+    loses.
+  - The rule "T1-aware if the ratio exceeds 1" picks the better decoder in
+    all eight cases. The threshold was chosen after seeing these cases.
+* **Checks.** Noiseless circuits produce no detector events. Halving
+  every rate lowers p_L 3.7× at d = 3, the expected quadratic scaling.
+* **Honest scope.**
+  - Bias-, erasure- and leakage-aware decoding are known ideas.
+  - Contributed:
+    - a reweighting that needs only the final data readout;
+    - its circuit-level numbers with paired statistics;
+    - its cost when T1 does not dominate;
+    - the qg switch.
+  - Limits:
+    - the X-stabilizer circuits are left out;
+    - no leakage or correlated errors;
+    - the multipliers are a simple Bayes approximation;
+    - hyperedges (faults touching more than two detectors) are dropped.
+  - Needs pymatching.
+
+![Circuit-level T1-aware decoding](examples/surface_code_circuit_t1_qg.png)
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

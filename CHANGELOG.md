@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/surface_code_circuit_t1_qg.py`: circuit-level Z-memory (d = 3, 5; d rounds) with decay,
+  depolarizing and readout noise; the T1-aware decoder of §59 gains 2.2x (d = 3) and 3.3x (d = 5)
+  under pure T1, costs 15 % when depolarizing noise dominates, and a qg witness picks the right
+  decoder (RESEARCH_NOTES §64). Needs pymatching.
 - `examples/grover_noise_qg.py`: Grover search with gate noise; best iteration and cost per verified
   success; negative result: per-qubit qg signs and magnitudes lose to the outcome histogram
   (~1/P^2 vs ~1/P shots) (RESEARCH_NOTES §63).
