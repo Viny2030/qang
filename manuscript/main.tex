@@ -3,6 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,amsthm}
+\usepackage{longtable}
 \usepackage{booktabs,array}
 \usepackage{graphicx}
 \usepackage{xcolor}
@@ -22,7 +23,7 @@ and a relaxation-aware entropy benchmark}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 23 September 2026; revised 27 September 2026}
+\date{\small Draft of 23 September 2026; revised 28 September 2026}
 
 \begin{document}
 \maketitle
@@ -44,10 +45,10 @@ learning rates for convergence where plain gradient descent diverges. Fourth, as
 tracks heavy output probability ($r=-0.93$) and needs no calibration, unlike linear XEB. However,
 it is \emph{not} monotonic under amplitude damping: under device-calibrated noise with added idle
 relaxation it falls below its own noiseless value. Pairing $\qgS$ with the register-averaged $\qgZ$
-removes the ambiguity in 23 of 24 circuits tested. A summary section lists thirty-four follow-up
+removes the ambiguity in 23 of 24 circuits tested. A summary section lists forty-one follow-up
 studies (QML encoding, control quantization, noise-type detection, circuit knitting, chemistry,
 error mitigation, thermal states, error correction, Hubbard dynamics, constrained QAOA, qubit
-characterization, syndrome tracking, coherence, few-shot estimation, IonQ noise models, shot-noise propagation, neural quantum states, coherent gate errors and symmetry checks in rotated bases), each with its classical or standard control; the symmetry-witness results are
+characterization, syndrome tracking, coherence, few-shot estimation, IonQ noise models, shot-noise propagation, neural quantum states, coherent gate errors, symmetry checks in rotated bases, Heisenberg-chain dynamics, classical shadows, noisy Grover search, GHZ metrology and circuit-level surface codes), each with its classical or standard control; for the qg quantities, direct measurement is 3--41$\times$ cheaper than classical shadows, and the per-qubit reading loses to the outcome histogram when the answer is a bitstring; the symmetry-witness results are
 developed in a companion paper. Every number is reproduced by a script and
 pinned by a regression test in the public repository.
 \end{abstract}
@@ -259,22 +260,25 @@ exponential variance decay, and raw qg-space gradients still diverge at the pole
 
 \section{Further results (summary)}\label{sec:further}
 
-After the first draft, the same code base was used for thirty-four further studies. Each compares a
+After the first draft, the same code base was used for forty-one further studies. Each compares a
 qg-based choice with the standard one and with a classical control, and each is documented in
 \texttt{RESEARCH\_NOTES.md} (section numbers below) with a script and pinned tests.
 Table~\ref{tab:further} lists them. The column ``gain'' states against what the qg choice wins,
 if at all. None of them is a quantum advantage over classical computation. Where a classical
 method was run, it matched or beat the quantum model at these sizes. The symmetry-witness studies
-(§20, §21, §24, §28--§33, §38, §39, §48, §50--§55) are developed in a companion paper~\cite{monteverde2026witness}.
+(§20, §21, §24, §28--§33, §38, §39, §48, §50--§55) are developed in a companion paper~\cite{monteverde2026witness}; the cryptography studies (§40--§44, §49) and the battery and Bell-pair studies (§56, §57) in two short notes.
 
-\begin{table}[t]
-\centering\footnotesize
-\caption{Follow-up studies (section numbers of \texttt{RESEARCH\_NOTES.md}).}
-\label{tab:further}
-\begin{tabular}{>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{5.8cm}>{\raggedright\arraybackslash}p{3.2cm}}
+{\footnotesize
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{5.8cm}>{\raggedright\arraybackslash}p{3.2cm}}
+\caption{Follow-up studies (section numbers of \texttt{RESEARCH\_NOTES.md}).}\label{tab:further}\\
 \toprule
 § & topic & main number & gain \\
 \midrule
+\endfirsthead
+\toprule
+§ & topic & main number & gain \\
+\midrule
+\endhead
 15 & natural gradient, cut cost, few-shot $\qgZ$ & QFI $=1/(1-\qgZ^2)$; cut $\gamma=1+2\sqrt{1-\qgZ^2}$; Haar prior 92\% vs 8\% coverage near a pole & closed forms; vs delta method \\
 16, 19 & QML encoding $\theta=\arccos x$ & Chebyshev models fit polynomials to $10^{-13}$ vs $5\times10^{-5}$; $\sim10\times$ with shots & vs angle encoding~\cite{schuld2021}; classical Chebyshev fit wins \\
 17 & control grid uniform in $\qgZ$ & probability error $\pi/2$ smaller; distribution loading TVD lower in 43/45 cases & vs $\theta$ grid; loses on fidelity near poles \\
@@ -305,9 +309,14 @@ method was run, it matched or beat the quantum model at these sizes. The symmetr
 50 & filter reach (H$_2$ vs LiH) & LiH error in X/Y groups (26--166~mHa), not routing; kept-fraction rescaling overcorrects 2--3$\times$ & negative result \\
 51 & error bars for $\qgS$ & Wilson interval for $\qgZ$ mapped through $\qgS=H((1+\qgZ)/2)$ covers 0.90--0.99; Wald, bootstrap fail & vs Wald, bootstrap, Haar-Bayes \\
 52--55 & parity, $N$ mod 4 and spin-resolved ancilla checks & LiH error $6\times$ lower (3.8$\times$ on forte-1); near number ceiling up to 12 qubits; ceiling shrinks 92\%$\to$67\%; $N_\uparrow,N_\downarrow$ checks add 12--29\% & standard symmetry verification, scaled \\
+58 & GHZ metrology & readout error caps the useful GHZ at $N^*=3/(4|\ln(1-2e)|)$ (75 qubits, $2\times$ Fisher rate at $e=0.005$); mean $\qgZ$ separates T1 from dephasing & none under Markovian noise (known); $\sqrt{N}$ only for slow noise \\
+59, 64 & surface code with T1 & decoder reweighted by the final data readout: logical error $2.2\times$ lower at $d=3$ and $3.3\times$ at $d=5$ (circuit level, $d$ rounds); 15\% worse if depolarizing noise dominates; a mean-$\qgZ$ witness picks the decoder in 8 of 8 cases & vs standard matching \\
+60, 61 & XXZ dynamics, filter reach & number filter removes 99.5\% of the T1 error with number-conserving gates, 38--49\% with 3-CNOT bonds (basis changes leak); IonQ MS vs ZZ compilation equal (ratio 0.82) & vs ZNE; filter + ZNE best with CNOTs \\
+62 & classical shadows vs direct & direct measurement 3--41$\times$ cheaper for Z-basis qg, the witness and the filter; tie for all local Paulis (L18 design); grouping $4\times$ cheaper for the LiH energy & vs shadows~\cite{huang2020} \\
+63 & Grover with gate noise & per-qubit qg signs lose to the histogram (40\% vs 87\% at 100 shots, $n=6$): $\sim1/P^2$ vs $\sim1/P$ shots & negative result \\
 \bottomrule
-\end{tabular}
-\end{table}
+\end{longtable}
+}
 
 \section{Limitations}\label{sec:limits}
 
@@ -325,7 +334,7 @@ not yet been performed.
 
 \section{Code availability}\label{sec:code}
 
-The library, every example, and the regression tests pinning every number above (973 tests at
+The library, every example, and the regression tests pinning every number above (1050 tests at
 the time of this revision) are available at
 \url{https://github.com/Viny2030/qang} (MIT license). Figure~\ref{fig:t1} is regenerated by
 \texttt{manuscript/make\_figures.py}. Derivations with additional detail are in
