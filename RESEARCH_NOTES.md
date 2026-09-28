@@ -3293,6 +3293,67 @@ Pooled share removed over 4 and 6 steps: xy_ms 0.45 ± 0.08, xy_zz
   at the edge of its band, and the per-run spread (0.08–0.12) is
   comparable to the difference.
 
+## 62. Classical shadows vs direct measurement for the qg quantities (`examples/shadows_vs_direct_qg.py`)
+
+This section answers the cost question a referee could ask of every qg
+result: with the same number of shots, would randomized Pauli
+measurements (classical shadows, Huang, Kueng, Preskill 2020) estimate a
+register's qg better than measuring the bases directly?
+
+**Method.** Every number is an exact per-shot variance, computed by
+enumerating all 3⁶ local Pauli settings on the density matrix. The
+figure of merit is R, the shots shadows need divided by the shots direct
+measurement needs for the same error, taken at the worst target. One
+Monte Carlo check: sampled 3.17 against the exact 3.01. The states
+(n = 6):
+
+* the noisy XXZ state of §60 (4 steps);
+* the noisy 3-layer LiH state of §50.
+
+| task | XXZ | LiH | direct scheme |
+|---|---|---|---|
+| T1 all qg_Z | 3.0 | 4.3 | one Z setting |
+| T2 register-mean qg_Z (§20 witness) | 5.8 | 8.1 | one Z setting |
+| T3 all ZZ | 9.0 | 12.6 | one Z setting |
+| T4 all 3n single-qubit qg | 1.0 | 1.0 | 3 settings |
+| T5 all 9·C(n,2) two-qubit correlators | 1.0 | 1.0 | 18 settings (L18 orthogonal array) |
+| T6 filtered imbalance (§60) | **41** | — | post-selection, kept 0.60 |
+| T7 LiH energy (62 terms) | — | 4.0 | 21 qubit-wise-commuting groups |
+
+**What qang measures in Z costs 3–41× more with shadows.**
+
+* For weight-k Z strings, direct measurement wins by 3^k. It wins by more
+  when the values are near ±1, as for LiH's occupied orbitals.
+* The register-mean witness gains more than 3× (5.8–8.1×). Measured
+  directly, the conserved quantity anti-correlates the qubits, so its
+  per-shot variance is small. Shadows lose that.
+* The shot-level filter does not exist for shadows: only 3⁻⁶ = 0.14 % of
+  random-basis shots have every qubit in Z. The shadow estimate of the
+  filtered value is unbiased, but it needs 41× the shots.
+
+**When all local Paulis of a weight are wanted, it is a tie.**
+
+* Three settings (X…, Y…, Z…) for weight 1, or the 18-run L18
+  orthogonal array for weight 2, give each Pauli the same hit rate
+  (1/3 or 1/9) as random bases.
+* Per target, direct measurement is never worse:
+  (1 − q²)/share ≤ 3^k − q².
+* The tie needs a balanced design. A greedy covering array (15 settings,
+  unequal coverage) loses to shadows, with R = 0.60.
+
+**Hamiltonians.** Grouping with optimal shot allocation needs 4× fewer
+shots than plain shadows. Derandomized and locally biased shadows close
+part of that gap (Huang, Kueng, Preskill 2021; Hadfield et al. 2022).
+
+**Honest scope.**
+
+* Shadows keep their real advantages, none of which is tested here:
+  - estimating observables chosen after the measurement;
+  - many observables on large n without designing settings;
+  - nonlinear quantities such as purities.
+* The numbers are for n = 6 and two states. The 3^k and 3⁻ⁿ factors are
+  general.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

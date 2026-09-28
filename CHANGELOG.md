@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/shadows_vs_direct_qg.py`: classical shadows vs direct measurement for the qg quantities;
+  direct is 3-41x cheaper for Z-basis qg, the register-mean witness and the filter, ties for all
+  local Paulis with a balanced (L18) design, 4x cheaper for the LiH energy (RESEARCH_NOTES §62).
 - `examples/ionq_sim_xxz_filter.py`: the §60 chain in IonQ native gates on the forte-1 noise model;
   MS vs ZZ compilation give the same filter gain (ratio 0.82, predicted 0.8-1.25), no T1-like
   signature in the vendor model (RESEARCH_NOTES §61).
