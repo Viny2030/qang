@@ -3547,6 +3547,60 @@ On LiH (4 parameters) the signed natural step converges at lr = 0.3
   qg reduces to θ, and pole-damped θ descent remains the robust choice at
   aggressive learning rates.
 
+## 66. Gauss-law witnesses and filters in a lattice gauge theory (`examples/lattice_gauge_gauss_qg.py`)
+
+**Model.** A 1D Z₂ lattice gauge theory with staggered fermions:
+
+* 4 matter sites and 3 links, 7 qubits in total;
+* hopping X Xₗ X + Y Xₗ Y, a staggered mass, and an electric term in Z.
+
+**Symmetries.** The Gauss law G_j = Zₗ,left · Zₗ,right · Z_j is local and
+diagonal in Z. It commutes with H exactly, as does the fermion number N.
+Each G_j is the qg of a weight-2 or weight-3 parity, so the Z shots of
+the observable already give:
+
+* L local Gauss witnesses ⟨G_j⟩;
+* the global number witness;
+* three filters: N, Gauss, and both.
+
+**Run.** The observable is the particle density starting from the bare
+vacuum. Each Trotter step costs 54 CNOTs. Simulation with exact density
+matrices.
+
+**Predictions, written before the run.**
+
+* P1: Gauss removes more than N.
+* P2: Gauss + N removes the most.
+* P3: T1 leaks through the CNOT-compiled gates (§60).
+
+Share of the density error removed; last column is the kept fraction
+for N / Gauss / both:
+
+| noise, 2 steps | N | Gauss | both | kept |
+|---|---|---|---|---|
+| depolarizing 0.01 | 64 % | 80 % | 90 % | 0.66 / 0.52 / 0.51 |
+| amplitude damping 0.01 | 30 % | 58 % | 65 % | 0.64 / 0.50 / 0.49 |
+| readout 0.02 | 96 % | 100 % | 100 % | 0.92 / 0.87 / 0.87 |
+| **6 steps**, depolarizing | 10 % | 27 % | 33 % | 0.43 / 0.19 / 0.17 |
+
+* **P1 and P2 hold.** Errors on the gauge qubits change G_j but not N.
+  Under mixed noise at 1 step, the Gauss filter leaves an error of 0.019
+  against 0.034 for the N filter.
+* **P3 holds.** Under T1 the filters remove 58–65 %, not all of it.
+* **The local witnesses do not locate errors in this homogeneous model.**
+  |⟨G_j⟩| is lower in the bulk (weight-3 checks, 0.61) than at the ends
+  (0.80 and 0.74). That is a weight effect, not a location.
+* **Limits.**
+  - At 6 steps (324 CNOTs) the filters remove only 22–33 % and keep
+    16–19 % of the shots.
+  - At 4 steps the ideal density (0.49) sits near the noisy fixed point,
+    so the raw error is small by accident and filtering does not help.
+* **Honest scope.**
+  - Gauss-law post-selection is known in lattice-gauge quantum simulation.
+  - Contributed: reading the Gauss checks as qg of parities from the same
+    shots, the per-noise comparison with the number filter, and the
+    compilation leak.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

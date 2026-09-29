@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/lattice_gauge_gauss_qg.py`: Z2 lattice gauge theory with matter; local Gauss-law checks read as
+  qg of parities; the Gauss filter removes more than the number filter (80 vs 64 % depolarizing, 58 vs 30 %
+  T1), T1 leaks through CNOT-compiled gates (RESEARCH_NOTES §66).
 - `qang.gradients.signed_theta`, `signed_qg_step`, `signed_natural_qg_step`: qg-space updates that keep the
   branch sign sign(qg_X) and reflect through the poles; they remove the arccos range limit (H2 reaches FCI
   from Hartree-Fock); `examples/signed_qg_range_qg.py` shows the natural signed step reduces to theta-space
