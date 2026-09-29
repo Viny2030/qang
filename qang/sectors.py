@@ -14,7 +14,12 @@ without any noise model:
     outside the sector can be rotated back into it and pass the filter
     (§60): the exposure is the population at risk.
 
-Only ``sector_exposure`` needs Qiskit; importing the module does not.
+  * ``SectorExposurePass``: the same screen as a Qiskit transpiler analysis
+    pass; it writes the result to ``property_set["sector_exposure"]``, so it
+    can sit in a PassManager next to the passes that choose a compilation.
+
+Only ``sector_exposure`` and ``SectorExposurePass`` need Qiskit; importing the
+module does not.
 """
 
 from __future__ import annotations
@@ -71,3 +76,39 @@ def sector_exposure(circuit, weight: int, min_qubits: int = 2):
             per_gate.append(float(np.sum(np.abs(sv.data[outside]) ** 2)))
     arr = np.array(per_gate) if per_gate else np.zeros(1)
     return {"mean": float(arr.mean()), "max": float(arr.max()), "per_gate": per_gate}
+
+
+try:  # the analysis pass needs Qiskit; the rest of the module does not
+    from qiskit.transpiler.basepasses import AnalysisPass as _AnalysisPass
+
+    _QISKIT = True
+except ImportError:  # pragma: no cover - exercised only when qiskit is absent
+    _QISKIT = False
+
+if _QISKIT:
+
+    class SectorExposurePass(_AnalysisPass):
+        """Transpiler analysis pass: records ``sector_exposure`` of the circuit
+        being compiled in ``property_set["sector_exposure"]`` (RFC v2, Section 3.3).
+
+        It does not change the circuit. Statevector cost: use it on circuits of
+        up to about 20 qubits. The exposure ranks compilations by how much T1
+        error the Hamming-weight filter will let through (RESEARCH_NOTES §68); it
+        is a screen, not an error model."""
+
+        def __init__(self, weight: int, min_qubits: int = 2):
+            super().__init__()
+            self.weight = weight
+            self.min_qubits = min_qubits
+
+        def run(self, dag):
+            from qiskit.converters import dag_to_circuit
+
+            self.property_set["sector_exposure"] = sector_exposure(dag_to_circuit(dag), self.weight, self.min_qubits)
+            return dag
+
+else:  # pragma: no cover
+
+    class SectorExposurePass:  # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs):
+            raise ImportError("SectorExposurePass requires Qiskit: pip install qiskit")

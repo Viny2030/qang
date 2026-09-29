@@ -82,6 +82,18 @@ if _CIRQ_AVAILABLE:
         )
         return cirq.MatrixGate(matrix, name=f"RQang3D({qg.value:+.4f},{phi:.4f})")
 
+    def signed_rqang_gate(qg_z: float, sign: int = 1) -> "cirq.Gate":
+        """
+        ry(s * arccos(qg_Z)): the qg_Z gate with a branch sign s = sign(qg_X) = +-1,
+        covering the whole XZ great circle (RESEARCH_NOTES §65). The Cirq
+        counterpart of qang.qiskit_gate.SignedRQangGate: from |0> it prepares
+        <Z> = qg_Z and <X> = s * sqrt(1 - qg_Z^2).
+        """
+        if sign not in (1, -1):
+            raise ValueError("sign must be +1 or -1")
+        qg = _as_polar_qang(qg_z)
+        return cirq.ry(sign * qg.to_theta())
+
     def append_qang(
         circuit: "cirq.Circuit", qang: Qang, qubit: "cirq.Qid", full: bool = True
     ) -> "cirq.Circuit":
@@ -96,6 +108,9 @@ else:  # pragma: no cover - exercised only when cirq is absent
         _require_cirq()
 
     def full_rqang_gate(*args, **kwargs):
+        _require_cirq()
+
+    def signed_rqang_gate(*args, **kwargs):
         _require_cirq()
 
     def append_qang(*args, **kwargs):

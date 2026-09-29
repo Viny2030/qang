@@ -5,7 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-29
+
 ### Added
+- RFC v2 items, now implemented: `qang.cirq_gate.signed_rqang_gate` (Cirq counterpart of `SignedRQangGate`),
+  `qang.statistics.qg_estimate(k0, n_shots, method, confidence)` (one entry point for the Bayesian, Wilson and
+  delta-method qg_Z intervals) and `qang.sectors.SectorExposurePass` (the sector-exposure screen as a Qiskit
+  transpiler analysis pass, written to `property_set["sector_exposure"]`).
 - `manuscript/rfc/`: RFC version 2 for a native qang module in Qiskit and Cirq (PDF `manuscript/qang_rfc_v2.pdf`,
   Word alongside): adds SignedRQangGate, the filter as an operation and the sector-exposure analysis pass;
   withdraws the qudit module and the Householder/Grover constructors on the evidence of §62, §63, §70-§72;

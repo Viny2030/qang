@@ -330,6 +330,28 @@ def delta_qg_estimate(k0: int, n_shots: int, z: float = 1.96) -> QgEstimate:
     return QgEstimate(qg_z=q, low=q - half, high=q + half, method="delta")
 
 
+def qg_estimate(k0: int, n_shots: int, method: str = "bayes", confidence: float = 0.95) -> QgEstimate:
+    """One entry point for the qg_Z interval estimators (RFC v2, Section 3.4).
+
+    method: "bayes" (posterior under the Haar prior, equal-tailed credible
+    interval), "wilson" (score interval) or "delta" (Wald). ``confidence`` sets
+    the two-sided level for all three (z = the normal quantile for Wilson and
+    delta)."""
+    if not 0.0 < confidence < 1.0:
+        raise ValueError("confidence must lie in (0, 1).")
+    m = method.lower()
+    if m in ("bayes", "bayes_haar"):
+        return bayes_qg_estimate(k0, n_shots, confidence)
+    from statistics import NormalDist
+
+    z = NormalDist().inv_cdf(0.5 + confidence / 2.0)
+    if m == "wilson":
+        return wilson_qg_estimate(k0, n_shots, z)
+    if m in ("delta", "wald"):
+        return delta_qg_estimate(k0, n_shots, z)
+    raise ValueError(f"unknown method {method!r}; use 'bayes', 'wilson' or 'delta'.")
+
+
 # --------------------------------------------------------------------- #
 # mixed states and multi-qubit registers (RESEARCH_NOTES §45)
 # --------------------------------------------------------------------- #
