@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `manuscript/leakage/` and `manuscript/leakage_es/`: short note on leakage flags and the qg T1-aware decoder
+  (§70-§72), English and Spanish, PDFs `manuscript/qang_fuga.pdf` and `qang_fuga_es.pdf`, Word versions
+  alongside; figure script `manuscript/leakage/make_figure.py`; seven leakage references in `refs.bib`.
 - `examples/transmon_leakage_channel_qg.py`: coherent three-level transmon CZ (fidelity 0.99967); the derived
   leakage channel has a = 0 and a leaked qubit that keeps its value, so the |2> flag is useless and erasure
   hurts, while the qg T1 reweighting gains 1.81x (d = 3) and 2.02x (d = 5); all four pre-registered
