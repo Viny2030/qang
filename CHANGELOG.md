@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/shot_budget_adaptive_zne_qg.py`: filter vs ZNE vs filter + ZNE across shot budgets; the filter wins
+  for shallow circuits up to ~2000 shots, filter + ZNE beyond ~10^4 shots and for deep circuits; a pre-registered
+  pilot-based switch fails (2.29x worst case) (RESEARCH_NOTES §67).
 - `examples/lattice_gauge_gauss_qg.py`: Z2 lattice gauge theory with matter; local Gauss-law checks read as
   qg of parities; the Gauss filter removes more than the number filter (80 vs 64 % depolarizing, 58 vs 30 %
   T1), T1 leaks through CNOT-compiled gates (RESEARCH_NOTES §66).

@@ -3601,6 +3601,64 @@ for N / Gauss / both:
     shots, the per-noise comparison with the number filter, and the
     compilation leak.
 
+## 67. Filter or ZNE by shot budget, and a pilot-based switch that fails (`examples/shot_budget_adaptive_zne_qg.py`)
+
+**Setup.** The §60 XXZ chain: 6 qubits, 3-CNOT bonds, p2 = 0.01, γ = 0.005,
+e = 0.01, at 2, 4 and 6 Trotter steps. For a total shot budget S:
+
+* **filter:** all S shots on the 1× circuit.
+* **ZNE:** S/2 shots each on the 1× and 3× folded circuits.
+* **filter + ZNE:** the same split, applied to the filtered estimates.
+
+**Pre-registered switch.** A 10 % pilot on each circuit estimates the
+filter's bias and each strategy's variance, and the remaining shots go to
+the strategy with the smallest estimated error.
+
+**Prediction:** the switch stays within 1.25× of the best fixed strategy
+in every cell.
+
+RMSE of the imbalance (400 repetitions per cell):
+
+| depth, S | filter | ZNE | filter + ZNE | switch |
+|---|---|---|---|---|
+| 2, 500 | **0.030** | 0.048 | 0.061 | 0.031 |
+| 2, 2000 | **0.020** | 0.024 | 0.028 | 0.021 |
+| 2, 10⁴ | 0.016 | 0.014 | **0.013** | 0.017 |
+| 2, 5·10⁴ | 0.016 | 0.009 | **0.007** | 0.012 |
+| 4, 2000 | **0.034** | 0.041 | 0.042 | 0.035 |
+| 4, 5·10⁴ | 0.031 | 0.029 | **0.010** | 0.023 |
+| 6, 2000 | 0.148 | 0.170 | **0.073** | 0.135 |
+| 6, 5·10⁴ | 0.146 | 0.168 | **0.059** | 0.059 |
+
+Worst ratio to the best fixed strategy over the 12 cells:
+
+* filter 3.07, ZNE 2.93, filter + ZNE 2.02;
+* the pre-registered switch 2.29;
+* a post-hoc variant 1.49.
+
+**Findings.**
+
+* **The crossover has a clear shape.**
+  - Shallow circuits: the filter wins up to about 2000 shots, with 1.7–2.0×
+    lower RMSE at 500 shots.
+  - From about 10⁴ shots, filter + ZNE wins, by up to 3.1×.
+  - Deep circuits (6 steps): filter + ZNE wins at every budget.
+  - ZNE alone is never the best.
+* **The prediction fails.** The switch is 2.29× worse than the best in the
+  worst cell, worse than simply always using filter + ZNE. A 10 % pilot
+  cannot resolve a bias of about 0.02 under its own noise.
+* **The post-hoc variant is exploratory only.** It uses a 20 % pilot and no
+  noise subtraction, and reaches 1.49×, but it was tuned on these same
+  data.
+* **Practical rule (a heuristic).** Use the filter alone only for shallow
+  circuits and a few thousand shots; otherwise use filter + ZNE. Never use
+  ZNE alone when a filter is available.
+* **Honest scope.**
+  - One model; linear Richardson extrapolation with 1× and 3× folding only.
+  - Bias–variance trade-offs in error mitigation are known.
+  - Contributed: the measured crossover for the qg filter, and the
+    negative result on a simple pilot switch.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
