@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/spin_squared_check_qg.py`: singlet (S^2 = 0) projection after the N and N_up/N_down checks on H2O and H4;
+  a further 37-38 % of the error removed, at about 20x more Pauli strings to measure (RESEARCH_NOTES §69).
+  Needs pyscf, openfermion, openfermionpyscf.
 - `qang.sectors` (`filter_distribution`, `sector_exposure`, `hamming_weights`) and
   `qang.qiskit_gate.SignedRQangGate`; `examples/sector_exposure_qg.py`: a noise-free exposure number ranks
   compilations by how much T1 error the qg filter lets through (rank correlation 0.80) (RESEARCH_NOTES §68).

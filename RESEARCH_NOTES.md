@@ -3707,6 +3707,53 @@ at least 95 % of the T1 error.
   - The mechanism follows from §60. The contribution is a number that can
     be computed at compile time.
 
+## 69. Total spin S² after the Z-diagonal checks (`examples/spin_squared_check_qg.py`)
+
+**Why.** H₂O and H₄ have singlet ground states, S² = 0, and S² is not
+diagonal in Z. Noise that keeps N_up and N_down but mixes spin multiplets
+passes every qg check.
+
+**Setup.**
+
+* The §55 ansatz, under the §29 noise model, with exact 8-qubit density
+  matrices.
+* Ideal projections, in order: N, then N_up and N_down, then S² = 0.
+* Since [H, P] = 0, the S² projection can be done in post-processing, by
+  measuring P and PH.
+
+**Prediction, written before the run.** The S² projection removes at
+least a further 10 % of the error, and needs at least 10× more Pauli
+strings than H.
+
+Error against the noiseless circuit (mHa); kept fraction in brackets:
+
+| molecule | raw | N | N_up, N_down | + S² = 0 | further share |
+|---|---|---|---|---|---|
+| H₂O | 363.9 | 54.6 (0.67) | 43.3 (0.66) | 26.7 (0.64) | 38 % |
+| H₄ | 287.5 | 79.9 (0.69) | 70.5 (0.67) | 44.7 (0.58) | 37 % |
+
+Pauli strings to measure: H₂O 105 for H, against 640 for P and 2064 for
+PH; H₄ 185, against 640 and 3456.
+
+* **The prediction holds.** The singlet projection removes a further
+  37–38 % of the error, the largest gain of any check since §52. The noisy
+  ⟨S²⟩ is 0.40 (H₂O) and 0.60 (H₄), where the ideal state has 0.
+* **The price is measurement, not shots.** The kept fraction barely drops
+  (0.66 → 0.64), but post-processing needs about 20× more Pauli strings.
+* **H₂O is the clean case**: its ideal state is a singlet to 3·10⁻⁶.
+  - The H₄ ansatz is itself spin-contaminated (singlet weight 0.91,
+    34 mHa above the exact ground state).
+  - Part of the H₄ gain therefore corrects the ansatz: projecting even the
+    noiseless state lowers it by 13.7 mHa.
+* **Reproducibility.** The optimisation runs single-threaded. With
+  threaded BLAS the H₄ optimum changed between runs.
+* **Honest scope.**
+  - S² verification by post-processing is known (Bonet-Monroig 2018).
+  - Contributed: its gain on top of the qg checks, and its measurement
+    cost.
+  - Limits: ideal projections, the Pauli count is an upper bound (no
+    grouping), and there is no ancilla-based S² circuit. Needs pyscf.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
