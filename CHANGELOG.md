@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.gradients.signed_theta`, `signed_qg_step`, `signed_natural_qg_step`: qg-space updates that keep the
+  branch sign sign(qg_X) and reflect through the poles; they remove the arccos range limit (H2 reaches FCI
+  from Hartree-Fock); `examples/signed_qg_range_qg.py` shows the natural signed step reduces to theta-space
+  descent, so there is no optimization gain (RESEARCH_NOTES §65).
 - `requirements.txt`, and optional-dependency groups `ionq` (qiskit-ionq), `qec` (pymatching),
   `chemistry` (pyscf, openfermion; not on native Windows) and `examples` (scipy, matplotlib);
   `all` now includes qiskit-ionq, pymatching and scipy, which examples and tests already used.

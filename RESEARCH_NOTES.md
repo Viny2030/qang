@@ -3488,6 +3488,65 @@ Logical error after d rounds (100 000 shots at d = 3, 20 000 at d = 5).
 
 ![Circuit-level T1-aware decoding](examples/surface_code_circuit_t1_qg.png)
 
+## 65. The arccos range limit removed by a branch sign (`examples/signed_qg_range_qg.py`, `qang.gradients.signed_qg_step`, `signed_natural_qg_step`)
+
+**The limit.** qg_Z = cos θ is two-to-one, so a qg-space update mapped back
+through arccos only reaches [0, π] (§8.2). On H₂ the optimum sits at
+θ ≈ −0.22, and every unsigned qg update stops at Hartree–Fock.
+
+**The fix.** The pair (qg_Z, s), with s = sign(qg_X) = sign(sin θ), is
+one-to-one on the whole circle, and s is measurable. Two library updates
+keep s:
+
+* `signed_qg_step`: the clipped step, reflected through a pole with a sign
+  flip.
+* `signed_natural_qg_step`: the quantum-natural-gradient step
+  dq = lr · dE/dθ · sin θ, with the same reflection.
+
+**Predictions, written before the run.**
+
+* P1: both signed steps reach the H₂ FCI energy from Hartree–Fock.
+* P2: the natural step behaves like θ-space descent.
+* P3: the clipped step is unstable at learning rates that θ-space descent
+  handles.
+
+**Results.**
+
+| H₂ from Hartree–Fock, lr | θ | unsigned qg | signed qg | signed natural | pole-damped |
+|---|---|---|---|---|---|
+| 0.03 | FCI, 52 | HF, never | FCI, 8 | FCI, 54 | 9e-3, never |
+| 0.1 | FCI, 15 | HF, never | FCI, 8 | FCI, 17 | FCI, 183 |
+| 0.3 | FCI, 5 | HF, never | 0.11, never | FCI, 6 | FCI, 61 |
+| 1.0 | FCI, 1 | HF, never | 0.08, never | FCI, 1 | FCI, 19 |
+
+(Entries: final energy, and the step after which the error stays below
+chemical accuracy.)
+
+| random near-pole landscapes, lr | θ | unsigned qg | signed qg | signed natural | pole-damped |
+|---|---|---|---|---|---|
+| 0.1 | 1.00 | 0.20 | 0.84 | 1.00 | 0.91 |
+| 0.5 | 1.00 | 0.02 | 0.49 | 1.00 | 1.00 |
+| 1.0 | 0.79 | 0.01 | 0.27 | **0.68** | 1.00 |
+| 2.0 | 0.18 | 0.01 | 0.09 | 0.16 | 0.51 |
+
+On LiH (4 parameters) the signed natural step converges at lr = 0.3
+(21 steps against 17 for θ), but not at lr = 1.0, where θ converges.
+
+* **P1 holds.** The branch sign removes the trap: 1e-9 Ha instead of the
+  Hartree–Fock 2.0e-2 Ha. The range limit is an artefact of using qg_Z
+  alone, not a property of qg.
+* **P3 holds.** The Euclidean (clipped) qg step is 2–7× faster than θ at a
+  small learning rate on H₂, and unstable from lr = 0.3.
+* **P2 holds at small and moderate learning rates, and fails at
+  lr = 1.0.**
+  - The pole reflection is exact only to first order in the step.
+  - At lr = 1.0: 0.68 against 0.79 on the landscapes, and no convergence
+    on LiH.
+* **Verdict.** The documented limit (paper, limitation ii) is removed, but
+  qg-space optimization gains nothing over θ-space. The natural metric in
+  qg reduces to θ, and pole-damped θ descent remains the robust choice at
+  aggressive learning rates.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

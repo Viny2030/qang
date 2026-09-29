@@ -420,3 +420,70 @@ def multi_param_gradient_descent(
             break
 
     return hist
+
+
+# --------------------------------------------------------------------- #
+# Signed qg: removing the arccos range limit (RESEARCH_NOTES §65)
+# --------------------------------------------------------------------- #
+def signed_theta(q: float, s: int) -> float:
+    """theta = s * arccos(q): the pair (qg_Z, s) with s = sign(qg_X) = sign(sin theta)
+    covers the full circle (-pi, pi], where qg_Z alone covers only [0, pi]."""
+    return s * math.acos(max(-1.0, min(1.0, q)))
+
+
+def signed_qg_step(q: float, s: int, grad_theta: float, lr: float, eps: float = 0.05):
+    """
+    One gradient step in qg coordinates that keeps the branch sign s.
+
+    The step is the clipped inverse-Jacobian step of ``inverse_jacobian_clipped``
+    evaluated at the signed angle, dq = -lr * grad_theta * dtheta/dq. When the
+    step would leave [-1, 1], the parameter has crossed a pole (theta = 0 or pi):
+    the excess is reflected back into [-1, 1] and the branch sign flips, which is
+    the continuation of the same path through the pole on the other half of the
+    circle. At an exact pole (sin theta = 0) the sign of the step is taken from s.
+    Returns (q_new, s_new).
+    """
+    theta = signed_theta(q, s)
+    sn = math.sin(theta)
+    sin_c = math.copysign(max(abs(sn), eps), sn if sn != 0.0 else float(s))
+    q_new = q - lr * grad_theta * (-1.0 / sin_c)
+    s_new = s
+    for _ in range(64):
+        if q_new > 1.0:
+            q_new = 2.0 - q_new
+            s_new = -s_new
+        elif q_new < -1.0:
+            q_new = -2.0 - q_new
+            s_new = -s_new
+        else:
+            break
+    return q_new, s_new
+
+
+def signed_natural_qg_step(q: float, s: int, grad_theta: float, lr: float):
+    """
+    Quantum-natural-gradient step in qg coordinates that keeps the branch sign s:
+    dq = -lr * (1 - q^2) * dE/dq = lr * grad_theta * sin(theta) (theta = s*arccos q),
+    with the same pole reflection as ``signed_qg_step``. At an exact pole, where
+    this first-order step vanishes, the angle is advanced by -lr * grad_theta and
+    the branch is read off the new angle. To first order it is a plain theta step.
+    Returns (q_new, s_new).
+    """
+    theta = signed_theta(q, s)
+    sn = math.sin(theta)
+    if abs(sn) < 1e-9:
+        t_new = theta - lr * grad_theta
+        st = math.sin(t_new)
+        return math.cos(t_new), (s if st == 0.0 else (1 if st > 0 else -1))
+    q_new = q + lr * grad_theta * sn
+    s_new = s
+    for _ in range(64):
+        if q_new > 1.0:
+            q_new = 2.0 - q_new
+            s_new = -s_new
+        elif q_new < -1.0:
+            q_new = -2.0 - q_new
+            s_new = -s_new
+        else:
+            break
+    return q_new, s_new
