@@ -49,7 +49,46 @@ Needs pymatching.
 
 Findings (python examples/qutrit_leakage_rounds_qg.py):
 
-FINDINGS_PLACEHOLDER
+  Logical error, d = 3, 3 rounds, seed 70, 60 000 shots per regime (same
+  shots for every decoder), herald efficiency h = 0.8:
+
+    regime (witness)              standard  final   round   qg, no   qg + round
+                                            flags   flags   flags    flags
+    leakage + T1-dominated (1.68)  0.0189   0.0178  0.0177  0.0130   0.0106
+    leakage + mixed (1.27)         0.0127   0.0114  0.0114  0.0100   0.0089
+    leakage + depolarizing (0.34)  0.0052   0.0043  0.0044  0.0052   0.0044
+    strong leakage, depol. (0.46)  0.0075   0.0047  0.0046  0.0075   0.0046
+  Shots ending with a leaked data qubit: 3.6 % (10.8 % strong leakage).
+
+  * Criterion A passes: qg + round flags beats the best known leakage-aware
+    decoder 1.68x (z = +15.3) in the T1-dominated regime, 1.28x (z = +8.0)
+    in the mixed one, and ties where the witness switches the reweighting
+    off (0.97x, z = -1.5; 1.00x).
+  * Criterion B passes: the flags add to qg in every regime (z = +8.8,
+    +5.3, +4.0, +8.9).
+  * Attribution. The combination beats both of its parts: in the
+    T1-dominated regime flags alone give 1.07x over standard, the §64
+    reweighting alone 1.45x, together 1.78x, more than the product (1.55x).
+    Plausible mechanism: the reweighting trusts the final data bits, and a
+    leaked qubit's final bit is random; erasing it removes a misleading
+    input. So the flag helps qg more (z = +8.8) than it helps standard
+    decoding (z = +4.2).
+  * Replication (seed 71): 1.43x (z = +11.3) and 1.20x (z = +6.2); the
+    effect holds, smaller than on seed 70.
+  * Per-round detection adds almost nothing at d = 3: with h = 0 (only the
+    final three-level readout) the gain is 1.39x instead of 1.43x (seed 71).
+    The useful qutrit information is the final |2> readout.
+  * Relation to §70: the flag is useless when a leaked qubit keeps its value
+    (leak from |1> only, return to |1>) and useful when it does not. This
+    model was chosen after §70's exploratory rerun, which is why the
+    criterion was fixed and committed before this run.
+
+  Verdict. With leakage that scrambles the qubit value, qang gains from a
+  three-level readout: the |2> flag and the qg T1 reweighting combine
+  better than either alone. The qg quantities themselves stay qubit
+  quantities; the qutrit enters as an input to the qg decoder, not as a new
+  qg. Limitations: d = 3, one leakage model (asymmetric leak 1:2, random
+  return), erasure weights not tuned, no leakage-reduction units.
 """
 
 import math

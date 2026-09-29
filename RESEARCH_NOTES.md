@@ -3808,6 +3808,55 @@ Logical error, 60 000 shots per regime (same shots for every decoder):
   - Limits: d = 3, a simple leakage model, flags only at the final
     readout, erasure weights not tuned. Needs pymatching.
 
+## 70b. The qutrit test, second round: pre-registered, with leakage that scrambles the qubit (`examples/qutrit_leakage_rounds_qg.py`)
+
+**Why.** In §70 the |2⟩ flag carried no information because a leaked qubit
+kept its value. An exploratory rerun with a scrambling leak showed the flag
+helping. Here the model and the criterion were fixed and committed
+(3fa4d63) before the reported run.
+
+**Setup.** The §64 Z-memory (d = 3, 3 rounds) with leakage from |1⟩ (ℓ)
+and from |0⟩ (ℓ/2), return to a random bit, per-round leakage flags with
+efficiency h = 0.8, and a final three-level readout. Decoders: standard;
+final flags (erasure of the last layer); round flags (erasure around the
+flagged rounds); qg without flags (§64 reweighting); qg + round flags.
+
+**Criterion, written before the run.** (A) qg + round flags beats the best
+known leakage-aware decoder by ≥ 1.3× with z ≥ 3 in some regime and is
+never worse with z ≤ −3; (B) the flags add to qg (z ≥ 3) in every regime.
+
+Logical error, seed 70, 60 000 shots per regime:
+
+| regime (witness) | standard | final flags | round flags | qg, no flags | qg + round flags |
+|---|---|---|---|---|---|
+| leakage + T1-dominated (1.68) | 0.0189 | 0.0178 | 0.0177 | 0.0130 | **0.0106** |
+| leakage + mixed (1.27) | 0.0127 | 0.0114 | 0.0114 | 0.0100 | **0.0089** |
+| leakage + depolarizing (0.34) | 0.0052 | 0.0043 | 0.0044 | 0.0052 | 0.0044 |
+| strong leakage, depolarizing (0.46) | 0.0075 | 0.0047 | 0.0046 | 0.0075 | 0.0046 |
+
+* **Both criteria pass.**
+  - (A): 1.68× (z = +15.3) and 1.28× (z = +8.0); ties where the witness
+    switches the reweighting off.
+  - (B): the flags add to qg in every regime (z = +8.8, +5.3, +4.0, +8.9).
+* **The combination beats both parts.** In the T1-dominated regime flags
+  alone give 1.07× over standard, the reweighting alone 1.45×, together
+  1.78×, more than the product (1.55×). The reweighting trusts the final
+  data bits and a leaked qubit's final bit is random; erasing it removes a
+  misleading input, so the flag helps qg more (z = +8.8) than standard
+  decoding (z = +4.2).
+* **Replication (seed 71):** 1.43× (z = +11.3) and 1.20× (z = +6.2).
+* **Per-round detection adds almost nothing at d = 3.** With h = 0 (only
+  the final three-level readout) the gain is 1.39× instead of 1.43×.
+* **Verdict.** With leakage that scrambles the qubit, qang gains from a
+  three-level readout. The qg quantities stay qubit quantities; the qutrit
+  enters as an input to the qg decoder, not as a new qg. §70 and §70b
+  together: the flag is useless when a leaked qubit keeps its value and
+  useful when it does not.
+* **Honest scope.** Erasure decoding of leakage is known; contributed: its
+  combination with the qg reweighting, super-additive here. Limits: d = 3,
+  one leakage model (leak ratio 1:2, random return) chosen after §70's
+  exploratory rerun, erasure weights not tuned, no leakage-reduction units.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

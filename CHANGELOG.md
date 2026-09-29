@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qutrit_leakage_rounds_qg.py`: pre-registered second qutrit test (leak from |0> and |1>, random
+  return, per-round flags); the |2> readout and the qg T1 reweighting combine super-additively, 1.68x over
+  the best leakage-aware decoder (1.43x on a replication seed); the qutrit enters as a decoder input, qg
+  stays a qubit quantity (RESEARCH_NOTES §70b). Needs pymatching.
 - `examples/qutrit_leakage_qg.py`: the qutrit test on the §64 Z-memory with data-qubit leakage and a
   three-level final readout; negative result: the |2> flags make every decoder worse, and all of the qg
   gain (1.68x in the T1-dominated regime) is the qubit T1 reweighting; qang stays qubit-only
