@@ -1,0 +1,194 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,frame=single,framerule=0.3pt,
+  rulecolor=\color{black!30},xleftmargin=4pt,xrightmargin=4pt,aboveskip=6pt,belowskip=6pt}
+
+\newcommand{\qgZ}{qg_Z}
+\newcommand{\qgX}{qg_X}
+
+\title{RFC (v2): A native qang module for Qiskit and Cirq}
+\author{Vicente Humberto Monteverde\\
+\small Universidad del Museo Social Argentino (UMSA), Argentina\\
+\small ORCID 0000-0001-8884-4811}
+\date{\small Revised 29 September 2026. Version 1: 19 September 2026, doi:10.5281/zenodo.22845682}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+This request for comments proposes an optional, additive module for Qiskit and Cirq that lets circuit
+authors parameterize single-qubit rotations by the population bias they produce, $\qgZ=\langle\sigma_z\rangle$
+(the qang unit~\cite{monteverde2026qang}), instead of by a raw angle, together with a small set of
+estimation and analysis helpers. Version 2 revises version 1 against ten days of further work in the
+reference implementation. It adds a signed gate that removes the $\arccos$ range limit; the symmetry filter
+as an explicit operation on outcome distributions; and a noise-free compile-time screen, the sector
+exposure, that ranks compilations by how much relaxation error the filter will let through. It
+narrows the scope where the evidence says so: the qudit generalization is withdrawn from the proposal,
+since pre-registered tests found no qutrit advantage for the qg quantities themselves, and
+error-correction decoder rules are kept out of the SDKs. Every proposed function exists and is tested
+in the reference package; nothing in the proposal has yet been validated on hardware.
+\end{abstract}
+
+\section{What changed since version 1}
+
+\begin{itemize}
+\item \textbf{Reference implementation.} The package is \texttt{qang} (version 0.3.0) at
+\url{https://github.com/Viny2030/qang}, MIT license, with 1103 tests run in continuous integration on
+Python 3.9--3.12. Version 1 pointed to an earlier notebook repository; the names below refer to the
+package.
+\item \textbf{Added:} \texttt{SignedRQangGate} (Section~\ref{sec:signed}); \texttt{qang.sectors} with
+\texttt{filter\_distribution} and \texttt{sector\_exposure} (Section~\ref{sec:sectors}); signed and
+natural-gradient steps in qg coordinates; interval estimators for $\qgZ$ (Bayesian, Wilson, delta method).
+\item \textbf{Withdrawn:} the su($d$) qudit module, the Householder and Grover-diffuser constructors, and
+anything tied to shadows or Grover read-outs (Section~\ref{sec:scope}).
+\item \textbf{Kept out of the SDKs:} the qg-aware surface-code decoder rules. They belong to decoder
+libraries, not to circuit SDKs.
+\end{itemize}
+
+\section{The unit in one paragraph}
+
+For $|\psi(\theta)\rangle=\cos(\theta/2)|0\rangle+\sin(\theta/2)|1\rangle$, the polar qang is
+$\qgZ=\cos\theta=\langle\sigma_z\rangle\in[-1,1]$, and the entropic qang is $qg_S=H\big((1+\qgZ)/2\big)$, the
+binary Shannon entropy of the outcome. Neither is a new physical quantity; the unit gives them a name, a
+value type with round-trip conversions, and a gate that takes them as its parameter~\cite{monteverde2026qang}.
+The case for upstreaming is ergonomic: one round-trip-safe value instead of scattered $\arccos$ and
+entropy conversions.
+
+\section{Proposed API}
+
+\subsection{Gates}
+
+The reference implementation provides three Qiskit gates, each decomposing to an existing basis gate, so
+nothing else in the transpiler or on hardware needs to change:
+
+\begin{lstlisting}
+from qang import Qang
+from qang.qiskit_gate import RQangGate, FullRQangGate, SignedRQangGate
+
+qc.append(RQangGate(0.7071), [0])                  # RY(arccos qg_Z)
+qc.append(FullRQangGate(Qang(0.7071, phi=0.3)), [0])  # U(theta, phi, 0)
+qc.append(SignedRQangGate(0.7071, sign=-1), [0])  # RY(-arccos qg_Z)
+\end{lstlisting}
+
+The Cirq counterparts are \texttt{rqang\_gate} (built on \texttt{cirq.ry}) and \texttt{full\_rqang\_gate}
+(a \texttt{cirq.MatrixGate} matching \texttt{FullRQangGate} bit for bit). A signed Cirq gate is a one-line
+addition and is proposed with the rest.
+
+\subsection{The signed gate}\label{sec:signed}
+
+$\qgZ$ alone fixes $\theta$ only on $[0,\pi]$: the states with $\theta$ and $-\theta$ have the same $\qgZ$. The
+pair $(\qgZ,s)$ with $s=\mathrm{sign}\,\qgX=\pm1$ covers the full great circle, and
+\texttt{SignedRQangGate} applies $R_Y(s\arccos\qgZ)$. For variational circuits the reference package also
+provides steps that keep track of $s$ and reflect through a pole instead of stopping there
+(\texttt{signed\_qg\_step}, \texttt{signed\_natural\_qg\_step}). In the tests behind them, every
+unsigned qg update on H$_2$ stopped at the Hartree--Fock point, because the optimum sits at
+$\theta\approx-0.22$; both signed steps reached the exact energy. The honest corollary is that
+optimizing in qg coordinates gains nothing over optimizing the angle: the natural metric in qg reduces to
+$\theta$. The signed gate is proposed for state preparation and parameter binding, not as a faster
+optimizer.
+
+\subsection{The filter as an operation, and a compile-time screen}\label{sec:sectors}
+
+Many workloads conserve the number of excitations (Hamming weight): particle-number-conserving chemistry
+ansätze, XY mixers, Heisenberg-type dynamics. Discarding shots outside the conserved sector is a known,
+cheap mitigation (symmetry verification~\cite{bonetmonroig2018,mcardle2019}); in qg terms it is the
+shot-level form of the register-mean witness of the companion preprint~\cite{monteverde2026witness}. The
+reference package exposes it as an explicit operation:
+
+\begin{lstlisting}
+from qang.sectors import filter_distribution, sector_exposure
+
+p_kept, kept_fraction = filter_distribution(counts, n_qubits=6, weight=3)
+exp = sector_exposure(circuit, weight=3)
+# -> {"mean": ..., "max": ..., "per_gate": [...]}
+\end{lstlisting}
+
+\texttt{sector\_exposure} answers a question that matters before any noisy run: how much of the
+relaxation (T1) error will the filter catch for this particular compilation? A decay that happens while
+part of the state is outside the sector can be rotated back into it by later gates and pass the filter.
+The exposure is the population outside the sector right after each two-qubit gate, computed on a
+noiseless statevector. In the tests behind it (Heisenberg chain, 16 compilation and time-step points),
+its rank correlation with the share of T1 error the filter lets through was 0.80, a pre-registered
+threshold met without margin. Every compilation with zero exposure (number-conserving two-qubit gates)
+removed at least 98\% of the T1 error, while 3-CNOT compilations, with exposure 0.42, let about half
+through. We propose it as an optional analysis pass (for Qiskit, a transpiler \texttt{AnalysisPass}
+that writes the exposure to the property set), usable to choose between compilations. It needs a
+statevector, so it is limited to circuits of about 20 qubits; it ranks compilations and does not
+predict error magnitudes.
+
+\subsection{Estimation}
+
+\texttt{qang.statistics} provides $\qgZ$ estimates with intervals from $k_0$ zeros in $N$ shots: a Bayesian
+posterior under the Haar prior (uniform in $\qgZ$), the Wilson score interval, and the delta method,
+plus the covariance of several $\qgZ$ values from one set of counts. The Bayesian and Wilson intervals
+remain informative at the poles, where the delta method collapses. We propose them under a single
+\texttt{qg\_estimate(k0, n\_shots, method=...)} entry point.
+
+\section{Scope, revised by evidence}\label{sec:scope}
+
+Several items of version 1 were tested since, and the proposal follows the results, including the
+negative ones:
+
+\begin{itemize}
+\item \textbf{Qudits.} Version 1 proposed an su($d$) generalization of $\qgZ$ as a reference module.
+Pre-registered surface-code tests with leakage to $|2\rangle$ found that a three-level readout helps only
+in specific leakage channels, and then as an extra input to a decoder, not as a new qg
+quantity~\cite{monteverde2026leakage}. For a simulated transmon CZ, the leakage channel left the
+three-level readout without useful information. The qudit module is withdrawn.
+\item \textbf{Shadows and Grover.} Direct Z-basis measurement was 3--41$\times$ cheaper in shots than
+classical shadows for the qg quantities, and per-qubit qg readings lost to the plain outcome histogram
+in Grover search. The Householder and Grover-diffuser constructors of version 1 are therefore dropped:
+they add a name to a well-known matrix without a demonstrated use.
+\item \textbf{Decoders.} A qg-aware reweighting of a surface-code decoder, switched by the register-mean
+witness, gained 1.6--3.3$\times$ in logical error under simulated relaxation-dominated noise, and two rules followed: a
+Bayesian weight for leakage flags, and a $1-h$ scaling of priors on erasure qubits with heralding
+efficiency $h$~\cite{monteverde2026witness,monteverde2026leakage}. These concern decoders (for example
+the weights passed to PyMatching~\cite{higgott2022pymatching}), not circuit construction, and are not
+proposed for Qiskit or Cirq.
+\end{itemize}
+
+\section{Adoption path}
+
+\begin{enumerate}
+\item \textbf{Standalone package} (current). \texttt{qang} with Qiskit, Cirq and PennyLane as optional
+extras; publication on PyPI is the next step.
+\item \textbf{Ecosystem listing.} The Qiskit ecosystem page and a Cirq contrib-style listing, with no
+review burden on either core team.
+\item \textbf{Upstream proposal.} A Qiskit Enhancement Proposal and a Cirq design-doc issue, each
+scoped to the gates of Section~3.1 and, as a separate item, the \texttt{sector\_exposure} analysis pass.
+\item \textbf{Reference code as the pull request.} Every item above is already implemented and tested in
+the package.
+\end{enumerate}
+
+\section{Open questions and risks}
+
+\begin{itemize}
+\item \textbf{Naming.} ``qang'' is not a standard term; maintainers may prefer
+\texttt{RYGate.from\_z\_bias} and helper functions. The ergonomic case (Section~2) has to carry the
+proposal, not the name.
+\item \textbf{Hardware.} All validation so far is simulation, including IonQ's cloud simulator and its
+forte-1 noise model. A QPU run is prepared but not yet executed; reviewers will likely ask for it.
+\item \textbf{Exposure is a screen, not a model.} Its evidence is one rank correlation at 0.80 on small
+circuits, one noise type, and a statevector cost that grows exponentially.
+\item \textbf{Duplicate surface.} Both SDKs already have rich angle machinery. The proposal is strictly
+additive: every gate decomposes to an existing one, and nothing becomes a basis gate.
+\item \textbf{Maintainer bandwidth.} Step~1 delivers value regardless of upstream acceptance.
+\end{itemize}
+
+\section*{Acknowledgments and use of AI tools}
+Generative AI tools (Anthropic Claude Opus 5.5) assisted with code, numerical experiments, tests and
+drafting. The author framed the questions, made the design decisions, and reviewed and validated all
+AI-assisted output.
+
+\bibliographystyle{unsrtnat}
+\bibliography{../refs}
+\end{document}

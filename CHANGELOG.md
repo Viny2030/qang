@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `manuscript/rfc/`: RFC version 2 for a native qang module in Qiskit and Cirq (PDF `manuscript/qang_rfc_v2.pdf`,
+  Word alongside): adds SignedRQangGate, the filter as an operation and the sector-exposure analysis pass;
+  withdraws the qudit module and the Householder/Grover constructors on the evidence of §62, §63, §70-§72;
+  keeps decoder rules out of the SDKs. Version 1 stays in `manuscript/old/RFC.pdf`.
 - `examples/erasure_calibrated_qg.py`: pre-registered test of the (1 - h) prior rule for qg on erasure qubits;
   all four predictions pass: never worse, 1.41x (d = 3) and 1.68x (d = 5) at h = 0.5, fades at h = 0.99,
   robust to h misestimated by 0.1 (RESEARCH_NOTES §74). Needs pymatching.
