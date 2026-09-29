@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/erasure_calibrated_qg.py`: pre-registered test of the (1 - h) prior rule for qg on erasure qubits;
+  all four predictions pass: never worse, 1.41x (d = 3) and 1.68x (d = 5) at h = 0.5, fades at h = 0.99,
+  robust to h misestimated by 0.1 (RESEARCH_NOTES §74). Needs pymatching.
 - `examples/erasure_qubits_qg.py`: the qg T1 decoder on erasure qubits with heralding efficiency h; the gain falls
   from 1.59x/2.04x (h = 0) to nothing, and a naive qg + erasure combination is worse than erasure alone at high h
   (one of four pre-registered predictions fails); exploratory fix: decay priors scaled by (1 - h), never worse

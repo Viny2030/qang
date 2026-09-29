@@ -4028,6 +4028,51 @@ E4 qg + erasure never worse than erasure (z > −3).
   h known, one regime, d ≤ 5; the fix is exploratory until
   pre-registered.
 
+## 74. The (1 − h) rule for qg on erasure qubits, pre-registered (`examples/erasure_calibrated_qg.py`)
+
+**Why.** §73's exploratory fix (scale the prior of unheralded decays by
+1 − h) was found after the run, on one seed. Here it gets its own test:
+new seeds, a second regime, a finer grid of h, and a misestimated h.
+
+**Setup.** The §73 memory; T1-dominated and mixed regimes (qg on by the
+witness in both); d = 3 and 5; h ∈ {0.25, 0.5, 0.75, 0.9, 0.99}.
+Decoders: erasure (§73), erasure calibrated, qg + erasure calibrated.
+60 000 shots, seed 740 (741 for the misestimation runs); predictions
+committed before the run (68d8d00).
+
+**Predictions.** F1 qg + erasure calibrated never worse than erasure
+calibrated (z > −3). F2 at h = 0.5, T1-dominated, ≥ 1.3× with z ≥ 3 at
+d = 3 and 5. F3 calibrated erasure never worse than naive. F4 with h
+misestimated by about 0.1, still never worse.
+
+Gain of qg + erasure calibrated over erasure calibrated (z):
+
+| regime | d | h = 0.25 | 0.5 | 0.75 | 0.9 | 0.99 |
+|---|---|---|---|---|---|---|
+| T1-dominated | 3 | 1.50 (+11.1) | 1.41 (+9.0) | 1.25 (+4.2) | 1.09 (+1.2) | 0.92 (−0.8) |
+| T1-dominated | 5 | 1.93 (+9.0) | 1.68 (+5.4) | 1.39 (+2.8) | 1.45 (+2.2) | 1.00 (0.0) |
+| mixed | 3 | 1.19 (+4.9) | 1.18 (+4.1) | 1.16 (+2.6) | 1.07 (+1.2) | 1.12 (+1.8) |
+| mixed | 5 | 1.47 (+5.2) | 1.30 (+2.7) | 1.03 (+0.3) | 0.79 (−2.0) | 1.00 (0.0) |
+
+Misestimated h (d = 3, T1-dominated): true 0.5, assumed 0.4 / 0.6: 1.47×
+/ 1.42×; true 0.9, assumed 0.8 / 0.97: 1.09× / 1.16×.
+
+* **All four predictions pass.**
+* **The §73 failure is gone.** At d = 3, h = 0.99, the naive combination
+  lost 0.46×; with the rule, 0.92× (z = −0.8). The closest call is mixed,
+  d = 5, h = 0.9 (0.79×, z = −2.0): inside the bound, but the rule is near
+  its limit at high h.
+* **qg still pays with partial heralding**: 1.41× (d = 3) and 1.68×
+  (d = 5) at h = 0.5; 1.50× and 1.93× at h = 0.25. It fades to about 1 at
+  h = 0.99.
+* **Calibration also helps erasure alone** at high h (d = 3,
+  T1-dominated, h = 0.99: 0.00103 → 0.00057).
+* **Verdict.** The (1 − h) rule is confirmed. On erasure qubits, keep the
+  qg reweighting with the unheralded decay priors scaled by (1 − h). In
+  practice, use qg while the witness exceeds 1 and h ≲ 0.9.
+* **Honest scope.** Limits: data-qubit heralds with exact location, two
+  regimes, d ≤ 5, h known to about 0.1.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

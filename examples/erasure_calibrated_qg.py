@@ -37,7 +37,39 @@ Needs pymatching.
 
 Findings (python examples/erasure_calibrated_qg.py):
 
-FINDINGS_PLACEHOLDER
+  Gain of qg + erasure, calibrated over erasure, calibrated (paired z),
+  seed 740, 60 000 shots per point:
+
+    regime (witness d=3/d=5)  d   h = 0.25      0.5           0.75          0.9           0.99
+    T1-dominated (1.68/2.30)  3   1.50 (+11.1)  1.41 (+9.0)   1.25 (+4.2)   1.09 (+1.2)   0.92 (-0.8)
+                              5   1.93 (+9.0)   1.68 (+5.4)   1.39 (+2.8)   1.45 (+2.2)   1.00 (0.0)
+    mixed (1.27/1.74)         3   1.19 (+4.9)   1.18 (+4.1)   1.16 (+2.6)   1.07 (+1.2)   1.12 (+1.8)
+                              5   1.47 (+5.2)   1.30 (+2.7)   1.03 (+0.3)   0.79 (-2.0)   1.00 (0.0)
+  Calibration vs naive erasure: z from -1.3 to +4.8 (it helps from h ~ 0.75
+  on; e.g. d = 3, T1-dominated, h = 0.99: 0.00103 -> 0.00057).
+  Misestimated h (d = 3, T1-dominated, seed 741): true 0.5 assumed 0.4 /
+  0.6: 1.47x (+8.2) / 1.42x (+9.2); true 0.9 assumed 0.8 / 0.97: 1.09x
+  (+1.1) / 1.16x (+2.3).
+
+  Predictions: F1 PASS, F2 PASS, F3 PASS, F4 PASS.
+  * F1: with the (1 - h) rule qg never loses significantly; the closest
+    point is mixed, d = 5, h = 0.9 (0.79x, z = -2.0), inside the bound but
+    a warning that at high h the rule is near its limit.
+  * F2: at h = 0.5 qg still adds 1.41x (d = 3) and 1.68x (d = 5); at
+    h = 0.25, 1.50x and 1.93x. The gain fades to about 1 at h = 0.99, as
+    expected: near-perfect heralding leaves nothing for the readout bias.
+  * F3: the calibrated erasure decoder is never worse than the naive one,
+    and clearly better at high h.
+  * F4: an error of about 0.1 in h costs little.
+  * Replaces the §73 failure: the naive combination lost 0.46x at h = 0.99
+    (§73); with the rule, 0.92x (z = -0.8) at the same point.
+
+  Verdict. The (1 - h) rule is confirmed: on erasure qubits, scale the
+  prior of unheralded decays by (1 - h) and keep the qg reweighting; it
+  gains 1.4-1.9x for h <= 0.5, fades as heralding becomes perfect, and does
+  not hurt. Practical switch: use qg while the witness exceeds 1 and
+  h <~ 0.9. Limitations: data-qubit heralds with exact location, two
+  regimes, d <= 5, h known to about 0.1.
 """
 
 import math
