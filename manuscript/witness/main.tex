@@ -23,7 +23,7 @@ error mitigation, constrained optimization and qubit characterization in qg unit
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 26 September 2026; revised 27 September 2026 with coherent errors and rotated-basis checks}
+\date{\small Draft of 26 September 2026; revised 29 September 2026 with Heisenberg-chain dynamics and circuit-level decoding}
 
 \begin{document}
 \maketitle
@@ -34,7 +34,7 @@ $\qgZ=\langle\sigma_z\rangle$. When a circuit conserves a Hamming weight, the av
 over the register is fixed in advance: $\mqg=1-2N/n$ for $N$ excitations on $n$ qubits. This one
 number is a reference-free witness of noise that changes the conserved quantity, and its shot-level
 version is the known symmetry-verification filter~\cite{bonetmonroig2018,mcardle2019}. We measure
-when the witness and the filter help, and when they do not, on six problems with classical controls and on four molecules for the rotated-basis extension,
+when the witness and the filter help, and when they do not, on seven problems with classical controls and on four molecules for the rotated-basis extension,
 using calibration-based and vendor noise models. (i) On H$_2$ the filter lowers the energy error from
 18 to 5.5~mHa, below Hartree--Fock (20.3~mHa), and it stays below Hartree--Fock along the
 dissociation curve. (ii) Across noise channels the witness predicts the outcome: it moves under T1
@@ -58,7 +58,7 @@ Parity and $N$~mod~4 checks on two ancillas do reach them: they cut the LiH erro
 Hartree--Fock on a generic model, $3.8\times$ on IonQ's forte-1 model) and approach the full
 number-projection ceiling up to 12 qubits (H$_4$, H$_2$O, H$_6$). That ceiling shrinks with depth,
 because number-conserving errors grow. Coherent over-rotation of the entangling gate passes through
-native-gate ZNE untouched, while the filter removes 94\% of it. We also report where the method stops:
+native-gate ZNE untouched, while the filter removes 94\% of it. (ix) In Heisenberg-chain dynamics every observable is read in Z, so the filter reaches all of it. It removes 99.5\% of the T1 error when the two-qubit gates conserve the excitation number at every point, but only 38--49\% with a 3-CNOT compilation, where a decay inside the gate can re-enter the sector. On IonQ's forte-1 model, MS and ZZ compilations give the same gain, as predicted before the run. (x) In a circuit-level surface-code memory (distance 3 and 5), a decoder that reweights decay faults by the final data readout lowers the logical error $2.2\times$ and $3.3\times$ under T1, and costs 15\% when depolarizing noise dominates; the register-mean $\qgZ$ of that readout, divided by the detector rate, picks the better decoder in all eight cases tested. We also report where the method stops:
 Hubbard circuits beyond $\sim$190 two-qubit gates, where the witness correctly reports unital
 scrambling. No result is a quantum advantage over classical
 computation. Every number is reproduced by a script and pinned by a regression test.
@@ -477,6 +477,50 @@ Parity checks with an ancilla are standard symmetry verification~\cite{bonetmonr
 is its direct extension. What the qg analysis adds is the diagnosis that led to them and the measurement
 of how their reach and ceiling scale.
 
+\section{Where the filter reaches everything: Heisenberg-chain dynamics}\label{sec:xxz}
+
+In LiH most of the error sits in terms measured in rotated bases, which a Z-basis filter cannot see
+(Sec.~\ref{sec:rotated}). The opposite case is the dynamics of an XXZ chain,
+$H=\sum_i J(X_iX_{i+1}+Y_iY_{i+1})+\Delta Z_iZ_{i+1}$, started from a N\'eel state and followed through
+the imbalance $I(t)=\frac1n\sum_i(-1)^i\,qg_{Z,i}$. $H$ conserves $N$, every observable is in Z, and
+every shot can be checked. We simulated $n=6$ and 8 qubits, 1--8 Trotter steps, with each bond compiled
+either to three CNOTs or to two number-conserving gates (an XY and a ZZ interaction), at equal noise
+budget per bond.
+
+\begin{table}[t]
+\centering\small
+\caption{Share of the imbalance error removed by the filter, one noise at a time (4 Trotter steps,
+$n=6$; $n=8$ in brackets).}
+\label{tab:xxz}
+\begin{tabular}{lcc}
+\toprule
+noise & 3 CNOT per bond & number-conserving gates\\
+\midrule
+two-qubit depolarizing & 41\% (36\%) & 41\% (36\%)\\
+readout & 94\% & ---\\
+Z dephasing & 2\% & 0\%\\
+amplitude damping & 49\% (38\%) & 99.5\% (99.4\%)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:xxz} shows the new point. Every decay lowers $N$, and the no-jump part of amplitude
+damping is uniform on a fixed-$N$ sector: with decay applied between Trotter steps the filter removes it
+to $10^{-15}$. Inside a 3-CNOT bond, however, the intermediate states leave the sector, and a decay
+there can be rotated back into it and pass the filter. With gates that keep $N$ at every point the leak
+closes. Small-angle MS rotations leak little (99.6\% removed at $dt=0.1$, 83\% at $dt=0.75$); what leaks
+is a basis change around a two-qubit gate. For mixed noise, filter plus ZNE is 2.6--8$\times$ below the
+best single method up to 4 steps with CNOTs; with number-conserving gates the filter alone has the lowest
+error at 2000 shots, because ZNE then only adds variance. The kept fraction falls to 11\% at 8 steps.
+
+On IonQ's forte-1 model (5 runs of 12 circuits, 2000 shots), the XY model compiled with MS gates or
+with native ZZ gates wrapped in basis changes gives the same share of error removed (0.45 and 0.55,
+ratio 0.82). The prediction, written before the run, was a ratio within 0.8--1.25 if the vendor model
+is depolarizing-type: trapped ions have no T1 on these time scales, so the compilation leak is a T1
+effect for platforms such as superconducting qubits. Symmetry verification with number-conserving
+gates was used in Google's Fermi--Hubbard experiment~\cite{arute2020hubbard}; the contribution here
+is the per-noise reach and the measured leak.
+
 \section{Beyond symmetries: syndromes as qg witnesses}\label{sec:qec}
 
 In a code-capacity model with amplitude damping $\gamma$ and dephasing $p$ per round, the single-qubit
@@ -499,6 +543,19 @@ calibrating once. A hybrid that probes only while no code is running reaches 7\%
 probing every window with $4\times$ fewer probe shots. These are idealized models (perfect syndrome
 extraction, synthetic drift), and the codes are known; the contribution is the qg reading and the rules.
 
+\paragraph{A witness that chooses the decoder.} In a circuit-level Z-memory of the rotated surface code
+(distance $d=3$ and 5, $d$ rounds of syndrome extraction, decay, depolarizing and readout noise),
+amplitude damping only turns 1 into 0. A data qubit read as 1 at the end has therefore almost never
+decayed. A matching decoder whose decay faults are reweighted per shot by the final data readout lowers
+the logical error $2.2\times$ ($d=3$) and $3.3\times$ ($d=5$) under T1, and $1.6$--$2.0\times$ when T1
+dominates; the gain grows with distance. When depolarizing noise dominates it costs 15\% at $d=3$. The
+register-mean $\qgZ$ of the final readout is 0 for any symmetric flip and positive under decay;
+divided by the detector firing rate, measured on a separate batch, it is 1.3--2.6 where the reweighted
+decoder wins and 0.34--0.54 where it loses. The rule ``reweight if the ratio exceeds 1'' picks the
+better decoder in all eight cases (the threshold was chosen after seeing them). The X-stabilizer
+circuits are left out of this simulation, and bias- and erasure-aware decoders are known; the
+contribution is a reweighting that needs only the final readout, and the qg witness as the switch.
+
 \section{Discussion and limitations}\label{sec:limits}
 
 \begin{enumerate}
@@ -515,6 +572,7 @@ $\binom nN/2^n$. In chemistry, the share of the error that any number check can 
 \item \emph{Rotated-basis terms} cannot be filtered with Z-basis shots. Reaching them requires parity or
 $N$ mod 4 ancillas coupled to every qubit: natural on trapped ions, SWAP-heavy on heavy-hex, and 14--44\%
 of the shots are discarded.
+\item \emph{Compilation.} The filter catches a decay only if the circuit stays in the conserved sector around it: basis changes around two-qubit gates (CNOT compilations, a ZZ built from MS) let part of the T1 error through.
 \item \emph{Coherent errors.} Native-gate ZNE is blind to a coherent over-rotation of the entangling gate.
 Only the part of that error that breaks the symmetry is removed by the checks.
 \item \emph{Simulation only.} All devices are calibration-based or vendor noise models, including
@@ -529,7 +587,7 @@ fake backend.
 \section{Code availability}
 \sloppy
 
-All scripts, data and the regression tests that pin every number (973 tests at the time of writing)
+All scripts, data and the regression tests that pin every number (1050 tests at the time of writing)
 are at \url{https://github.com/Viny2030/qang} (MIT license): \texttt{examples/chemistry\_*.py},
 \texttt{error\_mitigation\_qg\_vs\_zne.py}, \texttt{hubbard\_trotter\_qg\_filters.py},
 \texttt{qaoa\_k\_constraint\_qg.py}, \texttt{hardware\_characterization\_qg.py},
@@ -537,8 +595,8 @@ are at \url{https://github.com/Viny2030/qang} (MIT license): \texttt{examples/ch
 \texttt{ionq\_validation.py}, \texttt{ionq\_sim\_hubbard\_qaoa.py},
 \texttt{ionq\_sim\_zne\_grover.py}, \texttt{coherent\_drift\_filter\_zne.py},
 \texttt{filter\_scaling\_lih\_qg.py}, \texttt{lih\_parity\_verification\_qg.py},
-\texttt{ionq\_sim\_lih\_mod4.py}, \texttt{symmetry\_checks\_scaling\_qg.py} and \texttt{spin\_checks\_qg.py}; the IonQ simulator results are recorded in
-\texttt{examples/data/ionq\_sim\_results.json}. Sections 20, 21, 24, 28--33, 38, 39, 48 and 50--55 of
+\texttt{ionq\_sim\_lih\_mod4.py}, \texttt{symmetry\_checks\_scaling\_qg.py}, \texttt{spin\_checks\_qg.py}, \texttt{xxz\_trotter\_filter\_qg.py}, \texttt{ionq\_sim\_xxz\_filter.py} and \texttt{surface\_code\_circuit\_t1\_qg.py}; the IonQ simulator results are recorded in
+\texttt{examples/data/ionq\_sim\_results.json}. Sections 20, 21, 24, 28--33, 38, 39, 48, 50--55, 60, 61 and 64 of
 \texttt{RESEARCH\_NOTES.md} give further detail, and \texttt{notebooks/qang\_avances\_colab.ipynb}
 reproduces fast versions in Colab.
 
