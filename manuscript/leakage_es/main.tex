@@ -13,7 +13,7 @@
 \newcommand{\qgZ}{qg_Z}
 
 \title{¿Cuándo ayuda leer el tercer nivel?\\
-Marcas de fuga y el decodificador qg sensible a T1}
+Marcas de fuga, qubits de borrado y el decodificador qg sensible a T1}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
@@ -32,7 +32,7 @@ Los qubits transmón se fugan a su segundo estado excitado, y una lectura de tre
 marcarlo. Nos preguntamos si esto ayuda al decodificador qg sensible a T1, un decodificador de
 emparejamiento de peso mínimo cuyos pesos siguen la lectura final de los datos y que un testigo de
 sesgo polar promediado sobre el registro activa solo cuando domina la
-relajación~\cite{monteverde2026qang,monteverde2026witness}. Cuatro pruebas simuladas sobre una memoria
+relajación~\cite{monteverde2026qang,monteverde2026witness}. Seis pruebas simuladas sobre una memoria
 de código de superficie con ruido de circuito, cada una con su criterio fijado antes de la corrida
 reportada, dan una respuesta coherente. (i) Cuando un qubit fugado conserva su valor, borrar los qubits
 marcados empeora todos los decodificadores, y toda la ganancia de qg (1{,}68$\times$) viene de la
@@ -45,7 +45,11 @@ falla). La ganancia combinada crece con la distancia, de 1{,}48$\times$ a 1{,}77
 simulación coherente de tres niveles de una CZ diabática da $a=0$ y un qubit fugado que conserva su
 valor y sigue invirtiendo su ancilla con probabilidad 0{,}97. Para esos transmones la marca es inútil,
 el borrado perjudica y la ganancia de qg (1{,}81$\times$ a $d=3$, 2{,}02$\times$ a $d=5$) no necesita
-lectura de qutrit. Todos los resultados son simulaciones, reproducidas por scripts y fijadas por
+lectura de qutrit. (v) En qubits de borrado, que anuncian los decaimientos T1 en el momento en que
+ocurren, combinar qg de forma ingenua perjudica cuando el anuncio es bueno (0{,}46$\times$ con
+eficiencia de anuncio $h=0{,}99$); escalar la probabilidad previa de los decaimientos no anunciados
+por $1-h$, una regla puesta a prueba después con su propio registro previo, elimina la pérdida y
+conserva una ganancia de 1{,}41--1{,}68$\times$ con $h=0{,}5$. Todos los resultados son simulaciones, reproducidas por scripts y fijadas por
 tests de regresión.
 \end{abstract}
 
@@ -91,10 +95,10 @@ o, donde se indica, todas sus aristas); \emph{peso bayesiano} (Sección~\ref{sec
 reponderación T1); y las combinaciones qg + borrado y qg + peso bayesiano. Los decodificadores se
 comparan sobre las mismas corridas con un $z$ apareado (McNemar).
 
-\paragraph{Protocolo.} Cada prueba enuncia su criterio en el script antes de la corrida. En las tres
+\paragraph{Protocolo.} Cada prueba enuncia su criterio en el script antes de la corrida. En las cinco
 últimas, el script y el criterio se subieron al repositorio público antes de la corrida reportada
-(commits \texttt{3fa4d63}, \texttt{daf0b6f}, \texttt{092580f}), y el código se depuró con otra
-semilla.
+(commits \texttt{3fa4d63}, \texttt{daf0b6f}, \texttt{092580f}, \texttt{e877a72},
+\texttt{68d8d00}), y el código se depuró con otra semilla.
 
 \section{Resultados}
 
@@ -244,9 +248,53 @@ $d$ & régimen (testigo) & estándar & borrado & bayesiano & qg\\
 \end{tabular}
 \end{table}
 
+\subsection{Qubits de borrado}\label{sec:erasure}
+
+Los qubits de borrado, como los transmones dual-rail~\cite{kubica2023erasure} y los átomos con
+conversión de borrado~\cite{wu2022erasure}, anuncian los decaimientos en el momento en que ocurren.
+Si el anuncio fuera perfecto, el sesgo de la lectura final que usa el decodificador qg no aportaría
+nada más. Lo modelamos sobre la misma memoria, sin fuga: cada decaimiento $1\to0$ de un qubit de
+datos se anuncia con probabilidad $h$ en su ubicación exacta, y el decodificador de borrado lleva esa
+arista a probabilidad $1/2$.
+
+La primera prueba predijo que la ganancia de qg + borrado sobre borrado caería con $h$ (cayó: de
+1{,}59$\times$ y 2{,}04$\times$ con $h=0$ a menos de 1{,}1$\times$ con $h=0{,}99$) y que la combinación
+nunca sería peor que el borrado solo. Esta última predicción falló, y la falla es el hallazgo: con
+$h=0{,}99$, qg + borrado llegó apenas a 0{,}46$\times$ ($z=-6{,}7$) a $d=3$ y 0{,}22$\times$ a $d=5$.
+La reponderación T1 supone que ningún decaimiento fue anunciado; con anuncios, un 0 en la lectura
+final ya está mayormente explicado, y la reponderación lo cuenta dos veces. El testigo no lo detecta,
+porque el sesgo de la lectura sigue presente para todo $h$.
+
+Un arreglo exploratorio, encontrado después de esa corrida, escala la probabilidad previa de los
+decaimientos \emph{no anunciados} por $1-h$ en ambos decodificadores. Después lo pusimos a prueba con
+un registro previo nuevo: semillas nuevas, un segundo régimen (mixto), cinco valores de $h$ y un $h$
+mal estimado en alrededor de 0{,}1. Se cumplieron las cuatro predicciones (Tabla~\ref{tab:erasure}).
+Con la regla, qg + borrado nunca fue significativamente peor que el borrado calibrado (el punto más
+cercano: 0{,}79$\times$, $z=-2{,}0$, régimen mixto, $d=5$, $h=0{,}9$); ganó 1{,}41$\times$ ($d=3$) y
+1{,}68$\times$ ($d=5$) con $h=0{,}5$ y se desvaneció hasta cerca de 1 con $h=0{,}99$; la calibración
+también mejoró al borrado solo con $h$ alto; y un error de 0{,}1 en $h$ cambió poco.
+
+\begin{table}[t]
+\centering\small
+\caption{Ganancia de qg + borrado sobre borrado, ambos con la probabilidad previa de los decaimientos
+no anunciados escalada por $1-h$ ($z$ apareado entre paréntesis), 60\,000 corridas por punto.}
+\label{tab:erasure}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lcccccc}
+\toprule
+régimen & $d$ & $h=0{,}25$ & 0{,}5 & 0{,}75 & 0{,}9 & 0{,}99\\
+\midrule
+dominado por T1 & 3 & 1{,}50 (+11{,}1) & 1{,}41 (+9{,}0) & 1{,}25 (+4{,}2) & 1{,}09 (+1{,}2) & 0{,}92 ($-0{,}8$)\\
+dominado por T1 & 5 & 1{,}93 (+9{,}0) & 1{,}68 (+5{,}4) & 1{,}39 (+2{,}8) & 1{,}45 (+2{,}2) & 1{,}00 (0{,}0)\\
+mixto & 3 & 1{,}19 (+4{,}9) & 1{,}18 (+4{,}1) & 1{,}16 (+2{,}6) & 1{,}07 (+1{,}2) & 1{,}12 (+1{,}8)\\
+mixto & 5 & 1{,}47 (+5{,}2) & 1{,}30 (+2{,}7) & 1{,}03 (+0{,}3) & 0{,}79 ($-2{,}0$) & 1{,}00 (0{,}0)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Qué lo decide}
 
-Las cuatro pruebas encajan en un mismo cuadro. Que una lectura de tres niveles ayude depende de dos
+Las seis pruebas encajan en un mismo cuadro. Que una lectura de tres niveles ayude depende de dos
 propiedades del canal de fuga: la asimetría $a$, y si un qubit fugado conserva su valor mientras está
 fugado. Cuando $a\approx0$ y el valor se conserva, como en la CZ de transmón simulada aquí, la marca no
 aporta información nueva, el borrado descarta un bit correcto y la única ganancia es la reponderación
@@ -255,7 +303,9 @@ su ganancia crece con la distancia. El peso bayesiano de la Ec.~\eqref{eq:pflag}
 por defecto en todo este rango, porque se reduce al decodificador estándar donde la marca no informa;
 no es la mejor opción en todas partes. Para qang la conclusión es conservadora: las cantidades qg
 siguen siendo cantidades de qubits, y una lectura de tres niveles entra, donde ayuda, como un dato más
-para el decodificador qg, no como un qg nuevo.
+para el decodificador qg, no como un qg nuevo. Los borrados anunciados son el límite en que la
+información extra es completa: ahí hay que decirle a la reponderación qg cuánto ya se anunció, mediante
+el escalado $1-h$, y se desvanece cuando $h\to1$.
 
 \section{Limitaciones}
 
@@ -266,18 +316,20 @@ coherente, con un único pulso y conjunto de parámetros, truncamiento a tres ni
 en la memoria cuatro veces mayor que la coherente, para tener estadística. El golpe a la pareja en el
 evento de fuga y la asignación de $|2\rangle$ a 1 se suponen. (iv) El peso bayesiano supone que $a$ se
 conoce por calibración y un prior uniforme sobre el valor previo a la fuga; una predicción sobre él
-falló. (v) La decodificación por borrado y la detección de fuga son
+falló. (v) El modelo de borrado anuncia solo decaimientos de qubits de datos, en su ubicación exacta,
+con $h$ conocido con un error de alrededor de 0{,}1. (vi) La decodificación por borrado y la detección de fuga son
 conocidas~\cite{suchara2015leakage,wu2022erasure,varbanov2020leakage}; los aportes aquí son la prueba
 del decodificador qg frente a ellas, el peso bayesiano con su prueba registrada de antemano, el
 crecimiento de la ganancia combinada con la distancia y la ubicación de un transmón simulado en este
-mapa.
+mapa, y la regla $1-h$ para combinar qg con borrados anunciados.
 
 \section{Disponibilidad del código}
 \sloppy
 \texttt{examples/qutrit\_leakage\_qg.py}, \texttt{examples/qutrit\_leakage\_rounds\_qg.py},
-\texttt{examples/qutrit\_bayes\_weight\_qg.py} y \texttt{examples/transmon\_leakage\_channel\_qg.py}
-en \url{https://github.com/Viny2030/qang} (licencia MIT), con tests de regresión. Las secciones 70,
-70b, 71 y 72 de \texttt{RESEARCH\_NOTES.md} dan más detalle.
+\texttt{examples/qutrit\_bayes\_weight\_qg.py}, \texttt{examples/transmon\_leakage\_channel\_qg.py},
+\texttt{examples/erasure\_qubits\_qg.py} y \texttt{examples/erasure\_calibrated\_qg.py}
+en \url{https://github.com/Viny2030/qang} (licencia MIT), con tests de regresión. Las secciones 70 a 74
+de \texttt{RESEARCH\_NOTES.md} dan más detalle.
 
 \section*{Agradecimientos y uso de herramientas de IA}
 Herramientas de IA generativa (Anthropic Claude Opus 5.5) asistieron con el código, los experimentos

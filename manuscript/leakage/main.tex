@@ -13,7 +13,7 @@
 \newcommand{\qgZ}{qg_Z}
 
 \title{When does a three-level readout help?\\
-Leakage flags and the qg T1-aware decoder}
+Leakage flags, erasure qubits and the qg T1-aware decoder}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
@@ -26,7 +26,7 @@ Leakage flags and the qg T1-aware decoder}
 Transmon qubits leak to their second excited state, and a three-level readout can flag it. We ask
 whether this helps the qg T1-aware decoder, a minimum-weight matching decoder whose weights follow the
 final data readout and which a register-mean polar-bias witness switches on only when relaxation
-dominates~\cite{monteverde2026qang,monteverde2026witness}. Four simulated tests on a circuit-level
+dominates~\cite{monteverde2026qang,monteverde2026witness}. Six simulated tests on a circuit-level
 surface-code memory, each with its criterion fixed before the reported run, give a consistent answer.
 (i) When a leaked qubit keeps its value, erasing flagged qubits makes every decoder worse, and the
 whole qg gain (1.68$\times$) comes from the qubit-level reweighting. (ii) When leakage scrambles the
@@ -37,7 +37,10 @@ never worse than ignoring leakage, and is not uniformly better than erasure (one
 fails). The combined gain grows with distance, from 1.48$\times$ to 1.77$\times$. (iv) A coherent
 three-level simulation of a diabatic CZ gives $a=0$ and a leaked qubit that keeps its value and still
 flips its ancilla with probability 0.97. For such transmons the flag is useless, erasure hurts, and the
-qg gain (1.81$\times$ at $d=3$, 2.02$\times$ at $d=5$) needs no qutrit readout. All results are
+qg gain (1.81$\times$ at $d=3$, 2.02$\times$ at $d=5$) needs no qutrit readout. (v) On erasure qubits, which herald T1 decays as they happen, a naive
+combination with qg is harmful when heralding is good (0.46$\times$ at heralding efficiency
+$h=0.99$); scaling the prior of unheralded decays by $1-h$, a rule then tested with its own
+pre-registration, removes the loss and keeps a gain of 1.41--1.68$\times$ at $h=0.5$. All results are
 simulations, reproduced by scripts and pinned by regression tests.
 \end{abstract}
 
@@ -79,10 +82,10 @@ of a flagged qubit get probability $1/2$, or, where stated, all its edges); \emp
 (Section~\ref{sec:bayes}); \emph{qg} (the T1 reweighting); and the combinations qg + erasure and
 qg + Bayesian weight. Decoders are compared on the same shots with a paired (McNemar) $z$.
 
-\paragraph{Protocol.} Each test states its criterion in the script before the run. For the last three,
+\paragraph{Protocol.} Each test states its criterion in the script before the run. For the last five,
 script and criterion were committed to the public repository before the reported run
-(commits \texttt{3fa4d63}, \texttt{daf0b6f}, \texttt{092580f}), and the code was debugged on a
-different seed.
+(commits \texttt{3fa4d63}, \texttt{daf0b6f}, \texttt{092580f}, \texttt{e877a72}, \texttt{68d8d00}),
+and the code was debugged on a different seed.
 
 \section{Results}
 
@@ -225,9 +228,51 @@ $d$ & regime (witness) & standard & erasure & Bayesian & qg\\
 \end{tabular}
 \end{table}
 
+\subsection{Erasure qubits}\label{sec:erasure}
+
+Erasure qubits, such as dual-rail transmons~\cite{kubica2023erasure} and atoms with erasure
+conversion~\cite{wu2022erasure}, herald decay events as they happen. If heralding were perfect, the
+final-readout bias that the qg decoder uses would carry nothing extra. We modelled this on the same
+memory without leakage: every data-qubit decay $1\to0$ is heralded with probability $h$ at its exact
+location, and the erasure decoder sets that edge to probability $1/2$.
+
+The first test predicted that the gain of qg + erasure over erasure would fall with $h$ (it did: from
+1.59$\times$ and 2.04$\times$ at $h=0$ to below 1.1$\times$ at $h=0.99$) and that the combination would
+never be worse than erasure alone. The last prediction failed, and the failure is the finding: at
+$h=0.99$ qg + erasure reached only 0.46$\times$ ($z=-6.7$) at $d=3$ and 0.22$\times$ at $d=5$. The
+T1 reweighting assumes every decay is unheralded; with heralds, a 0 at the final readout is mostly
+explained already, and the reweighting counts it twice. The witness does not catch this, because the
+readout bias is still there at every $h$.
+
+An exploratory fix, found after that run, scales the prior of \emph{unheralded} decays by $1-h$ in
+both decoders. We then tested it with a new pre-registration: new seeds, a second (mixed) regime,
+five values of $h$, and $h$ misestimated by about 0.1. All four predictions passed
+(Table~\ref{tab:erasure}). With the rule, qg + erasure was never significantly worse than calibrated
+erasure (closest point 0.79$\times$, $z=-2.0$, mixed regime, $d=5$, $h=0.9$); it gained 1.41$\times$
+($d=3$) and 1.68$\times$ ($d=5$) at $h=0.5$ and faded to about 1 at $h=0.99$; calibration also improved
+erasure alone at high $h$; and an error of 0.1 in $h$ changed little.
+
+\begin{table}[t]
+\centering\small
+\caption{Gain of qg + erasure over erasure, both with unheralded decay priors scaled by $1-h$
+(paired $z$ in brackets), 60\,000 shots per point.}
+\label{tab:erasure}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccc}
+\toprule
+regime & $d$ & $h=0.25$ & 0.5 & 0.75 & 0.9 & 0.99\\
+\midrule
+T1-dominated & 3 & 1.50 (+11.1) & 1.41 (+9.0) & 1.25 (+4.2) & 1.09 (+1.2) & 0.92 ($-0.8$)\\
+T1-dominated & 5 & 1.93 (+9.0) & 1.68 (+5.4) & 1.39 (+2.8) & 1.45 (+2.2) & 1.00 (0.0)\\
+mixed & 3 & 1.19 (+4.9) & 1.18 (+4.1) & 1.16 (+2.6) & 1.07 (+1.2) & 1.12 (+1.8)\\
+mixed & 5 & 1.47 (+5.2) & 1.30 (+2.7) & 1.03 (+0.3) & 0.79 ($-2.0$) & 1.00 (0.0)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{What decides it}
 
-The four tests fit one picture. Whether a three-level readout helps is decided by two properties of
+The six tests fit one picture. Whether a three-level readout helps is decided by two properties of
 the leakage channel: the asymmetry $a$, and whether a leaked qubit keeps its value while leaked. When
 $a\approx0$ and the value is kept, as for the transmon CZ simulated here, the flag carries no new
 information, erasure throws away a correct bit, and the only gain is the qubit-level T1 reweighting.
@@ -235,7 +280,9 @@ When leakage scrambles the value, the flag and the reweighting are complementary
 with distance. The Bayesian weight of Eq.~\eqref{eq:pflag} is a safe default across this range, because
 it reduces to the standard decoder where the flag is uninformative; it is not the best choice
 everywhere. For qang the conclusion is conservative: the qg quantities remain qubit quantities, and a
-three-level readout enters, where it helps, as an input to the qg decoder, not as a new qg.
+three-level readout enters, where it helps, as an input to the qg decoder, not as a new qg. Heralded
+erasures are the limit where the extra information is complete: there the qg reweighting must be told
+how much has already been heralded, through the $1-h$ scaling, and it fades as $h\to1$.
 
 \section{Limitations}
 
@@ -245,18 +292,19 @@ leakage models are classical; only the transmon gate of Section~\ref{sec:transmo
 one pulse shape and parameter set, three-level truncation, and a leak rate in the memory set four
 times above the coherent value for statistics. The partner kick at a leak event and the assignment of
 $|2\rangle$ to 1 are assumed. (iv) The Bayesian weight assumes $a$ is known from calibration and a
-uniform prior on the pre-leak value; one prediction about it failed. (v) Erasure decoding of leakage
+uniform prior on the pre-leak value; one prediction about it failed. (v) The erasure model heralds
+data-qubit decays only, at their exact location, with $h$ known to about 0.1. (vi) Erasure decoding of leakage
 and leakage detection are known~\cite{suchara2015leakage,wu2022erasure,varbanov2020leakage}; the
 contributions here are the test of the qg decoder against them, the Bayesian weight with its
 pre-registered test, the growth of the combined gain with distance, and the placement of a simulated
-transmon on this map.
+transmon on this map, and the $1-h$ rule for combining qg with heralded erasures.
 
 \section{Code availability}
 \sloppy
 \texttt{examples/qutrit\_leakage\_qg.py}, \texttt{examples/qutrit\_leakage\_rounds\_qg.py},
-\texttt{examples/qutrit\_bayes\_weight\_qg.py} and \texttt{examples/transmon\_leakage\_channel\_qg.py}
-in \url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 70, 70b, 71 and
-72 of \texttt{RESEARCH\_NOTES.md} give more detail.
+\texttt{examples/qutrit\_bayes\_weight\_qg.py}, \texttt{examples/transmon\_leakage\_channel\_qg.py},
+\texttt{examples/erasure\_qubits\_qg.py} and \texttt{examples/erasure\_calibrated\_qg.py}
+in \url{https://github.com/Viny2030/qang} (MIT license), with regression tests. Sections 70--74 of \texttt{RESEARCH\_NOTES.md} give more detail.
 
 \section*{Acknowledgments and use of AI tools}
 Generative AI tools (Anthropic Claude Opus 5.5) assisted with code, numerical experiments, tests and
