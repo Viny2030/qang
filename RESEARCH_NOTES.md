@@ -3919,6 +3919,63 @@ Depolarizing regime, d = 3 (standard / erasure / bayes): M0 0.0034 /
 * **Honest scope.** Limits: a assumed known from calibration, uniform
   prior on the pre-leak bit, leakage after CNOTs only, d ≤ 5, one seed.
 
+## 72. Where a real transmon sits on the §71 map: a coherent three-level CZ (`examples/transmon_leakage_channel_qg.py`)
+
+**Why.** §70–§71 used leakage models with free parameters (leak asymmetry
+a, where a leaked qubit returns, how it kicks its ancilla). Here they are
+derived from a coherent simulation instead of chosen.
+
+**Setup.**
+
+* Part A: two transmons truncated at three levels (α = −2π·0.3 GHz,
+  g = 2π·10 MHz), a diabatic flux-pulse CZ through the |11⟩ ↔ |20⟩
+  resonance, hold time optimised for CZ fidelity after virtual-Z
+  corrections. From the 9 × 9 unitary: leakage per input, a_eff, and the
+  ancilla kick κ = sin²(θ₂/2) of a leaked data qubit in a CNOT.
+* Physics inputs, not simulated: |2⟩ → |1⟩ at twice the T1 rate; |2⟩ read
+  as 1; partner kicked at the leak event.
+* Part B: the §71 memory with this channel, both regimes at d = 3, and
+  T1-dominated at d = 5; ℓ = 0.002 per CNOT, 60 000 shots, seed 72.
+
+**Predictions, committed before any run (092580f).** Q1 a_eff < 0.05.
+Q2 the flag is nearly useless: bayes never worse than standard and < 1.1×
+better. Q3 erasure worse than standard (z ≤ −3), T1-dominated, d = 3.
+Q4 qg ≥ 1.3× over standard (z ≥ 3), T1-dominated, d = 3 and 5.
+
+**Part A.** CZ fidelity 0.99967 (hold 31.75 ns + two 4 ns ramps), mean
+leakage 1.3·10⁻⁴; leakage only from |11⟩ (5.4·10⁻⁴), exactly 0 from the
+other inputs; a_eff = 0; leaked-qubit ancilla phase 0.89π, κ = 0.97.
+
+**Part B.** Logical error:
+
+| d | regime (witness) | standard | erasure | bayes | qg | qg + erasure | qg + bayes |
+|---|---|---|---|---|---|---|---|
+| 3 | T1-dominated (1.68) | 0.0153 | 0.0163 | 0.0153 | 0.0084 | 0.0092 | 0.0087 |
+| 3 | depolarizing (0.34) | 0.0031 | 0.0035 | 0.0030 | 0.0031 | 0.0035 | 0.0030 |
+| 5 | T1-dominated (2.30) | 0.0079 | 0.0084 | 0.0079 | 0.0039 | 0.0043 | 0.0041 |
+
+* **All four predictions pass.**
+* **Q1 is structural.** The exchange coupling conserves the number of
+  excitations, so only |11⟩ can reach |20⟩. Leakage from |0⟩ would need
+  another mechanism (drive-induced, heating), not modelled.
+* **A leaked transmon is almost invisible and keeps its value.** In |2⟩ it
+  still flips its ancilla with probability 0.97, nearly as if it were |1⟩,
+  and it decays back to |1⟩. This is the §70 / M0 corner of the §71 map.
+* **Q2, Q3.** The flag is useless (bayes vs standard 1.001×, 1.011×,
+  0.998×; |z| ≤ 1.4) and erasure hurts (z = −7.2, −4.9, −5.7).
+* **Q4.** The qg gain is a qubit gain: 1.81× (z = +15.3) at d = 3 and 2.02×
+  (z = +12.4) at d = 5. Adding the flag to qg costs a little, because a
+  flagged qubit's T1 weight is set to neutral although its bit is right.
+* **Verdict.** For flux-tuned transmons with a diabatic CZ, qang needs no
+  qutrit readout, and erasure-style leakage handling hurts. The §70b/§71
+  gain applies where leakage scrambles the qubit value. §70–§72 together:
+  whether a three-level readout helps is decided by the leak asymmetry a
+  and by whether a leaked qubit keeps its value.
+* **Honest scope.** Limits: one pulse and parameter set (κ depends on the
+  |21⟩ phase, i.e. on the design), three-level truncation, Part B leak
+  rate 4× the coherent value for statistics, partner kick and |2⟩ readout
+  assumed. Needs scipy and pymatching.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

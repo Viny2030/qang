@@ -49,7 +49,49 @@ Needs scipy and pymatching.
 
 Findings (python examples/transmon_leakage_channel_qg.py):
 
-FINDINGS_PLACEHOLDER
+  Part A. Best CZ: hold 31.75 ns + two 4 ns ramps, conditional phase
+  0.990 pi, average gate fidelity 0.99967, mean leakage 1.3e-4 per gate.
+    leakage by input: |00>, |01>, |10>: 0 (exactly); |11>: 5.4e-4
+    a_eff = 0; leaked data qubit: ancilla phase theta_2 = 0.89 pi, kick
+    kappa = 0.97; |21> and |20> stay put (0.999, 1.000).
+
+  Part B (seed 72, 60 000 shots per point, ell = 0.002 per CNOT):
+    d  regime (witness)      standard  erasure  bayes   qg      qg+eras  qg+bayes
+    3  T1-dominated (1.68)   0.0153    0.0163   0.0153  0.0084  0.0092   0.0087
+    3  depolarizing (0.34)   0.0031    0.0035   0.0030  0.0031  0.0035   0.0030
+    5  T1-dominated (2.30)   0.0079    0.0084   0.0079  0.0039  0.0043   0.0041
+
+  Predictions: Q1 PASS, Q2 PASS, Q3 PASS, Q4 PASS.
+  * Q1: a_eff = 0. This is structural, not a fitted number: the exchange
+    coupling conserves the excitation number, so only |11> (two
+    excitations) can reach |20>. Leakage from |0> needs another mechanism
+    (drive-induced, heating), not in this model.
+  * A leaked transmon is almost invisible to its stabilizers: in |2> it
+    still gives the ancilla a phase of 0.89 pi, so the ancilla flips with
+    probability 0.97, nearly as if the qubit were still |1>. And it returns
+    to |1> (by T1). Its value is preserved: this is the §70 / M0 corner of
+    the §71 map.
+  * Q2: bayes vs standard 1.001x, 1.011x, 0.998x (z = +1.0, +1.4, -1.0).
+    The |2> flag is useless here, as the §71 rule predicts for a = 0.
+  * Q3: erasure is harmful: z = -7.2 (T1-dominated), -4.9 (depolarizing),
+    -5.7 (d = 5).
+  * Q4: the qg gain is a qubit gain and survives realistic leakage: 1.81x
+    (z = +15.3) at d = 3 and 2.02x (z = +12.4) at d = 5. Adding the flag to
+    qg costs a little (0.0087 vs 0.0084, 0.0041 vs 0.0039), because a
+    flagged qubit's T1 weight is set to neutral although its bit is right.
+
+  Verdict. For flux-tuned transmons with a diabatic CZ, the leakage channel
+  sits where the |2> readout carries no useful information: qang needs no
+  qutrit readout there, and erasure-style leakage handling hurts. The
+  §70b / §71 gain applies to platforms where leakage scrambles the qubit
+  value. Together, §70-§72: whether a three-level readout helps is decided
+  by one number, the leak asymmetry a, together with whether a leaked
+  qubit keeps its value; for these transmons a = 0 and it does.
+  Limitations: one pulse shape and parameter set (kappa depends on the
+  |21> phase, i.e. on the design), three-level truncation, the leak rate in
+  Part B (0.002) is set 4x above the coherent value for statistics, the
+  partner kick at a leak event and the |2> -> 1 readout assignment are
+  assumed, not simulated.
 """
 
 import math

@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/transmon_leakage_channel_qg.py`: coherent three-level transmon CZ (fidelity 0.99967); the derived
+  leakage channel has a = 0 and a leaked qubit that keeps its value, so the |2> flag is useless and erasure
+  hurts, while the qg T1 reweighting gains 1.81x (d = 3) and 2.02x (d = 5); all four pre-registered
+  predictions pass (RESEARCH_NOTES §72). Needs scipy and pymatching.
 - `examples/qutrit_bayes_weight_qg.py`: Bayesian weight for a |2> flag (flip probability a/(1+a) from the
   leak asymmetry a); never worse than standard and contains §70 as a limit; not uniformly better than
   erasure (one of four pre-registered predictions fails); the qutrit + qg gain grows from 1.48x (d = 3) to
