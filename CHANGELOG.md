@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `notebooks/qang_avances_colab.ipynb`: sections for §45-§67 (error propagation, RBM bounds, coherent errors,
+  LiH checks on forte-1, batteries and Bell pairs, GHZ, surface code with T1, XXZ filter reach, shadows,
+  Grover, signed qg, Gauss law, filter vs ZNE by shot budget), executed with outputs.
+- `manuscript/crypto_es/`, `manuscript/qang_criptografia_es.pdf`: Spanish translation of the cryptography note.
+
+### Changed
+- Superseded PDFs moved to `manuscript/old/`.
 - `examples/shot_budget_adaptive_zne_qg.py`: filter vs ZNE vs filter + ZNE across shot budgets; the filter wins
   for shallow circuits up to ~2000 shots, filter + ZNE beyond ~10^4 shots and for deep circuits; a pre-registered
   pilot-based switch fails (2.29x worst case) (RESEARCH_NOTES §67).
