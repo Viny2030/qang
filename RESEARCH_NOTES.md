@@ -3754,6 +3754,60 @@ PH; H₄ 185, against 640 and 3456.
   - Limits: ideal projections, the Pauli count is an upper bound (no
     grouping), and there is no ancilla-based S² circuit. Needs pyscf.
 
+## 70. The qutrit test: does a three-level readout give qang an advantage? (`examples/qutrit_leakage_qg.py`)
+
+**Why.** Before extending qang beyond qubits: transmons leak to |2⟩, and a
+three-level readout can see it. Seeing leakage is known to help decoding,
+so that alone is not a qang result. The question is whether qang's own
+tools gain something on top of standard leakage handling. Agreed before
+the run: qang is extended only if there is an advantage.
+
+**Setup.**
+
+* The §64 circuit-level Z-memory (d = 3, 3 rounds), plus data-qubit
+  leakage: after a CNOT a data qubit in |1⟩ leaks with probability ℓ; a
+  leaked control kicks its ancilla at random; it seeps back to |1⟩ with
+  probability r per layer; the final readout reads |2⟩ as 1 and flags it.
+* Decoders (MWPM on the §64 graph): standard (leakage ignored);
+  leakage-aware (edges of flagged qubits erased, p = 1/2); qg
+  (leakage-aware + the §64 T1 reweighting, switched on by the §64 witness).
+
+**Criterion, written before the run.** qg beats leakage-aware by ≥ 1.3×
+with paired z ≥ 3 in at least one regime and is never significantly worse.
+
+Logical error, 60 000 shots per regime (same shots for every decoder):
+
+| regime (witness) | standard | leakage-aware | qg | qg, no flags |
+|---|---|---|---|---|
+| leakage + T1-dominated (1.68) | 0.0156 | 0.0165 | 0.0100 | 0.0093 |
+| leakage + mixed (1.27) | 0.0099 | 0.0106 | 0.0089 | 0.0084 |
+| leakage + depolarizing (0.34) | 0.0032 | 0.0036 | 0.0036 | 0.0032 |
+| strong leakage, depolarizing (0.46) | 0.0021 | 0.0032 | 0.0032 | 0.0021 |
+
+* **As written, the criterion passes** (1.65×, z = +14.8, T1-dominated),
+  **but the pass is an artefact and is not taken as a qutrit advantage.**
+  - The pre-registered leakage-aware baseline is worse than ignoring
+    leakage in every regime (z = −3.8 to −6.0).
+  - All of the gain is the §64 T1 reweighting, a qubit tool: qg without
+    any leakage flag beats standard 1.68× (z = +14.7). Adding the |2⟩
+    flags to it makes it worse (z = −4.7, −3.0, −2.8, −4.9).
+* **Deviation, added after the first run.** Erasing only the final-readout
+  layer of a flagged qubit is less harmful but still worse than standard
+  (z = −2.8 to −4.9). In this model a qubit leaks only from |1⟩ and seeps
+  back to |1⟩, so reading |2⟩ as 1 is usually right; declaring it erased
+  discards that. And a flag at the end of the run is too late to locate
+  the randomised syndromes of earlier rounds.
+* **Verdict: no qutrit advantage. qang stays a qubit construction**;
+  recorded as a negative result. By-product: the §64 T1 reweighting keeps
+  its full gain with leakage present.
+* **Honest scope.**
+  - Leakage-aware and erasure decoding are known (Suchara et al. 2015;
+    Wu et al. 2022); stronger handling uses leakage-reduction units or
+    per-round leakage detection, not modelled here.
+  - Contributed: the test itself, with the answer no.
+  - Limits: d = 3, a simple leakage model, flags only at the final
+    readout, erasure weights not tuned. Needs pymatching.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
