@@ -23,7 +23,7 @@ and a relaxation-aware entropy benchmark}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 23 September 2026; revised 28 September 2026}
+\date{\small Draft of 23 September 2026; revised 29 September 2026}
 
 \begin{document}
 \maketitle
@@ -38,17 +38,17 @@ multi-qubit information must come from the joint outcome distribution. We name t
 bounds and its scope: it is not an entanglement measure. Second, we identify exact blind spots:
 graph-state entanglement and readout-only dephasing are invisible to every Z-diagonal statistic,
 and qg-space updates cannot reach optima outside $[0,\pi]$ because of the $\arccos$ range. On H$_2$
-they recover none of the correlation energy. Third, we study a pole-damped gradient step whose
+unsigned qg updates recover none of the correlation energy. Keeping the sign of $qg_X$ as a branch label removes this limit and reaches the FCI energy, but the best signed update reduces to $\theta$-space descent, so qg coordinates bring no optimization gain. Third, we study a pole-damped gradient step whose
 damping schedule is $|d\qgZ/d\theta|$. On a 300-landscape benchmark, H$_2$, and a 4-qubit LiH
 Hamiltonian with a mixed $R_y/R_x$ ansatz, it trades 3--20$\times$ more iterations at well-tuned
 learning rates for convergence where plain gradient descent diverges. Fourth, as a benchmark, $\qgS$
 tracks heavy output probability ($r=-0.93$) and needs no calibration, unlike linear XEB. However,
 it is \emph{not} monotonic under amplitude damping: under device-calibrated noise with added idle
 relaxation it falls below its own noiseless value. Pairing $\qgS$ with the register-averaged $\qgZ$
-removes the ambiguity in 23 of 24 circuits tested. A summary section lists forty-one follow-up
+removes the ambiguity in 23 of 24 circuits tested. A summary section lists forty-four follow-up
 studies (QML encoding, control quantization, noise-type detection, circuit knitting, chemistry,
 error mitigation, thermal states, error correction, Hubbard dynamics, constrained QAOA, qubit
-characterization, syndrome tracking, coherence, few-shot estimation, IonQ noise models, shot-noise propagation, neural quantum states, coherent gate errors, symmetry checks in rotated bases, Heisenberg-chain dynamics, classical shadows, noisy Grover search, GHZ metrology and circuit-level surface codes), each with its classical or standard control; for the qg quantities, direct measurement is 3--41$\times$ cheaper than classical shadows, and the per-qubit reading loses to the outcome histogram when the answer is a bitstring; the symmetry-witness results are
+characterization, syndrome tracking, coherence, few-shot estimation, IonQ noise models, shot-noise propagation, neural quantum states, coherent gate errors, symmetry checks in rotated bases, Heisenberg-chain dynamics, classical shadows, noisy Grover search, GHZ metrology, circuit-level surface codes, a lattice gauge theory, and the choice between filter and ZNE by shot budget), each with its classical or standard control; for the qg quantities, direct measurement is 3--41$\times$ cheaper than classical shadows, and the per-qubit reading loses to the outcome histogram when the answer is a bitstring; the symmetry-witness results are
 developed in a companion paper. Every number is reproduced by a script and
 pinned by a regression test in the public repository.
 \end{abstract}
@@ -137,6 +137,16 @@ Hartree--Fock energy ($-1.1169990$~Ha, error $2.0\times10^{-2}$~Ha). They recove
 correlation energy, whereas $\theta$-space descent reaches the FCI energy to $10^{-9}$~Ha.
 Regularizing the Jacobian cannot fix this, because the limit comes from the range of $\arccos$,
 not from its derivative.
+
+The limit is a property of using $\qgZ$ alone, not of qg. $\qgZ=\cos\theta$ is two-to-one; the pair
+$(\qgZ,s)$ with $s=\operatorname{sign}(qg_X)=\operatorname{sign}(\sin\theta)$ is one-to-one on the whole
+circle, and $s$ is measurable. An update that keeps $s$ and reflects through a pole with a sign flip
+when it leaves $[-1,1]$ reaches the FCI energy of H$_2$ from Hartree--Fock (error $10^{-9}$~Ha). With the
+quantum-natural metric, $dq=\eta\,\partial_\theta E\,\sin\theta$, this signed update is a $\theta$ step to
+first order: it matches $\theta$-space descent at small and moderate learning rates and is slightly worse
+at aggressive ones (68\% vs 79\% success on 300 random landscapes at $\eta=1$). The Euclidean signed
+update is 2--7$\times$ faster at small $\eta$ and unstable from $\eta=0.3$. The range limit is
+therefore removed, but qg coordinates give no optimization advantage over $\theta$ (\S65).
 
 \section{Pole-damped gradient descent}\label{sec:opt}
 
@@ -260,23 +270,23 @@ exponential variance decay, and raw qg-space gradients still diverge at the pole
 
 \section{Further results (summary)}\label{sec:further}
 
-After the first draft, the same code base was used for forty-one further studies. Each compares a
+After the first draft, the same code base was used for forty-four further studies. Each compares a
 qg-based choice with the standard one and with a classical control, and each is documented in
 \texttt{RESEARCH\_NOTES.md} (section numbers below) with a script and pinned tests.
 Table~\ref{tab:further} lists them. The column ``gain'' states against what the qg choice wins,
 if at all. None of them is a quantum advantage over classical computation. Where a classical
 method was run, it matched or beat the quantum model at these sizes. The symmetry-witness studies
-(§20, §21, §24, §28--§33, §38, §39, §48, §50--§55) are developed in a companion paper~\cite{monteverde2026witness}; the cryptography studies (§40--§44, §49) and the battery and Bell-pair studies (§56, §57) in two short notes.
+(\S20, \S21, \S24, \S28--\S33, \S38, \S39, \S48, \S50--\S55) are developed in a companion paper~\cite{monteverde2026witness}; the cryptography studies (\S40--\S44, \S49) and the battery and Bell-pair studies (\S56, \S57) in two short notes.
 
 {\footnotesize
 \begin{longtable}{>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{5.8cm}>{\raggedright\arraybackslash}p{3.2cm}}
 \caption{Follow-up studies (section numbers of \texttt{RESEARCH\_NOTES.md}).}\label{tab:further}\\
 \toprule
-§ & topic & main number & gain \\
+\S & topic & main number & gain \\
 \midrule
 \endfirsthead
 \toprule
-§ & topic & main number & gain \\
+\S & topic & main number & gain \\
 \midrule
 \endhead
 15 & natural gradient, cut cost, few-shot $\qgZ$ & QFI $=1/(1-\qgZ^2)$; cut $\gamma=1+2\sqrt{1-\qgZ^2}$; Haar prior 92\% vs 8\% coverage near a pole & closed forms; vs delta method \\
@@ -284,7 +294,7 @@ method was run, it matched or beat the quantum model at these sizes. The symmetr
 17 & control grid uniform in $\qgZ$ & probability error $\pi/2$ smaller; distribution loading TVD lower in 43/45 cases & vs $\theta$ grid; loses on fidelity near poles \\
 18 & T1 vs unital noise from counts & accuracy 0.88--0.91 vs 0.70--0.76 (XEB, HOP), strong noise only & vs XEB/HOP \\
 20 & IonQ noise models & H$_2$ + $\qgZ$ filter $\sim$12 vs $\sim$30~mHa, 2--3\% shots dropped & vs readout mitigation \\
-21 & H$_2$ electron-number witness & 5.5 vs 18~mHa (HF 20.3); $11\times$ below HF at 2.5~\AA; no gain on 6-qubit LiH (see §50--54) & vs readout mitigation, HF \\
+21 & H$_2$ electron-number witness & 5.5 vs 18~mHa (HF 20.3); $11\times$ below HF at 2.5~\AA; no gain on 6-qubit LiH (see \S50--54) & vs readout mitigation, HF \\
 22 & ODE solver~\cite{kyriienko2021} & exponential decay up to $17\times$ better; not in general & vs angle encoding; spectral method wins \\
 23 & local cost $(1-\bar{\qgZ})/2$ & gradient variance $5600\times$ larger at 12 qubits; light cone trains 100 qubits classically & vs global cost~\cite{cerezo2021}; classically simulable~\cite{cerezo2023simulability} \\
 24 & $\qgZ$ filter vs ZNE by noise type & witness predicts when the filter works; ZNE + filter 2.0~mHa on \texttt{fake\_brisbane} & complementary to ZNE \\
@@ -314,6 +324,9 @@ method was run, it matched or beat the quantum model at these sizes. The symmetr
 60, 61 & XXZ dynamics, filter reach & number filter removes 99.5\% of the T1 error with number-conserving gates, 38--49\% with 3-CNOT bonds (basis changes leak); IonQ MS vs ZZ compilation equal (ratio 0.82) & vs ZNE; filter + ZNE best with CNOTs \\
 62 & classical shadows vs direct & direct measurement 3--41$\times$ cheaper for Z-basis qg, the witness and the filter; tie for all local Paulis (L18 design); grouping $4\times$ cheaper for the LiH energy & vs shadows~\cite{huang2020} \\
 63 & Grover with gate noise & per-qubit qg signs lose to the histogram (40\% vs 87\% at 100 shots, $n=6$): $\sim1/P^2$ vs $\sim1/P$ shots & negative result \\
+65 & branch sign for qg updates & $(\qgZ,\operatorname{sign}qg_X)$ removes the $\arccos$ range limit: H$_2$ reaches FCI ($10^{-9}$~Ha) from Hartree--Fock; natural signed step $=\theta$ step to first order & none over $\theta$ (removes limitation ii) \\
+66 & Z$_2$ lattice gauge theory & local Gauss checks as qg of parities: over 1--6 Trotter steps the Gauss filter removes 50\% vs 36\% (depolarizing), 25\% vs 19\% (T1) of the error & vs number filter; known post-selection \\
+67 & filter vs ZNE by shot budget & filter best for shallow circuits up to $\sim$2000 shots, filter + ZNE beyond $\sim10^4$ shots and for deep circuits; a pre-registered pilot-based switch fails ($2.3\times$ worst case) & negative result for the switch \\
 \bottomrule
 \end{longtable}
 }
@@ -321,7 +334,7 @@ method was run, it matched or beat the quantum model at these sizes. The symmetr
 \section{Limitations}\label{sec:limits}
 
 (i) The Jacobian singularity at $\theta\in\{0,\pi\}$; regularization costs exactness there.
-(ii) The $\arccos$ range: qg-space updates cannot reach $\theta<0$.
+(ii) The $\arccos$ range: qg-space updates on $\qgZ$ alone cannot reach $\theta<0$; a branch sign removes this (\S65), with no gain over $\theta$-space.
 (iii) Z-basis blindness to phase-encoded entanglement and to readout dephasing.
 (iv) $C_Z$ is not an entanglement measure.
 (v) $\qgS$ is not monotonic under T1. The pair $(\qgS,\bar{\qgZ})$ fixes this empirically, in
@@ -334,7 +347,7 @@ not yet been performed.
 
 \section{Code availability}\label{sec:code}
 
-The library, every example, and the regression tests pinning every number above (1050 tests at
+The library, every example, and the regression tests pinning every number above (1062 tests at
 the time of this revision) are available at
 \url{https://github.com/Viny2030/qang} (MIT license). Figure~\ref{fig:t1} is regenerated by
 \texttt{manuscript/make\_figures.py}. Derivations with additional detail are in
