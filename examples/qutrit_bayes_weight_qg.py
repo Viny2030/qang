@@ -57,7 +57,54 @@ Needs pymatching.
 
 Findings (python examples/qutrit_bayes_weight_qg.py):
 
-FINDINGS_PLACEHOLDER
+  Logical error, seed 711, 60 000 shots per point (same shots for every
+  decoder). T1-dominated regime:
+
+    d  model    p_flag  standard  erasure  bayes   qg      qg+eras  qg+bayes
+    3  M0       0.002   0.0154    0.0163   0.0153  0.0091  0.0097   0.0093
+    3  M(0)     0.002   0.0177    0.0171   0.0161  0.0104  0.0105   0.0099
+    3  M(0.25)  0.200   0.0182    0.0175   0.0170  0.0119  0.0112   0.0110
+    3  M(0.5)   0.333   0.0189    0.0181   0.0180  0.0137  0.0122   0.0121
+    3  M(1)     0.500   0.0202    0.0192   0.0192  0.0171  0.0140   0.0140
+    5  M0       0.002   0.0100    0.0103   0.0100  0.0045  0.0049   0.0047
+    5  M(0)     0.002   0.0118    0.0112   0.0109  0.0055  0.0053   0.0052
+    5  M(0.5)   0.333   0.0141    0.0131   0.0131  0.0085  0.0073   0.0074
+    5  M(1)     0.500   0.0170    0.0153   0.0153  0.0125  0.0098   0.0098
+  Depolarizing regime, d = 3 (witness 0.34, qg = its flag decoder):
+    M0 0.0034 / 0.0037 / 0.0034;  M(0) 0.0041 / 0.0037 / 0.0032;
+    M(0.25) 0.0045 / 0.0038 / 0.0039;  M(0.5) 0.0048 / 0.0040 / 0.0042;
+    M(1) 0.0056 / 0.0046 / 0.0046   (standard / erasure / bayes)
+
+  Predictions: P1 PASS, P2 FAIL, P3 PASS, P4 PASS. As pre-registered, the
+  rule is therefore NOT confirmed as a whole.
+
+  * P1 holds: the Bayesian weight is never worse than standard (z from 0.0
+    to +9.0), and in the §70 model (M0) it reduces to standard, where
+    erasure is worse (z = -5.7 T1-dominated, -2.9 depolarizing, -2.1 at
+    d = 5). The contradiction between §70 and §70b is resolved: the flag
+    must be weighted by where the leak came from, not erased.
+  * P2 fails. Bayes beats erasure clearly in the T1-dominated regime for
+    a <= 0.25 (z = +6.1, +7.0, +3.9) and in M(0) depolarizing (+5.2), but
+    not in M0 depolarizing (+2.9, just under 3) nor M(0.25) depolarizing
+    (-0.4); at a = 0.5 depolarizing erasure is slightly better (z = -2.2).
+    The posterior on the pre-leak bit is not the whole story: a leaked
+    qubit also randomises its ancillas for several rounds, and there
+    erasure's broader discount wins. The differences are small (5 % or
+    less in logical error).
+  * P3 holds: qg + bayes is never worse than qg + erasure (z from -2.2 to
+    +5.2).
+  * P4 holds, and the gain grows with distance: qg + bayes over the best
+    flag decoder in M(0.5) is 1.48x (z = +12.5) at d = 3 and 1.77x
+    (z = +13.6) at d = 5; across the four d = 5 models 1.55-2.11x. As in
+    §64, the qg part (the T1 reweighting) is what grows (witness 1.68 ->
+    2.30).
+
+  Verdict. The Bayesian weight is the right default for a |2> flag: it
+  contains §70 as a limit and never hurts. It is not uniformly better than
+  erasure (P2), so it is recorded as a partly confirmed rule, not a law.
+  The qutrit + qg gain survives, and grows, at d = 5. Limitations: a known
+  from calibration, uniform prior on the pre-leak bit, leakage after CNOTs
+  only, d <= 5, one seed.
 """
 
 import math

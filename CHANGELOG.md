@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qutrit_bayes_weight_qg.py`: Bayesian weight for a |2> flag (flip probability a/(1+a) from the
+  leak asymmetry a); never worse than standard and contains §70 as a limit; not uniformly better than
+  erasure (one of four pre-registered predictions fails); the qutrit + qg gain grows from 1.48x (d = 3) to
+  1.77x (d = 5) (RESEARCH_NOTES §71). Needs pymatching.
 - `examples/qutrit_leakage_rounds_qg.py`: pre-registered second qutrit test (leak from |0> and |1>, random
   return, per-round flags); the |2> readout and the qg T1 reweighting combine super-additively, 1.68x over
   the best leakage-aware decoder (1.43x on a replication seed); the qutrit enters as a decoder input, qg

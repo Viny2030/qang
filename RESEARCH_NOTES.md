@@ -3857,6 +3857,68 @@ Logical error, seed 70, 60 000 shots per regime:
   one leakage model (leak ratio 1:2, random return) chosen after §70's
   exploratory rerun, erasure weights not tuned, no leakage-reduction units.
 
+## 71. A rule for the |2⟩ flag: the Bayesian weight, and the qutrit gain at d = 5 (`examples/qutrit_bayes_weight_qg.py`)
+
+**Why.** §70 and §70b gave opposite answers for the same flag, because both
+erased it (p = 1/2) whatever the leak's origin. If a qubit leaks from |1⟩
+with probability ℓ and from |0⟩ with a·ℓ (a measurable by calibration), a
+qubit seen in |2⟩ had pre-leak value 1 with posterior 1/(1 + a). The rule:
+report it as 1 with flip probability p_flag = max(a/(1 + a), q), and
+neutral T1 weight. a = 0 gives no erasure; a = 1 gives plain erasure; §70
+is the case a = 0.
+
+**Setup.** The §64 Z-memory with leakage; models M0 (the §70 model) and
+M(a), a ∈ {0, 0.25, 0.5, 1}, with random return and random |2⟩ readout
+(M(0.5) is §70b). T1-dominated and depolarizing regimes at d = 3; d = 5
+(5 rounds) for four models in the T1-dominated regime. Decoders: standard,
+erasure, bayes, qg (§64), qg + erasure, qg + bayes. 60 000 shots per point,
+seed 711; the predictions were committed (daf0b6f) before the results.
+
+**Predictions.** P1 bayes never worse than standard (z > −3). P2 bayes
+beats erasure (z ≥ 3) for a ≤ 0.25 at d = 3 in both regimes, and ties at
+a = 1. P3 qg + bayes never worse than qg + erasure. P4 qg + bayes beats the
+best flag decoder by ≥ 1.3× (z ≥ 3) in M(0.5), at d = 3 and at d = 5.
+
+Logical error, T1-dominated regime:
+
+| d | model | p_flag | standard | erasure | bayes | qg | qg + erasure | qg + bayes |
+|---|---|---|---|---|---|---|---|---|
+| 3 | M0 | 0.002 | 0.0154 | 0.0163 | 0.0153 | 0.0091 | 0.0097 | 0.0093 |
+| 3 | M(0) | 0.002 | 0.0177 | 0.0171 | 0.0161 | 0.0104 | 0.0105 | 0.0099 |
+| 3 | M(0.25) | 0.200 | 0.0182 | 0.0175 | 0.0170 | 0.0119 | 0.0112 | 0.0110 |
+| 3 | M(0.5) | 0.333 | 0.0189 | 0.0181 | 0.0180 | 0.0137 | 0.0122 | 0.0121 |
+| 3 | M(1) | 0.500 | 0.0202 | 0.0192 | 0.0192 | 0.0171 | 0.0140 | 0.0140 |
+| 5 | M0 | 0.002 | 0.0100 | 0.0103 | 0.0100 | 0.0045 | 0.0049 | 0.0047 |
+| 5 | M(0) | 0.002 | 0.0118 | 0.0112 | 0.0109 | 0.0055 | 0.0053 | 0.0052 |
+| 5 | M(0.5) | 0.333 | 0.0141 | 0.0131 | 0.0131 | 0.0085 | 0.0073 | 0.0074 |
+| 5 | M(1) | 0.500 | 0.0170 | 0.0153 | 0.0153 | 0.0125 | 0.0098 | 0.0098 |
+
+Depolarizing regime, d = 3 (standard / erasure / bayes): M0 0.0034 /
+0.0037 / 0.0034; M(0) 0.0041 / 0.0037 / 0.0032; M(0.25) 0.0045 / 0.0038 /
+0.0039; M(0.5) 0.0048 / 0.0040 / 0.0042; M(1) 0.0056 / 0.0046 / 0.0046.
+
+* **P1, P3, P4 pass; P2 fails.** As pre-registered, the rule is not
+  confirmed as a whole.
+* **P1: the contradiction between §70 and §70b is resolved.** The Bayesian
+  weight is never worse than standard (z from 0.0 to +9.0). In M0 it
+  reduces to standard, where erasure hurts (z = −5.7, −2.9, and −2.1 at
+  d = 5). The flag must be weighted by where the leak came from.
+* **P2 fails.** Bayes beats erasure clearly in the T1-dominated regime for
+  a ≤ 0.25 (z = +6.1, +7.0, +3.9) and in M(0) depolarizing (+5.2), but not
+  in M0 depolarizing (+2.9) nor M(0.25) depolarizing (−0.4); at a = 0.5
+  depolarizing erasure is slightly better (z = −2.2). The posterior on the
+  pre-leak bit is not the whole story: a leaked qubit also scrambles its
+  ancillas for several rounds. The differences are 5 % or less.
+* **P4: the qutrit + qg gain grows with distance.** In M(0.5), 1.48×
+  (z = +12.5) at d = 3 and 1.77× (z = +13.6) at d = 5; 1.55–2.11× over the
+  four d = 5 models. As in §64, the growing part is the T1 reweighting
+  (witness 1.68 → 2.30).
+* **Verdict.** The Bayesian weight is the right default for a |2⟩ flag: it
+  contains §70 as a limit and never hurts. It is not uniformly better than
+  erasure, so it stands as a partly confirmed rule, not a law.
+* **Honest scope.** Limits: a assumed known from calibration, uniform
+  prior on the pre-leak bit, leakage after CNOTs only, d ≤ 5, one seed.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
