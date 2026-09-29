@@ -3976,6 +3976,58 @@ other inputs; a_eff = 0; leaked-qubit ancilla phase 0.89π, κ = 0.97.
   rate 4× the coherent value for statistics, partner kick and |2⟩ readout
   assumed. Needs scipy and pymatching.
 
+## 73. Erasure qubits: does heralding make the qg T1 decoder obsolete? (`examples/erasure_qubits_qg.py`)
+
+**Why.** The §64 decoder uses the bias T1 leaves in the final readout.
+Erasure qubits (dual-rail transmons, atoms with erasure conversion) herald
+decays as they happen, with their location. If heralding were perfect,
+the readout bias would carry nothing extra.
+
+**Setup.** The §64 memory, T1-dominated regime, d = 3 and 5. Each data
+decay 1 → 0 is heralded with probability h ∈ {0, 0.5, 0.9, 0.99}, with its
+exact circuit location; ancilla decays are not. Decoders: standard,
+erasure (heralded edges at p = 1/2), qg (§64), qg + erasure. 60 000 shots,
+seed 73; predictions committed before the run (e877a72).
+
+**Predictions.** E1 at h = 0, qg + erasure ≥ 1.5× over erasure (z ≥ 3),
+d = 3. E2 the gain falls monotonically with h. E3 below 1.1× at h = 0.99.
+E4 qg + erasure never worse than erasure (z > −3).
+
+| d | h | standard | erasure | qg | qg + erasure | gain (z) |
+|---|---|---|---|---|---|---|
+| 3 | 0 | 0.0149 | 0.0149 | 0.0094 | 0.0094 | 1.59× (+13.4) |
+| 3 | 0.5 | 0.0143 | 0.0067 | 0.0091 | 0.0054 | 1.24× (+4.2) |
+| 3 | 0.9 | 0.0143 | 0.0021 | 0.0091 | 0.0030 | 0.68× (−4.3) |
+| 3 | 0.99 | 0.0143 | 0.0011 | 0.0091 | 0.0025 | 0.46× (−6.7) |
+| 5 | 0 | 0.0075 | 0.0075 | 0.0037 | 0.0037 | 2.04× (+12.4) |
+| 5 | 0.5 | 0.0077 | 0.0021 | 0.0037 | 0.0014 | 1.45× (+3.5) |
+| 5 | 0.9 | 0.0077 | 0.0003 | 0.0037 | 0.0004 | 0.62× (−1.9) |
+| 5 | 0.99 | 0.0077 | 0.0001 | 0.0037 | 0.0003 | 0.22× (−3.7) |
+
+* **E1, E2, E3 pass; E4 fails.** The failure is the finding.
+* **Naive combination hurts.** With good heralding, qg + erasure is worse
+  than erasure alone (0.46×, z = −6.7 at d = 3). The §64 reweighting
+  assumes every decay is unheralded; with heralds, a 0 at the final
+  readout is mostly explained already, and the reweighting double-counts
+  it.
+* **The witness does not catch it.** The readout bias is still there
+  (1.68 and 2.30 at every h), so the witness keeps qg on.
+* **Exploratory fix (after the run, seed 74).** Scale the unheralded decay
+  priors by (1 − h) in both decoders. Then qg + erasure over calibrated
+  erasure: 1.46× (z = +9.6), 1.13×, 1.02× at d = 3 for h = 0.5, 0.9, 0.99;
+  1.73× (z = +6.1), 1.33×, 1.00× at d = 5. Never worse; calibration also
+  helps erasure alone (0.0012 → 0.0008 at d = 3, h = 0.99).
+* **Verdict.** Near-perfect heralding makes qg redundant, and a naive
+  combination harmful. With imperfect heralding (h ≈ 0.5) qg still adds
+  about 1.5×, if the decoder knows h. Rule: on erasure qubits, scale the
+  decay priors by (1 − h); the §64 witness alone is not a sufficient
+  switch.
+* **Honest scope.** Erasure conversion and its decoding are known (Wu et
+  al. 2022; Kubica et al. 2023). Contributed: how the qg decoder must be
+  combined with heralds. Limits: data-qubit heralds only, exact location,
+  h known, one regime, d ≤ 5; the fix is exploratory until
+  pre-registered.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

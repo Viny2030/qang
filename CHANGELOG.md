@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/erasure_qubits_qg.py`: the qg T1 decoder on erasure qubits with heralding efficiency h; the gain falls
+  from 1.59x/2.04x (h = 0) to nothing, and a naive qg + erasure combination is worse than erasure alone at high h
+  (one of four pre-registered predictions fails); exploratory fix: decay priors scaled by (1 - h), never worse
+  (RESEARCH_NOTES §73). Needs pymatching.
 - `manuscript/leakage/` and `manuscript/leakage_es/`: short note on leakage flags and the qg T1-aware decoder
   (§70-§72), English and Spanish, PDFs `manuscript/qang_fuga.pdf` and `qang_fuga_es.pdf`, Word versions
   alongside; figure script `manuscript/leakage/make_figure.py`; seven leakage references in `refs.bib`.
