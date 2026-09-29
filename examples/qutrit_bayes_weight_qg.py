@@ -234,7 +234,8 @@ def build(E, q, mult=None, flagged=(), pf=0.5):
 DECODERS = ("standard", "erasure", "bayes", "qg", "qg + erasure", "qg + bayes")
 
 
-def run(model, p2, gamma, q, ell=0.002, r_seep=0.05, d=3, rounds=None, shots=60000, seed=711):
+def run(model, p2, gamma, q, ell=0.002, r_seep=0.05, d=3, rounds=None, shots=60000, seed=711, sim=None):
+    """sim: optional replacement simulator, called as sim(code, rounds, shots, rng, logical) (used by §72)."""
     a, ret, read2 = model
     rounds = rounds or d
     rng = np.random.default_rng(seed)
@@ -254,7 +255,10 @@ def run(model, p2, gamma, q, ell=0.002, r_seep=0.05, d=3, rounds=None, shots=600
     fails = {k: [] for k in DECODERS}
     leaked = 0.0
     for logical in (0, 1):
-        meas, final, flag = simulate(code, rounds, shots // 2, rng, p2, gamma, q, ell, r_seep, a, ret, read2, logical)
+        if sim is None:
+            meas, final, flag = simulate(code, rounds, shots // 2, rng, p2, gamma, q, ell, r_seep, a, ret, read2, logical)
+        else:
+            meas, final, flag = sim(code, rounds, shots // 2, rng, logical)
         fb = final | flag  # bayes: a flagged qubit is reported as 1
         det, lg = SC.detectors(code, meas, final)
         det_b, lg_b = SC.detectors(code, meas, fb)
@@ -304,6 +308,7 @@ def run(model, p2, gamma, q, ell=0.002, r_seep=0.05, d=3, rounds=None, shots=600
         return (n1 - n2) / math.sqrt(n1 + n2) if n1 + n2 else 0.0
 
     out["z_bayes_vs_std"] = z("standard", "bayes")
+    out["z_qg_vs_std"] = z("standard", "qg")
     out["z_erasure_vs_std"] = z("standard", "erasure")
     out["z_bayes_vs_erasure"] = z("erasure", "bayes")
     out["z_qgb_vs_qge"] = z("qg + erasure", "qg + bayes")
