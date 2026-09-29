@@ -86,6 +86,24 @@ if _QISKIT_AVAILABLE:
             qc.append(UGate(self._theta, self._phi, 0.0), [0])
             self.definition = qc
 
+    class SignedRQangGate(Gate):
+        """RY(s * arccos(qg_Z)): the qg_Z gate with a branch sign s = sign(qg_X) = +-1,
+        covering the whole XZ great circle (RESEARCH_NOTES §65). From |0> it
+        prepares <Z> = qg_Z and <X> = s * sqrt(1 - qg_Z^2). It is the same state as
+        FullRQangGate with phi = 0 (s = +1) or phi = pi (s = -1)."""
+
+        def __init__(self, qg_z: float, sign: int = 1, label: str = "RQang±"):
+            if sign not in (1, -1):
+                raise ValueError("sign must be +1 or -1")
+            qg = Qang(qg_z, mode="polar")
+            self._theta = sign * qg.to_theta()
+            super().__init__(name="rqang_signed", num_qubits=1, params=[qg.value, sign], label=label)
+
+        def _define(self):
+            qc = QuantumCircuit(1, name=self.name)
+            qc.append(RYGate(self._theta), [0])
+            self.definition = qc
+
     def append_qang(qc: "QuantumCircuit", qang: Qang, qubit: int, full: bool = True) -> "QuantumCircuit":
         """Convenience: append the right gate for ``qang`` to ``qubit`` of ``qc``."""
         gate = FullRQangGate(qang) if full else RQangGate(qang)
@@ -99,6 +117,10 @@ else:  # pragma: no cover - exercised only when qiskit is absent
             _require_qiskit()
 
     class FullRQangGate:  # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs):
+            _require_qiskit()
+
+    class SignedRQangGate:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs):
             _require_qiskit()
 

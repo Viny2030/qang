@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.sectors` (`filter_distribution`, `sector_exposure`, `hamming_weights`) and
+  `qang.qiskit_gate.SignedRQangGate`; `examples/sector_exposure_qg.py`: a noise-free exposure number ranks
+  compilations by how much T1 error the qg filter lets through (rank correlation 0.80) (RESEARCH_NOTES §68).
 - `notebooks/qang_avances_colab.ipynb`: sections for §45-§67 (error propagation, RBM bounds, coherent errors,
   LiH checks on forte-1, batteries and Bell pairs, GHZ, surface code with T1, XXZ filter reach, shadows,
   Grover, signed qg, Gauss law, filter vs ZNE by shot budget), executed with outputs.

@@ -3659,6 +3659,54 @@ Worst ratio to the best fixed strategy over the 12 cells:
   - Contributed: the measured crossover for the qg filter, and the
     negative result on a simple pilot switch.
 
+## 68. A noise-free screen for how much T1 the filter lets through (`qang.sectors`, `examples/sector_exposure_qg.py`), and a signed qg gate
+
+**Library additions.**
+
+* `qang.sectors.filter_distribution` applies the qg filter as an operation
+  on a distribution or on counts.
+* `qang.sectors.sector_exposure` computes, on a noiseless statevector, the
+  population outside the conserved Hamming-weight sector right after each
+  two-qubit gate.
+* `qang.qiskit_gate.SignedRQangGate` applies RY(s · arccos qg_Z), the gate
+  form of §65. It prepares the same state as `FullRQangGate` with φ = 0
+  or π.
+
+**The idea.** A decay that happens while part of the state is outside the
+sector can be rotated back in and pass the filter (§60). The exposure,
+computed before any noisy run, should therefore rank compilations by
+their T1 leak.
+
+**Prediction, written before the run.** Across 16 XXZ points (4
+compilations × 4 values of dt), the Spearman rank correlation between
+exposure and T1 leak is at least 0.8. Every zero-exposure circuit removes
+at least 95 % of the T1 error.
+
+| compilation | exposure (dt 0.1 / 0.25 / 0.5 / 0.75) | T1 leak |
+|---|---|---|
+| 3 CNOT | 0.42 at every dt | 16 / 52 / 39 / 46 % |
+| MS, ZZ by basis change | 0.16 / 0.17 / 0.22 / 0.24 | 78 / 30 / 31 / 20 % |
+| MS rotations | 0.0006 / 0.005 / 0.026 / 0.047 | 0.4 / 3.3 / 9.9 / 17 % |
+| number-conserving | 0 | 2.0 / 0.5 / 0.1 / 0.0 % |
+
+* **The prediction holds, at its threshold.** The rank correlation is 0.80,
+  and the zero-exposure circuits remove at least 98 % of the T1 error.
+* **It ranks compilations, not time steps.**
+  - Within MS rotations, exposure and leak grow together with dt.
+  - Within 3 CNOT, the exposure is constant while the leak moves between
+    16 and 52 %: the raw error is small at small dt, so the ratio is
+    noisy.
+* **It works as a coarse screen.**
+  - Exposure near 0: the filter catches T1.
+  - Exposure above about 0.2: half or more of the T1 error passes.
+  - The Z₂ gauge circuit (§66) sits at 0.65, and it is the case where
+    post-selection made T1 worse.
+* **Honest scope.**
+  - This is a rank prediction only, from 6–7 qubits and one noise type,
+    and 0.8 is met with no margin.
+  - The mechanism follows from §60. The contribution is a number that can
+    be computed at compile time.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
