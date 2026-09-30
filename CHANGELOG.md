@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Z-basis preprint (`manuscript/main.tex`, PDF and Word `preprint_qang_revisado`): summary table extended with
+  §68-§74 (fifty-two follow-up studies), leakage note cited, 1108 tests; Word table now keeps its section numbers.
+- `notebooks/qang_avances_colab.ipynb`: sections 25-30 for §68-§74 (sector exposure and the analysis pass, S^2,
+  the qutrit tests, the Bayesian flag weight, the transmon channel, erasure qubits), executed; summary updated.
+
 ## [0.4.0] - 2026-09-29
 
 ### Added

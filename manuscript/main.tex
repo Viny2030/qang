@@ -23,7 +23,7 @@ and a relaxation-aware entropy benchmark}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 23 September 2026; revised 29 September 2026}
+\date{\small Draft of 23 September 2026; revised 30 September 2026}
 
 \begin{document}
 \maketitle
@@ -45,7 +45,7 @@ learning rates for convergence where plain gradient descent diverges. Fourth, as
 tracks heavy output probability ($r=-0.93$) and needs no calibration, unlike linear XEB. However,
 it is \emph{not} monotonic under amplitude damping: under device-calibrated noise with added idle
 relaxation it falls below its own noiseless value. Pairing $\qgS$ with the register-averaged $\qgZ$
-removes the ambiguity in 23 of 24 circuits tested. A summary section lists forty-four follow-up
+removes the ambiguity in 23 of 24 circuits tested. A summary section lists fifty-two follow-up
 studies (QML encoding, control quantization, noise-type detection, circuit knitting, chemistry,
 error mitigation, thermal states, error correction, Hubbard dynamics, constrained QAOA, qubit
 characterization, syndrome tracking, coherence, few-shot estimation, IonQ noise models, shot-noise propagation, neural quantum states, coherent gate errors, symmetry checks in rotated bases, Heisenberg-chain dynamics, classical shadows, noisy Grover search, GHZ metrology, circuit-level surface codes, a lattice gauge theory, and the choice between filter and ZNE by shot budget), each with its classical or standard control; for the qg quantities, direct measurement is 3--41$\times$ cheaper than classical shadows, and the per-qubit reading loses to the outcome histogram when the answer is a bitstring; the symmetry-witness results are
@@ -270,13 +270,13 @@ exponential variance decay, and raw qg-space gradients still diverge at the pole
 
 \section{Further results (summary)}\label{sec:further}
 
-After the first draft, the same code base was used for forty-four further studies. Each compares a
+After the first draft, the same code base was used for fifty-two further studies. Each compares a
 qg-based choice with the standard one and with a classical control, and each is documented in
 \texttt{RESEARCH\_NOTES.md} (section numbers below) with a script and pinned tests.
 Table~\ref{tab:further} lists them. The column ``gain'' states against what the qg choice wins,
 if at all. None of them is a quantum advantage over classical computation. Where a classical
 method was run, it matched or beat the quantum model at these sizes. The symmetry-witness studies
-(\S20, \S21, \S24, \S28--\S33, \S38, \S39, \S48, \S50--\S55) are developed in a companion paper~\cite{monteverde2026witness}; the cryptography studies (\S40--\S44, \S49) and the battery and Bell-pair studies (\S56, \S57) in two short notes.
+(\S20, \S21, \S24, \S28--\S33, \S38, \S39, \S48, \S50--\S55) are developed in a companion paper~\cite{monteverde2026witness}; the cryptography studies (\S40--\S44, \S49) the battery and Bell-pair studies (\S56, \S57), and the leakage and erasure-qubit studies (\S70--\S74)~\cite{monteverde2026leakage} in three short notes.
 
 {\footnotesize
 \begin{longtable}{>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{5.8cm}>{\raggedright\arraybackslash}p{3.2cm}}
@@ -327,6 +327,10 @@ method was run, it matched or beat the quantum model at these sizes. The symmetr
 65 & branch sign for qg updates & $(\qgZ,\operatorname{sign}qg_X)$ removes the $\arccos$ range limit: H$_2$ reaches FCI ($10^{-9}$~Ha) from Hartree--Fock; natural signed step $=\theta$ step to first order & none over $\theta$ (removes limitation ii) \\
 66 & Z$_2$ lattice gauge theory & local Gauss checks as qg of parities: over 1--6 Trotter steps the Gauss filter removes 50\% vs 36\% (depolarizing), 25\% vs 19\% (T1) of the error & vs number filter; known post-selection \\
 67 & filter vs ZNE by shot budget & filter best for shallow circuits up to $\sim$2000 shots, filter + ZNE beyond $\sim10^4$ shots and for deep circuits; a pre-registered pilot-based switch fails ($2.3\times$ worst case) & negative result for the switch \\
+68 & sector exposure & population outside the conserved sector after each two-qubit gate, from a noiseless statevector, ranks compilations by the T1 error the filter lets through (rank correlation 0.80, pre-registered threshold 0.8); zero exposure $\Rightarrow$ $\ge98\%$ removed & compile-time screen; not an error model \\
+69 & total spin $S^2$ & singlet projection after the $N_\uparrow,N_\downarrow$ checks removes a further 37--38\% of the error (H$_2$O, H$_4$), at $\sim20\times$ more Pauli strings & known symmetry expansion~\cite{bonetmonroig2018}; cost quantified \\
+70--72 & leakage and a three-level readout & the $|2\rangle$ flag is useless when a leaked qubit keeps its value (\S70, and a simulated transmon CZ, \S72) and helps when leakage scrambles it (qg + flag $1.68\times$ over the best leakage-aware decoder, \S70b); a Bayesian flag weight $a/(1+a)$ is never worse than ignoring leakage, not always better than erasure; combined gain $1.48\times$ ($d=3$) $\to$ $1.77\times$ ($d=5$) & qg stays a qubit quantity; partly confirmed rule \\
+73, 74 & erasure qubits & a naive qg + herald combination hurts at high heralding efficiency ($0.46\times$ at $h=0.99$); with unheralded decay priors scaled by $1-h$, never worse, $1.41$--$1.68\times$ at $h=0.5$, fading as $h\to1$ & vs erasure decoding; rule confirmed after one failed prediction \\
 \bottomrule
 \end{longtable}
 }
@@ -347,7 +351,7 @@ not yet been performed.
 
 \section{Code availability}\label{sec:code}
 
-The library, every example, and the regression tests pinning every number above (1062 tests at
+The library, every example, and the regression tests pinning every number above (1108 tests at
 the time of this revision) are available at
 \url{https://github.com/Viny2030/qang} (MIT license). Figure~\ref{fig:t1} is regenerated by
 \texttt{manuscript/make\_figures.py}. Derivations with additional detail are in
