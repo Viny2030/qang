@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-01
+
+### Changed
+- `qang.formulation`: `qg_values`, `apply_gate` and `conjugate` round floating-point residue (new helper
+  `clean`), so a Bell state reads exactly `{'II': 1.0, 'XX': 1.0, 'YY': -1.0, 'ZZ': 1.0}` instead of
+  0.9999999999999998.
+
 ## [0.5.0] - 2026-10-01
 
 ### Added

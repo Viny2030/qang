@@ -78,6 +78,12 @@ GATES_1Q = {"X": X, "Y": Y, "Z": Z, "H": H, "S": S, "T": T}
 GATES_MULTI = {"CX": CX, "CZ": CZ, "SWAP": SWAP, "iSWAP": ISWAP, "Toffoli": TOFFOLI, "Fredkin": FREDKIN}
 
 
+def clean(x, digits=12):
+    """Round away floating-point residue: 0.9999999999999998 -> 1.0, -0.0 -> 0.0."""
+    r = round(float(x), digits)
+    return r + 0.0
+
+
 def conjugate(U, label, tol=1e-9):
     """U^dag P U as {Pauli string: real coefficient}: qg'_label = sum c * qg_string."""
     n = len(label)
@@ -88,7 +94,7 @@ def conjugate(U, label, tol=1e-9):
         c = np.trace(pauli(t).conj().T @ M) / 2**n
         if abs(c) > tol:
             assert abs(c.imag) < tol
-            out[t] = float(c.real)
+            out[t] = clean(float(c.real))
     return out
 
 
@@ -223,7 +229,7 @@ def qg_values(state, n=None, tol=1e-12):
         t = "".join(t)
         v = float(np.real(np.trace(rho @ pauli(t))))
         if abs(v) > tol:
-            out[t] = v
+            out[t] = clean(v)
     return out
 
 
@@ -243,7 +249,7 @@ def apply_gate(qg, U, tol=1e-12):
         t = "".join(t)
         v = sum(c * qg.get(q, 0.0) for q, c in conjugate(U, t).items())
         if abs(v) > tol:
-            out[t] = v
+            out[t] = clean(v)
     return out
 
 

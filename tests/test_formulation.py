@@ -139,6 +139,8 @@ def test_qg_values_roundtrip_and_apply_gate():
     qg = F.qg_values(psi)
     bell = F.apply_gate(F.apply_gate(qg, np.kron(F.H, F.I2)), F.CX)
     assert bell == pytest.approx({"II": 1, "XX": 1, "YY": -1, "ZZ": 1})
+    assert bell == {"II": 1.0, "XX": 1.0, "YY": -1.0, "ZZ": 1.0}  # exact after clean()
+    assert F.clean(-1e-17) == 0.0 and str(F.clean(-1e-17)) == "0.0"
     rho = F.state_from_qg(bell, 2)
     target = np.outer([1, 0, 0, 1], [1, 0, 0, 1]) / 2
     assert np.allclose(rho, target)
