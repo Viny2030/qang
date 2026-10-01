@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `manuscript/teoria_es/` (PDF and Word `manuscript/qang_teoria_es`): theoretical draft, in Spanish, of the 15 main
+  gates and 14 main algorithms in qg language (qg'_P = qg_{U^dag P U}); which gates conserve Hamming weight, which
+  algorithms read out from local qg values and which need the full histogram.
+- `examples/qg_formulation_checks.py` and `tests/test_qg_formulation_checks.py`: 21 numerical checks pinning every
+  identity of that draft (gate tables; Deutsch-Jozsa, Bernstein-Vazirani, Simon, Grover, QFT, kickback, counting,
+  order finding, purity, single-walker quantum walk).
+
 ### Changed
 - qang 0.4.0 is on PyPI (`pip install qang`); README install section and PyPI badge updated.
 - Symmetry-witness preprint now cited with its DOI (10.5281/zenodo.23036963) in the Z-basis preprint, the

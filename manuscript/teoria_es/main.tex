@@ -1,0 +1,245 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,array,longtable}
+\usepackage{xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+
+\newcommand{\q}[1]{qg_{#1}}
+\newcommand{\qZ}{qg_Z}
+\newcommand{\qX}{qg_X}
+\newcommand{\qY}{qg_Y}
+
+\title{Formulación qg de las compuertas y los algoritmos cuánticos principales\\
+\large Borrador teórico}
+\author{Vicente Humberto Monteverde\\
+\small Universidad del Museo Social Argentino (UMSA), Argentina\\
+\small ORCID 0000-0001-8884-4811}
+\date{\small Borrador del 1 de octubre de 2026}
+
+\renewcommand{\abstractname}{Resumen}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\refname}{Referencias}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+Reescribimos las quince compuertas y los catorce algoritmos cuánticos más usados en el lenguaje
+qg~\cite{monteverde2026qang}. Un estado de $n$ qubits queda descrito por sus valores qg, $\q{P}=\langle P\rangle$
+para cada cadena de Pauli $P$, y una compuerta $U$ actúa como $\q{P}'=\q{U^\dagger PU}$. Con esa sola
+regla, cada compuerta se convierte en una tabla de transformación de valores qg y cada algoritmo en una
+identidad de lectura: qué valores qg contienen la respuesta y cuántos hay que medir. La formulación no
+agrega física nueva (es la representación de Pauli, conocida), pero ordena tres cosas útiles: qué
+compuertas conservan el peso de Hamming (y por lo tanto admiten el testigo y el filtro qg), qué algoritmos
+se leen con valores qg locales y cuáles necesitan el histograma completo, y dónde la lectura qg es
+estrictamente peor. Todas las identidades se verificaron numéricamente y quedaron fijadas en 21 tests
+del repositorio.
+\end{abstract}
+
+\section{El marco}
+
+\paragraph{Estado.} Para un qubit, $\rho=\tfrac12(I+\qX X+\qY Y+\qZ Z)$, con el vector qg
+$(\qX,\qY,\qZ)$ de longitud $\le1$. Para $n$ qubits,
+\begin{equation}\label{eq:estado}
+\rho=\frac{1}{2^n}\sum_{P\in\{I,X,Y,Z\}^{\otimes n}}\q{P}\,P,\qquad \q{P}=\mathrm{Tr}(\rho P).
+\end{equation}
+Los $\q{P}$ con una sola letra distinta de $I$ son los valores qg locales; los demás son correlaciones
+(por ejemplo $\q{ZZ}$). La pureza es $\mathrm{Tr}\rho^2=2^{-n}\sum_P\q{P}^2$.
+
+\paragraph{Medición.} Medir en la base Z da, con los mismos disparos, todos los valores diagonales:
+$\q{Z_S}=\sum_y p(y)(-1)^{S\cdot y}$ para cada subconjunto $S$ de qubits. Para un qubit,
+$P(0)=(1+\qZ)/2$. Los valores con X o Y requieren rotar antes de medir.
+
+\paragraph{Compuertas.} Una compuerta $U$ transforma los valores qg según
+\begin{equation}\label{eq:regla}
+\q{P}'=\q{U^\dagger P U}.
+\end{equation}
+Si $U$ es de Clifford, $U^\dagger PU$ es otra cadena de Pauli con signo: la compuerta \emph{permuta}
+valores qg y cambia signos. Si no es de Clifford (T, rotaciones genéricas, Toffoli, Fredkin), $U^\dagger
+PU$ es una combinación de cadenas y la compuerta \emph{mezcla} valores qg. Convención: en las cadenas, la
+letra de la izquierda es el qubit 0, que es el control de CX y CZ (y los controles de Toffoli y Fredkin).
+
+\paragraph{Peso de Hamming.} Si $U$ conserva el número de unos, el valor medio del registro
+$\overline{\qZ}=1-2N/n$ queda fijo, y el testigo y el filtro qg~\cite{monteverde2026witness} se
+aplican al circuito.
+
+\section{Las quince compuertas}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{6.4cm}>{\raggedright\arraybackslash}p{5.0cm}}
+\caption{Acción de cada compuerta sobre los valores qg (Ec.~\ref{eq:regla}); $c=\cos\theta$, $s=\sin\theta$.}\label{tab:compuertas}\\
+\toprule
+compuerta & acción sobre qg & lectura qg \\
+\midrule
+\endfirsthead
+\toprule
+compuerta & acción sobre qg & lectura qg \\
+\midrule
+\endhead
+1. Pauli X & $(\qX,\qY,\qZ)\to(\qX,-\qY,-\qZ)$ & invierte el sesgo polar \\
+2. Pauli Y & $(\qX,\qY,\qZ)\to(-\qX,\qY,-\qZ)$ & invierte $\qZ$ y $\qX$ \\
+3. Pauli Z & $(\qX,\qY,\qZ)\to(-\qX,-\qY,\qZ)$ & invisible en la base Z \\
+4. Hadamard & $(\qX,\qY,\qZ)\to(\qZ,-\qY,\qX)$ & intercambia sesgo polar y $\qX$: lo que se hace legible en Z \\
+5. Fase S & $(\qX,\qY)\to(-\qY,\qX)$; $\qZ$ fijo & giro de $90^\circ$ en el ecuador \\
+\phantom{5.} Fase $P(\varphi)$ & $\qX'=\cos\varphi\,\qX-\sin\varphi\,\qY$, $\qY'=\sin\varphi\,\qX+\cos\varphi\,\qY$ & igual que $R_z(\varphi)$ \\
+6. T ($\pi/8$) & $\qX'=(\qX-\qY)/\sqrt2$, $\qY'=(\qX+\qY)/\sqrt2$; $\qZ$ fijo & primera compuerta que mezcla: produce valores qg irracionales (``magia'') \\
+7. $R_x(\theta)$ & $\qZ'=c\,\qZ+s\,\qY$, $\qY'=c\,\qY-s\,\qZ$; $\qX$ fijo & giro en el plano YZ \\
+8. $R_y(\theta)$ & $\qZ'=c\,\qZ-s\,\qX$, $\qX'=c\,\qX+s\,\qZ$; $\qY$ fijo & desde $|0\rangle$: $\qZ=\cos\theta$, la identidad qang; es la compuerta RQang con $\theta=\arccos\qZ$ \\
+9. $R_z(\theta)$ & $\qX'=c\,\qX-s\,\qY$, $\qY'=s\,\qX+c\,\qY$; $\qZ$ fijo & invisible en la base Z \\
+10. CNOT (CX) & $\q{XI}'=\q{XX}$, $\q{IZ}'=\q{ZZ}$, $\q{IY}'=\q{ZY}$, $\q{YI}'=\q{YX}$; $\q{ZI}$, $\q{IX}$ fijos & convierte una correlación en un valor local: el $\qZ$ del blanco pasa a ser la paridad $\q{ZZ}$ (base de la extracción de síndrome) \\
+11. CZ & $\q{XI}'=\q{XZ}$, $\q{IX}'=\q{ZX}$; todos los $\qZ$ fijos & invisible en la base Z; conserva el peso \\
+12. SWAP & $\q{ab}'=\q{ba}$ & intercambia etiquetas; conserva el peso \\
+13. iSWAP & $\q{ZI}'=\q{IZ}$, $\q{XI}'=-\q{ZY}$, $\q{YI}'=\q{ZX}$, $\q{IX}'=-\q{YZ}$, $\q{IY}'=\q{XZ}$ & intercambio con fase; conserva el peso \\
+14. Toffoli & $\q{IIZ}'=\tfrac12(\q{IIZ}+\q{IZZ}+\q{ZIZ}-\q{ZZZ})$; controles fijos; $\q{IIX}$ fijo & mezcla en el sector diagonal: el $\qZ$ del blanco depende de correlaciones de tres qubits \\
+15. Fredkin & $\q{IZI}'=\tfrac12(\q{IZI}+\q{ZZI}+\q{IIZ}-\q{ZIZ})$; control fijo & intercambio controlado; conserva el peso \\
+\bottomrule
+\end{longtable}
+
+Tres observaciones ordenan la tabla.
+\begin{itemize}
+\item \textbf{Clifford contra no Clifford.} Las compuertas 1--5, 10--13 solo permutan valores qg con signo;
+T, las rotaciones genéricas, Toffoli y Fredkin los mezclan. La mezcla es exactamente lo que no se simula
+eficientemente: una cadena se abre en dos (T) o en cuatro (Toffoli, Fredkin) en cada aplicación.
+\item \textbf{Ceguera a la base Z.} Z, S, T, $R_z$, $P(\varphi)$ y CZ dejan fijos todos los $\qZ$: su efecto
+solo aparece después de una compuerta que lleve el ecuador a los polos (Hadamard). Es la ``ceguera a la
+base Z'' del preprint principal, compuerta por compuerta.
+\item \textbf{Conservación del peso.} Entre las compuertas de varios qubits, CZ, SWAP, iSWAP y Fredkin
+conservan el peso de Hamming; CNOT y Toffoli no. Un circuito armado solo con compuertas que conservan el
+peso (y rotaciones $R_z$) tiene exposición de sector cero, y el filtro qg atrapa allí casi todo el error
+por relajación (§68 de las notas de investigación).
+\end{itemize}
+
+\section{Los catorce algoritmos}
+
+En cada caso: qué valores qg contienen la respuesta (la \emph{identidad de lectura}), qué aporta leerla en
+qg y qué no.
+
+\paragraph{1. Deutsch--Jozsa.} Con $f$ codificada como fase, la salida cumple
+$P(0^n)=2^{-n}\sum_S\q{Z_S}$: la probabilidad de todos ceros es el promedio de todas las paridades Z.
+\emph{Lectura qg:} $f$ es constante si y solo si los $n$ valores locales $\qZ$ son $+1$; basta que uno sea
+menor que 1 para que sea balanceada. No hace falta ninguna correlación.
+
+\paragraph{2. Bernstein--Vazirani.} La salida es el estado producto $|s\rangle$, así que
+$\qZ^{(i)}=(-1)^{s_i}$: \emph{cada bit del secreto es el signo del sesgo polar de su qubit.} Con ruido, cada
+bit se decide por separado con su propio intervalo (estimadores de \texttt{qang.statistics}).
+
+\paragraph{3. Simon.} La salida es uniforme sobre $\{y: y\cdot s=0\}$. En qg, la única paridad Z no trivial
+distinta de cero es la del propio secreto: $\q{Z_S}=1$ si $S\in\{0,s\}$ y $0$ en otro caso.
+\emph{Simon es buscar la única paridad igual a 1.} Pero hay $2^n$ paridades: la lectura qg describe la
+respuesta, no la encuentra eficientemente; el algoritmo eficiente sigue siendo resolver un sistema lineal
+con $O(n)$ muestras.
+
+\paragraph{4. Shor (orden y logaritmo discreto).} La parte cuántica es una estimación de fase del período
+$r$. Si $r$ es potencia de 2, los valores locales lo muestran: con $r=4$ y 6 qubits de conteo,
+$\qZ=(0,0,1,1,1,1)$. Si no lo es ($r=6$), los $\qZ$ locales quedan entre 0 y 0.33 y no determinan $r$: la
+información está en las correlaciones y hace falta la cadena completa más fracciones continuas.
+\emph{Resultado negativo para la lectura local}, como en Grover.
+
+\paragraph{5. Grover.} Con un elemento marcado $x^\ast$ y probabilidad de éxito $P$ tras $k$ iteraciones,
+\begin{equation}\label{eq:grover}
+\qZ^{(i)}=(-1)^{x^\ast_i}\,\frac{NP-1}{N-1}.
+\end{equation}
+\emph{El elemento marcado es el patrón de signos de los $\qZ$, y su módulo mide el éxito.} Leerlo así
+cuesta más: el signo necesita $\sim1/P^2$ disparos contra $\sim1/P$ del histograma (§63). La identidad es
+útil como diagnóstico, no como lectura.
+
+\paragraph{6. Estimación de fase (QPE) y 11. retroceso de fase.} Un control en $|+\rangle$ sobre un
+autoestado de $U$ con autovalor $e^{i\varphi}$ queda con
+\begin{equation}\label{eq:kick}
+\qX+i\,\qY=e^{i\varphi},\qquad \qZ\ \text{sin cambio}.
+\end{equation}
+\emph{El retroceso de fase escribe la fase en el ángulo ecuatorial del control.} QPE iterativa lee
+$\qX$ y $\qY$ con $2^k\varphi$, un bit por vez; es la versión qg natural de la estimación de fase. El
+repositorio ya conecta la QPE estándar con la unidad de fase $qg_\Phi$ (\texttt{QangPhi}): la fase estimada
+reproduce el autovalor, exacta para T, S y Z. Es la misma idea que hace funcionar Deutsch--Jozsa y
+Bernstein--Vazirani.
+
+\paragraph{7. HHL.} La salida es un estado $|x\rangle\propto A^{-1}|b\rangle$ que no se puede leer entero; lo
+que entrega son valores esperados $\langle x|M|x\rangle$, es decir valores qg del registro de solución, y la
+probabilidad de éxito es el sesgo polar de la ancilla, $P(1)=(1-\qZ^{\mathrm{anc}})/2$. \emph{La formulación qg
+dice con precisión qué produce HHL: valores qg, no el vector.} Esto no se verificó numéricamente acá; es la
+lectura estándar del algoritmo~\cite{nielsen2010quantum}.
+
+\paragraph{8. Transformada de Fourier (QFT).} La QFT de un estado de la base es un producto de qubits
+ecuatoriales: el qubit $l$ queda con $\qZ=0$ y $\qX+i\,\qY=e^{2\pi i x/2^l}$. \emph{La QFT pasa la
+información de los sesgos polares (los bits de $x$) a ángulos ecuatoriales}, que la base Z no ve; por eso
+siempre va seguida de Hadamard o de su inversa antes de medir.
+
+\paragraph{9. VQE.} La energía es lineal en los valores qg, $E=\sum_P c_P\,\q{P}$, agrupados por base de
+medición. Es el uso central del repositorio: testigo, filtro, chequeos de simetría (§21, §50--§55), proyección
+de espín (§69) y amortiguamiento en los polos para optimizar.
+
+\paragraph{10. QAOA.} Para MaxCut, $C=\sum_{(i,j)}w_{ij}(1-\q{Z_iZ_j})/2$: todo el costo sale de las
+correlaciones ZZ de los mismos disparos. Con el mezclador XY, que conserva el peso, el testigo y el filtro
+se aplican (§30, §38).
+
+\paragraph{12. Conteo cuántico.} Una prueba de Hadamard del operador de Grover $G$ sobre el estado uniforme
+deja el control con
+\begin{equation}\label{eq:conteo}
+\qX=\langle s|G|s\rangle=1-\frac{2M}{N}\quad\Longrightarrow\quad M=\frac{N(1-\qX)}{2}.
+\end{equation}
+\emph{Contar soluciones es medir un solo $\qX$.} Con 16 elementos y 3 marcados, $\qX=0.625$ y $M=3$. La
+precisión sigue la estadística de un qubit; la versión con QPE completa gana precisión con más qubits de
+conteo.
+
+\paragraph{13. Paseos cuánticos.} Un caminante en tiempo continuo sobre una red, con salto
+$(XX+YY)/2$, conserva el número de excitaciones: el $\overline{\qZ}$ del registro queda fijo en $1-2/n$
+para todo tiempo (verificado con $n=5$). \emph{Un paseo de un caminante vive en el sector de peso 1}, así que
+el testigo y el filtro qg se aplican tal como en la cadena XXZ (§60). Los paseos discretos con moneda no
+conservan el peso y no tienen esta propiedad.
+
+\paragraph{14. Aprendizaje automático (Q-SVM, Q-PCA).} El núcleo de fidelidad es la probabilidad de todos
+ceros, $k(x,x')=P(0^n)=2^{-n}\sum_S\q{Z_S}$, y para una codificación producto por ángulos se reduce a
+$\prod_i(1+\vec q_i\cdot\vec q_i\,')/2$ (la probabilidad de transición qang). En Q-PCA, la pureza y el
+espectro de $\rho$ dependen de los valores qg al cuadrado, $\mathrm{Tr}\rho^2=2^{-n}\sum_P\q{P}^2$. Lo que el
+repositorio ya mostró: la codificación $\theta=\arccos x$ (modelos de Chebyshev) gana a la codificación por
+ángulo, y un ajuste clásico de Chebyshev gana a ambas (§16, §19).
+
+\section{Qué se lee con qué}
+
+\begin{table}[h]
+\centering\small
+\caption{Qué valores qg alcanzan para leer la respuesta de cada algoritmo.}
+\label{tab:lectura}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{9.6cm}}
+\toprule
+alcanza con & algoritmos \\
+\midrule
+valores locales $\qZ$ & Deutsch--Jozsa, Bernstein--Vazirani \\
+un $\qX,\qY$ de una ancilla & retroceso de fase, QPE iterativa, conteo cuántico (prueba de Hadamard), éxito de HHL \\
+correlaciones de pocos qubits & QAOA (ZZ), VQE (cadenas del Hamiltoniano) \\
+todas las paridades Z o el histograma & Simon, Shor con período no potencia de 2, Grover (la lectura local existe pero cuesta $\sim1/P^2$), núcleos de fidelidad \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Qué es nuevo y qué no}
+
+La representación de un estado por sus valores esperados de Pauli y la acción de las compuertas por
+conjugación son conocidas (representación de Pauli, matrices de transferencia, formalismo de
+estabilizadores~\cite{nielsen2010quantum}). Lo que aporta esta formulación es un mismo lenguaje, el de las
+unidades qg que ya usan el preprint y las notas, para tres preguntas prácticas:
+(i) qué compuertas conservan el peso y admiten el testigo y el filtro qg;
+(ii) qué algoritmos se leen con pocos valores qg y cuáles necesitan el histograma completo;
+(iii) dónde la lectura qg es peor que la estándar (Grover, Shor con período general, Simon).
+Las identidades nuevas en su forma, aunque elementales, son la Ec.~\eqref{eq:grover} para Grover, la lectura
+de Simon como una única paridad igual a 1, y el conteo cuántico como un solo $\qX$ (Ec.~\eqref{eq:conteo}).
+Ninguna es una ventaja cuántica nueva.
+
+\section{Verificación}
+\texttt{examples/qg\_formulation\_checks.py} calcula $U^\dagger PU$ para las quince compuertas y cada
+identidad de lectura con vectores de estado exactos; \texttt{tests/test\_qg\_formulation\_checks.py}
+fija las 21 comprobaciones (en \url{https://github.com/Viny2030/qang}). La única afirmación no verificada
+numéricamente es la de HHL, que es la lectura estándar del algoritmo.
+
+\section*{Uso de herramientas de IA}
+Herramientas de IA generativa (Anthropic Claude Opus 5.5) asistieron con el código, las verificaciones
+numéricas y la redacción. El autor planteó las preguntas y revisó y validó todo el material.
+
+\bibliographystyle{unsrtnat}
+\bibliography{../refs}
+\end{document}
