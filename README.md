@@ -3,6 +3,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_full_reference.ipynb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22832150.svg)](https://doi.org/10.5281/zenodo.22832150)
+[![PyPI](https://img.shields.io/pypi/v/qang.svg)](https://pypi.org/project/qang/)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://github.com/Viny2030/qang/actions/workflows/tests.yml/badge.svg)](https://github.com/Viny2030/qang/actions/workflows/tests.yml)
 
@@ -22,12 +23,13 @@ Reference implementation and computational toolkit for:
 
 Install the minimal core library (NumPy only):
 ```bash
-pip install "qang @ git+https://github.com/Viny2030/qang.git@v0.4.0"   # from GitHub
+pip install qang          # from PyPI
+pip install "qang @ git+https://github.com/Viny2030/qang.git@v0.4.0"   # or from GitHub
 pip install .             # or from a local clone
 ```
 
 ```bash
-pip install ".[qiskit]"   # Native Qiskit gate integration
+pip install "qang[qiskit]" # Native Qiskit gate integration (from a clone: pip install ".[qiskit]")
 pip install ".[cirq]"     # Native Cirq gate integration
 pip install ".[pennylane]" # Native PennyLane operations (autodiff in qg_Z)
 pip install ".[hardware]" # IBM Quantum hardware / calibrated fake backends

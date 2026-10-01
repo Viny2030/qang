@@ -6,6 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed
+- qang 0.4.0 is on PyPI (`pip install qang`); README install section and PyPI badge updated.
 - Symmetry-witness preprint now cited with its DOI (10.5281/zenodo.23036963) in the Z-basis preprint, the
   leakage note (EN/ES), the RFC v2 and the cryptography note (EN/ES); all regenerated as PDF and Word
   (Spanish cryptography note now also in Word), revised 30 September 2026.
