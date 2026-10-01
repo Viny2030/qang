@@ -5,7 +5,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-01
+
 ### Added
+- `qang.formulation`: the qg formulation of the 15 main gates and 14 main algorithms as library code (NumPy only):
+  `qg_values`, `state_from_qg`, `apply_gate`, `gate_table`, `conjugate`, `is_clifford`, `conserves_weight`, the gate
+  matrices, and one readout function per algorithm (Deutsch-Jozsa, Bernstein-Vazirani, Simon, order finding, Grover,
+  kickback/QPE, HHL, QFT, VQE energy, MaxCut, counting, quantum walk, product kernel). `tests/test_formulation.py`
+  (25 checks) replaces `tests/test_qg_formulation_checks.py`; the example script now imports the module.
+- `notebooks/qang_inicio_formulacion.ipynb`: starter Colab (Spanish), installs qang from PyPI and runs the 15 gates
+  and 14 algorithms in qg language.
 - `manuscript/teoria_es/` (PDF and Word `manuscript/qang_teoria_es`): theoretical draft, in Spanish, of the 15 main
   gates and 14 main algorithms in qg language (qg'_P = qg_{U^dag P U}); which gates conserve Hamming weight, which
   algorithms read out from local qg values and which need the full histogram.

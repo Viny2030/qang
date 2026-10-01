@@ -37,7 +37,7 @@ identidad de lectura: qué valores qg contienen la respuesta y cuántos hay que 
 agrega física nueva (es la representación de Pauli, conocida), pero ordena tres cosas útiles: qué
 compuertas conservan el peso de Hamming (y por lo tanto admiten el testigo y el filtro qg), qué algoritmos
 se leen con valores qg locales y cuáles necesitan el histograma completo, y dónde la lectura qg es
-estrictamente peor. Todas las identidades se verificaron numéricamente y quedaron fijadas en 21 tests
+estrictamente peor. Todas las identidades se verificaron numéricamente y quedaron fijadas en los tests
 del repositorio.
 \end{abstract}
 
@@ -230,11 +230,14 @@ Las identidades nuevas en su forma, aunque elementales, son la Ec.~\eqref{eq:gro
 de Simon como una única paridad igual a 1, y el conteo cuántico como un solo $\qX$ (Ec.~\eqref{eq:conteo}).
 Ninguna es una ventaja cuántica nueva.
 
-\section{Verificación}
-\texttt{examples/qg\_formulation\_checks.py} calcula $U^\dagger PU$ para las quince compuertas y cada
-identidad de lectura con vectores de estado exactos; \texttt{tests/test\_qg\_formulation\_checks.py}
-fija las 21 comprobaciones (en \url{https://github.com/Viny2030/qang}). La única afirmación no verificada
-numéricamente es la de HHL, que es la lectura estándar del algoritmo.
+\section{Verificación y uso}
+La formulación está en la librería como el módulo \texttt{qang.formulation} (desde la versión 0.5.0,
+\texttt{pip install qang}): \texttt{conjugate} y \texttt{gate\_table} dan $U^\dagger PU$ para las quince
+compuertas, \texttt{qg\_values} y \texttt{apply\_gate} trabajan directamente con valores qg, y cada
+identidad de lectura tiene su función. \texttt{tests/test\_formulation.py} fija las comprobaciones (en
+\url{https://github.com/Viny2030/qang}), y el cuaderno \texttt{notebooks/qang\_inicio\_formulacion.ipynb}
+las recorre en Colab. La lectura de HHL se comprueba para una matriz de $2\times2$ con álgebra lineal exacta,
+no con un circuito.
 
 \section*{Uso de herramientas de IA}
 Herramientas de IA generativa (Anthropic Claude Opus 5.5) asistieron con el código, las verificaciones

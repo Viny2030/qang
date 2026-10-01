@@ -1,19 +1,14 @@
 """
-Tests for examples/qg_formulation_checks.py: every identity quoted in the qg
-formulation of the main gates and algorithms (manuscript/teoria_es).
+Tests for qang.formulation: every identity quoted in the qg formulation of the
+main gates and algorithms (manuscript/teoria_es), plus the working helpers.
 """
 
 import itertools
 import math
-import os
-import sys
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "examples"))
-
 import numpy as np
 import pytest
 
-import qg_formulation_checks as F  # noqa: E402
+import qang.formulation as F
 
 C, Sn = math.cos(0.7), math.sin(0.7)
 R2 = 1 / math.sqrt(2)
@@ -137,3 +132,47 @@ def test_purity_and_walk():
     assert F.purity_from_qg(rho, 2) == pytest.approx(float(np.real(np.trace(rho @ rho))))
     pytest.importorskip("scipy")
     assert F.walk_register_mean(5, 4, (0.5, 2.0)) == pytest.approx([0.6, 0.6])
+
+
+def test_qg_values_roundtrip_and_apply_gate():
+    psi = np.array([1, 0, 0, 0], dtype=complex)
+    qg = F.qg_values(psi)
+    bell = F.apply_gate(F.apply_gate(qg, np.kron(F.H, F.I2)), F.CX)
+    assert bell == pytest.approx({"II": 1, "XX": 1, "YY": -1, "ZZ": 1})
+    rho = F.state_from_qg(bell, 2)
+    target = np.outer([1, 0, 0, 1], [1, 0, 0, 1]) / 2
+    assert np.allclose(rho, target)
+
+
+def test_clifford_classification_and_born():
+    assert F.is_clifford(F.H) and F.is_clifford(F.CX) and F.is_clifford(F.ISWAP)
+    assert not F.is_clifford(F.T) and not F.is_clifford(F.TOFFOLI) and not F.is_clifford(F.FREDKIN)
+    assert F.born_p0(0.5) == 0.75
+
+
+def test_readout_helpers():
+    n = 4
+    assert F.deutsch_jozsa_is_constant(F.phase_oracle_output(np.ones(16)), n)
+    f = np.array([1, -1] * 8)
+    assert not F.deutsch_jozsa_is_constant(F.phase_oracle_output(f), n)
+    s = np.array([1, 0, 1, 1])
+    xs = (np.arange(16)[:, None] >> np.arange(4)[::-1]) & 1
+    assert F.bernstein_vazirani_secret(F.phase_oracle_output((-1.0) ** (xs @ s)), n) == [1, 0, 1, 1]
+    assert set(F.simon_nonzero_parities(F.simon_output([1, 0, 1]), 3)) == {(0, 0, 0), (1, 0, 1)}
+    p = F.grover_state(5, 19, 4) ** 2
+    assert F.grover_marked_from_signs(p, 5) == [1, 0, 0, 1, 1]
+    assert F.count_from_qg_x(F.counting_qg_x(4, [2, 7, 11]), 16) == pytest.approx(3)
+
+
+def test_hhl_vqe_maxcut_kernel():
+    A = np.array([[2.0, 1.0], [1.0, 3.0]])
+    qz, ez = F.hhl_readout(A, [1, 0], F.Z)
+    x = np.linalg.solve(A, [1, 0])
+    x = x / np.linalg.norm(x)
+    assert ez == pytest.approx(x[0] ** 2 - x[1] ** 2)
+    lam = np.linalg.eigvalsh(A)
+    assert -1 < qz < 1 and qz == pytest.approx(1 - 2 * float(np.sum(np.abs(np.linalg.eigh(A)[1].T @ [1, 0]) ** 2 * (min(abs(lam)) / lam) ** 2)))
+    bell = {"II": 1, "XX": 1, "YY": -1, "ZZ": 1}
+    assert F.energy_from_qg({"ZZ": 1.0, "XX": 0.5, "II": -0.2}, bell) == pytest.approx(1.3)
+    assert F.maxcut_from_qg([(0, 1, 1.0)], {"ZZ": -1.0}, 2) == pytest.approx(1.0)
+    assert F.product_kernel([(0, 0, 1)], [(1, 0, 0)]) == pytest.approx(0.5)

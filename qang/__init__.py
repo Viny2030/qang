@@ -28,6 +28,8 @@ This package covers, in order:
                        few-shot qg_Z intervals (Haar-prior Bayes, Wilson).
   - qang.phase        the qg_Phi phase unit.
   - qang.transformations  closed-form transition probabilities.
+  - qang.formulation  the 15 main gates and 14 main algorithms in qg language
+                       (qg'_P = qg_{U^dag P U}; readout rules), NumPy only.
   - qang.knitting     the sampling cost of circuit cutting in qg units.
   - qang.circuits, qang.ansatze, qang.qec, qang.algorithms
                        Qiskit circuit builders, variational ansatze, the
@@ -40,4 +42,4 @@ See RESEARCH_NOTES.md for the derivations and results behind each module.
 from .core import Qang, MILLIQANG_PER_QANG
 
 __all__ = ["Qang", "MILLIQANG_PER_QANG"]
-__version__ = "0.4.0"
+__version__ = "0.5.0"

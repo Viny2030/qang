@@ -114,6 +114,21 @@ ci_lower, ci_upper = confidence_interval_theta(theta_hat=1.0, n_shots=10000, con
 print(f"Theta 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}] rad")
 ```
 
+## Start here: gates and algorithms in qg
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_inicio_formulacion.ipynb)
+
+`notebooks/qang_inicio_formulacion.ipynb` (Spanish) installs `qang` from PyPI and walks through the 15 main
+gates and 14 main algorithms in qg language with `qang.formulation`: a state is described by its qg values
+(qg_P = <P> for every Pauli string) and a gate acts as qg'_P = qg_{U^dag P U}. Theory:
+`manuscript/qang_teoria_es.pdf`.
+
+```python
+from qang import formulation as F
+bell = F.apply_gate(F.apply_gate(F.qg_values([1, 0, 0, 0]), F.kron(F.H, F.I2)), F.CX)
+# {'II': 1.0, 'XX': 1.0, 'YY': -1.0, 'ZZ': 1.0}
+```
+
 ## Full Reference Notebook
 
 `notebooks/qang_full_reference.ipynb` is the single canonical, self-contained walkthrough
@@ -128,7 +143,7 @@ Three further notebooks (in Spanish) cover the research notes:
 
 * `notebooks/qang_verificado.ipynb` — §1–§19: exact identities, blind spots, noise
   diagnostics, optimization, knitting, few-shot estimation, QML, control quantization.
-* `notebooks/qang_avances_colab.ipynb` — §20–§39: the qg symmetry witness and filter
+* `notebooks/qang_avances_colab.ipynb` — §20–§74: the qg symmetry witness and filter
   (chemistry, Hubbard, constrained QAOA), filter vs ZNE, qubit characterization, error
   correction (Leung code, syndrome tracking), coherence, few-shot estimation, and the
   recorded IonQ noisy-simulator runs, each with an honest "for / against" reading.
@@ -139,7 +154,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1129 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1133 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v
