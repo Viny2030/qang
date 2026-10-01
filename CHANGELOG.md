@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `manuscript/formulation/` (PDF and Word `manuscript/qang_formulation`): article in English, "Quantum gates and
+  algorithms in qg units: Hamming-weight conservation and readout classes", with the original references of the
+  14 algorithms in `refs.bib`; the Spanish draft now states that the HHL readout is checked for a 2x2 matrix.
+
 ## [0.5.1] - 2026-10-01
 
 ### Changed
