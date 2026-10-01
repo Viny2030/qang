@@ -116,17 +116,18 @@ print(f"Theta 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}] rad")
 
 ## Start here: gates and algorithms in qg
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_inicio_formulacion.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_start_here.ipynb) English &nbsp;·&nbsp;
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_inicio_formulacion.ipynb) Español
 
-`notebooks/qang_inicio_formulacion.ipynb` (Spanish) installs `qang` from PyPI and walks through the 15 main
-gates and 14 main algorithms in qg language with `qang.formulation`: a state is described by its qg values
-(qg_P = <P> for every Pauli string) and a gate acts as qg'_P = qg_{U^dag P U}. Theory:
-`manuscript/qang_teoria_es.pdf`.
+`notebooks/qang_start_here.ipynb` (English; Spanish: `qang_inicio_formulacion.ipynb`) installs `qang` from PyPI
+and walks through the 15 main gates and 14 main algorithms in qg language with `qang.formulation`: a state is
+described by its qg values (qg_P = <P> for every Pauli string) and a gate acts as qg'_P = qg_{U^dag P U}.
+Article: `manuscript/qang_formulation.pdf` (Spanish draft: `manuscript/qang_teoria_es.pdf`).
 
 ```python
 from qang import formulation as F
 bell = F.apply_gate(F.apply_gate(F.qg_values([1, 0, 0, 0]), F.kron(F.H, F.I2)), F.CX)
-# {'II': 1.0, 'XX': 1.0, 'YY': -1.0, 'ZZ': 1.0}
+# {'II': 1.0, 'XX': 1.0, 'YY': -1.0, 'ZZ': 1.0}   (qang >= 0.5.1)
 ```
 
 ## Full Reference Notebook

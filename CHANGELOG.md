@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `CITATION.cff` (GitHub "Cite this repository"; validated against CFF 1.2.0) and
+  `notebooks/qang_start_here.ipynb`, the starter notebook in English; README links both Colab notebooks.
 - `manuscript/formulation/` (PDF and Word `manuscript/qang_formulation`): article in English, "Quantum gates and
   algorithms in qg units: Hamming-weight conservation and readout classes", with the original references of the
   14 algorithms in `refs.bib`; the Spanish draft now states that the HHL readout is checked for a 2x2 matrix.
