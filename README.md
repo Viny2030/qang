@@ -140,7 +140,7 @@ filter keeps only the shots that stayed in the input's Hamming-weight sector) an
 (RESEARCH_NOTES §80): trained on a simulator and run under T1, qang adds +2.5 points at weight 1 and +16.5 at
 weight 2 and recovers the noiseless accuracy exactly; trained under the calibrated noise, the model without qang
 catches up; dephasing is not corrected. These models are classically simulable: a robustness tool, not a quantum
-advantage.
+advantage. Note: `manuscript/qang_qml.pdf` (Spanish: `manuscript/qang_qml_es.pdf`).
 
 ```python
 from qang.qml import WeightQNN

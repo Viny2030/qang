@@ -16,6 +16,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   matrix).
 - `notebooks/qang_qml.ipynb` (English) and `notebooks/qang_qml_es.ipynb` (Spanish): QNNs with and without qang,
   installed from PyPI; built by `notebooks/make_qml_notebooks.py`.
+- `manuscript/qml/` and `manuscript/qml_es/`: note "Training quantum neural networks for T1-limited hardware: what
+  the qg symmetry filter does and does not do" (English and Spanish; PDF and Word `manuscript/qang_qml[_es]`),
+  §75-§80 with every result with and without qang; figure script `manuscript/qml/make_figure.py`; LaTeX-to-Word
+  script `manuscript/to_docx.py`; two references added to `refs.bib`.
 
 ### Added (research notes)
 - `examples/qnn_seeds_qg.py`: pre-registered replication of the QNN results over 5 seeds (60 runs per model), with
