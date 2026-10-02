@@ -47,7 +47,52 @@ Run: python examples/qnn_noise_aware_qg.py            (all datasets)
 
 Findings (python examples/qnn_noise_aware_qg.py):
 
-FINDINGS_PLACEHOLDER
+Seed 77, 5 splits per dataset, 120 epochs, gamma = 0.08 (means over the
+four datasets; per dataset below):
+
+                 iris   cancer  wine   digits  mean
+  A exact        0.907  0.943   0.959  0.957   0.941
+  A clean (T1)   0.713  0.773   0.779  0.817   0.771
+  A noisy (T1)   0.927  0.943   0.954  0.953   0.944
+  E exact        0.940  0.960   0.938  0.957   0.949
+  E clean (T1)   0.933  0.957   0.841  0.950   0.920
+  E noisy (T1)   0.940  0.950   0.938  0.960   0.947
+  E filter (T1)  0.940  0.960   0.938  0.957   0.949
+  E noisy+f      0.940  0.960   0.938  0.957   0.949
+  200 shots: A noisy 0.937, E filter 0.943 (mean); kept fraction 0.472.
+
+  * R1 PASS. F3 holds: the parameters of E trained under T1 with the filter
+    differ from noiseless training by at most 5e-9 (accumulated rounding of
+    120 Adam steps), and the accuracies are identical.
+  * R2 PASS, strongly: at this damping the standard QNN trained noiselessly
+    collapses under T1 (0.771); trained under T1 it recovers fully (0.944,
+    above its own noiseless accuracy, within one test sample).
+  * R3 PASS, by a margin under one test sample: E filter 0.949 against A
+    noisy 0.944 and E noisy 0.947. Noise-aware training works too; the
+    filter does not beat it in accuracy, it reaches the same accuracy
+    without training under noise (no noise model, no noisy training runs).
+    Per dataset A noisy is ahead on wine (0.954 vs 0.938, where E is weaker
+    even noiselessly).
+  * R4 PASS: at 200 shots E filter 0.943 against A noisy 0.937, although the
+    filter keeps only 47% of the shots.
+  * Not predicted: the kept fraction is 0.472 on every dataset and split,
+    and it is (1 - gamma)^9 exactly. Every qubit is damped after each of the
+    9 sublayers and a weight-1 state has its one excitation on some qubit,
+    so the weight-1 population decays by (1 - gamma) per sublayer whatever
+    the data and parameters. The shot cost of the filter is therefore known
+    in advance from the circuit depth and the calibrated T1.
+  Verdict. With the qg filter the T1-noisy training problem is the
+  noiseless one (F3, confirmed), so a weight-conserving QNN can be trained
+  on a simulator and deployed on T1-limited hardware with no noise model.
+  The standard QNN needs noise-aware training to survive the same damping,
+  and with it reaches the same accuracy; the advantage of the filter is
+  procedural (training cost and model-free), paid with a predictable
+  discard of 1 - (1 - gamma)^depth of the shots. No quantum advantage is
+  claimed: E stays classically simulable (§76 F2). Limitations: simulated
+  T1 only (no dephasing, which the filter does not correct), small
+  datasets (one test sample = 2-3 points), one damping value. The run used
+  OMP_NUM_THREADS=1 (batched 16x16 products are about 10 times faster
+  single-threaded here; results unchanged).
 """
 
 import os

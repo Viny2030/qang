@@ -4200,6 +4200,73 @@ depolarizing noise: E 0.959 with and without the filter.
   one setting. Unary/orthogonal QNNs are known (Landman et al. 2022); the
   contribution is the qg-filter exactness under T1 and its measured cost.
 
+## 77. Training under T1: noise-aware training or the qg filter? (`examples/qnn_noise_aware_qg.py`)
+
+**Why.** §76 evaluated E under noise but trained it noiselessly. The usual
+remedy for hardware noise in QNNs is noise-aware training. Here both are
+compared at a stronger damping, γ = 0.08 per qubit per sublayer.
+
+**A fact stated before the run.** F3: with the filter, the T1-noisy readout
+equals the noiseless one for every parameter value (F1), so the loss and
+every gradient are identical, and training under T1 with the filter gives
+exactly the parameters of noiseless training.
+
+**Method.** Same models, data and splits as §75/§76 (seed 77, 5 splits, 120
+epochs, same initializations). Training under T1 uses an exact block
+simulator for E: the weight-1 block (5 × 5) plus the |00000⟩ population,
+equal to the full 32 × 32 density matrix to machine precision (tested) and
+about 100 times faster.
+
+**Predictions, committed before the run (1450374).** R1 F3 holds
+numerically (parameters within 1e-6, same accuracy). R2 noise-aware
+training helps A (A noisy ≥ A clean under T1). R3 E filter ≥ A noisy and ≥
+E noisy. R4 at 200 shots, E filter ≥ A noisy − 1 point.
+
+Mean test accuracy under T1 (γ = 0.08):
+
+| dataset | A exact | A clean | A noisy | E exact | E clean | E noisy | E filter |
+|---|---|---|---|---|---|---|---|
+| iris | 0.907 | 0.713 | 0.927 | 0.940 | 0.933 | 0.940 | 0.940 |
+| cancer | 0.943 | 0.773 | 0.943 | 0.960 | 0.957 | 0.950 | 0.960 |
+| wine | 0.959 | 0.779 | 0.954 | 0.938 | 0.841 | 0.938 | 0.938 |
+| digits | 0.957 | 0.817 | 0.953 | 0.957 | 0.950 | 0.960 | 0.957 |
+| mean | 0.941 | 0.771 | 0.944 | 0.949 | 0.920 | 0.947 | 0.949 |
+
+At 200 shots: A noisy 0.937, E filter 0.943; the filter keeps 47.2% of the
+shots.
+
+* **All four pass.**
+* **R1 (F3).** Training under T1 with the filter reproduces noiseless
+  training: parameters within 5e-9 (rounding accumulated over 120 Adam
+  steps), identical accuracies.
+* **R2.** Trained noiselessly, the standard QNN collapses under this damping
+  (0.771). Trained under T1, it recovers fully (0.944).
+* **R3, by less than one test sample.** E filter 0.949 against A noisy
+  0.944 and E noisy 0.947. Noise-aware training works too. The filter does
+  not beat it on accuracy; it reaches the same accuracy without training
+  under noise: no noise model and no noisy training runs. A noisy is ahead
+  on wine, where E is weaker even noiselessly.
+* **R4.** At 200 shots E filter is still ahead (0.943 vs 0.937), even though
+  it discards 53% of the shots.
+* **Not predicted: the shot cost is known in advance.** The kept fraction
+  is 0.472 on every dataset and split, and it is exactly (1 − γ)⁹. Every
+  qubit is damped after each of the 9 sublayers. A weight-1 state has its
+  single excitation on some qubit, so the weight-1 population decays by
+  (1 − γ) per sublayer, whatever the data and parameters. The filter's
+  discard is therefore 1 − (1 − γ)^depth, fixed by the circuit depth and the
+  calibrated T1 (tested).
+* **Verdict.** With the qg filter the noisy training problem is the
+  noiseless one, so a weight-conserving QNN can be trained on a simulator
+  and deployed on T1-limited hardware without a noise model. The standard
+  QNN needs noise-aware training to survive the same damping, and with it
+  reaches the same accuracy. The filter's advantage is procedural: no noise
+  model and no noisy training, paid with a predictable discard of shots. No
+  quantum advantage: E remains classically simulable (§76 F2).
+* **Honest scope.** Simulated T1 only (the filter does not correct
+  dephasing), one damping value, small test sets (one sample = 2–3 points).
+  Run with OMP_NUM_THREADS=1, because batched 16 × 16 products were about 10
+  times faster single-threaded here; results are unchanged.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

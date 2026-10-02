@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_noise_aware_qg.py`: pre-registered comparison of noise-aware training and the qg filter under T1
+  (gamma = 0.08). All four predictions pass: training under T1 with the filter reproduces noiseless training
+  exactly (F3, parameters within 5e-9); the standard QNN collapses under T1 (0.771) unless trained under it (0.944);
+  E with the filter reaches 0.949 with no noisy training, ahead of both by less than one test sample. The kept
+  fraction is exactly (1 - gamma)^depth. Includes an exact block simulator for T1 on weight-1 states, about 100x
+  faster than the full density matrix (RESEARCH_NOTES §77).
 - `examples/qnn_unary_norm_qg.py`: weight-conserving QNN that keeps the norm (5 qubits, unary encoding with a
   constant component, trained readout over all qg_Z); mean accuracy 0.960 (standard QNN 0.952), exactly immune to
   T1 with the qg filter (proved and checked), classically simulable as a quadratic classifier (proved and checked);
