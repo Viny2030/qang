@@ -4329,6 +4329,77 @@ Kept fraction: under H, 0.451–0.459 (it now depends on the data); under D,
 * **Honest scope.** One spread and one dephasing rate, simulated noise,
   small test sets.
 
+## 79. A weight-2 QNN, with and without qang (`examples/qnn_weight2_qg.py`)
+
+**Why.** §78 F4 says the filter is exact in every fixed-weight sector under
+equal T1. A weight-2 model has a larger sector than E (C(5,2) = 10 instead of
+5), and its output is quartic rather than quadratic in the input. From this
+section on, every reading is reported with qang (filtered readout,
+`qang.sectors.filter_distribution`) and without qang (raw readout), with
+their difference.
+
+**Model W.** The amplitude on the state with qubits i < j excited is
+v_i v_j, normalized, with v = (x, 1)/norm as in §76. It uses the same RBS
+layers and readout as E. Simulation is exact: one block per Hamming weight,
+checked against the full density matrix.
+
+**Predictions, committed before the run (00520dc).**
+* P1: F4 at weight 2. Under T1, the clean-trained W with qang equals its
+  exact accuracy on every split.
+* P2: the gain from qang is at least 1 point for E, and at least as large
+  for W.
+* P3: W exact ≥ E exact − 1 point.
+* P4: trained under the noise, W with qang ≥ W without, under T1, H and D.
+* P5: at 200 shots under T1, W with qang ≥ W without − 1 point.
+
+Mean test accuracy (seed 79, 5 splits, 120 epochs). "Diff" is the
+difference with qang minus without qang.
+
+| condition | model | trained clean: qang | without | diff | trained under noise: qang | without | diff |
+|---|---|---|---|---|---|---|---|
+| T1 | E | 0.951 | 0.929 | +0.021 | 0.951 | 0.947 | +0.004 |
+| T1 | W | 0.914 | 0.780 | +0.134 | 0.914 | 0.920 | −0.006 |
+| H | E | 0.949 | 0.911 | +0.039 | 0.952 | 0.947 | +0.005 |
+| H | W | 0.915 | 0.750 | +0.164 | 0.921 | 0.918 | +0.003 |
+| D | E | 0.911 | 0.796 | +0.115 | 0.945 | 0.948 | −0.003 |
+| D | W | 0.870 | 0.664 | +0.206 | 0.915 | 0.908 | +0.007 |
+
+Exact accuracy is E 0.951 and W 0.914. With 200 shots, trained under the
+noise, the difference is between −0.006 and 0.000 everywhere. The kept
+fraction is 0.223 for W, which is (1 − 0.08)¹⁸.
+
+* **P1, P2 and P5 pass; P3 and P4 fail.**
+* **P1.** W with qang keeps exactly its noiseless accuracy on all 20
+  splits.
+* **P2.** The effect of qang grows with the weight. For E it is +2.1
+  points; for W it is +13.4 (T1), +16.4 (H) and +20.6 (D). Without qang,
+  W falls to 0.66–0.78, because 78% of its shots have decayed.
+* **P3 fails.** Weight 2 costs 3.7 points (wine 5.7). The pair-product
+  encoding with a sum-of-⟨Z⟩ readout does not use the larger sector well.
+* **P4 fails, narrowly.** Trained under the noise, the model without qang
+  learns the decay and catches up: −0.6 points under T1, +0.3 under H and
+  +0.7 under D, all under one test sample.
+* **P5.** At 200 shots the filter costs 0.5 points while keeping 22% of
+  the shots.
+* **Not predicted.**
+  * Under unequal T1, W trained clean with qang is within 0.6 points of
+    noise-aware training.
+  * The §78 S2 loss, 1.5 points from a different seed, is therefore not
+    stable across runs.
+  * Dephasing still requires noise-aware training (0.870 vs 0.915).
+* **Verdict.** The difference qang makes depends on how the model is
+  trained.
+  * Trained on a simulator and run under noise, qang is decisive, and more
+    so at higher weight (+13 to +21 points for W).
+  * Trained under the calibrated noise, it makes no measurable difference
+    (±0.7 points).
+  * Its value is that noise-free training stays valid under T1, at a shot
+  cost of 1 − (1 − γ)^(k·depth).
+  * No quantum advantage: W is less accurate than E here and is still
+    classically simulable (C(n,2)).
+* **Honest scope.** One weight-2 encoding and readout, 5 qubits, simulated
+  noise, small test sets.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

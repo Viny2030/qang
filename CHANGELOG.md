@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_weight2_qg.py`: pre-registered weight-2 QNN, every result with and without qang (filtered vs raw
+  readout) and their difference. Trained without noise, qang adds +2 to +12 points for the weight-1 model and +13 to
+  +21 for the weight-2 model (exact under equal T1 on all splits); trained under the noise, the model without qang
+  catches up (differences within +-0.7 points). Weight 2 costs 3.7 points of accuracy (P3 fails) and P4 fails
+  narrowly; P1, P2, P5 pass. Exact block simulator for any Hamming weight with per-qubit T1 and dephasing
+  (RESEARCH_NOTES §79).
 - `examples/qnn_realistic_noise_qg.py`: pre-registered test of the qg-filtered QNN under unequal T1 across qubits
   and under dephasing. The filter is exact in every fixed-weight sector under equal T1 (F4, checked to 3e-16), but
   a +-50% T1 spread costs it 1.5 points (prediction S2 fails) and dephasing 3.1 points; training under the

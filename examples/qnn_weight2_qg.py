@@ -51,7 +51,55 @@ scikit-learn. OMP_NUM_THREADS=1 python examples/qnn_weight2_qg.py [datasets]
 
 Findings (python examples/qnn_weight2_qg.py):
 
-FINDINGS_PLACEHOLDER
+Seed 79, 5 splits per dataset, 120 epochs. Means over the four datasets;
+"diff" is with qang minus without qang (one test sample is 2-3 points):
+
+  exact (no noise): E 0.951, W 0.914
+                   trained without noise          trained under the noise
+                   qang   without  diff           qang   without  diff
+  T1  E            0.951  0.929   +0.021          0.951  0.947   +0.004
+  T1  W            0.914  0.780   +0.134          0.914  0.920   -0.006
+  H   E            0.949  0.911   +0.039          0.952  0.947   +0.005
+  H   W            0.915  0.750   +0.164          0.921  0.918   +0.003
+  D   E            0.911  0.796   +0.115          0.945  0.948   -0.003
+  D   W            0.870  0.664   +0.206          0.915  0.908   +0.007
+  200 shots, trained under the noise: diff between -0.006 and 0.000 for
+  every model and condition. Kept fraction: E 0.472 (H 0.452), W 0.223
+  (H 0.215) = (1 - 0.08)^18.
+  Without qang per dataset (T1, W, trained without noise): iris 0.813,
+  cancer 0.887, wine 0.615, digits 0.803; with qang 0.913, 0.913, 0.892,
+  0.937 (= exact).
+
+  * P1 PASS. F4 at weight 2: with qang the clean-trained W keeps exactly
+    its noiseless accuracy on all 20 splits.
+  * P2 PASS. The effect of qang grows with the weight: +2.1 points for E,
+    +13.4 for W under equal T1 (trained without noise); +16.4 under unequal
+    T1 and +20.6 with dephasing. Without qang the weight-2 model falls to
+    0.66-0.78, because 78% of its shots have decayed.
+  * P3 FAILS. Weight 2 costs 3.7 points (W 0.914 against E 0.951), worst on
+    wine (5.7). The pair-product encoding with a sum-of-<Z> readout does
+    not use the larger sector well on these datasets.
+  * P4 FAILS, narrowly. Trained under the noise, the model without qang
+    learns to read the decayed shots and the two readings meet: -0.6
+    points under T1 (the failure), +0.3 under H, +0.7 under D, all well
+    under one test sample.
+  * P5 PASS. At 200 shots the filter costs 0.5 points while keeping 22% of
+    the shots.
+  * Not predicted: under unequal T1 the clean-trained W with qang (0.915)
+    is within 0.6 points of noise-aware training (0.921); E loses 0.3. The
+    §78 S2 loss (1.5 points) came from a different seed and splits, so the
+    size of that loss is not stable across runs. Dephasing still requires
+    noise-aware training (0.870 vs 0.915 for W).
+  Verdict. The difference made by qang depends on how the model is
+  trained. Trained on a simulator and run under noise, qang is decisive
+  and more so at higher weight (+13 to +21 points for W). Trained under the
+  calibrated noise, a model without qang learns the decay and catches up,
+  and qang changes nothing measurable (within +-0.7 points). The value of
+  qang is to make noise-free training valid for T1, at a shot cost of
+  1 - (1 - gamma)^(k depth). No quantum advantage: the weight-2 model is
+  less accurate than the weight-1 model here and still classically
+  simulable (sector dimension C(n, 2)). Limitations: one encoding and
+  readout for weight 2, 5 qubits, simulated noise, small test sets.
 """
 
 import itertools
