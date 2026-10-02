@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_unary_norm_qg.py`: weight-conserving QNN that keeps the norm (5 qubits, unary encoding with a
+  constant component, trained readout over all qg_Z); mean accuracy 0.960 (standard QNN 0.952), exactly immune to
+  T1 with the qg filter (proved and checked), classically simulable as a quadratic classifier (proved and checked);
+  uses `qang.sectors` for the filter (RESEARCH_NOTES §76).
 - `examples/qnn_classifier_qg.py`: pre-registered QNN study on four real datasets (iris, breast cancer, wine,
   digits): standard QNN, arccos encoding, register-mean qg readout and a weight-conserving QNN with the qg filter,
   against logistic regression, RBF-SVM, MLP and Chebyshev features. No quantum advantage (as predicted); arccos

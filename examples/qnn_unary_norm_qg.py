@@ -53,7 +53,44 @@ qang.sectors.hamming_weights. Needs scikit-learn.
 
 Findings (python examples/qnn_unary_norm_qg.py):
 
-FINDINGS_PLACEHOLDER
+  Mean test accuracy over 5 splits (seed 76):
+
+    dataset  RBF-SVM  MLP    quad. twin |  A      D      E      E 200 shots
+    iris     0.913    0.920  0.900      |  0.907  0.647  0.913  0.913
+    cancer   0.967    0.973  0.957      |  0.980  0.910  0.983  0.977
+    wine     0.979    0.990  0.969      |  0.964  0.795  0.985  0.974
+    digits   0.967    0.960  0.943      |  0.957  0.813  0.960  0.957
+    mean     0.957    0.961  0.942      |  0.952  0.791  0.960  0.955
+
+  Under T1 (mean): A 0.949, D 0.776, E 0.956, E + filter 0.960 (= exact).
+  Under depolarizing noise (mean): E 0.959, E + filter 0.959.
+
+  Predictions: Q1 PASS, Q2 PASS, Q3 FAIL, Q4 PASS.
+  * Q1: E closes the §75 gap. Keeping the norm (fifth, constant component)
+    and reading a trained combination of all qg_Z lifts the weight-conserving
+    QNN from 0.791 (D) to 0.960, above the standard QNN A (0.952).
+  * Q2: the filter makes E exactly immune to T1, as F1 says: 0.960 under T1
+    with the filter, equal to its noiseless accuracy, against 0.949 for A.
+    In the exact simulation the filtered readout equals the noiseless one to
+    machine precision.
+  * Q4: under depolarizing noise the filter changes nothing (§24 rule).
+  * Q3 fails, and the failure is in the baseline, not in favour of a quantum
+    advantage. E beat its classical quadratic twin by 1.3-2.6 points, but the
+    twin was logistic regression with scikit-learn's default L2 penalty
+    (C = 1). An exploratory rerun after the result, same splits, with C = 100:
+    iris 0.907, cancer 0.980, wine 0.969, digits 0.960, within 0.3-1.6 points
+    of E (wine: 1.6, under one test sample on average). F2 is a theorem:
+    tests/test_qnn_unary_norm_qg.py rebuilds E's output as the classical
+    quadratic form and checks it to machine precision.
+
+  Verdict. The qg filter's protection now comes without an accuracy cost: a
+  weight-conserving QNN that keeps the norm matches the standard QNN and the
+  classical models, and is exactly immune to T1 when the filter is applied.
+  The same construction makes it classically simulable (a quadratic
+  classifier), so this is a robustness result for small QNNs on noisy
+  hardware, not a quantum advantage. Limitations: 5 qubits, small datasets
+  (one test sample = 2-3 points), noise only at evaluation, the twin's
+  regularization checked post hoc on one setting.
 """
 
 import math

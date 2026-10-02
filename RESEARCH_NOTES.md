@@ -4139,6 +4139,67 @@ D + filter 0.761.
   4 qubits, noise only at evaluation, one strength per noise type. Unary
   QNNs with RBS gates are known (Landman et al. 2022). Needs scikit-learn.
 
+## 76. A weight-conserving QNN that keeps the norm (`examples/qnn_unary_norm_qg.py`)
+
+**Why.** In §75 the only QNN that admits the qg filter (D) was fully
+protected against T1 but was the weakest classifier (0.765), because unary
+amplitude encoding drops the norm of x and the readout was one ⟨Z₀⟩.
+
+**Model E (5 qubits).** Unary amplitudes (x₁, x₂, x₃, x₄, 1)/norm, so the
+constant fifth component keeps |x|; 3 layers of Givens (RBS) rotations
+(15 parameters); readout z = Σᵢ cᵢ qg_Z⁽ⁱ⁾ + b with trainable cᵢ. The filter
+and the Hamming weights come from the library (`qang.sectors`).
+
+**Two facts stated before the run.**
+* F1, T1 exactness: every weight-1 basis state has one excitation, so
+  amplitude damping either leaves weight 1 or damps all weight-1
+  amplitudes by the same factor. The filtered distribution is exactly the
+  noiseless one, for any damping strength.
+* F2, classical simulability: in the weight-1 sector the network is a 5 × 5
+  orthogonal matrix O; with u = O v, z = Σcᵢ − 2 vᵀOᵀdiag(c)Ov + b, a
+  quadratic classifier on v, computable in O(n²). No quantum advantage is
+  possible.
+
+**Predictions, committed before the run (8d32f92).** Q1 E ≥ A − 2 points
+(mean). Q2 E + filter under T1 within 0.5 points of exact, and ≥ A under
+T1. Q3 E ≤ its classical quadratic twin + 1 point on every dataset, and the
+best classical ≥ E − 1. Q4 the filter improves E by ≤ 1 point under
+depolarizing noise.
+
+Mean test accuracy (5 splits, seed 76):
+
+| dataset | RBF-SVM | MLP | quad. twin | A | D | E |
+|---|---|---|---|---|---|---|
+| iris | 0.913 | 0.920 | 0.900 | 0.907 | 0.647 | 0.913 |
+| cancer | 0.967 | 0.973 | 0.957 | 0.980 | 0.910 | 0.983 |
+| wine | 0.979 | 0.990 | 0.969 | 0.964 | 0.795 | 0.985 |
+| digits | 0.967 | 0.960 | 0.943 | 0.957 | 0.813 | 0.960 |
+| mean | 0.957 | 0.961 | 0.942 | 0.952 | 0.791 | 0.960 |
+
+Under T1: A 0.949, D 0.776, E 0.956, E + filter 0.960 (= exact). Under
+depolarizing noise: E 0.959 with and without the filter.
+
+* **Q1, Q2, Q4 pass; Q3 fails.**
+* **The gap is closed.** Keeping the norm and reading all qg_Z lifts the
+  weight-conserving QNN from 0.791 to 0.960, at the level of the standard
+  QNN and the classical models.
+* **Exact T1 immunity.** With the filter, E keeps its noiseless accuracy
+  under T1, as F1 says; the filtered readout equals the noiseless one to
+  machine precision.
+* **Q3 fails because of the baseline, not because of an advantage.** The
+  twin used scikit-learn's default L2 penalty (C = 1). Exploratory rerun
+  after the result, same splits, C = 100: iris 0.907, cancer 0.980, wine
+  0.969, digits 0.960, within 0.3–1.6 points of E. F2 is a theorem, checked
+  to machine precision by `tests/test_qnn_unary_norm_qg.py`.
+* **Verdict.** The filter's protection now comes without an accuracy cost.
+  The same construction makes the QNN classically simulable: this is a
+  robustness result for small QNNs on noisy hardware, not a quantum
+  advantage.
+* **Honest scope.** 5 qubits, small test sets (one sample = 2–3 points),
+  noise only at evaluation, the twin's regularization checked post hoc on
+  one setting. Unary/orthogonal QNNs are known (Landman et al. 2022); the
+  contribution is the qg-filter exactness under T1 and its measured cost.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
