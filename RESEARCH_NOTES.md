@@ -4267,6 +4267,68 @@ shots.
   Run with OMP_NUM_THREADS=1, because batched 16 × 16 products were about 10
   times faster single-threaded here; results are unchanged.
 
+## 78. The filter under realistic noise: unequal T1 and dephasing (`examples/qnn_realistic_noise_qg.py`)
+
+**Why.** The exactness used in §76–§77 assumes the same damping on every
+qubit. Real devices have a spread of T1 across qubits, and dephasing, which
+conserves weight and so cannot be filtered.
+
+**A fact stated before the run (F4).** With equal damping, the filter is
+exact in any fixed-weight sector: the no-jump operator multiplies every
+weight-k basis state by (1 − γ)^(k/2), and every jump leaves the sector.
+The kept fraction is (1 − γ)^(k·depth). With unequal γ_q the no-jump operator
+is not uniform, so the filtered state is distorted.
+
+**Conditions.**
+* H: unequal T1, with γ_q = 0.08(1 + 0.5 s_q) and s_q in [−1, 1] (0.04–0.12).
+* D: equal T1 0.08 plus a phase flip with probability 0.03 per qubit per
+  sublayer.
+
+Both simulators are exact (block simulator for E, full density matrix for
+A) and are checked against the full density matrix.
+
+**Predictions, committed before the run (e999d7f).**
+* S1: F4 holds numerically.
+* S2: under H, E filter ≥ E exact − 1 point.
+* S3: noise-aware training with the filter gives E noisy+f ≥ E filter, under
+  both H and D.
+* S4: under D, E filter ≤ E exact − 1 point.
+* S5: under D, E noisy+f ≥ A noisy − 1 point.
+
+Mean test accuracy (seed 78, 5 splits, 120 epochs):
+
+| dataset | E exact | H: E filter | H: E noisy+f | H: A noisy | D: E filter | D: E noisy+f | D: A noisy |
+|---|---|---|---|---|---|---|---|
+| iris | 0.947 | 0.927 | 0.940 | 0.940 | 0.913 | 0.953 | 0.953 |
+| cancer | 0.947 | 0.923 | 0.947 | 0.920 | 0.897 | 0.940 | 0.930 |
+| wine | 0.990 | 0.969 | 0.990 | 0.964 | 0.949 | 0.985 | 0.969 |
+| digits | 0.977 | 0.980 | 0.980 | 0.953 | 0.977 | 0.973 | 0.953 |
+| mean | 0.965 | 0.950 | 0.964 | 0.944 | 0.934 | 0.963 | 0.952 |
+
+Kept fraction: under H, 0.451–0.459 (it now depends on the data); under D,
+0.472 = (1 − 0.08)⁹.
+
+* **S1, S3, S4 and S5 pass; S2 fails.**
+* **S1 (F4).** Exact to 3e-16 in the weight-1 to weight-4 sectors.
+* **S2 fails.** A ±50% spread of T1 costs the filter 1.5 points (2.1–2.4
+  on cancer and wine). The §76–§77 exactness depends on equal damping.
+* **S3.** Noise-aware training with the filter recovers the loss
+  completely: 0.964 (H) and 0.963 (D), against 0.965 exact.
+* **S4.** Dephasing, invisible to the filter, costs 3.1 points when the
+  model is trained without noise.
+* **S5.** Trained under noise, E with the filter is at or above the
+  noise-aware standard QNN: 0.963 vs 0.952 (D) and 0.964 vs 0.944 (H). It
+  is ahead on 6 of the 8 dataset–condition pairs and tied on 2, with margins
+  of at most about one test sample per dataset.
+* **Verdict.** The §77 recipe, "train on a simulator, deploy without a
+  noise model", holds only for equal damping. On real hardware the filtered
+  QNN must be trained under the calibrated noise, and then it recovers its
+  noiseless accuracy. The filter still removes T1 jumps exactly in every
+  weight sector (F4), including the weight ≥ 2 sectors that are not
+  classically trivial, but it does not replace a noise model.
+* **Honest scope.** One spread and one dephasing rate, simulated noise,
+  small test sets.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

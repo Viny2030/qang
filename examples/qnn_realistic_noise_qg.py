@@ -55,7 +55,45 @@ OMP_NUM_THREADS=1 python examples/qnn_realistic_noise_qg.py [datasets]
 
 Findings (python examples/qnn_realistic_noise_qg.py):
 
-FINDINGS_PLACEHOLDER
+Seed 78, 5 splits per dataset, 120 epochs (means; one test sample is
+2-3 points):
+
+                     iris   cancer  wine   digits  mean
+  E exact            0.947  0.947   0.990  0.977   0.965
+  H  E filter        0.927  0.923   0.969  0.980   0.950
+  H  E noisy+f       0.940  0.947   0.990  0.980   0.964
+  H  A noisy         0.940  0.920   0.964  0.953   0.944
+  D  E filter        0.913  0.897   0.949  0.977   0.934
+  D  E noisy+f       0.953  0.940   0.985  0.973   0.963
+  D  A noisy         0.953  0.930   0.969  0.953   0.952
+  kept fraction: H 0.451-0.459 (depends on the data), D 0.472 = (1 - 0.08)^9.
+
+  * S1 PASS. F4: in the weight-1 to weight-4 sectors the filtered
+    distribution equals the noiseless one to 3e-16, and the kept fraction
+    is (1 - gamma)^(k depth) to 2e-16.
+  * S2 FAILS. Unequal T1 costs the filter 1.5 points (0.950 against 0.965),
+    above the 1-point bound; cancer and wine lose 2.1-2.4 points, digits
+    nothing. The exactness of §76-§77 depends on equal damping, and a +-50%
+    spread of T1 across qubits breaks it measurably.
+  * S3 PASS. Training under the condition with the filter recovers the loss
+    completely: 0.964 under H and 0.963 under D, against 0.965 exact.
+  * S4 PASS. Dephasing, which the filter cannot see (it keeps 0.472 of the
+    shots, exactly the T1 survival), costs the clean-trained model 3.1
+    points (0.934).
+  * S5 PASS. With noise-aware training, E with the filter is ahead of the
+    noise-aware standard QNN under both conditions: 0.963 vs 0.952 under D,
+    0.964 vs 0.944 under H (margins under one test sample per dataset,
+    consistent in sign on 6 of the 8 dataset-condition pairs, tied on 2).
+  Verdict. The §77 recipe "train on a simulator, deploy without a noise
+  model" holds only for equal damping: with realistic unequal T1, and with
+  dephasing, the filtered QNN must be trained under the calibrated noise.
+  Trained that way it recovers its noiseless accuracy and stays at or above
+  the noise-aware standard QNN. The filter remains useful (it removes the
+  T1 jumps exactly, F4), but it is not a substitute for a noise model on
+  real hardware. Exactness extends to every fixed-weight sector (F4), which
+  matters for QNNs beyond weight 1, the ones that are not classically
+  trivial. Limitations: one spread (+-50%) and one dephasing rate, simulated
+  noise only, small test sets.
 """
 
 import json

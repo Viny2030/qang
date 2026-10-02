@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_realistic_noise_qg.py`: pre-registered test of the qg-filtered QNN under unequal T1 across qubits
+  and under dephasing. The filter is exact in every fixed-weight sector under equal T1 (F4, checked to 3e-16), but
+  a +-50% T1 spread costs it 1.5 points (prediction S2 fails) and dephasing 3.1 points; training under the
+  calibrated noise with the filter recovers the noiseless accuracy (0.964/0.963 vs 0.965) and stays at or above
+  the noise-aware standard QNN (S1, S3-S5 pass). Exact simulators with per-qubit T1 and dephasing
+  (RESEARCH_NOTES §78).
 - `examples/qnn_noise_aware_qg.py`: pre-registered comparison of noise-aware training and the qg filter under T1
   (gamma = 0.08). All four predictions pass: training under T1 with the filter reproduces noiseless training
   exactly (F3, parameters within 5e-9); the standard QNN collapses under T1 (0.771) unless trained under it (0.944);
