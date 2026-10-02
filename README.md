@@ -130,6 +130,25 @@ bell = F.apply_gate(F.apply_gate(F.qg_values([1, 0, 0, 0]), F.kron(F.H, F.I2)), 
 # {'II': 1.0, 'XX': 1.0, 'YY': -1.0, 'ZZ': 1.0}   (qang >= 0.5.1)
 ```
 
+## Quantum neural networks with and without qang
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_qml.ipynb) English &nbsp;·&nbsp;
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_qml_es.ipynb) Español
+
+`qang.qml` (qang >= 0.6.0) trains weight-conserving QNN classifiers and reads every result with qang (the qg
+filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. Over 60 runs
+(RESEARCH_NOTES §80): trained on a simulator and run under T1, qang adds +2.5 points at weight 1 and +16.5 at
+weight 2 and recovers the noiseless accuracy exactly; trained under the calibrated noise, the model without qang
+catches up; dephasing is not corrected. These models are classically simulable: a robustness tool, not a quantum
+advantage.
+
+```python
+from qang.qml import WeightQNN
+m = WeightQNN(n_qubits=5, weight=2).fit(X_train, y_train)          # 4 features in [-1, 1]
+m.score(X_test, y_test, gamma=0.08, qang=True)                      # = noiseless accuracy (equal T1)
+m.score(X_test, y_test, gamma=0.08, qang=False)                     # raw readout, biased by T1
+```
+
 ## Full Reference Notebook
 
 `notebooks/qang_full_reference.ipynb` is the single canonical, self-contained walkthrough
@@ -155,7 +174,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1171 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1185 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

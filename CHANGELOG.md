@@ -5,7 +5,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-02
+
 ### Added
+- `qang.qml` (NumPy only): `WeightQNN`, a weight-conserving QNN classifier (weight 1 or 2, RBS layers, readout
+  over all qg_Z) whose every reading can be taken with qang (the qg filter from `qang.sectors`) or without it;
+  exact block simulator for per-qubit T1 and dephasing; noise-aware training (`fit(..., gamma, dephasing, qang)`),
+  finite shots, `kept_fraction` ((1 - gamma)^(weight x depth)) and `compare_qang` (accuracy with and without qang
+  and their difference). Reproduces the §77-§80 models exactly (tests/test_qml.py, checked against a full density
+  matrix).
+- `notebooks/qang_qml.ipynb` (English) and `notebooks/qang_qml_es.ipynb` (Spanish): QNNs with and without qang,
+  installed from PyPI; built by `notebooks/make_qml_notebooks.py`.
+
+### Added (research notes)
 - `examples/qnn_seeds_qg.py`: pre-registered replication of the QNN results over 5 seeds (60 runs per model), with
   and without qang and 95% CIs across seeds. All five predictions pass: trained without noise, qang adds +2.5 points
   [0.8, 4.1] at weight 1 and +16.5 [11.8, 21.2] at weight 2; with noise-aware training the difference is 0.1 points;
