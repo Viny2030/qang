@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_seeds_qg.py`: pre-registered replication of the QNN results over 5 seeds (60 runs per model), with
+  and without qang and 95% CIs across seeds. All five predictions pass: trained without noise, qang adds +2.5 points
+  [0.8, 4.1] at weight 1 and +16.5 [11.8, 21.2] at weight 2; with noise-aware training the difference is 0.1 points;
+  the unequal-T1 loss is 0.5-0.7 points; dephasing needs noise-aware training; weight 2 costs 3.0 points
+  (RESEARCH_NOTES §80). Needs scipy.
 - `examples/qnn_weight2_qg.py`: pre-registered weight-2 QNN, every result with and without qang (filtered vs raw
   readout) and their difference. Trained without noise, qang adds +2 to +12 points for the weight-1 model and +13 to
   +21 for the weight-2 model (exact under equal T1 on all splits); trained under the noise, the model without qang

@@ -4400,6 +4400,64 @@ fraction is 0.223 for W, which is (1 − 0.08)¹⁸.
 * **Honest scope.** One weight-2 encoding and readout, 5 qubits, simulated
   noise, small test sets.
 
+## 80. The QNN results over 5 seeds, with and without qang (`examples/qnn_seeds_qg.py`)
+
+**Why.** Each of §75–§79 used one seed. One test sample is worth 2–3
+points, and §78 and §79 disagreed on the size of one effect. Before writing
+up, the key comparisons were repeated over 5 seeds × 3 splits × 4 datasets,
+which gives 60 runs per model. Uncertainty is reported as 95% intervals
+across the 5 seeds.
+
+**Predictions, committed before the run (77700bd).**
+* T1: the gain from qang when training without noise is above 0 for E
+  and W, and larger for W.
+* T2: with noise-aware training, |qang − without| < 1 point.
+* T3: the loss from unequal T1 is < 1 point.
+* T4: dephasing needs noise-aware training (CI above 0).
+* T5: weight 2 costs accuracy (CI below 0).
+
+Mean accuracy over 60 runs, with and without qang:
+
+| reading | E: qang | E: without | W: qang | W: without |
+|---|---|---|---|---|
+| exact (no noise) | 0.952 | | 0.922 | |
+| T1, trained clean | 0.952 | 0.928 | 0.922 | 0.757 |
+| T1, trained under the noise | 0.952 | 0.951 | 0.922 | 0.924 |
+| unequal T1, trained clean | 0.947 | 0.921 | 0.916 | 0.732 |
+| dephasing, trained clean | 0.918 | 0.792 | 0.882 | 0.656 |
+| dephasing, trained under the noise | 0.950 | | 0.926 | |
+
+Paired differences (mean and 95% CI across seeds):
+
+| quantity | E | W |
+|---|---|---|
+| gain from qang, trained clean, T1 | +0.025 [+0.008, +0.041] | +0.165 [+0.118, +0.212] |
+| qang − without, noise-aware training | +0.001 [−0.006, +0.009] | −0.001 [−0.008, +0.005] |
+| loss from unequal T1 (exact − qang) | +0.005 [−0.002, +0.012] | +0.007 [−0.000, +0.013] |
+| dephasing: noise-aware − clean (qang) | +0.032 [+0.011, +0.053] | +0.045 [+0.034, +0.056] |
+| gain from qang, trained clean, dephasing | +0.126 [+0.091, +0.162] | +0.226 [+0.191, +0.262] |
+
+* **All five predictions pass.**
+* **T1.** The weight effect is W − E = +0.140 [+0.083, +0.197]. With qang the
+  model is ahead or tied in 50 of 60 runs (E) and 56 of 60 (W).
+* **T2.** Trained under the noise, with and without qang are equal.
+* **T3.** The unequal-T1 loss is 0.5–0.7 points. The 1.5 points of §78 were
+  at the top of the spread.
+* **T4.** Dephasing needs noise-aware training: +3.2 (E) and +4.5 (W).
+* **T5.** Weight 2 costs 3.0 points [2.0, 4.0] (§79 P3 replicated).
+* **Not predicted.** Under dephasing, a model trained without noise still
+  gains 12.6 (E) and 22.6 (W) points from qang. The filter does not correct
+  dephasing, but it removes the T1 part of the combined noise.
+* **Verdict.** With 60 runs per model the conclusions of §77–§79 hold:
+  * qang makes noise-free training valid under T1, exactly, with a gain
+    that grows with the weight;
+  * with noise-aware training qang adds nothing measurable;
+  * it does not replace a noise model for dephasing;
+  * weight 2 is less accurate than weight 1.
+  No quantum advantage is claimed.
+* **Honest scope.** Simulated noise, one architecture per weight, small
+  datasets.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

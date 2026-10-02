@@ -40,7 +40,47 @@ prints JSON for those seeds only).
 
 Findings (python examples/qnn_seeds_qg.py):
 
-FINDINGS_PLACEHOLDER
+5 seeds x 3 splits x 4 datasets = 60 runs per model. Mean accuracy over the
+60 runs, then the paired quantities as mean and 95% CI across the 5 seeds:
+
+                        E (weight 1)          W (weight 2)
+  exact (no noise)      0.952                 0.922
+  T1, trained clean     qang 0.952 / without 0.928    qang 0.922 / without 0.757
+  T1, trained aware     qang 0.952 / without 0.951    qang 0.922 / without 0.924
+  unequal T1, clean     qang 0.947 / without 0.921    qang 0.916 / without 0.732
+  dephasing, clean      qang 0.918 / without 0.792    qang 0.882 / without 0.656
+  dephasing, aware      qang 0.950                    qang 0.926
+
+  G_E  +0.025 [+0.008, +0.041]     G_W  +0.165 [+0.118, +0.212]
+  G_W - G_E                        +0.140 [+0.083, +0.197]
+  A_E  +0.001 [-0.006, +0.009]     A_W  -0.001 [-0.008, +0.005]
+  H_E  +0.005 [-0.002, +0.012]     H_W  +0.007 [-0.000, +0.013]
+  Dp_E +0.032 [+0.011, +0.053]     Dp_W +0.045 [+0.034, +0.056]
+  dW   -0.030 [-0.040, -0.020]
+  (not predicted) gain of qang under dephasing, trained clean:
+  D_E  +0.126 [+0.091, +0.162]     D_W  +0.226 [+0.191, +0.262]
+
+  * All five predictions pass.
+  * T1: the effect of qang when training is noise-free is robust: +2.5
+    points at weight 1 and +16.5 at weight 2, both CIs well above 0, and
+    the difference between weights (+14.0) too. qang is ahead or tied on 50
+    of 60 runs at weight 1 and 56 of 60 at weight 2.
+  * T2: with noise-aware training, with and without qang are the same
+    (differences of 0.1 points, CIs within +-0.9 points).
+  * T3: the unequal-T1 loss of the filter is small: 0.5 and 0.7 points.
+    The 1.5 points of §78 were on the high side of the seed spread.
+  * T4: dephasing needs noise-aware training: +3.2 (E) and +4.5 (W).
+  * T5: weight 2 costs 3.0 points of accuracy (§79 P3 replicated).
+  * Not predicted: under dephasing, a model trained clean still gains 12.6
+    (E) and 22.6 (W) points from qang. The filter does not correct
+    dephasing, but it still removes the T1 part of the combined noise.
+  Verdict. With 60 runs per model the picture of §77-§79 holds. qang makes
+  noise-free training valid under T1, exactly, with a gain that grows with
+  the weight; with noise-aware training it adds nothing measurable; it does
+  not replace a noise model for dephasing; and the weight-2 model is less
+  accurate than the weight-1 one. No quantum advantage is claimed.
+  Limitations: simulated noise, one architecture per weight, small
+  datasets.
 """
 
 import json
