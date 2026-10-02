@@ -4073,6 +4073,72 @@ Misestimated h (d = 3, T1-dominated): true 0.5, assumed 0.4 / 0.6: 1.47×
 * **Honest scope.** Limits: data-qubit heralds with exact location, two
   regimes, d ≤ 5, h known to about 0.1.
 
+## 75. Quantum neural network classifiers with and without qang (`examples/qnn_classifier_qg.py`)
+
+**Why.** Two questions, reported separately: (a) does the same QNN do
+better with qg tools; (b) does any QNN beat classical models on the same
+data.
+
+**Setup.**
+
+* Four real binary datasets with 4 features: iris (versicolor vs
+  virginica), breast cancer (PCA 4), wine (0 vs 1, PCA 4), digits (3 vs 8,
+  PCA 4). Five stratified 70/30 splits, preprocessing fitted on training
+  data only.
+* Quantum models, 4 qubits:
+  - A: standard (angle encoding, Ry/Rz + CZ ring, 3 layers, readout ⟨Z₀⟩);
+  - B: A with arccos encoding (qg_Z of qubit i = x_i);
+  - C: B with register-mean qg readout;
+  - D: weight-conserving (unary amplitude encoding, Givens/RBS layers),
+    which admits the qg filter.
+* Classical: logistic regression, RBF-SVM, MLP, and Chebyshev features +
+  logistic (classical twin of B).
+* Evaluation of noiselessly trained models: exact, 200 shots, T1 (γ = 0.03
+  per qubit per two-qubit sublayer), depolarizing (p = 0.01).
+
+**Predictions, committed before the run (1a516b4).** P1 B never worse than
+A by more than 2 points and B ≥ A on average. P2 best classical ≥ best QNN
+− 1 point on every dataset. P3 under T1, D + filter loses ≤ 2 points, less
+than D unfiltered and than A. P4 at 200 shots, C loses no more than B.
+
+Mean test accuracy (5 splits, seed 75):
+
+| dataset | logistic | RBF-SVM | MLP | Cheb + log | A | B | C | D |
+|---|---|---|---|---|---|---|---|---|
+| iris | 0.940 | 0.947 | 0.947 | 0.933 | 0.933 | 0.913 | 0.947 | 0.647 |
+| cancer | 0.950 | 0.950 | 0.957 | 0.953 | 0.953 | 0.957 | 0.950 | 0.863 |
+| wine | 0.959 | 0.995 | 0.985 | 0.974 | 0.985 | 0.990 | 0.979 | 0.708 |
+| digits | 0.923 | 0.963 | 0.930 | 0.927 | 0.933 | 0.927 | 0.927 | 0.840 |
+| mean | 0.943 | 0.964 | 0.955 | 0.947 | 0.951 | 0.947 | 0.951 | 0.765 |
+
+Robustness (means): 200 shots A 0.942, B 0.938, C 0.943; T1 A 0.941,
+B 0.922, C 0.936, D 0.733, D + filter 0.765; depolarizing D 0.760,
+D + filter 0.761.
+
+* **P2 passes: no quantum advantage.** The best classical model ties the
+  best QNN on iris and cancer and beats it on wine and digits (RBF-SVM
+  0.963 vs 0.933 on digits). The Chebyshev classical twin ties B (0.947).
+* **P1 fails: the arccos encoding does not improve accuracy** (B 2.0 points
+  below A on iris, 0.4 below on average).
+* **P3 passes clearly.** Under T1, D loses 3.1 points without the filter and
+  none with it: decay takes a weight-1 state to weight 0 and damps the
+  weight-1 amplitudes uniformly, so the filtered state is exact. Under
+  depolarizing noise the filter changes nothing (§24 rule).
+* **P4 passes, inside the noise** (0.8 vs 0.9 points). C is also more
+  robust to T1 than B (1.5 vs 2.5 points lost).
+* **The price of the filter is the model.** D is the weakest classifier
+  (0.765): unary amplitude encoding drops the norm of x, and D has half the
+  parameters.
+* **Verdict.** A 4-qubit QNN reaches classical accuracy here but does not
+  beat it, and qang does not make it more accurate. What qang adds is
+  robustness: the register-mean readout under shots and T1, and the qg
+  filter, which removes the T1 loss completely for a weight-conserving QNN.
+  Next: a weight-conserving QNN that keeps the norm, so the protection
+  comes without the accuracy cost.
+* **Honest scope.** Test sets of 30–60 samples (one sample = 2–3 points),
+  4 qubits, noise only at evaluation, one strength per noise type. Unary
+  QNNs with RBS gates are known (Landman et al. 2022). Needs scikit-learn.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

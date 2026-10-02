@@ -60,7 +60,49 @@ Needs scikit-learn.
 
 Findings (python examples/qnn_classifier_qg.py):
 
-FINDINGS_PLACEHOLDER
+  Mean test accuracy over 5 splits (seed 75):
+
+    dataset   logistic  RBF-SVM  MLP    Cheb+log |  A      B      C      D
+    iris      0.940     0.947    0.947  0.933    |  0.933  0.913  0.947  0.647
+    cancer    0.950     0.950    0.957  0.953    |  0.953  0.957  0.950  0.863
+    wine      0.959     0.995    0.985  0.974    |  0.985  0.990  0.979  0.708
+    digits    0.923     0.963    0.930  0.927    |  0.933  0.927  0.927  0.840
+    mean      0.943     0.964    0.955  0.947    |  0.951  0.947  0.951  0.765
+
+  Robustness (mean over the four datasets):
+    200 shots      A 0.942, B 0.938, C 0.943, D 0.764
+    T1 0.03        A 0.941, B 0.922, C 0.936, D 0.733, D + qg filter 0.765
+    depol 0.01     D 0.760, D + qg filter 0.761
+
+  Predictions: P1 FAIL, P2 PASS, P3 PASS, P4 PASS.
+  * P2 (no quantum advantage) holds, as expected: the best classical model
+    matches the best QNN on iris and cancer and beats it on wine and digits
+    (RBF-SVM 0.963 vs 0.933 on digits). The classical twin of the arccos
+    encoding (Chebyshev features + logistic) ties with B (0.947 both).
+  * P1 fails: the arccos encoding gives no accuracy gain. B is 2.0 points
+    below A on iris and 0.4 points below on average.
+  * P3 holds clearly: under T1 the weight-conserving QNN D loses 3.1 points
+    without the filter and nothing with it (0.765 = its exact accuracy);
+    under depolarizing noise the filter changes nothing, as the §24 rule
+    predicts (the filter fixes errors that leave the sector).
+  * P4 holds, by a margin inside the noise (loss 0.8 vs 0.9 points). The
+    register-mean readout C is also more robust to T1 than B (1.5 vs 2.5
+    points lost).
+  * The price of the filter is the model: D, the only QNN that conserves
+    weight, is the weakest classifier (0.765 vs about 0.95), because unary
+    amplitude encoding drops the norm of x and D has half the parameters.
+  * Size of differences: test sets have 30-60 samples, so one sample is 2-3
+    points; differences of 1-2 points between models are within noise.
+
+  Verdict. On these tasks a 4-qubit QNN reaches classical accuracy but does
+  not beat it, and qang does not make it more accurate. What qang adds is
+  robustness: the register-mean readout loses less under shots and T1 than a
+  single-qubit readout, and the qg filter removes the T1 loss completely for
+  a weight-conserving QNN, at the cost of a weaker architecture. The useful
+  next step is a weight-conserving QNN that keeps the norm (or more
+  parameters), so the filter's protection comes without the accuracy cost.
+  Limitations: 4 qubits and 4 features, small datasets, noise only at
+  evaluation (models trained noiselessly), one noise strength each.
 """
 
 import math

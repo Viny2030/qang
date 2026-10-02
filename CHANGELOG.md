@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_classifier_qg.py`: pre-registered QNN study on four real datasets (iris, breast cancer, wine,
+  digits): standard QNN, arccos encoding, register-mean qg readout and a weight-conserving QNN with the qg filter,
+  against logistic regression, RBF-SVM, MLP and Chebyshev features. No quantum advantage (as predicted); arccos
+  encoding gives no accuracy gain (prediction failed); the qg filter removes the T1 loss of the weight-conserving
+  QNN completely (RESEARCH_NOTES §75). Needs scikit-learn (now in the `examples` and `all` extras).
+
+### Added
 - `CITATION.cff` (GitHub "Cite this repository"; validated against CFF 1.2.0) and
   `notebooks/qang_start_here.ipynb`, the starter notebook in English; README links both Colab notebooks.
 - `manuscript/formulation/` (PDF and Word `manuscript/qang_formulation`): article in English, "Quantum gates and
