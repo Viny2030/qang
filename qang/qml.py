@@ -215,8 +215,16 @@ class WeightQNN:
     def qg_z(self, probs, qang=True):
         """Readout features: the local qg_Z of every qubit (and, with
         readout="zz", the qg_ZZ correlations); with ``qang`` only the shots in
-        the input's weight sector are kept (the filter from qang.sectors)."""
+        the input's weight sector are kept (the filter from qang.sectors).
+        ``qang="both"`` is the two-channel readout (§95): the filtered
+        features followed by the raw ones, so that a model trained under
+        noise can also use the shots that decayed out of the sector."""
         probs = np.atleast_2d(probs)
+        if isinstance(qang, str):
+            if qang != "both":
+                raise ValueError("qang must be True, False or 'both'")
+            filt = np.array([filter_distribution(p, self.n, self.weight)[0] for p in probs])
+            return np.hstack([filt @ self.features, probs @ self.features])
         if qang:
             probs = np.array([filter_distribution(p, self.n, self.weight)[0] for p in probs])
         return probs @ self.features
@@ -228,7 +236,7 @@ class WeightQNN:
         if shots:
             rng = np.random.default_rng(seed)
             pr = np.array([rng.multinomial(shots, p / p.sum()) / shots for p in pr])
-        return self.qg_z(pr, qang) @ params[self.n_theta:self.n_theta + self.n_head] + params[-1]
+        return self.qg_z(pr, qang) @ params[self.n_theta:-1] + params[-1]
 
     def fit(self, X, y, epochs=120, lr=0.1, gamma=None, dephasing=0.0, qang=True, seed=0, h=1e-4):
         """Adam on the cross-entropy, central-difference gradients on the
@@ -236,7 +244,8 @@ class WeightQNN:
         y = np.asarray(y, float)
         psi = self.encode(X)
         rng = np.random.default_rng(seed)
-        nt, nh = self.n_theta, self.n_head
+        nt = self.n_theta
+        nh = self.n_head * (2 if isinstance(qang, str) else 1)
         p = np.concatenate([rng.uniform(-np.pi, np.pi, nt), rng.normal(0, 0.5, nh), [0.0]])
         m = np.zeros_like(p)
         v = np.zeros_like(p)

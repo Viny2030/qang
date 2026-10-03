@@ -153,3 +153,20 @@ def test_dual_encoding_fills_the_sector_and_is_exact():
     assert np.allclose(m.qg_z(m.probs(th, psi, 0.1), qang=True), m.qg_z(m.probs(th, psi), qang=False), atol=1e-12)
     with pytest.raises(ValueError):
         WeightQNN(5, 1, encoding="dual")
+
+
+def test_two_channel_readout_contains_raw_and_filtered():
+    rng = np.random.default_rng(11)
+    m = WeightQNN(5, 2, encoding="dual", readout="zz")
+    X = rng.uniform(-1, 1, (6, 4))
+    y = (X[:, 0] > 0).astype(int)
+    th = rng.uniform(-3, 3, m.n_theta)
+    pr = m.probs(th, m.encode(X), 0.08)
+    both = m.qg_z(pr, "both")
+    assert np.allclose(both[:, :m.n_head], m.qg_z(pr, True))
+    assert np.allclose(both[:, m.n_head:], m.qg_z(pr, False))
+    p = m.fit(X, y, epochs=2, gamma=0.08, qang="both", seed=1).params_
+    assert len(p) == m.n_theta + 2 * m.n_head + 1
+    assert 0 <= m.score(X, y, p, gamma=0.08, qang="both") <= 1
+    with pytest.raises(ValueError):
+        m.qg_z(pr, "all")
