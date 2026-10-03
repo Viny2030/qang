@@ -4458,6 +4458,189 @@ Paired differences (mean and 95% CI across seeds):
 * **Honest scope.** Simulated noise, one architecture per weight, small
   datasets.
 
+## 81. A weight-2 QNN with qg_ZZ readout, with and without qang (`examples/qnn_zz_readout_qg.py`)
+
+**Why.** W (weight 2) was 3.0 points below E (§80). Its qg_Z readout sees only
+5 linear functions of the 10 sector probabilities. Adding qg_ZZ = ⟨ZᵢZⱼ⟩
+makes the readout a linear function of the whole sector distribution (rank
+10). At weight 1 it adds nothing (rank 5 = 5). Both ranks are tested. Library:
+`qang.qml.WeightQNN(readout="zz")`.
+
+**Predictions, committed before the run (1f2da5c).**
+* U1: F4 holds for qg_ZZ.
+* U2: WZZ > W, with the CI above 0.
+* U3: WZZ ≥ E − 1 point.
+* U4: the gain from qang when training without noise is ≥ 10 points.
+* U5: with noise-aware training, |qang − without| < 1 point.
+
+Results over 60 runs (seeds 810–814; 95% CI across seeds):
+
+| quantity | value |
+|---|---|
+| E / W / WZZ exact | 0.965 / 0.931 / 0.925 |
+| WZZ − W | −0.6 [−1.5, +0.4] points |
+| WZZ − E | −4.0 [−5.8, −2.2] |
+| gain from qang, trained without noise, T1 (0.925 vs 0.776) | +14.9 [+9.9, +19.9] |
+| qang − without, trained under T1 (0.925 vs 0.937) | **−1.2 [−2.0, −0.4]** |
+
+* **U1 and U4 pass; U2, U3 and U5 fail.**
+* **The correlations do not close the gap.** The weight-2 limit is the
+  encoding and the circuit, not the readout. The rank argument was right
+  about the readout and wrong about the cause.
+* **New limit of the filter (U5 fails, against qang).** Trained under the
+  calibrated noise with 15 readout weights, the model without qang is 1.2
+  points better, and the CI excludes 0. The decayed shots (weight 0 and 1)
+  still carry information about where the excitations were, and the raw
+  model learns to use it; the filter discards it. With 5 readout weights
+  (§80) the two were equal.
+* **Verdict.** qang stays decisive for training without noise (+14.9) and
+  exact under equal T1. With noise-aware training and a rich readout,
+  discarding shots can cost accuracy.
+
+## 82. How much T1 spread across qubits the filter tolerates (`examples/qnn_t1_spread_qg.py`)
+
+γ_q = 0.08(1 + s·u_q), where u_q is spread evenly over [−1, 1] and assigned at
+random to the qubits. s is the relative spread of the decay rates 1/T1, and
+runs over 0, 0.1, 0.2, 0.3, 0.5, 0.75 and 1. Models E and W are trained
+without noise. Results cover 60 runs per model (seeds 820–824).
+
+**Predictions, committed before the run (1f4f8ac).**
+* V1: exact at s = 0.
+* V2: loss < 1 point at s = 0.5.
+* V3: loss < 2 points at s = 1.
+* V4: the gain from qang has a CI above 0 at every s.
+* V5: W loses at least as much as E for s ≥ 0.3.
+
+| s | E: loss | E: qang gain | W: loss | W: qang gain |
+|---|---|---|---|---|
+| 0 | 0 | +2.4 | 0 | +15.5 |
+| 0.5 | +0.3 | +3.1 | +0.2 | +15.2 |
+| 0.75 | +0.9 | +3.4 | +0.7 | +15.1 |
+| 1 | +1.4 | +3.5 | +1.3 | +15.1 |
+
+* **V1, V2 and V3 pass; V4 and V5 fail.**
+* **V4 fails, narrowly.** The gain from qang is positive at every s, but for
+  E at s = 0.3 its CI reaches −0.1.
+* **V5 fails.** W is not more sensitive than E: its loss is smaller for
+  s ≥ 0.2.
+* **Practical rule.** A network trained on a simulator can be run with the
+  filter alone, losing less than 1 point, as long as the qubits' 1/T1
+  differ by up to about ±80% around their mean. With a larger spread, train
+  under the calibrated noise.
+
+## 83. Polarized light in qg units (`qang.polarization`)
+
+The Poincaré sphere is the Bloch sphere. With |H⟩ = |0⟩ and |V⟩ = |1⟩, the
+normalized Stokes parameters are qg values:
+* qg_Z = S₁/S₀ (H − V);
+* qg_X = S₂/S₀ (D − A);
+* qg_Y = S₃/S₀ (R − L), with R ≡ (|H⟩ + i|V⟩)/√2 (`circular_sign=-1` for the
+  other convention).
+
+The degree of polarization is the length of the qg vector, and the purity is
+(1 + P²)/2. A Mueller matrix is the Pauli transfer matrix in the order
+(I, Z, X, Y). For a lossless element (a unitary Jones matrix) it is exactly
+the qang gate rule qg'_P = qg_{U†PU} (`qang.formulation.apply_gate`).
+
+Malus's law in qg units, for any input state:
+I = I₀(1 + qg_Z cos 2θ + qg_X sin 2θ)/2.
+
+`qg_from_counts` turns analyser counts (H, V, D, A, R, L) into qg values with
+intervals from `qang.statistics.qg_estimate`. The physics is standard optics.
+All the identities are checked numerically (`tests/test_polarization.py`,
+12 tests): basis states; round trip against `qang.formulation`; Mueller =
+gate rule for wave plates and rotators; Malus; a half-wave plate rotates by
+2θ; depolarizer and purity.
+
+## 84. Geometric phase and Stokes' theorem in qg units (`qang.geometric`)
+
+A qubit taken around a closed loop on the Bloch sphere picks up
+γ = −Ω/2, where Ω is the enclosed solid angle. This is Stokes' theorem: the
+line integral of the Berry connection equals the flux of the Berry
+curvature, a monopole of strength 1/2. For a loop at constant qg_Z around
+the Z axis, Ω = 2π(1 − qg_Z), so in qg_Φ turns:
+
+    φ = (qg_Z − 1)/2  (mod 1)
+
+The geometric phase of a cone loop is fixed by qg_Z alone. The module
+computes the phase three ways and checks that they agree
+(`tests/test_geometric.py`, 14 tests):
+* the gauge-invariant overlap product (Pancharatnam), equal to −½ the solid
+  angle of the geodesic polygon to 10⁻¹⁰;
+* the signed solid angle (Van Oosterom–Strackee);
+* the numerical curvature flux through the cap, which equals the line
+  integral to 10⁻⁵ (Stokes).
+
+It is also gauge invariant, it changes sign when the loop is reversed, and
+for polarized light the loop H → D → R gives Pancharatnam's −π/4 (an octant
+of the Poincaré sphere). The result is returned as a `qang.phase.QangPhi`
+value.
+
+## 85. The qg-filtered QNN on IBM and IonQ backends (`examples/qnn_hardware_qg.py`)
+
+Model E is trained on a simulator (`qang.qml`) and compiled to Qiskit. A
+cascade of 4 RBS gates loads the signed unary amplitudes, followed by the 15
+trained RBS gates. The circuit is checked against `WeightQNN.probs` to
+10⁻¹⁶ before anything is submitted. Each input is read from the same shots
+with qang and without it. The setting is iris, 30 test inputs, 1000 shots.
+
+**Predictions, committed before any backend run (d0191cb).**
+* K1: accuracy with qang ≥ without.
+* K2: accuracy with qang within 5 points of noiseless.
+* K3: the qg_Z error is smaller with qang.
+
+Fake IBM backends (calibration-based noise models simulated by Aer, not
+hardware), 62 two-qubit gates per circuit:
+
+| backend | accuracy, qang / without | qg_Z error, qang / without | kept |
+|---|---|---|---|
+| fake_brisbane | 0.933 / 0.933 | 0.065 / 0.187 | 0.69 |
+| fake_sherbrooke | 0.933 / 0.933 | 0.043 / 0.155 | 0.72 |
+| fake_torino | 0.933 / 0.933 | 0.040 / 0.138 | 0.74 |
+
+* **K1–K3 pass on all three.** K1 and K2 pass by equality: the margins are
+  wide and no decision changes.
+* **The filter cuts the qg_Z error by 2.9–3.5×.** It keeps 69–74% of the
+  shots, because gate errors and readout add to T1.
+* **Pending: real devices.** These commands print their size first and need
+  an explicit flag:
+  * `--mode ibm --yes-i-run-on-hardware`;
+  * `--mode ionq_sim` (free);
+  * `--mode ionq_qpu` (costs money; `--yes-i-accept-qpu-cost`).
+
+## 86. The §31 heralded characterization as IBM circuits (`examples/hardware_characterization_ibm.py`)
+
+The §31 sweep is built as Qiskit circuits on one qubit: measure (herald),
+I / X / Ry(π/2), delay, rotate back, measure. It uses 16 + 16 circuits with a
+mid-circuit measurement and is fitted with the §31 functions.
+
+**Predictions, committed before any run (5239ad3).**
+* On fake backends:
+  * C1: T1 and T2 within 25%.
+  * C2: both readout errors within 0.01.
+  * C3: qg_eq ≥ 0.98.
+* On a real device:
+  * C1′: T1 within 25%.
+  * C4: the standard e01 is larger than the qg e01.
+
+Fake backends (2000 shots):
+
+| backend (qubit) | reported T1 / T2 / e01 / e10 | qg fit | standard |
+|---|---|---|---|
+| brisbane (112) | 204 / 30.0 / 0.0073 / 0.0039 | 204 / 29.2 / 0.0055 / 0.0046 | 201 / 28.7 / 0.0035 / 0.0090 |
+| sherbrooke (74) | 181 / 137 / 0.0034 / 0.0024 | 179 / 136 / 0.0029 / 0.0014 | 177 / 150 / 0.0005 / 0.0045 |
+| torino (51) | 186 / 161 / 0.0024 / 0.0078 | 184 / 162 / 0.0047 / 0.0029 | 183 / 176 / 0.0025 / 0.0085 |
+
+* **C1–C3 pass on all three.** The circuits, bit order and fits work end to
+  end, including the herald.
+* **The qg T2 is closer to the reported value** than the standard T2, which
+  is 10% high on sherbrooke and torino.
+* **What a fake backend cannot test** is thermal population (Aer has none),
+  which is the point of §31 (C4).
+* **Pending: the real run.** Use `--mode ibm --yes-i-run-on-hardware`
+  (32 one-qubit circuits). §33 (syndrome tracking) needs repeated code rounds
+  with mid-circuit measurement and is left for later.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

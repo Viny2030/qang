@@ -33,6 +33,10 @@ This package covers, in order:
   - qang.qml          weight-conserving QNN classifiers with and without the
                        qg filter, exact block simulator for T1 and dephasing
                        (RESEARCH_NOTES §75-§80), NumPy only.
+  - qang.polarization  polarized light in qg units: Stokes parameters are qg
+                       values, Mueller matrices are the qg gate rule (§83).
+  - qang.geometric    geometric (Berry/Pancharatnam) phase in qg units and
+                       Stokes' theorem on the Bloch sphere (§84).
   - qang.knitting     the sampling cost of circuit cutting in qg units.
   - qang.circuits, qang.ansatze, qang.qec, qang.algorithms
                        Qiskit circuit builders, variational ansatze, the

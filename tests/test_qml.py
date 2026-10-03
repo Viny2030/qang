@@ -107,3 +107,19 @@ def test_bad_inputs():
         WeightQNN(5, 3)
     with pytest.raises(ValueError):
         WeightQNN(5, 1).encode(np.zeros((2, 3)))
+
+
+def test_zz_readout_rank_and_exactness():
+    for weight, rank in ((1, 5), (2, 10)):
+        m = WeightQNN(5, weight, readout="zz")
+        rows = m.idx[weight]
+        assert m.n_head == 15
+        assert np.linalg.matrix_rank(np.c_[np.ones(len(rows)), m.zsign[rows]]) == 5
+        assert np.linalg.matrix_rank(np.c_[np.ones(len(rows)), m.features[rows]]) == rank
+    rng = np.random.default_rng(7)
+    m = WeightQNN(5, 2, readout="zz")
+    th = rng.uniform(-3, 3, m.n_theta)
+    psi = m.encode(rng.uniform(-1, 1, (3, 4)))
+    assert np.allclose(m.qg_z(m.probs(th, psi, 0.1), qang=True), m.qg_z(m.probs(th, psi), qang=False), atol=1e-12)
+    with pytest.raises(ValueError):
+        WeightQNN(5, 1, readout="xx")

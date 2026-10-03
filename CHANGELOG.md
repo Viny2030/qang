@@ -16,6 +16,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   matrix).
 - `notebooks/qang_qml.ipynb` (English) and `notebooks/qang_qml_es.ipynb` (Spanish): QNNs with and without qang,
   installed from PyPI; built by `notebooks/make_qml_notebooks.py`.
+- `qang.qml`: `WeightQNN(readout="zz")` adds the two-qubit qg_ZZ correlations to the readout (§81).
+- `qang.polarization` (NumPy only): Stokes parameters as qg values (the Poincare sphere is the Bloch sphere),
+  degree of polarization and purity, Jones and Mueller matrices (a lossless Mueller matrix is the qg gate rule),
+  wave plates, polarizers, rotators, depolarizer, Malus's law in qg units, qg values with intervals from analyser
+  counts (RESEARCH_NOTES §83).
+- `qang.geometric` (NumPy only): geometric (Berry/Pancharatnam) phase in qg units, gamma = -Omega/2 checked three ways
+  (overlaps, solid angle, curvature flux: Stokes' theorem on the Bloch sphere); a cone loop's phase is
+  (qg_Z - 1)/2 turns; results as `qang.phase.QangPhi` (RESEARCH_NOTES §84).
+- `examples/qnn_zz_readout_qg.py` (§81, 60 runs): the qg_ZZ readout does not close the weight-2 gap (U2, U3 fail);
+  trained under T1 with a rich readout the model without qang is 1.2 points better (U5 fails); qang adds +14.9
+  points when training without noise.
+- `examples/qnn_t1_spread_qg.py` (§82, 60 runs): the filter alone loses < 1 point up to a +-80% spread of 1/T1
+  across qubits (V1-V3 pass; V4, V5 fail).
+- `examples/qnn_hardware_qg.py` (§85): the filtered QNN compiled to Qiskit for IBM (fake or real) and IonQ
+  (simulator or QPU, with explicit cost flags); on three fake IBM backends the filter cuts the qg_Z error 2.9-3.5x
+  (K1-K3 pass); real-device runs pending.
+- `examples/hardware_characterization_ibm.py` (§86): the §31 heralded characterization as IBM circuits with a
+  mid-circuit herald; C1-C3 pass on three fake backends; real-device run pending.
 - `manuscript/qml/` and `manuscript/qml_es/`: note "Training quantum neural networks for T1-limited hardware: what
   the qg symmetry filter does and does not do" (English and Spanish; PDF and Word `manuscript/qang_qml[_es]`),
   §75-§80 with every result with and without qang; figure script `manuscript/qml/make_figure.py`; LaTeX-to-Word

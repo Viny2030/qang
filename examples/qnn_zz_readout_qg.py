@@ -38,7 +38,38 @@ examples/qnn_zz_readout_qg.py [seeds]
 
 Findings (python examples/qnn_zz_readout_qg.py):
 
-FINDINGS_PLACEHOLDER
+Seeds 810-814 x 3 splits x 4 datasets = 60 runs. Mean accuracy:
+E (weight 1) 0.965, W (weight 2, qg_Z readout) 0.931, WZZ (weight 2, qg_Z +
+qg_ZZ readout) 0.925. Under T1, WZZ trained clean: with qang 0.925, without
+0.776; trained under T1: with qang 0.925, without 0.937.
+
+  quantity (95% CI across seeds)        value
+  WZZ - W (exact)                       -0.6 points [-1.5, +0.4]
+  WZZ - E (exact)                       -4.0 points [-5.8, -2.2]
+  gain of qang, trained clean, T1       +14.9 points [+9.9, +19.9]
+  qang - without, trained under T1      -1.2 points [-2.0, -0.4]
+  F4 (with qang = exact)                60 of 60 runs
+
+  * U1 PASS: the filter is exact for the correlation readout too.
+  * U2 FAILS: the correlations do not help (-0.6 points, CI across 0),
+    although they make the readout a linear function of the whole sector
+    distribution (rank 10 against 5). The rank argument stated before the
+    run was right about the readout and wrong about the cause: the
+    weight-2 gap does not come from the readout.
+  * U3 FAILS: WZZ stays 4.0 points below E. What limits weight 2 here is
+    the pair-product encoding and the circuit, not what is read out.
+  * U4 PASS: trained without noise, qang adds 14.9 points.
+  * U5 FAILS, against qang: trained under T1, the model without qang is
+    1.2 points better, with a CI that excludes 0. With 15 readout weights
+    the raw model learns to use the decayed shots (weight 0 and 1), which
+    still carry information about where the excitations were before the
+    decay; the filter throws that information away. In §80, with 5
+    readout weights, the two were equal.
+  Verdict. The qg_ZZ readout does not close the weight-2 gap. It shows a
+  limit of the filter that had not appeared before: when the model is
+  trained under the calibrated noise and has a rich readout, discarding
+  the decayed shots costs accuracy (1.2 points). qang remains decisive for
+  noise-free training (+14.9 points) and exact under equal T1.
 """
 
 import json

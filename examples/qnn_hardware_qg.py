@@ -49,7 +49,29 @@ IonQ).
 
 Findings (python examples/qnn_hardware_qg.py --mode fake):
 
-FINDINGS_PLACEHOLDER
+Fake IBM backends (calibration-based noise models simulated by Aer: gate
+errors, thermal relaxation, readout error; not real hardware). 30 test
+inputs x 1000 shots, the same trained model (noiseless accuracy 0.933),
+62 two-qubit gates per compiled circuit:
+
+  backend          accuracy: qang / without   qg_Z error: qang / without   kept
+  fake_brisbane    0.933 / 0.933              0.065 / 0.187                0.69
+  fake_sherbrooke  0.933 / 0.933              0.043 / 0.155                0.72
+  fake_torino      0.933 / 0.933              0.040 / 0.138                0.74
+
+  * K1, K2, K3 pass on all three. K1 and K2 pass by equality: the iris
+    model has wide margins and neither readout changes a single decision.
+  * K3 is where the filter shows: it cuts the error of the measured qg_Z
+    by 2.9-3.5x, keeping 69-74% of the shots. The kept fraction is far from
+    the §77 value (1 - gamma)^9: here the losses come from gate errors and
+    readout, not only from T1.
+  * Pending: the real-device runs. IBM (open plan):
+      python examples/qnn_hardware_qg.py --mode ibm --yes-i-run-on-hardware
+    IonQ simulator with the Aria noise model (free) and QPU (costs money):
+      python examples/qnn_hardware_qg.py --mode ionq_sim
+      python examples/qnn_hardware_qg.py --mode ionq_qpu   (prints the size;
+      then --yes-i-accept-qpu-cost)
+    Each run will be reported here with its K1-K3 verdict.
 """
 
 import argparse

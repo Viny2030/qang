@@ -39,7 +39,26 @@ IBM account is the one saved with QiskitRuntimeService.save_account(...).
 
 Findings (python examples/hardware_characterization_ibm.py --mode fake):
 
-FINDINGS_PLACEHOLDER
+Fake IBM backends, 2000 shots per circuit, the qubit with the lowest
+reported readout error (T in microseconds):
+
+  backend (qubit)      reported T1 / T2 / e01 / e10       qg fit                          standard
+  fake_brisbane (112)  204 / 30.0 / 0.0073 / 0.0039   204 / 29.2 / 0.0055 / 0.0046   201 / 28.7 / 0.0035 / 0.0090
+  fake_sherbrooke (74) 181 / 137  / 0.0034 / 0.0024   179 / 136  / 0.0029 / 0.0014   177 / 150  / 0.0005 / 0.0045
+  fake_torino (51)     186 / 161  / 0.0024 / 0.0078   184 / 162  / 0.0047 / 0.0029   183 / 176  / 0.0025 / 0.0085
+
+  * C1, C2, C3 pass on all three: the circuits, the bit order and the §31
+    fits work end to end on a calibration-based noise model, with the
+    mid-circuit herald and its relaxation during the measurement included.
+  * The qg fit is closer to the reported T2 than the standard fits (on
+    sherbrooke and torino the standard T2 is 10% high) and gives qg_eq =
+    1.000-1.001 (the fit is unbounded in its last stage; p_th = 0 within
+    0.0005), as it should for Aer, which has no thermal population.
+  * What the fake backends cannot test is the point of §31: a real qubit
+    has thermal population, which the standard suite counts as readout
+    error (C4). Pending: the real-device run,
+      python examples/hardware_characterization_ibm.py --mode ibm --yes-i-run-on-hardware
+    (32 one-qubit circuits x 2000 shots), reported here with C1' and C4.
 """
 
 import argparse

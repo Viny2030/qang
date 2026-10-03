@@ -40,7 +40,37 @@ examples/qnn_t1_spread_qg.py [seeds]
 
 Findings (python examples/qnn_t1_spread_qg.py):
 
-FINDINGS_PLACEHOLDER
+Seeds 820-824 x 3 splits x 4 datasets = 60 runs per model. Loss of the
+filter (exact - with qang) and gain of qang (with - without), in points,
+mean and 95% CI across seeds:
+
+  spread s   E loss              E gain               W loss              W gain
+  0          0                   +2.4 [+0.5, +4.2]    0                   +15.5 [+10.3, +20.8]
+  0.1        -0.0 [-0.2, +0.2]   +2.5 [+0.4, +4.5]    +0.0 [-0.3, +0.4]   +15.3 [+9.7, +20.8]
+  0.2        +0.1 [-0.2, +0.3]   +2.5 [+0.1, +4.9]    -0.1 [-0.3, +0.2]   +15.1 [+9.9, +20.2]
+  0.3        +0.1 [-0.5, +0.7]   +2.5 [-0.1, +5.1]    -0.2 [-0.8, +0.5]   +15.3 [+10.2, +20.5]
+  0.5        +0.3 [-0.8, +1.5]   +3.1 [+0.3, +6.0]    +0.2 [-0.2, +0.6]   +15.2 [+10.5, +19.9]
+  0.75       +0.9 [-0.7, +2.4]   +3.4 [+0.1, +6.6]    +0.7 [-0.1, +1.5]   +15.1 [+9.7, +20.6]
+  1          +1.4 [-0.7, +3.5]   +3.5 [+0.4, +6.6]    +1.3 [+0.6, +1.9]   +15.1 [+9.9, +20.4]
+
+  * V1, V2, V3 pass; V4 and V5 fail.
+  * V1: at s = 0 the filter is exact on all 60 runs (both models).
+  * V2: at s = 0.5 the loss is 0.3 (E) and 0.2 (W) points.
+  * V3: even at s = 1 (gamma from 0 to 0.16) it stays at 1.4 and 1.3.
+  * V4 FAILS, narrowly: the gain of qang is positive at every spread, but
+    for E at s = 0.3 its CI reaches -0.1 points. For W every CI is far
+    above 0.
+  * V5 FAILS: weight 2 is not more sensitive to the spread than weight 1
+    (its loss is smaller at every s >= 0.2), although its states decay
+    twice as fast. A possible reason, not tested here: the distortion
+    depends on differences between the decay rates of the excited qubits,
+    and with two excitations part of those differences averages out.
+  Practical rule: a network trained on a simulator can be run with the
+  filter alone, losing less than 1 point, as long as the decay rates 1/T1
+  of the qubits differ by up to about +-80% around their mean (the loss
+  reaches 1 point between s = 0.75 and s = 1); with a larger spread, train
+  under the calibrated noise. With or without spread, qang adds 2.4-3.5
+  points at weight 1 and about 15 at weight 2 over the raw readout.
 """
 
 import json
