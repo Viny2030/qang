@@ -148,16 +148,32 @@ bell = F.apply_gate(F.apply_gate(F.qg_values([1, 0, 0, 0]), F.kron(F.H, F.I2)), 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_qml.ipynb) English &nbsp;·&nbsp;
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_qml_es.ipynb) Español
 
-`qang.qml` (qang >= 0.6.0) trains weight-conserving QNN classifiers and reads every result with qang (the qg
-filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. Over 60 runs
-(RESEARCH_NOTES §80): trained on a simulator and run under T1, qang adds +2.5 points at weight 1 and +16.5 at
-weight 2 and recovers the noiseless accuracy exactly; trained under the calibrated noise, the model without qang
-catches up; dephasing is not corrected. These models are classically simulable: a robustness tool, not a quantum
-advantage. Note: `manuscript/qang_qml.pdf` (Spanish: `manuscript/qang_qml_es.pdf`).
+`qang.qml` (qang >= 0.6.3) trains weight-conserving QNN classifiers and reads every result with qang (the qg
+filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
+classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
+(52 so far in the QML line: 40 passed, 12 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
+`manuscript/qang_qml_es.pdf`).
+
+**Results so far (simulation; RESEARCH_NOTES §75–§94):**
+
+| question | result |
+|---|---|
+| trained on a simulator, run under T1 (60 runs, §80) | with qang the noiseless accuracy is recovered exactly: +2.5 points at weight 1, +16.5 at weight 2 |
+| trained under the calibrated noise (§80, §81) | without qang the model catches up; with a rich readout it is 1.2 points better (decayed shots carry information) |
+| T1 spread across qubits (§82) | the filter alone loses < 1 point up to a ±80% spread of 1/T1 |
+| weight 2 (§87, §90) | the pair-product encoding limited it; with the `"dual"` encoding and `readout="zz"` weight 2 matches weight 1 (0.947 = 0.947) |
+| device noise models (§85, §91) | IBM fake backends and the IonQ simulator (Aria-1, Forte-1): qg_Z error 2.7–3.6× smaller with qang; 189 inputs on Forte-1: 0.968 with vs 0.958 without (noiseless 0.979) |
+| scaling (§94, 108 configurations, 4–8 qubits, weight 1–4, depth 3–24) | the filter has the lower readout error in 106 of 108 (up to 1000×); a closed-form rule, MSE ≈ (1 − z²)/(K·S) with K = (1 − γ)^(weight·depth), predicts the winner in 99% |
+| not corrected | dephasing; unequal T1 beyond ±80% |
+
+Hardware runs are prepared, with explicit cost confirmation, and pending:
+`examples/qnn_hardware_qg.py --mode ionq_qpu` (IonQ Forte-1) or `--mode ibm`, and
+`examples/qec_syndrome_destructive_qg.py --mode ibm` (T1 and dephasing from Leung-code syndromes; within 1–4% of the
+calibration on IBM noise models, §93).
 
 ```python
 from qang.qml import WeightQNN
-m = WeightQNN(n_qubits=5, weight=2).fit(X_train, y_train)          # 4 features in [-1, 1]
+m = WeightQNN(n_qubits=5, weight=2, encoding="dual", readout="zz").fit(X_train, y_train)  # 4 features in [-1, 1]
 m.score(X_test, y_test, gamma=0.08, qang=True)                      # = noiseless accuracy (equal T1)
 m.score(X_test, y_test, gamma=0.08, qang=False)                     # raw readout, biased by T1
 ```
@@ -187,7 +203,7 @@ Three further notebooks (in Spanish) cover the research notes:
 
 * `notebooks/qang_verificado.ipynb` — §1–§19: exact identities, blind spots, noise
   diagnostics, optimization, knitting, few-shot estimation, QML, control quantization.
-* `notebooks/qang_avances_colab.ipynb` — §20–§74: the qg symmetry witness and filter
+* `notebooks/qang_avances_colab.ipynb` — §20–§93: the qg symmetry witness and filter
   (chemistry, Hubbard, constrained QAOA), filter vs ZNE, qubit characterization, error
   correction (Leung code, syndrome tracking), coherence, few-shot estimation, and the
   recorded IonQ noisy-simulator runs, each with an honest "for / against" reading.

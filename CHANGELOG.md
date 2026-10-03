@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.6.3] - 2026-10-03
 
 ### Changed
+- README (PyPI page): a results table for the QML line (§75-§94), the hardware scripts that are ready, the dual
+  encoding in the example, and the avances notebook range (§20-§93).
 - `qang.qml.WeightQNN` simulates any weight 1 <= k <= n - 1 (probs, qg_z, kept_fraction); data encodings remain for
   weights 1 and 2 (§94).
 
