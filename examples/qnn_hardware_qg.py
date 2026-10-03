@@ -65,6 +65,17 @@ inputs x 1000 shots, the same trained model (noiseless accuracy 0.933),
     by 2.9-3.5x, keeping 69-74% of the shots. The kept fraction is far from
     the §77 value (1 - gamma)^9: here the losses come from gate errors and
     readout, not only from T1.
+  IonQ cloud simulator with device noise models (free), same model and
+  shots, retrieved with the resumable job list (--jobs):
+
+  noise model   accuracy: qang / without   qg_Z error: qang / without   kept   2q gates
+  aria-1        0.933 / 0.933              0.056 / 0.176                0.73   38
+  forte-1       0.933 / 0.933              0.072 / 0.206                0.70   38
+
+  * K1-K3 pass on both; the filter cuts the qg_Z error 3.2x (aria-1) and
+    2.9x (forte-1). On October 3, 2026 the Aria QPUs are retired; the QPU
+    default is now qpu.forte-1 (30 circuits x 1000 shots, 1140 two-qubit
+    gates in total).
   * Pending: the real-device runs. IBM (open plan):
       python examples/qnn_hardware_qg.py --mode ibm --yes-i-run-on-hardware
     IonQ simulator with the Aria noise model (free) and QPU (costs money):
@@ -199,11 +210,11 @@ def get_backend(mode, name=None):
         from qiskit_ionq import IonQProvider
 
         provider = IonQProvider(read_ionq_key())
-        return provider.get_backend("simulator" if mode == "ionq_sim" else (name or "qpu.aria-1"))
+        return provider.get_backend("simulator" if mode == "ionq_sim" else (name or "qpu.forte-1"))
     raise ValueError(mode)
 
 
-def run_counts(backend, mode, circuits, shots, noise="aria-1", seed=11):
+def run_counts(backend, mode, circuits, shots, noise="aria-1", seed=11, jobs_path=None):
     from qiskit import transpile
 
     if mode in ("local", "fake"):
@@ -221,15 +232,39 @@ def run_counts(backend, mode, circuits, shots, noise="aria-1", seed=11):
         print("IBM job id:", job.job_id(), flush=True)
         res = job.result()
         return [r.data.meas.get_counts() for r in res], tc
+    return ionq_counts(backend, mode, tc, shots, noise, jobs_path), tc
+
+
+def ionq_counts(backend, mode, tc, shots, noise, jobs_path=None, tries=20, wait=15):
+    """Submit every circuit first (job ids saved to ``jobs_path`` after each
+    submission, so an interrupted run resumes without resubmitting), then
+    retrieve the results with a socket timeout and retries."""
+    import socket
+    import time
+
+    socket.setdefaulttimeout(60)
+    ids = json.load(open(jobs_path)) if jobs_path and os.path.exists(jobs_path) else []
     kw = {"shots": shots}
     if mode == "ionq_sim":
         kw["noise_model"] = noise
+    for i in range(len(ids), len(tc)):
+        job = backend.run(tc[i], **kw)
+        ids.append(job.job_id())
+        print("IonQ job id:", ids[-1], flush=True)
+        if jobs_path:
+            json.dump(ids, open(jobs_path, "w"))
     out = []
-    for c in tc:
-        job = backend.run(c, **kw)
-        print("IonQ job id:", job.job_id(), flush=True)
-        out.append(job.result().get_counts())
-    return out, tc
+    for jid in ids[: len(tc)]:
+        for attempt in range(tries):
+            try:
+                out.append(backend.retrieve_job(jid).get_counts())
+                break
+            except Exception as exc:  # network stall or job still queued
+                if attempt == tries - 1:
+                    raise
+                print(f"retrying {jid}: {type(exc).__name__}", flush=True)
+                time.sleep(wait)
+    return out
 
 
 def counts_to_probs(counts):
@@ -268,12 +303,13 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="qg-filtered QNN on hardware")
     ap.add_argument("--mode", choices=["local", "fake", "ibm", "ionq_sim", "ionq_qpu"], default="fake")
     ap.add_argument("--backend", default=None, help="fake_brisbane / IBM device name / IonQ QPU name")
-    ap.add_argument("--noise", default="aria-1", help="IonQ simulator noise model")
+    ap.add_argument("--noise", default="aria-1", help="IonQ simulator noise model (aria-1, forte-1)")
     ap.add_argument("--shots", type=int, default=SHOTS)
     ap.add_argument("--epochs", type=int, default=120)
     ap.add_argument("--yes-i-run-on-hardware", action="store_true")
     ap.add_argument("--yes-i-accept-qpu-cost", action="store_true")
     ap.add_argument("--out", default=None, help="write the result as JSON")
+    ap.add_argument("--jobs", default=None, help="IonQ: file of job ids (saved as submitted; reused to resume)")
     args = ap.parse_args(argv)
 
     model, Xte, yte = trained_model(args.epochs)
@@ -292,7 +328,7 @@ def main(argv=None):
         print(f"IonQ QPU: {len(tc)} circuits x {args.shots} shots, {two_q} two-qubit gates in total.")
         print("Check the price in the IonQ console, then rerun with --yes-i-accept-qpu-cost.")
         return None
-    counts, tc = run_counts(backend, args.mode, circuits, args.shots, args.noise)
+    counts, tc = run_counts(backend, args.mode, circuits, args.shots, args.noise, jobs_path=args.jobs)
     probs = [counts_to_probs(c) for c in counts]
     r = evaluate(model, Xte, yte, probs)
     r["backend"] = getattr(backend, "name", str(backend))

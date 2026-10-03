@@ -31,7 +31,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   across qubits (V1-V3 pass; V4, V5 fail).
 - `examples/qnn_hardware_qg.py` (§85): the filtered QNN compiled to Qiskit for IBM (fake or real) and IonQ
   (simulator or QPU, with explicit cost flags); on three fake IBM backends the filter cuts the qg_Z error 2.9-3.5x
-  (K1-K3 pass); real-device runs pending.
+  (K1-K3 pass), and on the IonQ simulator with aria-1 and forte-1 noise 3.2x and 2.9x; resumable IonQ job lists (--jobs); QPU default qpu.forte-1; real-device runs pending.
 - `examples/hardware_characterization_ibm.py` (§86): the §31 heralded characterization as IBM circuits with a
   mid-circuit herald; C1-C3 pass on three fake backends; real-device run pending.
 - `manuscript/qml/` and `manuscript/qml_es/`: note "Training quantum neural networks for T1-limited hardware: what

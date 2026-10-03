@@ -4600,6 +4600,11 @@ hardware), 62 two-qubit gates per circuit:
 
 * **K1–K3 pass on all three.** K1 and K2 pass by equality: the margins are
   wide and no decision changes.
+* **IonQ cloud simulator with device noise (free).** With aria-1 noise the
+  qg_Z error is 0.056 with qang and 0.176 without (kept 0.73); with forte-1
+  noise it is 0.072 and 0.206 (kept 0.70). Accuracy is 0.933 in both cases,
+  with 38 two-qubit gates per circuit. K1–K3 pass on both. The Aria QPUs are
+  retired (3 October 2026), so the QPU run uses qpu.forte-1.
 * **The filter cuts the qg_Z error by 2.9–3.5×.** It keeps 69–74% of the
   shots, because gate errors and readout add to T1.
 * **Pending: real devices.** These commands print their size first and need
