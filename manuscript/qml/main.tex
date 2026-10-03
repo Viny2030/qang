@@ -43,9 +43,13 @@ is $1.2$ points better: discarding decayed shots can cost accuracy. The weight-2
 pair-product encoding, not from the readout; with an encoding that fills the whole sector and a full-rank
 readout, weight~2 reaches the weight-1 accuracy. On noise models of IBM and IonQ devices the filter cuts the
 error of the measured $\qZ$ by $2.7$--$3.6\times$; on the IonQ Forte-1 noise model over 189 inputs of four
-datasets the filtered model is 1.1 points more accurate than the raw one. These models are classically simulable and no quantum
+datasets the filtered model is 1.1 points more accurate than the raw one. With a faithful weight-2 encoding the
+advantage of the unfiltered model under noise-aware training disappears, and a classifier given both the filtered
+and the raw features gains nothing over the filter alone. Over 513 readout configurations, including kept fractions
+down to $2.6\times10^{-7}$, unequal T1 and dephasing, the filter has the lower readout error whenever about 20 shots
+are kept, and a closed-form rule predicts the winner. These models are classically simulable and no quantum
 advantage is claimed. The filter is a way to make noise-free training valid under relaxation, at a
-shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.2,
+shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.5,
 \texttt{pip install qang}).
 \end{abstract}
 
@@ -63,8 +67,8 @@ mattering?
 
 We answer with exact simulation, a fixed protocol and an explicit comparison. Every reading is taken with
 qang (filtered) and without it (raw), on the same trained parameters or the same initialization. The
-predictions of every study were committed to the repository before the run that tested them. Of 52
-pre-registered predictions in the studies summarized here, 40 passed and 12 failed; the failures are
+predictions of every study were committed to the repository before the run that tested them. Of 70
+pre-registered predictions in the studies summarized here, 53 passed and 17 failed; the failures are
 reported alongside the passes.
 
 \section{Model and theory}
@@ -137,7 +141,10 @@ The predictions that failed:
   predictions), the filter was not neutral under noise-aware training with that readout, the gain of the
   filter at one T1 spread had a CI touching zero, weight~2 was not more sensitive to the spread than
   weight~1, the pair-product encoding had a lower information ceiling than the unary one, and filling the whole
-  weight-2 sector did not help with the $\qZ$ readout.
+  weight-2 sector did not help with the $\qZ$ readout;
+\item in Sec.~\ref{sec:scaling}: with less than one kept shot the filter did not lose, contrary to the
+  prediction; the raw error of the radius deficit was not smaller at half filling; and three of the four
+  predictions for the two-channel readout, including the replication of the 1.2-point effect above.
 \end{itemize}
 
 \paragraph{Replication over 60 runs.} The key comparisons were repeated over 5 seeds $\times$ 3 splits
@@ -222,6 +229,28 @@ times smaller with the filter on every dataset. (IonQ results use the measured f
 API; qiskit-ionq's \texttt{get\_counts} resamples them on each call.) These are noise models, not devices; the
 hardware runs are prepared, with cost confirmations, and pending.
 
+\paragraph{Two channels, shot cost and what else the filter reads.}\label{sec:scaling}
+\begin{itemize}
+\item \textit{Two-channel readout (60 runs).} Giving the classifier both the filtered and the raw features
+  ($2\times15$ weights, \texttt{qang="both"}) was meant to keep the information of the decayed shots that made the
+  raw model 1.2 points better above. With the dual encoding that effect did not replicate: trained under T1, the
+  filtered model equals the noiseless one (0.953) and the raw one reaches 0.950 ($-0.3$ $[-0.8,0.2]$ points
+  against the filter). The two channels equal the raw readout ($-0.0$ $[-0.6,0.6]$) and, at weight~1, the best
+  single readout ($+0.0$ $[-0.4,0.4]$). The earlier gap came with the distorting pair-product encoding.
+\item \textit{Shot cost.} For the $\qZ$ readout of random weight-conserving circuits the filtered error
+  follows $(1-z^2)/(KS)$ and the raw error $(r-z)^2+(1-r^2)/S$, with $K$ the kept fraction and $S$ the shots.
+  Over 108 configurations (4--8 qubits, weight 1--4, depth 3--24) the filter has the lower error in 106 (up to
+  $1000\times$ lower), and the rule picks the winner in 99\%; the break-even is 3--110 shots. Over 405 further
+  configurations with $K$ down to $2.6\times10^{-7}$, unequal T1 and dephasing, it wins in every configuration
+  with at least 20 kept shots (up to $1871\times$ under equal T1, $94\times$ unequal, $58\times$ with dephasing),
+  and a generalized rule with the biased filtered value picks the winner in 342 of 342 cases with $KS\ge5$.
+  When fewer shots survive, the raw readout has also lost the information, so the filter still did not lose.
+\item \textit{Entanglement after the filter.} In a fixed-weight state each qubit's Bloch radius is $|\qZ|$, and
+  for a pure register $1-\qZ^2$ is its entanglement with the rest. Under equal T1 the filtered value equals the
+  noiseless one to $3\times10^{-15}$; on product states it is exactly 0, while the raw readout shows a false
+  value of 0.60--0.95.
+\end{itemize}
+
 \section{Discussion}
 
 The difference the filter makes depends on how the network was trained. Trained on a simulator and run
@@ -233,9 +262,11 @@ model and no noisy training runs, and its cost (the discarded shots) is known be
 dephasing are not corrected. On hardware with a large spread of T1 or strong dephasing, the filter
 complements a noise model and does not replace it. Two practical rules follow from the studies above. Up
 to about a $\pm80\%$ spread of $1/T_1$ across qubits, a network trained on a simulator can be run with the
-filter alone, losing less than one point. When the network is instead trained under the calibrated noise,
-and especially when its readout has many parameters, the decayed shots are useful data, and the filter can
-cost about a point. For weight-2 models, how the data are loaded matters more than what is read out.
+filter alone, losing less than one point. When the network is instead trained under the calibrated noise
+with a distorting encoding and a readout with many parameters, the decayed shots were useful data and the filter
+cost about a point; with a faithful encoding this cost disappeared, and adding the raw features to the filtered
+ones gained nothing. For weight-2 models, how the data are loaded matters more than what is read out. The shot
+cost of the filter did not decide against it anywhere in our scaling maps.
 
 \paragraph{Limitations.} All noise is simulated, including the device noise models. There is one
 architecture per weight, five qubits, and small datasets in which one test sample is worth 2--3 points. The
@@ -244,11 +275,11 @@ simulable. A hardware run with the filter is the natural next test.
 
 \section*{Code and data availability}
 
-Models: \texttt{qang.qml} in \texttt{qang} 0.6.2 (\texttt{pip install qang}), NumPy only, with
+Models: \texttt{qang.qml} in \texttt{qang} 0.6.5 (\texttt{pip install qang}), NumPy only, with
 \texttt{WeightQNN} (weights 1 and 2, readouts \texttt{"z"} and \texttt{"zz"}, encodings \texttt{"pairs"}, \texttt{"ring"} and
-\texttt{"dual"}), \texttt{kept\_fraction} and \texttt{compare\_qang}. Hardware-ready script:
+\texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}. Hardware-ready script:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM and IonQ). Studies:
-\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90 and \S91, with tests in \texttt{tests/}. The Colab
+\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S98, with tests in \texttt{tests/}. The Colab
 notebooks \texttt{notebooks/qang\_qml.ipynb} (English) and \texttt{qang\_qml\_es.ipynb} (Spanish) install the
 library from PyPI. Repository: \url{https://github.com/Viny2030/qang}.
 

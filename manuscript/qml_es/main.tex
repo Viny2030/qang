@@ -47,10 +47,14 @@ filtro es $1.2$ puntos mejor: descartar disparos decaídos puede costar precisi�
 viene de la codificación por productos de pares, no de la lectura; con una codificación que llena todo el
 sector y una lectura de rango completo, el peso~2 alcanza la precisión del peso~1. Con los modelos de ruido de equipos de
 IBM e IonQ, el filtro reduce el error del $\qZ$ medido entre $2.7$ y $3.6$ veces; con el modelo de ruido Forte-1 de IonQ, en
-189 entradas de cuatro conjuntos, el modelo filtrado es 1.1 puntos más preciso que el crudo. Estos modelos son
+189 entradas de cuatro conjuntos, el modelo filtrado es 1.1 puntos más preciso que el crudo. Con una codificación
+fiel de peso~2 desaparece la ventaja del modelo sin filtro entrenado con el ruido, y un clasificador que recibe a la
+vez las variables filtradas y las crudas no gana nada sobre el filtro solo. En 513 configuraciones de lectura,
+incluidas fracciones conservadas de hasta $2.6\times10^{-7}$, T1 desigual y desfase, el filtro tiene el menor error de
+lectura siempre que se conserven unos 20 disparos, y una regla cerrada predice el ganador. Estos modelos son
 simulables clásicamente y no
 se afirma ventaja cuántica. El filtro es una manera de hacer válido el entrenamiento sin ruido bajo relajación,
-con un costo en disparos conocido de antemano. Los modelos se publican como \texttt{qang.qml} (versión 0.6.2,
+con un costo en disparos conocido de antemano. Los modelos se publican como \texttt{qang.qml} (versión 0.6.5,
 \texttt{pip install qang}).
 \end{abstract}
 
@@ -69,7 +73,7 @@ limitado por T1, y cuándo deja de importar?
 Respondemos con simulación exacta, un protocolo fijo y una comparación explícita. Cada lectura se toma con qang
 (filtrada) y sin qang (cruda), sobre los mismos parámetros entrenados o la misma inicialización. Las
 predicciones de cada estudio quedaron registradas en el repositorio antes de la corrida que las puso a prueba.
-De 52 predicciones pre-registradas en los estudios que se resumen aquí, 40 se cumplieron y 12 fallaron; las
+De 70 predicciones pre-registradas en los estudios que se resumen aquí, 53 se cumplieron y 17 fallaron; las
 fallas se reportan junto a los aciertos.
 
 \section{Modelo y teoría}
@@ -145,7 +149,10 @@ Las predicciones que fallaron:
   predicciones), el filtro no fue neutral con entrenamiento con ruido y esa lectura, la ganancia del filtro
   en una dispersión de T1 tuvo un IC que tocó el cero, el peso~2 no fue más sensible a la dispersión que el
   peso~1, la codificación por productos de pares tuvo un techo de información menor que la unaria, y llenar todo el
-  sector de peso~2 no ayudó con la lectura $\qZ$.
+  sector de peso~2 no ayudó con la lectura $\qZ$;
+\item en la Sec.~\ref{sec:escala}: con menos de un disparo conservado el filtro no perdió, al revés de lo previsto;
+  el error crudo del déficit de radio no fue menor a mitad de llenado; y tres de las cuatro predicciones de la
+  lectura de dos canales, incluida la réplica del efecto de 1.2 puntos.
 \end{itemize}
 
 \paragraph{Réplica en 60 corridas.} Las comparaciones clave se repitieron con 5 semillas $\times$ 3 particiones
@@ -231,6 +238,28 @@ prueba): precisión conjunta 0.968 con filtro, 0.958 sin filtro y 0.979 sin ruid
 la API; \texttt{get\_counts} de qiskit-ionq las vuelve a muestrear en cada llamada.) Son modelos de ruido, no
 equipos; las corridas en hardware están preparadas, con confirmación de costo, y pendientes.
 
+\paragraph{Dos canales, costo en disparos y qué más lee el filtro.}\label{sec:escala}
+\begin{itemize}
+\item \textit{Lectura de dos canales (60 corridas).} Darle al clasificador las variables filtradas y las crudas
+  ($2\times15$ pesos, \texttt{qang="both"}) buscaba conservar la información de los disparos decaídos que hizo al
+  modelo crudo 1.2 puntos mejor. Con la codificación dual ese efecto no se repitió: entrenado bajo T1, el modelo
+  filtrado iguala al sin ruido (0.953) y el crudo llega a 0.950 ($-0.3$ $[-0.8,0.2]$ puntos contra el filtro). Los
+  dos canales igualan a la lectura cruda ($-0.0$ $[-0.6,0.6]$) y, con peso~1, a la mejor lectura sola ($+0.0$
+  $[-0.4,0.4]$). La diferencia anterior venía de la codificación por productos de pares, que distorsiona.
+\item \textit{Costo en disparos.} Para la lectura $\qZ$ de circuitos aleatorios que conservan el peso, el error
+  filtrado sigue $(1-z^2)/(KS)$ y el crudo $(r-z)^2+(1-r^2)/S$, con $K$ la fracción conservada y $S$ los disparos. En
+  108 configuraciones (4--8 qubits, peso 1--4, profundidad 3--24) el filtro tiene el menor error en 106 (hasta
+  $1000$ veces menor) y la regla acierta el ganador en el 99\,\%; el equilibrio está entre 3 y 110 disparos. En otras
+  405 configuraciones, con $K$ hasta $2.6\times10^{-7}$, T1 desigual y desfase, gana en todas las que conservan al
+  menos 20 disparos (hasta 1871 veces con T1 igual, 94 con T1 desigual y 58 con desfase), y una regla generalizada
+  con el valor filtrado sesgado acierta en 342 de 342 casos con $KS\ge5$. Cuando sobreviven menos disparos, la
+  lectura cruda también perdió la información, así que el filtro tampoco perdió.
+\item \textit{Entrelazamiento después del filtro.} En un estado de peso fijo el radio de Bloch de cada qubit es
+  $|\qZ|$, y si el registro es puro $1-\qZ^2$ es su entrelazamiento con el resto. Con T1 igual el valor filtrado
+  coincide con el sin ruido a $3\times10^{-15}$; en estados producto es exactamente 0, mientras que la lectura cruda
+  muestra un valor falso de 0.60--0.95.
+\end{itemize}
+
 \section{Discusión}
 
 La diferencia que hace el filtro depende de cómo se entrenó la red. Entrenada en simulador y ejecutada con
@@ -242,9 +271,11 @@ ni corridas de entrenamiento con ruido, y su costo (los disparos descartados) se
 desigual y el desfase no se corrigen. En hardware con mucha dispersión de T1 o desfase fuerte, el filtro
 complementa un modelo de ruido y no lo reemplaza. De los estudios anteriores salen dos reglas prácticas.
 Hasta una dispersión de $\pm80\,\%$ de $1/T_1$ entre qubits, una red entrenada en simulador puede ejecutarse
-solo con el filtro, perdiendo menos de un punto. Si en cambio la red se entrena con el ruido calibrado, y
-sobre todo si su lectura tiene muchos parámetros, los disparos decaídos son datos útiles y el filtro puede
-costar alrededor de un punto. Para modelos de peso~2, importa más cómo se cargan los datos que qué se lee.
+solo con el filtro, perdiendo menos de un punto. Si en cambio la red se entrena con el ruido calibrado, con una
+codificación que distorsiona y una lectura con muchos parámetros, los disparos decaídos fueron datos útiles y el
+filtro costó alrededor de un punto; con una codificación fiel ese costo desapareció, y sumar las variables crudas a
+las filtradas no ganó nada. Para modelos de peso~2, importa más cómo se cargan los datos que qué se lee. El costo en
+disparos del filtro no decidió en su contra en ninguno de nuestros mapas de escala.
 
 \paragraph{Limitaciones.} Todo el ruido es simulado, incluidos los modelos de ruido de equipos. Hay una
 arquitectura por peso, cinco qubits y conjuntos pequeños en los que una muestra de prueba vale 2--3 puntos. El
@@ -253,11 +284,11 @@ clásicamente. Una corrida en hardware con el filtro es la siguiente prueba natu
 
 \section*{Disponibilidad de código y datos}
 
-Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.2 (\texttt{pip install qang}), solo NumPy, con
+Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.5 (\texttt{pip install qang}), solo NumPy, con
 \texttt{WeightQNN} (pesos 1 y 2, lecturas \texttt{"z"} y \texttt{"zz"}, codificaciones \texttt{"pairs"}, \texttt{"ring"} y
-\texttt{"dual"}), \texttt{kept\_fraction} y \texttt{compare\_qang}. Script listo para hardware:
+\texttt{"dual"}; cualquier peso para simular; \texttt{qang="both"}), \texttt{kept\_fraction} y \texttt{compare\_qang}. Script listo para hardware:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM e IonQ). Estudios: \texttt{examples/qnn\_*\_qg.py} y
-RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90 y \S91, con pruebas en \texttt{tests/}. Los cuadernos Colab
+RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S98, con pruebas en \texttt{tests/}. Los cuadernos Colab
 \texttt{notebooks/qang\_qml\_es.ipynb} (español) y \texttt{qang\_qml.ipynb} (inglés) instalan la librería desde
 PyPI. Repositorio: \url{https://github.com/Viny2030/qang}.
 

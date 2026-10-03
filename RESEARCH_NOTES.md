@@ -4900,6 +4900,46 @@ configurations, with 10 circuits × 20 repetitions each. Library:
 * **Limits.** Equal T1 only: unequal T1 and dephasing are not corrected
   (§78, §82). The very-low-K regime (K < 0.1) was not reached.
 
+## 95. A two-channel qg readout: filtered and raw features together (`examples/qnn_two_channel_qg.py`)
+
+§81 found the one case where qang lost: trained under the calibrated T1
+noise with a 15-weight readout, the model without the filter was 1.2 points
+better, because decayed shots still say where the excitations were. The
+two-channel readout (`qang.qml`, `qang="both"`) gives the classifier the
+filtered and the raw features together (2 × 15 weights), so it can use either.
+
+Models trained and evaluated under equal T1 (γ = 0.08): W (weight 2, dual
+encoding, qg_ZZ readout) and E (weight 1, qg_Z). Each with the filter, without
+it, and with both channels; 5 seeds × 3 splits × 4 datasets = 60 runs.
+
+**Predictions, committed before the run (505943d).**
+* B1: for W, both channels are at least as good as either.
+* B2: for W, both − raw > 0 with the CI above 0.
+* B3: the §81 effect replicates with the dual encoding (raw ≥ filter).
+* B4: for E, both ≥ best single readout − 0.5 points.
+
+| model | noiseless | filter (qang) | raw (no qang) | both channels |
+|---|---|---|---|---|
+| W, weight 2, dual, qg_ZZ | 0.953 | 0.953 | 0.950 | 0.950 |
+| E, weight 1, qg_Z | 0.954 | 0.954 | 0.952 | 0.955 |
+
+Paired differences (points, 95% CI across seeds): W both − raw −0.0
+[−0.6, +0.6]; W both − filter −0.3 [−0.8, +0.2]; W raw − filter −0.3
+[−0.8, +0.2]; E both − best +0.0 [−0.4, +0.4].
+
+* **B4 passes; B1, B2, B3 fail.**
+* **B3 fails, and that is the main finding.** With the dual encoding the
+  §81 effect does not replicate: trained under the noise, the filtered model
+  equals the noiseless one (F3) and is level with or ahead of the raw one.
+  The §81 gap came with the pair-product encoding, which distorts the data.
+* **B1, B2 fail** because there is nothing to recover: the two channels equal
+  the raw readout to 0.01 points. The extra weights did not hurt either.
+* **Verdict.** The two-channel readout is safe but not useful here. With a
+  faithful encoding, the filter alone under equal T1 is as good as any readout
+  trained under the noise, and it is the only one that equals the noiseless
+  model exactly. `qang="both"` stays as an option for cases where decayed
+  shots do carry information.
+
 ## 96. The qg filter at low kept fraction and under unequal T1 and dephasing (`examples/qg_filter_scaling_lowk_qg.py`)
 
 §94 left two gaps: very small kept fractions, and the noise the filter does

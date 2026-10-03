@@ -33,7 +33,37 @@ examples/qnn_two_channel_qg.py [seeds]
 
 Findings (python examples/qnn_two_channel_qg.py):
 
-FINDINGS_PLACEHOLDER
+Mean test accuracy over 60 runs (5 seeds x 3 splits x 4 datasets), trained
+and evaluated under equal T1 (gamma = 0.08):
+
+  model                         noiseless   filter (qang)   raw (no qang)   both channels
+  W  weight 2, dual, qg_ZZ      0.953       0.953           0.950           0.950
+  E  weight 1, qg_Z             0.954       0.954           0.952           0.955
+
+  Paired differences, mean and 95% CI across seeds (points):
+  W  both - raw      -0.0 [-0.6, +0.6]     W  both - filter   -0.3 [-0.8, +0.2]
+  W  raw - filter    -0.3 [-0.8, +0.2]     E  both - best     +0.0 [-0.4, +0.4]
+
+  * B4 passes; B1, B2, B3 fail.
+  * B3 FAILS, and it is the main finding: the §81 effect does not replicate
+    with the dual encoding. Trained under the noise, the filtered model is
+    as good as the raw one or better (0.953 against 0.950; it is level with
+    the noiseless model, as F3 requires), so the decayed shots carried no
+    extra information here. In §81 (pair-product encoding) they did (+1.2
+    points for raw); the §81 gap came with an encoding that distorted the
+    data.
+  * B1, B2 FAIL: with nothing to recover from the decayed shots, the two
+    channels add nothing (both = raw to 0.01 points, 0.3 points below the
+    filter, CIs across zero). The extra 15 readout weights did not hurt
+    either.
+  * B4: for weight 1 the two channels match the best single readout
+    (+0.0 points).
+  Verdict. The two-channel readout is safe but not useful on these
+  datasets: it never lost more than half a point and never gained. With a
+  faithful encoding, filter-only readout under equal T1 is as good as any
+  readout trained under the noise, and it is the only one that equals the
+  noiseless model exactly. qang="both" stays in the library as an option
+  for encodings or devices where the decayed shots do carry information.
 """
 
 import json

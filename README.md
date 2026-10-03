@@ -159,7 +159,7 @@ from Z-basis shots alone (§98). `F.algorithm_radii()` gives the radius of the r
 `qang.qml` (qang >= 0.6.4) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(66 so far in this line, §75–§98: 52 passed, 14 failed, all reported; §95 is running). Note: `manuscript/qang_qml.pdf` (Spanish:
+(70 so far in this line, §75–§98: 53 passed, 17 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -167,7 +167,8 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | question | result |
 |---|---|
 | trained on a simulator, run under T1 (60 runs, §80) | with qang the noiseless accuracy is recovered exactly: +2.5 points at weight 1, +16.5 at weight 2 |
-| trained under the calibrated noise (§80, §81) | without qang the model catches up; with a rich readout it is 1.2 points better (decayed shots carry information) |
+| trained under the calibrated noise (§80, §81) | without qang the model catches up; with a rich readout and the pair-product encoding it is 1.2 points better (decayed shots carry information) |
+| two channels, filtered + raw features (§95, 60 runs, `qang="both"`) | with the dual encoding the 1.2-point effect does not replicate: trained under T1 the filtered model equals the noiseless one (0.953), raw 0.950, both channels 0.950; the two channels are safe but add nothing |
 | T1 spread across qubits (§82) | the filter alone loses < 1 point up to a ±80% spread of 1/T1 |
 | weight 2 (§87, §90) | the pair-product encoding limited it; with the `"dual"` encoding and `readout="zz"` weight 2 matches weight 1 (0.947 = 0.947) |
 | device noise models (§85, §91) | IBM fake backends and the IonQ simulator (Aria-1, Forte-1): qg_Z error 2.7–3.6× smaller with qang; 189 inputs on Forte-1: 0.968 with vs 0.958 without (noiseless 0.979) |
@@ -224,7 +225,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1236 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1237 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

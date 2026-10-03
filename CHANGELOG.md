@@ -5,6 +5,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-10-03
+
+### Added
+- `examples/qnn_two_channel_qg.py` (§95): the two-channel readout `qang="both"` over 60 runs. With the dual encoding
+  the §81 effect does not replicate (trained under T1, filter 0.953 = noiseless, raw 0.950, both 0.950); the two
+  channels are safe but add nothing (B4 passes; B1-B3 fail).
+- `docs/zenodo/` and `.zenodo.json`: Zenodo metadata for the nine preprints and the software
+  (`tools/make_zenodo_pack.py`).
+
+### Changed
+- The QML note (`manuscript/qang_qml[_es]`, PDF and Word) updated with §94-§98: two-channel readout, shot cost of
+  the filter over 513 configurations, entanglement read after the filter (70 predictions: 53 pass, 17 fail).
+- Word versions of the formulation article with the local radius.
+
 ## [0.6.4] - 2026-10-03
 
 ### Added
