@@ -17,11 +17,11 @@
 \newcommand{\qY}{qg_Y}
 
 \title{Quantum gates and algorithms in qg units:\\
-Hamming-weight conservation and readout classes}
+Hamming-weight conservation, readout classes and the local radius}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 1 October 2026}
+\date{\small Draft of 3 October 2026}
 
 \begin{document}
 \sloppy
@@ -38,9 +38,14 @@ conserve Hamming weight, and therefore admit the qg symmetry witness and filter;
 out from a few qg values and which need the full outcome histogram; and where reading qg values is strictly
 worse than the standard readout. Three readout identities are, as far as we know, not stated in this
 form elsewhere: the per-qubit polar bias after Grover iterations, Simon's secret as the unique non-trivial
-Z-parity equal to one, and quantum counting as a single $\qX$. Every identity is checked numerically and
-pinned by tests in the open-source library \texttt{qang} (version 0.5.1, \texttt{pip install qang}),
-module \texttt{qang.formulation}.
+Z-parity equal to one, and quantum counting as a single $\qX$. We then restate every gate and algorithm
+with the local radius of each qubit, $r_q^2=\qX^2+\qY^2+\qZ^2$, the radius of the sphere on which the qubit lives
+(area $4\pi r_q^2$). For a pure global state $1-r_q^2$ is the known one-tangle; for a noisy state it mixes
+entanglement and noise. In a state of fixed Hamming weight $r_q=|\qZ|$, so the radius is read from Z-basis shots
+alone, and under equal $T_1$ the qg filter restores it exactly: in a pre-registered simulation the filtered deficit
+equals the noiseless tangle to $3\times10^{-15}$, while the unfiltered readout reports a false deficit of 0.60--0.95
+on product states. Every identity is checked numerically and pinned by tests in the open-source library
+\texttt{qang} (version 0.6.4, \texttt{pip install qang}), module \texttt{qang.formulation}.
 \end{abstract}
 
 \section{Why write gates and algorithms in qg units}
@@ -78,35 +83,50 @@ qubit 0, which is the control of CX and CZ (and the controls of Toffoli and Fred
 \paragraph{Weight conservation.} If $U$ maps each Hamming-weight sector into itself, the register mean
 $\overline{\qZ}=1-2N/n$ stays fixed, and the qg witness and filter apply.
 
+\paragraph{Local radius.} Each qubit's local qg values $(\qX,\qY,\qZ)$ are a point in the unit ball. Its squared
+distance from the centre,
+\begin{equation}\label{eq:radius}
+r_q^2=\qX^2+\qY^2+\qZ^2=2\,\mathrm{Tr}\rho_q^2-1,
+\end{equation}
+is 1 for a pure qubit and 0 for a maximally mixed one; the qubit lives on a sphere of area $4\pi r_q^2$, and the
+surface deficit is $4\pi(1-r_q^2)$. The radius carries the same information as the area and is linear in the
+purity, so we use $r_q^2$. If the whole register is pure, $1-r_q^2=4\det\rho_q$ is the one-tangle of qubit $q$
+with the rest (for two qubits the squared concurrence~\cite{wootters1998,coffman2000}), and its mean over qubits is
+the Meyer--Wallach global entanglement $Q$~\cite{meyer2002,brennen2003}. If the register is mixed, the deficit mixes
+entanglement with noise and cannot tell them apart. Reading $r_q^2$ for every qubit needs three settings for the
+whole register (all X, all Y, all Z). From $N$ shots the plug-in $\hat q^{\,2}$ is biased upwards by $(1-q^2)/N$;
+$(N\hat q^{\,2}-1)/(N-1)$ is exactly unbiased.
+
 \section{Fifteen gates}
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{6.6cm}>{\raggedright\arraybackslash}p{5.0cm}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{5.6cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{2.2cm}}
 \caption{Action of each gate on qg values, Eq.~\eqref{eq:rule}; $c=\cos\theta$, $s=\sin\theta$. Values not listed
-are unchanged.}\label{tab:gates}\\
+are unchanged. Last column: effect on the local radii, Eq.~\eqref{eq:radius}, for product inputs (maximal deficit
+$1-r^2$ and an input that reaches it).}\label{tab:gates}\\
 \toprule
-gate & action on qg values & reading \\
+gate & action on qg values & reading & local radius \\
 \midrule
 \endfirsthead
 \toprule
-gate & action on qg values & reading \\
+gate & action on qg values & reading & local radius \\
 \midrule
 \endhead
-1. Pauli X & $(\qX,\qY,\qZ)\to(\qX,-\qY,-\qZ)$ & flips the polar bias \\
-2. Pauli Y & $(\qX,\qY,\qZ)\to(-\qX,\qY,-\qZ)$ & flips $\qZ$ and $\qX$ \\
-3. Pauli Z & $(\qX,\qY,\qZ)\to(-\qX,-\qY,\qZ)$ & invisible in the Z basis \\
-4. Hadamard & $(\qX,\qY,\qZ)\to(\qZ,-\qY,\qX)$ & swaps polar bias and $\qX$ \\
-5. Phase S & $(\qX,\qY)\to(-\qY,\qX)$ & quarter turn on the equator \\
-\phantom{5.} $P(\varphi)$ & $\qX'=\cos\varphi\,\qX-\sin\varphi\,\qY$, $\qY'=\sin\varphi\,\qX+\cos\varphi\,\qY$ & same as $R_z(\varphi)$ \\
-6. T ($\pi/8$) & $\qX'=(\qX-\qY)/\sqrt2$, $\qY'=(\qX+\qY)/\sqrt2$ & first gate that mixes: irrational qg values (``magic'') \\
-7. $R_x(\theta)$ & $\qZ'=c\,\qZ+s\,\qY$, $\qY'=c\,\qY-s\,\qZ$ & rotation in the YZ plane \\
-8. $R_y(\theta)$ & $\qZ'=c\,\qZ-s\,\qX$, $\qX'=c\,\qX+s\,\qZ$ & from $|0\rangle$: $\qZ=\cos\theta$, the qang identity; the RQang gate is $R_y(\arccos\qZ)$ \\
-9. $R_z(\theta)$ & $\qX'=c\,\qX-s\,\qY$, $\qY'=s\,\qX+c\,\qY$ & invisible in the Z basis \\
-10. CNOT & $\q{XI}'=\q{XX}$, $\q{IZ}'=\q{ZZ}$, $\q{IY}'=\q{ZY}$, $\q{YI}'=\q{YX}$ & turns a correlation into a local value: the target's $\qZ$ becomes the parity $\q{ZZ}$ (syndrome extraction) \\
-11. CZ & $\q{XI}'=\q{XZ}$, $\q{IX}'=\q{ZX}$, $\q{YI}'=\q{YZ}$, $\q{IY}'=\q{ZY}$ & invisible in the Z basis; conserves weight \\
-12. SWAP & $\q{ab}'=\q{ba}$ & relabels; conserves weight \\
-13. iSWAP & $\q{ZI}'=\q{IZ}$, $\q{XI}'=-\q{ZY}$, $\q{YI}'=\q{ZX}$, $\q{IX}'=-\q{YZ}$, $\q{IY}'=\q{XZ}$ & swap with phase; conserves weight \\
-14. Toffoli & $\q{IIZ}'=\tfrac12(\q{IIZ}+\q{IZZ}+\q{ZIZ}-\q{ZZZ})$ & mixes inside the diagonal sector \\
-15. Fredkin & $\q{IZI}'=\tfrac12(\q{IZI}+\q{ZZI}+\q{IIZ}-\q{ZIZ})$ & controlled swap; conserves weight \\
+1. Pauli X & $(\qX,\qY,\qZ)\to(\qX,-\qY,-\qZ)$ & flips the polar bias & kept \\
+2. Pauli Y & $(\qX,\qY,\qZ)\to(-\qX,\qY,-\qZ)$ & flips $\qZ$ and $\qX$ & kept \\
+3. Pauli Z & $(\qX,\qY,\qZ)\to(-\qX,-\qY,\qZ)$ & invisible in the Z basis & kept \\
+4. Hadamard & $(\qX,\qY,\qZ)\to(\qZ,-\qY,\qX)$ & swaps polar bias and $\qX$ & kept \\
+5. Phase S & $(\qX,\qY)\to(-\qY,\qX)$ & quarter turn on the equator & kept \\
+\phantom{5.} $P(\varphi)$ & $\qX'=\cos\varphi\,\qX-\sin\varphi\,\qY$, $\qY'=\sin\varphi\,\qX+\cos\varphi\,\qY$ & same as $R_z(\varphi)$ & kept \\
+6. T ($\pi/8$) & $\qX'=(\qX-\qY)/\sqrt2$, $\qY'=(\qX+\qY)/\sqrt2$ & first gate that mixes: irrational qg values (``magic'') & kept \\
+7. $R_x(\theta)$ & $\qZ'=c\,\qZ+s\,\qY$, $\qY'=c\,\qY-s\,\qZ$ & rotation in the YZ plane & kept \\
+8. $R_y(\theta)$ & $\qZ'=c\,\qZ-s\,\qX$, $\qX'=c\,\qX+s\,\qZ$ & from $|0\rangle$: $\qZ=\cos\theta$, the qang identity; the RQang gate is $R_y(\arccos\qZ)$ & kept \\
+9. $R_z(\theta)$ & $\qX'=c\,\qX-s\,\qY$, $\qY'=s\,\qX+c\,\qY$ & invisible in the Z basis & kept \\
+10. CNOT & $\q{XI}'=\q{XX}$, $\q{IZ}'=\q{ZZ}$, $\q{IY}'=\q{ZY}$, $\q{YI}'=\q{YX}$ & turns a correlation into a local value: the target's $\qZ$ becomes the parity $\q{ZZ}$ (syndrome extraction) & to 0 ($|{+}0\rangle$) \\
+11. CZ & $\q{XI}'=\q{XZ}$, $\q{IX}'=\q{ZX}$, $\q{YI}'=\q{YZ}$, $\q{IY}'=\q{ZY}$ & invisible in the Z basis; conserves weight & to 0 ($|{+}{+}\rangle$) \\
+12. SWAP & $\q{ab}'=\q{ba}$ & relabels; conserves weight & exchanged \\
+13. iSWAP & $\q{ZI}'=\q{IZ}$, $\q{XI}'=-\q{ZY}$, $\q{YI}'=\q{ZX}$, $\q{IX}'=-\q{YZ}$, $\q{IY}'=\q{XZ}$ & swap with phase; conserves weight & to 0 ($|{+}{+}\rangle$) \\
+14. Toffoli & $\q{IIZ}'=\tfrac12(\q{IIZ}+\q{IZZ}+\q{ZIZ}-\q{ZZZ})$ & mixes inside the diagonal sector & to 0 ($|1{+}0\rangle$) \\
+15. Fredkin & $\q{IZI}'=\tfrac12(\q{IZI}+\q{ZZI}+\q{IIZ}-\q{ZIZ})$ & controlled swap; conserves weight & to 0 ($|{+}01\rangle$) \\
 \bottomrule
 \end{longtable}
 
@@ -122,6 +142,10 @@ metrics~\cite{monteverde2026qang}.
 CNOT and Toffoli do not. A circuit built only from weight-conserving gates and $R_z$ rotations has zero sector
 exposure, and in our simulations the qg filter then removes almost all relaxation error; basis changes around
 two-qubit gates let about half of it through~\cite{monteverde2026witness}.
+\item \textbf{Radius.} A one-qubit gate rotates the sphere and keeps every radius, also for a mixed qubit: it moves
+the point, never its distance from the centre. SWAP exchanges radii. CNOT, CZ, iSWAP, Toffoli and Fredkin can take a
+product input to the centre ($r=0$, deficit 1) and can bring it back. On basis states none of them creates a deficit:
+there they act as classical permutations, and the deficit needs a superposition at the input.
 \end{itemize}
 
 \section{Fourteen algorithms}
@@ -130,21 +154,27 @@ For each: the readout identity, what reading it in qg gives, and what it does no
 
 \paragraph{1. Deutsch--Jozsa~\cite{deutsch1992}.} With $f$ as a phase oracle, $P(0^n)=2^{-n}\sum_S\q{Z_S}$: the
 all-zero probability is the mean of all Z-parities. In qg: $f$ is constant if and only if all $n$ local $\qZ$
-equal $+1$; one value below 1 already means balanced. No correlation is needed.
+equal $+1$; one value below 1 already means balanced. No correlation is needed. \emph{Radius.} A constant $f$ leaves every
+qubit on the surface ($r=1$); a non-linear balanced $f$ on four qubits leaves $r^2=0.25$ on each, so any deficit also
+certifies ``balanced'' (a linear balanced $f$ still gives a product state, $r=1$).
 
 \paragraph{2. Bernstein--Vazirani~\cite{bernstein1997}.} The output is the product state $|s\rangle$, so
 $\qZ^{(i)}=(-1)^{s_i}$: each secret bit is the sign of its qubit's polar bias. Under noise each bit is decided
-separately, with its own interval.
+separately, with its own interval. \emph{Radius.} $r=1$ on every qubit: the output is a product, and
+the local values are the whole answer.
 
 \paragraph{3. Simon~\cite{simon1997}.} The output is uniform over $\{y:y\cdot s=0\}$, so $\q{Z_S}=1$ for
 $S\in\{0,s\}$ and $0$ otherwise: the secret is the unique non-trivial Z-parity equal to one. This describes the
 answer but does not find it efficiently, since there are $2^n$ parities; the efficient route remains a linear
-system from $O(n)$ samples.
+system from $O(n)$ samples. \emph{Radius.} For $n=3$, $s=110$, every output qubit sits at the centre ($r=0$): it is
+maximally entangled with the oracle register, and nothing about $s$ is local.
 
 \paragraph{4. Shor~\cite{shor1997}.} The quantum part estimates the phase of an order $r$. If $r$ is a power of
 two, the local values show it: for $r=4$ with six counting qubits, $\qZ=(0,0,1,1,1,1)$. For $r=6$ the local $\qZ$
 lie between 0 and 0.33 and do not determine $r$; the information is in the correlations, and the full bit string
-plus continued fractions is needed. This is a negative result for local readout.
+plus continued fractions is needed. This is a negative result for local readout. \emph{Radius.} For $r=4$ the counting
+qubits have $r^2=(0,0,1,1,1,1)$: the pure qubits carry no information about the order, the two at the centre carry
+it. For $r=6$ every counting qubit has $r^2\le0.11$: the register is almost maximally mixed qubit by qubit.
 
 \paragraph{5. Grover~\cite{grover1996}.} With one marked item $x^\ast$ among $N=2^n$ and success probability $P$
 after $k$ iterations,
@@ -153,7 +183,9 @@ after $k$ iterations,
 \end{equation}
 The marked item is the sign pattern of the local polar biases, and their common magnitude measures success.
 Reading it this way costs more shots than the histogram, about $1/P^2$ against $1/P$, as we found in a noisy
-simulation; the identity is a diagnostic, not a better readout.
+simulation; the identity is a diagnostic, not a better readout. \emph{Radius.} With $n=5$ the radius of every qubit goes
+$1\to0.82\to0.66\to0.84\to0.998$ over $k=0,\dots,4$: Grover entangles the register on the way and disentangles it at
+the optimum, where the answer becomes local again.
 
 \paragraph{6. Phase estimation~\cite{kitaev1995} and 11. phase kickback.} A control in $|+\rangle$ acting on an
 eigenstate of $U$ with eigenvalue $e^{i\varphi}$ ends with
@@ -162,26 +194,35 @@ eigenstate of $U$ with eigenvalue $e^{i\varphi}$ ends with
 \end{equation}
 Kickback writes the phase into the control's equatorial angle. Iterative phase estimation reads $\qX$ and $\qY$
 for $2^k\varphi$, one bit at a time; it is the natural qg form of phase estimation, and the same mechanism drives
-Deutsch--Jozsa and Bernstein--Vazirani.
+Deutsch--Jozsa and Bernstein--Vazirani. \emph{Radius.} A Hadamard test of $U$ on $|\psi\rangle$ leaves the control with
+$r^2=|\langle\psi|U|\psi\rangle|^2$: exactly 1 for an eigenstate, and below 1 otherwise ($0.81$ for $\varphi=0.9$ on
+$|+\rangle$). The radius tests the eigenstate assumption on which phase estimation rests, and its deficit is the
+control's entanglement with the target.
 
 \paragraph{7. HHL~\cite{harrow2009}.} The output $|x\rangle\propto A^{-1}|b\rangle$ cannot be read out in full; what
 HHL delivers is expectation values $\langle x|M|x\rangle$, that is qg values of the solution register, and its
 success probability is the ancilla's polar bias, $P(1)=(1-\qZ^{\mathrm{anc}})/2$. The qg form states plainly
 what HHL produces: qg values, not the vector~\cite{aaronson2015}. We check this readout for a $2\times2$ matrix by
-exact linear algebra, not with a circuit.
+exact linear algebra, not with a circuit. \emph{Radius.} For $A=\begin{pmatrix}2&1\\1&3\end{pmatrix}$, $b=(1,0)$ the
+ancilla has $r^2=0.32$: it is entangled with the solution register whenever $b$ spans eigenvectors with different
+eigenvalues.
 
 \paragraph{8. Quantum Fourier transform.} The QFT of a basis state $|x\rangle$ is a product of equatorial
 qubits: qubit $l$ has $\qZ=0$ and $\qX+i\,\qY=e^{2\pi i x/2^l}$. The QFT moves the information from polar biases
 (the bits of $x$) to equatorial angles, which the Z basis does not see; hence it is always followed by a basis
-change before measurement.
+change before measurement. \emph{Radius.} $r=1$ on every qubit: the QFT of a basis state only rotates each point on
+the surface, from the poles to the equator.
 
 \paragraph{9. VQE~\cite{peruzzo2014}.} The energy is linear in qg values, $E=\sum_P c_P\,\q{P}$, grouped by
 measurement basis. This is the main use of the qg tools so far: witness, filter, symmetry checks and pole-damped
-optimization~\cite{monteverde2026qang,monteverde2026witness}.
+optimization~\cite{monteverde2026qang,monteverde2026witness}. \emph{Radius.} The local part of the energy is bounded by the radii,
+$|\sum_\alpha c_{q,\alpha}\q{\alpha}^{(q)}|\le\|c_q\|\,r_q$. For the two-qubit singlet ($XX+YY+ZZ$) both radii are 0
+and all the energy is in correlations; for the two-site Ising chain at $h=1$, $r^2=0.8$.
 
 \paragraph{10. QAOA~\cite{farhi2014}.} For MaxCut, $C=\sum_{(i,j)}w_{ij}(1-\q{Z_iZ_j})/2$: the whole cost comes from
 ZZ correlations in the same shots. With a weight-conserving XY mixer the witness and filter
-apply~\cite{monteverde2026witness}.
+apply~\cite{monteverde2026witness}. \emph{Radius.} On a ring of four at the best $p=1$ angles every qubit has $r^2=0.25$, which is
+why the cost lives in ZZ. With an XY mixer the state has fixed weight and $r_q=|\qZ^{(q)}|$.
 
 \paragraph{12. Quantum counting~\cite{brassard1998}.} A Hadamard test of the Grover operator $G$ on the uniform
 state $|s\rangle$ leaves the control with
@@ -189,35 +230,68 @@ state $|s\rangle$ leaves the control with
 \qX=\langle s|G|s\rangle=1-\frac{2M}{N}\quad\Longrightarrow\quad M=\frac{N(1-\qX)}{2}.
 \end{equation}
 Counting solutions is measuring one $\qX$: with $N=16$ and three marked items, $\qX=0.625$ and $M=3$. The precision
-follows single-qubit statistics; full counting by phase estimation gains precision with more counting qubits.
+follows single-qubit statistics; full counting by phase estimation gains precision with more counting qubits. \emph{Radius.} Here $\qY=\qZ=0$, so $r=|\qX|=|1-2M/N|$ ($r^2=0.39$ in the example) and the deficit
+$4(M/N)(1-M/N)$ is the control's entanglement with the register, largest at $M=N/2$.
 
 \paragraph{13. Quantum walks~\cite{farhi1998walk}.} A continuous-time single walker with hopping $(XX+YY)/2$
 conserves the number of excitations, so the register mean stays at $\overline{\qZ}=1-2/n$ at all times (checked
 for $n=5$): single-walker walks live in the weight-one sector, where the witness and filter apply as in Heisenberg
-dynamics. Discrete coined walks do not conserve weight.
+dynamics. Discrete coined walks do not conserve weight. \emph{Radius.} In a fixed-weight state $\qX=\qY=0$ on every qubit, so $r_q=|\qZ^{(q)}|$
+and the deficit is $4p_q(1-p_q)$, with $p_q$ the occupation of site $q$: the walker's spread is its entanglement
+($r^2$ from 0.02 to 0.87 at $t=2$ for $n=5$).
 
 \paragraph{14. Machine learning: Q-SVM~\cite{havlicek2019}, Q-PCA~\cite{lloyd2014qpca}.} The fidelity kernel is an
 all-zero probability, $k(x,x')=P(0^n)=2^{-n}\sum_S\q{Z_S}$, and for product angle encodings it reduces to
 $\prod_i(1+\vec q_i\cdot\vec q_i\,')/2$, the qang transition probability. In Q-PCA the purity and spectrum of $\rho$
-depend on squared qg values, $\mathrm{Tr}\rho^2=2^{-n}\sum_P\q{P}^2$.
+depend on squared qg values, $\mathrm{Tr}\rho^2=2^{-n}\sum_P\q{P}^2$. \emph{Radius.} Product angle encodings keep $r=1$;
+under noise the kernel diagonal becomes $k(x,x)=\prod_q(1+r_q^2)/2$, a direct readout of the radii.
 
 \section{Readout classes}
 
 \begin{table}[h]
 \centering\small
-\caption{Which qg values suffice to read out each algorithm.}
-\label{tab:readout}
-\begin{tabular}{>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{9.8cm}}
+\caption{Which qg values suffice to read out each algorithm, and the local radius of the readout qubits
+(\texttt{qang.formulation.algorithm\_radii}). The pattern: the closer the readout qubits are to the surface, the more
+local the readout; when they sit near the centre the answer is in the correlations.}
+\label{tab:readout}\medskip
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{7.4cm}>{\raggedright\arraybackslash}p{3.4cm}}
 \toprule
-sufficient readout & algorithms \\
+sufficient readout & algorithms & radius of the readout qubits \\
 \midrule
-local $\qZ$ & Deutsch--Jozsa, Bernstein--Vazirani \\
-one ancilla's $\qX$, $\qY$ & phase kickback, iterative phase estimation, quantum counting (Hadamard test), HHL success \\
-few-qubit correlations & QAOA (ZZ), VQE (Hamiltonian strings) \\
-all parities or the histogram & Simon, Shor with general order, Grover (local readout exists, at $\sim1/P^2$ shots), fidelity kernels \\
+local $\qZ$ & Deutsch--Jozsa, Bernstein--Vazirani & 1 (product output) \\
+one ancilla's $\qX$, $\qY$ & phase kickback, iterative phase estimation, quantum counting (Hadamard test), HHL success & $|\langle U\rangle|$; 1 only for an eigenstate \\
+few-qubit correlations & QAOA (ZZ), VQE (Hamiltonian strings) & below 1; 0 for a singlet \\
+all parities or the histogram & Simon, Shor with general order, Grover (local readout exists, at $\sim1/P^2$ shots), fidelity kernels & near 0 (Simon, Shor); Grover returns to 1 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\section{The radius after the qg filter}
+
+The radius is an entanglement measure only when the register is pure, and noise is what makes it mixed. Circuits
+that conserve Hamming weight give a way out. In a state of fixed weight every local $\qX$ and $\qY$ vanishes, so
+$r_q=|\qZ^{(q)}|$ and the deficit $1-\qZ^2$ is read from Z-basis shots alone. Under equal $T_1$ the qg filter keeps
+the shots that stayed in the sector, and the kept state is the noiseless one: on that sector the no-decay branch of $T_1$ is a multiple of the identity (RESEARCH\_NOTES \S77). The
+filtered deficit should therefore be the noiseless one-tangle, and the unfiltered one should not.
+
+We tested this with predictions committed before the run (RESEARCH\_NOTES \S98,
+\texttt{examples/qg\_radius\_witness\_qg.py}): random weight-conserving circuits of reconfigurable beam splitters on
+4 and 6 qubits, weight $1$ to $n/2$, depth 12 to 48, $\gamma=0.02$ per qubit per layer, 1000 and 10000 shots, the
+estimator $1-(N\hat q^{\,2}-1)/(N-1)$ with and without the filter.
+\begin{itemize}
+\item Under equal $T_1$ the exact filtered deficit equals the noiseless tangle to $3\times10^{-15}$; the unfiltered
+one errs by 0.06--0.37 on average.
+\item On product states (basis inputs, idle circuits) the filtered deficit is exactly 0 under equal $T_1$, unequal
+$T_1$ and dephasing; the unfiltered readout reports a deficit of 0.60--0.95 on every excited qubit: false entanglement
+from decay alone.
+\item From shots, the filter has the lower error in 30 of 30 configurations under equal $T_1$ (7.6 to 1005 times
+lower mean squared error), 30 of 30 under unequal $T_1$ and 24 of 30 with dephasing, where the filtered deficit is
+biased (up to 0.31).
+\item One prediction failed: we expected the unfiltered error to be smaller at half filling, by a first-order
+cancellation near occupation 1/2. It is larger (0.177 against 0.074 for $n=4$, depth 12).
+\end{itemize}
+The radius therefore joins the qg toolbox with a clear domain: in weight-conserving circuits under equal $T_1$ the
+filter turns the surface deficit into an entanglement measure, from the same Z-basis shots as the readout.
 
 \section{What is new and what is not}
 
@@ -229,26 +303,34 @@ project, for three questions. (i) Which gates conserve weight and admit the qg w
 algorithms are read out from a few qg values and which need the histogram. (iii) Where qg readout is worse
 (Grover, Shor with general order, Simon). The readout forms in Eqs.~\eqref{eq:grover} and~\eqref{eq:count}, and
 Simon's secret as the unique unit parity, are elementary but, to our knowledge, not stated in this form
-elsewhere. None of this is a quantum advantage.
+elsewhere. The local radius, its relation to purity, the one-tangle and the Meyer--Wallach
+measure are known~\cite{wootters1998,coffman2000,meyer2002,brennen2003}; what we add is its table over the fifteen
+gates and fourteen algorithms in qg units, the observation that in a fixed-weight state it is read from Z-basis
+shots, and the test showing that the qg filter makes it an entanglement measure under equal $T_1$. None of this is a
+quantum advantage.
 
 \section{Limitations}
 
 (i) Ideal, noiseless states throughout; noise enters only through the cited qg studies. (ii) The identities are
 checked on small instances ($n\le6$). (iii) The HHL readout is checked by exact linear algebra for a $2\times2$
 matrix, not with a circuit. (iv) Shot costs are quoted from a separate simulation (Grover) or are the standard
-single-qubit statistics.
+single-qubit statistics. (v) The radius deficit is an entanglement measure only for a pure register; after the
+filter this holds exactly under equal $T_1$ alone, and the \S98 test is a simulation.
 
 \section{Code availability}
-The library \texttt{qang} (MIT license) is on PyPI (\texttt{pip install qang}, version 0.5.1) and at
+The library \texttt{qang} (MIT license) is on PyPI (\texttt{pip install qang}, version 0.6.4) and at
 \url{https://github.com/Viny2030/qang}. The module \texttt{qang.formulation} gives the gate matrices, the rule of
 Eq.~\eqref{eq:rule} (\texttt{conjugate}, \texttt{gate\_table}, \texttt{apply\_gate}), qg values of a state
-(\texttt{qg\_values}) and one readout function per algorithm; \texttt{tests/test\_formulation.py} pins every
+(\texttt{qg\_values}), one readout function per algorithm, and the radius functions (\texttt{radius\_profile},
+\texttt{radius\_deficit}, \texttt{sphere\_area}, \texttt{meyer\_wallach}, \texttt{gate\_radius\_class},
+\texttt{algorithm\_radii}; unbiased estimates in \texttt{qang.statistics.radius2\_estimate}); \texttt{tests/test\_formulation.py} pins every
 identity, and \texttt{notebooks/qang\_inicio\_formulacion.ipynb} runs them in Colab. For example:
 \begin{lstlisting}
 from qang import formulation as F
 bell = F.apply_gate(F.apply_gate(F.qg_values([1, 0, 0, 0]),
                                  F.kron(F.H, F.I2)), F.CX)
 # qg_XX = 1, qg_YY = -1, qg_ZZ = 1, all local values 0
+F.radius_profile(bell)   # [0.0, 0.0]: both qubits at the centre
 \end{lstlisting}
 
 \section*{Acknowledgments and use of AI tools}

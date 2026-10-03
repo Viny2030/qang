@@ -18,7 +18,7 @@
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Borrador del 1 de octubre de 2026}
+\date{\small Borrador del 3 de octubre de 2026}
 
 \renewcommand{\abstractname}{Resumen}
 \renewcommand{\tablename}{Tabla}
@@ -37,7 +37,13 @@ identidad de lectura: qué valores qg contienen la respuesta y cuántos hay que 
 agrega física nueva (es la representación de Pauli, conocida), pero ordena tres cosas útiles: qué
 compuertas conservan el peso de Hamming (y por lo tanto admiten el testigo y el filtro qg), qué algoritmos
 se leen con valores qg locales y cuáles necesitan el histograma completo, y dónde la lectura qg es
-estrictamente peor. Todas las identidades se verificaron numéricamente y quedaron fijadas en los tests
+estrictamente peor. Después reformulamos cada compuerta y cada algoritmo con el radio local de cada qubit,
+$r_q^2=\qX^2+\qY^2+\qZ^2$, el radio de la esfera sobre la que vive el qubit (área $4\pi r_q^2$, déficit de
+superficie $4\pi(1-r_q^2)$). Para un estado global puro, $1-r_q^2$ es el entrelazamiento conocido (one-tangle);
+con ruido mezcla entrelazamiento y ruido. En un estado de peso de Hamming fijo $r_q=|\qZ|$, y con $T_1$ igual el
+filtro qg lo restituye exactamente: en una simulación pre-registrada el déficit filtrado coincide con el
+entrelazamiento sin ruido a $3\times10^{-15}$, mientras que sin filtro aparece un falso déficit de 0.60--0.95 en
+estados producto. Todas las identidades se verificaron numéricamente y quedaron fijadas en los tests
 del repositorio.
 \end{abstract}
 
@@ -68,34 +74,51 @@ letra de la izquierda es el qubit 0, que es el control de CX y CZ (y los control
 $\overline{\qZ}=1-2N/n$ queda fijo, y el testigo y el filtro qg~\cite{monteverde2026witness} se
 aplican al circuito.
 
+\paragraph{Radio local (la superficie de la esfera).} Los valores qg locales $(\qX,\qY,\qZ)$ de cada qubit son
+un punto de la bola unidad. Su distancia al centro al cuadrado,
+\begin{equation}\label{eq:radio}
+r_q^2=\qX^2+\qY^2+\qZ^2=2\,\mathrm{Tr}\rho_q^2-1,
+\end{equation}
+vale 1 para un qubit puro y 0 para uno máximamente mezclado: el qubit vive sobre una esfera de área
+$4\pi r_q^2$, y el déficit de superficie es $4\pi(1-r_q^2)$. El radio lleva la misma información que el área y es
+lineal en la pureza, así que trabajamos con $r_q^2$. Si el registro entero es puro, $1-r_q^2=4\det\rho_q$ es el
+entrelazamiento del qubit $q$ con el resto (para dos qubits, la concurrencia al cuadrado~\cite{wootters1998,coffman2000}),
+y su promedio sobre los qubits es la medida global de Meyer--Wallach~\cite{meyer2002,brennen2003}. Si el registro
+está mezclado, el déficit mezcla entrelazamiento y ruido y no los separa. Leer $r_q^2$ en todos los qubits
+requiere tres configuraciones para todo el registro (todo X, todo Y, todo Z), no tres por qubit. Con $N$
+disparos, $\hat q^{\,2}$ está sesgado hacia arriba en $(1-q^2)/N$; $(N\hat q^{\,2}-1)/(N-1)$ es exactamente
+insesgado.
+
 \section{Las quince compuertas}
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{6.4cm}>{\raggedright\arraybackslash}p{5.0cm}}
-\caption{Acción de cada compuerta sobre los valores qg (Ec.~\ref{eq:regla}); $c=\cos\theta$, $s=\sin\theta$.}\label{tab:compuertas}\\
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{5.6cm}>{\raggedright\arraybackslash}p{4.1cm}>{\raggedright\arraybackslash}p{2.2cm}}
+\caption{Acción de cada compuerta sobre los valores qg (Ec.~\ref{eq:regla}); $c=\cos\theta$, $s=\sin\theta$. Última
+columna: efecto sobre los radios locales (Ec.~\ref{eq:radio}) con entradas producto (déficit máximo y una entrada que
+lo alcanza).}\label{tab:compuertas}\\
 \toprule
-compuerta & acción sobre qg & lectura qg \\
+compuerta & acción sobre qg & lectura qg & radio local \\
 \midrule
 \endfirsthead
 \toprule
-compuerta & acción sobre qg & lectura qg \\
+compuerta & acción sobre qg & lectura qg & radio local \\
 \midrule
 \endhead
-1. Pauli X & $(\qX,\qY,\qZ)\to(\qX,-\qY,-\qZ)$ & invierte el sesgo polar \\
-2. Pauli Y & $(\qX,\qY,\qZ)\to(-\qX,\qY,-\qZ)$ & invierte $\qZ$ y $\qX$ \\
-3. Pauli Z & $(\qX,\qY,\qZ)\to(-\qX,-\qY,\qZ)$ & invisible en la base Z \\
-4. Hadamard & $(\qX,\qY,\qZ)\to(\qZ,-\qY,\qX)$ & intercambia sesgo polar y $\qX$: lo que se hace legible en Z \\
-5. Fase S & $(\qX,\qY)\to(-\qY,\qX)$; $\qZ$ fijo & giro de $90^\circ$ en el ecuador \\
-\phantom{5.} Fase $P(\varphi)$ & $\qX'=\cos\varphi\,\qX-\sin\varphi\,\qY$, $\qY'=\sin\varphi\,\qX+\cos\varphi\,\qY$ & igual que $R_z(\varphi)$ \\
-6. T ($\pi/8$) & $\qX'=(\qX-\qY)/\sqrt2$, $\qY'=(\qX+\qY)/\sqrt2$; $\qZ$ fijo & primera compuerta que mezcla: produce valores qg irracionales (``magia'') \\
-7. $R_x(\theta)$ & $\qZ'=c\,\qZ+s\,\qY$, $\qY'=c\,\qY-s\,\qZ$; $\qX$ fijo & giro en el plano YZ \\
-8. $R_y(\theta)$ & $\qZ'=c\,\qZ-s\,\qX$, $\qX'=c\,\qX+s\,\qZ$; $\qY$ fijo & desde $|0\rangle$: $\qZ=\cos\theta$, la identidad qang; es la compuerta RQang con $\theta=\arccos\qZ$ \\
-9. $R_z(\theta)$ & $\qX'=c\,\qX-s\,\qY$, $\qY'=s\,\qX+c\,\qY$; $\qZ$ fijo & invisible en la base Z \\
-10. CNOT (CX) & $\q{XI}'=\q{XX}$, $\q{IZ}'=\q{ZZ}$, $\q{IY}'=\q{ZY}$, $\q{YI}'=\q{YX}$; $\q{ZI}$, $\q{IX}$ fijos & convierte una correlación en un valor local: el $\qZ$ del blanco pasa a ser la paridad $\q{ZZ}$ (base de la extracción de síndrome) \\
-11. CZ & $\q{XI}'=\q{XZ}$, $\q{IX}'=\q{ZX}$; todos los $\qZ$ fijos & invisible en la base Z; conserva el peso \\
-12. SWAP & $\q{ab}'=\q{ba}$ & intercambia etiquetas; conserva el peso \\
-13. iSWAP & $\q{ZI}'=\q{IZ}$, $\q{XI}'=-\q{ZY}$, $\q{YI}'=\q{ZX}$, $\q{IX}'=-\q{YZ}$, $\q{IY}'=\q{XZ}$ & intercambio con fase; conserva el peso \\
-14. Toffoli & $\q{IIZ}'=\tfrac12(\q{IIZ}+\q{IZZ}+\q{ZIZ}-\q{ZZZ})$; controles fijos; $\q{IIX}$ fijo & mezcla en el sector diagonal: el $\qZ$ del blanco depende de correlaciones de tres qubits \\
-15. Fredkin & $\q{IZI}'=\tfrac12(\q{IZI}+\q{ZZI}+\q{IIZ}-\q{ZIZ})$; control fijo & intercambio controlado; conserva el peso \\
+1. Pauli X & $(\qX,\qY,\qZ)\to(\qX,-\qY,-\qZ)$ & invierte el sesgo polar & se conserva \\
+2. Pauli Y & $(\qX,\qY,\qZ)\to(-\qX,\qY,-\qZ)$ & invierte $\qZ$ y $\qX$ & se conserva \\
+3. Pauli Z & $(\qX,\qY,\qZ)\to(-\qX,-\qY,\qZ)$ & invisible en la base Z & se conserva \\
+4. Hadamard & $(\qX,\qY,\qZ)\to(\qZ,-\qY,\qX)$ & intercambia sesgo polar y $\qX$: lo que se hace legible en Z & se conserva \\
+5. Fase S & $(\qX,\qY)\to(-\qY,\qX)$; $\qZ$ fijo & giro de $90^\circ$ en el ecuador & se conserva \\
+\phantom{5.} Fase $P(\varphi)$ & $\qX'=\cos\varphi\,\qX-\sin\varphi\,\qY$, $\qY'=\sin\varphi\,\qX+\cos\varphi\,\qY$ & igual que $R_z(\varphi)$ & se conserva \\
+6. T ($\pi/8$) & $\qX'=(\qX-\qY)/\sqrt2$, $\qY'=(\qX+\qY)/\sqrt2$; $\qZ$ fijo & primera compuerta que mezcla: produce valores qg irracionales (``magia'') & se conserva \\
+7. $R_x(\theta)$ & $\qZ'=c\,\qZ+s\,\qY$, $\qY'=c\,\qY-s\,\qZ$; $\qX$ fijo & giro en el plano YZ & se conserva \\
+8. $R_y(\theta)$ & $\qZ'=c\,\qZ-s\,\qX$, $\qX'=c\,\qX+s\,\qZ$; $\qY$ fijo & desde $|0\rangle$: $\qZ=\cos\theta$, la identidad qang; es la compuerta RQang con $\theta=\arccos\qZ$ & se conserva \\
+9. $R_z(\theta)$ & $\qX'=c\,\qX-s\,\qY$, $\qY'=s\,\qX+c\,\qY$; $\qZ$ fijo & invisible en la base Z & se conserva \\
+10. CNOT (CX) & $\q{XI}'=\q{XX}$, $\q{IZ}'=\q{ZZ}$, $\q{IY}'=\q{ZY}$, $\q{YI}'=\q{YX}$; $\q{ZI}$, $\q{IX}$ fijos & convierte una correlación en un valor local: el $\qZ$ del blanco pasa a ser la paridad $\q{ZZ}$ (base de la extracción de síndrome) & hasta 0 ($|{+}0\rangle$) \\
+11. CZ & $\q{XI}'=\q{XZ}$, $\q{IX}'=\q{ZX}$; todos los $\qZ$ fijos & invisible en la base Z; conserva el peso & hasta 0 ($|{+}{+}\rangle$) \\
+12. SWAP & $\q{ab}'=\q{ba}$ & intercambia etiquetas; conserva el peso & se intercambian \\
+13. iSWAP & $\q{ZI}'=\q{IZ}$, $\q{XI}'=-\q{ZY}$, $\q{YI}'=\q{ZX}$, $\q{IX}'=-\q{YZ}$, $\q{IY}'=\q{XZ}$ & intercambio con fase; conserva el peso & hasta 0 ($|{+}{+}\rangle$) \\
+14. Toffoli & $\q{IIZ}'=\tfrac12(\q{IIZ}+\q{IZZ}+\q{ZIZ}-\q{ZZZ})$; controles fijos; $\q{IIX}$ fijo & mezcla en el sector diagonal: el $\qZ$ del blanco depende de correlaciones de tres qubits & hasta 0 ($|1{+}0\rangle$) \\
+15. Fredkin & $\q{IZI}'=\tfrac12(\q{IZI}+\q{ZZI}+\q{IIZ}-\q{ZIZ})$; control fijo & intercambio controlado; conserva el peso & hasta 0 ($|{+}01\rangle$) \\
 \bottomrule
 \end{longtable}
 
@@ -111,6 +134,10 @@ base Z'' del preprint principal, compuerta por compuerta.
 conservan el peso de Hamming; CNOT y Toffoli no. Un circuito armado solo con compuertas que conservan el
 peso (y rotaciones $R_z$) tiene exposición de sector cero, y el filtro qg atrapa allí casi todo el error
 por relajación (§68 de las notas de investigación).
+\item \textbf{Radio.} Una compuerta de un qubit gira la esfera y conserva todos los radios, también para un qubit
+mezclado: mueve el punto, nunca su distancia al centro. SWAP intercambia radios. CNOT, CZ, iSWAP, Toffoli y Fredkin
+pueden llevar una entrada producto al centro ($r=0$, déficit 1) y también devolverla. Sobre estados de la base
+ninguna crea déficit: allí actúan como permutaciones clásicas, y el déficit necesita una superposición en la entrada.
 \end{itemize}
 
 \section{Los catorce algoritmos}
@@ -121,23 +148,29 @@ qg y qué no.
 \paragraph{1. Deutsch--Jozsa.} Con $f$ codificada como fase, la salida cumple
 $P(0^n)=2^{-n}\sum_S\q{Z_S}$: la probabilidad de todos ceros es el promedio de todas las paridades Z.
 \emph{Lectura qg:} $f$ es constante si y solo si los $n$ valores locales $\qZ$ son $+1$; basta que uno sea
-menor que 1 para que sea balanceada. No hace falta ninguna correlación.
+menor que 1 para que sea balanceada. No hace falta ninguna correlación. \emph{Radio.} Con $f$ constante todos los
+qubits quedan en la superficie ($r=1$); con una $f$ balanceada no lineal de cuatro qubits queda $r^2=0.25$ en cada
+uno, así que cualquier déficit también certifica ``balanceada'' (una $f$ balanceada lineal da un producto, $r=1$).
 
 \paragraph{2. Bernstein--Vazirani.} La salida es el estado producto $|s\rangle$, así que
 $\qZ^{(i)}=(-1)^{s_i}$: \emph{cada bit del secreto es el signo del sesgo polar de su qubit.} Con ruido, cada
-bit se decide por separado con su propio intervalo (estimadores de \texttt{qang.statistics}).
+bit se decide por separado con su propio intervalo (estimadores de \texttt{qang.statistics}). \emph{Radio.} $r=1$ en
+todos los qubits: la salida es un producto y los valores locales son toda la respuesta.
 
 \paragraph{3. Simon.} La salida es uniforme sobre $\{y: y\cdot s=0\}$. En qg, la única paridad Z no trivial
 distinta de cero es la del propio secreto: $\q{Z_S}=1$ si $S\in\{0,s\}$ y $0$ en otro caso.
 \emph{Simon es buscar la única paridad igual a 1.} Pero hay $2^n$ paridades: la lectura qg describe la
 respuesta, no la encuentra eficientemente; el algoritmo eficiente sigue siendo resolver un sistema lineal
-con $O(n)$ muestras.
+con $O(n)$ muestras. \emph{Radio.} Con $n=3$ y $s=110$ todos los qubits de salida quedan en el centro ($r=0$): están
+máximamente entrelazados con el registro del oráculo, y nada de $s$ es local.
 
 \paragraph{4. Shor (orden y logaritmo discreto).} La parte cuántica es una estimación de fase del período
 $r$. Si $r$ es potencia de 2, los valores locales lo muestran: con $r=4$ y 6 qubits de conteo,
 $\qZ=(0,0,1,1,1,1)$. Si no lo es ($r=6$), los $\qZ$ locales quedan entre 0 y 0.33 y no determinan $r$: la
 información está en las correlaciones y hace falta la cadena completa más fracciones continuas.
-\emph{Resultado negativo para la lectura local}, como en Grover.
+\emph{Resultado negativo para la lectura local}, como en Grover. \emph{Radio.} Con $r=4$ los qubits de conteo tienen
+$r^2=(0,0,1,1,1,1)$: los qubits puros no informan sobre el orden, los dos del centro sí. Con $r=6$ todos tienen
+$r^2\le0.11$: el registro está casi máximamente mezclado qubit por qubit.
 
 \paragraph{5. Grover.} Con un elemento marcado $x^\ast$ y probabilidad de éxito $P$ tras $k$ iteraciones,
 \begin{equation}\label{eq:grover}
@@ -145,7 +178,9 @@ información está en las correlaciones y hace falta la cadena completa más fra
 \end{equation}
 \emph{El elemento marcado es el patrón de signos de los $\qZ$, y su módulo mide el éxito.} Leerlo así
 cuesta más: el signo necesita $\sim1/P^2$ disparos contra $\sim1/P$ del histograma (§63). La identidad es
-útil como diagnóstico, no como lectura.
+útil como diagnóstico, no como lectura. \emph{Radio.} Con $n=5$ el radio de cada qubit pasa por
+$1\to0.82\to0.66\to0.84\to0.998$ para $k=0,\dots,4$: Grover entrelaza el registro en el camino y lo desentrelaza en
+el óptimo, donde la respuesta vuelve a ser local.
 
 \paragraph{6. Estimación de fase (QPE) y 11. retroceso de fase.} Un control en $|+\rangle$ sobre un
 autoestado de $U$ con autovalor $e^{i\varphi}$ queda con
@@ -156,26 +191,36 @@ autoestado de $U$ con autovalor $e^{i\varphi}$ queda con
 $\qX$ y $\qY$ con $2^k\varphi$, un bit por vez; es la versión qg natural de la estimación de fase. El
 repositorio ya conecta la QPE estándar con la unidad de fase $qg_\Phi$ (\texttt{QangPhi}): la fase estimada
 reproduce el autovalor, exacta para T, S y Z. Es la misma idea que hace funcionar Deutsch--Jozsa y
-Bernstein--Vazirani.
+Bernstein--Vazirani. \emph{Radio.} Una prueba de Hadamard de $U$ sobre $|\psi\rangle$ deja el control con
+$r^2=|\langle\psi|U|\psi\rangle|^2$: exactamente 1 para un autoestado y menor que 1 si no lo es ($0.81$ con
+$\varphi=0.9$ sobre $|+\rangle$). \emph{El radio verifica la hipótesis de autoestado} sobre la que descansa la
+estimación de fase, y su déficit es el entrelazamiento del control con el blanco.
 
 \paragraph{7. HHL.} La salida es un estado $|x\rangle\propto A^{-1}|b\rangle$ que no se puede leer entero; lo
 que entrega son valores esperados $\langle x|M|x\rangle$, es decir valores qg del registro de solución, y la
 probabilidad de éxito es el sesgo polar de la ancilla, $P(1)=(1-\qZ^{\mathrm{anc}})/2$. \emph{La formulación qg
 dice con precisión qué produce HHL: valores qg, no el vector.} Es la lectura estándar del algoritmo~\cite{nielsen2010quantum}; acá se
-comprueba para una matriz de $2\times2$ con álgebra lineal exacta, no con un circuito.
+comprueba para una matriz de $2\times2$ con álgebra lineal exacta, no con un circuito. \emph{Radio.} Con
+$A=\begin{pmatrix}2&1\\1&3\end{pmatrix}$ y $b=(1,0)$ la ancilla tiene $r^2=0.32$: queda entrelazada con el registro
+de solución siempre que $b$ tenga componentes en autovectores de autovalores distintos.
 
 \paragraph{8. Transformada de Fourier (QFT).} La QFT de un estado de la base es un producto de qubits
 ecuatoriales: el qubit $l$ queda con $\qZ=0$ y $\qX+i\,\qY=e^{2\pi i x/2^l}$. \emph{La QFT pasa la
 información de los sesgos polares (los bits de $x$) a ángulos ecuatoriales}, que la base Z no ve; por eso
-siempre va seguida de Hadamard o de su inversa antes de medir.
+siempre va seguida de Hadamard o de su inversa antes de medir. \emph{Radio.} $r=1$ en todos los qubits: la QFT de
+un estado de la base solo mueve cada punto sobre la superficie, de los polos al ecuador.
 
 \paragraph{9. VQE.} La energía es lineal en los valores qg, $E=\sum_P c_P\,\q{P}$, agrupados por base de
 medición. Es el uso central del repositorio: testigo, filtro, chequeos de simetría (§21, §50--§55), proyección
-de espín (§69) y amortiguamiento en los polos para optimizar.
+de espín (§69) y amortiguamiento en los polos para optimizar. \emph{Radio.} La parte local de la energía está acotada por
+los radios, $|\sum_\alpha c_{q,\alpha}\q{\alpha}^{(q)}|\le\|c_q\|\,r_q$. En el singlete de dos qubits ($XX+YY+ZZ$)
+ambos radios valen 0 y toda la energía está en correlaciones; en la cadena de Ising de dos sitios con $h=1$,
+$r^2=0.8$.
 
 \paragraph{10. QAOA.} Para MaxCut, $C=\sum_{(i,j)}w_{ij}(1-\q{Z_iZ_j})/2$: todo el costo sale de las
 correlaciones ZZ de los mismos disparos. Con el mezclador XY, que conserva el peso, el testigo y el filtro
-se aplican (§30, §38).
+se aplican (§30, §38). \emph{Radio.} En un anillo de cuatro con los mejores ángulos de $p=1$ cada qubit tiene $r^2=0.25$:
+por eso el costo vive en ZZ. Con el mezclador XY el estado tiene peso fijo y $r_q=|\qZ^{(q)}|$.
 
 \paragraph{12. Conteo cuántico.} Una prueba de Hadamard del operador de Grover $G$ sobre el estado uniforme
 deja el control con
@@ -184,38 +229,73 @@ deja el control con
 \end{equation}
 \emph{Contar soluciones es medir un solo $\qX$.} Con 16 elementos y 3 marcados, $\qX=0.625$ y $M=3$. La
 precisión sigue la estadística de un qubit; la versión con QPE completa gana precisión con más qubits de
-conteo.
+conteo. \emph{Radio.} Aquí $\qY=\qZ=0$, así que $r=|\qX|=|1-2M/N|$ ($r^2=0.39$ en el ejemplo) y el déficit
+$4(M/N)(1-M/N)$ es el entrelazamiento del control con el registro, máximo en $M=N/2$.
 
 \paragraph{13. Paseos cuánticos.} Un caminante en tiempo continuo sobre una red, con salto
 $(XX+YY)/2$, conserva el número de excitaciones: el $\overline{\qZ}$ del registro queda fijo en $1-2/n$
 para todo tiempo (verificado con $n=5$). \emph{Un paseo de un caminante vive en el sector de peso 1}, así que
 el testigo y el filtro qg se aplican tal como en la cadena XXZ (§60). Los paseos discretos con moneda no
-conservan el peso y no tienen esta propiedad.
+conservan el peso y no tienen esta propiedad. \emph{Radio.} En un estado de peso fijo $\qX=\qY=0$ en todos los qubits,
+así que $r_q=|\qZ^{(q)}|$ y el déficit es $4p_q(1-p_q)$, con $p_q$ la ocupación del sitio $q$: la dispersión del
+caminante es su entrelazamiento ($r^2$ entre 0.02 y 0.87 en $t=2$ con $n=5$).
 
 \paragraph{14. Aprendizaje automático (Q-SVM, Q-PCA).} El núcleo de fidelidad es la probabilidad de todos
 ceros, $k(x,x')=P(0^n)=2^{-n}\sum_S\q{Z_S}$, y para una codificación producto por ángulos se reduce a
 $\prod_i(1+\vec q_i\cdot\vec q_i\,')/2$ (la probabilidad de transición qang). En Q-PCA, la pureza y el
 espectro de $\rho$ dependen de los valores qg al cuadrado, $\mathrm{Tr}\rho^2=2^{-n}\sum_P\q{P}^2$. Lo que el
 repositorio ya mostró: la codificación $\theta=\arccos x$ (modelos de Chebyshev) gana a la codificación por
-ángulo, y un ajuste clásico de Chebyshev gana a ambas (§16, §19).
+ángulo, y un ajuste clásico de Chebyshev gana a ambas (§16, §19). \emph{Radio.} Las codificaciones producto
+mantienen $r=1$; con ruido, la diagonal del núcleo es $k(x,x)=\prod_q(1+r_q^2)/2$, una lectura directa de los radios.
 
 \section{Qué se lee con qué}
 
 \begin{table}[h]
 \centering\small
-\caption{Qué valores qg alcanzan para leer la respuesta de cada algoritmo.}
-\label{tab:lectura}
-\begin{tabular}{>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{9.6cm}}
+\caption{Qué valores qg alcanzan para leer la respuesta de cada algoritmo, y el radio local de los qubits de
+lectura (\texttt{qang.formulation.algorithm\_radii}). Cuanto más cerca de la superficie están los qubits de lectura,
+más local es la lectura; cuando están cerca del centro, la respuesta está en las correlaciones.}
+\label{tab:lectura}\medskip
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{7.2cm}>{\raggedright\arraybackslash}p{3.6cm}}
 \toprule
-alcanza con & algoritmos \\
+alcanza con & algoritmos & radio de los qubits de lectura \\
 \midrule
-valores locales $\qZ$ & Deutsch--Jozsa, Bernstein--Vazirani \\
-un $\qX,\qY$ de una ancilla & retroceso de fase, QPE iterativa, conteo cuántico (prueba de Hadamard), éxito de HHL \\
-correlaciones de pocos qubits & QAOA (ZZ), VQE (cadenas del Hamiltoniano) \\
-todas las paridades Z o el histograma & Simon, Shor con período no potencia de 2, Grover (la lectura local existe pero cuesta $\sim1/P^2$), núcleos de fidelidad \\
+valores locales $\qZ$ & Deutsch--Jozsa, Bernstein--Vazirani & 1 (salida producto) \\
+un $\qX,\qY$ de una ancilla & retroceso de fase, QPE iterativa, conteo cuántico (prueba de Hadamard), éxito de HHL & $|\langle U\rangle|$; 1 solo con autoestado \\
+correlaciones de pocos qubits & QAOA (ZZ), VQE (cadenas del Hamiltoniano) & menor que 1; 0 en un singlete \\
+todas las paridades Z o el histograma & Simon, Shor con período no potencia de 2, Grover (la lectura local existe pero cuesta $\sim1/P^2$), núcleos de fidelidad & cerca de 0 (Simon, Shor); Grover vuelve a 1 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\section{El radio después del filtro qg}
+
+El radio mide entrelazamiento solo si el registro es puro, y el ruido es justamente lo que lo vuelve mezclado. Los
+circuitos que conservan el peso de Hamming dan una salida. En un estado de peso fijo todos los $\qX$ y $\qY$
+locales se anulan, así que $r_q=|\qZ^{(q)}|$ y el déficit $1-\qZ^2$ se lee solo con disparos en la base Z. Con $T_1$
+igual, el filtro qg conserva los disparos que siguieron en el sector, y el estado conservado es el estado sin ruido:
+en ese sector la rama sin decaimiento de $T_1$ es un múltiplo de la identidad (§77 de las notas). Entonces el
+déficit filtrado debería ser el entrelazamiento sin ruido, y el déficit sin filtro no.
+
+Lo probamos con predicciones registradas antes de correr (§98 de las notas,
+\texttt{examples/qg\_radius\_witness\_qg.py}): circuitos aleatorios de divisores de haz reconfigurables (RBS) que
+conservan el peso, 4 y 6 qubits, peso de 1 a $n/2$, profundidad de 12 a 48, $\gamma=0.02$ por qubit y por capa,
+1000 y 10000 disparos, y el estimador $1-(N\hat q^{\,2}-1)/(N-1)$ con y sin filtro.
+\begin{itemize}
+\item Con $T_1$ igual, el déficit filtrado exacto coincide con el entrelazamiento sin ruido a $3\times10^{-15}$; sin
+filtro el error medio es de 0.06 a 0.37.
+\item En estados producto (entradas de la base, circuitos inactivos) el déficit filtrado es exactamente 0 con $T_1$
+igual, $T_1$ desigual y desfase; sin filtro aparece un déficit de 0.60--0.95 en cada qubit excitado: entrelazamiento
+falso producido solo por el decaimiento.
+\item Con disparos, el filtro tiene el menor error en 30 de 30 configuraciones con $T_1$ igual (error cuadrático
+medio entre 7.6 y 1005 veces menor), 30 de 30 con $T_1$ desigual y 24 de 30 con desfase, donde el déficit filtrado
+queda sesgado (hasta 0.31).
+\item Una predicción falló: esperábamos que el error sin filtro fuera menor con el sector a mitad de llenado, por una
+cancelación de primer orden cerca de ocupación 1/2. Es mayor (0.177 contra 0.074 con $n=4$ y profundidad 12).
+\end{itemize}
+El radio se suma así a las herramientas qg con un dominio claro: en circuitos que conservan el peso, con $T_1$
+igual, el filtro convierte el déficit de superficie en una medida de entrelazamiento, con los mismos disparos en la
+base Z que la lectura.
 
 \section{Qué es nuevo y qué no}
 
@@ -228,13 +308,19 @@ unidades qg que ya usan el preprint y las notas, para tres preguntas prácticas:
 (iii) dónde la lectura qg es peor que la estándar (Grover, Shor con período general, Simon).
 Las identidades nuevas en su forma, aunque elementales, son la Ec.~\eqref{eq:grover} para Grover, la lectura
 de Simon como una única paridad igual a 1, y el conteo cuántico como un solo $\qX$ (Ec.~\eqref{eq:conteo}).
+El radio local, su relación con la pureza, el one-tangle y la medida de Meyer--Wallach son
+conocidos~\cite{wootters1998,coffman2000,meyer2002,brennen2003}; lo que agregamos es su tabla sobre las quince
+compuertas y los catorce algoritmos en unidades qg, la observación de que en un estado de peso fijo se lee con
+disparos en la base Z, y la prueba de que el filtro qg lo convierte en una medida de entrelazamiento con $T_1$ igual.
 Ninguna es una ventaja cuántica nueva.
 
 \section{Verificación y uso}
 La formulación está en la librería como el módulo \texttt{qang.formulation} (desde la versión 0.5.0,
 \texttt{pip install qang}): \texttt{conjugate} y \texttt{gate\_table} dan $U^\dagger PU$ para las quince
-compuertas, \texttt{qg\_values} y \texttt{apply\_gate} trabajan directamente con valores qg, y cada
-identidad de lectura tiene su función. \texttt{tests/test\_formulation.py} fija las comprobaciones (en
+compuertas, \texttt{qg\_values} y \texttt{apply\_gate} trabajan directamente con valores qg, cada
+identidad de lectura tiene su función, y el radio tiene las suyas (\texttt{radius\_profile}, \texttt{radius\_deficit},
+\texttt{sphere\_area}, \texttt{meyer\_wallach}, \texttt{gate\_radius\_class}, \texttt{algorithm\_radii}; estimación
+insesgada en \texttt{qang.statistics.radius2\_estimate}, desde la versión 0.6.4). \texttt{tests/test\_formulation.py} fija las comprobaciones (en
 \url{https://github.com/Viny2030/qang}), y el cuaderno \texttt{notebooks/qang\_inicio\_formulacion.ipynb}
 las recorre en Colab. La lectura de HHL se comprueba para una matriz de $2\times2$ con álgebra lineal exacta,
 no con un circuito.

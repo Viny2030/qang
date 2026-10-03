@@ -5,6 +5,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-10-03
+
 ### Added
 - The local radius (sphere surface) metric in `qang.formulation` (§97): `radius2`, `radius_profile`, `radius_deficit`
   (1 - r^2, the one-tangle for pure states), `sphere_area` (4 pi r^2), `meyer_wallach`, `gate_radius_class` (preserves /
@@ -20,8 +22,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `qang.qml`: two-channel readout `qang="both"` (filtered and raw features); study §95 pre-registered.
 
 ### Changed
-- The formulation article (`manuscript/formulation`, `manuscript/teoria_es`): the 15 gates and 14 algorithms
-  restated with the local radius.
+- The formulation article (`manuscript/qang_formulation.pdf`, Spanish `manuscript/qang_teoria_es.pdf`): the 15 gates
+  and 14 algorithms restated with the local radius (a radius column in the gates table, a radius line per algorithm,
+  the radius of the readout qubits in the readout-classes table, and a section on the radius after the qg filter).
+- The start-here notebooks (`qang_start_here`, `qang_inicio_formulacion`) gain section 5, the local radius, built by
+  `tools/add_radius_section.py`; they install `qang>=0.6.4`.
 
 ## [0.6.3] - 2026-10-03
 

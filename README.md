@@ -156,10 +156,10 @@ from Z-basis shots alone (§98). `F.algorithm_radii()` gives the radius of the r
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_qml.ipynb) English &nbsp;·&nbsp;
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_qml_es.ipynb) Español
 
-`qang.qml` (qang >= 0.6.3) trains weight-conserving QNN classifiers and reads every result with qang (the qg
+`qang.qml` (qang >= 0.6.4) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(52 so far in the QML line: 40 passed, 12 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
+(66 so far in this line, §75–§98: 52 passed, 14 failed, all reported; §95 is running). Note: `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
