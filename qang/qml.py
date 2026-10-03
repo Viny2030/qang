@@ -58,6 +58,9 @@ def _default_sublayers(n):
 class WeightQNN:
     """Weight-conserving QNN classifier (binary) on ``n_qubits`` qubits.
 
+    Any weight 1 <= k <= n - 1 can be simulated (probs, qg_z, kept_fraction);
+    data encodings exist for weight 1 and 2:
+
     weight 1: unary amplitude encoding of v = (x, 1)/|(x, 1)| (needs
               ``n_features = n_qubits - 1``); the constant keeps |x| (§76).
     weight 2: amplitude v_i v_j on the state with qubits i < j excited,
@@ -77,8 +80,8 @@ class WeightQNN:
     """
 
     def __init__(self, n_qubits=5, weight=1, layers=3, sublayers=None, readout="z", encoding="pairs"):
-        if weight not in (1, 2):
-            raise ValueError("weight must be 1 or 2")
+        if not 1 <= int(weight) <= int(n_qubits) - 1:
+            raise ValueError("weight must be between 1 and n_qubits - 1")
         if encoding not in ("pairs", "ring", "dual"):
             raise ValueError("encoding must be 'pairs', 'ring' or 'dual'")
         if encoding == "dual" and (weight != 2 or n_qubits < 5):
@@ -150,6 +153,8 @@ class WeightQNN:
         return self.layers * len(self.sublayers)
 
     def encode(self, X):
+        if self.weight > 2:
+            raise ValueError("data encodings exist for weight 1 and 2; for weight >= 3 pass states to probs()")
         X = np.atleast_2d(np.asarray(X, float))
         v = np.concatenate([X, np.ones((len(X), 1))], axis=1)
         if v.shape[1] != self.n:

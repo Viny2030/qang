@@ -104,7 +104,9 @@ def test_fit_score_and_compare():
 
 def test_bad_inputs():
     with pytest.raises(ValueError):
-        WeightQNN(5, 3)
+        WeightQNN(5, 5)
+    with pytest.raises(ValueError):
+        WeightQNN(5, 3).encode(np.zeros((2, 4)))
     with pytest.raises(ValueError):
         WeightQNN(5, 1).encode(np.zeros((2, 3)))
 
