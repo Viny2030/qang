@@ -178,3 +178,66 @@ def test_hhl_vqe_maxcut_kernel():
     assert F.energy_from_qg({"ZZ": 1.0, "XX": 0.5, "II": -0.2}, bell) == pytest.approx(1.3)
     assert F.maxcut_from_qg([(0, 1, 1.0)], {"ZZ": -1.0}, 2) == pytest.approx(1.0)
     assert F.product_kernel([(0, 0, 1)], [(1, 0, 0)]) == pytest.approx(0.5)
+
+
+# ---- the local radius (surface) metric, RESEARCH_NOTES §97 ----
+def test_radius_basics_and_tangle():
+    bell = np.array([1, 0, 0, 1]) / math.sqrt(2)
+    assert F.radius_profile(bell) == [0.0, 0.0]
+    assert F.radius_profile(F.qg_values(bell)) == [0.0, 0.0]
+    assert F.meyer_wallach(bell) == 1.0
+    assert F.sphere_area(1.0) == pytest.approx(4 * math.pi)
+    rng = np.random.default_rng(0)
+    for _ in range(5):
+        psi = rng.normal(size=4) + 1j * rng.normal(size=4)
+        psi /= np.linalg.norm(psi)
+        conc = 2 * abs(psi[0] * psi[3] - psi[1] * psi[2])
+        assert F.radius_deficit(psi) == pytest.approx([conc**2, conc**2])
+        rho = np.outer(psi, psi.conj())
+        rho_a = rho.reshape(2, 2, 2, 2).trace(axis1=1, axis2=3)
+        assert 1 - F.radius_profile(psi)[0] == pytest.approx(4 * np.linalg.det(rho_a).real)
+        assert F.radius2(*F.local_qg(psi, 2, 0)) == pytest.approx(2 * np.trace(rho_a @ rho_a).real - 1)
+
+
+def test_gate_radius_classes():
+    cls = {name: F.gate_radius_class(U) for name, U in {**F.GATES_1Q, **F.GATES_MULTI}.items()}
+    for name in "XYZHST":
+        assert cls[name]["class"] == "preserves" and cls[name]["max deficit"] == 0.0
+    for name in ("Rx", "Ry", "Rz", "P"):
+        assert F.gate_radius_class(F.GATES_PARAMETRIC[name](0.7))["class"] == "preserves"
+    assert cls["SWAP"]["class"] == "permutes"
+    for name in ("CX", "CZ", "iSWAP", "Toffoli", "Fredkin"):
+        assert cls[name]["class"] == "entangling" and cls[name]["max deficit"] == 1.0
+    # a one-qubit gate keeps the radius of a mixed qubit too
+    rho = F.state_from_qg({"I": 1, "X": 0.3, "Z": -0.4}, 1)
+    out = F.T @ rho @ F.T.conj().T
+    assert F.radius_profile(out, 1) == pytest.approx(F.radius_profile(rho, 1))
+
+
+def test_algorithm_radii():
+    a = F.algorithm_radii()
+    assert a["Deutsch-Jozsa constant"] == [1.0] * 4
+    assert a["Bernstein-Vazirani"] == [1.0] * 4 and a["QFT"] == [1.0] * 4
+    assert max(a["Deutsch-Jozsa balanced"]) < 1
+    assert a["Simon"] == [0.0, 0.0, 0.0]
+    assert a["Shor r=4"] == [0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+    assert max(a["Shor r=6"]) < 0.12
+    g = a["Grover"]
+    assert g[0] == [1.0] * 5 and min(g[2]) < 0.67 and min(g[4]) > 0.998
+    assert a["kickback eigenstate"] == 1.0
+    assert a["kickback non-eigenstate"] == pytest.approx(math.cos(0.45) ** 2)
+    assert a["counting"] == pytest.approx((1 - 2 * 3 / 16) ** 2)
+    assert 0 < a["HHL ancilla"] < 1
+    assert a["VQE singlet"] == [0.0, 0.0] and a["VQE Ising h=1"][0] < 1
+    assert a["kernel product encoding"] == [1.0] * 3
+
+
+def test_weight_sector_radius_is_qg_z():
+    from scipy.linalg import expm
+    n = 5
+    hop = lambda j, c: F.pauli("".join(c if k in (j, j + 1) else "I" for k in range(n)))  # noqa: E731
+    Hw = sum((hop(j, "X") + hop(j, "Y")) / 2 for j in range(n - 1))
+    psi = expm(-2j * Hw) @ np.eye(2**n)[4]
+    qz = [F.local_qg(psi, n, q)[2] for q in range(n)]
+    assert F.radius_profile(psi) == pytest.approx([z**2 for z in qz], abs=1e-12)
+    assert F.weight_sector_radius(qz) == pytest.approx(F.radius_deficit(psi), abs=1e-12)

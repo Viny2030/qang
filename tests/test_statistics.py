@@ -189,3 +189,19 @@ def test_on_haar_states_bayes_mean_beats_raw_frequency():
     mse_bayes = np.mean((post_mean[k] - q_true) ** 2)
     assert mse_bayes < mse_raw
     assert 0.02 < 1 - mse_bayes / mse_raw < 0.06
+
+
+def test_qg2_unbiased_is_exactly_unbiased():
+    from math import comb
+
+    from qang.statistics import qg2_unbiased, radius2_estimate
+
+    for N in (2, 5, 40):
+        for q in (-0.9, 0.0, 0.3, 1.0):
+            p = (1 + q) / 2
+            mean = sum(comb(N, k) * p**k * (1 - p) ** (N - k) * qg2_unbiased(k, N) for k in range(N + 1))
+            plug = sum(comb(N, k) * p**k * (1 - p) ** (N - k) * (2 * k / N - 1) ** 2 for k in range(N + 1))
+            assert abs(mean - q * q) < 1e-12
+            assert abs(plug - q * q - (1 - q * q) / N) < 1e-12
+    est, se = radius2_estimate([(900, 1000), (500, 1000), (500, 1000)])
+    assert abs(est - (1000 * 0.8**2 - 3) / 999) < 1e-12 and se > 0

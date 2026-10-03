@@ -469,3 +469,32 @@ def qg_s_estimate(k0: int, n_shots: int, method: str = "qg_wilson", z: float = 1
     w = wilson_qg_estimate(k0, n_shots, z)
     lo, hi = qg_s_from_qg_z_interval(w.low, w.high)
     return min(mm, 1.0), lo, hi
+
+
+# --------------------------------------------------------------------- #
+# the squared radius from counts: an unbiased estimator
+# --------------------------------------------------------------------- #
+def qg2_unbiased(k0: int, n_shots: int) -> float:
+    """Unbiased estimate of qg^2 from k0 outcomes '0' in n_shots measurements
+    of one axis. The plug-in qg_hat^2 is biased upwards by (1 - qg^2)/N;
+    (N qg_hat^2 - 1)/(N - 1) has expectation exactly qg^2. Needs N >= 2; the
+    estimate can fall below 0 when qg is near 0."""
+    if n_shots < 2 or not 0 <= k0 <= n_shots:
+        raise ValueError("need n_shots >= 2 and 0 <= k0 <= n_shots.")
+    q = 2.0 * k0 / n_shots - 1.0
+    return (n_shots * q * q - 1.0) / (n_shots - 1.0)
+
+
+def radius2_estimate(counts, unbiased: bool = True) -> tuple:
+    """Squared local radius r^2 = qg_X^2 + qg_Y^2 + qg_Z^2 from counts of the
+    measured axes, ``counts`` = [(k0, n_shots), ...] (one pair per axis; pass
+    only qg_Z in a definite-weight state, where qg_X = qg_Y = 0). Returns
+    (estimate, standard error), the error from the delta method,
+    Var(qg_hat^2) ~ 4 qg^2 (1 - qg^2) / N, plus the second-order term
+    2 (1 - qg^2)^2 / N^2 that dominates near qg = 0."""
+    est, var = 0.0, 0.0
+    for k0, n in counts:
+        q = 2.0 * k0 / n - 1.0
+        est += qg2_unbiased(k0, n) if unbiased else q * q
+        var += 4.0 * q * q * (1.0 - q * q) / n + 2.0 * (1.0 - q * q) ** 2 / n**2
+    return est, math.sqrt(var)

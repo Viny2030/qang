@@ -335,3 +335,205 @@ def product_kernel(qvecs_a, qvecs_b):
     for a, b in zip(qvecs_a, qvecs_b):
         out *= (1.0 + float(np.dot(a, b))) / 2.0
     return out
+
+
+# --------------------------------------------------------------------- #
+# the local radius: how far each qubit sits from the centre of the sphere
+# --------------------------------------------------------------------- #
+def _density(state):
+    s = np.asarray(state, dtype=complex)
+    return np.outer(s, s.conj()) if s.ndim == 1 else s
+
+
+def radius2(qx, qy, qz):
+    """Squared Bloch radius of one qubit from its three local qg values:
+    r^2 = qg_X^2 + qg_Y^2 + qg_Z^2 = 2 Tr(rho_q^2) - 1 (1 on the surface of the
+    sphere, pure; 0 at the centre, maximally mixed)."""
+    return float(qx) ** 2 + float(qy) ** 2 + float(qz) ** 2
+
+
+def radius_profile(state, n=None):
+    """Squared local radius r_q^2 of every qubit of a statevector, density
+    matrix or dict of qg values (as returned by qg_values)."""
+    if isinstance(state, dict):
+        n = len(next(iter(state))) if n is None else n
+        lab = lambda q, c: "".join(c if j == q else "I" for j in range(n))  # noqa: E731
+        return [clean(sum(state.get(lab(q, c), 0.0) ** 2 for c in "XYZ")) for q in range(n)]
+    rho = _density(state)
+    n = int(np.log2(rho.shape[0])) if n is None else n
+    out = []
+    for q in range(n):
+        lab = lambda c: "".join(c if j == q else "I" for j in range(n))  # noqa: E731
+        out.append(clean(sum(float(np.real(np.trace(rho @ pauli(lab(c))))) ** 2 for c in "XYZ")))
+    return out
+
+
+def radius_deficit(state, n=None):
+    """1 - r_q^2 for every qubit. For a pure global state it is the one-tangle
+    of qubit q with the rest, 4 det(rho_q) (for two qubits, the squared
+    concurrence); for a mixed global state it mixes entanglement and noise."""
+    return [clean(1.0 - r) for r in radius_profile(state, n)]
+
+
+def sphere_area(r2):
+    """Area of the sphere of squared radius r2: 4 pi r^2 (4 pi for a pure
+    qubit). The surface deficit is 4 pi - sphere_area(r2) = 4 pi (1 - r^2)."""
+    return 4.0 * np.pi * float(r2)
+
+
+def meyer_wallach(state, n=None):
+    """Global entanglement Q = mean_q (1 - r_q^2) of Meyer and Wallach (2002):
+    0 for product states, 1 when every qubit sits at the centre (GHZ, Bell
+    pairs); equal to the mean surface deficit divided by 4 pi."""
+    d = radius_deficit(state, n)
+    return clean(float(np.mean(d)))
+
+
+def _stabilizer_product_states(n):
+    one = [np.array(v, dtype=complex) / np.linalg.norm(v)
+           for v in ([1, 0], [0, 1], [1, 1], [1, -1], [1, 1j], [1, -1j])]
+    for combo in itertools.product(one, repeat=n):
+        yield kron(*[v.reshape(2, 1) for v in combo]).ravel()
+
+
+def gate_radius_class(U, samples=200, seed=0):
+    """How gate U acts on local radii, from product pure inputs (all
+    stabilizer products plus ``samples`` random products):
+      "preserves"   every r_q stays 1 (one-qubit gates; local unitaries)
+      "permutes"    radii are exchanged but stay 1 (SWAP)
+      "entangling"  some input ends with r_q < 1 on some qubit
+    Returns {"class": ..., "max deficit": max over inputs and qubits of
+    1 - r_q^2, "input": the product state reaching it}. For a one-qubit gate
+    the radius is preserved on every input, pure or mixed."""
+    U = np.asarray(U, dtype=complex)
+    n = int(np.log2(U.shape[0]))
+    rng = np.random.default_rng(seed)
+    inputs = list(_stabilizer_product_states(n))
+    for _ in range(samples):
+        vs = [rng.normal(size=2) + 1j * rng.normal(size=2) for _ in range(n)]
+        inputs.append(kron(*[(v / np.linalg.norm(v)).reshape(2, 1) for v in vs]).ravel())
+    best, arg = 0.0, inputs[0]
+    for psi in inputs:
+        d = max(radius_deficit(U @ psi, n))
+        if d > best + 1e-12:
+            best, arg = d, psi
+    if best > 1e-9:
+        cls = "entangling"
+    else:
+        perm = np.abs(U) > 1e-12
+        diag_like = all(np.count_nonzero(perm[i]) == 1 for i in range(2**n))
+        cls = "permutes" if (n > 1 and diag_like and not _is_local(U, n)) else "preserves"
+    return {"class": cls, "max deficit": clean(best), "input": arg}
+
+
+def _is_local(U, n):
+    """True if U maps each single-qubit Pauli on qubit q to Paulis on qubit q only."""
+    if n == 1:
+        return True
+    for q in range(n):
+        for c in "XYZ":
+            lab = "".join(c if j == q else "I" for j in range(n))
+            for s in conjugate(U, lab):
+                if any(s[j] != "I" for j in range(n) if j != q):
+                    return False
+    return True
+
+
+def weight_sector_radius(qg_z):
+    """In a state of definite Hamming weight every local qg_X and qg_Y is 0,
+    so r_q = |qg_Z^(q)|: the radius is read from Z-basis shots alone and the
+    qg filter applies to it. Returns the deficits 1 - qg_Z^2."""
+    return [clean(1.0 - float(z) ** 2) for z in qg_z]
+
+
+def hadamard_test_radius(U, psi):
+    """Control of a Hadamard test of U on |psi>: (qg_X, qg_Y) = (Re, Im) <psi|U|psi>,
+    qg_Z = 0, so r^2 = |<psi|U|psi>|^2. r = 1 exactly when |psi> is an
+    eigenstate of U; the deficit 1 - r^2 is the control's entanglement with
+    the target (kickback, phase estimation, counting)."""
+    psi = np.asarray(psi, dtype=complex)
+    psi = psi / np.linalg.norm(psi)
+    return clean(abs(psi.conj() @ np.asarray(U) @ psi) ** 2)
+
+
+def _reduced(psi, keep, n):
+    """Reduced density matrix of the qubits in ``keep`` (sorted) of a pure n-qubit state."""
+    t = np.asarray(psi, dtype=complex).reshape([2] * n)
+    rest = [j for j in range(n) if j not in keep]
+    t = np.transpose(t, list(keep) + rest).reshape(2 ** len(keep), -1)
+    return t @ t.conj().T
+
+
+def algorithm_radii():
+    """Squared local radius r_q^2 of the readout qubits for one standard
+    instance of each of the 14 algorithms (the instances of the formulation
+    article). Returns {name: list of r^2 or a short dict}."""
+    out = {}
+    n = 4
+    xs = (np.arange(2**n)[:, None] >> np.arange(n)[::-1]) & 1
+    out["Deutsch-Jozsa constant"] = radius_profile(hadamard_n(n) @ hadamard_n(n) @ np.eye(2**n)[0])
+    f = np.ones(2**n)
+    f[[1, 2, 4, 7, 8, 11, 13, 14][:4] + [3, 5, 6, 9]] = -1  # a non-linear balanced function
+    out["Deutsch-Jozsa balanced"] = radius_profile(hadamard_n(n) @ (f * (hadamard_n(n) @ np.eye(2**n)[0])))
+    s = np.array([1, 0, 1, 1])
+    out["Bernstein-Vazirani"] = radius_profile(hadamard_n(n) @ ((-1.0) ** (xs @ s) * (hadamard_n(n) @ np.eye(2**n)[0])))
+    # Simon, n = 3, s = 110, f(x) = min(x, x xor s); state on 3 + 3 qubits
+    sv, m = 0b110, 3
+    psi = np.zeros(2 ** (2 * m), dtype=complex)
+    for x in range(2**m):
+        fx = min(x, x ^ sv)
+        for y in range(2**m):
+            psi[(y << m) | fx] += (-1) ** bin(x & y).count("1") / 2**m
+    out["Simon"] = radius_profile(_reduced(psi, [0, 1, 2], 2 * m), m)
+    # Shor: counting register (m = 6) for order r, mixture over the eigenphases s/r
+    for r in (4, 6):
+        Q, mm = 64, 6
+        Fi = qft_matrix(mm).conj().T
+        rho = np.zeros((Q, Q), dtype=complex)
+        for s_ in range(r):
+            v = Fi @ (np.exp(2j * np.pi * s_ * np.arange(Q) / r) / np.sqrt(Q))
+            rho += np.outer(v, v.conj()) / r
+        out[f"Shor r={r}"] = radius_profile(rho, mm)
+    out["Grover"] = {k: radius_profile(grover_state(5, 19, k)) for k in range(5)}
+    U = np.diag([np.exp(0.9j), 1])
+    out["kickback eigenstate"] = hadamard_test_radius(U, [1, 0])
+    out["kickback non-eigenstate"] = hadamard_test_radius(U, [1, 1])
+    A = np.array([[2.0, 1.0], [1.0, 3.0]])
+    lam, V = np.linalg.eigh(A)
+    C = float(np.min(np.abs(lam)))
+    beta = V.T @ (np.array([1.0, 0.0]))
+    anc = np.zeros(4, dtype=complex)
+    for j in range(2):
+        a1 = C / lam[j]
+        anc += beta[j] * np.kron(np.array([np.sqrt(1 - a1**2), a1]), V[:, j])
+    out["HHL ancilla"] = radius_profile(anc)[0]
+    out["QFT"] = radius_profile(qft_matrix(n) @ np.eye(2**n)[5])
+    Hs = pauli("XX") + pauli("YY") + pauli("ZZ")
+    out["VQE singlet"] = radius_profile(np.linalg.eigh(Hs)[1][:, 0])
+    Hi = -pauli("ZZ") - (pauli("XI") + pauli("IX"))
+    out["VQE Ising h=1"] = radius_profile(np.linalg.eigh(Hi)[1][:, 0])
+    out["QAOA ring-4 p=1"] = radius_profile(_qaoa_ring4())
+    out["counting"] = clean(counting_qg_x(4, [2, 7, 11]) ** 2)
+    from scipy.linalg import expm
+    nw = 5
+    hop = lambda j, c: pauli("".join(c if k in (j, j + 1) else "I" for k in range(nw)))  # noqa: E731
+    Hw = sum((hop(j, "X") + hop(j, "Y")) / 2 for j in range(nw - 1))
+    out["walk t=2"] = radius_profile(expm(-2j * Hw) @ np.eye(2**nw)[4])
+    out["kernel product encoding"] = radius_profile(kron(*[(ry(a) @ np.array([1, 0])).reshape(2, 1) for a in (0.3, 1.1, 2.0)]).ravel())
+    return out
+
+
+def _qaoa_ring4():
+    n = 4
+    edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
+    xs = (np.arange(2**n)[:, None] >> np.arange(n)[::-1]) & 1
+    cut = sum((xs[:, i] != xs[:, j]).astype(float) for i, j in edges)
+    plus = np.ones(2**n) / 4
+    best, arg = -1, None
+    for g in np.linspace(0, np.pi, 61):
+        for b in np.linspace(0, np.pi / 2, 31):
+            psi = kron(*[rx(2 * b)] * n) @ (np.exp(-1j * g * cut) * plus)
+            v = float(np.abs(psi) ** 2 @ cut)
+            if v > best + 1e-12:
+                best, arg = v, psi
+    return arg
