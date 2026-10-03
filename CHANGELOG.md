@@ -16,6 +16,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   matrix).
 - `notebooks/qang_qml.ipynb` (English) and `notebooks/qang_qml_es.ipynb` (Spanish): QNNs with and without qang,
   installed from PyPI; built by `notebooks/make_qml_notebooks.py`.
+- `qang.qml`: `WeightQNN(encoding="dual")` fills all 10 weight-2 states of 5 qubits (v on the ring, (x^2, 1)/norm on the
+  chords) (§90).
+- `examples/qnn_weight2_full_sector_qg.py` (§90, 60 runs): with the dual encoding and the qg_ZZ readout the weight-2
+  model reaches the weight-1 accuracy (0.947 = 0.947) and qang adds 14-20 points under T1 (Y1, Y3-Y5 pass; Y2 fails:
+  the full sector alone does not help with the qg_Z readout).
 - `qang.qml`: `WeightQNN(encoding="ring")` loads the weight-1 data on n weight-2 states (§87).
 - `examples/qnn_weight2_encoding_qg.py` (§87, 60 runs): the weight-2 deficit comes from the pair-product encoding
   (its quadratic-form ceiling is 2.4 points lower; X1 fails); loaded like weight 1, weight 2 is within 1 point of

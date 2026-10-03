@@ -4734,6 +4734,49 @@ flips. The results are compared with the calibration of the 4 data qubits.
 * **Correction.** The filter's reduction of the qg_Z error on the IBM fake
   backends is 2.9–3.6× (sherbrooke 3.6×), not 2.9–3.6× as written in §85.
 
+## 90. The whole weight-2 sector without distortion (`examples/qnn_weight2_full_sector_qg.py`)
+
+**Encoding.** W-dual puts v = (x, 1)/norm on the ring of pairs (k, k+1) and
+u = (x², 1)/norm on the chords (k, k+2), each half with weight 1/√2. That
+covers all 10 weight-2 states (`qang.qml.WeightQNN(encoding="dual")`).
+W-dual-zz is the same model with the qg_ZZ readout.
+
+**Protocol.** 60 runs (seeds 900–904).
+
+**Predictions, committed before the run (14fab61).**
+* Y1: ceiling(dual) ≥ ceiling(E).
+* Y2: W-dual ≥ W-ring.
+* Y3: W-dual ≥ E − 1.
+* Y4: exact with qang under T1 on all runs, and a gain ≥ 10.
+* Y5: W-dual-zz ≥ W-dual.
+
+| model | exact | T1: qang / without | ceiling |
+|---|---|---|---|
+| E | 0.947 | 0.947 / 0.918 | 0.948 |
+| W-ring | 0.939 | 0.939 / 0.735 | |
+| W-dual | 0.937 | 0.937 / 0.742 | 0.951 |
+| W-dual-zz | **0.947** | 0.947 / 0.807 | |
+
+Differences in points, 95% CI across seeds:
+* ceiling dual − E: +0.4 [+0.1, +0.6]
+* W-dual − W-ring: −0.2 [−0.7, +0.3]
+* W-dual − E: −1.0 [−1.8, −0.2]
+* W-dual-zz − W-dual: +1.0 [−0.4, +2.4]
+
+Gain of qang under T1: E +2.9, W-ring +20.4, W-dual +19.5, W-dual-zz +14.1.
+
+* **Y1, Y3, Y4 and Y5 pass; Y2 fails.** Y3 passes at the threshold (−0.99).
+* **The full sector alone does not help with the qg_Z readout.** Five qg_Z
+  values see only 5 of the 10 directions (§81).
+* **With the full sector and the full-rank qg_ZZ readout, weight 2 reaches
+  weight 1** (0.947 = 0.947).
+* **Verdict.** The weight-2 gap is closed. It needed an encoding that does
+  not distort the data and a readout that sees the whole sector; neither
+  alone was enough (§81, §87).
+* **No advantage over weight 1.** Weight 2 reaches parity, not more, and
+  stays classically simulable. Its gain from qang under T1 is 14–20 points,
+  against 3 at weight 1.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

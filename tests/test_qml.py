@@ -137,3 +137,17 @@ def test_ring_encoding_in_sector_and_exact():
     assert np.allclose(m.qg_z(m.probs(th, psi, 0.1), qang=True), m.qg_z(m.probs(th, psi), qang=False), atol=1e-12)
     with pytest.raises(ValueError):
         WeightQNN(5, 2, encoding="star")
+
+
+def test_dual_encoding_fills_the_sector_and_is_exact():
+    rng = np.random.default_rng(10)
+    m = WeightQNN(5, 2, encoding="dual")
+    X = rng.uniform(-1, 1, (4, 4))
+    psi = m.encode(X)
+    assert np.allclose(np.linalg.norm(psi, axis=1), 1)
+    assert np.allclose((psi**2)[:, m.wt != 2].sum(axis=1), 0)
+    assert np.all(np.count_nonzero(np.abs(psi) > 1e-15, axis=1) == 10)
+    th = rng.uniform(-3, 3, m.n_theta)
+    assert np.allclose(m.qg_z(m.probs(th, psi, 0.1), qang=True), m.qg_z(m.probs(th, psi), qang=False), atol=1e-12)
+    with pytest.raises(ValueError):
+        WeightQNN(5, 1, encoding="dual")

@@ -34,7 +34,40 @@ examples/qnn_weight2_full_sector_qg.py [seeds]
 
 Findings (python examples/qnn_weight2_full_sector_qg.py):
 
-FINDINGS_PLACEHOLDER
+Seeds 900-904 x 3 splits x 4 datasets = 60 runs. Mean accuracy (trained
+without noise; under T1 read with qang / without):
+
+  model       exact   T1 qang / without   ceiling
+  E           0.947   0.947 / 0.918       0.948
+  W-ring      0.939   0.939 / 0.735       (= E)
+  W-dual      0.937   0.937 / 0.742       0.951
+  W-dual-zz   0.947   0.947 / 0.807
+
+  quantity (95% CI across seeds)     value
+  ceiling W-dual - ceiling E         +0.4 points [+0.1, +0.6]
+  W-dual - W-ring                    -0.2 points [-0.7, +0.3]
+  W-dual - E                         -1.0 points [-1.8, -0.2]
+  W-dual-zz - W-dual                 +1.0 points [-0.4, +2.4]
+  gain of qang (T1): E +2.9, W-ring +20.4, W-dual +19.5, W-dual-zz +14.1
+
+  * Y1 PASS: the dual encoding fills all 10 states and carries slightly
+    more usable information than the unary one (ceiling +0.4, CI above 0).
+  * Y2 FAILS: with the qg_Z readout the full sector does not help the
+    circuit (-0.2 points, CI across 0). Five qg_Z values cannot see what
+    the extra states carry (rank 5 of 10, §81).
+  * Y3 passes at the threshold (-0.99 points against -1).
+  * Y4 PASS: with qang both dual models are exact under T1 on all 60 runs;
+    qang adds 19.5 (W-dual) and 14.1 (W-dual-zz) points.
+  * Y5 PASS (mean +1.0, CI across 0): with the full sector and the
+    full-rank qg_ZZ readout, the weight-2 model reaches the weight-1
+    accuracy (0.947 against 0.947).
+  Verdict. The weight-2 gap of §79-§81 is closed: it needed both an
+  encoding that does not distort the data (§87) and a readout that sees
+  the whole sector (W-dual-zz = E). Neither alone was enough (§81: readout
+  without encoding; here: encoding without readout). Weight 2 does not beat
+  weight 1 on these small datasets, and both remain classically simulable;
+  what the larger sector buys here is parity, with the largest gains of
+  qang under T1 (14-20 points against 3).
 """
 
 import json
