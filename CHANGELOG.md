@@ -5,7 +5,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-10-04
+
+### Changed
+- `qang.qml.WeightQNN` simulates any weight 1 <= k <= n - 1 (probs, qg_z, kept_fraction); data encodings remain for
+  weights 1 and 2 (§94).
+
 ### Added
+- `examples/qg_filter_scaling_qg.py` (§94): scaling of the qg filter with qubits (4-8), weight (1-4), depth (3-24) and
+  shots; under equal T1 the filter has the lower readout MSE in 106 of 108 configurations (up to 1000x), a closed-form
+  rule predicts the winner in 99%, break-even at 3-110 shots (G1-G4 pass).
 - `examples/qnn_ionq_datasets_qg.py` (§91): the filtered QNN on the IonQ simulator with Forte-1 noise on four datasets
   (189 inputs): qang +1.1 points pooled, qg_Z error 2.7-2.9x smaller (N1-N3 pass). IonQ results now use the measured
   frequencies returned by the API (qiskit-ionq's get_counts resamples them); §85 IonQ numbers corrected.

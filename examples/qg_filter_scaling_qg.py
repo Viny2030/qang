@@ -39,7 +39,38 @@ python examples/qg_filter_scaling_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+108 configurations (n = 4, 6, 8; k = 1 .. n/2; d = 3, 6, 12, 24;
+S = 100, 1000, 10000), gamma = 0.02, 10 circuits x 20 repetitions each.
+
+  shots   filter has the lower MSE   MSE without qang / MSE with qang
+  100     34 of 36                   0.99 - 14.5
+  1000    36 of 36                   2.1 - 112
+  10000   36 of 36                   14 - 1175
+
+  * G1-G4 pass.
+  * G1: the kept fraction is (1 - gamma)^(k d) to 2e-15; it reaches 0.14
+    at n = 8, k = 4, d = 24.
+  * G2: the measured MSE with qang is 0.86-1.20 of (1 - z^2)/(K S) whenever
+    K S >= 50: the filtered readout is unbiased and its cost is only the
+    lost shots.
+  * G3: the rule picks the winner in 107 of 108 configurations (99%); the
+    exception is a near-tie at S = 100.
+  * G4: at 1000 shots the filter wins everywhere.
+  * The filter lost only twice, at S = 100 on 8 qubits with d = 3, by about
+    1% (a tie). Solving the rule for the break-even number of shots gives
+    S* = 3-110 shots over the whole grid, and S* falls with depth: the T1
+    bias of the raw readout grows faster than the variance cost of the
+    discarded shots.
+  Verdict. Under equal T1 the cost of the filter is never the deciding
+  factor in this range: with more than about 110 shots it wins in every
+  configuration up to 8 qubits, weight 4 and depth 24 (K down to 0.14),
+  and its advantage grows with shots and depth (up to 1000x lower MSE at
+  10000 shots). The closed-form rule predicts the winner, so it can be
+  evaluated before running. Limitations: equal T1 only (unequal T1 and
+  dephasing add bias the filter does not remove, §78, §82); qg_Z readout of
+  random circuits, not a trained model; the very-low-K regime (K < 0.1),
+  where the rule predicts the filter can lose at moderate shots, was not
+  reached with gamma = 0.02 and d <= 24.
 """
 
 import itertools

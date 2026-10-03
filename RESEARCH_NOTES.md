@@ -4861,6 +4861,45 @@ the four qubits.
   device, `python examples/qec_syndrome_destructive_qg.py --mode ibm --yes-i-run-on-hardware`
   (24 four-qubit circuits).
 
+## 94. How the qg filter scales with qubits, weight, depth and shots (`examples/qg_filter_scaling_qg.py`)
+
+The filter removes the T1 bias of the qg_Z readout, but it keeps only
+K = (1 − γ)^(k·d) of the shots. The setting is random weight-conserving
+circuits with n = 4, 6, 8 qubits, weight k = 1..n/2, depth d = 3–24,
+S = 100 / 1000 / 10000 shots and equal T1 γ = 0.02. Each case compares the
+mean squared error of the qg_Z vector with and without qang. That makes 108
+configurations, with 10 circuits × 20 repetitions each. Library:
+`qang.qml.WeightQNN`, which now simulates any weight.
+
+**Rule stated before the run.**
+* With qang, MSE ≈ (1 − z²)/(K·S).
+* Without qang, MSE = bias² + (1 − r²)/S.
+
+**Predictions, committed before the run (ebd795b).**
+* G1: K is exact.
+* G2: the MSE with qang is within 25% of the rule.
+* G3: the rule picks the winner in ≥ 90% of configurations.
+* G4: at S = 1000 the filter wins whenever K ≥ 0.3.
+
+| shots | filter wins | MSE without / with qang |
+|---|---|---|
+| 100 | 34 of 36 | 0.99–14.5 |
+| 1000 | 36 of 36 | 2.1–112 |
+| 10000 | 36 of 36 | 14–1175 |
+
+* **G1–G4 pass.** K is exact to 2·10⁻¹⁵ (down to 0.14). The measured MSE is
+  0.86–1.20 of the rule. The rule picks the winner in 99% of
+  configurations; the one miss is a near-tie at 100 shots.
+* **Break-even shots from the rule: S\* = 3–110 over the whole grid.** S\*
+  falls with depth, because the T1 bias of the raw readout grows faster than
+  the cost of the discarded shots.
+* **Verdict.** Under equal T1, the shot cost of the filter does not decide
+  anything in this range. Above about 110 shots it wins everywhere up to 8
+  qubits, weight 4 and depth 24, with up to 1000× lower MSE. The closed-form
+  rule predicts the winner before running.
+* **Limits.** Equal T1 only: unequal T1 and dephasing are not corrected
+  (§78, §82). The very-low-K regime (K < 0.1) was not reached.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
