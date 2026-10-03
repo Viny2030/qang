@@ -5,7 +5,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-## [0.6.3] - 2026-10-04
+## [0.6.3] - 2026-10-03
 
 ### Changed
 - `qang.qml.WeightQNN` simulates any weight 1 <= k <= n - 1 (probs, qg_z, kept_fraction); data encodings remain for
