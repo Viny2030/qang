@@ -12,10 +12,23 @@ Reference implementation and computational toolkit for:
 > V. H. Monteverde, *"The Qang (qg): A Unified Angular-Probability Unit and Metric for Parametric Quantum Circuit Design."*
 > ORCID: [0000-0001-8884-4811](https://orcid.org/0000-0001-8884-4811) · DOI: [10.5281/zenodo.22832150](https://doi.org/10.5281/zenodo.22832150)
 
-`qang` bridges the gap between continuous Bloch-sphere rotation angles ($\theta \in [0, \pi]$) and projective measurement spaces in parameterized quantum circuits (PQAs). It provides native representations for:
-- **Polar Bias Qang ($qg_Z$):** $qg_Z(\theta) = \cos\theta = \langle\sigma_z\rangle \in [-1, 1]$.
-- **Measurement-Outcome Entropy Qang ($qg_S$):** $qg_S(\theta) = H(\cos^2(\theta/2)) \in [0, 1]$ (Shannon entropy of computational-basis outcomes).
+`qang` bridges the gap between continuous Bloch-sphere rotation angles (θ ∈ [0, π]) and projective measurement spaces in parameterized quantum circuits (PQCs). It provides native representations for:
+- **Polar Bias Qang (qg_Z):** qg_Z(θ) = cos θ = ⟨σ_z⟩ ∈ [−1, 1].
+- **Measurement-Outcome Entropy Qang (qg_S):** qg_S(θ) = H(cos²(θ/2)) ∈ [0, 1] (Shannon entropy of computational-basis outcomes).
 - Native SDK gate classes for **Qiskit**, **Cirq** and **PennyLane** (differentiable in qg_Z), regularized gradient optimizers, shot-noise error propagation, and density matrix/POVM metrics.
+
+### What is in the library
+
+| module | what it does |
+|---|---|
+| `qang.core` | the qg_Z / qg_S unit, Bloch-sphere round trips |
+| `qang.formulation` | the 15 main gates and 14 main algorithms in qg units (qg'_P = qg_{U†PU}) |
+| `qang.sectors` | the qg symmetry filter and Hamming-weight tools |
+| `qang.statistics` | qg_Z intervals from shot counts (Bayesian, Wilson, delta method) |
+| `qang.qml` | weight-conserving QNN classifiers read with and without the qg filter |
+| `qang.polarization` | polarized light: Stokes parameters are qg values, Mueller matrices are the qg gate rule |
+| `qang.geometric` | geometric (Berry/Pancharatnam) phase in qg units, Stokes' theorem on the Bloch sphere |
+| `qang.qiskit_gate`, `qang.cirq_gate`, `qang.pennylane_gate` | native gates for the three SDKs (optional) |
 
 ---
 
@@ -24,7 +37,7 @@ Reference implementation and computational toolkit for:
 Install the minimal core library (NumPy only):
 ```bash
 pip install qang          # from PyPI
-pip install "qang @ git+https://github.com/Viny2030/qang.git@v0.4.0"   # or from GitHub
+pip install "qang @ git+https://github.com/Viny2030/qang.git"   # or from GitHub (latest main)
 pip install .             # or from a local clone
 ```
 

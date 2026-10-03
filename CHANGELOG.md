@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-10-03
+
+### Changed
+- README (the PyPI project page): formulas in plain text so they render on PyPI, a table of the library's modules,
+  the optics section and Colab badges, install from GitHub without a fixed old tag. No code changes.
+
 ## [0.6.1] - 2026-10-03
 
 ### Added
