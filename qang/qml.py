@@ -65,6 +65,9 @@ class WeightQNN:
 
     weight 2, encoding="ring": v_k on the state with qubits k and k+1 (mod n)
               excited: the weight-1 data on n of the C(n, 2) states (§87).
+    weight 2, encoding="dual": v on the ring and u = (x^2, 1)/|(x^2, 1)| on
+              the chords (k, k+2), each half with weight 1/sqrt 2; for n = 5
+              ring and chords are all 10 weight-2 states (§90).
 
     readout "z":  z = sum_i c_i qg_Z^(i) + b (n features).
     readout "zz": also the two-qubit correlations qg_ZZ^(ij) = <Z_i Z_j>,
@@ -76,8 +79,10 @@ class WeightQNN:
     def __init__(self, n_qubits=5, weight=1, layers=3, sublayers=None, readout="z", encoding="pairs"):
         if weight not in (1, 2):
             raise ValueError("weight must be 1 or 2")
-        if encoding not in ("pairs", "ring"):
-            raise ValueError("encoding must be 'pairs' or 'ring'")
+        if encoding not in ("pairs", "ring", "dual"):
+            raise ValueError("encoding must be 'pairs', 'ring' or 'dual'")
+        if encoding == "dual" and (weight != 2 or n_qubits < 5):
+            raise ValueError("encoding 'dual' needs weight 2 and at least 5 qubits")
         self.encoding = encoding
         if readout not in ("z", "zz"):
             raise ValueError("readout must be 'z' or 'zz'")
@@ -158,6 +163,13 @@ class WeightQNN:
         if self.encoding == "ring":
             for k in range(self.n):
                 psi[:, self._bit(k) | self._bit((k + 1) % self.n)] = v[:, k]
+            return psi
+        if self.encoding == "dual":
+            u = np.concatenate([X**2, np.ones((len(X), 1))], axis=1)
+            u = u / np.linalg.norm(u, axis=1, keepdims=True)
+            for k in range(self.n):
+                psi[:, self._bit(k) | self._bit((k + 1) % self.n)] = v[:, k] / np.sqrt(2)
+                psi[:, self._bit(k) | self._bit((k + 2) % self.n)] = u[:, k] / np.sqrt(2)
             return psi
         for i, j in itertools.combinations(range(self.n), 2):
             psi[:, self._bit(i) | self._bit(j)] = v[:, i] * v[:, j]
