@@ -22,9 +22,9 @@ Reference implementation and computational toolkit for:
 | module | what it does |
 |---|---|
 | `qang.core` | the qg_Z / qg_S unit, Bloch-sphere round trips |
-| `qang.formulation` | the 15 main gates and 14 main algorithms in qg units (qg'_P = qg_{U†PU}) |
+| `qang.formulation` | the 15 main gates and 14 main algorithms in qg units (qg'_P = qg_{U†PU}), and the local radius r² = qg_X² + qg_Y² + qg_Z² |
 | `qang.sectors` | the qg symmetry filter and Hamming-weight tools |
-| `qang.statistics` | qg_Z intervals from shot counts (Bayesian, Wilson, delta method) |
+| `qang.statistics` | qg_Z intervals from shot counts (Bayesian, Wilson, delta method); unbiased qg² and r² |
 | `qang.qml` | weight-conserving QNN classifiers read with and without the qg filter |
 | `qang.polarization` | polarized light: Stokes parameters are qg values, Mueller matrices are the qg gate rule |
 | `qang.geometric` | geometric (Berry/Pancharatnam) phase in qg units, Stokes' theorem on the Bloch sphere |
@@ -141,7 +141,15 @@ Article: `manuscript/qang_formulation.pdf` (Spanish draft: `manuscript/qang_teor
 from qang import formulation as F
 bell = F.apply_gate(F.apply_gate(F.qg_values([1, 0, 0, 0]), F.kron(F.H, F.I2)), F.CX)
 # {'II': 1.0, 'XX': 1.0, 'YY': -1.0, 'ZZ': 1.0}   (qang >= 0.5.1)
+F.radius_profile(bell)        # [0.0, 0.0]: both qubits at the centre of the sphere  (qang >= 0.6.4)
 ```
+
+**The local radius (§97).** Each qubit lives on a sphere of squared radius r² = qg_X² + qg_Y² + qg_Z² = 2 Tr ρ² − 1
+(area 4π r², surface deficit 4π(1 − r²)). One-qubit gates rotate the sphere and keep r; SWAP exchanges radii; CNOT,
+CZ, iSWAP, Toffoli and Fredkin can move a qubit to the centre. For a pure global state 1 − r² is the one-tangle
+(known physics: Coffman–Kundu–Wootters, Meyer–Wallach); for a noisy state it mixes entanglement and noise. In a
+definite-weight state r = |qg_Z|, so after the qg filter (equal T1) the deficit is an entanglement measure read
+from Z-basis shots alone (§98). `F.algorithm_radii()` gives the radius of the readout qubits of the 14 algorithms.
 
 ## Quantum neural networks with and without qang
 
@@ -154,7 +162,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 (52 so far in the QML line: 40 passed, 12 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
-**Results so far (simulation; RESEARCH_NOTES §75–§94):**
+**Results so far (simulation; RESEARCH_NOTES §75–§98):**
 
 | question | result |
 |---|---|
@@ -164,7 +172,9 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | weight 2 (§87, §90) | the pair-product encoding limited it; with the `"dual"` encoding and `readout="zz"` weight 2 matches weight 1 (0.947 = 0.947) |
 | device noise models (§85, §91) | IBM fake backends and the IonQ simulator (Aria-1, Forte-1): qg_Z error 2.7–3.6× smaller with qang; 189 inputs on Forte-1: 0.968 with vs 0.958 without (noiseless 0.979) |
 | scaling (§94, 108 configurations, 4–8 qubits, weight 1–4, depth 3–24) | the filter has the lower readout error in 106 of 108 (up to 1000×); a closed-form rule, MSE ≈ (1 − z²)/(K·S) with K = (1 − γ)^(weight·depth), predicts the winner in 99% |
-| not corrected | dephasing; unequal T1 beyond ±80% |
+| low kept fraction, unequal T1, dephasing (§96, 405 configurations, K down to 2.6·10⁻⁷) | the filter wins in 399 of 405 and in every configuration with at least 20 kept shots (MSE up to 1871× lower with equal T1, 94× with unequal T1, 58× with dephasing); the rule picks the winner in 342 of 342 with K·S ≥ 5 |
+| the local radius as an entanglement measure (§98) | under equal T1 the filtered deficit 1 − qg_Z² is the noiseless tangle to 3·10⁻¹⁵; on product states it is exactly 0, while the raw readout shows false entanglement of 0.60–0.95 |
+| not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased) |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
 `examples/qnn_hardware_qg.py --mode ionq_qpu` (IonQ Forte-1) or `--mode ibm`, and
@@ -214,7 +224,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1226 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1236 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

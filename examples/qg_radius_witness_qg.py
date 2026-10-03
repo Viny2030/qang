@@ -51,7 +51,45 @@ python examples/qg_radius_witness_qg.py [out.json]
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+90 configurations (n = 4, 6; k = 1 .. n/2; d = 12, 24, 48; three noise
+models; S = 1000, 10000) plus 45 product-family cases. K from 0.78 to 0.05.
+
+  noise            exact mean abs error      MSE: filter lower       MSE without /
+                   of the deficit            (K S >= 20)             MSE with qang
+                   with qang     without
+  equal T1         < 3e-15       0.061-0.370   30 of 30                7.6 - 1005
+  unequal T1       0.013-0.045   0.070-0.342   30 of 30                6.8 - 55
+  dephasing 0.01   0.031-0.307   0.080-0.352   24 of 30                0.8 - 4.1
+
+  * E1, E3, E4, E5, E6 pass; E2 fails.
+  * E1: under equal T1 the filtered deficit 1 - qg_Z^2 is the noiseless
+    one-tangle of every qubit to 3e-15, at every depth and filling: the
+    filter turns the radius into an entanglement measure under T1.
+  * E3: on product states (basis inputs, idle circuits) the filtered
+    estimate is exactly 0 for every qubit under all three noise models; the
+    raw estimate reports a deficit of 0.60-0.95 on every excited qubit under
+    equal T1, false entanglement from decay alone.
+  * E4, E5: from shots, the filter has the lower deficit error in all 30
+    configurations under equal T1 (7.6x to 1005x lower MSE), and the
+    unbiased estimator (N q^2 - 1)/(N - 1) on the kept shots shows no bias
+    in 30 of 30 (within 3 standard errors).
+  * E6: with unequal T1 or dephasing the filtered deficit is no longer
+    exact, but its exact error is lower than raw in 29 of 30. Dephasing is
+    the weak case: it mixes the state inside the sector, which the filter
+    cannot undo, and from shots the filter wins 24 of 30 (raw/filter MSE
+    0.8-4.1).
+  * E2 FAILS in its second half. The raw error exceeds 0.05 in every
+    configuration with k < n/2 (0.061-0.234), as predicted, but it is not
+    smaller at half filling: for the same n and d it is larger at k = n/2
+    than at k = 1 (for example 0.177 against 0.074 at n = 4, d = 12). The
+    first-order cancellation near p = 1/2 holds for one qubit at exactly
+    p = 1/2; across qubits the occupations spread, and at half filling more
+    excitations decay (K is smaller), so the raw bias grows instead.
+  Verdict. The surface metric is only an entanglement measure when the
+  global state is pure. In weight-conserving circuits under equal T1 the qg
+  filter makes it so exactly, from Z-basis shots alone, and removes the
+  false entanglement that decay produces in the raw readout; under unequal
+  T1 the residue is small (at most 0.045), under dephasing it is not.
 """
 
 import json

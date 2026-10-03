@@ -5,6 +5,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- The local radius (sphere surface) metric in `qang.formulation` (§97): `radius2`, `radius_profile`, `radius_deficit`
+  (1 - r^2, the one-tangle for pure states), `sphere_area` (4 pi r^2), `meyer_wallach`, `gate_radius_class` (preserves /
+  permutes / entangling, with the maximal deficit), `hadamard_test_radius`, `weight_sector_radius` (r = |qg_Z| in a
+  definite-weight state) and `algorithm_radii` (the 14 algorithms); `qang.statistics.qg2_unbiased` and
+  `radius2_estimate` (unbiased qg^2 from counts).
+- `examples/qg_radius_witness_qg.py` (§98): the radius deficit as an entanglement measure under T1, with and without
+  qang; the filtered deficit equals the noiseless tangle to 3e-15 under equal T1, no false entanglement on product
+  states (raw: 0.60-0.95), filter MSE lower in 30 of 30 configurations (E1, E3-E6 pass; E2 fails).
+- `examples/qg_filter_scaling_lowk_qg.py` (§96): the filter at kept fractions down to 2.6e-7 and under unequal T1 and
+  dephasing; it wins in 399 of 405 configurations and in every one with K S >= 20; the generalized rule picks the
+  winner in 342 of 342 with K S >= 5 (H1, H3, H4 pass; H2 fails).
+- `qang.qml`: two-channel readout `qang="both"` (filtered and raw features); study §95 pre-registered.
+
+### Changed
+- The formulation article (`manuscript/formulation`, `manuscript/teoria_es`): the 15 gates and 14 algorithms
+  restated with the local radius.
+
 ## [0.6.3] - 2026-10-03
 
 ### Changed

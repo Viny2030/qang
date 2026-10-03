@@ -37,7 +37,23 @@ qiskit, qiskit-aer, qiskit-ibm-runtime and scipy.
 
 Findings (python examples/qec_syndrome_destructive_qg.py):
 
-FINDINGS_PLACEHOLDER
+Fake backends (AerSimulator.from_backend), best 4-qubit path, joint fit:
+
+  backend      path              ZZ floor   gamma 40/80/160 us,           p 40/80/160 us,
+                                            calibration / syndromes       calibration / syndromes
+  brisbane     112-126-125-124   0.030      0.155/0.286/0.489 /           0.131/0.193/0.265 /
+                                            0.149/0.275/0.474             0.165/0.276/0.399
+  sherbrooke   122-123-124-125   0.022      0.135/0.252/0.440 /           0.074/0.125/0.189 /
+                                            0.132/0.246/0.432             0.087/0.159/0.267
+  torino       99-92-80-81       0.028      0.194/0.349/0.574 /           0.152/0.227/0.311 /
+                                            0.191/0.346/0.572             0.184/0.301/0.420
+
+  * M1-M4 pass on all three: no routing; the damping of the four data qubits
+    is read to 1-4% of the calibration (§88: 1-47%); the floor drops to
+    2.2-3.0% (§88: 4.8-9.3%).
+  * Dephasing reads 1.17-1.51x high: within the factor 2, but biased, for a
+    reason not resolved here.
+  Real device: pending (--mode ibm --yes-i-run-on-hardware).
 """
 
 import argparse

@@ -4900,6 +4900,141 @@ configurations, with 10 circuits × 20 repetitions each. Library:
 * **Limits.** Equal T1 only: unequal T1 and dephasing are not corrected
   (§78, §82). The very-low-K regime (K < 0.1) was not reached.
 
+## 96. The qg filter at low kept fraction and under unequal T1 and dephasing (`examples/qg_filter_scaling_lowk_qg.py`)
+
+§94 left two gaps: very small kept fractions, and the noise the filter does
+not correct. Grid: n = 4, 6; k = 1..n/2; d = 12, 24, 48; γ = 0.02, 0.05,
+0.10; equal T1, unequal T1 (γ_q spread over [0, 2γ]) and equal T1 plus
+dephasing 0.01; S = 100, 1000, 10000; 8 circuits × 12 repetitions. That
+makes 405 configurations, with K from 0.81 down to 2.6·10⁻⁷.
+
+**Generalized rule, stated before the run.** With f the exact filtered
+expectation (biased when T1 is unequal or there is dephasing) and r the raw
+one: MSE with qang ≈ mean[(f − z)² + (1 − f²)/(K·S)], MSE without qang =
+mean[(r − z)² + (1 − r²)/S].
+
+**Predictions, committed before the run (5648765).**
+* H1: the rule picks the winner in ≥ 90% of configurations with K·S ≥ 5.
+* H2: the filter loses in every configuration with K·S < 1.
+* H3: under equal T1 the filter wins whenever K·S ≥ 20.
+* H4: with dephasing it still wins in ≥ 80% of configurations with K·S ≥ 20.
+
+| configurations | filter wins | MSE without / with qang |
+|---|---|---|
+| K·S ≥ 20, equal T1 | 94 of 94 | 2.7–1871 |
+| K·S ≥ 20, unequal T1 | 94 of 94 | 2.1–94 |
+| K·S ≥ 20, dephasing 0.01 | 94 of 94 | 1.8–58 |
+| 1 ≤ K·S < 20 | 66 of 66 | |
+| K·S < 1 | 51 of 57 | |
+| all | 399 of 405 | |
+
+* **H1, H3, H4 pass; H2 fails.** The rule picks the winner in 342 of 342
+  configurations with K·S ≥ 5, including the biased cases.
+* **Why H2 fails.** With less than one kept shot on average, the filtered
+  estimate usually falls back to 0 (no information). That still beats the
+  raw readout in 51 of 57 cases, because the raw state has collapsed towards
+  |0…0⟩ (qg_Z → +1), a worse guess than 0. Both readouts are useless there
+  (MSE 0.4–1.4).
+* **Verdict, with §94 (513 configurations).** The filter has the lower
+  readout error whenever a few shots are kept, also under unequal T1 and
+  dephasing, and the generalized rule predicts the winner every time it
+  applies. The regime where the shot cost decides against the filter was not
+  found: when too few shots survive, the raw readout has lost the
+  information too.
+
+## 97. The local radius: the surface of the sphere in qg units (`qang.formulation`)
+
+Proposal (V. Monteverde): add to the basic qg theory the sphere on which
+each qubit lives. Its squared radius is
+
+    r_q² = qg_X² + qg_Y² + qg_Z² = 2 Tr ρ_q² − 1,
+
+the area 4π r_q² and the surface deficit 4π(1 − r_q²). The radius carries
+the same information as the area and is linear in the purity, so the
+library works with r² and gives the area as `sphere_area`.
+
+**What is known.** For a pure global state, 1 − r_q² = 4 det ρ_q is the
+one-tangle of qubit q with the rest (for two qubits, the squared
+concurrence; Coffman, Kundu and Wootters 2000), and its mean over qubits is
+the Meyer–Wallach global entanglement Q (2002; Brennen 2003). For a mixed
+global state the deficit mixes entanglement and noise and cannot separate
+them. Reading r² needs three measurement settings for the whole register
+(all-X, all-Y, all-Z), not three per qubit. The plug-in estimate q̂² is
+biased upwards by (1 − q²)/N; (N q̂² − 1)/(N − 1) is exactly unbiased.
+
+**Library.** `qang.formulation`: `radius2`, `radius_profile`,
+`radius_deficit`, `sphere_area`, `meyer_wallach`, `gate_radius_class`,
+`hadamard_test_radius`, `weight_sector_radius`, `algorithm_radii`;
+`qang.statistics`: `qg2_unbiased`, `radius2_estimate`.
+
+**The 15 gates.** A one-qubit gate rotates the sphere: every radius is
+preserved, also for mixed qubits (X, Y, Z, H, S, T, Rx, Ry, Rz, P). SWAP
+exchanges radii. CNOT, CZ, iSWAP, Toffoli and Fredkin can take a product
+input to r = 0 on some qubit (maximal deficit 1, from |+0⟩, |++⟩ or
+|1+0⟩-type inputs) and can also restore it. On basis states none of them
+creates a deficit: they act as classical permutations.
+
+**The 14 algorithms** (readout qubits, standard instances):
+
+| algorithm | r² of the readout qubits | reading |
+|---|---|---|
+| Bernstein–Vazirani, QFT of a basis state, Deutsch–Jozsa constant | 1 on every qubit | product output: local qg_Z (or qg_X, qg_Y) is the whole answer |
+| Deutsch–Jozsa balanced (non-linear f, n = 4) | 0.25 | any deficit certifies "balanced" (a linear balanced f still gives r = 1) |
+| Simon (s = 110) | 0 on every qubit | the answer is entirely in the correlations with the oracle register |
+| Shor, r = 4 / r = 6 (m = 6) | (0, 0, 1, 1, 1, 1) / ≤ 0.11 | pure qubits carry no information about r; for r = 6 every qubit is near the centre |
+| Grover (n = 5) | 1 → 0.82 → 0.66 → 0.84 → 0.998 over k = 0..4 | entangles and disentangles; the radius returns to 1 at the optimum |
+| phase kickback / estimation | 1 for an eigenstate; |⟨ψ|U|ψ⟩|² otherwise (0.81 for φ = 0.9 on |+⟩) | the radius tests the eigenstate assumption |
+| HHL (2×2) | 0.32 (ancilla) | the ancilla is entangled with the solution |
+| VQE | 0 (singlet), 0.8 (two-site Ising, h = 1) | bounds the local part of the energy, |Σ c·q| ≤ ‖c‖ r |
+| QAOA ring of 4, p = 1 | 0.25 | the cost lives in ZZ |
+| counting (N = 16, M = 3) | (1 − 2M/N)² = 0.39 | radius and qg_X coincide; deficit 4(M/N)(1 − M/N) |
+| quantum walk (n = 5, t = 2) | 0.02–0.87 | definite weight: r = |qg_Z|, deficit 4p(1 − p) |
+| Q-SVM / Q-PCA product encodings | 1 | k(x, x) = Π(1 + r_q²)/2 measures the radii under noise |
+
+**Link to the filter.** In a state of definite Hamming weight every local
+qg_X and qg_Y vanishes, so r_q = |qg_Z| and the deficit 1 − qg_Z² is read
+from Z-basis shots alone. Under equal T1 the filtered state is the noiseless
+pure state, so the filtered deficit is an entanglement measure. That is the
+§98 test. Pinned by `tests/test_formulation.py` and `tests/test_statistics.py`.
+
+## 98. The radius deficit as an entanglement measure under T1, with and without qang (`examples/qg_radius_witness_qg.py`)
+
+Weight-conserving RBS circuits (`qang.qml.WeightQNN`): n = 4, 6; k =
+1..n/2; d = 12, 24, 48; γ = 0.02; equal T1, unequal T1 and dephasing 0.01;
+S = 1000, 10000; 8 circuits × 20 repetitions. Truth: the noiseless deficit
+1 − qg_Z² of each qubit. Estimator: 1 − (N q̂² − 1)/(N − 1), with qang on
+the kept shots and without qang on all shots. Product family: basis inputs
+and idle circuits (truth 0).
+
+**Predictions, committed before the run (4c11ff3).**
+* E1: under equal T1 the exact filtered deficit equals the noiseless tangle.
+* E2: the raw deficit errs by > 0.05 for k < n/2, and less at half filling.
+* E3: no false entanglement with qang on product states; raw > 0.5.
+* E4: filter MSE lower in ≥ 90% (equal T1, K·S ≥ 20).
+* E5: the unbiased estimator shows no bias in ≥ 90%.
+* E6: under unequal T1 and dephasing the filtered exact error is lower in ≥ 80%.
+
+| noise | exact error of the deficit, with qang | without qang | filter MSE lower | MSE without / with |
+|---|---|---|---|---|
+| equal T1 | < 3·10⁻¹⁵ | 0.061–0.370 | 30 of 30 | 7.6–1005 |
+| unequal T1 | 0.013–0.045 | 0.070–0.342 | 30 of 30 | 6.8–55 |
+| dephasing 0.01 | 0.031–0.307 | 0.080–0.352 | 24 of 30 | 0.8–4.1 |
+
+* **E1, E3, E4, E5, E6 pass; E2 fails.**
+* **Under equal T1 the filtered radius is the tangle**, to 3·10⁻¹⁵, at every
+  depth and filling.
+* **False entanglement.** On product states the filtered deficit is exactly 0
+  under all three noise models; the raw readout reports 0.60–0.95 on every
+  excited qubit under equal T1, from decay alone.
+* **Why E2 fails.** The raw error is above 0.05 for k < n/2 as predicted,
+  but it is larger, not smaller, at half filling (0.177 against 0.074 at
+  n = 4, d = 12): the first-order cancellation holds only at exactly
+  p = 1/2, occupations spread across qubits, and more excitations decay.
+* **Verdict.** The surface metric measures entanglement only when the
+  global state is pure. In weight-conserving circuits under equal T1 the qg
+  filter makes it so exactly, from Z-basis shots alone. Under unequal T1 the
+  residue is at most 0.045; under dephasing it is not small.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

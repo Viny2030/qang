@@ -36,7 +36,39 @@ python examples/qg_filter_scaling_lowk_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+405 configurations; K from 0.81 down to 2.6e-7.
+
+  configurations              filter has the lower MSE   MSE without / with qang
+  K S >= 20, equal T1         94 of 94                   2.7 - 1871
+  K S >= 20, unequal T1       94 of 94                   2.1 - 94
+  K S >= 20, dephasing 0.01   94 of 94                   1.8 - 58
+  1 <= K S < 20               66 of 66
+  K S < 1                     51 of 57
+  all                         399 of 405
+
+  * H1, H3, H4 pass; H2 fails.
+  * H1: the generalized rule picks the winner in 342 of 342 configurations
+    with K S >= 5 (100%), including unequal T1 and dephasing, where the
+    filtered readout is biased.
+  * H3, H4: with at least 20 kept shots the filter wins everywhere, under
+    equal T1, unequal T1 (up to a factor 2 between qubits) and dephasing.
+    Its margin shrinks with the noise it cannot correct: up to 1871x lower
+    MSE under equal T1, 94x with unequal T1, 58x with dephasing.
+  * H2 FAILS, and the reason matters. With less than one kept shot on
+    average, the filtered estimate is usually "no information" (0, the
+    fallback), and that still has a lower MSE than the raw readout in 51 of
+    57 configurations: the raw readout has collapsed towards |0...0>
+    (qg_Z -> +1), a worse guess than 0. Both readouts are useless there
+    (MSE 0.4-0.7 with the filter, 0.5-1.4 without); the
+    prediction assumed the raw readout would keep some information, and it
+    does not once the state has decayed this far.
+  Verdict. Combined with §94 (513 configurations in all): the filter has
+  the lower readout error whenever at least a few shots are kept, also
+  under unequal T1 and dephasing, and the generalized rule, which needs only
+  the exact filtered and raw expectations and K, predicts the winner every
+  time it can be applied (K S >= 5). The regime where the filter's shot
+  cost decides against it was not found: when too few shots survive the
+  filter, the raw readout has already lost the information too.
 """
 
 import json
