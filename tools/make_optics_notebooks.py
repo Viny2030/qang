@@ -192,7 +192,7 @@ def build(lang):
 
 
 if __name__ == "__main__":
-    out = sys.argv[1] if len(sys.argv) > 1 else "notebooks"
+    out = sys.argv[1] if len(sys.argv) > 1 else "notebooks"  # run from the repository root: python tools/<this file>
     for lang in T:
         nbf.write(build(lang), f"{out}/{T[lang]['file']}")
         print("wrote", T[lang]["file"])
