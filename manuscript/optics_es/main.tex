@@ -1,0 +1,152 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,frame=single,framerule=0.3pt,
+  rulecolor=\color{black!30},xleftmargin=4pt,xrightmargin=4pt}
+
+\title{Luz polarizada y fase geométrica en unidades qg:\\
+parámetros de Stokes, matrices de Mueller y teorema de Stokes}
+\author{Vicente Humberto Monteverde\\
+\small Universidad del Museo Social Argentino (UMSA), Argentina\\
+\small ORCID 0000-0001-8884-4811}
+\date{\small Borrador del 3 de octubre de 2026}
+
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\refname}{Referencias}
+\renewcommand{\abstractname}{Resumen}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+El proyecto qang describe los qubits con cantidades de medición, los valores qg
+$qg_P=\langle P\rangle$~\cite{monteverde2026qang}. Esta nota breve expresa dos resultados clásicos en esas unidades,
+implementados y verificados en la librería \texttt{qang} (\texttt{pip install qang}, versión 0.6.0). Primero,
+un estado de polarización de la luz es un qubit: los parámetros de Stokes normalizados son exactamente los
+valores qg, el grado de polarización es la longitud del vector qg, y una matriz de Mueller sin pérdidas es la
+regla de compuertas qg $qg'_P=qg_{U^\dagger PU}$. La ley de Malus queda $I=I_0(1+qg_Z\cos2\theta+qg_X\sin2\theta)/2$
+para cualquier estado de entrada. Segundo, la fase geométrica de un lazo cerrado en la esfera de Bloch
+(Poincaré) es menos la mitad del ángulo sólido encerrado, que es el teorema de Stokes para la curvatura de
+Berry. Para un lazo a $qg_Z$ constante la fase es $(qg_Z-1)/2$ de vuelta: la fija $qg_Z$ sola. Nada de esto es
+física nueva. El aporte es la traducción a las unidades de qang y un conjunto de 26 verificaciones numéricas,
+con la fase calculada de tres maneras independientes.
+\end{abstract}
+
+\section{Los parámetros de Stokes son valores qg}
+
+Con $|H\rangle=|0\rangle$ y $|V\rangle=|1\rangle$, los parámetros de Stokes~\cite{stokes1852} de un estado de
+polarización $\rho$ son $S_\mu=I_0\,\mathrm{Tr}(\rho\,\sigma_\mu)$ con $\sigma=(I,Z,X,Y)$. Entonces
+\begin{equation}
+qg_Z=\frac{S_1}{S_0}=\frac{I_H-I_V}{S_0},\qquad
+qg_X=\frac{S_2}{S_0}=\frac{I_D-I_A}{S_0},\qquad
+qg_Y=\frac{S_3}{S_0}=\frac{I_R-I_L}{S_0},
+\end{equation}
+con $|D\rangle,|A\rangle=(|H\rangle\pm|V\rangle)/\sqrt2$ y $|R\rangle,|L\rangle=(|H\rangle\pm i|V\rangle)/\sqrt2$.
+Los textos difieren en cuál estado circular llaman derecho. La librería fija $R$ como arriba, así que $S_3>0$
+significa $qg_Y>0$, y ofrece la convención opuesta como opción. La esfera de Poincaré es la esfera de Bloch. La
+luz parcialmente polarizada es un estado mixto: su grado de polarización $P=\sqrt{S_1^2+S_2^2+S_3^2}/S_0$ es la
+longitud del vector qg, y su pureza es $\mathrm{Tr}\rho^2=(1+P^2)/2$. Un despolarizador $\mathrm{diag}(1,d,d,d)$
+es el canal despolarizante.
+
+\paragraph{Matrices de Mueller.} Para una matriz de Jones $J$, $M_{\mu\nu}=\tfrac12\mathrm{Tr}(\sigma_\mu J\sigma_\nu
+J^\dagger)$. En el orden $(I,Z,X,Y)$ es la matriz de transferencia de Pauli. Para un elemento sin pérdidas
+(lámina de onda, rotador), $J$ es unitaria, y la acción de $M$ sobre el vector de Stokes es la regla de
+compuertas qg de \texttt{qang.formulation}. Una lámina de media onda a ángulo $\theta$ lleva polarización
+lineal a ángulo $\alpha$ a $2\theta-\alpha$: una rotación de $4\theta-2\alpha$ en el plano $(qg_Z,qg_X)$.
+
+\paragraph{Ley de Malus en unidades qg.} Detrás de un polarizador lineal ideal a ángulo $\theta$, la intensidad
+transmitida es
+\begin{equation}
+I(\theta)=\frac{I_0}{2}\left(1+qg_Z\cos2\theta+qg_X\sin2\theta\right),
+\end{equation}
+que se reduce a $I_0\cos^2\theta$ para luz horizontal. Como $I(\theta)$ depende de la entrada solo a través de
+$qg_Z$ y $qg_X$, dos posiciones del polarizador leen dos valores qg y una lámina de cuarto de onda da el tercero.
+
+\paragraph{Desde conteos.} \texttt{qg\_from\_counts} convierte los conteos del analizador
+$(n_H,n_V,n_D,n_A,n_R,n_L)$ en los tres valores qg y $P$, con intervalos de \texttt{qang.statistics.qg\_estimate}
+(bayesiano, Wilson o método delta). La polarimetría de fotones individuales es entonces el mismo problema de
+estimación que la tomografía de qubits en unidades qg.
+
+\section{Fase geométrica y teorema de Stokes}
+
+Un qubit llevado por un lazo cerrado $C$ en la esfera de Bloch adquiere una fase
+geométrica~\cite{pancharatnam1956,berry1984}
+\begin{equation}
+\gamma(C)=-\tfrac12\,\Omega(C),
+\end{equation}
+donde $\Omega$ es el ángulo sólido encerrado por $C$. Es el teorema de Stokes. La conexión de Berry
+$A=i\langle\psi|\nabla\psi\rangle$ tiene curvatura $F=\nabla\times A$, un campo de monopolo de intensidad $1/2$ en
+el centro de la esfera. Su integral de línea alrededor de $C$ es igual a su flujo a través del casquete
+encerrado, $\Omega/2$. Para un lazo a $qg_Z=\cos\vartheta$ constante alrededor del eje $Z$,
+$\Omega=2\pi(1-\cos\vartheta)=2\pi(1-qg_Z)$, así que en la unidad de fase qg$_\Phi$ (fracciones de vuelta)
+\begin{equation}
+\phi=\frac{\gamma}{2\pi}=\frac{qg_Z-1}{2}\pmod 1 .
+\end{equation}
+La fase geométrica de un lazo cónico la fija $qg_Z$ sola. Para luz polarizada, la misma fase es la de
+Pancharatnam en la esfera de Poincaré. Por ejemplo, el lazo $H\to D\to R\to H$ encierra un octante
+($\Omega=\pi/2$) y da $\gamma=-\pi/4$.
+
+\paragraph{Tres cálculos independientes.} \texttt{qang.geometric} calcula la fase de tres maneras:
+\begin{enumerate}
+\item el producto de solapamientos invariante de gauge $\gamma=-\arg\prod_k\langle\psi_k|\psi_{k+1}\rangle$ sobre
+  un lazo discreto de estados~\cite{samuel1988};
+\item el ángulo sólido con signo del lazo, como abanico de triángulos esféricos~\cite{vanoosterom1983};
+\item el flujo numérico de la curvatura a través del casquete.
+\end{enumerate}
+Para un lazo discreto, la fase de solapamientos es exactamente $-\tfrac12$ del ángulo sólido del polígono
+geodésico. El flujo y la integral de línea coinciden, como exige el teorema de Stokes.
+
+\section{Verificaciones}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{p{0.62\textwidth}l}
+\toprule
+verificación & resultado\\
+\midrule
+los seis estados base $H,V,D,A,R,L$ dan $\pm1$ en un eje qg & exacto\\
+ida y vuelta Stokes $\leftrightarrow$ qg, contra \texttt{qang.formulation.qg\_values} (20 estados al azar) & $10^{-12}$\\
+Mueller sin pérdidas = regla de compuertas qg (4 elementos $\times$ 5 estados) & $10^{-12}$\\
+ley de Malus para $H$, $D$, $R$ y un estado elíptico, 7 ángulos & $10^{-12}$\\
+la lámina de media onda lleva la polarización lineal a $2\theta-\alpha$ & $10^{-12}$\\
+grado de polarización y pureza tras un despolarizador (10 estados) & $10^{-12}$\\
+fase de solapamientos $=-\tfrac12$ ángulo sólido geodésico (4 alturas) & $10^{-10}$\\
+fase del cono $=(qg_Z-1)/2$ vueltas (4 alturas, 4000 puntos) & $10^{-5}$\\
+flujo de curvatura $=\pi(1-qg_Z)=$ integral de línea (Stokes, 3 casquetes) & $10^{-5}$\\
+invariancia de gauge; cambio de signo al invertir el lazo & $10^{-12}$\\
+octante de Pancharatnam $H\to D\to R$: $\Omega=\pi/2$, $\gamma=-\pi/4$ & exacto\\
+\bottomrule
+\end{tabular}
+\caption{Verificaciones numéricas en \texttt{tests/test\_polarization.py} (12 pruebas) y
+\texttt{tests/test\_geometric.py} (14 pruebas).}
+\end{table}
+
+\section{Alcance}
+
+Los resultados son óptica y mecánica cuántica estándar. ¿Para qué escribirlos en unidades qg? Las herramientas
+de qang para qubits se aplican sin cambios a los qubits fotónicos de polarización. Entre ellas están la
+estimación con intervalos desde conteos, la regla de compuertas como tabla de transformaciones qg y la unidad
+de fase qg$_\Phi$. Las ecuaciones de Maxwell en sí no forman parte de esta nota: describen campos clásicos,
+mientras que qang mide cantidades de qubits.
+
+\section*{Código}
+
+\begin{lstlisting}[language=Python]
+from qang import polarization as P, geometric as G
+P.stokes_to_qg([1.0, 0.6, 0.0, 0.8])     # {'X': 0.0, 'Y': 0.8, 'Z': 0.6}
+P.malus_intensity({"Z": 1.0}, 0.3)        # cos(0.3)**2
+G.cone_phase_turns(0.5)                   # 0.75 de vuelta = -pi/2 rad
+\end{lstlisting}
+
+\bibliographystyle{unsrtnat}
+\bibliography{../refs}
+
+\end{document}

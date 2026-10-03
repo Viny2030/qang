@@ -123,3 +123,17 @@ def test_zz_readout_rank_and_exactness():
     assert np.allclose(m.qg_z(m.probs(th, psi, 0.1), qang=True), m.qg_z(m.probs(th, psi), qang=False), atol=1e-12)
     with pytest.raises(ValueError):
         WeightQNN(5, 1, readout="xx")
+
+
+def test_ring_encoding_in_sector_and_exact():
+    rng = np.random.default_rng(9)
+    m = WeightQNN(5, 2, encoding="ring")
+    X = rng.uniform(-1, 1, (4, 4))
+    psi = m.encode(X)
+    assert np.allclose(np.linalg.norm(psi, axis=1), 1)
+    assert np.allclose((psi**2)[:, m.wt != 2].sum(axis=1), 0)
+    assert np.count_nonzero(np.abs(psi[0]) > 0) == 5
+    th = rng.uniform(-3, 3, m.n_theta)
+    assert np.allclose(m.qg_z(m.probs(th, psi, 0.1), qang=True), m.qg_z(m.probs(th, psi), qang=False), atol=1e-12)
+    with pytest.raises(ValueError):
+        WeightQNN(5, 2, encoding="star")

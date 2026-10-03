@@ -1,0 +1,146 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,frame=single,framerule=0.3pt,
+  rulecolor=\color{black!30},xleftmargin=4pt,xrightmargin=4pt}
+
+\title{Polarized light and geometric phase in qg units:\\
+Stokes parameters, Mueller matrices and Stokes' theorem}
+\author{Vicente Humberto Monteverde\\
+\small Universidad del Museo Social Argentino (UMSA), Argentina\\
+\small ORCID 0000-0001-8884-4811}
+\date{\small Draft of 3 October 2026}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+The qang project describes qubits by measurement-level quantities, the qg values
+$qg_P=\langle P\rangle$~\cite{monteverde2026qang}. This short note states two classical results in those units,
+implemented and checked in the \texttt{qang} library (\texttt{pip install qang}, version 0.6.0). First, a
+polarization state of light is a qubit: the normalized Stokes parameters are exactly the qg values, the
+degree of polarization is the length of the qg vector, and a lossless Mueller matrix is the qg gate rule
+$qg'_P=qg_{U^\dagger PU}$. Malus's law becomes $I=I_0(1+qg_Z\cos2\theta+qg_X\sin2\theta)/2$ for any input
+state. Second, the geometric phase of a closed loop on the Bloch (Poincar\'e) sphere is minus half the enclosed
+solid angle, which is Stokes' theorem for the Berry curvature. For a loop at constant $qg_Z$ the phase is
+$(qg_Z-1)/2$ of a turn: it is fixed by $qg_Z$ alone. Nothing here is new physics. The contribution is the
+translation into qang's units and a set of 26 numerical checks, with the phase computed three independent
+ways.
+\end{abstract}
+
+\section{Stokes parameters are qg values}
+
+With $|H\rangle=|0\rangle$ and $|V\rangle=|1\rangle$, the Stokes parameters~\cite{stokes1852} of a polarization
+state $\rho$ are $S_\mu=I_0\,\mathrm{Tr}(\rho\,\sigma_\mu)$ with $\sigma=(I,Z,X,Y)$. Hence
+\begin{equation}
+qg_Z=\frac{S_1}{S_0}=\frac{I_H-I_V}{S_0},\qquad
+qg_X=\frac{S_2}{S_0}=\frac{I_D-I_A}{S_0},\qquad
+qg_Y=\frac{S_3}{S_0}=\frac{I_R-I_L}{S_0},
+\end{equation}
+with $|D\rangle,|A\rangle=(|H\rangle\pm|V\rangle)/\sqrt2$ and $|R\rangle,|L\rangle=(|H\rangle\pm i|V\rangle)/\sqrt2$.
+Texts differ on which circular state is called right-handed. The library fixes $R$ as above, so $S_3>0$ means
+$qg_Y>0$, and offers the opposite convention as an option. The Poincar\'e sphere is the Bloch sphere. Partially
+polarized light is a mixed state: its degree of polarization $P=\sqrt{S_1^2+S_2^2+S_3^2}/S_0$ is the length of
+the qg vector, and its purity is $\mathrm{Tr}\rho^2=(1+P^2)/2$. A depolarizer
+$\mathrm{diag}(1,d,d,d)$ is the depolarizing channel.
+
+\paragraph{Mueller matrices.} For a Jones matrix $J$, $M_{\mu\nu}=\tfrac12\mathrm{Tr}(\sigma_\mu J\sigma_\nu
+J^\dagger)$. In the order $(I,Z,X,Y)$ this is the Pauli transfer matrix. For a lossless element (wave plate,
+rotator), $J$ is unitary, and the action of $M$ on the Stokes vector is the qg gate rule of
+\texttt{qang.formulation}. A half-wave plate at angle $\theta$ sends linear polarization at angle $\alpha$ to
+$2\theta-\alpha$, a rotation by $4\theta-2\alpha$ in the $(qg_Z,qg_X)$ plane.
+
+\paragraph{Malus's law in qg units.} Behind an ideal linear polarizer at angle $\theta$, the transmitted
+intensity is
+\begin{equation}
+I(\theta)=\frac{I_0}{2}\left(1+qg_Z\cos2\theta+qg_X\sin2\theta\right),
+\end{equation}
+which reduces to $I_0\cos^2\theta$ for horizontal light. Since $I(\theta)$ depends on the input only through
+$qg_Z$ and $qg_X$, two polarizer settings read two qg values and a quarter-wave plate gives the third.
+
+\paragraph{From counts.} \texttt{qg\_from\_counts} turns analyser counts $(n_H,n_V,n_D,n_A,n_R,n_L)$ into the three
+qg values and $P$, with intervals from \texttt{qang.statistics.qg\_estimate} (Bayesian, Wilson or delta method).
+Single-photon polarimetry is then the same estimation problem as qubit tomography in qg units.
+
+\section{Geometric phase and Stokes' theorem}
+
+A qubit carried around a closed loop $C$ on the Bloch sphere acquires a geometric
+phase~\cite{pancharatnam1956,berry1984}
+\begin{equation}
+\gamma(C)=-\tfrac12\,\Omega(C),
+\end{equation}
+where $\Omega$ is the solid angle enclosed by $C$. This is Stokes' theorem. The Berry connection
+$A=i\langle\psi|\nabla\psi\rangle$ has curvature $F=\nabla\times A$, a monopole field of strength $1/2$ at the
+centre of the sphere. Its line integral around $C$ equals its flux through the enclosed cap, $\Omega/2$. For a
+loop at constant $qg_Z=\cos\vartheta$ around the $Z$ axis, $\Omega=2\pi(1-\cos\vartheta)=2\pi(1-qg_Z)$, so in the
+qg$_\Phi$ phase unit (fractions of a turn)
+\begin{equation}
+\phi=\frac{\gamma}{2\pi}=\frac{qg_Z-1}{2}\pmod 1 .
+\end{equation}
+The geometric phase of a cone loop is fixed by $qg_Z$ alone. For polarized light the same phase is Pancharatnam's
+phase on the Poincar\'e sphere. For example, the loop $H\to D\to R\to H$ encloses an octant ($\Omega=\pi/2$) and
+gives $\gamma=-\pi/4$.
+
+\paragraph{Three independent computations.} \texttt{qang.geometric} computes the phase three ways:
+\begin{enumerate}
+\item the gauge-invariant overlap product $\gamma=-\arg\prod_k\langle\psi_k|\psi_{k+1}\rangle$ over a discrete
+  loop of states~\cite{samuel1988};
+\item the signed solid angle of the loop as a fan of spherical triangles~\cite{vanoosterom1983};
+\item the numerical flux of the curvature through the cap.
+\end{enumerate}
+For a discrete loop the overlap phase equals $-\tfrac12$ the solid angle of the geodesic polygon exactly. The
+flux and the line integral agree as Stokes' theorem requires.
+
+\section{Checks}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{p{0.62\textwidth}l}
+\toprule
+check & result\\
+\midrule
+six basis states $H,V,D,A,R,L$ map to $\pm1$ on one qg axis & exact\\
+Stokes $\leftrightarrow$ qg round trip, against \texttt{qang.formulation.qg\_values} (20 random states) & $10^{-12}$\\
+lossless Mueller = qg gate rule (4 elements $\times$ 5 states) & $10^{-12}$\\
+Malus's law for $H$, $D$, $R$ and an elliptic state, 7 angles & $10^{-12}$\\
+half-wave plate rotates linear polarization to $2\theta-\alpha$ & $10^{-12}$\\
+degree of polarization and purity after a depolarizer (10 states) & $10^{-12}$\\
+overlap phase $=-\tfrac12$ geodesic solid angle (4 cone heights) & $10^{-10}$\\
+cone phase $=(qg_Z-1)/2$ turns (4 heights, 4000 points) & $10^{-5}$\\
+curvature flux $=\pi(1-qg_Z)=$ line integral (Stokes, 3 caps) & $10^{-5}$\\
+gauge invariance; sign flip under reversal & $10^{-12}$\\
+Pancharatnam octant $H\to D\to R$: $\Omega=\pi/2$, $\gamma=-\pi/4$ & exact\\
+\bottomrule
+\end{tabular}
+\caption{Numerical checks in \texttt{tests/test\_polarization.py} (12 tests) and \texttt{tests/test\_geometric.py}
+(14 tests).}
+\end{table}
+
+\section{Scope}
+
+The results are standard optics and quantum mechanics. Why write them in qg units? The qang tools for qubits
+apply unchanged to photonic polarization qubits. These include interval estimation from counts, the gate rule
+as a table of qg transformations, and the qg$_\Phi$ phase unit. Maxwell's equations themselves are not part of
+this note: they describe classical fields, while qang measures qubit quantities.
+
+\section*{Code}
+
+\begin{lstlisting}[language=Python]
+from qang import polarization as P, geometric as G
+P.stokes_to_qg([1.0, 0.6, 0.0, 0.8])     # {'X': 0.0, 'Y': 0.8, 'Z': 0.6}
+P.malus_intensity({"Z": 1.0}, 0.3)        # cos(0.3)**2
+G.cone_phase_turns(0.5)                   # 0.75 turn = -pi/2 rad
+\end{lstlisting}
+
+\bibliographystyle{unsrtnat}
+\bibliography{../refs}
+
+\end{document}

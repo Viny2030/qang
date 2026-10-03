@@ -40,7 +40,42 @@ examples/qnn_weight2_encoding_qg.py [seeds]
 
 Findings (python examples/qnn_weight2_encoding_qg.py):
 
-FINDINGS_PLACEHOLDER
+Seeds 870-874 x 3 splits x 4 datasets = 60 runs. Mean accuracy (trained
+without noise; under T1 read with qang / without):
+
+  model     exact   T1 qang / without   ceiling (best quadratic form)
+  E         0.953   0.953 / 0.913       0.952
+  W-pairs   0.920   0.920 / 0.750       0.928
+  W-ring    0.943   0.943 / 0.704       (= E's: same amplitudes)
+
+  quantity (95% CI across seeds)        value
+  ceiling W-pairs - ceiling E           -2.4 points [-3.0, -1.7]
+  W-ring - E                            -1.0 points [-1.7, -0.2]
+  W-ring - W-pairs                      +2.3 points [+0.7, +3.9]
+  gain of qang (T1): E / W-pairs / W-ring   +3.9 / +17.0 / +23.9
+
+  * X1 FAILS, and that is the answer: the pair-product encoding is a limit.
+    Even the best unconstrained quadratic form in its amplitudes (55
+    features) reaches 0.928, 2.4 points below the same ceiling for the
+    unary encoding (0.952). Normalizing the products v_i v_j distorts the
+    data before any circuit acts on them.
+  * X2 passes at the threshold (-0.97 points against a bound of -1; the CI
+    reaches -1.7): loaded like weight 1, the weight-2 circuit gets within
+    about a point of E. The circuit costs little; the encoding cost most.
+  * X3 passes: the ring encoding is 2.3 points better than the pairs.
+  * X4 passes: with qang the ring model under T1 is exact on all 60 runs,
+    and qang adds 23.9 points (its weight-2 states decay twice as fast and
+    the raw readout of the ring model is the most biased, 0.704).
+  Verdict. The 3-4 points that weight 2 lost in §79-§81 come mainly from
+  the pair-product encoding (its information ceiling is 2.4 points lower),
+  not from the readout (§81) and only about 1 point from the circuit. A
+  weight-2 network that loads the data like weight 1 recovers most of the
+  gap, and with it the gain of qang under T1 is the largest seen (+24
+  points). The ring model uses only 5 of the 10 weight-2 states, so it is
+  no more expressive than E: a better use of the larger sector is still
+  open. Note: the seed-1 debug run (2 epochs, two datasets) printed a
+  ceiling difference of -2.5 points before the predictions were committed;
+  the prediction X1 was not changed.
 """
 
 import json

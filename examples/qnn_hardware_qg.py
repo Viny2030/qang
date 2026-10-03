@@ -62,7 +62,7 @@ inputs x 1000 shots, the same trained model (noiseless accuracy 0.933),
   * K1, K2, K3 pass on all three. K1 and K2 pass by equality: the iris
     model has wide margins and neither readout changes a single decision.
   * K3 is where the filter shows: it cuts the error of the measured qg_Z
-    by 2.9-3.5x, keeping 69-74% of the shots. The kept fraction is far from
+    by 2.9-3.6x, keeping 69-74% of the shots. The kept fraction is far from
     the §77 value (1 - gamma)^9: here the losses come from gate errors and
     readout, not only from T1.
   IonQ cloud simulator with device noise models (free), same model and

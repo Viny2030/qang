@@ -18,7 +18,7 @@
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Borrador del 2 de octubre de 2026}
+\date{\small Borrador del 3 de octubre de 2026}
 
 \renewcommand{\figurename}{Figura}
 \renewcommand{\tablename}{Tabla}
@@ -41,7 +41,12 @@ con el filtro y sin él, y cada predicción quedó registrada antes de su corrid
 por modelo, una red entrenada en simulador y ejecutada bajo T1 gana $+2.5$ puntos con el filtro en peso~1
 (IC 95\,\% $[0.8,4.1]$) y $+16.5$ puntos en peso~2 ($[11.8,21.2]$), y recupera exactamente su precisión sin
 ruido. Una red entrenada con el ruido calibrado sin el filtro la alcanza (diferencias de $0.1$ puntos), y el
-filtro no corrige ni el desfase ni un T1 distinto entre qubits. Estos modelos son simulables clásicamente y no
+filtro no corrige ni el desfase ni un T1 distinto entre qubits, aunque solo pierde menos de un punto hasta
+una dispersión de $\pm80\,\%$ en $1/T_1$. Con entrenamiento con ruido y una lectura más rica, el modelo sin
+filtro es $1.2$ puntos mejor: descartar disparos decaídos puede costar precisión. El déficit del peso~2
+viene de la codificación por productos de pares, no de la lectura. Con los modelos de ruido de equipos de
+IBM e IonQ, el filtro reduce el error del $\qZ$ medido entre $2.9$ y $3.6$ veces. Estos modelos son
+simulables clásicamente y no
 se afirma ventaja cuántica. El filtro es una manera de hacer válido el entrenamiento sin ruido bajo relajación,
 con un costo en disparos conocido de antemano. Los modelos se publican como \texttt{qang.qml} (versión 0.6.0,
 \texttt{pip install qang}).
@@ -62,7 +67,7 @@ limitado por T1, y cuándo deja de importar?
 Respondemos con simulación exacta, un protocolo fijo y una comparación explícita. Cada lectura se toma con qang
 (filtrada) y sin qang (cruda), sobre los mismos parámetros entrenados o la misma inicialización. Las
 predicciones de cada estudio quedaron registradas en el repositorio antes de la corrida que las puso a prueba.
-De 27 predicciones pre-registradas en los estudios que se resumen aquí, 22 se cumplieron y 5 fallaron; las
+De 44 predicciones pre-registradas en los estudios que se resumen aquí, 33 se cumplieron y 11 fallaron; las
 fallas se reportan junto a los aciertos.
 
 \section{Modelo y teoría}
@@ -133,7 +138,11 @@ Las predicciones que fallaron:
 \item el gemelo cuadrático clásico no quedó a menos de 1 punto de la QNN con la regularización por defecto;
 \item el T1 desigual le costó al filtro 1.5 puntos en una corrida (límite: 1 punto);
 \item el peso~2 fue menos preciso que el peso~1 (por 3.7 puntos);
-\item entrenado bajo T1, el modelo de peso~2 sin filtro quedó 0.6 puntos por delante del filtrado.
+\item entrenado bajo T1, el modelo de peso~2 sin filtro quedó 0.6 puntos por delante del filtrado;
+\item en los estudios de la Sec.~\ref{sec:more}: la lectura $\langle Z_iZ_j\rangle$ no ayudó al peso~2 (dos
+  predicciones), el filtro no fue neutral con entrenamiento con ruido y esa lectura, la ganancia del filtro
+  en una dispersión de T1 tuvo un IC que tocó el cero, el peso~2 no fue más sensible a la dispersión que el
+  peso~1, y la codificación por productos de pares tuvo un techo de información menor que la unaria.
 \end{itemize}
 
 \paragraph{Réplica en 60 corridas.} Las comparaciones clave se repitieron con 5 semillas $\times$ 3 particiones
@@ -182,6 +191,36 @@ Las diferencias pareadas (media, IC 95\,\% entre semillas) fueron las siguientes
 \item \textit{Peso~2 frente a peso~1:} $-3.0$ $[-4.0,-2.0]$ puntos.
 \end{itemize}
 
+\paragraph{Lectura, codificación y dispersión de T1 (60 corridas cada una).}\label{sec:more}
+\begin{itemize}
+\item \textit{Lectura de correlaciones.} Agregar las $\binom52=10$ correlaciones $\langle Z_iZ_j\rangle$ hace que
+  la lectura de peso~2 sea una función lineal de toda la distribución del sector (rango 10 en lugar de 5). No
+  ayudó: $-0.6$ $[-1.5,0.4]$ puntos. Entrenado bajo T1 con 15 pesos de lectura, el modelo \emph{sin} filtro fue
+  $1.2$ $[0.4,2.0]$ puntos mejor. Los disparos decaídos todavía informan dónde estaban las excitaciones, y el
+  filtro descarta esa información. El filtro sigue siendo exacto para esta lectura, y entrenando sin ruido
+  suma $+14.9$ puntos.
+\item \textit{Codificación.} La mejor forma cuadrática sin restricciones en las amplitudes de productos de
+  pares llega a 0.928, $2.4$ $[1.7,3.0]$ puntos por debajo del mismo techo para las amplitudes unarias
+  (0.952). La normalización de los productos distorsiona los datos. Cargar los datos de peso~1 en cinco
+  estados de peso~2 (un ``anillo'' de pares $(k,k+1)$) da 0.943, a $1.0$ punto del peso~1 y $2.3$ $[0.7,3.9]$
+  puntos por encima de los pares. Con esta codificación la ganancia del filtro bajo T1 es la mayor vista,
+  $+23.9$ puntos.
+\item \textit{Dispersión de T1.} Con $\gamma_q=0.08(1+s\,u_q)$ y $u_q$ repartido en $[-1,1]$, la pérdida del
+  filtro fue de $0.3$/$0.2$ puntos (peso 1/2) con $s=0.5$ y $1.4$/$1.3$ con $s=1$. El filtro solo mantiene la
+  pérdida por debajo de un punto hasta $s\approx0.8$, es decir, una dispersión de $\pm80\,\%$ de las tasas
+  $1/T_1$ alrededor de su media.
+\end{itemize}
+
+\paragraph{Modelos de ruido de equipos.} El modelo de peso~1 se compiló a Qiskit: una cascada de 4 compuertas
+RBS carga las amplitudes unarias con signo, y siguen las 15 RBS entrenadas; el circuito coincide con el modelo a
+$10^{-16}$. Se corrió con 30 entradas de prueba de iris y 1000 disparos cada una, leídas con y sin filtro de
+los mismos disparos. Los modelos de ruido fueron los de tres equipos de IBM (backends simulados con su
+calibración, en Aer) y el simulador en la nube de IonQ con los modelos de ruido Aria-1 y Forte-1. En los cinco
+la precisión fue 0.933 con y sin filtro, igual a la precisión sin ruido: los márgenes de este modelo son
+amplios. El error del $\qZ$ medido bajó de 0.138--0.206 sin filtro a 0.040--0.072 con filtro (entre $2.9$ y
+$3.6$ veces), conservando el 69--74\,\% de los disparos. Son modelos de ruido, no equipos; las corridas en
+hardware están preparadas, con confirmación de costo, y pendientes.
+
 \section{Discusión}
 
 La diferencia que hace el filtro depende de cómo se entrenó la red. Entrenada en simulador y ejecutada con
@@ -191,18 +230,25 @@ agrega nada medible. Lo que aporta el filtro es, por lo tanto, de procedimiento 
 sobre la mejor alternativa. Con T1 igual hace exactamente válido el entrenamiento sin ruido, sin modelo de ruido
 ni corridas de entrenamiento con ruido, y su costo (los disparos descartados) se conoce antes de ejecutar. El T1
 desigual y el desfase no se corrigen. En hardware con mucha dispersión de T1 o desfase fuerte, el filtro
-complementa un modelo de ruido y no lo reemplaza.
+complementa un modelo de ruido y no lo reemplaza. De los estudios anteriores salen dos reglas prácticas.
+Hasta una dispersión de $\pm80\,\%$ de $1/T_1$ entre qubits, una red entrenada en simulador puede ejecutarse
+solo con el filtro, perdiendo menos de un punto. Si en cambio la red se entrena con el ruido calibrado, y
+sobre todo si su lectura tiene muchos parámetros, los disparos decaídos son datos útiles y el filtro puede
+costar alrededor de un punto. Para modelos de peso~2, importa más cómo se cargan los datos que qué se lee.
 
-\paragraph{Limitaciones.} Todo el ruido es simulado. Hay una arquitectura por peso, cinco qubits y conjuntos
-pequeños en los que una muestra de prueba vale 2--3 puntos. La codificación de peso~2 es una elección entre
-muchas, y no aprovechó bien el sector más grande. No se afirma ventaja cuántica: estas redes son simulables
+\paragraph{Limitaciones.} Todo el ruido es simulado, incluidos los modelos de ruido de equipos. Hay una
+arquitectura por peso, cinco qubits y conjuntos pequeños en los que una muestra de prueba vale 2--3 puntos. La
+codificación en anillo usa solo cinco de los diez estados de peso~2, así que un mejor uso del sector más grande
+sigue abierto. No se afirma ventaja cuántica: estas redes son simulables
 clásicamente. Una corrida en hardware con el filtro es la siguiente prueba natural.
 
 \section*{Disponibilidad de código y datos}
 
 Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.0 (\texttt{pip install qang}), solo NumPy, con
-\texttt{WeightQNN}, \texttt{kept\_fraction} y \texttt{compare\_qang}. Estudios: \texttt{examples/qnn\_*\_qg.py} y
-RESEARCH\_NOTES \S75--\S80, con pruebas en \texttt{tests/}. Los cuadernos Colab
+\texttt{WeightQNN} (pesos 1 y 2, lecturas \texttt{"z"} y \texttt{"zz"}, codificaciones \texttt{"pairs"} y
+\texttt{"ring"}), \texttt{kept\_fraction} y \texttt{compare\_qang}. Script listo para hardware:
+\texttt{examples/qnn\_hardware\_qg.py} (IBM e IonQ). Estudios: \texttt{examples/qnn\_*\_qg.py} y
+RESEARCH\_NOTES \S75--\S82, \S85 y \S87, con pruebas en \texttt{tests/}. Los cuadernos Colab
 \texttt{notebooks/qang\_qml\_es.ipynb} (español) y \texttt{qang\_qml.ipynb} (inglés) instalan la librería desde
 PyPI. Repositorio: \url{https://github.com/Viny2030/qang}.
 

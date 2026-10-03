@@ -19,7 +19,7 @@ what the qg symmetry filter does and does not do}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 2 October 2026}
+\date{\small Draft of 3 October 2026}
 
 \begin{document}
 \sloppy
@@ -37,8 +37,12 @@ prediction was committed before its run, failures included. Over 60 runs per mod
 simulator and run under T1 gains $+2.5$ points from the filter at weight~1 (95\% CI $[0.8,4.1]$) and
 $+16.5$ points at weight~2 ($[11.8,21.2]$), recovering its noiseless accuracy exactly. A network trained
 under the calibrated noise without the filter catches up (differences of $0.1$ points), and the filter
-corrects neither dephasing nor unequal T1 across qubits. These models are classically simulable and no
-quantum advantage is claimed. The filter is a way to make noise-free training valid under relaxation, at a
+corrects neither dephasing nor unequal T1 across qubits, although alone it loses less than one point up
+to a $\pm80\%$ spread of $1/T_1$. With noise-aware training and a richer readout, the model without the filter
+is $1.2$ points better: discarding decayed shots can cost accuracy. The weight-2 deficit comes from the
+pair-product encoding, not from the readout. On noise models of IBM and IonQ devices the filter cuts the
+error of the measured $\qZ$ by $2.9$--$3.6\times$. These models are classically simulable and no quantum
+advantage is claimed. The filter is a way to make noise-free training valid under relaxation, at a
 shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.0,
 \texttt{pip install qang}).
 \end{abstract}
@@ -57,8 +61,8 @@ mattering?
 
 We answer with exact simulation, a fixed protocol and an explicit comparison. Every reading is taken with
 qang (filtered) and without it (raw), on the same trained parameters or the same initialization. The
-predictions of every study were committed to the repository before the run that tested them. Of 27
-pre-registered predictions in the studies summarized here, 22 passed and 5 failed; the failures are
+predictions of every study were committed to the repository before the run that tested them. Of 44
+pre-registered predictions in the studies summarized here, 33 passed and 11 failed; the failures are
 reported alongside the passes.
 
 \section{Model and theory}
@@ -126,7 +130,11 @@ The predictions that failed:
 \item the classical quadratic twin did not match the QNN within 1 point at default regularization;
 \item unequal T1 cost the filter 1.5 points in one run (bound: 1 point);
 \item weight~2 was less accurate than weight~1 (by 3.7 points);
-\item trained under T1, the weight-2 model without the filter was 0.6 points ahead of the filtered one.
+\item trained under T1, the weight-2 model without the filter was 0.6 points ahead of the filtered one;
+\item in the studies of Sec.~\ref{sec:more}: the $\langle Z_iZ_j\rangle$ readout did not help weight~2 (two
+  predictions), the filter was not neutral under noise-aware training with that readout, the gain of the
+  filter at one T1 spread had a CI touching zero, weight~2 was not more sensitive to the spread than
+  weight~1, and the pair-product encoding had a lower information ceiling than the unary one.
 \end{itemize}
 
 \paragraph{Replication over 60 runs.} The key comparisons were repeated over 5 seeds $\times$ 3 splits
@@ -175,6 +183,35 @@ The paired differences (mean, 95\% CI across seeds) were as follows.
 \item \textit{Weight~2 against weight~1:} $-3.0$ $[-4.0,-2.0]$ points.
 \end{itemize}
 
+\paragraph{Readout, encoding and T1 spread (60 runs each).}\label{sec:more}
+\begin{itemize}
+\item \textit{Correlation readout.} Adding the $\binom52=10$ correlations $\langle Z_iZ_j\rangle$ makes the
+  weight-2 readout a linear function of the whole sector distribution (rank 10 instead of 5). It did not
+  help: $-0.6$ $[-1.5,0.4]$ points. Trained under T1 with 15 readout weights, the model \emph{without} the
+  filter was $1.2$ $[0.4,2.0]$ points better. The decayed shots still carry information about where the
+  excitations were, and the filter discards it. The filter is still exact for this readout, and trained
+  without noise it adds $+14.9$ points.
+\item \textit{Encoding.} The best unconstrained quadratic form in the pair-product amplitudes reaches 0.928,
+  $2.4$ $[1.7,3.0]$ points below the same ceiling for the unary amplitudes (0.952). The normalization of the
+  products distorts the data. Loading the weight-1 data on five weight-2 states instead (a ``ring'' of
+  pairs $(k,k+1)$) gives 0.943, within $1.0$ point of weight~1 and $2.3$ $[0.7,3.9]$ points above the pairs.
+  With this encoding the gain of the filter under T1 is the largest seen, $+23.9$ points.
+\item \textit{T1 spread.} With $\gamma_q=0.08(1+s\,u_q)$ and $u_q$ spread over $[-1,1]$, the loss of the
+  filter was $0.3$/$0.2$ points (weight 1/2) at $s=0.5$ and $1.4$/$1.3$ at $s=1$. The filter alone keeps the loss
+  below one point up to about $s\approx0.8$, i.e.\ a $\pm80\%$ spread of the decay rates $1/T_1$ around their
+  mean.
+\end{itemize}
+
+\paragraph{Device noise models.} The weight-1 model was compiled to Qiskit (a cascade of 4 RBS gates loads
+the signed unary amplitudes; 15 trained RBS gates follow; the circuit matches the model to $10^{-16}$). It
+was run on 30 iris test inputs with 1000 shots each, read with and without the filter from the same shots.
+The noise models were those of three IBM devices (calibration-based fake backends simulated by Aer) and
+the IonQ cloud simulator with the Aria-1 and Forte-1 noise models. On all five the accuracy was 0.933 with
+and without the filter, equal to the noiseless accuracy: the margins of this model are wide. The error of
+the measured $\qZ$ fell from 0.138--0.206 without the filter to 0.040--0.072 with it ($2.9$--$3.6\times$),
+keeping 69--74\% of the shots. These are noise models, not devices; the hardware runs are prepared, with
+cost confirmations, and pending.
+
 \section{Discussion}
 
 The difference the filter makes depends on how the network was trained. Trained on a simulator and run
@@ -184,18 +221,24 @@ the filter adds nothing measurable. What the filter provides is therefore proced
 gain over the best alternative. Under equal T1 it makes noise-free training exactly valid, with no noise
 model and no noisy training runs, and its cost (the discarded shots) is known before running. Unequal T1 and
 dephasing are not corrected. On hardware with a large spread of T1 or strong dephasing, the filter
-complements a noise model and does not replace it.
+complements a noise model and does not replace it. Two practical rules follow from the studies above. Up
+to about a $\pm80\%$ spread of $1/T_1$ across qubits, a network trained on a simulator can be run with the
+filter alone, losing less than one point. When the network is instead trained under the calibrated noise,
+and especially when its readout has many parameters, the decayed shots are useful data, and the filter can
+cost about a point. For weight-2 models, how the data are loaded matters more than what is read out.
 
-\paragraph{Limitations.} All noise is simulated. There is one architecture per weight, five qubits, and
-small datasets in which one test sample is worth 2--3 points. The weight-2 encoding is one choice among many,
-and it did not use the larger sector well. No quantum advantage is claimed: these networks are classically
+\paragraph{Limitations.} All noise is simulated, including the device noise models. There is one
+architecture per weight, five qubits, and small datasets in which one test sample is worth 2--3 points. The
+ring encoding uses only five of the ten weight-2 states, so a better use of the larger sector is still open. No quantum advantage is claimed: these networks are classically
 simulable. A hardware run with the filter is the natural next test.
 
 \section*{Code and data availability}
 
 Models: \texttt{qang.qml} in \texttt{qang} 0.6.0 (\texttt{pip install qang}), NumPy only, with
-\texttt{WeightQNN}, \texttt{kept\_fraction} and \texttt{compare\_qang}. Studies:
-\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S80, with tests in \texttt{tests/}. The Colab
+\texttt{WeightQNN} (weights 1 and 2, readouts \texttt{"z"} and \texttt{"zz"}, encodings \texttt{"pairs"} and
+\texttt{"ring"}), \texttt{kept\_fraction} and \texttt{compare\_qang}. Hardware-ready script:
+\texttt{examples/qnn\_hardware\_qg.py} (IBM and IonQ). Studies:
+\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85 and \S87, with tests in \texttt{tests/}. The Colab
 notebooks \texttt{notebooks/qang\_qml.ipynb} (English) and \texttt{qang\_qml\_es.ipynb} (Spanish) install the
 library from PyPI. Repository: \url{https://github.com/Viny2030/qang}.
 

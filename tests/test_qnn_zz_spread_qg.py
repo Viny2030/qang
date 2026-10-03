@@ -28,3 +28,12 @@ def test_spread_small_run():
     assert q["E exact at s=0"] == 1.0 and q["W exact at s=0"] == 1.0
     assert q["E loss 0.0"] == 0.0
     assert set(V.verdict({k: (v, v, v) for k, v in q.items()})) == {"V1", "V2", "V3", "V4", "V5"}
+
+
+def test_encoding_study_small_run():
+    import qnn_weight2_encoding_qg as X
+
+    rows = X.run_seed(1, splits=1, epochs=2, datasets=["iris"])
+    q = X.quantities(rows)
+    assert q["Wring exact at T1 with qang"] == 1.0
+    assert set(X.verdict({k: (v, v, v) for k, v in q.items()})) == {"X1", "X2", "X3", "X4"}

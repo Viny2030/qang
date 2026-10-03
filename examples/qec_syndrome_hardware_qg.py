@@ -40,7 +40,33 @@ qiskit, qiskit-aer, qiskit-ibm-runtime and scipy.
 
 Findings (python examples/qec_syndrome_hardware_qg.py --mode fake):
 
-FINDINGS_PLACEHOLDER
+Fake IBM backends (Aer with the calibrated noise models), 4000 shots per
+delay and logical state. Flip rates at t = 0 (the floor from encoding and
+extraction), and gamma, p at t = 40 and 80 us, syndrome estimate against
+calibration:
+
+  backend          floor ZZ / XXXX   gamma 40 us     gamma 80 us     p 40 us        p 80 us        D1 D2 D3
+  fake_brisbane    0.082 / 0.202     0.194 / 0.177   0.308 / 0.309   0.055 / 0.078  0.103 / 0.132  P  P  P
+  fake_sherbrooke  0.093 / 0.180     0.067 / 0.127   0.162 / 0.237   0.017 / 0.024  0.044 / 0.047  F  P  F
+  fake_torino      0.048 / 0.127     0.191 / 0.193   0.345 / 0.348   0.147 / 0.190  0.193 / 0.282  P  P  P
+
+  * On brisbane and torino the Leung syndromes read the damping of the
+    four data qubits to within 1-10% of the calibration and the
+    dephasing at 0.68-0.78 of the calibration (D1-D3 pass).
+  * On sherbrooke D1 and D3 fail. Its qubits have T1 ~ 300 us, so the
+    damping in 40-80 us (gamma 0.13-0.24) is small against a floor of 9%
+    ZZ flips from encoding and extraction; the ZZ rate at 10 us (0.075) is
+    even below the t = 0 floor (0.093), and the floor-corrected gamma comes
+    out 32-47% low. The floor correction assumes independent flips; with
+    extraction errors that large it is biased.
+  * The dephasing estimates sit below the calibration on all three (at
+    0.68-0.94 of it): part of the XXXX signal is absorbed by the floor.
+  * Pending: a real device (14 seven-qubit circuits x 4000 shots):
+      python examples/qec_syndrome_hardware_qg.py --mode ibm --yes-i-run-on-hardware
+    The circuits use only final measurements, but they measure idle
+    damping during a delay; trapped ions (IonQ) have T1 of seconds and the
+    IonQ simulator has no idle-noise model, so IonQ is not a meaningful
+    target for this test.
 """
 
 import argparse

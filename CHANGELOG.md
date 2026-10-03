@@ -16,6 +16,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   matrix).
 - `notebooks/qang_qml.ipynb` (English) and `notebooks/qang_qml_es.ipynb` (Spanish): QNNs with and without qang,
   installed from PyPI; built by `notebooks/make_qml_notebooks.py`.
+- `qang.qml`: `WeightQNN(encoding="ring")` loads the weight-1 data on n weight-2 states (§87).
+- `examples/qnn_weight2_encoding_qg.py` (§87, 60 runs): the weight-2 deficit comes from the pair-product encoding
+  (its quadratic-form ceiling is 2.4 points lower; X1 fails); loaded like weight 1, weight 2 is within 1 point of
+  weight 1 and qang adds +23.9 points under T1 (X2-X4 pass).
+- `examples/qec_syndrome_hardware_qg.py` (§88): the §33 Leung-code syndromes as a T1/dephasing witness on IBM
+  circuits; on fake backends D1-D3 pass on brisbane and torino, D1 and D3 fail on sherbrooke (extraction floor
+  comparable to the signal); real-device run pending.
+- `manuscript/optics/`, `manuscript/optics_es/` (PDF and Word `manuscript/qang_optics[_es]`): note on polarized light
+  and geometric phase in qg units (§83-§84); five optics references in `refs.bib`.
+- The QML note (`manuscript/qang_qml[_es]`) updated with §81, §82, §85 and §87 (44 predictions: 33 pass, 11 fail).
 - `qang.qml`: `WeightQNN(readout="zz")` adds the two-qubit qg_ZZ correlations to the readout (§81).
 - `qang.polarization` (NumPy only): Stokes parameters as qg values (the Poincare sphere is the Bloch sphere),
   degree of polarization and purity, Jones and Mueller matrices (a lossless Mueller matrix is the qg gate rule),
@@ -30,7 +40,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `examples/qnn_t1_spread_qg.py` (§82, 60 runs): the filter alone loses < 1 point up to a +-80% spread of 1/T1
   across qubits (V1-V3 pass; V4, V5 fail).
 - `examples/qnn_hardware_qg.py` (§85): the filtered QNN compiled to Qiskit for IBM (fake or real) and IonQ
-  (simulator or QPU, with explicit cost flags); on three fake IBM backends the filter cuts the qg_Z error 2.9-3.5x
+  (simulator or QPU, with explicit cost flags); on three fake IBM backends the filter cuts the qg_Z error 2.9-3.6x
   (K1-K3 pass), and on the IonQ simulator with aria-1 and forte-1 noise 3.2x and 2.9x; resumable IonQ job lists (--jobs); QPU default qpu.forte-1; real-device runs pending.
 - `examples/hardware_characterization_ibm.py` (§86): the §31 heralded characterization as IBM circuits with a
   mid-circuit herald; C1-C3 pass on three fake backends; real-device run pending.

@@ -4605,7 +4605,7 @@ hardware), 62 two-qubit gates per circuit:
   noise it is 0.072 and 0.206 (kept 0.70). Accuracy is 0.933 in both cases,
   with 38 two-qubit gates per circuit. K1–K3 pass on both. The Aria QPUs are
   retired (3 October 2026), so the QPU run uses qpu.forte-1.
-* **The filter cuts the qg_Z error by 2.9–3.5×.** It keeps 69–74% of the
+* **The filter cuts the qg_Z error by 2.9–3.6×.** It keeps 69–74% of the
   shots, because gate errors and readout add to T1.
 * **Pending: real devices.** These commands print their size first and need
   an explicit flag:
@@ -4645,6 +4645,94 @@ Fake backends (2000 shots):
 * **Pending: the real run.** Use `--mode ibm --yes-i-run-on-hardware`
   (32 one-qubit circuits). §33 (syndrome tracking) needs repeated code rounds
   with mid-circuit measurement and is left for later.
+
+## 87. Where weight 2 loses accuracy: encoding against circuit (`examples/qnn_weight2_encoding_qg.py`)
+
+**Models.** E (weight 1); W-pairs (weight 2, v_i v_j normalized, §79);
+W-ring (weight 2, v_k on the state with qubits k and k+1 excited: the
+weight-1 data on 5 of the 10 states; `qang.qml.WeightQNN(encoding="ring")`).
+
+**Encoding ceiling.** Logistic regression (C = 100) on all products of the
+encoded amplitudes, i.e. the best unconstrained quadratic form, which bounds
+any ⟨Zᵢ⟩ readout.
+
+**Protocol.** 60 runs (seeds 870–874), with readings with and without qang.
+
+**Predictions, committed before the run (1f33029).**
+* X1: ceiling(W-pairs) ≥ ceiling(E) − 1.
+* X2: W-ring ≥ E − 1.
+* X3: W-ring > W-pairs, CI above 0.
+* X4: W-ring is exact with qang on all runs and gains ≥ 10 points.
+
+| model | exact | T1: qang / without | ceiling |
+|---|---|---|---|
+| E | 0.953 | 0.953 / 0.913 | 0.952 |
+| W-pairs | 0.920 | 0.920 / 0.750 | 0.928 |
+| W-ring | 0.943 | 0.943 / 0.704 | (= E) |
+
+Differences in points, 95% CI across seeds:
+* ceiling W-pairs − E: −2.4 [−3.0, −1.7]
+* W-ring − E: −1.0 [−1.7, −0.2]
+* W-ring − W-pairs: +2.3 [+0.7, +3.9]
+
+Gain of qang under T1: E +3.9, W-pairs +17.0, W-ring +23.9.
+
+* **X1 fails, and that is the answer.** The pair-product encoding is a limit:
+  its information ceiling is 2.4 points lower.
+* **X2 passes at the threshold** (−0.97 against −1). The weight-2 circuit
+  costs about a point.
+* **X3 and X4 pass.**
+* **Verdict.** The weight-2 deficit of §79–§81 comes mainly from the
+  encoding, not from the readout (§81). The circuit accounts for about 1
+  point. With the ring encoding, the gain of qang under T1 is the largest
+  seen (+23.9).
+* **Still open.** The ring uses only 5 of the 10 states, so a better use of
+  the sector remains to be found. (The seed-1 debug printed a ceiling
+  difference of −2.5 before the commit; X1 was not changed.)
+
+## 88. Leung-code syndromes as a T1/dephasing witness on IBM backends (`examples/qec_syndrome_hardware_qg.py`)
+
+§33 on circuits:
+* 4 data qubits in the Leung code (|0_L⟩, |1_L⟩, half the shots each);
+* an idle delay t;
+* one round of syndrome extraction (Z0Z1, Z2Z3, XXXX) with 3 ancillas, 7
+  qubits in total.
+
+Flip rates invert in one line to the damping γ and the dephasing p. The floor
+from encoding and extraction (t = 0) is removed by composing independent
+flips. The results are compared with the calibration of the 4 data qubits.
+
+**Predictions, committed before any run (0b266fe).** At t = 40 and 80 µs:
+* D1: γ within 40%.
+* D2: p within a factor 2.
+* D3: both rates increase with t.
+
+| fake backend | floor ZZ / XXXX | γ 40 µs: syndrome / calibration | γ 80 µs | p 40 µs | p 80 µs | D1 D2 D3 |
+|---|---|---|---|---|---|---|
+| brisbane | 0.082 / 0.202 | 0.194 / 0.177 | 0.308 / 0.309 | 0.055 / 0.078 | 0.103 / 0.132 | ✓ ✓ ✓ |
+| sherbrooke | 0.093 / 0.180 | 0.067 / 0.127 | 0.162 / 0.237 | 0.017 / 0.024 | 0.044 / 0.047 | ✗ ✓ ✗ |
+| torino | 0.048 / 0.127 | 0.191 / 0.193 | 0.345 / 0.348 | 0.147 / 0.190 | 0.193 / 0.282 | ✓ ✓ ✓ |
+
+* **Brisbane and torino.** The syndromes read the damping within 1–10%.
+* **Sherbrooke fails D1 and D3.** Its T1 is about 300 µs, so the damping is
+  small against a 9% floor of ZZ flips. The ZZ rate at 10 µs is even below
+  the floor, and the floor correction, which assumes independent flips, is
+  biased (γ 32–47% low).
+* **The dephasing reads at 0.68–0.94** of the calibration on all three.
+* **Pending: a real device.** Run
+  `python examples/qec_syndrome_hardware_qg.py --mode ibm --yes-i-run-on-hardware`
+  (14 circuits). IonQ is not a meaningful target: trapped ions have T1 of
+  seconds, and the simulator has no idle noise.
+
+## 89. Notes and article updates
+
+* **QML article** (`manuscript/qang_qml[_es]`), updated with §81, §82, §85
+  (device noise models) and §87. It now counts 44 pre-registered
+  predictions: 33 passed and 11 failed.
+* **New short note** (`manuscript/qang_optics[_es]`, PDF and Word):
+  "Polarized light and geometric phase in qg units" (§83–§84).
+* **Correction.** The filter's reduction of the qg_Z error on the IBM fake
+  backends is 2.9–3.6× (sherbrooke 3.6×), not 2.9–3.6× as written in §85.
 
 ## Suggested next steps
 
