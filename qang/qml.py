@@ -63,6 +63,9 @@ class WeightQNN:
     weight 2: amplitude v_i v_j on the state with qubits i < j excited,
               normalized (§79).
 
+    weight 2, encoding="ring": v_k on the state with qubits k and k+1 (mod n)
+              excited: the weight-1 data on n of the C(n, 2) states (§87).
+
     readout "z":  z = sum_i c_i qg_Z^(i) + b (n features).
     readout "zz": also the two-qubit correlations qg_ZZ^(ij) = <Z_i Z_j>,
               i < j (n + C(n, 2) features; §81). In the weight-1 sector the
@@ -70,9 +73,12 @@ class WeightQNN:
               weight-2 sector they give the full sector distribution.
     """
 
-    def __init__(self, n_qubits=5, weight=1, layers=3, sublayers=None, readout="z"):
+    def __init__(self, n_qubits=5, weight=1, layers=3, sublayers=None, readout="z", encoding="pairs"):
         if weight not in (1, 2):
             raise ValueError("weight must be 1 or 2")
+        if encoding not in ("pairs", "ring"):
+            raise ValueError("encoding must be 'pairs' or 'ring'")
+        self.encoding = encoding
         if readout not in ("z", "zz"):
             raise ValueError("readout must be 'z' or 'zz'")
         self.readout = readout
@@ -148,6 +154,10 @@ class WeightQNN:
         if self.weight == 1:
             for i in range(self.n):
                 psi[:, self._bit(i)] = v[:, i]
+            return psi
+        if self.encoding == "ring":
+            for k in range(self.n):
+                psi[:, self._bit(k) | self._bit((k + 1) % self.n)] = v[:, k]
             return psi
         for i, j in itertools.combinations(range(self.n), 2):
             psi[:, self._bit(i) | self._bit(j)] = v[:, i] * v[:, j]
