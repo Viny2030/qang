@@ -149,6 +149,17 @@ m.score(X_test, y_test, gamma=0.08, qang=True)                      # = noiseles
 m.score(X_test, y_test, gamma=0.08, qang=False)                     # raw readout, biased by T1
 ```
 
+## Polarized light and geometric phase in qg units
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_optics.ipynb) English &nbsp;·&nbsp;
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_optics_es.ipynb) Español
+
+`qang.polarization` and `qang.geometric` (qang >= 0.6.0): the normalized Stokes parameters are qg values (the
+Poincare sphere is the Bloch sphere), a lossless Mueller matrix is the qg gate rule, Malus's law reads
+I = I0 (1 + qg_Z cos 2theta + qg_X sin 2theta)/2, and the geometric phase of a loop at constant qg_Z is
+(qg_Z - 1)/2 of a turn (Stokes' theorem on the sphere). Note: `manuscript/qang_optics.pdf` (Spanish:
+`manuscript/qang_optics_es.pdf`).
+
 ## Full Reference Notebook
 
 `notebooks/qang_full_reference.ipynb` is the single canonical, self-contained walkthrough

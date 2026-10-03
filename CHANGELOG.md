@@ -12,6 +12,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `qang.qml`: `WeightQNN(encoding="dual")` fills all 10 weight-2 states of 5 qubits (v on the ring, (x^2, 1)/norm on the
   chords) (§90).
   (Version 0.6.0 on PyPI was built before these two options; the study scripts of §87 and §90 need 0.6.1.)
+- `notebooks/qang_optics.ipynb` (English) and `notebooks/qang_optics_es.ipynb` (Spanish): polarized light and geometric
+  phase in qg units with `qang.polarization` and `qang.geometric`, each result compared with standard optics; built by
+  `notebooks/make_optics_notebooks.py`.
 
 ## [0.6.0] - 2026-10-02
 
