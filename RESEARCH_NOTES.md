@@ -4777,6 +4777,90 @@ Gain of qang under T1: E +2.9, W-ring +20.4, W-dual +19.5, W-dual-zz +14.1.
   stays classically simulable. Its gain from qang under T1 is 14–20 points,
   against 3 at weight 1.
 
+## 91. The filtered QNN on the IonQ simulator, Forte-1 noise, four datasets (`examples/qnn_ionq_datasets_qg.py`)
+
+The §85 pipeline was run on 189 test inputs (iris, cancer, wine, digits),
+1000 shots each, on the free IonQ simulator with the Forte-1 noise model.
+
+**Predictions, committed before the run (d292c7e).**
+* N1: pooled accuracy with qang ≥ without.
+* N2: within 3 points of noiseless.
+* N3: the qg_Z error without qang is ≥ 2× the error with qang on every
+  dataset.
+
+| dataset | inputs | accuracy qang / without (noiseless) | qg_Z error qang / without |
+|---|---|---|---|
+| iris | 30 | 0.933 / 0.900 (0.967) | 0.064 / 0.176 |
+| cancer | 60 | 0.983 / 0.983 (0.983) | 0.065 / 0.182 |
+| wine | 39 | 0.974 / 0.949 (0.974) | 0.065 / 0.191 |
+| digits | 60 | 0.967 / 0.967 (0.983) | 0.060 / 0.171 |
+| pooled | 189 | 0.968 / 0.958 (0.979) | |
+
+* **N1–N3 pass.**
+* **Accuracy.** qang is 1.1 points ahead (two inputs) and 1.1 below the
+  noiseless accuracy.
+* **qg_Z error.** It is 2.7–2.9× smaller with qang, keeping 70–72% of the
+  shots.
+* **Correction.** The IonQ API returns the measured frequencies, but
+  qiskit-ionq's `get_counts` resamples them at random on each call. The
+  retrieval now uses the frequencies directly, so results are deterministic.
+  Re-read this way, the §85 IonQ runs give qg_Z errors of 0.052 / 0.172
+  (Aria-1) and 0.069 / 0.207 (Forte-1), against 0.056 / 0.176 and
+  0.072 / 0.206 reported before. K1–K3 still pass.
+
+## 92. Joint fit of the Leung syndromes (`examples/qec_syndrome_jointfit_qg.py`)
+
+A four-parameter maximum-likelihood fit over all delays: the floors, T1 and
+T_φ. On synthetic counts it is exact to 10⁻⁸.
+
+**Predictions, committed before the run (7a3bdad).**
+* J1: γ within 30%.
+* J2: p within a factor 2.
+* J3: better than the floor subtraction on sherbrooke.
+
+* **J1, J2 and J3 all fail.** γ is 1.6–1.7× high on brisbane, p is 3× high
+  on torino and 0.3–0.5× low on sherbrooke.
+* **The §88 failure on sherbrooke does not reproduce**, because the
+  transpiler chose other qubits.
+* **Diagnosis (after the run).** The encoder and the XXXX ancilla need
+  vertices of degree 3–4, which heavy-hex lattices lack. The transpiler
+  inserts SWAPs, so the data idle on qubits other than the ones compared
+  (§88 and §92 read the calibration from the final layout), and the SWAPs
+  add errors of their own. This also weakens the §88 comparison.
+
+## 93. Leung syndromes without ancillas or SWAPs (`examples/qec_syndrome_destructive_qg.py`)
+
+With one round per shot the stabilizers are read destructively:
+* the encoder is a line (H, CX 0→1, 1→2, 2→3), placed on the best 4-qubit
+  path of the device;
+* half the shots measure Z, giving Z0Z1 and Z2Z3 from parities;
+* half the shots measure X, giving XXXX from the parity of all four.
+
+The data are fitted jointly as in §92 and compared with the calibration of
+the four qubits.
+
+**Predictions, committed before the run (52d5cb1).**
+* M1: no routing.
+* M2: γ within 30% at 40, 80 and 160 µs.
+* M3: p within a factor 2.
+* M4: ZZ floor below the §88 floor.
+
+| fake backend | path | floor ZZ | γ 40/80/160 µs: calibration / syndromes | p: calibration / syndromes |
+|---|---|---|---|---|
+| brisbane | 112-126-125-124 | 0.030 | 0.155/0.286/0.489 / 0.149/0.275/0.474 | 0.131/0.193/0.265 / 0.165/0.276/0.399 |
+| sherbrooke | 122-123-124-125 | 0.022 | 0.135/0.252/0.440 / 0.132/0.246/0.432 | 0.074/0.125/0.189 / 0.087/0.159/0.267 |
+| torino | 99-92-80-81 | 0.028 | 0.194/0.349/0.574 / 0.191/0.346/0.572 | 0.152/0.227/0.311 / 0.184/0.301/0.420 |
+
+* **M1–M4 pass on all three.**
+* **Damping.** The syndromes read the damping of the four data qubits to
+  1–4% of the calibration (§88: 1–47%). The floor drops to 2.2–3.0% (§88:
+  4.8–9.3%).
+* **Dephasing reads 1.17–1.51× high.** That is within the factor 2 but
+  biased, for a reason not resolved here.
+* **This replaces §88 as the hardware test of §33.** Pending: a real IBM
+  device, `python examples/qec_syndrome_destructive_qg.py --mode ibm --yes-i-run-on-hardware`
+  (24 four-qubit circuits).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

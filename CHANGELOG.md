@@ -5,6 +5,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `examples/qnn_ionq_datasets_qg.py` (§91): the filtered QNN on the IonQ simulator with Forte-1 noise on four datasets
+  (189 inputs): qang +1.1 points pooled, qg_Z error 2.7-2.9x smaller (N1-N3 pass). IonQ results now use the measured
+  frequencies returned by the API (qiskit-ionq's get_counts resamples them); §85 IonQ numbers corrected.
+- `examples/qec_syndrome_jointfit_qg.py` (§92): joint fit of the Leung syndromes over all delays; J1-J3 fail, and the
+  diagnosis shows that routing SWAPs made the §88/§92 calibration comparison ill-posed.
+- `examples/qec_syndrome_destructive_qg.py` (§93): Leung syndromes read destructively, without ancillas or SWAPs,
+  on the best 4-qubit path; on three fake IBM backends the damping is read to 1-4% of the calibration (M1-M4 pass);
+  replaces §88 as the hardware test of §33 (real-device run pending).
+- `notebooks/qang_avances_colab.ipynb` extended to §20-§93 (sections 31-38: QML with and without qang, T1 spread,
+  weight-2 encodings, device noise models, destructive syndromes, optics, geometric phase), built by
+  `tools/extend_avances_notebook.py`.
+- The QML note (`manuscript/qang_qml[_es]`) updated with §90 and §91 (52 predictions: 40 pass, 12 fail).
+
 ## [0.6.2] - 2026-10-03
 
 ### Changed

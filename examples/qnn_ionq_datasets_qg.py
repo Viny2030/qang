@@ -24,7 +24,28 @@ dataset (--jobs-dir) so an interrupted run resumes without resubmitting.
 
 Findings (python examples/qnn_ionq_datasets_qg.py --jobs-dir <dir>):
 
-FINDINGS_PLACEHOLDER
+IonQ cloud simulator, Forte-1 noise model, 1000 shots per input, the
+measured frequencies returned by the API (see the note below):
+
+  dataset  inputs  accuracy qang / without (noiseless)   qg_Z error qang / without   kept
+  iris     30      0.933 / 0.900 (0.967)                 0.064 / 0.176               0.70
+  cancer   60      0.983 / 0.983 (0.983)                 0.065 / 0.182               0.70
+  wine     39      0.974 / 0.949 (0.974)                 0.065 / 0.191               0.70
+  digits   60      0.967 / 0.967 (0.983)                 0.060 / 0.171               0.72
+  pooled   189     0.968 / 0.958 (0.979)
+
+  * N1, N2, N3 pass.
+  * Pooled over 189 inputs, qang is 1.1 points ahead (two inputs: one in
+    iris, one in wine) and 1.1 points below the noiseless accuracy.
+  * The qg_Z error is 2.7-2.9x smaller with qang on every dataset.
+  * Note on the IonQ results. The API returns the measured frequencies of
+    each job; qiskit-ionq's get_counts resamples them at random on every
+    call, so two retrievals of the same job gave different counts. During
+    this run the retrieval was changed to use the frequencies directly
+    (examples/qnn_hardware_qg.py, ionq_counts); the numbers above are
+    deterministic. Re-read the same way, the §85 IonQ runs give qg_Z errors
+    0.052 / 0.172 (aria-1, kept 0.74) and 0.069 / 0.207 (forte-1, kept
+    0.70), against 0.056 / 0.176 and 0.072 / 0.206 reported before.
 """
 
 import argparse

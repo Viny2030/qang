@@ -257,7 +257,10 @@ def ionq_counts(backend, mode, tc, shots, noise, jobs_path=None, tries=20, wait=
     for jid in ids[: len(tc)]:
         for attempt in range(tries):
             try:
-                out.append(backend.retrieve_job(jid).get_counts())
+                # The IonQ API returns the measured frequencies; qiskit-ionq's get_counts
+                # resamples them on every call, so the frequencies are used directly.
+                probs = backend.retrieve_job(jid).get_probabilities()
+                out.append({k: int(round(v * shots)) for k, v in probs.items()})
                 break
             except Exception as exc:  # network stall or job still queued
                 if attempt == tries - 1:
