@@ -34,7 +34,35 @@ Needs qiskit, qiskit-aer, qiskit-ibm-runtime and scipy.
 
 Findings (python examples/qec_syndrome_jointfit_qg.py):
 
-FINDINGS_PLACEHOLDER
+Fake IBM backends, 4000 shots per delay and logical state. gamma and p at
+t = 40 / 80 / 160 us: calibration | joint fit | §88 floor subtraction.
+
+  brisbane    gamma 0.115/0.216/0.382 | 0.201/0.362/0.593 | 0.196/0.316/0.388
+              p     0.066/0.111/0.167 | 0.133/0.230/0.355 | 0.114/0.183/0.259
+  sherbrooke  gamma 0.122/0.228/0.402 | 0.113/0.213/0.380 | 0.116/0.221/0.342
+              p     0.084/0.128/0.173 | 0.022/0.043/0.082 | 0.019/0.042/0.101
+  torino      gamma 0.222/0.387/0.607 | 0.180/0.328/0.548 | 0.178/0.311/0.369
+              p     0.070/0.123/0.194 | 0.216/0.339/0.448 | 0.233/0.403/0.388
+
+  * J1, J2, J3 all FAIL. The joint fit is not better than the floor
+    subtraction: gamma is 1.6-1.7x high on brisbane, p is 3x high on torino
+    and 0.3-0.5x low on sherbrooke. On sherbrooke the §88 failure does not
+    even reproduce (both methods within 3-15% for gamma), because the
+    transpiler chose different qubits this time.
+  * Diagnosis (after the run, not pre-registered). The fit itself is exact:
+    on synthetic counts from the model it returns the floor, T1 and T_phi
+    to 1e-8. What fails is the comparison. The encoder (d0 controls three
+    CNOTs) and the XXXX ancilla (four CNOTs) need degree-3 and degree-4
+    vertices, which heavy-hex lattices do not have, so the transpiler
+    inserts SWAPs: the data sit on different physical qubits before and
+    after routing, and §88-§92 read the calibration from the final layout,
+    which is not where the data idled. The SWAPs also add errors that are
+    not idle errors. This also weakens the §88 comparison.
+  * Next step (§93): a circuit without SWAPs and without ancillas. With
+    one round per shot the stabilizers can be read destructively: half
+    the shots measure the data in Z (Z0Z1, Z2Z3 from the parities), half
+    in X (XXXX), after a linear-chain encoder placed on a path of the
+    device, so that the idle qubits are known exactly.
 """
 
 import argparse
