@@ -34,7 +34,7 @@ debugged on seed 1 with few epochs):
   X4  with qang, W-ring under T1 keeps its noiseless accuracy on all 60
       runs, and the gain of qang for W-ring is >= 10 points (mean).
 
-Uses the installed library (pip install "qang>=0.6.0"), module qang.qml.
+Uses the installed library (pip install "qang>=0.6.1"), module qang.qml.
 Needs scikit-learn and scipy. OMP_NUM_THREADS=1 python
 examples/qnn_weight2_encoding_qg.py [seeds]
 

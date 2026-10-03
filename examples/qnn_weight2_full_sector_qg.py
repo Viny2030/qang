@@ -28,7 +28,7 @@ debugged on seed 1 with 2 epochs, ceilings not looked at):
   Y5  the full-rank readout helps once the sector is full: mean W-dual-zz
       >= W-dual.
 
-Uses the installed library (pip install "qang>=0.6.0"), module qang.qml.
+Uses the installed library (pip install "qang>=0.6.1"), module qang.qml.
 Needs scikit-learn and scipy. OMP_NUM_THREADS=1 python
 examples/qnn_weight2_full_sector_qg.py [seeds]
 
