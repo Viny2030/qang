@@ -62,11 +62,20 @@ class WeightQNN:
               ``n_features = n_qubits - 1``); the constant keeps |x| (§76).
     weight 2: amplitude v_i v_j on the state with qubits i < j excited,
               normalized (§79).
+
+    readout "z":  z = sum_i c_i qg_Z^(i) + b (n features).
+    readout "zz": also the two-qubit correlations qg_ZZ^(ij) = <Z_i Z_j>,
+              i < j (n + C(n, 2) features; §81). In the weight-1 sector the
+              correlations are linear in the qg_Z and add nothing; in the
+              weight-2 sector they give the full sector distribution.
     """
 
-    def __init__(self, n_qubits=5, weight=1, layers=3, sublayers=None):
+    def __init__(self, n_qubits=5, weight=1, layers=3, sublayers=None, readout="z"):
         if weight not in (1, 2):
             raise ValueError("weight must be 1 or 2")
+        if readout not in ("z", "zz"):
+            raise ValueError("readout must be 'z' or 'zz'")
+        self.readout = readout
         self.n = int(n_qubits)
         self.weight = int(weight)
         self.layers = int(layers)
@@ -90,6 +99,13 @@ class WeightQNN:
                         J[pos[k - 1][s ^ b], i] = 1.0
                 self._jump[k, q] = J
                 self._z[k, q] = self._exc[k, q].astype(float)
+        if readout == "zz":
+            pairs = list(itertools.combinations(range(self.n), 2))
+            zz = np.stack([self.zsign[:, i] * self.zsign[:, j] for i, j in pairs], axis=1)
+            self.features = np.concatenate([self.zsign, zz], axis=1)
+        else:
+            self.features = self.zsign
+        self.n_head = self.features.shape[1]
         self.params_ = None
 
     # ------------------------------------------------------------------ #
@@ -170,12 +186,13 @@ class WeightQNN:
         return out
 
     def qg_z(self, probs, qang=True):
-        """Local qg_Z of every qubit; with ``qang`` only the shots in the
-        input's weight sector are kept (the filter from qang.sectors)."""
+        """Readout features: the local qg_Z of every qubit (and, with
+        readout="zz", the qg_ZZ correlations); with ``qang`` only the shots in
+        the input's weight sector are kept (the filter from qang.sectors)."""
         probs = np.atleast_2d(probs)
         if qang:
             probs = np.array([filter_distribution(p, self.n, self.weight)[0] for p in probs])
-        return probs @ self.zsign
+        return probs @ self.features
 
     # ------------------------------------------------------------------ #
     def decision(self, params, X, gamma=None, dephasing=0.0, qang=True, shots=None, seed=None):
@@ -184,7 +201,7 @@ class WeightQNN:
         if shots:
             rng = np.random.default_rng(seed)
             pr = np.array([rng.multinomial(shots, p / p.sum()) / shots for p in pr])
-        return self.qg_z(pr, qang) @ params[self.n_theta:self.n_theta + self.n] + params[-1]
+        return self.qg_z(pr, qang) @ params[self.n_theta:self.n_theta + self.n_head] + params[-1]
 
     def fit(self, X, y, epochs=120, lr=0.1, gamma=None, dephasing=0.0, qang=True, seed=0, h=1e-4):
         """Adam on the cross-entropy, central-difference gradients on the
@@ -192,7 +209,7 @@ class WeightQNN:
         y = np.asarray(y, float)
         psi = self.encode(X)
         rng = np.random.default_rng(seed)
-        nt, nh = self.n_theta, self.n
+        nt, nh = self.n_theta, self.n_head
         p = np.concatenate([rng.uniform(-np.pi, np.pi, nt), rng.normal(0, 0.5, nh), [0.0]])
         m = np.zeros_like(p)
         v = np.zeros_like(p)
