@@ -43,7 +43,36 @@ circuits. Needs qiskit, qiskit-aer, qiskit-ibm-runtime (fake), qiskit-ionq
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Trained circuits (30 iris inputs, true mean deficit 0.37) and echo circuits
+(5 excited-qubit product states), 1000 shots each:
+
+  backend          deficit error, trained       kept    false deficit of the       2q gates
+                   with qang / without           shots   excited qubit (echo),      trained /
+                                                         with qang / without        echo
+  fake_brisbane    0.079 / 0.257   (3.2x)       0.69    0.66 / 0.77                62 / 108
+  fake_sherbrooke  0.055 / 0.221   (4.0x)       0.72    0.49 / 0.67                62 / 108
+  fake_torino      0.051 / 0.197   (3.8x)       0.74    0.37 / 0.56                62 / 108
+  IonQ aria-1      0.074 / 0.245   (3.3x)       0.74    0.48 / 0.62                38 / 60
+  IonQ forte-1     0.082 / 0.272   (3.3x)       0.70    0.54 / 0.71                38 / 60
+
+  * R1, R2, R4 pass on all five backends; R3 fails on all five.
+  * R1, R2: on the trained circuits the filtered deficit errs by 0.05-0.08
+    (true values around 0.37), 3.2-4.0x less than the raw one. The §98
+    result survives device noise as an error reduction, not as exactness.
+  * R4: without qang every backend reports a false deficit of 0.56-0.77 on
+    the excited qubit of a product state.
+  * R3 FAILS: the filter removes only 15-33% of that false deficit (0.37-0.66
+    remain). The filter discards shots that left the weight-1 sector; the
+    remaining error moves the excitation inside the sector (gate errors,
+    decays inside the compiled RBS gates rotated back into weight 1, §85),
+    10-21% of the kept shots on the excited qubit. Near a pole the deficit
+    amplifies that misplacement: 1 - qg_Z^2 = 4 eps (1 - eps) for a fraction
+    eps of misplaced shots, so 10% of them already read as 0.36.
+  Verdict. On device noise models the filtered radius deficit is a good
+  estimate where the deficit is large (entangled qubits: 3-4x less error),
+  but it is not a reliable test of "no entanglement": in-sector errors, which
+  the filter cannot see, make product states look entangled. A deficit near
+  0 needs an error model or an echo calibration like the one used here.
 """
 
 import argparse
