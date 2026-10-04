@@ -149,7 +149,9 @@ F.radius_profile(bell)        # [0.0, 0.0]: both qubits at the centre of the sph
 CZ, iSWAP, Toffoli and Fredkin can move a qubit to the centre. For a pure global state 1 − r² is the one-tangle
 (known physics: Coffman–Kundu–Wootters, Meyer–Wallach); for a noisy state it mixes entanglement and noise. In a
 definite-weight state r = |qg_Z|, so after the qg filter (equal T1) the deficit is an entanglement measure read
-from Z-basis shots alone (§98). `F.algorithm_radii()` gives the radius of the readout qubits of the 14 algorithms.
+from Z-basis shots alone (§98). On five device noise models (IBM, IonQ) the filter cuts the deficit error 3.2–4.0×,
+but in-sector gate errors still make product states look entangled (§100). `F.algorithm_radii()` gives the radius of
+the readout qubits of the 14 algorithms. Short note: `manuscript/qang_radius.pdf` (Spanish: `manuscript/qang_radio_es.pdf`).
 
 ## Quantum neural networks with and without qang
 
@@ -175,12 +177,13 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | scaling (§94, 108 configurations, 4–8 qubits, weight 1–4, depth 3–24) | the filter has the lower readout error in 106 of 108 (up to 1000×); a closed-form rule, MSE ≈ (1 − z²)/(K·S) with K = (1 − γ)^(weight·depth), predicts the winner in 99% |
 | low kept fraction, unequal T1, dephasing (§96, 405 configurations, K down to 2.6·10⁻⁷) | the filter wins in 399 of 405 and in every configuration with at least 20 kept shots (MSE up to 1871× lower with equal T1, 94× with unequal T1, 58× with dephasing); the rule picks the winner in 342 of 342 with K·S ≥ 5 |
 | the local radius as an entanglement measure (§98) | under equal T1 the filtered deficit 1 − qg_Z² is the noiseless tangle to 3·10⁻¹⁵; on product states it is exactly 0, while the raw readout shows false entanglement of 0.60–0.95 |
-| not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased) |
+| the radius on device noise models (§100, 3 IBM fake backends, IonQ aria-1 and forte-1) | deficit error of trained circuits 0.05–0.08 with qang against 0.20–0.27 without; on product states the filter removes only 15–33% of the false entanglement (in-sector errors pass it) |
+| not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
 `examples/qnn_hardware_qg.py --mode ionq_qpu` (IonQ Forte-1) or `--mode ibm`, and
 `examples/qec_syndrome_destructive_qg.py --mode ibm` (T1 and dephasing from Leung-code syndromes; within 1–4% of the
-calibration on IBM noise models, §93).
+calibration on IBM noise models, §93; the dephasing reads the product mean over the four qubits, §99).
 
 ```python
 from qang.qml import WeightQNN
