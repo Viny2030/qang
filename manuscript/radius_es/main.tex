@@ -42,8 +42,11 @@ simulación pre-registrada (90 configuraciones) coincide con él a $3\times10^{-
 cero, mientras que sin filtro aparece un déficit falso de 0.60--0.95. En cinco modelos de ruido de equipos (tres de IBM,
 dos de IonQ) el filtro reduce entre 3.2 y 4.0 veces el error del déficit en circuitos entrenados, pero quita solo entre
 el 15 y el 33\,\% del déficit falso de un estado producto: los errores que mueven una excitación dentro del sector pasan
-el filtro, y cerca de un polo el déficit los amplifica como $4\varepsilon(1-\varepsilon)$. Dos de diez predicciones
-fallaron y se informan. Todo se reproduce con la librería abierta \texttt{qang} (versión 0.6.6, \texttt{pip install
+el filtro, y cerca de un polo el déficit los amplifica como $4\varepsilon(1-\varepsilon)$. El radio también separa el
+ángulo polar en radianes de la longitud del vector, $\theta=\arccos(\qZ/r)$: este ángulo es exacto con ruido
+despolarizante, donde $\arccos\qZ$ se equivoca hasta 0.7 rad, y es entre 5 y 9 veces más preciso en los modelos de
+ruido de equipos cuando las compuertas de ruido se ejecutan de verdad. Tres de diecinueve predicciones fallaron y se
+informan. Todo se reproduce con la librería abierta \texttt{qang} (versión 0.6.8, \texttt{pip install
 qang}).
 \end{abstract}
 
@@ -146,7 +149,9 @@ la Ref.~\cite{monteverde2026qml} compilado a Qiskit (19 compuertas RBS, 38--62 c
 backends simulados de IBM (Aer) y el simulador en la nube de IonQ con los modelos de ruido aria-1 y forte-1, 1000
 disparos. Circuitos entrenados: 30 entradas de prueba de iris, déficit verdadero medio 0.37. Circuitos de eco: un estado
 de la base excitado, las 15 compuertas entrenadas y su inversa, verdad 0. Cuatro predicciones se registraron antes de
-cualquier corrida con ruido (RESEARCH\_NOTES \S100).
+cualquier corrida con ruido (RESEARCH\_NOTES \S100). Los circuitos de IonQ se enviaron con el conjunto de compuertas
+estándar de IonQ; como se vio en la Sec.~\ref{sec:angle}, su compilador puede simplificar circuitos que contienen identidades, así
+que las filas de eco de IonQ pueden subestimar el ruido (igual muestran un déficit falso de 0.62--0.71).
 
 \begin{table}[h]
 \centering\small
@@ -178,6 +183,52 @@ D=4\varepsilon(1-\varepsilon),
 así que un 10\,\% ya se lee como 0.36. Donde el déficit verdadero es grande, los mismos errores lo cambian poco, y por eso
 los circuitos entrenados salen bien.
 
+\section{El ángulo en radianes, separado del radio}\label{sec:angle}
+
+El sesgo polar mezcla dirección y longitud, $\qZ=r\cos\theta$, así que la lectura habitual del ángulo,
+$\theta=\arccos\qZ$, se corre hacia $\pi/2$ cada vez que el ruido acorta el vector. El radio los separa:
+\begin{equation}\label{eq:theta}
+\theta=\operatorname{atan2}\!\big(\sqrt{\qX^2+\qY^2},\,\qZ\big)=\arccos(\qZ/r).
+\end{equation}
+El ruido despolarizante deja la Ec.~\eqref{eq:theta} igual; el desfase achica solo $\qX,\qY$ y la lleva hacia los
+polos, mientras que $\arccos\qZ$ es entonces exacto; el amortiguamiento mueve los dos. Comparamos las dos lecturas con
+el mismo total de disparos, 3000 por ángulo: con qang, la Ec.~\eqref{eq:theta} con 1000 disparos en cada base X, Y, Z
+(la parte ecuatorial con cuadrados insesgados); sin qang, $\arccos\qZ$ con 3000 disparos en Z (RESEARCH\_NOTES \S102,
+seis predicciones).
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lcc}
+\toprule
+ruido (simulación, 31 ángulos) & con qang & sin qang \\
+\midrule
+despolarizante 0.1 / 0.2 / 0.3 & 0 / 0 / 0 & 0.122 / 0.213 / 0.294 \\
+desfase, coherencia 0.9 / 0.8 / 0.7 & 0.035 / 0.073 / 0.116 & 0 / 0 / 0 \\
+amortiguamiento 0.1 / 0.2 / 0.3 & 0.072 / 0.159 / 0.270 & 0.150 / 0.270 / 0.382 \\
+\midrule
+modelo de ruido de equipo (11 ángulos, 16 compuertas de 2 qubits) & & \\
+IBM brisbane / sherbrooke / torino & 0.053 / 0.029 / 0.041 & 0.267 / 0.207 / 0.374 \\
+IonQ aria-1 / forte-1, compuertas nativas & 0.028 / 0.026 & 0.249 / 0.226 \\
+\bottomrule
+\end{tabular}
+\caption{Error absoluto medio del ángulo polar (rad). Simulación: valores exactos; modelos de ruido de equipos: 3000
+disparos por ángulo.}
+\label{tab:theta}
+\end{table}
+
+Con ruido despolarizante la Ec.~\eqref{eq:theta} es exacta, mientras que $\arccos\qZ$ se equivoca hasta 0.70 rad cerca
+de los polos; con disparos su error cuadrático medio es 5.8 veces menor con $p=0.2$. Con desfase pierde, como estaba
+previsto, y sin ruido las tres bases cuestan un factor 1.6. Con amortiguamiento se equivoca entre un 29 y un 52\,\%
+menos. En los modelos de ruido de IBM el vector se achica casi de manera uniforme y la Ec.~\eqref{eq:theta} es entre 5
+y 9 veces más precisa. En el simulador de IonQ la primera corrida falló: el compilador de IonQ eliminó el bloque de
+ruido (pares de CX que se cancelan), así que el vector no se achicó y ganaron los disparos extra en Z. Un estudio
+posterior con sus propias predicciones (\S103) lo confirmó: con el conjunto de compuertas estándar de IonQ el bloque no
+cambió nada, y enviado como 16 compuertas nativas MS, que IonQ ejecuta tal cual, achicó el vector y la
+Ec.~\eqref{eq:theta} fue entre 8.7 y 9.0 veces más precisa. La regla es simple: si el radio medido es casi 1, conviene
+$\arccos\qZ$ con todos los disparos en Z; si está claramente por debajo de 1 y el ruido no es solo desfase, conviene la
+Ec.~\eqref{eq:theta}. Los circuitos que contienen identidades, como los de eco de arriba, requieren en IonQ el conjunto
+de compuertas nativo.
+
 \section{Discusión}
 
 El radio mide entrelazamiento solo si el registro es puro. La conservación del peso y el filtro qg lo garantizan
@@ -192,19 +243,21 @@ conocidos~\cite{wootters1998,coffman2000,meyer2002,brennen2003}, y también la v
 simetrías~\cite{bonetmonroig2018,mcardle2019}. Lo que agregamos es la combinación: que en circuitos de peso fijo el radio
 es $|\qZ|$ y se lee con disparos en la base Z, que el filtro lo convierte en una medida de entrelazamiento con T1 igual,
 y mediciones de cuánto de eso sobrevive al T1 desigual, al desfase y a los modelos de ruido de equipos, con cada
-predicción registrada antes de su corrida.
+predicción registrada antes de su corrida, y el ángulo en radianes que el radio libera del ruido.
 
 \paragraph{Limitaciones.} Todo el ruido es simulado, incluidos los modelos de ruido de equipos. Los circuitos son
 chicos (4--6 qubits). Los circuitos de eco miden el déficit falso de una sola familia de estados producto. No se afirma
 ventaja cuántica.
 
 \section*{Disponibilidad de código y datos}
-Librería \texttt{qang} 0.6.6 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
+{\raggedright
+Librería \texttt{qang} 0.6.8 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
 \texttt{radius\_deficit}, \texttt{sphere\_area}, \texttt{meyer\_wallach}, \texttt{weight\_sector\_radius},
-\texttt{gate\_radius\_class}, \texttt{algorithm\_radii}), \texttt{qang.statistics} (\texttt{qg2\_unbiased},
-\texttt{radius2\_estimate}). Estudios: \texttt{examples/qg\_radius\_witness\_qg.py} (\S98) y
-\texttt{examples/qg\_radius\_hardware\_qg.py} (\S100), con las predicciones en su encabezado y pruebas en
-\texttt{tests/}; figura: \texttt{manuscript/radius/make\_figure.py}. Repositorio: \url{https://github.com/Viny2030/qang}.
+\texttt{gate\_radius\_class}, \texttt{algorithm\_radii}, \texttt{direction\_from\_qg}), \texttt{qang.statistics}
+(\texttt{qg2\_unbiased}, \texttt{radius2\_estimate}, \texttt{direction\_estimate}). Estudios: \texttt{examples/qg\_radius\_witness\_qg.py} (\S98) y
+\texttt{examples/qg\_radius\_hardware\_qg.py} (\S100), \texttt{examples/qg\_direction\_radians\_qg.py} (\S102) y
+\texttt{examples/qg\_direction\_ionq\_native\_qg.py} (\S103), con las predicciones en su encabezado y pruebas en
+\texttt{tests/}; figura: \texttt{manuscript/radius/make\_figure.py}. Repositorio: \url{https://github.com/Viny2030/qang}.\par}
 
 \section*{Uso de herramientas de IA}
 Herramientas de IA generativa (Anthropic Claude Opus 5.5) asistieron con el código, las verificaciones numéricas y la

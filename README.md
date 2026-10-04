@@ -153,7 +153,7 @@ from Z-basis shots alone (§98). On five device noise models (IBM, IonQ) the fil
 but in-sector gate errors still make product states look entangled (§100). `F.algorithm_radii()` gives the radius of
 the readout qubits of the 14 algorithms. The angle in radians separates from the radius,
 θ = atan2(√(qg_X² + qg_Y²), qg_Z) = arccos(qg_Z / r) (`F.direction_from_qg`): it is exact under depolarizing noise,
-where arccos(qg_Z) drifts towards π/2 (§102). Short note: `manuscript/qang_radius.pdf` (Spanish: `manuscript/qang_radio_es.pdf`).
+where arccos(qg_Z) drifts towards π/2 (§102, §103). Short note: `manuscript/qang_radius.pdf` (Spanish: `manuscript/qang_radio_es.pdf`).
 
 ## Quantum neural networks with and without qang
 

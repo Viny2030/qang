@@ -37,8 +37,11 @@ equals it to $3\times10^{-15}$, and on product states it is exactly zero, while 
 deficit of 0.60--0.95. On five device noise models (three IBM backends, two IonQ) the filter cuts the deficit error of
 trained circuits 3.2--4.0 times, but it removes only 15--33\% of the false deficit of a product state: errors that
 move an excitation inside the sector survive the filter, and near a pole the deficit amplifies them as
-$4\varepsilon(1-\varepsilon)$. Two of ten predictions failed and are reported. Everything is reproduced by the
-open-source library \texttt{qang} (version 0.6.6, \texttt{pip install qang}).
+$4\varepsilon(1-\varepsilon)$. The radius also separates the polar angle in radians from the length of the vector,
+$\theta=\arccos(\qZ/r)$: this angle is exact under depolarizing noise, where $\arccos\qZ$ errs by up to 0.7 rad, and
+it is 5--9 times more accurate on the device noise models once the noise gates are actually executed. Three of
+nineteen predictions failed and are reported. Everything is reproduced by the
+open-source library \texttt{qang} (version 0.6.8, \texttt{pip install qang}).
 \end{abstract}
 
 \section{The question}
@@ -137,7 +140,9 @@ where a decay can be rotated back in. We used the five-qubit weight-1 classifier
 compiled to Qiskit (19 RBS gates, 38--62 native two-qubit gates), on three IBM fake backends (Aer) and the IonQ cloud
 simulator with the aria-1 and forte-1 noise models, 1000 shots. Trained circuits: 30 iris test inputs, true mean
 deficit 0.37. Echo circuits: an excited basis state, the 15 trained gates and their inverse, truth 0. Four predictions
-were committed before any noisy run (RESEARCH\_NOTES \S100).
+were committed before any noisy run (RESEARCH\_NOTES \S100). The IonQ circuits were sent in IonQ's standard gate set;
+as found in Sec.~\ref{sec:angle}, its compiler may simplify circuits that contain identities, so the IonQ echo rows may understate
+the noise (they still show a false deficit of 0.62--0.71).
 
 \begin{table}[h]
 \centering\small
@@ -169,6 +174,49 @@ D=4\varepsilon(1-\varepsilon),
 so 10\% already reads as 0.36. Where the true deficit is large the same errors change it little, which is why the
 trained circuits fare well.
 
+\section{The angle in radians, separated from the radius}\label{sec:angle}
+
+The polar bias mixes direction and length, $\qZ=r\cos\theta$, so the usual angle readout
+$\theta=\arccos\qZ$ drifts towards $\pi/2$ whenever noise shortens the vector. The radius separates them:
+\begin{equation}\label{eq:theta}
+\theta=\operatorname{atan2}\!\big(\sqrt{\qX^2+\qY^2},\,\qZ\big)=\arccos(\qZ/r).
+\end{equation}
+Depolarizing noise leaves Eq.~\eqref{eq:theta} unchanged; dephasing shrinks only $\qX,\qY$ and pulls it towards the
+poles, while $\arccos\qZ$ is then exact; amplitude damping moves both. We compared the two readouts at equal total
+shots, 3000 per angle: with qang, Eq.~\eqref{eq:theta} from 1000 shots in each of the X, Y, Z bases (equatorial part from
+unbiased squares); without qang, $\arccos\qZ$ from 3000 Z shots (RESEARCH\_NOTES \S102, six predictions).
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lcc}
+\toprule
+noise (simulation, 31 angles) & with qang & without qang \\
+\midrule
+depolarizing 0.1 / 0.2 / 0.3 & 0 / 0 / 0 & 0.122 / 0.213 / 0.294 \\
+dephasing, coherence 0.9 / 0.8 / 0.7 & 0.035 / 0.073 / 0.116 & 0 / 0 / 0 \\
+amplitude damping 0.1 / 0.2 / 0.3 & 0.072 / 0.159 / 0.270 & 0.150 / 0.270 / 0.382 \\
+\midrule
+device noise model (11 angles, 16 two-qubit gates) & & \\
+IBM brisbane / sherbrooke / torino & 0.053 / 0.029 / 0.041 & 0.267 / 0.207 / 0.374 \\
+IonQ aria-1 / forte-1, native gates & 0.028 / 0.026 & 0.249 / 0.226 \\
+\bottomrule
+\end{tabular}
+\caption{Mean absolute error of the polar angle (rad). Simulation: exact values; device noise models: 3000 shots per
+angle.}
+\label{tab:theta}
+\end{table}
+
+Under depolarizing noise Eq.~\eqref{eq:theta} is exact while $\arccos\qZ$ errs up to 0.70 rad near the poles; with shots
+its RMSE is 5.8 times lower at $p=0.2$. Under dephasing it loses, as predicted, and without noise the three bases cost
+a factor 1.6 in RMSE. Under amplitude damping it errs 29--52\% less. On the IBM noise models the vector shrinks almost
+uniformly and Eq.~\eqref{eq:theta} is 5--9 times more accurate. On the IonQ simulator the first run failed: the noise
+block (identity pairs of CX) was removed by IonQ's compiler, so the vector did not shrink and the extra Z shots won.
+A follow-up with its own predictions (\S103) confirmed this: in IonQ's standard gate set the block changed nothing,
+and sent as 16 native MS gates, which IonQ runs as given, it shrank the vector and Eq.~\eqref{eq:theta} was 8.7--9.0
+times more accurate. The rule is simple: if the measured radius is close to 1, read $\arccos\qZ$ with all shots in Z;
+if it is clearly below 1 and the noise is not pure dephasing, use Eq.~\eqref{eq:theta}. For circuits that contain
+identities, such as the echo circuits above, IonQ requires the native gate set.
+
 \section{Discussion}
 
 The radius is a measure of entanglement only when the register is pure. Weight conservation and the qg filter make it
@@ -182,18 +230,20 @@ measure are known~\cite{wootters1998,coffman2000,meyer2002,brennen2003}, and so 
 verification~\cite{bonetmonroig2018,mcardle2019}. What we add is the combination: that in fixed-weight circuits the
 radius is $|\qZ|$ and is read from Z-basis shots, that the filter makes it an entanglement measure under equal T1,
 and measurements of how much of that survives unequal T1, dephasing and device noise models, with every prediction
-committed before its run.
+committed before its run, and the angle in radians that the radius frees from the noise.
 
 \paragraph{Limitations.} All noise is simulated, including the device noise models. The circuits are small (4--6
 qubits). The echo circuits measure the false deficit of one family of product states. No quantum advantage is claimed.
 
 \section*{Code and data availability}
-Library \texttt{qang} 0.6.6 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
+{\raggedright
+Library \texttt{qang} 0.6.8 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
 \texttt{radius\_deficit}, \texttt{sphere\_area}, \texttt{meyer\_wallach}, \texttt{weight\_sector\_radius},
-\texttt{gate\_radius\_class}, \texttt{algorithm\_radii}), \texttt{qang.statistics} (\texttt{qg2\_unbiased},
-\texttt{radius2\_estimate}). Studies: \texttt{examples/qg\_radius\_witness\_qg.py} (\S98) and
-\texttt{examples/qg\_radius\_hardware\_qg.py} (\S100), with predictions in their headers and tests in \texttt{tests/};
-figure: \texttt{manuscript/radius/make\_figure.py}. Repository: \url{https://github.com/Viny2030/qang}.
+\texttt{gate\_radius\_class}, \texttt{algorithm\_radii}, \texttt{direction\_from\_qg}), \texttt{qang.statistics}
+(\texttt{qg2\_unbiased}, \texttt{radius2\_estimate}, \texttt{direction\_estimate}). Studies: \texttt{examples/qg\_radius\_witness\_qg.py} (\S98) and
+\texttt{examples/qg\_radius\_hardware\_qg.py} (\S100), \texttt{examples/qg\_direction\_radians\_qg.py} (\S102) and
+\texttt{examples/qg\_direction\_ionq\_native\_qg.py} (\S103), with predictions in their headers and tests in \texttt{tests/};
+figure: \texttt{manuscript/radius/make\_figure.py}. Repository: \url{https://github.com/Viny2030/qang}.\par}
 
 \section*{Acknowledgments and use of AI tools}
 Generative AI tools (Anthropic Claude Opus 5.5) assisted with code, numerical checks and drafting. The author proposed
