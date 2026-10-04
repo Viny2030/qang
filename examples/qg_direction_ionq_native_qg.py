@@ -36,7 +36,34 @@ git-ignored .ionq_key, never printed; the simulator is free)
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+IonQ cloud simulator, 11 angles, mean absolute error of the angle (rad):
+
+  noise model   configuration   2q gates   with qang   without qang
+  aria-1        qis-block       16 cx      0.025       0.012
+  aria-1        qis-none        0          0.034       0.013
+  aria-1        native-block    16 ms      0.028       0.249
+  forte-1       qis-block       16 cx      0.016       0.012
+  forte-1       qis-none        0          0.030       0.015
+  forte-1       native-block    16 ms      0.026       0.226
+
+  * N1, N2, N3 pass on both noise models.
+  * N1: in the QIS gate set the 16 CX change nothing: arccos(qg_Z) errs
+    0.012 with the block and 0.013-0.015 without it. The identity pairs were
+    removed by IonQ's compiler (or ran without noise); the §102 IonQ circuits
+    were in effect Ry(theta) alone.
+  * N2, N3: submitted as 16 native MS gates, which IonQ runs as given, the
+    block shrinks the Bloch vector: arccos(qg_Z) errs 0.23-0.25 rad, and the
+    angle from the three qg values errs 0.026-0.028, 8.7-9.0x less, the same
+    picture as on the IBM noise models (5-9x).
+  Verdict. The §102 failure on IonQ was a property of the circuit, not of the
+  method: with the noise block actually executed, the radius-separated angle
+  wins on every backend tested. Practical consequence for every IonQ study in
+  this repository: circuits that contain identities (echoes, folded gates)
+  must be submitted in the native gate set, or IonQ's compiler may remove
+  them. The §100 echo circuits (U then U^-1) were run in the QIS gate set and
+  may have been partly simplified; their raw false deficit (0.62-0.71) shows
+  that noise remained, but the IonQ rows of §100 should be read with this
+  caveat.
 """
 
 import argparse

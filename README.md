@@ -163,7 +163,7 @@ where arccos(qg_Z) drifts towards π/2 (§102). Short note: `manuscript/qang_rad
 `qang.qml` (qang >= 0.6.4) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(85 so far in this line, §75–§102: 63 passed, 22 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
+(88 so far in this line, §75–§103: 66 passed, 22 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -181,7 +181,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | the local radius as an entanglement measure (§98) | under equal T1 the filtered deficit 1 − qg_Z² is the noiseless tangle to 3·10⁻¹⁵; on product states it is exactly 0, while the raw readout shows false entanglement of 0.60–0.95 |
 | distorting against faithful encoding (§101, 60 runs, weight 2) | no readout trained under T1 beats the filter significantly; the best weight-2 model is the dual encoding with the filter (0.955) |
 | the radius on device noise models (§100, 3 IBM fake backends, IonQ aria-1 and forte-1) | deficit error of trained circuits 0.05–0.08 with qang against 0.20–0.27 without; on product states the filter removes only 15–33% of the false entanglement (in-sector errors pass it) |
-| the angle in radians separated from the radius (§102) | exact under depolarizing noise (arccos(qg_Z) errs 0.12–0.29 rad); 5–9× more accurate on the IBM noise models; loses under pure dephasing, without noise and on the IonQ noise models (three bases cost shots) |
+| the angle in radians separated from the radius (§102, §103) | exact under depolarizing noise (arccos(qg_Z) errs 0.12–0.29 rad); 5–9× more accurate on the IBM noise models and, once the noise gates are sent in IonQ's native gate set, on the IonQ ones (8.7–9.0×); loses under pure dephasing and without noise (three bases cost shots) |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
@@ -232,7 +232,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1245 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1246 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

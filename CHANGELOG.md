@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `examples/qg_direction_ionq_native_qg.py` (§103): the §102 IonQ failure explained. In the QIS gate set IonQ's
+  compiler removed the identity CX pairs; sent as 16 native MS gates the noise acts, and the radius-separated angle
+  is 8.7-9.0x more accurate (N1-N3 pass). Circuits with identities must go to IonQ in the native gate set.
+
 ## [0.6.7] - 2026-10-04
 
 ### Added

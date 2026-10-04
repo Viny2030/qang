@@ -5229,10 +5229,46 @@ no noise, 0.028 against 0.018.
   and the qang angle is 5–9× more accurate. On the IonQ noise models
   arccos(qg_Z) errs only 0.01 rad, at its shot noise, so the extra Z shots win
   (2.1–2.2×). Whether IonQ's compiler removed the identity CX pairs (barriers
-  are not sent) was not checked.
+  are not sent) was not checked. Checked in §103: they were removed; in the
+  native gate set the qang angle wins on IonQ too (8.7–9.0×).
 * **Rule.** If the measured radius is close to 1, use arccos(qg_Z) with all
   shots in Z; if it is clearly below 1 and the noise is not pure dephasing,
   use the radius-separated angle.
+
+## 103. Why the IonQ noise models did not shrink the vector in §102 (`examples/qg_direction_ionq_native_qg.py`)
+
+In §102 the qang angle lost on the IonQ simulator because arccos(qg_Z) erred
+only 0.01 rad: the vector barely shrank. The noise block was 8 pairs of CX
+separated by barriers, and barriers are not sent to the IonQ API.
+Hypothesis: IonQ's compiler cancelled the pairs. Circuits in IonQ's native
+gate set (GPI, GPI2, MS) run as given.
+
+**Predictions, committed before any submission (1b408dd).**
+* N1: in the QIS gate set the block changes the error of arccos(qg_Z) by at most 0.01 rad.
+* N2: in the native gate set arccos(qg_Z) errs > 0.05 rad.
+* N3: in the native gate set the qang angle errs less.
+
+| noise model | configuration | with qang | without qang |
+|---|---|---|---|
+| aria-1 | QIS, 16 CX | 0.025 | 0.012 |
+| aria-1 | QIS, no block | 0.034 | 0.013 |
+| aria-1 | native, 16 MS | 0.028 | 0.249 |
+| forte-1 | QIS, 16 CX | 0.016 | 0.012 |
+| forte-1 | QIS, no block | 0.030 | 0.015 |
+| forte-1 | native, 16 MS | 0.026 | 0.226 |
+
+* **N1–N3 pass on both noise models.**
+* **The CX pairs were removed** (or ran noiselessly) in the QIS gate set: the
+  error is the same with and without the block.
+* **With 16 native MS gates** the vector shrinks; the qang angle is
+  8.7–9.0× more accurate, as on the IBM noise models.
+* **Verdict.** The §102 IonQ failure came from the circuit, not the method;
+  with the block executed, the radius-separated angle wins on every backend.
+* **Consequence for the repository.** Circuits with identities (echoes,
+  folded gates) must go to IonQ in the native gate set. The §100 echo
+  circuits used the QIS gate set and may have been partly simplified (their
+  raw false deficit, 0.62–0.71, shows noise remained); read the IonQ rows of
+  §100 with this caveat.
 
 ## Suggested next steps
 
