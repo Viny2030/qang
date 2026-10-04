@@ -39,7 +39,33 @@ python examples/qnn_echo_calibration_qg.py --mode ionq_sim --noise aria-1 --jobs
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+189 test inputs (iris, cancer, wine, digits), 1000 shots each; 20 echo
+calibrations (5 per dataset) at 4000 shots; noiseless accuracy 0.979:
+
+  backend           accuracy                  decisions that differ    mean |decision value
+                    without / qang / echo     from noiseless           - noiseless|
+                                              without / qang / echo    without / qang / echo
+  fake_brisbane     0.968 / 0.974 / 0.979     2 / 1 / 0                1.53 / 0.76 / 0.33
+  fake_sherbrooke   0.963 / 0.974 / 0.979     3 / 1 / 0                1.26 / 0.61 / 0.29
+  fake_torino       0.963 / 0.979 / 0.979     3 / 0 / 0                1.08 / 0.47 / 0.27
+  IonQ aria-1       0.958 / 0.963 / 0.968     4 / 3 / 2                1.67 / 0.87 / 0.44
+  IonQ forte-1      0.963 / 0.968 / 0.974     3 / 2 / 1                1.60 / 0.80 / 0.43
+  ("echo" = qang + echo calibration; IonQ in the native gate set)
+
+  * L1-L4 pass on all five backends.
+  * L1: the echo calibration cuts the error of the decision value by 43-56%
+    against the filter alone; filter plus echo is 3.7-4.6x below the raw
+    readout.
+  * L2, L3: it changes decisions only towards the noiseless model: over the
+    five backends 15 decisions differ from the noiseless model without qang,
+    7 with qang and 3 with qang + echo (945 readings). On the three IBM noise
+    models filter plus echo reaches the noiseless accuracy (0.979).
+  * L4: the filter alone is at or above the raw readout on every backend.
+  Verdict. The echo calibration reaches the classifier: with five extra
+  circuits per model it halves what the filter leaves in the decision value
+  and recovers the noiseless decisions on the IBM noise models. The accuracy
+  gains are whole inputs (0.5-1.1 points) on wide-margin data; the decision
+  value is where the effect is clear.
 """
 
 import argparse

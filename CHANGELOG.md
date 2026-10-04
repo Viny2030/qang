@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.12] - 2026-10-04
+
+### Added
+- `examples/qnn_echo_calibration_qg.py` (§106): the echo calibration on the §91 classifier (189 inputs) on three
+  IBM fake backends and the IonQ simulator (native). It halves the decision-value error left by the filter; decisions
+  that differ from the noiseless model drop from 15 (raw) and 7 (filter) to 3 (filter + echo) over 945 readings; on
+  the IBM noise models filter + echo reaches the noiseless accuracy (L1-L4 pass).
+
 ## [0.6.11] - 2026-10-04
 
 ### Added

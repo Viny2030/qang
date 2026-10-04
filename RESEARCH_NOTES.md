@@ -5326,6 +5326,37 @@ backend; C4: at least a third less deficit error on average.
   inverting their transfer matrix removes nearly half of what the filter
   leaves.
 
+## 106. Does the echo calibration reach the classifier? (`examples/qnn_echo_calibration_qg.py`)
+
+The §91 model (weight 1, four datasets, 189 test inputs, 1000 shots) on three
+IBM fake backends and the IonQ simulator (native gate set), read without
+qang, with the filter, and with the filter plus the §105 echo calibration (5
+echo circuits per dataset, 4000 shots, M^½).
+
+**Predictions, committed before any noisy run (fa8eda6).** L1: lower
+decision-value error with the echo than with the filter, every backend; L2:
+at least as many decisions agreeing with the noiseless model; L3: accuracy
+not more than 0.5 points below the filter; L4: filter at least as accurate
+as raw.
+
+| backend | accuracy (raw / qang / qang + echo) | decisions differing from noiseless | decision-value error |
+|---|---|---|---|
+| fake brisbane | 0.968 / 0.974 / 0.979 | 2 / 1 / 0 | 1.53 / 0.76 / 0.33 |
+| fake sherbrooke | 0.963 / 0.974 / 0.979 | 3 / 1 / 0 | 1.26 / 0.61 / 0.29 |
+| fake torino | 0.963 / 0.979 / 0.979 | 3 / 0 / 0 | 1.08 / 0.47 / 0.27 |
+| IonQ aria-1 | 0.958 / 0.963 / 0.968 | 4 / 3 / 2 | 1.67 / 0.87 / 0.44 |
+| IonQ forte-1 | 0.963 / 0.968 / 0.974 | 3 / 2 / 1 | 1.60 / 0.80 / 0.43 |
+
+(noiseless accuracy 0.979)
+
+* **L1–L4 pass on all five.** The echo halves the decision-value error left
+  by the filter (−43 to −56%); filter plus echo is 3.7–4.6× below raw.
+* **Decisions move only towards the noiseless model:** 15 differ without
+  qang, 7 with the filter, 3 with filter plus echo (945 readings). On the IBM
+  noise models filter plus echo reaches the noiseless accuracy.
+* **Verdict.** The calibration reaches the classifier; on wide-margin data the
+  accuracy gain is whole inputs, and the decision value shows the effect.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
