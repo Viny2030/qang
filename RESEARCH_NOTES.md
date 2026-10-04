@@ -5294,6 +5294,38 @@ error with qang within 0.03 of §100.
   trained circuits, and in-sector errors still make product states look
   entangled.
 
+## 105. Calibrating in-sector errors with echo circuits (`examples/qg_sector_echo_mitigation_qg.py`)
+
+§100 and §104 left the errors that move an excitation inside the sector. An
+echo circuit (|e_j⟩, the 15 RBS gates and their inverse) should return
+|e_j⟩; its filtered distribution over the five excitation positions is column
+j of a transfer matrix M. Inverting M^(1/2) (the forward circuit has about
+half the echo's gates) on the filtered distribution of a trained circuit
+mitigates the in-sector error, as readout mitigation does for bit flips.
+
+**Predictions, committed before any noisy run (052752d).** C1: lower deficit
+error with qang + echo than qang alone, every backend; C2: M over-corrects
+relative to M^(1/2) on average; C3: lower qg_Z error with the echo, every
+backend; C4: at least a third less deficit error on average.
+
+| backend | without qang | qang | qang + echo (M^½) | qang + echo (M) |
+|---|---|---|---|---|
+| fake brisbane | 0.264 | 0.082 | 0.043 | 0.053 |
+| fake sherbrooke | 0.231 | 0.059 | 0.032 | 0.038 |
+| fake torino | 0.197 | 0.050 | 0.031 | 0.034 |
+| IonQ aria-1 (native) | 0.301 | 0.090 | 0.049 | 0.050 |
+| IonQ forte-1 (native) | 0.285 | 0.089 | 0.047 | 0.039 |
+
+* **C1–C4 pass.** The echo calibration removes 38–47% of the filtered error
+  (45% on average); filter plus echo is 6–7× more accurate than the raw
+  readout.
+* **C2 only on average:** on forte-1 the full M does better than M^½.
+* **The echo diagonal** (0.77–0.92) measures what the filter cannot clean:
+  8–23% of kept shots on the wrong qubit.
+* **Verdict.** In-sector errors are measurable with five echo circuits, and
+  inverting their transfer matrix removes nearly half of what the filter
+  leaves.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

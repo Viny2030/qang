@@ -43,7 +43,33 @@ python examples/qg_sector_echo_mitigation_qg.py --mode ionq_sim --noise aria-1 -
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+30 trained circuits (1000 shots) and 5 echo calibrations (4000 shots) per
+backend; mean absolute error of the deficit 1 - qg_Z^2:
+
+  backend           without   qang    qang + echo   qang + echo   echo diagonal
+                    qang                (M^1/2)       full (M)
+  fake_brisbane     0.264     0.082   0.043 (-47%)   0.053         0.77-0.84
+  fake_sherbrooke   0.231     0.059   0.032 (-46%)   0.038         0.88-0.89
+  fake_torino       0.197     0.050   0.031 (-38%)   0.034         0.90-0.92
+  IonQ aria-1       0.301     0.090   0.049 (-46%)   0.050         0.80-0.82
+  IonQ forte-1      0.285     0.089   0.047 (-47%)   0.039         0.82-0.83
+
+  * C1-C4 pass.
+  * C1, C4: the echo calibration cuts the error of the filtered deficit by
+    38-47% (45% on average) on every backend; with the filter it is 6-7x
+    below the raw readout. qg_Z itself (C3): 0.024-0.037 against 0.039-0.072
+    with the filter alone and 0.14-0.22 without qang.
+  * C2 passes on average (0.040 against 0.043), but not everywhere: on forte-1
+    the full matrix M is better than its square root (0.039 against 0.047),
+    so the forward circuit's in-sector error there is closer to the echo's
+    than to half of it.
+  * The echo diagonal says how much of the sector the filter cannot clean:
+    8-23% of the kept shots of a product state land on another qubit.
+  Verdict. In-sector errors are not invisible after all: five echo circuits
+  measure them, and inverting their transfer matrix on the filtered
+  distribution removes nearly half of what the filter leaves. Filter plus
+  echo calibration is 6-7x more accurate than the raw readout on all five
+  device noise models.
 """
 
 import argparse

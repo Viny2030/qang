@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.10] - 2026-10-04
+
+### Added
+- `examples/qg_sector_echo_mitigation_qg.py` (§105): echo calibration of the errors that move an excitation inside
+  the weight sector. Five echo circuits give a 5x5 transfer matrix; inverting its square root on the filtered
+  distribution removes 38-47% of the remaining deficit error on three IBM fake backends and the IonQ simulator
+  (native); filter plus echo is 6-7x more accurate than the raw readout (C1-C4 pass).
+
 ## [0.6.9] - 2026-10-04
 
 ### Added
