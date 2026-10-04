@@ -537,3 +537,13 @@ def _qaoa_ring4():
             if v > best + 1e-12:
                 best, arg = v, psi
     return arg
+
+
+def direction_from_qg(qx, qy, qz):
+    """Split a qubit's local qg vector into direction (radians) and radius:
+    theta = atan2(sqrt(qg_X^2 + qg_Y^2), qg_Z) = arccos(qg_Z / r),
+    phi = atan2(qg_Y, qg_X), r = sqrt(qg_X^2 + qg_Y^2 + qg_Z^2).
+    Depolarizing noise shrinks r and leaves (theta, phi) unchanged, while
+    arccos(qg_Z) alone moves towards pi/2. Returns (theta, phi, r)."""
+    rho = float(np.hypot(qx, qy))
+    return float(np.arctan2(rho, qz)), float(np.arctan2(qy, qx)), float(np.sqrt(rho * rho + float(qz) ** 2))

@@ -205,3 +205,14 @@ def test_qg2_unbiased_is_exactly_unbiased():
             assert abs(plug - q * q - (1 - q * q) / N) < 1e-12
     est, se = radius2_estimate([(900, 1000), (500, 1000), (500, 1000)])
     assert abs(est - (1000 * 0.8**2 - 3) / 999) < 1e-12 and se > 0
+
+
+def test_direction_estimate_recovers_angle_of_mixed_qubit():
+    import math
+
+    from qang.statistics import direction_estimate
+
+    theta, r, n = 0.6, 0.5, 10**6
+    k = lambda q: (round((1 + q) / 2 * n), n)  # noqa: E731
+    t, r2 = direction_estimate(k(r * math.sin(theta)), k(0.0), k(r * math.cos(theta)))
+    assert abs(t - theta) < 5e-3 and abs(r2 - r * r) < 5e-3

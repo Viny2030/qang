@@ -498,3 +498,15 @@ def radius2_estimate(counts, unbiased: bool = True) -> tuple:
         est += qg2_unbiased(k0, n) if unbiased else q * q
         var += 4.0 * q * q * (1.0 - q * q) / n + 2.0 * (1.0 - q * q) ** 2 / n**2
     return est, math.sqrt(var)
+
+
+def direction_estimate(counts_x, counts_y, counts_z) -> tuple:
+    """Polar angle and radius of one qubit from counts in the three bases,
+    each a pair (k0, n_shots): theta_hat = atan2(sqrt(qg_X^2 + qg_Y^2), qg_Z),
+    with the equatorial part from the unbiased squares (clipped at 0), so the
+    estimate does not drift away from the poles at few shots. Returns
+    (theta_hat, r2_hat) with r2_hat from radius2_estimate."""
+    qz = 2.0 * counts_z[0] / counts_z[1] - 1.0
+    perp2 = max(qg2_unbiased(*counts_x) + qg2_unbiased(*counts_y), 0.0)
+    r2, _ = radius2_estimate([counts_x, counts_y, counts_z])
+    return math.atan2(math.sqrt(perp2), qz), r2

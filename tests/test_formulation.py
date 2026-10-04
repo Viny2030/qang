@@ -241,3 +241,11 @@ def test_weight_sector_radius_is_qg_z():
     qz = [F.local_qg(psi, n, q)[2] for q in range(n)]
     assert F.radius_profile(psi) == pytest.approx([z**2 for z in qz], abs=1e-12)
     assert F.weight_sector_radius(qz) == pytest.approx(F.radius_deficit(psi), abs=1e-12)
+
+
+def test_direction_from_qg_is_invariant_under_depolarizing():
+    for theta, phi in ((0.3, 0.2), (1.2, -2.0), (2.9, 1.0)):
+        q = np.array([math.sin(theta) * math.cos(phi), math.sin(theta) * math.sin(phi), math.cos(theta)])
+        for shrink in (1.0, 0.7, 0.2):
+            t, f, r = F.direction_from_qg(*(shrink * q))
+            assert t == pytest.approx(theta) and f == pytest.approx(phi) and r == pytest.approx(shrink)
