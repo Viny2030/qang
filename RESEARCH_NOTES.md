@@ -4856,7 +4856,8 @@ the four qubits.
   1–4% of the calibration (§88: 1–47%). The floor drops to 2.2–3.0% (§88:
   4.8–9.3%).
 * **Dephasing reads 1.17–1.51× high.** That is within the factor 2 but
-  biased, for a reason not resolved here.
+  biased. Resolved in §99: the syndrome reads the product mean over the four
+  qubits, and against it the fit agrees to 0.99–1.04.
 * **This replaces §88 as the hardware test of §33.** Pending: a real IBM
   device, `python examples/qec_syndrome_destructive_qg.py --mode ibm --yes-i-run-on-hardware`
   (24 four-qubit circuits).
@@ -5074,6 +5075,71 @@ and idle circuits (truth 0).
   global state is pure. In weight-conserving circuits under equal T1 the qg
   filter makes it so exactly, from Z-basis shots alone. Under unequal T1 the
   residue is at most 0.045; under dephasing it is not small.
+
+## 99. Why §93 read dephasing high: the yardstick, not the syndromes (`examples/qec_syndrome_dephasing_target_qg.py`)
+
+Post-hoc diagnosis, not pre-registered. §93 read the damping of four data
+qubits to 1–4% of the calibration, but the dephasing came out 1.17–1.51×
+above it, more at longer delays.
+
+* **Aer follows the model.** The measured XXXX decay (200 000 shots) equals
+  Π_i exp(−t/T2_i) over the four qubits (0.1434 against 0.1450 on brisbane,
+  0.3625 against 0.3622 on sherbrooke, 0.1013 against 0.1021 on torino, at
+  40 µs).
+* **The yardstick was wrong.** XXXX is the coherence of |0000⟩ + |1111⟩, a
+  product over the qubits, so the fitted p is the product mean,
+  (1 − 2p_eff)⁴(1 − γ)² = Π_i √(1 − γ_i)(1 − 2p_i). §93 compared it with the
+  arithmetic mean of the p_i. Every path has one short-T2 qubit (30, 63 and
+  28 µs against 110–332 µs), and then the two means differ.
+
+| backend | worst T2 | fit / arithmetic mean | fit / product mean |
+|---|---|---|---|
+| brisbane | 30 µs | 1.26 / 1.43 / 1.51 | 1.00 / 1.00 / 1.00 |
+| sherbrooke | 63 µs | 1.17 / 1.27 / 1.41 | 1.04 / 1.04 / 1.03 |
+| torino | 28 µs | 1.21 / 1.33 / 1.35 | 0.99 / 1.00 / 1.00 |
+
+(at 40 / 80 / 160 µs)
+
+* **Verdict.** The syndromes were right. With a spread of T2 the XXXX
+  syndrome reads the product mean, which is what limits the logical
+  coherence, so it is the relevant number. §93's M3 stands; a real-device
+  comparison should use the product mean.
+
+## 100. The radius deficit on device noise models (`examples/qg_radius_hardware_qg.py`)
+
+§98 under simulated T1 only; here the §85 circuits (5 qubits, weight 1,
+compiled RBS gates) on three IBM fake backends and the IonQ simulator with
+the aria-1 and forte-1 noise models, 1000 shots. Trained: the 30 iris
+inputs (true mean deficit 0.37). Echo: an excited basis state, the 15 RBS
+gates and their inverse (truth 0, every gate noisy).
+
+**Predictions, committed before any noisy run (517902b).**
+* R1: trained, deficit error lower with qang on every backend.
+* R2: trained, with qang that error ≤ 0.10.
+* R3: echo, the false deficit of the excited qubit with qang < ½ of raw.
+* R4: echo, raw false deficit > 0.2.
+
+| backend | deficit error, trained: qang / raw | kept | echo false deficit: qang / raw | 2q gates |
+|---|---|---|---|---|
+| fake brisbane | 0.079 / 0.257 (3.2×) | 0.69 | 0.66 / 0.77 | 62 / 108 |
+| fake sherbrooke | 0.055 / 0.221 (4.0×) | 0.72 | 0.49 / 0.67 | 62 / 108 |
+| fake torino | 0.051 / 0.197 (3.8×) | 0.74 | 0.37 / 0.56 | 62 / 108 |
+| IonQ aria-1 | 0.074 / 0.245 (3.3×) | 0.74 | 0.48 / 0.62 | 38 / 60 |
+| IonQ forte-1 | 0.082 / 0.272 (3.3×) | 0.70 | 0.54 / 0.71 | 38 / 60 |
+
+* **R1, R2, R4 pass on all five; R3 fails on all five.**
+* **Where the deficit is large** (entangled qubits) the filter cuts its error
+  3.2–4.0×: the §98 result survives device noise as an error reduction, not
+  as exactness.
+* **Why R3 fails.** The filter removes only 15–33% of the false deficit of a
+  product state. What remains is error inside the sector: gate errors and
+  decays inside the compiled RBS gates that move the excitation (§85),
+  10–21% of the kept shots. Near a pole the deficit amplifies it,
+  1 − qg_Z² = 4ε(1 − ε), so 10% misplaced shots already read 0.36.
+* **Verdict.** On device noise the filtered radius is a good estimate of a
+  large deficit, but not a reliable test of "no entanglement": in-sector
+  errors make product states look entangled. A small deficit needs an echo
+  calibration like the one used here.
 
 ## Suggested next steps
 

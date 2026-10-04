@@ -51,8 +51,10 @@ Fake backends (AerSimulator.from_backend), best 4-qubit path, joint fit:
   * M1-M4 pass on all three: no routing; the damping of the four data qubits
     is read to 1-4% of the calibration (§88: 1-47%); the floor drops to
     2.2-3.0% (§88: 4.8-9.3%).
-  * Dephasing reads 1.17-1.51x high: within the factor 2, but biased, for a
-    reason not resolved here.
+  * Dephasing reads 1.17-1.51x high against the arithmetic mean of the four
+    qubits: within the factor 2, but biased. Resolved in §99: the XXXX
+    syndrome reads the product mean, and against it the fit agrees to
+    0.99-1.04 (examples/qec_syndrome_dephasing_target_qg.py).
   Real device: pending (--mode ibm --yes-i-run-on-hardware).
 """
 
