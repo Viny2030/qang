@@ -45,8 +45,8 @@ el 15 y el 33\,\% del déficit falso de un estado producto: los errores que muev
 el filtro, y cerca de un polo el déficit los amplifica como $4\varepsilon(1-\varepsilon)$. El radio también separa el
 ángulo polar en radianes de la longitud del vector, $\theta=\arccos(\qZ/r)$: este ángulo es exacto con ruido
 despolarizante, donde $\arccos\qZ$ se equivoca hasta 0.7 rad, y es entre 5 y 9 veces más preciso en los modelos de
-ruido de equipos cuando las compuertas de ruido se ejecutan de verdad. Tres de diecinueve predicciones fallaron y se
-informan. Todo se reproduce con la librería abierta \texttt{qang} (versión 0.6.8, \texttt{pip install
+ruido de equipos cuando las compuertas de ruido se ejecutan de verdad. Tres de veintitrés predicciones fallaron y se
+informan. Todo se reproduce con la librería abierta \texttt{qang} (versión 0.6.9, \texttt{pip install
 qang}).
 \end{abstract}
 
@@ -150,8 +150,11 @@ backends simulados de IBM (Aer) y el simulador en la nube de IonQ con los modelo
 disparos. Circuitos entrenados: 30 entradas de prueba de iris, déficit verdadero medio 0.37. Circuitos de eco: un estado
 de la base excitado, las 15 compuertas entrenadas y su inversa, verdad 0. Cuatro predicciones se registraron antes de
 cualquier corrida con ruido (RESEARCH\_NOTES \S100). Los circuitos de IonQ se enviaron con el conjunto de compuertas
-estándar de IonQ; como se vio en la Sec.~\ref{sec:angle}, su compilador puede simplificar circuitos que contienen identidades, así
-que las filas de eco de IonQ pueden subestimar el ruido (igual muestran un déficit falso de 0.62--0.71).
+estándar de IonQ; como se vio en la Sec.~\ref{sec:angle}, su compilador puede simplificar circuitos que contienen
+identidades. Una nueva corrida en el conjunto nativo, con sus propias predicciones (\S104), dio el mismo cuadro: entre
+3.2 y 3.3 veces menos error del déficit con el filtro en circuitos entrenados, y un déficit falso en estados producto de
+0.74 (aria-1) y 0.71 (forte-1) sin filtro, del que el filtro quitó el 17\,\%; las filas de eco con el conjunto estándar
+habían subestimado el ruido solo en aria-1.
 
 \begin{table}[h]
 \centering\small
@@ -251,7 +254,7 @@ ventaja cuántica.
 
 \section*{Disponibilidad de código y datos}
 {\raggedright
-Librería \texttt{qang} 0.6.8 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
+Librería \texttt{qang} 0.6.9 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
 \texttt{radius\_deficit}, \texttt{sphere\_area}, \texttt{meyer\_wallach}, \texttt{weight\_sector\_radius},
 \texttt{gate\_radius\_class}, \texttt{algorithm\_radii}, \texttt{direction\_from\_qg}), \texttt{qang.statistics}
 (\texttt{qg2\_unbiased}, \texttt{radius2\_estimate}, \texttt{direction\_estimate}). Estudios: \texttt{examples/qg\_radius\_witness\_qg.py} (\S98) y

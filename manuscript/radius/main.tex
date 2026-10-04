@@ -40,8 +40,8 @@ move an excitation inside the sector survive the filter, and near a pole the def
 $4\varepsilon(1-\varepsilon)$. The radius also separates the polar angle in radians from the length of the vector,
 $\theta=\arccos(\qZ/r)$: this angle is exact under depolarizing noise, where $\arccos\qZ$ errs by up to 0.7 rad, and
 it is 5--9 times more accurate on the device noise models once the noise gates are actually executed. Three of
-nineteen predictions failed and are reported. Everything is reproduced by the
-open-source library \texttt{qang} (version 0.6.8, \texttt{pip install qang}).
+twenty-three predictions failed and are reported. Everything is reproduced by the
+open-source library \texttt{qang} (version 0.6.9, \texttt{pip install qang}).
 \end{abstract}
 
 \section{The question}
@@ -141,8 +141,10 @@ compiled to Qiskit (19 RBS gates, 38--62 native two-qubit gates), on three IBM f
 simulator with the aria-1 and forte-1 noise models, 1000 shots. Trained circuits: 30 iris test inputs, true mean
 deficit 0.37. Echo circuits: an excited basis state, the 15 trained gates and their inverse, truth 0. Four predictions
 were committed before any noisy run (RESEARCH\_NOTES \S100). The IonQ circuits were sent in IonQ's standard gate set;
-as found in Sec.~\ref{sec:angle}, its compiler may simplify circuits that contain identities, so the IonQ echo rows may understate
-the noise (they still show a false deficit of 0.62--0.71).
+as found in Sec.~\ref{sec:angle}, its compiler may simplify circuits that contain identities. A rerun in the native gate
+set, with its own predictions (\S104), gave the same picture: 3.2--3.3 times less deficit error with the filter on
+trained circuits, and a false deficit on product states of 0.74 (aria-1) and 0.71 (forte-1) without the filter, of
+which the filter removed 17\%; the standard-gate-set echo rows had understated the noise on aria-1 only.
 
 \begin{table}[h]
 \centering\small
@@ -237,7 +239,7 @@ qubits). The echo circuits measure the false deficit of one family of product st
 
 \section*{Code and data availability}
 {\raggedright
-Library \texttt{qang} 0.6.8 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
+Library \texttt{qang} 0.6.9 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
 \texttt{radius\_deficit}, \texttt{sphere\_area}, \texttt{meyer\_wallach}, \texttt{weight\_sector\_radius},
 \texttt{gate\_radius\_class}, \texttt{algorithm\_radii}, \texttt{direction\_from\_qg}), \texttt{qang.statistics}
 (\texttt{qg2\_unbiased}, \texttt{radius2\_estimate}, \texttt{direction\_estimate}). Studies: \texttt{examples/qg\_radius\_witness\_qg.py} (\S98) and
