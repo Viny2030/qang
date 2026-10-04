@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `examples/qg_radius_ionq_native_qg.py` (§104): the §100 IonQ part rerun in the native gate set. The conclusions
+  hold (filter 3.2-3.3x more accurate on trained circuits; removes 17% of the false deficit of product states); the
+  QIS echo rows had understated the noise on aria-1 (0.62 against 0.74) (Q1-Q4 pass).
+
 ## [0.6.8] - 2026-10-04
 
 ### Added

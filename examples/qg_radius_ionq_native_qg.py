@@ -28,7 +28,28 @@ printed; the simulator is free)
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+IonQ simulator, native gate set (38 MS gates per trained circuit, 60 per
+echo), 1000 shots, against the §100 QIS-gate-set rows:
+
+  noise model   deficit error, trained       kept    false deficit, echo     filter
+                with / without qang                  with / without qang     removes
+  aria-1        0.091 / 0.298   (3.3x)       0.66    0.61 / 0.74             17%
+     §100 QIS   0.074 / 0.245   (3.3x)       0.74    0.48 / 0.62             22%
+  forte-1       0.089 / 0.289   (3.2x)       0.69    0.59 / 0.71             17%
+     §100 QIS   0.082 / 0.272   (3.3x)       0.70    0.54 / 0.71             23%
+
+  * Q1-Q4 pass on both noise models.
+  * Q1: the raw false deficit of the echo circuits is 0.74 natively against
+    0.62 in §100 on aria-1 (the QIS run understated the noise) and the same
+    (0.71) on forte-1.
+  * Q2, Q4: on the trained circuits the filter keeps its 3.2-3.3x advantage,
+    and the error with qang moves by less than 0.02 (RBS circuits are not
+    identities).
+  * Q3: the filter removes 17% of the false deficit, less than in §100.
+  Verdict. The §100 conclusions hold in IonQ's native gate set: the filtered
+  radius is 3x more accurate where the deficit is large, and it is not a
+  test of "no entanglement". The §100 caveat is resolved: the QIS echo rows
+  understated the noise on aria-1 by 0.12 and not at all on forte-1.
 """
 
 import argparse

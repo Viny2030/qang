@@ -5270,6 +5270,30 @@ gate set (GPI, GPI2, MS) run as given.
   raw false deficit, 0.62–0.71, shows noise remained); read the IonQ rows of
   §100 with this caveat.
 
+## 104. The §100 radius study on IonQ in the native gate set (`examples/qg_radius_ionq_native_qg.py`)
+
+§103 showed that IonQ's compiler removes identities from QIS circuits; the
+§100 echo circuits are identities. Rerun of the §100 IonQ part with every
+circuit transpiled to GPI/GPI2/MS and sent in the native gate set.
+
+**Predictions, committed before any submission (22554eb).** Q1: echo raw
+false deficit at least the §100 value; Q2: trained, lower error with qang;
+Q3: the filter removes less than half of the false deficit; Q4: trained
+error with qang within 0.03 of §100.
+
+| noise model | deficit error, trained (qang / raw) | false deficit, echo (qang / raw) | filter removes |
+|---|---|---|---|
+| aria-1, native | 0.091 / 0.298 | 0.61 / 0.74 | 17% |
+| aria-1, §100 QIS | 0.074 / 0.245 | 0.48 / 0.62 | 22% |
+| forte-1, native | 0.089 / 0.289 | 0.59 / 0.71 | 17% |
+| forte-1, §100 QIS | 0.082 / 0.272 | 0.54 / 0.71 | 23% |
+
+* **Q1–Q4 pass on both.** The QIS echo rows understated the noise on aria-1
+  (0.62 against 0.74) and not on forte-1 (0.71 both).
+* **The §100 conclusions hold:** 3.2–3.3× less error with the filter on
+  trained circuits, and in-sector errors still make product states look
+  entangled.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
