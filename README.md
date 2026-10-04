@@ -151,7 +151,9 @@ CZ, iSWAP, Toffoli and Fredkin can move a qubit to the centre. For a pure global
 definite-weight state r = |qg_Z|, so after the qg filter (equal T1) the deficit is an entanglement measure read
 from Z-basis shots alone (§98). On five device noise models (IBM, IonQ) the filter cuts the deficit error 3.2–4.0×,
 but in-sector gate errors still make product states look entangled (§100). `F.algorithm_radii()` gives the radius of
-the readout qubits of the 14 algorithms. Short note: `manuscript/qang_radius.pdf` (Spanish: `manuscript/qang_radio_es.pdf`).
+the readout qubits of the 14 algorithms. The angle in radians separates from the radius,
+θ = atan2(√(qg_X² + qg_Y²), qg_Z) = arccos(qg_Z / r) (`F.direction_from_qg`): it is exact under depolarizing noise,
+where arccos(qg_Z) drifts towards π/2 (§102). Short note: `manuscript/qang_radius.pdf` (Spanish: `manuscript/qang_radio_es.pdf`).
 
 ## Quantum neural networks with and without qang
 
@@ -161,7 +163,7 @@ the readout qubits of the 14 algorithms. Short note: `manuscript/qang_radius.pdf
 `qang.qml` (qang >= 0.6.4) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(79 so far in this line, §75–§101: 58 passed, 21 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
+(85 so far in this line, §75–§102: 63 passed, 22 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -179,6 +181,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | the local radius as an entanglement measure (§98) | under equal T1 the filtered deficit 1 − qg_Z² is the noiseless tangle to 3·10⁻¹⁵; on product states it is exactly 0, while the raw readout shows false entanglement of 0.60–0.95 |
 | distorting against faithful encoding (§101, 60 runs, weight 2) | no readout trained under T1 beats the filter significantly; the best weight-2 model is the dual encoding with the filter (0.955) |
 | the radius on device noise models (§100, 3 IBM fake backends, IonQ aria-1 and forte-1) | deficit error of trained circuits 0.05–0.08 with qang against 0.20–0.27 without; on product states the filter removes only 15–33% of the false entanglement (in-sector errors pass it) |
+| the angle in radians separated from the radius (§102) | exact under depolarizing noise (arccos(qg_Z) errs 0.12–0.29 rad); 5–9× more accurate on the IBM noise models; loses under pure dephasing, without noise and on the IonQ noise models (three bases cost shots) |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
@@ -229,7 +232,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1241 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1245 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

@@ -57,7 +57,58 @@ python examples/qg_direction_radians_qg.py --part device --mode ionq_sim --noise
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Part 1, simulation (31 angles; exact = infinite shots; RMSE over 200
+repetitions of 3000 shots):
+
+  channel              mean abs error (rad), exact     RMSE (rad)
+                       with qang     without qang      with / without
+  depolarizing 0.1     0             0.122
+  depolarizing 0.2     0             0.213             0.037 / 0.216
+  depolarizing 0.3     0             0.294
+  dephasing 0.9        0.035         0
+  dephasing 0.8        0.073         0
+  dephasing 0.7        0.116         0
+  amp. damping 0.1     0.072         0.150
+  amp. damping 0.2     0.159         0.270
+  amp. damping 0.3     0.270         0.382
+  no noise             0             0                 0.028 / 0.018
+
+Part 2, device noise models (11 angles, Ry(theta) + 16 CX in identity
+pairs, mean abs error in rad):
+
+  backend          with qang   without qang
+  fake_brisbane    0.053       0.267
+  fake_sherbrooke  0.029       0.207
+  fake_torino      0.041       0.374
+  IonQ aria-1      0.026       0.012
+  IonQ forte-1     0.019       0.009
+
+  * A1-A5 pass; A6 fails (passes on the three IBM backends, fails on both
+    IonQ noise models).
+  * A1: under depolarizing noise the angle from the three qg values is exact
+    at every angle; arccos(qg_Z) errs by 0.12-0.29 rad on average and up to
+    0.70 rad near the poles. With shots (p = 0.2) the qang angle has 5.8x
+    lower RMSE.
+  * A2: dephasing is where qang loses: arccos(qg_Z) is exact and the qang
+    angle is pulled towards the poles by 0.03-0.12 rad.
+  * A3: under amplitude damping neither is exact; the qang angle errs 29-52%
+    less on average and its worst case is 2.3-4.5x smaller.
+  * A5: with no noise the cost of reading the radius shows: arccos(qg_Z) has
+    1.6x lower RMSE (three times the Z shots).
+  * A6: on the IBM noise models the Bloch vector shrinks almost uniformly
+    (the error of arccos(qg_Z) grows symmetrically towards both poles, up to
+    0.8 rad), and the qang angle is 5-9x more accurate. On the IonQ noise
+    models arccos(qg_Z) errs by only 0.01 rad, at the level of its shot noise,
+    so the vector barely shrank and the extra Z shots win (2.1-2.2x). Whether
+    IonQ's compiler removed the identity CX pairs (barriers are not sent to
+    the API) was not checked.
+  Verdict. Reading the angle in radians from the three qg values, separated
+  from the radius, removes the depolarizing bias exactly and roughly halves
+  the amplitude-damping bias; it pays for it with three bases and loses when
+  the noise is dephasing or too weak to shorten the vector. A practical rule
+  follows: if the measured radius is close to 1, use arccos(qg_Z) with all
+  shots in Z; if it is clearly below 1 and the noise is not pure dephasing,
+  use the radius-separated angle.
 """
 
 import argparse

@@ -5,6 +5,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.7] - 2026-10-04
+
+### Added
+- `qang.formulation.direction_from_qg` (polar angle and azimuth in radians, separated from the radius) and
+  `qang.statistics.direction_estimate` (the same from counts in three bases, with unbiased squares).
+- `examples/qg_direction_radians_qg.py` (§102): the angle in radians from the three qg values against
+  arccos(qg_Z). Exact under depolarizing noise (arccos(qg_Z) errs 0.12-0.29 rad), 29-52% less error under amplitude
+  damping, worse under pure dephasing and without noise; 5-9x more accurate on the IBM noise models, worse on the IonQ
+  ones where the vector barely shrank (A1-A5 pass; A6 fails).
+
 ## [0.6.6] - 2026-10-04
 
 ### Added
