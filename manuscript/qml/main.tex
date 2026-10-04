@@ -39,7 +39,8 @@ $+16.5$ points at weight~2 ($[11.8,21.2]$), recovering its noiseless accuracy ex
 under the calibrated noise without the filter catches up (differences of $0.1$ points), and the filter
 corrects neither dephasing nor unequal T1 across qubits, although alone it loses less than one point up
 to a $\pm80\%$ spread of $1/T_1$. With noise-aware training and a richer readout, the model without the filter
-is $1.2$ points better: discarding decayed shots can cost accuracy. The weight-2 deficit comes from the
+was $1.2$ points better in one study, but over 60 new runs that gap shrank to $+0.5$ points and was not
+significant. The weight-2 deficit comes from the
 pair-product encoding, not from the readout; with an encoding that fills the whole sector and a full-rank
 readout, weight~2 reaches the weight-1 accuracy. On noise models of IBM and IonQ devices the filter cuts the
 error of the measured $\qZ$ by $2.7$--$3.6\times$; on the IonQ Forte-1 noise model over 189 inputs of four
@@ -49,7 +50,7 @@ and the raw features gains nothing over the filter alone. Over 513 readout confi
 down to $2.6\times10^{-7}$, unequal T1 and dephasing, the filter has the lower readout error whenever about 20 shots
 are kept, and a closed-form rule predicts the winner. These models are classically simulable and no quantum
 advantage is claimed. The filter is a way to make noise-free training valid under relaxation, at a
-shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.5,
+shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.6,
 \texttt{pip install qang}).
 \end{abstract}
 
@@ -67,8 +68,8 @@ mattering?
 
 We answer with exact simulation, a fixed protocol and an explicit comparison. Every reading is taken with
 qang (filtered) and without it (raw), on the same trained parameters or the same initialization. The
-predictions of every study were committed to the repository before the run that tested them. Of 70
-pre-registered predictions in the studies summarized here, 53 passed and 17 failed; the failures are
+predictions of every study were committed to the repository before the run that tested them. Of 79
+pre-registered predictions in the studies summarized here, 58 passed and 21 failed; the failures are
 reported alongside the passes.
 
 \section{Model and theory}
@@ -144,7 +145,9 @@ The predictions that failed:
   weight-2 sector did not help with the $\qZ$ readout;
 \item in Sec.~\ref{sec:scaling}: with less than one kept shot the filter did not lose, contrary to the
   prediction; the raw error of the radius deficit was not smaller at half filling; and three of the four
-  predictions for the two-channel readout, including the replication of the 1.2-point effect above.
+  predictions for the two-channel readout, including the replication of the 1.2-point effect above; on device
+  noise models, the filter removed less than half of the false radius deficit of product states; and three of
+  five predictions on distorting encodings, including a second replication of the 1.2-point effect.
 \end{itemize}
 
 \paragraph{Replication over 60 runs.} The key comparisons were repeated over 5 seeds $\times$ 3 splits
@@ -236,7 +239,12 @@ hardware runs are prepared, with cost confirmations, and pending.
   raw model 1.2 points better above. With the dual encoding that effect did not replicate: trained under T1, the
   filtered model equals the noiseless one (0.953) and the raw one reaches 0.950 ($-0.3$ $[-0.8,0.2]$ points
   against the filter). The two channels equal the raw readout ($-0.0$ $[-0.6,0.6]$) and, at weight~1, the best
-  single readout ($+0.0$ $[-0.4,0.4]$). The earlier gap came with the distorting pair-product encoding.
+  single readout ($+0.0$ $[-0.4,0.4]$).
+\item \textit{Distorting against faithful encoding (60 new runs).} Trained under T1 with the pair-product encoding
+  and the 15-weight readout, the raw model was ahead by $+0.5$ $[-0.7,1.6]$ points, not $1.2$; with the dual encoding
+  it was behind by $-0.4$ $[-1.2,0.4]$, and the difference between the two ($+0.9$ $[-0.6,2.4]$) was not significant.
+  With the 5-weight $\qZ$ readout the filter was better by $0.6$ $[0.1,1.0]$ points. The one case where the filter
+  lost does not hold up as a significant effect.
 \item \textit{Shot cost.} For the $\qZ$ readout of random weight-conserving circuits the filtered error
   follows $(1-z^2)/(KS)$ and the raw error $(r-z)^2+(1-r^2)/S$, with $K$ the kept fraction and $S$ the shots.
   Over 108 configurations (4--8 qubits, weight 1--4, depth 3--24) the filter has the lower error in 106 (up to
@@ -248,7 +256,9 @@ hardware runs are prepared, with cost confirmations, and pending.
 \item \textit{Entanglement after the filter.} In a fixed-weight state each qubit's Bloch radius is $|\qZ|$, and
   for a pure register $1-\qZ^2$ is its entanglement with the rest. Under equal T1 the filtered value equals the
   noiseless one to $3\times10^{-15}$; on product states it is exactly 0, while the raw readout shows a false
-  value of 0.60--0.95.
+  value of 0.60--0.95. On five device noise models (IBM and IonQ) the filter cuts the error of this readout
+  3.2--4.0 times on trained circuits, but errors that move an excitation inside the sector pass the filter and still
+  make product states look entangled.
 \end{itemize}
 
 \section{Discussion}
@@ -263,9 +273,9 @@ dephasing are not corrected. On hardware with a large spread of T1 or strong dep
 complements a noise model and does not replace it. Two practical rules follow from the studies above. Up
 to about a $\pm80\%$ spread of $1/T_1$ across qubits, a network trained on a simulator can be run with the
 filter alone, losing less than one point. When the network is instead trained under the calibrated noise
-with a distorting encoding and a readout with many parameters, the decayed shots were useful data and the filter
-cost about a point; with a faithful encoding this cost disappeared, and adding the raw features to the filtered
-ones gained nothing. For weight-2 models, how the data are loaded matters more than what is read out. The shot
+with a distorting encoding and a readout with many parameters, the decayed shots looked useful in one study (1.2
+points), but over 60 new runs the gap was 0.5 points and not significant; with a faithful encoding it was absent,
+and adding the raw features to the filtered ones gained nothing. For weight-2 models, how the data are loaded matters more than what is read out. The shot
 cost of the filter did not decide against it anywhere in our scaling maps.
 
 \paragraph{Limitations.} All noise is simulated, including the device noise models. There is one
@@ -275,11 +285,11 @@ simulable. A hardware run with the filter is the natural next test.
 
 \section*{Code and data availability}
 
-Models: \texttt{qang.qml} in \texttt{qang} 0.6.5 (\texttt{pip install qang}), NumPy only, with
+Models: \texttt{qang.qml} in \texttt{qang} 0.6.6 (\texttt{pip install qang}), NumPy only, with
 \texttt{WeightQNN} (weights 1 and 2, readouts \texttt{"z"} and \texttt{"zz"}, encodings \texttt{"pairs"}, \texttt{"ring"} and
 \texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}. Hardware-ready script:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM and IonQ). Studies:
-\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S98, with tests in \texttt{tests/}. The Colab
+\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, with tests in \texttt{tests/}. The Colab
 notebooks \texttt{notebooks/qang\_qml.ipynb} (English) and \texttt{qang\_qml\_es.ipynb} (Spanish) install the
 library from PyPI. Repository: \url{https://github.com/Viny2030/qang}.
 

@@ -161,7 +161,7 @@ the readout qubits of the 14 algorithms. Short note: `manuscript/qang_radius.pdf
 `qang.qml` (qang >= 0.6.4) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(70 so far in this line, §75–§98: 53 passed, 17 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
+(79 so far in this line, §75–§101: 58 passed, 21 failed, all reported). Note: `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -169,7 +169,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | question | result |
 |---|---|
 | trained on a simulator, run under T1 (60 runs, §80) | with qang the noiseless accuracy is recovered exactly: +2.5 points at weight 1, +16.5 at weight 2 |
-| trained under the calibrated noise (§80, §81) | without qang the model catches up; with a rich readout and the pair-product encoding it is 1.2 points better (decayed shots carry information) |
+| trained under the calibrated noise (§80, §81, §101) | without qang the model catches up; the one case where it was ahead (§81, pair-product encoding, rich readout, +1.2 points) shrank to +0.5, not significant, over 60 new runs (§101), and with the simple readout the filter is 0.6 points better |
 | two channels, filtered + raw features (§95, 60 runs, `qang="both"`) | with the dual encoding the 1.2-point effect does not replicate: trained under T1 the filtered model equals the noiseless one (0.953), raw 0.950, both channels 0.950; the two channels are safe but add nothing |
 | T1 spread across qubits (§82) | the filter alone loses < 1 point up to a ±80% spread of 1/T1 |
 | weight 2 (§87, §90) | the pair-product encoding limited it; with the `"dual"` encoding and `readout="zz"` weight 2 matches weight 1 (0.947 = 0.947) |
@@ -177,6 +177,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | scaling (§94, 108 configurations, 4–8 qubits, weight 1–4, depth 3–24) | the filter has the lower readout error in 106 of 108 (up to 1000×); a closed-form rule, MSE ≈ (1 − z²)/(K·S) with K = (1 − γ)^(weight·depth), predicts the winner in 99% |
 | low kept fraction, unequal T1, dephasing (§96, 405 configurations, K down to 2.6·10⁻⁷) | the filter wins in 399 of 405 and in every configuration with at least 20 kept shots (MSE up to 1871× lower with equal T1, 94× with unequal T1, 58× with dephasing); the rule picks the winner in 342 of 342 with K·S ≥ 5 |
 | the local radius as an entanglement measure (§98) | under equal T1 the filtered deficit 1 − qg_Z² is the noiseless tangle to 3·10⁻¹⁵; on product states it is exactly 0, while the raw readout shows false entanglement of 0.60–0.95 |
+| distorting against faithful encoding (§101, 60 runs, weight 2) | no readout trained under T1 beats the filter significantly; the best weight-2 model is the dual encoding with the filter (0.955) |
 | the radius on device noise models (§100, 3 IBM fake backends, IonQ aria-1 and forte-1) | deficit error of trained circuits 0.05–0.08 with qang against 0.20–0.27 without; on product states the filter removes only 15–33% of the false entanglement (in-sector errors pass it) |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
@@ -228,7 +229,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1237 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1241 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

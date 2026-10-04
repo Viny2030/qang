@@ -35,7 +35,35 @@ examples/qnn_distorting_encoding_qg.py [seeds]
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Mean test accuracy over 60 runs (5 seeds x 3 splits x 4 datasets), trained
+and evaluated under equal T1 (gamma = 0.08), weight 2:
+
+  model                               filter (qang)   raw (no qang)   both
+  P-zz  pairs, qg_ZZ (the §81 case)   0.925           0.930           0.927
+  P-z   pairs, qg_Z                   0.934           0.928
+  D-zz  dual, qg_ZZ (the §95 case)    0.955           0.951
+
+  Paired differences, mean and 95% CI across seeds (points):
+  P-zz raw - filter   +0.5 [-0.7, +1.6]     P-z  raw - filter   -0.6 [-1.0, -0.1]
+  D-zz raw - filter   -0.4 [-1.2, +0.4]     interaction         +0.9 [-0.6, +2.4]
+  P-zz both - raw     -0.3 [-1.0, +0.4]
+
+  * D2 and D4 pass; D1, D3 and D5 fail.
+  * D1 FAILS: with new seeds the §81 effect is smaller than reported (+0.5
+    points against +1.2) and its CI includes 0. The decayed shots did not
+    help significantly even with the distorting encoding.
+  * D3 FAILS: the direction agrees with the explanation of §95 (raw - filter
+    is +0.5 with the pair-product encoding and -0.4 with the dual one), but
+    the interaction (+0.9 points) is not significant.
+  * D5 FAILS the other way: with the 5-weight qg_Z readout the filtered model
+    is better, by 0.6 [0.1, 1.0] points.
+  * D2, D4: with the dual encoding raw is not ahead, and the two channels are
+    within 0.5 points of raw.
+  Verdict. The one case where qang lost (§81) does not hold up as a
+  significant effect: over 60 new runs no readout trained under T1 beats the
+  filter significantly, in any encoding, and with the simple readout the
+  filter is significantly better. The faithful encoding (dual) remains the
+  best weight-2 model (0.955), with the filter.
 """
 
 import json

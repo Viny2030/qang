@@ -5,6 +5,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.6] - 2026-10-04
+
+### Added
+- `examples/qg_radius_hardware_qg.py` (§100): the radius deficit on three IBM fake backends and the IonQ simulator
+  (aria-1, forte-1). The filter cuts the deficit error of trained circuits 3.2-4.0x, but removes only 15-33% of the
+  false deficit of a product state, because errors that move an excitation inside the sector pass it (R1, R2, R4
+  pass; R3 fails).
+- `examples/qec_syndrome_dephasing_target_qg.py` (§99, post hoc): the §93 dephasing bias is the yardstick; the XXXX
+  syndrome reads the product mean over the four qubits, and against it the fit agrees to 0.99-1.04.
+- `examples/qnn_distorting_encoding_qg.py` (§101): distorting against faithful encoding over 60 new runs; the §81
+  effect (raw ahead under noise-aware training) shrinks to +0.5 points, not significant, and with the qg_Z readout
+  the filter is significantly better (D2, D4 pass; D1, D3, D5 fail).
+- A short note on the local Bloch radius, `manuscript/qang_radius.pdf` (Spanish `manuscript/qang_radio_es.pdf`, Word
+  versions, figure), and its Zenodo record.
+
+### Changed
+- The QML note (`manuscript/qang_qml[_es]`, PDF and Word) updated with §100 and §101: the one case where the filter
+  lost (§81) does not hold up as a significant effect (79 predictions: 58 pass, 21 fail).
+
 ## [0.6.5] - 2026-10-03
 
 ### Added

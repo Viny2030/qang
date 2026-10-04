@@ -5141,6 +5141,45 @@ gates and their inverse (truth 0, every gate noisy).
   errors make product states look entangled. A small deficit needs an echo
   calibration like the one used here.
 
+## 101. When do the decayed shots help? Distorting against faithful encoding (`examples/qnn_distorting_encoding_qg.py`)
+
+§81 found the one case where qang lost (pair-product encoding, qg_ZZ
+readout, trained under T1: raw +1.2 points); §95 found no such effect with
+the dual encoding and suggested that the distortion was the cause. This
+study tests that in one design with new seeds (1010–1014, 60 runs per
+model), all models weight 2 and trained and evaluated under equal T1
+(γ = 0.08).
+
+**Predictions, committed before the run (d4fcbaa).**
+* D1: pairs + qg_ZZ, raw − filter > 0 with the CI above 0 (§81 replicates).
+* D2: dual + qg_ZZ, raw − filter ≤ +0.5 points.
+* D3: the interaction (pairs minus dual) > 0 with the CI above 0.
+* D4: pairs + qg_ZZ, both channels ≥ raw − 0.5 points.
+* D5: pairs + qg_Z, |raw − filter| < 0.5 points.
+
+| model | filter (qang) | raw (no qang) | both |
+|---|---|---|---|
+| pairs, qg_ZZ (the §81 case) | 0.925 | 0.930 | 0.927 |
+| pairs, qg_Z | 0.934 | 0.928 | |
+| dual, qg_ZZ (the §95 case) | 0.955 | 0.951 | |
+
+Paired differences (points, 95% CI across seeds): pairs + qg_ZZ raw − filter
++0.5 [−0.7, +1.6]; pairs + qg_Z −0.6 [−1.0, −0.1]; dual + qg_ZZ −0.4
+[−1.2, +0.4]; interaction +0.9 [−0.6, +2.4]; both − raw −0.3 [−1.0, +0.4].
+
+* **D2 and D4 pass; D1, D3 and D5 fail.**
+* **D1 fails:** with new seeds the §81 effect is +0.5 points, not +1.2, and
+  its CI includes 0.
+* **D3 fails:** the direction agrees with the §95 explanation (+0.5 with
+  pairs, −0.4 with dual), but the interaction is not significant.
+* **D5 fails the other way:** with the qg_Z readout the filter is better by
+  0.6 [0.1, 1.0] points.
+* **Verdict.** The one case where qang lost does not hold up as a
+  significant effect. Over 60 new runs no readout trained under T1 beats the
+  filter significantly, in any encoding, and with the simple readout the
+  filter is significantly better. The dual encoding with the filter remains
+  the best weight-2 model (0.955).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
