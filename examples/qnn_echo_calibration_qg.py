@@ -84,8 +84,9 @@ def get_counts(mode, name, noise, circuits, shots, jobs_path):
         ids.append(backend.run(tc[k], shots=shots[k], noise_model=noise).job_id())
         if jobs_path:
             json.dump(ids, open(jobs_path, "w"))
-    out = []
-    for jid, s in zip(ids, shots):
+    cache_path = jobs_path + ".counts" if jobs_path else None
+    out = json.load(open(cache_path)) if cache_path and os.path.exists(cache_path) else []
+    for jid, s in list(zip(ids, shots))[len(out):]:
         for attempt in range(20):
             try:
                 probs = backend.retrieve_job(jid).get_probabilities()
@@ -95,6 +96,8 @@ def get_counts(mode, name, noise, circuits, shots, jobs_path):
                 if attempt == 19:
                     raise
                 time.sleep(15)
+        if cache_path:  # retrieved counts are cached, so a long retrieval resumes
+            json.dump(out, open(cache_path, "w"))
     return out
 
 
