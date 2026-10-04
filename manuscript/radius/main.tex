@@ -39,9 +39,10 @@ trained circuits 3.2--4.0 times, but it removes only 15--33\% of the false defic
 move an excitation inside the sector survive the filter, and near a pole the deficit amplifies them as
 $4\varepsilon(1-\varepsilon)$. The radius also separates the polar angle in radians from the length of the vector,
 $\theta=\arccos(\qZ/r)$: this angle is exact under depolarizing noise, where $\arccos\qZ$ errs by up to 0.7 rad, and
-it is 5--9 times more accurate on the device noise models once the noise gates are actually executed. Three of
-twenty-three predictions failed and are reported. Everything is reproduced by the
-open-source library \texttt{qang} (version 0.6.9, \texttt{pip install qang}).
+it is 5--9 times more accurate on the device noise models once the noise gates are actually executed. Five echo circuits measure the in-sector errors, and inverting their
+transfer matrix removes 38--47\% of what the filter leaves, so that filter plus calibration is 6--7 times more accurate
+than the raw readout. Three of twenty-seven predictions failed and are reported. Everything is reproduced by the
+open-source library \texttt{qang} (version 0.6.11, \texttt{pip install qang}).
 \end{abstract}
 
 \section{The question}
@@ -176,6 +177,38 @@ D=4\varepsilon(1-\varepsilon),
 so 10\% already reads as 0.36. Where the true deficit is large the same errors change it little, which is why the
 trained circuits fare well.
 
+\section{Calibrating the in-sector errors}
+
+The errors that survive the filter can be measured. An echo circuit that prepares the sector state $|e_j\rangle$ and
+runs the circuit and its inverse should return $|e_j\rangle$; its filtered distribution over the sector states is column
+$j$ of a transfer matrix $M$, with $M_{ij}=P(\text{measured }i\mid\text{prepared }j)$. The forward circuit has about half
+the echo's gates, so we model its in-sector error by $M^{1/2}$ and invert it on the filtered distribution of each
+trained circuit (non-negative least squares on the simplex), as readout mitigation does for bit flips
+(\texttt{qang.sectors.echo\_transfer\_matrix}, \texttt{unmix\_sector}). Four predictions were committed before the run
+(RESEARCH\_NOTES \S105); five echo circuits at 4000 shots calibrate each backend.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lcccc}
+\toprule
+backend & without qang & qang & qang + echo ($M^{1/2}$) & qang + echo ($M$) \\
+\midrule
+IBM brisbane & 0.264 & 0.082 & 0.043 & 0.053 \\
+IBM sherbrooke & 0.231 & 0.059 & 0.032 & 0.038 \\
+IBM torino & 0.197 & 0.050 & 0.031 & 0.034 \\
+IonQ aria-1 (native) & 0.301 & 0.090 & 0.049 & 0.050 \\
+IonQ forte-1 (native) & 0.285 & 0.089 & 0.047 & 0.039 \\
+\bottomrule
+\end{tabular}
+\caption{Mean absolute error of the radius deficit on the 30 trained circuits, with the echo calibration.}
+\label{tab:echo}
+\end{table}
+
+All four predictions passed. The calibration removes 38--47\% of the error the filter leaves, and filter plus echo is
+6--7 times more accurate than the raw readout on every backend (Table~\ref{tab:echo}). The square root beats the full
+matrix on average, but not on forte-1, where the forward circuit's in-sector error is closer to the echo's own. The
+diagonal of $M$ (0.77--0.92) measures what the filter cannot clean.
+
 \section{The angle in radians, separated from the radius}\label{sec:angle}
 
 The polar bias mixes direction and length, $\qZ=r\cos\theta$, so the usual angle readout
@@ -225,7 +258,8 @@ The radius is a measure of entanglement only when the register is pure. Weight c
 so exactly under one noise model, equal T1, and they do it from the Z-basis shots of the readout, with a shot cost
 known in advance. On device noise the filtered radius remains a good estimate of a large deficit, but it is not a
 reliable test of ``no entanglement'': in-sector errors, invisible to the filter, make product states look entangled.
-A small deficit therefore needs a calibration, for example the echo circuit used here, or an error model.
+A small deficit therefore
+needs a calibration; the echo calibration of Sec.~6 removes nearly half of the remaining error.
 
 \paragraph{What is new and what is not.} The radius, its relation to purity, the one-tangle and the Meyer--Wallach
 measure are known~\cite{wootters1998,coffman2000,meyer2002,brennen2003}, and so is symmetry
@@ -239,9 +273,10 @@ qubits). The echo circuits measure the false deficit of one family of product st
 
 \section*{Code and data availability}
 {\raggedright
-Library \texttt{qang} 0.6.9 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
+Library \texttt{qang} 0.6.11 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
 \texttt{radius\_deficit}, \texttt{sphere\_area}, \texttt{meyer\_wallach}, \texttt{weight\_sector\_radius},
-\texttt{gate\_radius\_class}, \texttt{algorithm\_radii}, \texttt{direction\_from\_qg}), \texttt{qang.statistics}
+\texttt{gate\_radius\_class}, \texttt{algorithm\_radii}, \texttt{direction\_from\_qg}), \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix},
+\texttt{unmix\_sector}), \texttt{qang.statistics}
 (\texttt{qg2\_unbiased}, \texttt{radius2\_estimate}, \texttt{direction\_estimate}). Studies: \texttt{examples/qg\_radius\_witness\_qg.py} (\S98) and
 \texttt{examples/qg\_radius\_hardware\_qg.py} (\S100), \texttt{examples/qg\_direction\_radians\_qg.py} (\S102) and
 \texttt{examples/qg\_direction\_ionq\_native\_qg.py} (\S103), with predictions in their headers and tests in \texttt{tests/};

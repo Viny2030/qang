@@ -18,8 +18,15 @@ without any noise model:
     pass; it writes the result to ``property_set["sector_exposure"]``, so it
     can sit in a PassManager next to the passes that choose a compilation.
 
+  * ``echo_transfer_matrix`` and ``unmix_sector``: echo calibration of the
+    errors the filter cannot see, those that move an excitation inside the
+    sector (§105). Echo circuits (each sector basis state, the circuit and its
+    inverse) give the transfer matrix M between sector states; inverting
+    M^power on the filtered distribution mitigates the in-sector error, as
+    readout mitigation does for bit flips.
+
 Only ``sector_exposure`` and ``SectorExposurePass`` need Qiskit; importing the
-module does not.
+module does not (``unmix_sector`` uses SciPy).
 """
 
 from __future__ import annotations
@@ -112,3 +119,59 @@ else:  # pragma: no cover
     class SectorExposurePass:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs):
             raise ImportError("SectorExposurePass requires Qiskit: pip install qiskit")
+
+
+# --------------------------------------------------------------------- #
+# echo calibration of in-sector errors (§105)
+# --------------------------------------------------------------------- #
+def sector_states(n_qubits: int, weight: int) -> np.ndarray:
+    """Basis indices of the weight-``weight`` sector, in increasing order."""
+    return np.where(hamming_weights(n_qubits) == weight)[0]
+
+
+def echo_transfer_matrix(echo_probs, n_qubits: int, weight: int, prepared=None) -> np.ndarray:
+    """Transfer matrix between sector states from echo runs.
+
+    ``echo_probs[j]`` is the outcome distribution (or counts, length 2**n) of an
+    echo circuit that prepared the sector basis state ``prepared[j]``
+    (default: every state of ``sector_states`` in order). Column j of the
+    result is the filtered distribution of run j over the sector states, so
+    M[i, j] = P(measured sector state i | prepared j). With fewer echo runs
+    than sector states, the prepared columns are filled and the others are
+    left as the identity (no correction for them)."""
+    states = sector_states(n_qubits, weight)
+    pos = {int(s): i for i, s in enumerate(states)}
+    prepared = states if prepared is None else np.asarray(prepared)
+    if len(prepared) != len(echo_probs):
+        raise ValueError("need one echo distribution per prepared state.")
+    M = np.eye(len(states))
+    for s, p in zip(prepared, echo_probs):
+        f, _ = filter_distribution(p, n_qubits, weight)
+        M[:, pos[int(s)]] = f[states]
+    return M
+
+
+def matrix_power_stochastic(M, power: float) -> np.ndarray:
+    """Real, non-negative, column-normalized principal power of a transfer matrix
+    (power 0.5: the forward half of an echo)."""
+    from scipy.linalg import fractional_matrix_power
+
+    P = np.clip(np.real(fractional_matrix_power(np.asarray(M, float), power)), 0.0, None)
+    return P / P.sum(axis=0, keepdims=True)
+
+
+def unmix_sector(probs, M, n_qubits: int, weight: int, power: float = 0.5) -> np.ndarray:
+    """Filter ``probs`` to the sector and undo the in-sector errors measured by
+    ``echo_transfer_matrix``: non-negative least squares for M^power x = f,
+    normalized. Returns a full-length distribution (zero outside the
+    sector). power 0.5 models a circuit with half the echo's gates; 1.0 uses
+    M itself."""
+    from scipy.optimize import nnls
+
+    states = sector_states(n_qubits, weight)
+    f, _ = filter_distribution(probs, n_qubits, weight)
+    A = np.asarray(M, float) if power == 1.0 else matrix_power_stochastic(M, power)
+    x, _ = nnls(A, f[states])
+    out = np.zeros(2**n_qubits)
+    out[states] = x / x.sum() if x.sum() > 0 else 1.0 / len(states)
+    return out

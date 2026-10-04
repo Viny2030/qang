@@ -23,7 +23,7 @@ Reference implementation and computational toolkit for:
 |---|---|
 | `qang.core` | the qg_Z / qg_S unit, Bloch-sphere round trips |
 | `qang.formulation` | the 15 main gates and 14 main algorithms in qg units (qg'_P = qg_{U†PU}), and the local radius r² = qg_X² + qg_Y² + qg_Z² |
-| `qang.sectors` | the qg symmetry filter and Hamming-weight tools |
+| `qang.sectors` | the qg symmetry filter and Hamming-weight tools; echo calibration of in-sector errors |
 | `qang.statistics` | qg_Z intervals from shot counts (Bayesian, Wilson, delta method); unbiased qg² and r² |
 | `qang.qml` | weight-conserving QNN classifiers read with and without the qg filter |
 | `qang.polarization` | polarized light: Stokes parameters are qg values, Mueller matrices are the qg gate rule |
@@ -182,7 +182,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | distorting against faithful encoding (§101, 60 runs, weight 2) | no readout trained under T1 beats the filter significantly; the best weight-2 model is the dual encoding with the filter (0.955) |
 | the radius on device noise models (§100, §104 in IonQ's native gate set, 3 IBM fake backends, IonQ aria-1 and forte-1) | deficit error of trained circuits 0.05–0.08 with qang against 0.20–0.27 without; on product states the filter removes only 15–33% of the false entanglement (in-sector errors pass it) |
 | the angle in radians separated from the radius (§102, §103) | exact under depolarizing noise (arccos(qg_Z) errs 0.12–0.29 rad); 5–9× more accurate on the IBM noise models and, once the noise gates are sent in IonQ's native gate set, on the IonQ ones (8.7–9.0×); loses under pure dephasing and without noise (three bases cost shots) |
-| echo calibration of in-sector errors (§105, five device noise models) | five echo circuits measure where the filter's kept shots land; inverting that 5×5 matrix removes 38–47% of the remaining deficit error; filter + echo is 6–7× more accurate than the raw readout |
+| echo calibration of in-sector errors (§105, five device noise models) | five echo circuits measure where the filter's kept shots land; inverting that 5×5 matrix removes 38–47% of the remaining deficit error; filter + echo is 6–7× more accurate than the raw readout (`qang.sectors.echo_transfer_matrix`, `unmix_sector`) |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
@@ -233,7 +233,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1249 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1251 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

@@ -45,8 +45,9 @@ el 15 y el 33\,\% del déficit falso de un estado producto: los errores que muev
 el filtro, y cerca de un polo el déficit los amplifica como $4\varepsilon(1-\varepsilon)$. El radio también separa el
 ángulo polar en radianes de la longitud del vector, $\theta=\arccos(\qZ/r)$: este ángulo es exacto con ruido
 despolarizante, donde $\arccos\qZ$ se equivoca hasta 0.7 rad, y es entre 5 y 9 veces más preciso en los modelos de
-ruido de equipos cuando las compuertas de ruido se ejecutan de verdad. Tres de veintitrés predicciones fallaron y se
-informan. Todo se reproduce con la librería abierta \texttt{qang} (versión 0.6.9, \texttt{pip install
+ruido de equipos cuando las compuertas de ruido se ejecutan de verdad. Cinco circuitos de eco miden los errores dentro del sector, e
+invertir su matriz de transferencia quita entre el 38 y el 47\,\% de lo que deja el filtro: el filtro más la calibración
+es entre 6 y 7 veces más preciso que la lectura cruda. Tres de veintisiete predicciones fallaron y se informan. Todo se reproduce con la librería abierta \texttt{qang} (versión 0.6.11, \texttt{pip install
 qang}).
 \end{abstract}
 
@@ -186,6 +187,39 @@ D=4\varepsilon(1-\varepsilon),
 así que un 10\,\% ya se lee como 0.36. Donde el déficit verdadero es grande, los mismos errores lo cambian poco, y por eso
 los circuitos entrenados salen bien.
 
+\section{Calibrar los errores dentro del sector}
+
+Los errores que pasan el filtro se pueden medir. Un circuito de eco que prepara el estado del sector $|e_j\rangle$ y
+ejecuta el circuito y su inverso debería devolver $|e_j\rangle$; su distribución filtrada sobre los estados del sector
+es la columna $j$ de una matriz de transferencia $M$, con $M_{ij}=P(\text{se mide }i\mid\text{se preparó }j)$. El
+circuito de ida tiene más o menos la mitad de las compuertas del eco, así que modelamos su error dentro del sector con
+$M^{1/2}$ y lo invertimos sobre la distribución filtrada de cada circuito entrenado (mínimos cuadrados no negativos sobre
+el símplex), como hace la mitigación de lectura con los errores de bit (\texttt{qang.sectors.echo\_transfer\_matrix},
+\texttt{unmix\_sector}). Cuatro predicciones se registraron antes de correr (RESEARCH\_NOTES \S105); cinco circuitos de
+eco con 4000 disparos calibran cada backend.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lcccc}
+\toprule
+backend & sin qang & qang & qang + eco ($M^{1/2}$) & qang + eco ($M$) \\
+\midrule
+IBM brisbane & 0.264 & 0.082 & 0.043 & 0.053 \\
+IBM sherbrooke & 0.231 & 0.059 & 0.032 & 0.038 \\
+IBM torino & 0.197 & 0.050 & 0.031 & 0.034 \\
+IonQ aria-1 (nativo) & 0.301 & 0.090 & 0.049 & 0.050 \\
+IonQ forte-1 (nativo) & 0.285 & 0.089 & 0.047 & 0.039 \\
+\bottomrule
+\end{tabular}
+\caption{Error absoluto medio del déficit de radio en los 30 circuitos entrenados, con la calibración por eco.}
+\label{tab:echo}
+\end{table}
+
+Las cuatro predicciones se cumplieron. La calibración quita entre el 38 y el 47\,\% del error que deja el filtro, y el
+filtro más el eco es entre 6 y 7 veces más preciso que la lectura cruda en todos los backends (Tabla~\ref{tab:echo}).
+La raíz cuadrada gana a la matriz completa en promedio, pero no en forte-1, donde el error del circuito de ida se parece
+más al del eco completo. La diagonal de $M$ (0.77--0.92) mide lo que el filtro no puede limpiar.
+
 \section{El ángulo en radianes, separado del radio}\label{sec:angle}
 
 El sesgo polar mezcla dirección y longitud, $\qZ=r\cos\theta$, así que la lectura habitual del ángulo,
@@ -238,8 +272,8 @@ El radio mide entrelazamiento solo si el registro es puro. La conservación del 
 exactamente bajo un modelo de ruido, T1 igual, y lo hacen con los disparos en la base Z de la lectura, con un costo en
 disparos conocido de antemano. Con el ruido de un equipo, el radio filtrado sigue siendo una buena estimación de un
 déficit grande, pero no es una prueba confiable de ``no hay entrelazamiento'': los errores dentro del sector, invisibles
-para el filtro, hacen que los estados producto parezcan entrelazados. Un déficit chico necesita una calibración, por
-ejemplo el circuito de eco usado aquí, o un modelo de error.
+para el filtro, hacen que los estados producto parezcan entrelazados. Un déficit chico necesita una calibración; la
+calibración por eco de la Sec.~6 quita casi la mitad del error restante.
 
 \paragraph{Qué es nuevo y qué no.} El radio, su relación con la pureza, el one-tangle y la medida de Meyer--Wallach son
 conocidos~\cite{wootters1998,coffman2000,meyer2002,brennen2003}, y también la verificación de
@@ -254,9 +288,10 @@ ventaja cuántica.
 
 \section*{Disponibilidad de código y datos}
 {\raggedright
-Librería \texttt{qang} 0.6.9 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
+Librería \texttt{qang} 0.6.11 (MIT, \texttt{pip install qang}): \texttt{qang.formulation} (\texttt{radius\_profile},
 \texttt{radius\_deficit}, \texttt{sphere\_area}, \texttt{meyer\_wallach}, \texttt{weight\_sector\_radius},
-\texttt{gate\_radius\_class}, \texttt{algorithm\_radii}, \texttt{direction\_from\_qg}), \texttt{qang.statistics}
+\texttt{gate\_radius\_class}, \texttt{algorithm\_radii}, \texttt{direction\_from\_qg}), \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix},
+\texttt{unmix\_sector}), \texttt{qang.statistics}
 (\texttt{qg2\_unbiased}, \texttt{radius2\_estimate}, \texttt{direction\_estimate}). Estudios: \texttt{examples/qg\_radius\_witness\_qg.py} (\S98) y
 \texttt{examples/qg\_radius\_hardware\_qg.py} (\S100), \texttt{examples/qg\_direction\_radians\_qg.py} (\S102) y
 \texttt{examples/qg\_direction\_ionq\_native\_qg.py} (\S103), con las predicciones en su encabezado y pruebas en

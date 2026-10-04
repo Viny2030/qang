@@ -70,3 +70,31 @@ def test_exposure_ranks_compilations():
         assert by[("number-conserving", dt)]["leak"] < 0.02
         assert by[("3 CNOT", dt)]["exposure"] > by[("MS rotations", dt)]["exposure"]
         assert by[("3 CNOT", dt)]["leak"] > by[("MS rotations", dt)]["leak"]
+
+
+def test_echo_transfer_matrix_and_unmix_sector():
+    pytest.importorskip("scipy")
+    from qang.sectors import echo_transfer_matrix, sector_states, unmix_sector
+
+    n, k = 4, 2
+    states = sector_states(n, k)
+    rng = np.random.default_rng(3)
+    m = len(states)
+    A = 0.9 * np.eye(m) + rng.uniform(0, 0.1 / (m - 1), (m, m)) * (1 - np.eye(m))
+    A /= A.sum(axis=0, keepdims=True)
+    M = A @ A  # an echo: twice the forward error
+    echo = []
+    for j in range(m):
+        p = np.zeros(2**n)
+        p[states] = 0.8 * M[:, j]
+        p[0] = 0.2  # decayed out of the sector
+        echo.append(p)
+    M_est = echo_transfer_matrix(echo, n, k)
+    assert np.allclose(M_est, M, atol=1e-12)
+    x = rng.dirichlet(np.ones(m))
+    p = np.zeros(2**n)
+    p[states] = 0.7 * (A @ x)
+    p[1] = 0.3  # decayed to weight 1, outside the sector
+    out = unmix_sector(p, M_est, n, k, power=0.5)
+    assert np.allclose(out[states], x, atol=1e-6)
+    assert np.isclose(out.sum(), 1.0) and np.allclose(np.delete(out, states), 0)

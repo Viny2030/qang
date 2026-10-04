@@ -5,6 +5,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.11] - 2026-10-04
+
+### Added
+- `qang.sectors.echo_transfer_matrix`, `unmix_sector`, `sector_states` and `matrix_power_stochastic`: echo
+  calibration of the errors that move an excitation inside a weight sector (§105), for any weight; tests check
+  that they reproduce the §105 example.
+
+### Changed
+- The radius note (EN/ES, PDF and Word) gains a section on the echo calibration (27 predictions, 3 failed).
+
 ## [0.6.10] - 2026-10-04
 
 ### Added
