@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- QML notebooks (EN/ES): section 14, dephasing with the filter plus zero-noise extrapolation and with noise-aware
+  training with the filter (exact and 1000 shots, with and without qang); QML note (EN/ES, PDF and Word) with §118.
 - `examples/qnn_dephasing_zne_qg.py` (§118): dephasing with the filter plus zero-noise extrapolation (F6: with equal T1
   the filtered readout equals the dephasing-only readout, tested); Z2, Z5 pass; Z1, Z3, Z4 fail; noise-aware training
   with the filter recovers the noiseless accuracy under dephasing.

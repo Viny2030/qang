@@ -73,6 +73,15 @@ T = {
         "every T1 gets 1.5 times shorter. Over 40 runs (§117) this model was within 0.5 points of noiseless (filter alone: "
         "2.7 points below) and, at weight 2, lost 0.7 points under the drift against 10 for the raw noise-aware model. "
         "Below: one split, mean of three initializations (one test sample is worth 1.7 points). In this split calibrated training lifts the filtered model from 0.872 to 0.939 (noiseless 0.944); the drift effect of §117 does not show here (one dataset, 60 test inputs). The nine trainings take about eight minutes.",
+        "zne": "## 14. Dephasing: filter plus zero-noise extrapolation (§118)\n\n"
+        "With equal T1 the filtered readout equals the readout with dephasing alone (exactly), so the filter leaves a "
+        "single noise to extrapolate. ZNE runs the circuit at noise scales 1 and 2 (as gate folding would) and "
+        "extrapolates every feature to zero noise. Weight 2 (dual, qg_ZZ), T1 0.08 plus dephasing 0.03. Over 40 runs "
+        "(§118) filter + ZNE beat raw + ZNE by 3-10 points and, with exact probabilities, came within 1.3 points of "
+        "noiseless; with 1000 shots per scale its variance cancelled the gain at weight 2. Training with the filter "
+        "under the calibrated noise recovered the noiseless accuracy. Below: one split, mean of three initializations; "
+        "the first column of the last row is the noise-aware model, compared with the clean model read with the filter. "
+        "The six trainings take about four minutes.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -81,7 +90,8 @@ T = {
         "* **Errors inside the sector:** the filter does not see them; an echo calibration removes part of them (§113).\n"
         "* **Eight classes on eight qubits:** with qang exact; without it the head readout loses about 11 points (§114).\n"
         "* **Unequal T1:** corrected by training with qang under the calibrated rates, which only need the ratios of the T1s (§117).\n"
-        "* **Limits:** dephasing is not corrected, and unequal T1 only with calibrated training; no quantum advantage.\n\n"
+        "* **Dephasing:** the filter leaves it as the only noise; ZNE of the filtered readout removes most of its bias with enough shots, and training with the filter under the calibrated noise corrects it (§118).\n"
+        "* **Limits:** unequal T1 and dephasing are corrected only with calibrated training (or ZNE with enough shots); no quantum advantage.\n\n"
         "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts in `examples/qnn_*_qg.py`.",
         "cols": ("reading", "with qang", "without qang", "difference"),
     },
@@ -152,6 +162,15 @@ T = {
         "en la que todos los T1 se acortan 1.5 veces. En 40 corridas (§117) este modelo quedó a menos de 0.5 puntos del sin "
         "ruido (el filtro solo: 2.7 puntos abajo) y, en peso 2, perdió 0.7 puntos con la deriva contra 10 del modelo crudo "
         "entrenado con ruido. Abajo: una partición, promedio de tres inicializaciones (una muestra de prueba vale 1.7 puntos). En esta partición el entrenamiento calibrado sube el modelo filtrado de 0.872 a 0.939 (sin ruido 0.944); el efecto de la deriva de §117 no aparece aquí (un conjunto, 60 entradas de prueba). Los nueve entrenamientos tardan unos ocho minutos.",
+        "zne": "## 14. Desfase: filtro más extrapolación a ruido cero (§118)\n\n"
+        "Con T1 igual, la lectura filtrada es igual a la lectura con desfase solo (exactamente), así que el filtro deja un "
+        "único ruido para extrapolar. La ZNE corre el circuito con escalas de ruido 1 y 2 (como lo haría el plegado de "
+        "compuertas) y extrapola cada variable a ruido cero. Peso 2 (dual, qg_ZZ), T1 0.08 más desfase 0.03. En 40 corridas "
+        "(§118) filtro + ZNE superó a crudo + ZNE por 3-10 puntos y, con probabilidades exactas, quedó a 1.3 puntos del sin "
+        "ruido; con 1000 disparos por escala su varianza anuló la ganancia en peso 2. Entrenar con el filtro con el ruido "
+        "calibrado recuperó la precisión sin ruido. Abajo: una partición, promedio de tres inicializaciones; la primera "
+        "columna de la última fila es el modelo entrenado con ruido, comparado con el modelo limpio leído con el filtro. "
+        "Los seis entrenamientos tardan unos cuatro minutos.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -160,7 +179,8 @@ T = {
         "* **Errores dentro del sector:** el filtro no los ve; una calibración por eco quita una parte (§113).\n"
         "* **Ocho clases en ocho qubits:** con qang exacto; sin él la lectura cabeza pierde unos 11 puntos (§114).\n"
         "* **T1 desigual:** se corrige entrenando con qang con las tasas calibradas, que solo necesitan los cocientes de los T1 (§117).\n"
-        "* **Límites:** el desfase no se corrige, y el T1 desigual solo con entrenamiento calibrado; no hay ventaja cuántica.\n\n"
+        "* **Desfase:** el filtro lo deja como único ruido; la ZNE de la lectura filtrada quita la mayor parte de su sesgo con suficientes disparos, y entrenar con el filtro con el ruido calibrado lo corrige (§118).\n"
+        "* **Límites:** el T1 desigual y el desfase se corrigen solo con entrenamiento calibrado (o ZNE con suficientes disparos); no hay ventaja cuántica.\n\n"
         "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts en `examples/qnn_*_qg.py`.",
         "cols": ("lectura", "con qang", "sin qang", "diferencia"),
     },
@@ -333,6 +353,36 @@ print(f"noiseless accuracy {a_['noiseless']:.3f} (mean of 3 initializations)")
 show([("unequal T1, trained clean", a_["clean q"], a_["clean raw"]),
       ("unequal T1, trained calibrated", a_["cal q"], a_["cal raw"]),
       ("T1 drift 1.5x, trained calibrated", a_["drift q"], a_["drift raw"])])""",
+    "zne": """P_DEPH = 0.03
+def zne_features(m, th, psi, qang, shots=None, rng=None):
+    f = []
+    for lam in (1, 2):                                        # noise scale, as by gate folding
+        g, p = 1 - (1 - GAMMA) ** lam, (1 - (1 - 2 * P_DEPH) ** lam) / 2
+        pr = m.probs(th, psi, g, p)
+        if shots:
+            pr = np.array([rng.multinomial(shots, q / q.sum()) / shots for q in pr])
+        f.append(m.qg_z(pr, qang))
+    return f[0], np.clip(2 * f[0] - f[1], -1, 1)             # scale 1, and linear extrapolation to zero
+acc = lambda m, P, F: float(np.mean(((F @ P[m.n_theta:-1] + P[-1]) > 0) == yte))
+res = {k: [] for k in ("noiseless", "raw", "filter", "raw+ZNE", "filter+ZNE", "raw s", "filter s", "raw+ZNE s", "filter+ZNE s", "aware")}
+for seed in (0, 1, 2):
+    mz = WeightQNN(5, 2, encoding="dual", readout="zz").fit(Xtr, ytr, epochs=120, seed=seed)
+    P = mz.params_; th, psi = P[: mz.n_theta], mz.encode(Xte); rng = np.random.default_rng(seed)
+    res["noiseless"].append(mz.score(Xte, yte))
+    for qang, tag in ((False, "raw"), (True, "filter")):
+        f1, f0 = zne_features(mz, th, psi, qang)
+        res[tag].append(acc(mz, P, f1)); res[tag + "+ZNE"].append(acc(mz, P, f0))
+        f1, f0 = zne_features(mz, th, psi, qang, 1000, rng)
+        res[tag + " s"].append(acc(mz, P, f1)); res[tag + "+ZNE s"].append(acc(mz, P, f0))
+    ma = WeightQNN(5, 2, encoding="dual", readout="zz").fit(Xtr, ytr, epochs=120, gamma=GAMMA, dephasing=P_DEPH, qang=True, seed=seed)
+    res["aware"].append(ma.score(Xte, yte, gamma=GAMMA, dephasing=P_DEPH, qang=True))
+r = {k: float(np.mean(v)) for k, v in res.items()}
+print(f"noiseless accuracy {r['noiseless']:.3f} (mean of 3 initializations)")
+show([("T1 + dephasing, exact", r["filter"], r["raw"]),
+      ("T1 + dephasing + ZNE, exact", r["filter+ZNE"], r["raw+ZNE"]),
+      ("T1 + dephasing, 1000 shots", r["filter s"], r["raw s"]),
+      ("T1 + dephasing + ZNE, 1000 shots", r["filter+ZNE s"], r["raw+ZNE s"]),
+      ("trained with qang under noise vs clean", r["aware"], r["filter"])])""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -344,7 +394,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix", "zne"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))
