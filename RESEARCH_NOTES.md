@@ -5502,6 +5502,41 @@ every cell; SC5: under unequal T1 qang at least as good in every cell.
 * **Verdict.** The filter keeps 5–8-qubit QNNs exactly at their noiseless
   accuracy; without it an 8-qubit weight-2 model drops 26 points.
 
+## 112. Trainability under T1 with and without qang (`examples/qnn_trainability_qg.py`)
+
+Random weight-conserving circuits (n = 4, 6, 8; weight 1 and n/2; L = n and
+2n layers), cost qg_Z of qubit 0, gradient with respect to the first angle,
+200 draws per cell, equal T1 γ = 0.02 per sublayer. Shot cost to resolve the
+sign of a ±0.3 difference at two standard errors (kept shots for the filter).
+
+**Predictions, committed before the run (ea3fd3a).** T1: with qang the
+gradient equals the noiseless one; T2: at weight 1 the raw variance ratio is
+K²; T3: at weight n/2 the raw ratio is below K; T4: the noiseless variance
+falls faster with n at weight n/2 than at weight 1; T5: fewer shots with
+qang in every cell.
+
+| n | k | L | K | Var ratio without qang | median shots (qang / without) |
+|---|---|---|---|---|---|
+| 4 | 1 | 4 | 0.785 | 0.616 (= K²) | 132 / 156 |
+| 4 | 2 | 8 | 0.379 | 0.195 | 462 / 906 |
+| 6 | 3 | 12 | 0.113 | 0.062 | 9748 / 10405 |
+| 8 | 1 | 16 | 0.379 | 0.144 (= K²) | 2394 / 2512 |
+| 8 | 4 | 8 | 0.144 | 0.176 | 35163 / 26649 |
+| 8 | 4 | 16 | 0.021 | 0.028 | 258192 / 118611 |
+
+(selected cells; all 12 in the script)
+
+* **T1, T2, T4 pass; T3, T5 fail.**
+* **The filter returns the noiseless gradient exactly**; without it the
+  weight-1 gradient is K times smaller.
+* **The sector flattens the gradient** by 5.2× (weight 1) and 20× (half
+  filling) from 4 to 8 qubits, with or without the filter.
+* **T3:** at half filling the raw gradient is suppressed less than K: decayed
+  shots keep part of the signal.
+* **T5:** the filter resolves gradients with fewer shots in 10 of 12 cells,
+  but at n = 8, k = 4 (K ≤ 0.14) it needs 1.3–2.2× more (the raw readout
+  resolves the biased gradient; sign agreement not measured).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

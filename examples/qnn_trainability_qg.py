@@ -40,7 +40,47 @@ OMP_NUM_THREADS=1 python examples/qnn_trainability_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+200 random draws per cell, equal T1 gamma = 0.02 per qubit per sublayer:
+
+  n  k  L    K       Var(grad)      Var ratio without   K^2        median shots to resolve
+                     noiseless      qang / noiseless               with qang / without
+  4  1  4   0.785    3.4e-01        0.616               0.616      132 / 156
+  4  1  8   0.616    3.1e-01        0.379               0.379      150 / 191
+  4  2  4   0.616    3.7e-01        0.472               0.379      187 / 304
+  4  2  8   0.379    3.2e-01        0.195               0.144      462 / 906
+  6  1  6   0.695    9.4e-02        0.483               0.483      413 / 465
+  6  1  12  0.483    1.0e-01        0.234               0.234      638 / 731
+  6  3  6   0.336    7.1e-02        0.261               0.113      4215 / 5570
+  6  3  12  0.113    6.5e-02        0.062               0.013      9748 / 10405
+  8  1  8   0.616    6.6e-02        0.379               0.379      919 / 932
+  8  1  16  0.379    3.5e-02        0.144               0.144      2394 / 2512
+  8  4  8   0.144    1.8e-02        0.176               0.021      35163 / 26649
+  8  4  16  0.021    1.3e-02        0.028               0.0004     258192 / 118611
+
+  * T1, T2, T4 pass; T3 and T5 fail.
+  * T1: with qang the gradient is the noiseless gradient in every draw (to
+    7.5e-11): the filter removes the T1 suppression of the gradient exactly.
+  * T2: at weight 1 the raw gradient is exactly K times the noiseless one
+    (variance ratio = K^2).
+  * T4: from 4 to 8 qubits the noiseless gradient variance falls by 5.2x at
+    weight 1 and by 20x at weight n/2: the larger sector flattens faster.
+  * T3 FAILS: at weight n/2 the raw gradient is suppressed less than K
+    (variance ratio 0.028 against K = 0.021 at n = 8, L = 16, and above K^2
+    everywhere): shots that decayed to lower weights keep part of the
+    gradient signal.
+  * T5 FAILS at the largest cells: the filter needs fewer shots to resolve the
+    gradient in 10 of 12 cells, but at n = 8, k = 4 (K = 0.14 and 0.021) it
+    needs 1.3-2.2x more than the raw readout. There the discarded shots cost
+    more than the suppression they remove. Caveat: the raw readout resolves
+    the gradient of the biased cost, whose sign need not be the noiseless
+    one; that agreement was not measured.
+  Verdict. Under T1 the filter gives back the noiseless gradient exactly,
+  which the raw readout cannot (its gradient shrinks by K at weight 1), and it
+  is the cheaper way to resolve gradients while the kept fraction is above
+  about 0.3. In large sectors at long depth (K < 0.15) the shot cost of
+  filtering is higher than that of the raw readout. The intrinsic flattening
+  of the gradient with the sector size (20x from 4 to 8 qubits at half
+  filling) is untouched by either readout.
 """
 
 import json

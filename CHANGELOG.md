@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_trainability_qg.py` (§112): gradients of weight-conserving circuits under T1 with and without qang.
+  With qang the gradient is exactly the noiseless one; at weight 1 the raw one is K times smaller; the filter
+  resolves gradients with fewer shots in 10 of 12 cells but not when K < 0.15 (T1, T2, T4 pass; T3, T5 fail).
 - `qang.qml.WeightQNN.block_unitaries`: the RBS layers built directly in each weight sector; `probs` uses it
   (8-qubit training 13x faster, results unchanged).
 - QML notebooks (EN/ES): section 9, eight qubits at weight 1 and 2 with the with/without-qang table (in the saved
