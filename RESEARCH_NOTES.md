@@ -5679,6 +5679,46 @@ than C; U5: C* − C ≤ 0.5 points (all on average, both weights).
   corrected by noise-aware training *with* the filter, which needs only the
   relative T1s and tolerates calibration errors and, at weight 2, drift.
 
+## 118. Dephasing: the filter plus zero-noise extrapolation (`examples/qnn_dephasing_zne_qg.py`)
+
+**Theory (F6).** With equal T1 and dephasing, the filtered readout equals the
+readout with dephasing alone (the no-jump factor is a scalar on the sector
+and commutes with the diagonal dephasing channel; tested to 1e-16). The
+filter leaves one noise parameter, which ZNE can extrapolate.
+
+Setting: WeightQNN, 5 qubits, weight 1 and 2 (dual, qg_ZZ); iris, cancer,
+wine, digits; 5 seeds; trained noiselessly. Noise: equal T1 0.08 plus
+dephasing p = 0.03 or 0.06 per sublayer. ZNE at noise scales 1, 2, 3 (as by
+gate folding), features extrapolated linearly (1, 2) or by Richardson
+(1, 2, 3); exact probabilities and 1000 shots per circuit and scale.
+
+**Predictions, committed before the run (637e800).** Z1: linear filter + ZNE
+at most half the filter's feature error (p = 0.03); Z2: below raw + ZNE;
+Z3: within 1 point of noiseless; Z4: with shots, at least the filter's
+accuracy; Z5: at p = 0.06, weight 2, at least 2 points over the filter.
+
+| weight, p | noiseless | raw | filter | raw + ZNE | filter + ZNE | Richardson | trained with filter under noise |
+|---|---|---|---|---|---|---|---|
+| 1, 0.03 exact | 0.952 | 0.815 | 0.933 | 0.915 | 0.949 | 0.953 | 0.953 |
+| 1, 0.03 shots | | 0.817 | 0.932 | 0.909 | 0.945 | 0.904 | |
+| 2, 0.03 exact | 0.956 | 0.686 | 0.919 | 0.844 | 0.943 | 0.946 | 0.956 |
+| 2, 0.03 shots | | 0.679 | 0.893 | 0.841 | 0.864 | 0.710 | |
+| 2, 0.06 exact | | 0.610 | 0.775 | 0.703 | 0.881 | 0.902 | 0.952 |
+
+* **Z2, Z5 pass; Z1, Z3, Z4 fail.** Linear filter + ZNE leaves 50.3% /
+  57.5% of the filter's feature error (Richardson 27% / 35%); at weight 2 it
+  is 1.3 points below noiseless; with 1000 shots per scale it loses 2.9
+  points to the filter alone at weight 2 (Richardson down to 0.710).
+* **Filter + ZNE beats raw + ZNE** by 3.4 / 9.9 points: without the filter
+  ZNE must extrapolate T1 and dephasing together.
+* **Not predicted:** training with the filter under the calibrated noise
+  recovers 0.951–0.956, the noiseless accuracy, at both dephasing levels.
+* **Verdict.** The filter turns T1 + dephasing into dephasing alone, and ZNE
+  of the filtered features then removes most of the remaining bias; but its
+  shot cost cancels the gain at 1000 shots for weight 2. For classifiers,
+  noise-aware training with the filter corrects dephasing best; ZNE of the
+  filtered readout is for estimating observables with enough shots.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

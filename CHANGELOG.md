@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_dephasing_zne_qg.py` (§118): dephasing with the filter plus zero-noise extrapolation (F6: with equal T1
+  the filtered readout equals the dephasing-only readout, tested); Z2, Z5 pass; Z1, Z3, Z4 fail; noise-aware training
+  with the filter recovers the noiseless accuracy under dephasing.
 - QML note (EN/ES, PDF and Word) updated with §114-§117: F5 (the filtered readout depends only on the ratios of
   the decay rates), unequal T1 corrected by calibrated training with the filter, eight classes on eight qubits, the
   echo at 8 qubits and the IonQ package (138 predictions, 99 pass, 39 fail).
