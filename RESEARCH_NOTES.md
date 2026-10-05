@@ -5719,6 +5719,38 @@ accuracy; Z5: at p = 0.06, weight 2, at least 2 points over the filter.
   noise-aware training with the filter corrects dephasing best; ZNE of the
   filtered readout is for estimating observables with enough shots.
 
+## 119. The whole pipeline on device noise models (`examples/qnn_full_pipeline_qg.py`)
+
+Calibrated training (§117–§118) and the echo (§106) together, on the IBM
+fake backends, using only the published calibration: fixed layout, T1 and
+T2 of the chosen qubits and the circuit duration give per-sublayer gamma_q
+and a mean dephasing for qang's simulator. Weight 1, the four datasets of
+§106 (189 inputs). A: noiseless training; C: trained with qang under the
+calibration; D: trained raw under it.
+
+**Predictions, committed before any noisy run (d5d31e7).** K1: C + echo at
+least A + echo; K2: C at least A with the filter, every backend; K3: C + echo
+within 1 point of noiseless; K4: C + echo above D.
+
+| backend | calibration per sublayer | A raw | A qang | A qang + echo | C qang | C qang + echo | D raw |
+|---|---|---|---|---|---|---|---|
+| fake brisbane | gamma 0.011–0.017, p 0.005 | 179 | 182 | 182 | 183 | 183 | 182 |
+| fake sherbrooke | gamma 0.005–0.010, p 0.001 | 181 | 184 | 184 | 182 | 182 | 183 |
+| fake torino | gamma 0.002–0.004, p 0.003 | 183 | 185 | 185 | 184 | 184 | 184 |
+
+(correct decisions of 189; noiseless 185)
+
+* **K1–K4 all fail.** The filter alone lifts 0.958 to 0.972 (noiseless
+  0.979); calibrated training changes ±1–2 inputs and ends 0.4 points below.
+* **Why:** the published T1/T2 give decay of only 0.002–0.017 per sublayer;
+  gate errors dominate, and a T1/T2 calibration does not describe them.
+* **The echo** changed no decision on these wide-margin models but cut the
+  decision error (iris, brisbane: 0.84 → 0.28; diagnostic after the verdict).
+* **Verdict.** Where gate errors dominate, the best pipeline is noiseless
+  training plus the filter (and the echo for the decision values);
+  calibrated training is the remedy for strong decay or dephasing, not a
+  default.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

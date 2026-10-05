@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `examples/qnn_full_pipeline_qg.py` (§119): calibrated training with qang (from published T1/T2) plus filter and echo
+  on the IBM fake backends; K1-K4 fail: gate errors dominate, the filter alone gives 0.958 -> 0.972 and calibrated
+  training adds nothing there.
+
 ## [0.6.18] - 2026-10-05
 
 Release of §114–§118: the two noises the filter cannot remove alone are now corrected. F5: the filtered readout

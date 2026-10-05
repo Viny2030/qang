@@ -39,9 +39,34 @@ noiseless --mode local only):
 python examples/qnn_full_pipeline_qg.py --mode local     # noiseless check
 python examples/qnn_full_pipeline_qg.py --mode fake --out fake.json
 
-Findings:
+Findings (189 test inputs per backend, correct decisions; noiseless 185):
 
-FINDINGS_PLACEHOLDER
+  backend           calibration (per sublayer)        A raw  A qang  A qang+echo  C qang  C qang+echo  D raw
+  fake_brisbane     gamma 0.011-0.017, p 0.005        179    182     182          183     183          182
+  fake_sherbrooke   gamma 0.005-0.010, p 0.001        181    184     184          182     182          183
+  fake_torino       gamma 0.002-0.004, p 0.003        183    185     185          184     184          184
+  mean accuracy                                        0.958  0.972   0.972        0.968   0.968        0.968
+
+  * K1-K4 all fail.
+  * The filter alone does most of the work: from 0.958 (raw) to 0.972,
+    against 0.979 noiseless; on torino it reaches the noiseless count.
+  * Calibrated training did not help here: C is 1 input ahead of A on
+    brisbane and 2 and 1 behind on sherbrooke and torino (K2); C + echo is
+    0.4 points below A + echo (K1) and 1.05 points below noiseless (K3, bound
+    1); C + echo and D tie at 0.968 (K4 asked for strictly more).
+  * Why: the published T1 and T2 of these devices give a per-sublayer decay
+    of only 0.002-0.017 and dephasing of 0.001-0.005; most of the device
+    noise is gate error, which this calibration does not describe, so
+    training under it moves the model without correcting what dominates.
+    Sections 117 and 118 used decay of 0-0.16 and dephasing of 0.03-0.06.
+  * The echo changed no decision on these wide-margin models, although it
+    cut the decision error (iris on brisbane, model A: 0.84 with the filter,
+    0.28 with the echo, 1.58 raw; diagnostic run after the verdict).
+  Verdict. On device noise models where gate errors dominate T1 and T2,
+  calibrated training from T1/T2 adds nothing: the best pipeline is
+  noiseless training plus the filter at run time (plus the echo when the
+  decision values matter). Calibrated training is the remedy when decay and
+  dephasing are strong (sections 117-118), not a default.
 """
 
 import argparse
