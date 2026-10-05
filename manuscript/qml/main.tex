@@ -44,13 +44,15 @@ significant. The weight-2 deficit comes from the
 pair-product encoding, not from the readout; with an encoding that fills the whole sector and a full-rank
 readout, weight~2 reaches the weight-1 accuracy. On noise models of IBM and IonQ devices the filter cuts the
 error of the measured $\qZ$ by $2.7$--$3.6\times$; on the IonQ Forte-1 noise model over 189 inputs of four
-datasets the filtered model is 1.1 points more accurate than the raw one. With a faithful weight-2 encoding the
+datasets the filtered model is 1.1 points more accurate than the raw one, and calibrating the errors the filter
+keeps with five echo circuits per model halves the remaining error of the decision value: decisions that differ from
+the noiseless model fall from 15 (raw) and 7 (filter) to 3 over 945 readings on five device noise models. With a faithful weight-2 encoding the
 advantage of the unfiltered model under noise-aware training disappears, and a classifier given both the filtered
 and the raw features gains nothing over the filter alone. Over 513 readout configurations, including kept fractions
 down to $2.6\times10^{-7}$, unequal T1 and dephasing, the filter has the lower readout error whenever about 20 shots
 are kept, and a closed-form rule predicts the winner. These models are classically simulable and no quantum
 advantage is claimed. The filter is a way to make noise-free training valid under relaxation, at a
-shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.6,
+shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.13,
 \texttt{pip install qang}).
 \end{abstract}
 
@@ -68,8 +70,7 @@ mattering?
 
 We answer with exact simulation, a fixed protocol and an explicit comparison. Every reading is taken with
 qang (filtered) and without it (raw), on the same trained parameters or the same initialization. The
-predictions of every study were committed to the repository before the run that tested them. Of 79
-pre-registered predictions in the studies summarized here, 58 passed and 21 failed; the failures are
+predictions of every study were committed to the repository before the run that tested them. Of 91 pre-registered predictions in the studies summarized here, 70 passed and 21 failed; the failures are
 reported alongside the passes.
 
 \section{Model and theory}
@@ -232,6 +233,24 @@ times smaller with the filter on every dataset. (IonQ results use the measured f
 API; qiskit-ionq's \texttt{get\_counts} resamples them on each call.) These are noise models, not devices; the
 hardware runs are prepared, with cost confirmations, and pending.
 
+\paragraph{Echo calibration of the errors the filter keeps.}\label{sec:echo} The filter discards shots that left the
+sector, but errors that move an excitation inside it pass: on the device noise models 8--23\% of the kept shots of a
+product state put the excitation on the wrong qubit. An echo circuit (qubit $j$ excited, the 15 trained RBS gates and
+their inverse) should return qubit $j$; its filtered distribution is column $j$ of a $5\times5$ transfer matrix $M$,
+and inverting $M^{1/2}$ on the filtered distribution of each input mitigates those errors, as readout mitigation does
+for bit flips (\texttt{qang.sectors.echo\_transfer\_matrix}, \texttt{unmix\_sector}). With 5 echo circuits per
+trained model, on the 189 inputs of the four datasets, the three IBM noise models and the IonQ simulator in its
+native gate set (IonQ's compiler removes identities from circuits in its standard gate set, so echoes must be sent
+natively):
+\begin{itemize}
+\item the error of the decision value against the noiseless model fell by 43--56\% relative to the filter alone,
+  and filter plus echo was 3.7--4.6 times below the raw readout;
+\item over 945 readings, 15 decisions differed from the noiseless model without the filter, 7 with it and 3 with the
+  filter plus the echo calibration; on the three IBM noise models filter plus echo reached the noiseless accuracy
+  (0.979);
+\item all twelve predictions of these three studies passed.
+\end{itemize}
+
 \paragraph{Two channels, shot cost and what else the filter reads.}\label{sec:scaling}
 \begin{itemize}
 \item \textit{Two-channel readout (60 runs).} Giving the classifier both the filtered and the raw features
@@ -275,8 +294,9 @@ to about a $\pm80\%$ spread of $1/T_1$ across qubits, a network trained on a sim
 filter alone, losing less than one point. When the network is instead trained under the calibrated noise
 with a distorting encoding and a readout with many parameters, the decayed shots looked useful in one study (1.2
 points), but over 60 new runs the gap was 0.5 points and not significant; with a faithful encoding it was absent,
-and adding the raw features to the filtered ones gained nothing. For weight-2 models, how the data are loaded matters more than what is read out. The shot
-cost of the filter did not decide against it anywhere in our scaling maps.
+and adding the raw features to the filtered ones gained nothing. For weight-2 models, how the data are loaded matters more than what is read out. The shot cost of the filter did not decide against it anywhere in our scaling maps. What the filter cannot see,
+errors that keep the excitation in the sector but move it, can be calibrated with echo circuits at the cost of five
+extra circuits per model.
 
 \paragraph{Limitations.} All noise is simulated, including the device noise models. There is one
 architecture per weight, five qubits, and small datasets in which one test sample is worth 2--3 points. The
@@ -285,11 +305,11 @@ simulable. A hardware run with the filter is the natural next test.
 
 \section*{Code and data availability}
 
-Models: \texttt{qang.qml} in \texttt{qang} 0.6.6 (\texttt{pip install qang}), NumPy only, with
+Models: \texttt{qang.qml} in \texttt{qang} 0.6.13 (\texttt{pip install qang}), NumPy only, with
 \texttt{WeightQNN} (weights 1 and 2, readouts \texttt{"z"} and \texttt{"zz"}, encodings \texttt{"pairs"}, \texttt{"ring"} and
-\texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}. Hardware-ready script:
+\texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}; echo calibration in \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Hardware-ready script:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM and IonQ). Studies:
-\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, with tests in \texttt{tests/}. The Colab
+\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S106, with tests in \texttt{tests/}. The Colab
 notebooks \texttt{notebooks/qang\_qml.ipynb} (English) and \texttt{qang\_qml\_es.ipynb} (Spanish) install the
 library from PyPI. Repository: \url{https://github.com/Viny2030/qang}.
 

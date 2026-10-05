@@ -48,14 +48,16 @@ fue significativa. El déficit del peso~2
 viene de la codificación por productos de pares, no de la lectura; con una codificación que llena todo el
 sector y una lectura de rango completo, el peso~2 alcanza la precisión del peso~1. Con los modelos de ruido de equipos de
 IBM e IonQ, el filtro reduce el error del $\qZ$ medido entre $2.7$ y $3.6$ veces; con el modelo de ruido Forte-1 de IonQ, en
-189 entradas de cuatro conjuntos, el modelo filtrado es 1.1 puntos más preciso que el crudo. Con una codificación
+189 entradas de cuatro conjuntos, el modelo filtrado es 1.1 puntos más preciso que el crudo, y calibrar con cinco circuitos de eco por modelo los
+errores que deja el filtro reduce a la mitad el error restante del valor de decisión: las decisiones que difieren del
+modelo sin ruido bajan de 15 (crudo) y 7 (filtro) a 3 en 945 lecturas sobre cinco modelos de ruido de equipos. Con una codificación
 fiel de peso~2 desaparece la ventaja del modelo sin filtro entrenado con el ruido, y un clasificador que recibe a la
 vez las variables filtradas y las crudas no gana nada sobre el filtro solo. En 513 configuraciones de lectura,
 incluidas fracciones conservadas de hasta $2.6\times10^{-7}$, T1 desigual y desfase, el filtro tiene el menor error de
 lectura siempre que se conserven unos 20 disparos, y una regla cerrada predice el ganador. Estos modelos son
 simulables clásicamente y no
 se afirma ventaja cuántica. El filtro es una manera de hacer válido el entrenamiento sin ruido bajo relajación,
-con un costo en disparos conocido de antemano. Los modelos se publican como \texttt{qang.qml} (versión 0.6.6,
+con un costo en disparos conocido de antemano. Los modelos se publican como \texttt{qang.qml} (versión 0.6.13,
 \texttt{pip install qang}).
 \end{abstract}
 
@@ -74,7 +76,7 @@ limitado por T1, y cuándo deja de importar?
 Respondemos con simulación exacta, un protocolo fijo y una comparación explícita. Cada lectura se toma con qang
 (filtrada) y sin qang (cruda), sobre los mismos parámetros entrenados o la misma inicialización. Las
 predicciones de cada estudio quedaron registradas en el repositorio antes de la corrida que las puso a prueba.
-De 79 predicciones pre-registradas en los estudios que se resumen aquí, 58 se cumplieron y 21 fallaron; las
+De 91 predicciones pre-registradas en los estudios que se resumen aquí, 70 se cumplieron y 21 fallaron; las
 fallas se reportan junto a los aciertos.
 
 \section{Modelo y teoría}
@@ -241,6 +243,25 @@ prueba): precisión conjunta 0.968 con filtro, 0.958 sin filtro y 0.979 sin ruid
 la API; \texttt{get\_counts} de qiskit-ionq las vuelve a muestrear en cada llamada.) Son modelos de ruido, no
 equipos; las corridas en hardware están preparadas, con confirmación de costo, y pendientes.
 
+\paragraph{Calibración por eco de los errores que deja el filtro.}\label{sec:eco} El filtro descarta los disparos que
+salieron del sector, pero los errores que mueven una excitación dentro del sector pasan: en los modelos de ruido de
+equipos, entre el 8 y el 23\,\% de los disparos conservados de un estado producto ponen la excitación en el qubit
+equivocado. Un circuito de eco (qubit $j$ excitado, las 15 compuertas RBS entrenadas y su inversa) debería devolver el
+qubit $j$; su distribución filtrada es la columna $j$ de una matriz de transferencia $M$ de $5\times5$, e invertir
+$M^{1/2}$ sobre la distribución filtrada de cada entrada mitiga esos errores, como hace la mitigación de lectura con
+los errores de bit (\texttt{qang.sectors.echo\_transfer\_matrix}, \texttt{unmix\_sector}). Con 5 circuitos de eco por
+modelo entrenado, en las 189 entradas de los cuatro conjuntos, los tres modelos de ruido de IBM y el simulador de IonQ
+en su conjunto de compuertas nativo (el compilador de IonQ elimina identidades de los circuitos en su conjunto
+estándar, así que los ecos deben enviarse en nativo):
+\begin{itemize}
+\item el error del valor de decisión respecto del modelo sin ruido bajó entre un 43 y un 56\,\% respecto del filtro
+  solo, y el filtro más el eco quedó entre 3.7 y 4.6 veces por debajo de la lectura cruda;
+\item en 945 lecturas, 15 decisiones difirieron del modelo sin ruido sin el filtro, 7 con el filtro y 3 con el filtro
+  más la calibración por eco; en los tres modelos de ruido de IBM, filtro más eco alcanzó la precisión sin ruido
+  (0.979);
+\item las doce predicciones de estos tres estudios se cumplieron.
+\end{itemize}
+
 \paragraph{Dos canales, costo en disparos y qué más lee el filtro.}\label{sec:escala}
 \begin{itemize}
 \item \textit{Lectura de dos canales (60 corridas).} Darle al clasificador las variables filtradas y las crudas
@@ -284,8 +305,9 @@ Hasta una dispersión de $\pm80\,\%$ de $1/T_1$ entre qubits, una red entrenada 
 solo con el filtro, perdiendo menos de un punto. Si en cambio la red se entrena con el ruido calibrado, con una
 codificación que distorsiona y una lectura con muchos parámetros, los disparos decaídos parecieron útiles en un
 estudio (1.2 puntos), pero en 60 corridas nuevas la diferencia fue de 0.5 puntos y no significativa; con una
-codificación fiel no apareció, y sumar las variables crudas a las filtradas no ganó nada. Para modelos de peso~2, importa más cómo se cargan los datos que qué se lee. El costo en
-disparos del filtro no decidió en su contra en ninguno de nuestros mapas de escala.
+codificación fiel no apareció, y sumar las variables crudas a las filtradas no ganó nada. Para modelos de peso~2, importa más cómo se cargan los datos que qué se lee. El costo en disparos del filtro no decidió en su contra en ninguno de nuestros mapas de escala. Lo que el filtro
+no ve, los errores que mantienen la excitación en el sector pero la mueven, se puede calibrar con circuitos de eco, al
+costo de cinco circuitos extra por modelo.
 
 \paragraph{Limitaciones.} Todo el ruido es simulado, incluidos los modelos de ruido de equipos. Hay una
 arquitectura por peso, cinco qubits y conjuntos pequeños en los que una muestra de prueba vale 2--3 puntos. El
@@ -294,11 +316,11 @@ clásicamente. Una corrida en hardware con el filtro es la siguiente prueba natu
 
 \section*{Disponibilidad de código y datos}
 
-Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.6 (\texttt{pip install qang}), solo NumPy, con
+Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.13 (\texttt{pip install qang}), solo NumPy, con
 \texttt{WeightQNN} (pesos 1 y 2, lecturas \texttt{"z"} y \texttt{"zz"}, codificaciones \texttt{"pairs"}, \texttt{"ring"} y
-\texttt{"dual"}; cualquier peso para simular; \texttt{qang="both"}), \texttt{kept\_fraction} y \texttt{compare\_qang}. Script listo para hardware:
+\texttt{"dual"}; cualquier peso para simular; \texttt{qang="both"}), \texttt{kept\_fraction} y \texttt{compare\_qang}; calibración por eco en \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Script listo para hardware:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM e IonQ). Estudios: \texttt{examples/qnn\_*\_qg.py} y
-RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S101, con pruebas en \texttt{tests/}. Los cuadernos Colab
+RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S101, \S104--\S106, con pruebas en \texttt{tests/}. Los cuadernos Colab
 \texttt{notebooks/qang\_qml\_es.ipynb} (español) y \texttt{qang\_qml.ipynb} (inglés) instalan la librería desde
 PyPI. Repositorio: \url{https://github.com/Viny2030/qang}.
 

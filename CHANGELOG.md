@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.13] - 2026-10-05
+
+### Changed
+- The QML note (`manuscript/qang_qml.pdf`, Spanish `manuscript/qang_qml_es.pdf`, Word versions) gains a section on
+  the echo calibration of the errors the filter keeps (§104-§106): on five device noise models, decisions that differ
+  from the noiseless model fall from 15 (raw) and 7 (filter) to 3 (filter + echo) over 945 readings (91 predictions:
+  70 pass, 21 fail).
+
 ## [0.6.12] - 2026-10-04
 
 ### Added
