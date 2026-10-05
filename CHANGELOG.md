@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.17] - 2026-10-05
+
+Release of the QNN studies §109–§116: `qang.qml.MultiClassQNN` (one class per qubit, "qubit" and "head"
+readouts) and `WeightQNN.block_unitaries` (RBS layers built directly in each weight sector, 8-qubit training 13x
+faster) are now on PyPI; the QML Colab notebooks (EN/ES) install `qang>=0.6.17` and show every result with and without
+qang (sections 8–12); the QML note (EN/ES, PDF and Word) covers §107–§113.
+
 ### Added
 - `examples/qnn_multiclass_qpu_qg.py` (§116): guarded IonQ QPU package for the multiclass QNN with filter and echo
   (plan / rehearsal / qpu with `--yes-i-accept-qpu-cost`); predictions H1-H4 pre-registered; simulator rehearsal on the

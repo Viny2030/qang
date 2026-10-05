@@ -152,10 +152,10 @@ T = {
 
 CODE = {
     "install": """import importlib, subprocess, sys
-subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "qang>=0.6.16", "scikit-learn"], check=False)
+subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "qang>=0.6.17", "scikit-learn"], check=False)
 importlib.invalidate_caches()
 import qang.qml
-if not (hasattr(qang.qml, "MultiClassQNN") and hasattr(qang.qml.WeightQNN, "block_unitaries")):  # multiclass is on GitHub before the next PyPI release
+if not (hasattr(qang.qml, "MultiClassQNN") and hasattr(qang.qml.WeightQNN, "block_unitaries")):  # older qang without the multiclass model: install from GitHub
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--force-reinstall", "--no-deps",
                     "git+https://github.com/Viny2030/qang.git"], check=True)
     print("installed qang from GitHub; if an import fails below, restart the runtime once")
