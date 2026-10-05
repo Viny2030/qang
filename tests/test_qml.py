@@ -170,3 +170,20 @@ def test_two_channel_readout_contains_raw_and_filtered():
     assert 0 <= m.score(X, y, p, gamma=0.08, qang="both") <= 1
     with pytest.raises(ValueError):
         m.qg_z(pr, "all")
+
+
+def test_multiclass_qnn_filter_exact_and_qubit_readout():
+    from qang.qml import MultiClassQNN
+
+    rng = np.random.default_rng(12)
+    X = rng.uniform(-1, 1, (15, 4))
+    y = np.argmax(X[:, :3], axis=1)
+    for ro in ("qubit", "head"):
+        m = MultiClassQNN(5, 3, readout=ro).fit(X, y, epochs=3, seed=1)
+        p = m.params_
+        assert np.allclose(m.logits(p, X, gamma=0.1, qang=True), m.logits(p, X), atol=1e-10)
+        assert m.predict(X).shape == (15,) and 0 <= m.score(X, y) <= 1
+    with pytest.raises(ValueError):
+        MultiClassQNN(5, 6, readout="qubit")
+    with pytest.raises(ValueError):
+        MultiClassQNN(5, 3, readout="softmax")

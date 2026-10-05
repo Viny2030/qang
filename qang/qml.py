@@ -38,7 +38,7 @@ import numpy as np
 
 from .sectors import filter_distribution
 
-__all__ = ["WeightQNN", "kept_fraction", "compare_qang"]
+__all__ = ["WeightQNN", "MultiClassQNN", "kept_fraction", "compare_qang"]
 
 
 def kept_fraction(gamma: float, weight: int, depth: int) -> float:
@@ -299,3 +299,93 @@ def compare_qang(model, X_train, y_train, X_test, y_test, gamma=0.08, dephasing=
     kept = kept_fraction(gamma, model.weight, model.depth) if np.ndim(gamma) == 0 else None
     return {"exact": exact, "with qang": with_q, "without qang": without,
             "difference": with_q - without, "kept fraction": kept}
+
+
+class MultiClassQNN(WeightQNN):
+    """Weight-1 QNN for C classes (§110), with the same RBS layers, encodings,
+    noise model and qang readout as ``WeightQNN``.
+
+    readout="qubit": class c is qubit c (C <= n). The class scores are the
+    excitation probabilities p_c = (1 - qg_Z^(c)) / 2, and the logits are
+    a * p_c + b_c (one learned scale a and C offsets). Under equal T1 the
+    unfiltered p_c all shrink by the same kept fraction, so the argmax of
+    the raw readout is unchanged if the offsets are equal; the filter makes
+    every p_c exactly noiseless (F4).
+    readout="head": logits = W^T qg_Z + b, a linear softmax head on the n
+    local qg_Z values (n x C weights).
+    Training: Adam on the softmax cross-entropy, central-difference gradients
+    on the angles (as ``WeightQNN.fit``)."""
+
+    def __init__(self, n_qubits=5, n_classes=3, layers=3, sublayers=None, readout="qubit", encoding="pairs"):
+        super().__init__(n_qubits, 1, layers, sublayers, "z", encoding)
+        if readout not in ("qubit", "head"):
+            raise ValueError("readout must be 'qubit' or 'head'")
+        if readout == "qubit" and n_classes > n_qubits:
+            raise ValueError("readout='qubit' needs n_classes <= n_qubits")
+        self.n_classes = n_classes
+        self.class_readout = readout
+        self.n_head = (1 + n_classes) if readout == "qubit" else (n_qubits + 1) * n_classes
+
+    def _logits(self, R, head):
+        C = self.n_classes
+        if self.class_readout == "qubit":
+            pc = (1 - R[:, :C]) / 2
+            return head[0] * pc + head[1:][None, :]
+        W = head[: self.n * C].reshape(self.n, C)
+        return R @ W + head[self.n * C:][None, :]
+
+    def logits(self, params, X, gamma=None, dephasing=0.0, qang=True, shots=None, seed=None):
+        pr = self.probs(params[: self.n_theta], self.encode(X), gamma, dephasing)
+        if shots:
+            rng = np.random.default_rng(seed)
+            pr = np.array([rng.multinomial(shots, p / p.sum()) / shots for p in pr])
+        return self._logits(self.qg_z(pr, qang), params[self.n_theta:])
+
+    def fit(self, X, y, epochs=120, lr=0.1, gamma=None, dephasing=0.0, qang=True, seed=0, h=1e-4):
+        y = np.asarray(y, int)
+        Y = np.eye(self.n_classes)[y]
+        psi = self.encode(X)
+        rng = np.random.default_rng(seed)
+        nt = self.n_theta
+        head0 = (np.concatenate([[4.0], np.zeros(self.n_classes)]) if self.class_readout == "qubit"
+                 else np.concatenate([rng.normal(0, 0.5, self.n * self.n_classes), np.zeros(self.n_classes)]))
+        p = np.concatenate([rng.uniform(-np.pi, np.pi, nt), head0])
+        m = np.zeros_like(p)
+        v = np.zeros_like(p)
+
+        def loss_grad_head(R, head):
+            Z = self._logits(R, head)
+            Z = Z - Z.max(axis=1, keepdims=True)
+            P = np.exp(Z) / np.exp(Z).sum(axis=1, keepdims=True)
+            G = (P - Y) / len(y)  # dL/dlogits
+            if self.class_readout == "qubit":
+                pc = (1 - R[:, : self.n_classes]) / 2
+                return G, np.concatenate([[np.sum(G * pc)], G.sum(axis=0)])
+            return G, np.concatenate([(R.T @ G).ravel(), G.sum(axis=0)])
+
+        def feats(th):
+            return self.qg_z(self.probs(th, psi, gamma, dephasing), qang)
+
+        for t in range(1, epochs + 1):
+            th, head = p[:nt], p[nt:]
+            R = feats(th)
+            G, gh = loss_grad_head(R, head)
+            g = np.zeros_like(p)
+            g[nt:] = gh
+            for k in range(nt):
+                e = np.zeros(nt)
+                e[k] = h
+                dZ = (self._logits(feats(th + e), head) - self._logits(feats(th - e), head)) / (2 * h)
+                g[k] = np.sum(G * dZ)
+            m = 0.9 * m + 0.1 * g
+            v = 0.999 * v + 0.001 * g**2
+            p = p - lr * (m / (1 - 0.9**t)) / (np.sqrt(v / (1 - 0.999**t)) + 1e-8)
+        self.params_ = p
+        return self
+
+    def predict(self, X, params=None, **noise):
+        params = self.params_ if params is None else params
+        return np.argmax(self.logits(params, X, **noise), axis=1)
+
+    def score(self, X, y, params=None, **noise):
+        return float(np.mean(self.predict(X, params, **noise) == np.asarray(y)))
