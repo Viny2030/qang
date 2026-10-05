@@ -34,9 +34,16 @@ submission; judged on the first complete QPU run):
   H4  the echo diagonal has a mean below 0.95 (in-sector errors exist on the
       device, as on its noise model).
 
-Findings:
+Plan (qpu.forte-1, native gate set): 55 circuits, 60000 shots, 2200
+two-qubit gates in total (about 37 per input circuit, 73 per echo).
 
-FINDINGS_PLACEHOLDER
+Rehearsal (IonQ cloud simulator, forte-1 noise model, native; not the
+hardware run, so H1-H4 are not judged on it): noiseless accuracy 0.88 on the
+50 inputs; without qang 0.84 (8 decisions differ from the noiseless model),
+with qang 0.88 (4), with qang + echo 0.86 (1); kept fraction 0.68; echo
+diagonal 0.79-0.84.
+
+QPU run: pending (needs credits and an explicit cost approval).
 """
 
 import argparse

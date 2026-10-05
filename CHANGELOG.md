@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_multiclass_qpu_qg.py` (§116): guarded IonQ QPU package for the multiclass QNN with filter and echo
+  (plan / rehearsal / qpu with `--yes-i-accept-qpu-cost`); predictions H1-H4 pre-registered; simulator rehearsal on the
+  forte-1 noise model: 8 / 4 / 1 flipped decisions raw / qang / qang + echo. Nothing submitted to hardware.
 - `examples/qg_echo_8q_qg.py` (§115): echo calibration at 8 qubits, weight 2 (28 x 28 transfer matrix) on five device
   noise models; removes 32% of the filtered qg_Z error on average, against 40% at 5 qubits (X1-X5 pass).
 - QML notebooks (EN/ES): section 12, eight classes on eight qubits (head readout) with the with/without-qang table.

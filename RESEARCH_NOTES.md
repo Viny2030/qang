@@ -5624,6 +5624,25 @@ X5: a smaller average reduction than at 5 qubits (40%, §107).
 * **Verdict.** The echo scales to 28 states at the cost of 28 extra
   circuits; it still removes about a third of the error the filter leaves.
 
+## 116. The multiclass QNN on IonQ hardware: run package (`examples/qnn_multiclass_qpu_qg.py`)
+
+A ready-to-run, guarded package for the §113 experiment on an IonQ QPU:
+head readout, 50 test inputs at 1000 shots, 5 echoes at 2000 shots (55
+circuits, 60 000 shots, 2200 two-qubit gates in the native gate set).
+`--mode plan` only builds and counts, `--mode rehearsal` runs the same
+circuits on the IonQ simulator with the forte-1 noise model (free), and
+`--mode qpu` submits only with `--yes-i-accept-qpu-cost`; jobs resume from a
+file while they are queued.
+
+**Predictions for the hardware run, committed before any submission
+(4b45455).** H1: fewer flipped decisions with qang than without; H2: no
+more with qang + echo than with qang; H3: accuracy with qang at least
+without; H4: mean echo diagonal below 0.95.
+
+**Rehearsal (simulator, not judged):** noiseless 0.88; raw 0.84 (8 flips),
+qang 0.88 (4), qang + echo 0.86 (1); kept fraction 0.68; echo diagonal
+0.79–0.84. **QPU run pending** (credits, explicit cost approval).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
