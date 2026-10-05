@@ -41,7 +41,33 @@ OMP_NUM_THREADS=1 python examples/qnn_shot_training_qg.py [seeds]
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Mean test accuracy over 20 runs (4 datasets x 5 seeds), equal T1 gamma =
+0.08, test with 1000 shots and the training readout:
+
+  training                              with qang        without qang
+  exact noiseless probabilities         0.945            -
+  from shots, S = 1000 per evaluation   0.939            0.929
+  from shots, S = 100 per evaluation    0.930            0.915
+
+  Paired differences (points, 95% CI across seeds):
+  S = 1000, qang - raw   +1.0 [-1.6, +3.7]    S = 100, qang - raw   +1.5 [-1.6, +4.6]
+  exact - best S=1000    +0.5 [-1.0, +1.9]    exact - qang S=1000   +0.6 [-0.7, +2.0]
+
+  * S3, S4 pass; S1, S2 fail.
+  * S2 FAILS, and that is the finding: the filter's shot cost did not show in
+    training. With 100 shots per evaluation, of which the filter keeps 47%,
+    the model trained with qang was 1.5 points ahead of the one trained on all
+    shots, not behind. The noisier but unbiased features trained as well as
+    or better than the biased ones.
+  * S1 fails narrowly: at 1000 shots qang was 1.0 points ahead (the
+    prediction was |difference| < 1); the CI includes 0 in both cases.
+  * S3, S4: training on exact noiseless probabilities and running with the
+    filter (0.945) stays the best route, within 0.6 points of training from
+    shots with qang, at no shot cost for training.
+  Verdict. Training from shots under T1 does not change the picture of
+  §80: with qang the shot-trained model is as good as or slightly better than
+  without it at both shot levels, and the cheapest route, noiseless training
+  plus the filter at run time, is as good as any.
 """
 
 import json

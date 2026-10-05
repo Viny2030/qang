@@ -165,7 +165,7 @@ where arccos(qg_Z) drifts towards π/2 (§102, §103). Short note: `manuscript/q
 `qang.qml` (qang >= 0.6.4) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(108 so far in this line, §75–§108: 82 passed, 26 failed, all reported). Note (with the echo calibration, §104–§106): `manuscript/qang_qml.pdf` (Spanish:
+(112 so far in this line, §75–§109: 84 passed, 28 failed, all reported). Note (with the echo calibration, §104–§106): `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -188,6 +188,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | echo calibration and the classifier (§106, 189 inputs, five device noise models) | decisions that differ from the noiseless model: 15 without qang, 7 with the filter, 3 with filter + echo; on the IBM noise models filter + echo reaches the noiseless accuracy (0.979) |
 | echo calibration at weight 2 (§107, 10 × 10 transfer matrix) | removes 37–43% of the qg_Z error and 39–48% of the qg_ZZ error left by the filter on five device noise models; filter + echo 3.4–4.0× below raw |
 | echo calibration on narrow-margin inputs (§108, 600 readings) | the filter cuts flipped decisions from 47 to 17; the echo adds nothing there (19), because the filtered error is close to shot noise: use the echo only when the filtered error is well above its shot-noise level |
+| training from shots (§109, SPSA, 100 or 1000 shots per evaluation, T1) | trained with qang 0.939 / 0.930, without 0.929 / 0.915; the filter's shot cost did not show; noiseless training + filter at run time 0.945 |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
@@ -238,7 +239,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1255 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1256 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

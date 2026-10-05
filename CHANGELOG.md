@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `examples/qnn_shot_training_qg.py` (§109): the QNN trained from shots (SPSA, 100 or 1000 shots per evaluation)
+  under T1, with and without qang. With qang 0.939 / 0.930 against 0.929 / 0.915 without; the filter's shot cost did
+  not show in training (S3, S4 pass; S1, S2 fail). Noiseless training plus the filter at run time stays the best
+  route (0.945).
+
 ## [0.6.16] - 2026-10-05
 
 ### Changed

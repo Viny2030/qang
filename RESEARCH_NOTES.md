@@ -5415,6 +5415,35 @@ backend; M4: pooled accuracy with the echo at least the filter's.
   its shot-noise level; check that level with a noiseless simulation at the
   same shots.
 
+## 109. Training the QNN from shots (`examples/qnn_shot_training_qg.py`)
+
+All earlier trainings used exact probabilities. Here model E (weight 1, 5
+qubits) is trained under equal T1 (γ = 0.08, kept fraction 0.47) from S = 100
+or 1000 fresh shots per evaluation: Adam, SPSA gradients for the 15 angles,
+exact gradient for the classical head; read with or without the filter.
+Test with 1000 shots. 4 datasets × 5 seeds.
+
+**Predictions, committed before the noisy runs (9c06b36).** S1: at S = 1000
+the two readouts within 1 point; S2: at S = 100 qang worse by more than 1
+point (the filter's shot cost); S3: noiseless training + filter at least the
+best S = 1000 model minus 1 point; S4: S = 1000 with qang within 3 points of
+noiseless training.
+
+| training | with qang | without qang |
+|---|---|---|
+| exact noiseless probabilities | 0.945 | – |
+| shots, S = 1000 | 0.939 | 0.929 |
+| shots, S = 100 | 0.930 | 0.915 |
+
+* **S3, S4 pass; S1, S2 fail.**
+* **S2 fails, and that is the finding:** the filter's shot cost did not show
+  in training; at 100 shots the qang-trained model was 1.5 points ahead
+  (CI [−1.6, +4.6]).
+* **S1 fails narrowly:** +1.0 points for qang at 1000 shots (CI includes 0).
+* **Verdict.** Training from shots confirms §80: with qang as good as or
+  slightly better than without, and noiseless training plus the filter at
+  run time (0.945) is as good as any route.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
