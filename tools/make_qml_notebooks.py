@@ -60,14 +60,21 @@ T = {
         "| head | 0.858 (51) | 0.890 (24) | 0.900 (15) |\n\n"
         "The filter does most of the work; the echo removes a further third of the flips. Per backend the counts are "
         "small and move both ways (E2 and E4 failed on one or two backends).",
+        "multi8": "## 12. Eight classes on eight qubits (§114)\n\n"
+        "`MultiClassQNN` with 8 qubits, one class per qubit, digits 0-7 (100 per class, 7 PCA features), head readout, trained "
+        "without noise and run under T1, plus the model trained under T1 without qang. Over 30 runs (§114) the filter "
+        "kept every model exactly at its noiseless accuracy; without it the head readout lost 11.1 points with 8 classes "
+        "(15.9 with 5, 0.7 with 3; large spread between seeds), and the model trained under the noise without qang stayed "
+        "about 3 points behind. The single split below loses more than that average (seeds ranged from 2 to 34 points with 5 classes). The two trainings take about four minutes.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
         "* **Trained under the calibrated noise:** with and without qang are within about one test sample.\n"
         "* **Cost:** a known fraction of the shots, 1 - (1 - gamma)^(weight x depth).\n"
         "* **Errors inside the sector:** the filter does not see them; an echo calibration removes part of them (§113).\n"
+        "* **Eight classes on eight qubits:** with qang exact; without it the head readout loses about 11 points (§114).\n"
         "* **Limits:** unequal T1 and dephasing are not corrected; no quantum advantage.\n\n"
-        "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, §109–§113, scripts in `examples/qnn_*_qg.py`.",
+        "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts in `examples/qnn_*_qg.py`.",
         "cols": ("reading", "with qang", "without qang", "difference"),
     },
     "es": {
@@ -124,14 +131,21 @@ T = {
         "| cabeza | 0.858 (51) | 0.890 (24) | 0.900 (15) |\n\n"
         "El filtro hace la mayor parte del trabajo; el eco quita un tercio más de los cambios. Por backend los conteos "
         "son chicos y se mueven en ambos sentidos (E2 y E4 fallaron en uno o dos backends).",
+        "multi8": "## 12. Ocho clases en ocho qubits (§114)\n\n"
+        "`MultiClassQNN` con 8 qubits, una clase por qubit, dígitos 0-7 (100 por clase, 7 componentes PCA), lectura cabeza, entrenada "
+        "sin ruido y ejecutada con T1, más el modelo entrenado con T1 sin qang. En 30 corridas (§114) el filtro mantuvo "
+        "cada modelo exactamente en su precisión sin ruido; sin él la lectura cabeza perdió 11.1 puntos con 8 clases "
+        "(15.9 con 5, 0.7 con 3; mucha dispersión entre semillas), y el modelo entrenado con el ruido sin qang quedó "
+        "unos 3 puntos atrás. La partición de abajo pierde más que ese promedio (con 5 clases las semillas fueron de 2 a 34 puntos). Los dos entrenamientos tardan unos cuatro minutos.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
         "* **Entrenada con el ruido calibrado:** con y sin qang quedan a menos de una muestra de prueba.\n"
         "* **Costo:** una fracción conocida de disparos, 1 - (1 - gamma)^(peso x profundidad).\n"
         "* **Errores dentro del sector:** el filtro no los ve; una calibración por eco quita una parte (§113).\n"
+        "* **Ocho clases en ocho qubits:** con qang exacto; sin él la lectura cabeza pierde unos 11 puntos (§114).\n"
         "* **Límites:** el T1 desigual y el desfase no se corrigen; no hay ventaja cuántica.\n\n"
-        "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, §109–§113, scripts en `examples/qnn_*_qg.py`.",
+        "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts en `examples/qnn_*_qg.py`.",
         "cols": ("lectura", "con qang", "sin qang", "diferencia"),
     },
 }
@@ -272,6 +286,18 @@ for ro in ("qubit", "head"):
         cells = [decide(mc, PP, m) for m in modes]
         print(f"{ro + ', ' + label:<22}" + "".join(f"{np.mean(c == be):>10.3f} ({int(np.sum(c != ref)):>2})" for c in cells))
     print(f"{ro:<22} noiseless accuracy {np.mean(ref == be):.3f}")""",
+    "multi8": """d8 = load_digits(); r8 = np.random.default_rng(0)
+k8 = np.concatenate([r8.choice(np.where(d8.target == c)[0], 100, replace=False) for c in range(8)])  # 100 per class
+Er, Ee, er, ee = train_test_split(d8.data[k8], d8.target[k8], test_size=0.3, stratify=d8.target[k8], random_state=0)
+s8 = StandardScaler().fit(Er); p8 = PCA(7, random_state=0).fit(s8.transform(Er))
+Er, Ee = p8.transform(s8.transform(Er)), p8.transform(s8.transform(Ee))
+m8s = MinMaxScaler((-1, 1)).fit(Er); Er, Ee = m8s.transform(Er), np.clip(m8s.transform(Ee), -1, 1)
+mc8 = MultiClassQNN(n_qubits=8, n_classes=8, readout="head").fit(Er, er, epochs=120, seed=0)
+pna8 = MultiClassQNN(n_qubits=8, n_classes=8, readout="head").fit(Er, er, epochs=120, gamma=GAMMA, qang=False, seed=0).params_
+print(f"8 classes, head readout: noiseless accuracy {mc8.score(Ee, ee):.3f}")
+show([("8 classes, T1, trained clean", mc8.score(Ee, ee, gamma=GAMMA, qang=True), mc8.score(Ee, ee, gamma=GAMMA, qang=False)),
+      ("8 classes, unequal T1", mc8.score(Ee, ee, gamma=unequal8, qang=True), mc8.score(Ee, ee, gamma=unequal8, qang=False)),
+      ("qang clean vs trained under T1", mc8.score(Ee, ee, gamma=GAMMA, qang=True), mc8.score(Ee, ee, pna8, gamma=GAMMA, qang=False))])""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -283,7 +309,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))
