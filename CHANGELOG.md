@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - `qang.qml.WeightQNN.block_unitaries`: the RBS layers built directly in each weight sector; `probs` uses it
   (8-qubit training 13x faster, results unchanged).
+- QML notebooks (EN/ES): section 9, eight qubits at weight 1 and 2 with the with/without-qang table (in the saved
+  run qang adds 15-26 points at weight 1 and 46 at weight 2); the install cell needs `block_unitaries`.
 - `examples/qnn_scaling_qg.py` (§111): QNNs at 5, 6 and 8 qubits, weight 1 and 2, with and without qang. With qang
   exactly noiseless at every size; without qang -3 points at weight 1 (flat in n at fixed depth) and up to -26 at
   weight 2 with 8 qubits (SC1, SC3-SC5 pass; SC2 fails for weight 1).

@@ -35,6 +35,11 @@ T = {
         "of class c is the excitation probability of qubit c. Readout `\"head\"`: a linear softmax head on the five "
         "qg_Z. The filter keeps the shots with exactly one excitation, so the class probabilities are exactly the "
         "noiseless ones under equal T1. Digits 0-4 (5 classes, one per qubit), 4 PCA features. Over 15 runs (§110) the filter added 5.3 points (qubit readout) and 9.1 (head) on average, and 15 and 18 on digits; one split, like the one below, varies from run to run. On 3-class iris the difference is small.",
+        "big": "## 9. Eight qubits: the effect of qang grows with size at weight 2 (§111)\n\n"
+        "Same QNN with 8 qubits (7 PCA features), weight 1 and weight 2 (dual encoding, qg_ZZ readout), trained without "
+        "noise and run under T1. Over 54 runs (§111) the filter kept every model exactly at its noiseless accuracy; "
+        "without it the loss stayed near 3 points at weight 1 but reached 26 points at weight 2 with 8 qubits "
+        "(0.965 against 0.705). Wine (classes 0 and 1). Training the weight-2 model takes about a minute.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -73,6 +78,11 @@ T = {
         "puntaje de la clase c es la probabilidad de excitación del qubit c. Lectura `\"head\"`: una capa lineal "
         "softmax sobre los cinco qg_Z. El filtro conserva los disparos con exactamente una excitación, así que con T1 "
         "igual las probabilidades de las clases son exactamente las sin ruido. Dígitos 0-4 (5 clases, una por qubit), 4 componentes PCA. En 15 corridas (§110) el filtro sumó 5.3 puntos (lectura por qubit) y 9.1 (capa lineal) en promedio, y 15 y 18 en dígitos; una sola partición, como la de abajo, varía de corrida en corrida. Con iris (3 clases) la diferencia es chica.",
+        "big": "## 9. Ocho qubits: el efecto de qang crece con el tamaño en peso 2 (§111)\n\n"
+        "La misma QNN con 8 qubits (7 componentes PCA), peso 1 y peso 2 (codificación dual, lectura qg_ZZ), entrenada sin "
+        "ruido y ejecutada con T1. En 54 corridas (§111) el filtro mantuvo cada modelo exactamente en su precisión sin "
+        "ruido; sin el filtro la pérdida quedó cerca de 3 puntos en peso 1 pero llegó a 26 puntos en peso 2 con 8 "
+        "qubits (0.965 contra 0.705). Vino (clases 0 y 1). Entrenar el modelo de peso 2 tarda alrededor de un minuto.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -89,7 +99,7 @@ CODE = {
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "qang>=0.6.16", "scikit-learn"], check=False)
 importlib.invalidate_caches()
 import qang.qml
-if not hasattr(qang.qml, "MultiClassQNN"):  # multiclass is on GitHub before the next PyPI release
+if not (hasattr(qang.qml, "MultiClassQNN") and hasattr(qang.qml.WeightQNN, "block_unitaries")):  # multiclass is on GitHub before the next PyPI release
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--force-reinstall", "--no-deps",
                     "git+https://github.com/Viny2030/qang.git"], check=True)
     print("installed qang from GitHub; if an import fails below, restart the runtime once")
@@ -153,6 +163,21 @@ for ro in ("qubit", "head"):
              (f"{ro}: T1, 200 shots", mc.score(Ae, be, gamma=GAMMA, qang=True, shots=200, seed=1),
               mc.score(Ae, be, gamma=GAMMA, qang=False, shots=200, seed=1))]
 show(rows)""",
+    "big": """from sklearn.datasets import load_wine
+dw = load_wine(); kw = dw.target < 2
+Br, Be, cr, ce = train_test_split(dw.data[kw], dw.target[kw], test_size=0.3, stratify=dw.target[kw], random_state=0)
+sw = StandardScaler().fit(Br); pw = PCA(7, random_state=0).fit(sw.transform(Br))
+Br, Be = pw.transform(sw.transform(Br)), pw.transform(sw.transform(Be))
+lo8, hi8 = Br.min(0), Br.max(0)
+Br, Be = np.clip(2 * (Br - lo8) / (hi8 - lo8) - 1, -1, 1), np.clip(2 * (Be - lo8) / (hi8 - lo8) - 1, -1, 1)
+unequal8 = GAMMA * (1 + 0.5 * np.linspace(-1, 1, 8))
+rows = []
+for label, kw8 in (("8 qubits, weight 1", dict(weight=1)), ("8 qubits, weight 2", dict(weight=2, encoding="dual", readout="zz"))):
+    m8 = WeightQNN(n_qubits=8, **kw8).fit(Br, cr, epochs=120, seed=0)
+    print(f"{label}: noiseless accuracy {m8.score(Be, ce):.3f}, kept fraction with qang {kept_fraction(GAMMA, m8.weight, m8.depth):.3f}")
+    rows += [(f"{label}, T1", m8.score(Be, ce, gamma=GAMMA, qang=True), m8.score(Be, ce, gamma=GAMMA, qang=False)),
+             (f"{label}, unequal T1", m8.score(Be, ce, gamma=unequal8, qang=True), m8.score(Be, ce, gamma=unequal8, qang=False))]
+show(rows)""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -164,7 +189,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))
