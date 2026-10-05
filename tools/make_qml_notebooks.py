@@ -40,6 +40,13 @@ T = {
         "noise and run under T1. Over 54 runs (§111) the filter kept every model exactly at its noiseless accuracy; "
         "without it the loss stayed near 3 points at weight 1 but reached 26 points at weight 2 with 8 qubits "
         "(0.965 against 0.705). Wine (classes 0 and 1). Training the weight-2 model takes about a minute.",
+        "grad": "## 10. Gradients under T1: what the filter gives back (§112)\n\n"
+        "Random weight-conserving circuits, gradient of qg_Z of qubit 0 with respect to the first angle. With qang the "
+        "gradient is exactly the noiseless one; without qang it is K times smaller at weight 1 (K = kept fraction). The "
+        "last columns are the median shots needed to resolve the gradient: the filter is cheaper while K is not too "
+        "small; at half filling with 8 qubits and long depth (K < 0.15) the raw readout needed fewer shots in §112. With "
+        "only 40 draws, as here, the shot medians are noisy (in §112, with 200 draws, n = 6 at weight 3 needed 4215 "
+        "shots with qang against 5570 without).",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -83,6 +90,13 @@ T = {
         "ruido y ejecutada con T1. En 54 corridas (§111) el filtro mantuvo cada modelo exactamente en su precisión sin "
         "ruido; sin el filtro la pérdida quedó cerca de 3 puntos en peso 1 pero llegó a 26 puntos en peso 2 con 8 "
         "qubits (0.965 contra 0.705). Vino (clases 0 y 1). Entrenar el modelo de peso 2 tarda alrededor de un minuto.",
+        "grad": "## 10. Gradientes con T1: lo que el filtro devuelve (§112)\n\n"
+        "Circuitos aleatorios que conservan el peso, gradiente del qg_Z del qubit 0 respecto del primer ángulo. Con qang "
+        "el gradiente es exactamente el sin ruido; sin qang es K veces más chico en peso 1 (K = fracción conservada). Las "
+        "últimas columnas son la mediana de disparos necesarios para resolver el gradiente: el filtro es más barato "
+        "mientras K no sea muy chico; a mitad de llenado con 8 qubits y mucha profundidad (K < 0.15) la lectura cruda "
+        "necesitó menos disparos en §112. Con solo 40 sorteos, como aquí, las medianas de disparos tienen ruido (en §112, con "
+        "200 sorteos, n = 6 en peso 3 necesitó 4215 disparos con qang contra 5570 sin qang).",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -178,6 +192,27 @@ for label, kw8 in (("8 qubits, weight 1", dict(weight=1)), ("8 qubits, weight 2"
     rows += [(f"{label}, T1", m8.score(Be, ce, gamma=GAMMA, qang=True), m8.score(Be, ce, gamma=GAMMA, qang=False)),
              (f"{label}, unequal T1", m8.score(Be, ce, gamma=unequal8, qang=True), m8.score(Be, ce, gamma=unequal8, qang=False))]
 show(rows)""",
+    "grad": """def grad_cell(n, k, L, draws=40, gamma=0.02, seed=0):
+    rng = np.random.default_rng(seed)
+    g = WeightQNN(n, k, layers=L); K = kept_fraction(gamma, k, g.depth); h = 1e-5
+    out = {"noiseless": [], "with qang": [], "without qang": []}; shots = {"with qang": [], "without qang": []}
+    for _ in range(draws):
+        th = rng.uniform(-np.pi, np.pi, g.n_theta); psi = np.zeros((1, g.dim))
+        psi[0, g.idx[k]] = rng.normal(size=len(g.idx[k])); psi /= np.linalg.norm(psi)
+        def f(t, gam, q):
+            t2 = th.copy(); t2[0] = t
+            return float(g.qg_z(g.probs(t2, psi, gam), q)[0, 0])
+        out["noiseless"].append((f(th[0] + h, None, False) - f(th[0] - h, None, False)) / (2 * h))
+        for lab, q, r in (("with qang", True, K), ("without qang", False, 1.0)):
+            out[lab].append((f(th[0] + h, gamma, q) - f(th[0] - h, gamma, q)) / (2 * h))
+            fp, fm = f(th[0] + 0.3, gamma, q), f(th[0] - 0.3, gamma, q)
+            shots[lab].append(4 * ((1 - fp**2) + (1 - fm**2)) / (max((fp - fm)**2, 1e-300) * r))
+    v0 = np.var(out["noiseless"])
+    return K, v0, np.var(out["with qang"]) / v0, np.var(out["without qang"]) / v0, np.median(shots["with qang"]), np.median(shots["without qang"])
+print(f"{'circuit':<22}{'K':>7}{'Var(grad)':>11}{'ratio qang':>12}{'ratio raw':>11}{'shots qang':>12}{'shots raw':>11}")
+for n, k, L in ((4, 1, 8), (6, 1, 12), (6, 3, 6), (8, 1, 8)):
+    K, v0, rq, rr, sq, sr = grad_cell(n, k, L)
+    print(f"n={n}, weight {k}, L={L:<5}{K:>7.3f}{v0:>11.2e}{rq:>12.3f}{rr:>11.3f}{sq:>12.0f}{sr:>11.0f}")""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -189,7 +224,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))

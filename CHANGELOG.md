@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- QML notebooks (EN/ES): section 10, gradients under T1 with and without qang (variance ratio 1 with qang, K^2 at
+  weight 1 without; shots to resolve the gradient).
 - `examples/qnn_trainability_qg.py` (§112): gradients of weight-conserving circuits under T1 with and without qang.
   With qang the gradient is exactly the noiseless one; at weight 1 the raw one is K times smaller; the filter
   resolves gradients with fewer shots in 10 of 12 cells but not when K < 0.15 (T1, T2, T4 pass; T3, T5 fail).
