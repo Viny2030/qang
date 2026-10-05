@@ -66,6 +66,13 @@ T = {
         "kept every model exactly at its noiseless accuracy; without it the head readout lost 11.1 points with 8 classes "
         "(15.9 with 5, 0.7 with 3; large spread between seeds), and the model trained under the noise without qang stayed "
         "about 3 points behind. The single split below loses more than that average (seeds ranged from 2 to 34 points with 5 classes). The two trainings take about four minutes.",
+        "t1fix": "## 13. Correcting unequal T1: train with qang under the calibrated rates (§117)\n\n"
+        "Conditioned on no decay, the kept state depends only on the *ratios* of the decay rates 1 - gamma_q, so a model "
+        "trained with the filter under the device's calibrated T1s does not need their absolute level. Weight 2 (dual "
+        "encoding, qg_ZZ readout), decay 0 to 0.16 across the qubits, calibration with a 10% error, and a drift in which "
+        "every T1 gets 1.5 times shorter. Over 40 runs (§117) this model was within 0.5 points of noiseless (filter alone: "
+        "2.7 points below) and, at weight 2, lost 0.7 points under the drift against 10 for the raw noise-aware model. "
+        "The four trainings take about three minutes.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -73,7 +80,8 @@ T = {
         "* **Cost:** a known fraction of the shots, 1 - (1 - gamma)^(weight x depth).\n"
         "* **Errors inside the sector:** the filter does not see them; an echo calibration removes part of them (§113).\n"
         "* **Eight classes on eight qubits:** with qang exact; without it the head readout loses about 11 points (§114).\n"
-        "* **Limits:** unequal T1 and dephasing are not corrected; no quantum advantage.\n\n"
+        "* **Unequal T1:** corrected by training with qang under the calibrated rates, which only need the ratios of the T1s (§117).\n"
+        "* **Limits:** dephasing is not corrected, and unequal T1 only with calibrated training; no quantum advantage.\n\n"
         "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts in `examples/qnn_*_qg.py`.",
         "cols": ("reading", "with qang", "without qang", "difference"),
     },
@@ -137,6 +145,13 @@ T = {
         "cada modelo exactamente en su precisión sin ruido; sin él la lectura cabeza perdió 11.1 puntos con 8 clases "
         "(15.9 con 5, 0.7 con 3; mucha dispersión entre semillas), y el modelo entrenado con el ruido sin qang quedó "
         "unos 3 puntos atrás. La partición de abajo pierde más que ese promedio (con 5 clases las semillas fueron de 2 a 34 puntos). Los dos entrenamientos tardan unos cuatro minutos.",
+        "t1fix": "## 13. Corregir el T1 desigual: entrenar con qang con las tasas calibradas (§117)\n\n"
+        "Condicionado a que no hubo decaimiento, el estado conservado depende solo de los *cocientes* de las tasas 1 - gamma_q, "
+        "así que un modelo entrenado con el filtro con los T1 calibrados del equipo no necesita su nivel absoluto. Peso 2 "
+        "(codificación dual, lectura qg_ZZ), decaimiento de 0 a 0.16 entre qubits, calibración con 10 % de error y una deriva "
+        "en la que todos los T1 se acortan 1.5 veces. En 40 corridas (§117) este modelo quedó a menos de 0.5 puntos del sin "
+        "ruido (el filtro solo: 2.7 puntos abajo) y, en peso 2, perdió 0.7 puntos con la deriva contra 10 del modelo crudo "
+        "entrenado con ruido. Los cuatro entrenamientos tardan unos tres minutos.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -144,7 +159,8 @@ T = {
         "* **Costo:** una fracción conocida de disparos, 1 - (1 - gamma)^(peso x profundidad).\n"
         "* **Errores dentro del sector:** el filtro no los ve; una calibración por eco quita una parte (§113).\n"
         "* **Ocho clases en ocho qubits:** con qang exacto; sin él la lectura cabeza pierde unos 11 puntos (§114).\n"
-        "* **Límites:** el T1 desigual y el desfase no se corrigen; no hay ventaja cuántica.\n\n"
+        "* **T1 desigual:** se corrige entrenando con qang con las tasas calibradas, que solo necesitan los cocientes de los T1 (§117).\n"
+        "* **Límites:** el desfase no se corrige, y el T1 desigual solo con entrenamiento calibrado; no hay ventaja cuántica.\n\n"
         "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts en `examples/qnn_*_qg.py`.",
         "cols": ("lectura", "con qang", "sin qang", "diferencia"),
     },
@@ -298,6 +314,17 @@ print(f"8 classes, head readout: noiseless accuracy {mc8.score(Ee, ee):.3f}")
 show([("8 classes, T1, trained clean", mc8.score(Ee, ee, gamma=GAMMA, qang=True), mc8.score(Ee, ee, gamma=GAMMA, qang=False)),
       ("8 classes, unequal T1", mc8.score(Ee, ee, gamma=unequal8, qang=True), mc8.score(Ee, ee, gamma=unequal8, qang=False)),
       ("qang clean vs trained under T1", mc8.score(Ee, ee, gamma=GAMMA, qang=True), mc8.score(Ee, ee, pna8, gamma=GAMMA, qang=False))])""",
+    "t1fix": """true = 0.08 * (1 + np.linspace(-1, 1, 5))                      # decay per sublayer, 0 to 0.16
+cal = true * (1 + 0.10 * np.random.default_rng(7).normal(size=5))  # calibration with a 10% error
+drift = 1 - (1 - true) ** 1.5                                        # every T1 1.5x shorter
+mk = lambda: WeightQNN(5, 2, encoding="dual", readout="zz")
+mA = mk().fit(Xtr, ytr, epochs=120, seed=0)                          # trained without noise
+mC = mk().fit(Xtr, ytr, epochs=120, gamma=cal, qang=True, seed=0)   # trained with qang under the calibrated rates
+mD = mk().fit(Xtr, ytr, epochs=120, gamma=cal, qang=False, seed=0)  # trained without qang under the calibrated rates
+print(f"noiseless accuracy {mA.score(Xte, yte):.3f}")
+show([("unequal T1, trained clean", mA.score(Xte, yte, gamma=true, qang=True), mA.score(Xte, yte, gamma=true, qang=False)),
+      ("unequal T1, trained calibrated", mC.score(Xte, yte, gamma=true, qang=True), mD.score(Xte, yte, gamma=true, qang=False)),
+      ("T1 drift 1.5x, trained calibrated", mC.score(Xte, yte, gamma=drift, qang=True), mD.score(Xte, yte, gamma=drift, qang=False))])""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -309,7 +336,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))
