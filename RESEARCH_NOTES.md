@@ -5595,6 +5595,35 @@ under unequal T1 qang at least as good in every cell.
   classes. Noise-aware training no longer fully catches up (2–3 points
   behind with 5 and 8 classes), unlike at 5 qubits (§110).
 
+## 115. Echo calibration at 8 qubits, weight 2 (`examples/qg_echo_8q_qg.py`)
+
+The §107 pipeline on 8 qubits at weight 2: 28 sector states, 28 echo
+circuits (4000 shots each), a 28 × 28 transfer matrix; 30 inputs (8-RBS
+loader, fixed block of WeightQNN(8, 2)) at 1000 shots; the same five
+backends (IonQ native).
+
+**Predictions, committed before any noisy run (12d12f0).** X1, X2: lower
+qg_Z and qg_ZZ error with the echo than with the filter alone, every
+backend; X3: at least 30% less qg_Z error on average; X4: filter below raw;
+X5: a smaller average reduction than at 5 qubits (40%, §107).
+
+| backend | qg_Z (raw / qang / qang + echo) | qg_ZZ (raw / qang / qang + echo) | echo diagonal |
+|---|---|---|---|
+| fake brisbane | 0.185 / 0.081 / 0.055 | 0.180 / 0.091 / 0.062 | 0.50–0.64 |
+| fake sherbrooke | 0.162 / 0.060 / 0.041 | 0.156 / 0.069 / 0.049 | 0.58–0.74 |
+| fake torino | 0.123 / 0.046 / 0.030 | 0.127 / 0.053 / 0.037 | 0.70–0.80 |
+| IonQ aria-1 | 0.145 / 0.061 / 0.037 | 0.146 / 0.070 / 0.045 | 0.56–0.65 |
+| IonQ forte-1 | 0.167 / 0.065 / 0.047 | 0.161 / 0.075 / 0.054 | 0.50–0.62 |
+
+* **X1–X5 pass.** The echo removes 27–38% of the qg_Z error left by the
+  filter (32% on average) and 29–35% of the qg_ZZ error; filter plus echo is
+  3.4–4.1× below raw.
+* **Bigger sector, dirtier and harder to recover:** only 50–80% of an echo's
+  kept shots return to the prepared state (against 70–90% at 5 qubits), and
+  the share recovered falls from 40% to 32%.
+* **Verdict.** The echo scales to 28 states at the cost of 28 extra
+  circuits; it still removes about a third of the error the filter leaves.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

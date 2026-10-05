@@ -29,9 +29,27 @@ noiseless --mode local only):
 python examples/qg_echo_8q_qg.py --mode fake --out fake.json
 python examples/qg_echo_8q_qg.py --mode ionq_sim --noise aria-1 --jobs jobs_aria.json
 
-Findings:
+Findings (30 inputs at 1000 shots, 28 echoes at 4000 shots, per backend):
 
-FINDINGS_PLACEHOLDER
+  backend           qg_Z error (raw / qang / qang + echo)   qg_ZZ error (raw / qang / qang + echo)   echo removes
+  fake_brisbane     0.185 / 0.081 / 0.055                   0.180 / 0.091 / 0.062                    32% / 32%
+  fake_sherbrooke   0.162 / 0.060 / 0.041                   0.156 / 0.069 / 0.049                    31% / 29%
+  fake_torino       0.123 / 0.046 / 0.030                   0.127 / 0.053 / 0.037                    34% / 31%
+  IonQ aria-1       0.145 / 0.061 / 0.037                   0.146 / 0.070 / 0.045                    38% / 35%
+  IonQ forte-1      0.167 / 0.065 / 0.047                   0.161 / 0.075 / 0.054                    27% / 29%
+
+  * X1-X5 all pass.
+  * The echo removes 32% of the qg_Z error left by the filter on average
+    (27-38%) and 31% of the qg_ZZ error (29-35%); filter + echo is 3.4-4.1x
+    below the raw readout.
+  * The 8-qubit sector is much dirtier than the 5-qubit one: the echo
+    diagonal is 0.50-0.80 (only half to four fifths of the kept shots of an
+    echo come back to the prepared state), and the recovered share falls
+    from 40% (section 107) to 32% (X5), the forte-1 model being the lowest
+    (27%).
+  Verdict. The echo calibration scales to a 28 x 28 transfer matrix: with 28
+  extra circuits it still removes about a third of the error the filter
+  leaves, on every backend, but a smaller share than at 5 qubits.
 """
 
 import argparse
