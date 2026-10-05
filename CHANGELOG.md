@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.qml.MultiClassQNN` (weight 1): C classes with readout "qubit" (class c is qubit c) or "head" (linear
+  softmax on the qg_Z values); `logits`, `predict`, `score` with and without qang, under T1, dephasing and shots.
+- `examples/qnn_multiclass_qg.py` (§110): multiclass with and without qang on iris, wine and digits 0-4. With qang
+  exactly the noiseless accuracy; without qang -5.3 (qubit) and -9.1 (head) points, -15 to -18 on 5 classes
+  (MC1, MC3-MC5 pass; MC2 fails narrowly).
+- QML notebooks (EN/ES): section 8, multiclass on 5-class digits with the with/without-qang table; the install cell
+  falls back to GitHub until the next PyPI release.
 - `examples/qnn_shot_training_qg.py` (§109): the QNN trained from shots (SPSA, 100 or 1000 shots per evaluation)
   under T1, with and without qang. With qang 0.939 / 0.930 against 0.929 / 0.915 without; the filter's shot cost did
   not show in training (S3, S4 pass; S1, S2 fail). Noiseless training plus the filter at run time stays the best

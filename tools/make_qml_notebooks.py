@@ -30,6 +30,11 @@ T = {
         "and catches up (§79–§80). This takes a couple of minutes.",
         "real": "## 6. What the filter does not correct: unequal T1 across qubits, and dephasing",
         "shots": "## 7. Finite shots (200 per input)",
+        "multi": "## 8. Multiclass: each qubit is a class (§110)\n\n"
+        "`MultiClassQNN` reads C classes from one excitation spread over the qubits. Readout `\"qubit\"`: the score "
+        "of class c is the excitation probability of qubit c. Readout `\"head\"`: a linear softmax head on the five "
+        "qg_Z. The filter keeps the shots with exactly one excitation, so the class probabilities are exactly the "
+        "noiseless ones under equal T1. Digits 0-4 (5 classes, one per qubit), 4 PCA features. Over 15 runs (§110) the filter added 5.3 points (qubit readout) and 9.1 (head) on average, and 15 and 18 on digits; one split, like the one below, varies from run to run. On 3-class iris the difference is small.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -63,6 +68,11 @@ T = {
         "alcanza (§79–§80). Tarda un par de minutos.",
         "real": "## 6. Lo que el filtro no corrige: T1 distinto en cada qubit, y desfase",
         "shots": "## 7. Disparos finitos (200 por entrada)",
+        "multi": "## 8. Varias clases: cada qubit es una clase (§110)\n\n"
+        "`MultiClassQNN` lee C clases a partir de una excitación repartida entre los qubits. Lectura `\"qubit\"`: el "
+        "puntaje de la clase c es la probabilidad de excitación del qubit c. Lectura `\"head\"`: una capa lineal "
+        "softmax sobre los cinco qg_Z. El filtro conserva los disparos con exactamente una excitación, así que con T1 "
+        "igual las probabilidades de las clases son exactamente las sin ruido. Dígitos 0-4 (5 clases, una por qubit), 4 componentes PCA. En 15 corridas (§110) el filtro sumó 5.3 puntos (lectura por qubit) y 9.1 (capa lineal) en promedio, y 15 y 18 en dígitos; una sola partición, como la de abajo, varía de corrida en corrida. Con iris (3 clases) la diferencia es chica.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -75,8 +85,16 @@ T = {
 }
 
 CODE = {
-    "install": '!pip install -q -U "qang>=0.6.0" scikit-learn\n'
-    "import qang\nprint('qang', qang.__version__)",
+    "install": """import importlib, subprocess, sys
+subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "qang>=0.6.16", "scikit-learn"], check=False)
+importlib.invalidate_caches()
+import qang.qml
+if not hasattr(qang.qml, "MultiClassQNN"):  # multiclass is on GitHub before the next PyPI release
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--force-reinstall", "--no-deps",
+                    "git+https://github.com/Viny2030/qang.git"], check=True)
+    print("installed qang from GitHub; if an import fails below, restart the runtime once")
+import qang
+print('qang', qang.__version__)""",
     "data": """import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.decomposition import PCA
@@ -118,6 +136,23 @@ show([
     ("weight 2, T1 + dephasing 0.03", m2.score(Xte, yte, gamma=GAMMA, dephasing=0.03, qang=True), m2.score(Xte, yte, gamma=GAMMA, dephasing=0.03, qang=False)),
 ])
 print(f"noiseless: weight 1 {exact1:.3f}, weight 2 {exact2:.3f}")""",
+    "multi": """from sklearn.datasets import load_digits
+from sklearn.preprocessing import MinMaxScaler
+from qang.qml import MultiClassQNN
+dd = load_digits(); keep = dd.target < 5
+Ar, Ae, br, be = train_test_split(dd.data[keep], dd.target[keep], test_size=0.3, stratify=dd.target[keep], random_state=0)
+sd = StandardScaler().fit(Ar); pc = PCA(4, random_state=0).fit(sd.transform(Ar))
+Ar, Ae = pc.transform(sd.transform(Ar)), pc.transform(sd.transform(Ae))
+mm = MinMaxScaler((-1, 1)).fit(Ar); Ar, Ae = mm.transform(Ar), np.clip(mm.transform(Ae), -1, 1)
+rows = []
+for ro in ("qubit", "head"):
+    mc = MultiClassQNN(n_qubits=5, n_classes=5, readout=ro).fit(Ar, br, epochs=120, seed=0)
+    print(f"readout {ro}: noiseless accuracy {mc.score(Ae, be):.3f}")
+    rows += [(f"{ro}: T1, trained clean", mc.score(Ae, be, gamma=GAMMA, qang=True), mc.score(Ae, be, gamma=GAMMA, qang=False)),
+             (f"{ro}: unequal T1", mc.score(Ae, be, gamma=unequal, qang=True), mc.score(Ae, be, gamma=unequal, qang=False)),
+             (f"{ro}: T1, 200 shots", mc.score(Ae, be, gamma=GAMMA, qang=True, shots=200, seed=1),
+              mc.score(Ae, be, gamma=GAMMA, qang=False, shots=200, seed=1))]
+show(rows)""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -129,7 +164,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))

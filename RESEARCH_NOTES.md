@@ -5444,6 +5444,33 @@ noiseless training.
   slightly better than without, and noiseless training plus the filter at
   run time (0.945) is as good as any route.
 
+## 110. Multiclass QNN: each qubit a class (`examples/qnn_multiclass_qg.py`, `qang.qml.MultiClassQNN`)
+
+New in the library: `MultiClassQNN` (weight 1) with two readouts: "qubit"
+(class c is qubit c, logits a·p_c + b_c) and "head" (linear softmax on the
+five qg_Z). Iris and wine (3 classes) and digits 0–4 (5 classes), 5 seeds,
+exact probabilities, equal T1 γ = 0.08 and unequal T1 (spread 0.5).
+
+**Predictions, committed before the run (59f855a).** MC1: with qang equal to
+noiseless in every run; MC2: head readout loses ≥ 10 points without qang;
+MC3: the qubit readout loses less than the head; MC4: noise-aware training
+without qang within 2 points of the filtered model; MC5: under unequal T1
+qang at least as good, both readouts.
+
+| readout | noiseless | equal T1 (qang / without) | unequal T1 (qang / without) | noise-aware, without |
+|---|---|---|---|---|
+| qubit | 0.918 | 0.918 / 0.865 | 0.914 / 0.847 | 0.911 |
+| head | 0.953 | 0.953 / 0.863 | 0.949 / 0.831 | 0.936 |
+
+Digits (5 classes), equal T1: qubit 0.853 / 0.704, head 0.942 / 0.758.
+
+* **MC1, MC3, MC4, MC5 pass; MC2 fails narrowly** (9.1 points, not ≥ 10).
+* **The gain grows with the number of classes:** +15 to +18 points on
+  5-class digits; on 3-class iris the qubit readout without qang is even
+  0.9 points ahead (the raw class probabilities shrink together).
+* **Verdict.** The filter carries over to multiclass, exactly under equal T1;
+  noiseless training plus the filter remains the cheapest route.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

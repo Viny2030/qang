@@ -25,7 +25,7 @@ Reference implementation and computational toolkit for:
 | `qang.formulation` | the 15 main gates and 14 main algorithms in qg units (qg'_P = qg_{U†PU}), and the local radius r² = qg_X² + qg_Y² + qg_Z² |
 | `qang.sectors` | the qg symmetry filter and Hamming-weight tools; echo calibration of in-sector errors |
 | `qang.statistics` | qg_Z intervals from shot counts (Bayesian, Wilson, delta method); unbiased qg² and r² |
-| `qang.qml` | weight-conserving QNN classifiers read with and without the qg filter |
+| `qang.qml` | weight-conserving QNN classifiers (binary and multiclass) read with and without the qg filter |
 | `qang.polarization` | polarized light: Stokes parameters are qg values, Mueller matrices are the qg gate rule |
 | `qang.geometric` | geometric (Berry/Pancharatnam) phase in qg units, Stokes' theorem on the Bloch sphere |
 | `qang.qiskit_gate`, `qang.cirq_gate`, `qang.pennylane_gate` | native gates for the three SDKs (optional) |
@@ -165,7 +165,7 @@ where arccos(qg_Z) drifts towards π/2 (§102, §103). Short note: `manuscript/q
 `qang.qml` (qang >= 0.6.4) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(112 so far in this line, §75–§109: 84 passed, 28 failed, all reported). Note (with the echo calibration, §104–§106): `manuscript/qang_qml.pdf` (Spanish:
+(117 so far in this line, §75–§110: 88 passed, 29 failed, all reported). Note (with the echo calibration, §104–§106): `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -189,6 +189,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | echo calibration at weight 2 (§107, 10 × 10 transfer matrix) | removes 37–43% of the qg_Z error and 39–48% of the qg_ZZ error left by the filter on five device noise models; filter + echo 3.4–4.0× below raw |
 | echo calibration on narrow-margin inputs (§108, 600 readings) | the filter cuts flipped decisions from 47 to 17; the echo adds nothing there (19), because the filtered error is close to shot noise: use the echo only when the filtered error is well above its shot-noise level |
 | training from shots (§109, SPSA, 100 or 1000 shots per evaluation, T1) | trained with qang 0.939 / 0.930, without 0.929 / 0.915; the filter's shot cost did not show; noiseless training + filter at run time 0.945 |
+| multiclass, each qubit a class (§110, `MultiClassQNN`, 30 runs) | with qang exactly the noiseless accuracy; without qang −5.3 points (qubit readout) and −9.1 (linear head), −15 to −18 on 5-class digits |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
@@ -239,7 +240,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1256 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1257 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

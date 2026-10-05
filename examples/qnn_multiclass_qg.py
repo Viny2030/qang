@@ -33,7 +33,36 @@ OMP_NUM_THREADS=1 python examples/qnn_multiclass_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+15 runs per readout (3 datasets x 5 seeds), exact probabilities, mean test
+accuracy:
+
+  readout   noiseless   equal T1            unequal T1          noise-aware,
+                        qang / without      qang / without      without qang
+  qubit     0.918       0.918 / 0.865       0.914 / 0.847       0.911
+  head      0.953       0.953 / 0.863       0.949 / 0.831       0.936
+
+  per dataset (equal T1, with qang / without qang):
+  iris   (3 classes)  qubit 0.938 / 0.947    head 0.956 / 0.889
+  wine   (3 classes)  qubit 0.963 / 0.944    head 0.963 / 0.941
+  digits (5 classes)  qubit 0.853 / 0.704    head 0.942 / 0.758
+
+  * MC1, MC3, MC4, MC5 pass; MC2 fails.
+  * MC1: with qang the multiclass accuracy equals the noiseless one in all 30
+    runs (exact, both readouts).
+  * MC2 fails narrowly: without qang the head readout loses 9.1 points on
+    average, not the predicted 10 or more. It loses 18.4 on 5-class digits.
+  * MC3: the qubit readout loses less without qang (5.3 points), because
+    under equal T1 the raw class probabilities all shrink by the same factor
+    and only the offsets break the argmax; on 3-class iris raw is even 0.9
+    points ahead, and on digits it loses 14.9.
+  * MC4: trained under the noise without qang, the head readout comes within
+    1.7 points of the filtered model (0.936 against 0.953).
+  * MC5: under unequal T1 qang is ahead with both readouts (+6.7 and +11.8
+    points).
+  Verdict. The filter extends to multiclass with each qubit a class: exact
+  under equal T1, and the gain grows with the number of classes (5 classes:
+  +15 to +18 points). The cheapest route is again noiseless training plus
+  the filter.
 """
 
 import json
