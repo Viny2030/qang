@@ -92,7 +92,7 @@ def main():
                 {"identifier": SOFTWARE_DOI, "relation": "references", "scheme": "doi"},
             ],
             "notes": "Every numerical claim is reproduced by the open-source library qang (pip install qang, version "
-                     "0.6.13) and pinned by its tests; predictions were committed before each run.",
+                     "0.6.14) and pinned by its tests; predictions were committed before each run.",
         }
         if key == "qang":
             meta["related_identifiers"] = [{"identifier": REPO, "relation": "isSupplementedBy", "resource_type": "software"}]
@@ -101,7 +101,7 @@ def main():
         rows.append((key, title, doi, files))
     soft = {
         "upload_type": "software", "title": "qang: the Qang (qg) unit and metric for parametric quantum circuit design",
-        "creators": CREATOR, "license": "MIT", "access_right": "open", "version": "0.6.13",
+        "creators": CREATOR, "license": "MIT", "access_right": "open", "version": "0.6.14",
         "description": "Python library for the qang (qg) framework: qubits described by measurement-level quantities "
                        "(the polar bias qg_Z = ⟨σ_z⟩ and its companions), native qg-parameterized gates for Qiskit, Cirq "
                        "and PennyLane, few-shot qg estimators, the qg symmetry witness and filter, weight-conserving QNN "
@@ -110,7 +110,7 @@ def main():
         "keywords": ["quantum computing", "qang", "polar bias", "symmetry verification", "error mitigation", "qiskit",
                      "cirq", "pennylane", "quantum machine learning"],
         "related_identifiers": [{"identifier": REPO, "relation": "isSupplementTo", "resource_type": "software"},
-                                {"identifier": "https://pypi.org/project/qang/0.6.13/", "relation": "isIdenticalTo"}],
+                                {"identifier": "https://pypi.org/project/qang/0.6.14/", "relation": "isIdenticalTo"}],
     }
     json.dump(soft, open(os.path.join(ROOT, ".zenodo.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     lines = ["# Zenodo metadata pack", "",
@@ -122,13 +122,13 @@ def main():
     for key, title, doi, files in rows:
         act = f"new version of {doi}" if doi else "new record"
         lines.append(f"| `{key}.json` | {title} | {act} | {', '.join(files)} |")
-    lines += ["| `.zenodo.json` | qang software 0.6.13 | GitHub release (or upload the wheel and sdist) | dist/ |", "",
+    lines += ["| `.zenodo.json` | qang software 0.6.14 | GitHub release (or upload the wheel and sdist) | dist/ |", "",
               "Upload steps (zenodo.org, logged in with ORCID):", "",
               "1. New record: Upload → New upload → drag the PDFs → copy title, description, keywords, license from the",
               "   JSON → Publish. Write the DOI back into `manuscript/refs.bib` and the README.",
               "2. New version: open the existing record → New version → replace the PDF → update the fields → Publish.",
               "3. Software: enable the repository at zenodo.org/account/settings/github and make a GitHub release",
-              "   `v0.6.13`; Zenodo archives it with `.zenodo.json`.", ""]
+              "   `v0.6.14`; Zenodo archives it with `.zenodo.json`.", ""]
     open(os.path.join(OUT, "README.md"), "w", encoding="utf-8").write("\n".join(lines))
     print("wrote", len(rows), "records")
 

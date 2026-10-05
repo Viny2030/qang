@@ -41,7 +41,28 @@ python examples/qg_echo_weight2_qg.py --mode ionq_sim --noise aria-1 --jobs jobs
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+30 weight-2 inputs (1000 shots) and 10 echo calibrations (4000 shots) per
+backend; mean absolute error against the noiseless values:
+
+  backend           qg_Z: without / qang / echo     qg_ZZ: without / qang / echo    echo diagonal
+  fake_brisbane     0.178 / 0.086 / 0.049 (-43%)    0.209 / 0.098 / 0.051 (-48%)    0.70-0.79
+  fake_sherbrooke   0.147 / 0.070 / 0.044 (-37%)    0.174 / 0.079 / 0.047 (-40%)    0.78-0.86
+  fake_torino       0.113 / 0.047 / 0.029 (-39%)    0.139 / 0.051 / 0.031 (-39%)    0.85-0.90
+  IonQ aria-1       0.161 / 0.073 / 0.043 (-41%)    0.190 / 0.085 / 0.046 (-46%)    0.71-0.79
+  IonQ forte-1      0.151 / 0.066 / 0.038 (-43%)    0.174 / 0.076 / 0.040 (-48%)    0.72-0.80
+  ("echo" = qang + echo calibration, M^(1/2); IonQ in the native gate set)
+
+  * W1-W4 pass on all five backends.
+  * The 10 x 10 calibration removes 37-43% of the qg_Z error the filter
+    leaves (40% on average) and 39-48% of the qg_ZZ error; filter plus echo
+    is 3.4-4.0x below the raw readout.
+  * The sector is less clean at weight 2: 10-30% of the kept shots land on
+    another weight-2 state (5-23% at weight 1, §105), and the calibration
+    still recovers the same share as at weight 1.
+  Verdict. The echo calibration carries over to weight 2 unchanged:
+  qang.sectors.echo_transfer_matrix and unmix_sector with ten echo circuits
+  remove about 40% of what the filter leaves, for the single-qubit values and
+  for the pair correlations.
 """
 
 import argparse

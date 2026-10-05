@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.14] - 2026-10-05
+
+### Added
+- `examples/qg_echo_weight2_qg.py` (§107): the echo calibration in the weight-2 sector (10 x 10 transfer matrix from
+  10 echo circuits) on three IBM fake backends and the IonQ simulator (native); it removes 37-43% of the qg_Z error and
+  39-48% of the qg_ZZ error left by the filter (W1-W4 pass).
+
 ## [0.6.13] - 2026-10-05
 
 ### Changed

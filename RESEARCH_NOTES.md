@@ -5357,6 +5357,32 @@ as raw.
 * **Verdict.** The calibration reaches the classifier; on wide-margin data the
   accuracy gain is whole inputs, and the decision value shows the effect.
 
+## 107. Echo calibration in the weight-2 sector (`examples/qg_echo_weight2_qg.py`)
+
+Five qubits, weight 2 (10 sector states, so a 10 × 10 transfer matrix from
+10 echo circuits): X on two qubits, a 4-RBS loader that changes per input,
+then a fixed 15-RBS block. 30 inputs at 1000 shots; echoes at 4000 shots;
+the same five backends as §105 (IonQ native).
+
+**Predictions, committed before any noisy run (4d83029).** W1, W2: lower
+qg_Z and qg_ZZ error with the echo than with the filter alone, every
+backend; W3: at least 30% less qg_Z error on average; W4: filter below raw.
+
+| backend | qg_Z (raw / qang / qang + echo) | qg_ZZ (raw / qang / qang + echo) |
+|---|---|---|
+| fake brisbane | 0.178 / 0.086 / 0.049 | 0.209 / 0.098 / 0.051 |
+| fake sherbrooke | 0.147 / 0.070 / 0.044 | 0.174 / 0.079 / 0.047 |
+| fake torino | 0.113 / 0.047 / 0.029 | 0.139 / 0.051 / 0.031 |
+| IonQ aria-1 | 0.161 / 0.073 / 0.043 | 0.190 / 0.085 / 0.046 |
+| IonQ forte-1 | 0.151 / 0.066 / 0.038 | 0.174 / 0.076 / 0.040 |
+
+* **W1–W4 pass.** The calibration removes 37–43% of the qg_Z error left by
+  the filter (40% on average) and 39–48% of the qg_ZZ error; filter plus
+  echo is 3.4–4.0× below raw.
+* **The weight-2 sector is dirtier** (10–30% of kept shots on another sector
+  state, against 5–23% at weight 1), and the calibration recovers the same
+  share.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
