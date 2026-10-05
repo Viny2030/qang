@@ -165,7 +165,7 @@ where arccos(qg_Z) drifts towards π/2 (§102, §103). Short note: `manuscript/q
 `qang.qml` (qang >= 0.6.4; `MultiClassQNN` and `block_unitaries` from 0.6.17) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(142 judged so far in this line, §75–§115: 104 passed, 38 failed, all reported; 4 more wait for the IonQ hardware run, §116). Note (with §104–§113): `manuscript/qang_qml.pdf` (Spanish:
+(147 judged so far in this line, §75–§117: 107 passed, 40 failed, all reported; 4 more wait for the IonQ hardware run, §116). Note (with §104–§113): `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -195,6 +195,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | multiclass on device noise models with echo (§113, 5-class digits, 500 readings per readout) | flipped decisions: 46 raw / 19 filter / 15 filter + echo (qubit readout), 51 / 24 / 15 (head); head accuracy 0.858 / 0.890 / 0.900, noiseless 0.91 |
 | multiclass at 8 qubits (§114, 3, 5 and 8 classes of digits, 30 runs) | with qang exactly the noiseless accuracy; without qang the head readout loses 0.7 / 15.9 / 11.1 points (3 / 5 / 8 classes), the qubit readout 5.1 / 4.4 / 3.4; trained under the noise without qang, 2–3 points behind with 5 and 8 classes |
 | echo calibration at 8 qubits, weight 2 (§115, 28 × 28 transfer matrix, five device noise models) | removes 27–38% of the qg_Z error left by the filter (32% on average, against 40% at 5 qubits); filter + echo 3.4–4.1× below raw |
+| unequal T1 corrected (§117, spread ±100%, 40 runs) | training with qang under the calibrated decay rates: 0.951 / 0.940 against noiseless 0.950 / 0.945 (filter alone 0.931 / 0.918), unaffected by a 10% calibration error; the filtered readout depends only on the ratios of the rates, so at weight 2 it survives a 1.5× drift of all T1 (−0.7 points) that costs the raw noise-aware model 10 |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
@@ -245,7 +246,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1267 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1269 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

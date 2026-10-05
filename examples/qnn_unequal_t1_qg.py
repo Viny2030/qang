@@ -43,9 +43,34 @@ Pre-registered predictions (committed before the run; code checked on seed
 python examples/qnn_unequal_t1_qg.py            # all seeds
 python examples/qnn_unequal_t1_qg.py 1170       # one seed, JSON rows
 
-Findings:
+Findings (4 datasets x 5 seeds = 20 runs per weight; spread s = 1):
 
-FINDINGS_PLACEHOLDER
+  weight  noiseless   A      B      C      C*     D     | drift: A      B      C      D
+  1       0.950       0.931  0.873  0.951  0.945  0.952 |        0.913  0.770  0.942  0.950
+  2       0.945       0.918  0.797  0.940  0.941  0.941 |        0.903  0.663  0.932  0.841
+
+  * U2, U3, U5 pass; U1, U4 fail.
+  * The invariance holds exactly (tests): scaling every (1 - gamma_q) by a
+    common factor leaves the filtered distribution unchanged to 1e-12 at
+    weight 1 and 2, while the raw one changes.
+  * U2: training with qang under the calibrated rates (C) beats the filter
+    alone (A) by 2.0 points (weight 1) and 2.1 (weight 2); per-seed 95% CIs
+    +-3.0 and +-3.8 include 0. The filter alone loses 1.9 and 2.7 points at
+    this spread, more than the 1.3-1.4 of section 82.
+  * U1 fails narrowly at weight 2: C is 0.5 points below noiseless (0.940
+    against 0.945; bound 0.5); at weight 1 it is 0.1 above.
+  * U3: C and the raw noise-aware model D differ by 0.1-0.2 points.
+  * U5: the 10% calibration error costs nothing measurable (C* - C = -0.6
+    and +0.1 points).
+  * U4 fails at weight 1 only: under the common drift D loses 0.2 points and
+    C 0.8. At weight 2 D loses 10.0 points (0.941 to 0.841) and C 0.7
+    (0.940 to 0.932); the raw clean model B falls to 0.663.
+  Verdict. Unequal T1 is corrected by training with the filter under the
+  calibrated decay rates: within half a point of noiseless, insensitive to a
+  10% calibration error. At weight 2 this model also survives a 1.5x drift of
+  all T1 that costs the raw noise-aware model 10 points, because the filtered
+  readout depends only on the ratios of the decay rates; at weight 1 the raw
+  model survived the drift too.
 """
 
 import json

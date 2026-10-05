@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `examples/qnn_unequal_t1_qg.py` (§117): unequal T1 corrected by training with qang under the calibrated decay rates
+  (within 0.5 points of noiseless, insensitive to a 10% calibration error; the filtered readout depends only on the
+  ratios of the rates, tested); U2, U3, U5 pass; U1, U4 fail.
+
 ## [0.6.17] - 2026-10-05
 
 Release of the QNN studies §109–§116: `qang.qml.MultiClassQNN` (one class per qubit, "qubit" and "head"

@@ -5643,6 +5643,42 @@ without; H4: mean echo diagonal below 0.95.
 qang 0.88 (4), qang + echo 0.86 (1); kept fraction 0.68; echo diagonal
 0.79–0.84. **QPU run pending** (credits, explicit cost approval).
 
+## 117. Unequal T1 corrected: train with qang under the calibrated rates (`examples/qnn_unequal_t1_qg.py`)
+
+**Theory (F5).** Conditioned on no decay, the state is A psi / |A psi| with
+A = D U_d ... D U_1 and D the no-jump factor (prod over excited qubits of
+sqrt(1 - gamma_q)). A common factor in the (1 - gamma_q) cancels in the
+normalization: the filtered readout depends only on the ratios of the decay
+rates, at any weight (tested to 1e-12); the raw readout depends on their
+absolute values.
+
+Setting: WeightQNN, 5 qubits, weight 1 and 2 (dual, qg_ZZ); iris, cancer,
+wine, digits; 5 seeds. True gamma_q = 0.08 (1 + u_q), spread 1 (0 to 0.16);
+calibration with 10% error per qubit; drift: all T1 shorter by 1.5. A: clean
+training + filter; B: clean, raw; C: trained with qang under the calibrated
+rates; C*: under the exact rates; D: trained raw under the calibrated rates.
+
+**Predictions, committed before the run (3c0fca9).** U1: C within 0.5 points
+of noiseless; U2: C > A; U3: |C − D| ≤ 1 point; U4: under drift D loses more
+than C; U5: C* − C ≤ 0.5 points (all on average, both weights).
+
+| weight | noiseless | A | B | C | C* | D | drift: A / B / C / D |
+|---|---|---|---|---|---|---|---|
+| 1 | 0.950 | 0.931 | 0.873 | 0.951 | 0.945 | 0.952 | 0.913 / 0.770 / 0.942 / 0.950 |
+| 2 | 0.945 | 0.918 | 0.797 | 0.940 | 0.941 | 0.941 | 0.903 / 0.663 / 0.932 / 0.841 |
+
+* **U2, U3, U5 pass; U1, U4 fail.**
+* **The fix works:** training with qang under the calibrated rates gains 2.0
+  and 2.1 points over the filter alone and lands within 0.5 points of
+  noiseless (U1 misses by a hair at weight 2: 0.940 against 0.945); a 10%
+  calibration error costs nothing measurable.
+* **Drift:** at weight 2 the raw noise-aware model loses 10.0 points when all
+  T1 shorten by 1.5×; the filtered one 0.7. At weight 1 the raw model also
+  held (0.2 points), so U4 fails there.
+* **Verdict.** Unequal T1, the main limitation left in the QML note, is
+  corrected by noise-aware training *with* the filter, which needs only the
+  relative T1s and tolerates calibration errors and, at weight 2, drift.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
