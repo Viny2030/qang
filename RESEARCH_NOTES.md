@@ -5537,6 +5537,29 @@ qang in every cell.
   but at n = 8, k = 4 (K ≤ 0.14) it needs 1.3–2.2× more (the raw readout
   resolves the biased gradient; sign agreement not measured).
 
+## 113. Multiclass QNN on device noise models: filter and echo (`examples/qnn_multiclass_echo_qg.py`)
+
+`MultiClassQNN` (5 qubits, 5-class digits) on three IBM fake backends and the
+IonQ simulator (native), 100 test inputs at 1000 shots, 5 echo circuits per
+model. Each qubit is a class, so in-sector errors are class confusions.
+
+**Predictions, committed before any noisy run (d2dcd56).** E1: qubit
+readout, echo accuracy at least the filter's on every backend; E2: as many
+noiseless-agreeing decisions with the echo on every backend; E3: pooled
+flipped decisions raw > filter > filter + echo; E4: head readout, filter at
+least as accurate as raw on every backend.
+
+| readout | accuracy (raw / qang / qang + echo), mean of 5 | flipped decisions, total of 500 | noiseless |
+|---|---|---|---|
+| qubit | 0.792 / 0.818 / 0.836 | 46 / 19 / 15 | 0.82 |
+| head | 0.858 / 0.890 / 0.900 | 51 / 24 / 15 | 0.91 |
+
+* **E1, E3 pass; E2, E4 fail** (E2 on two backends by one decision; E4 on
+  sherbrooke by one input).
+* **Verdict.** The echo corrects class confusions: a third fewer flips than
+  the filter alone, a third of the raw readout's; the head readout reaches
+  0.90 of a noiseless 0.91. Per-backend counts are small and move both ways.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

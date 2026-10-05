@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_multiclass_echo_qg.py` (§113): the multiclass QNN (5-class digits) on five device noise models with
+  the filter and the echo calibration of class confusions. Flipped decisions 46 / 19 / 15 (qubit readout) and
+  51 / 24 / 15 (head) for raw / filter / filter + echo over 500 readings (E1, E3 pass; E2, E4 fail).
 - QML notebooks (EN/ES): section 10, gradients under T1 with and without qang (variance ratio 1 with qang, K^2 at
   weight 1 without; shots to resolve the gradient).
 - `examples/qnn_trainability_qg.py` (§112): gradients of weight-conserving circuits under T1 with and without qang.

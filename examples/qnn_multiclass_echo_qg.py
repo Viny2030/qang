@@ -33,7 +33,39 @@ python examples/qnn_multiclass_echo_qg.py --mode ionq_sim --noise aria-1 --jobs-
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+100 test inputs of 5-class digits, 1000 shots; noiseless accuracy 0.82
+(qubit readout) and 0.91 (head). Accuracy and decisions differing from the
+noiseless model (in brackets):
+
+  backend           qubit readout                              head readout
+                    without      qang         qang + echo      without      qang         qang + echo
+  fake_brisbane     0.82 (8)     0.82 (2)     0.84 (3)         0.82 (16)    0.89 (6)     0.92 (3)
+  fake_sherbrooke   0.80 (6)     0.82 (4)     0.85 (5)         0.90 (5)     0.89 (4)     0.89 (2)
+  fake_torino       0.82 (8)     0.83 (5)     0.85 (3)         0.88 (7)     0.89 (4)     0.90 (3)
+  IonQ aria-1       0.76 (14)    0.83 (3)     0.83 (1)         0.85 (11)    0.89 (4)     0.91 (2)
+  IonQ forte-1      0.76 (10)    0.79 (5)     0.81 (3)         0.84 (12)    0.89 (6)     0.88 (5)
+  mean / total      0.792 (46)   0.818 (19)   0.836 (15)       0.858 (51)   0.890 (24)   0.900 (15)
+
+  * E1, E3 pass; E2, E4 fail.
+  * E1: with the qubit readout the echo calibration is at or above the filter's
+    accuracy on all five backends (+1.8 points on average; filter +2.6 over
+    raw).
+  * E3: decisions that differ from the noiseless model fall from 46 (raw) to
+    19 (filter) to 15 (filter + echo) over 500 readings; with the head readout
+    from 51 to 24 to 15.
+  * E2 fails on two backends (brisbane 3 against 2, sherbrooke 5 against 4):
+    with a handful of flips per backend, single decisions move both ways.
+  * E4 fails on one backend: on sherbrooke the head readout without qang was
+    one input ahead (0.90 against 0.89); on the other four the filter is 1-7
+    points ahead.
+  * The echo diagonal (0.72-0.90) is the fraction of kept shots that stay on
+    the right class; filter + echo brings the head readout to 0.90 on average,
+    against 0.91 noiseless.
+  Verdict. In the multiclass QNN the echo calibration corrects class
+  confusions: pooled over five device noise models, filter plus echo has a
+  third fewer flipped decisions than the filter alone and a third of those of
+  the raw readout, and the head readout reaches 0.90 of a noiseless 0.91.
+  Per backend the counts are small and move both ways.
 """
 
 import argparse
