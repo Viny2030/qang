@@ -5,6 +5,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.18] - 2026-10-05
+
+Release of §114–§118: the two noises the filter cannot remove alone are now corrected. F5: the filtered readout
+depends only on the ratios of the decay rates, so training with qang under the calibrated T1s corrects unequal T1
+(within 0.5 points of noiseless, insensitive to a 10% calibration error, robust to a common T1 drift at weight 2).
+F6: with equal T1 the filtered readout equals the dephasing-only readout, so zero-noise extrapolation of the filtered
+features removes most of the dephasing bias (with enough shots) and noise-aware training with the filter recovers the
+noiseless accuracy. Also: eight classes on eight qubits, the echo calibration at 8 qubits, and a guarded IonQ QPU
+package for the multiclass model (not submitted). QML Colab notebooks (EN/ES) sections 12–14 and the QML note
+(EN/ES, PDF and Word) cover all of it.
+
 ### Added
 - QML notebooks (EN/ES): section 14, dephasing with the filter plus zero-noise extrapolation and with noise-aware
   training with the filter (exact and 1000 shots, with and without qang); QML note (EN/ES, PDF and Word) with §118.
