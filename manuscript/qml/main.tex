@@ -19,7 +19,7 @@ what the qg symmetry filter does and does not do}
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Draft of 3 October 2026}
+\date{\small Draft of 5 October 2026}
 
 \begin{document}
 \sloppy
@@ -50,10 +50,16 @@ the noiseless model fall from 15 (raw) and 7 (filter) to 3 over 945 readings on 
 advantage of the unfiltered model under noise-aware training disappears, and a classifier given both the filtered
 and the raw features gains nothing over the filter alone. Over 513 readout configurations, including kept fractions
 down to $2.6\times10^{-7}$, unequal T1 and dephasing, the filter has the lower readout error whenever about 20 shots
-are kept, and a closed-form rule predicts the winner. These models are classically simulable and no quantum
+are kept, and a closed-form rule predicts the winner. The same holds beyond the first model: at 8 qubits a weight-2
+network keeps its noiseless 0.965 with the filter and drops to 0.705 without it; a five-class classifier (one class per
+qubit) keeps its noiseless accuracy under T1 with the filter and loses 15--18 points without it on five-class digits; training from 100 or
+1000 shots per step with the filter is 1.0--1.5 points ahead of training without it; and the filtered gradient equals
+the noiseless one, while the raw one is $K$ times smaller at weight~1. On five device noise models the echo calibration
+turns class confusions back: flipped decisions of the five-class model fall from 51 (raw) and 24 (filter) to 15 over
+500 readings. The echo helped only where the filtered error was well above shot noise. These models are classically simulable and no quantum
 advantage is claimed. The filter is a way to make noise-free training valid under relaxation, at a
-shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.13,
-\texttt{pip install qang}).
+shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.16,
+\texttt{pip install qang}; the multiclass model is on the repository's main branch).
 \end{abstract}
 
 \section{Introduction}
@@ -70,7 +76,7 @@ mattering?
 
 We answer with exact simulation, a fixed protocol and an explicit comparison. Every reading is taken with
 qang (filtered) and without it (raw), on the same trained parameters or the same initialization. The
-predictions of every study were committed to the repository before the run that tested them. Of 91 pre-registered predictions in the studies summarized here, 70 passed and 21 failed; the failures are
+predictions of every study were committed to the repository before the run that tested them. Of 122 pre-registered predictions in the studies summarized here, 89 passed and 33 failed; the failures are
 reported alongside the passes.
 
 \section{Model and theory}
@@ -103,6 +109,12 @@ not uniform, and exactness is lost. Dephasing conserves the weight, so the filte
 \paragraph{F3: training.} Since the filtered T1 readout equals the noiseless one for every parameter value,
 the loss and all gradients are identical. Training under T1 with the filter therefore yields the parameters
 of noiseless training from the same initialization.
+
+\paragraph{Multiclass readout.} \texttt{MultiClassQNN} uses the weight-1 network with $C\le n$ classes, class $c$ on
+qubit $c$. Its ``qubit'' readout scores class $c$ by the excitation probability $p_c=(1-\qZ^{(c)})/2$ with logits
+$a\,p_c+b_c$; its ``head'' readout is a linear softmax on the $n$ values $\qZ^{(i)}$. Since each $p_c$ is a sector
+probability, F4 applies: under equal T1 the filtered class scores are exactly the noiseless ones. An in-sector error
+here moves the excitation to another qubit, i.e.\ swaps one class for another.
 
 \paragraph{F2: simulability.} At weight~1 the network is a $5\times5$ orthogonal matrix $O$ on $v$, and $z$ is
 a quadratic form in $v$. At weight $k$ the sector has dimension $\binom{n}{k}$, polynomial for fixed $k$.
@@ -148,7 +160,15 @@ The predictions that failed:
   prediction; the raw error of the radius deficit was not smaller at half filling; and three of the four
   predictions for the two-channel readout, including the replication of the 1.2-point effect above; on device
   noise models, the filter removed less than half of the false radius deficit of product states; and three of
-  five predictions on distorting encodings, including a second replication of the 1.2-point effect.
+  five predictions on distorting encodings, including a second replication of the 1.2-point effect;
+\item in Sec.~\ref{sec:beyond}: all four predictions that the echo would help narrow-margin inputs; training at 1000
+  shots, where the two readouts were expected within 1 point (qang $+1.0$), and at 100 shots, where the filter was
+  expected to lose more than a point to its shot cost (it was $1.5$ points ahead); the 10-point loss of the multiclass
+  head readout without the filter (9.1 points); a larger loss without the filter at 8 qubits than at 5 at weight~1
+  (it stayed at 3.1--3.4 points); a raw gradient suppressed more than $K$ at half filling, and fewer shots with the
+  filter in every gradient cell (10 of 12); and, for the multiclass echo, as many agreeing decisions with the echo on
+  every backend and a filtered head readout at least as accurate as the raw one on every backend (each missed on one
+  or two backends by one input).
 \end{itemize}
 
 \paragraph{Replication over 60 runs.} The key comparisons were repeated over 5 seeds $\times$ 3 splits
@@ -251,6 +271,14 @@ natively):
 \item all twelve predictions of these three studies passed.
 \end{itemize}
 
+Two follow-up studies set the limits of the echo. In the weight-2 sector (a $10\times10$ matrix from 10 echoes, 30
+inputs, the same five backends) it removed 37--43\% of the $\qZ$ error left by the filter and 39--48\% of the
+$\langle Z_iZ_j\rangle$ error, and all four predictions passed. On 120 narrow-margin inputs of a weight-1 model, chosen
+before the noisy runs, all four predictions failed: the filter cut flipped decisions from 47 to 17 over 600 readings,
+and the echo left 19. There the filtered error (0.26--0.35) was close to the shot-noise scatter of the decision value
+(about 0.22), so little bias was left to remove and inverting the matrix added variance. The echo is worth its circuits
+when the filtered error is well above its shot-noise level, which a noiseless simulation at the same shots shows.
+
 \paragraph{Two channels, shot cost and what else the filter reads.}\label{sec:scaling}
 \begin{itemize}
 \item \textit{Two-channel readout (60 runs).} Giving the classifier both the filtered and the raw features
@@ -280,6 +308,52 @@ natively):
   make product states look entangled.
 \end{itemize}
 
+\paragraph{Beyond the first model: shots, classes, size and gradients.}\label{sec:beyond}
+Table~\ref{tab:beyond} collects five studies that each change one thing in the setting above.
+\begin{itemize}
+\item \textit{Training from shots} (4 datasets $\times$ 5 seeds). Model E was trained under T1 from $S$ fresh shots per
+  evaluation (SPSA on the angles) and tested at 1000 shots. With the filter it reached 0.939 ($S=1000$) and 0.930
+  ($S=100$), without it 0.929 and 0.915. The shot cost of the filter did not show in training. Noiseless training
+  plus the filter at run time (0.945) was as good as any route.
+\item \textit{Multiclass} (iris, wine, digits 0--4; 5 seeds). With the filter every run equals its noiseless accuracy.
+  Without it the head readout loses 9.1 points on average and 18 on five-class digits; the qubit readout loses less,
+  since under equal T1 the raw $p_c$ shrink together (on three-class iris it was even 0.9 points ahead). Trained under
+  the noise, the raw model stays within 2 points.
+\item \textit{5, 6 and 8 qubits} (cancer, wine, digits; 3 seeds; depth 9). The RBS layers are built directly in each
+  weight sector (\texttt{block\_unitaries}), which makes 8-qubit training 13 times faster. With the filter every run
+  equals its noiseless accuracy. Without it the weight-1 loss stays at 3.1--3.4 points from 5 to 8 qubits; at weight~2
+  it grows from 8.7 to 26.0 points. Noise-aware training without the filter stays within 0.9 points in every cell.
+\item \textit{Gradients} (random circuits, $n=4,6,8$, weight 1 and $n/2$, 200 draws per cell, $\gamma=0.02$). The
+  filtered gradient equals the noiseless one; the raw gradient variance is $K^2$ times smaller at weight~1, and less
+  suppressed than $K$ at half filling, where decayed shots keep part of the signal. The sector itself flattens the
+  gradient, with or without the filter, by $5.2\times$ (weight 1) and $20\times$ (half filling) from 4 to 8 qubits.
+  Counting kept shots, the filter resolved the gradient with fewer shots in 10 of 12 cells; at $n=8$, $k=4$
+  ($K\le0.14$) it needed 1.3--2.2 times more.
+\item \textit{Multiclass on device noise models} (digits 0--4, 100 inputs, 1000 shots, the five backends of
+  Sec.~\ref{sec:echo}, 5 echo circuits per model). Here an in-sector error is a class confusion, and the echo
+  corrects part of it: averaged over the backends the head readout gave 0.858 raw, 0.890 with the filter and 0.900
+  with filter plus echo, against 0.91 noiseless.
+\end{itemize}
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccc}
+\toprule
+study & setting & noiseless & with qang & without qang\\
+\midrule
+shots (T1) & trained at $S=1000$ / $S=100$ & 0.945 & 0.939 / 0.930 & 0.929 / 0.915\\
+multiclass (T1) & qubit / head readout & 0.918 / 0.953 & 0.918 / 0.953 & 0.865 / 0.863\\
+size (T1) & 8 qubits, weight 1 / weight 2 & 0.977 / 0.965 & 0.977 / 0.965 & 0.946 / 0.705\\
+gradients (T1) & variance ratio, weight 1 & 1 & 1 & $K^2$\\
+multiclass (devices) & head, flips of 500 & 0.91 & 0.890 (24) & 0.858 (51)\\
+ & \quad with echo calibration & & 0.900 (15) & \\
+\bottomrule
+\end{tabular}
+\caption{Studies beyond the first model, with and without the filter (mean accuracy unless stated).}
+\label{tab:beyond}
+\end{table}
+
 \section{Discussion}
 
 The difference the filter makes depends on how the network was trained. Trained on a simulator and run
@@ -296,22 +370,27 @@ with a distorting encoding and a readout with many parameters, the decayed shots
 points), but over 60 new runs the gap was 0.5 points and not significant; with a faithful encoding it was absent,
 and adding the raw features to the filtered ones gained nothing. For weight-2 models, how the data are loaded matters more than what is read out. The shot cost of the filter did not decide against it anywhere in our scaling maps. What the filter cannot see,
 errors that keep the excitation in the sector but move it, can be calibrated with echo circuits at the cost of five
-extra circuits per model.
+extra circuits per model, provided the filtered error is well above shot noise. These conclusions held when the
+model was trained from shots, extended to five classes, or grown to 8 qubits; with size, the loss without the filter
+grew only at weight~2. The filter also hands training the noiseless gradient, but it does not cure the flattening that
+the sector itself brings at larger $n$.
 
 \paragraph{Limitations.} All noise is simulated, including the device noise models. There is one
-architecture per weight, five qubits, and small datasets in which one test sample is worth 2--3 points. The
+architecture per weight, 5--8 qubits, and small datasets in which one test sample is worth 2--3 points. The
 weight-2 model reaches but does not exceed the weight-1 accuracy on these datasets. No quantum advantage is claimed: these networks are classically
 simulable. A hardware run with the filter is the natural next test.
 
 \section*{Code and data availability}
 
-Models: \texttt{qang.qml} in \texttt{qang} 0.6.13 (\texttt{pip install qang}), NumPy only, with
+Models: \texttt{qang.qml} in \texttt{qang} 0.6.16 (\texttt{pip install qang}), NumPy only, with
 \texttt{WeightQNN} (weights 1 and 2, readouts \texttt{"z"} and \texttt{"zz"}, encodings \texttt{"pairs"}, \texttt{"ring"} and
-\texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}; echo calibration in \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Hardware-ready script:
+\texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}; \texttt{MultiClassQNN} and \texttt{block\_unitaries} on the
+main branch; echo calibration in \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Hardware-ready script:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM and IonQ). Studies:
-\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S106, with tests in \texttt{tests/}. The Colab
+\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S113, with tests in \texttt{tests/}. The Colab
 notebooks \texttt{notebooks/qang\_qml.ipynb} (English) and \texttt{qang\_qml\_es.ipynb} (Spanish) install the
-library from PyPI. Repository: \url{https://github.com/Viny2030/qang}.
+library from PyPI (or from GitHub for the multiclass model) and show
+every result with and without the filter. Repository: \url{https://github.com/Viny2030/qang}.
 
 \begin{lstlisting}[language=Python]
 from qang.qml import WeightQNN

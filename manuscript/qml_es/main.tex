@@ -18,7 +18,7 @@
 \author{Vicente Humberto Monteverde\\
 \small Universidad del Museo Social Argentino (UMSA), Argentina\\
 \small ORCID 0000-0001-8884-4811}
-\date{\small Borrador del 3 de octubre de 2026}
+\date{\small Borrador del 5 de octubre de 2026}
 
 \renewcommand{\figurename}{Figura}
 \renewcommand{\tablename}{Tabla}
@@ -54,11 +54,18 @@ modelo sin ruido bajan de 15 (crudo) y 7 (filtro) a 3 en 945 lecturas sobre cinc
 fiel de peso~2 desaparece la ventaja del modelo sin filtro entrenado con el ruido, y un clasificador que recibe a la
 vez las variables filtradas y las crudas no gana nada sobre el filtro solo. En 513 configuraciones de lectura,
 incluidas fracciones conservadas de hasta $2.6\times10^{-7}$, T1 desigual y desfase, el filtro tiene el menor error de
-lectura siempre que se conserven unos 20 disparos, y una regla cerrada predice el ganador. Estos modelos son
+lectura siempre que se conserven unos 20 disparos, y una regla cerrada predice el ganador. Lo mismo vale más allá del primer
+modelo: con 8 qubits una red de peso~2 mantiene su 0.965 sin ruido con el filtro y cae a 0.705 sin él; un clasificador
+de cinco clases (una clase por qubit) mantiene su precisión sin ruido bajo T1 con el filtro y pierde entre 15 y 18 puntos
+sin él en dígitos de cinco clases; entrenar con 100 o 1000 disparos por paso con el filtro queda entre 1.0 y 1.5 puntos por delante de entrenar sin
+él; y el gradiente filtrado es igual al sin ruido, mientras que el crudo es $K$ veces menor en peso~1. En cinco modelos
+de ruido de equipos la calibración por eco revierte confusiones de clase: las decisiones cambiadas del modelo de cinco
+clases bajan de 51 (crudo) y 24 (filtro) a 15 en 500 lecturas. El eco ayudó solo donde el error filtrado estaba bien por
+encima del ruido de disparo. Estos modelos son
 simulables clásicamente y no
 se afirma ventaja cuántica. El filtro es una manera de hacer válido el entrenamiento sin ruido bajo relajación,
-con un costo en disparos conocido de antemano. Los modelos se publican como \texttt{qang.qml} (versión 0.6.13,
-\texttt{pip install qang}).
+con un costo en disparos conocido de antemano. Los modelos se publican como \texttt{qang.qml} (versión 0.6.16,
+\texttt{pip install qang}; el modelo multiclase está en la rama principal del repositorio).
 \end{abstract}
 
 \section{Introducción}
@@ -76,7 +83,7 @@ limitado por T1, y cuándo deja de importar?
 Respondemos con simulación exacta, un protocolo fijo y una comparación explícita. Cada lectura se toma con qang
 (filtrada) y sin qang (cruda), sobre los mismos parámetros entrenados o la misma inicialización. Las
 predicciones de cada estudio quedaron registradas en el repositorio antes de la corrida que las puso a prueba.
-De 91 predicciones pre-registradas en los estudios que se resumen aquí, 70 se cumplieron y 21 fallaron; las
+De 122 predicciones pre-registradas en los estudios que se resumen aquí, 89 se cumplieron y 33 fallaron; las
 fallas se reportan junto a los aciertos.
 
 \section{Modelo y teoría}
@@ -111,6 +118,12 @@ pierde la exactitud. El desfase conserva el peso, así que el filtro no lo ve.
 \paragraph{F3: entrenamiento.} Como la lectura filtrada bajo T1 es igual a la sin ruido para cualquier valor de
 los parámetros, la pérdida y todos los gradientes son idénticos. Entrenar bajo T1 con el filtro da los
 parámetros del entrenamiento sin ruido, con la misma inicialización.
+
+\paragraph{Lectura multiclase.} \texttt{MultiClassQNN} usa la red de peso~1 con $C\le n$ clases, la clase $c$ en el
+qubit $c$. Su lectura ``qubit'' puntúa la clase $c$ con la probabilidad de excitación $p_c=(1-\qZ^{(c)})/2$ y logits
+$a\,p_c+b_c$; su lectura ``cabeza'' es un softmax lineal sobre los $n$ valores $\qZ^{(i)}$. Como cada $p_c$ es una
+probabilidad del sector, vale F4: con T1 igual las puntuaciones filtradas son exactamente las sin ruido. Un error dentro
+del sector mueve aquí la excitación a otro qubit, es decir, cambia una clase por otra.
 
 \paragraph{F2: simulabilidad.} En peso~1 la red es una matriz ortogonal $O$ de $5\times5$ sobre $v$, y $z$ es una
 forma cuadrática en $v$. En peso $k$ el sector tiene dimensión $\binom{n}{k}$, polinomial para $k$ fijo. Estos
@@ -157,7 +170,15 @@ Las predicciones que fallaron:
   el error crudo del déficit de radio no fue menor a mitad de llenado; y tres de las cuatro predicciones de la
   lectura de dos canales, incluida la réplica del efecto de 1.2 puntos; en modelos de ruido de equipos, el filtro
   quitó menos de la mitad del déficit de radio falso de los estados producto; y tres de cinco predicciones sobre
-  codificaciones que distorsionan, incluida una segunda réplica del efecto de 1.2 puntos.
+  codificaciones que distorsionan, incluida una segunda réplica del efecto de 1.2 puntos;
+\item en la Sec.~\ref{sec:mas}: las cuatro predicciones de que el eco ayudaría en entradas de margen estrecho; el
+  entrenamiento con 1000 disparos, donde se esperaban las dos lecturas a menos de 1 punto (qang $+1.0$), y con 100
+  disparos, donde se esperaba que el filtro perdiera más de un punto por su costo en disparos (quedó $1.5$ puntos por
+  delante); la pérdida de 10 puntos de la lectura cabeza multiclase sin filtro (9.1 puntos); una pérdida sin filtro
+  mayor con 8 qubits que con 5 en peso~1 (se mantuvo en 3.1--3.4 puntos); un gradiente crudo suprimido más que $K$ a
+  mitad de llenado, y menos disparos con el filtro en todas las celdas de gradiente (10 de 12); y, en el eco
+  multiclase, tantas decisiones coincidentes con el eco en cada backend y una lectura cabeza filtrada al menos tan
+  precisa como la cruda en cada backend (cada una falló en uno o dos backends por una entrada).
 \end{itemize}
 
 \paragraph{Réplica en 60 corridas.} Las comparaciones clave se repitieron con 5 semillas $\times$ 3 particiones
@@ -262,6 +283,15 @@ estándar, así que los ecos deben enviarse en nativo):
 \item las doce predicciones de estos tres estudios se cumplieron.
 \end{itemize}
 
+Dos estudios posteriores marcan los límites del eco. En el sector de peso~2 (una matriz de $10\times10$ con 10 ecos,
+30 entradas, los mismos cinco backends) quitó entre el 37 y el 43\,\% del error de $\qZ$ que deja el filtro y entre el 39
+y el 48\,\% del error de $\langle Z_iZ_j\rangle$, y las cuatro predicciones se cumplieron. En 120 entradas de margen
+estrecho de un modelo de peso~1, elegidas antes de las corridas con ruido, las cuatro predicciones fallaron: el filtro
+bajó las decisiones cambiadas de 47 a 17 en 600 lecturas, y el eco dejó 19. Ahí el error filtrado (0.26--0.35) estaba
+cerca de la dispersión por ruido de disparo del valor de decisión (unos 0.22), así que quedaba poco sesgo que quitar e
+invertir la matriz sumó varianza. El eco vale sus circuitos cuando el error filtrado está bien por encima de su nivel de
+ruido de disparo, que muestra una simulación sin ruido con los mismos disparos.
+
 \paragraph{Dos canales, costo en disparos y qué más lee el filtro.}\label{sec:escala}
 \begin{itemize}
 \item \textit{Lectura de dos canales (60 corridas).} Darle al clasificador las variables filtradas y las crudas
@@ -291,6 +321,53 @@ estándar, así que los ecos deben enviarse en nativo):
   sector pasan el filtro y siguen haciendo parecer entrelazados a los estados producto.
 \end{itemize}
 
+\paragraph{Más allá del primer modelo: disparos, clases, tamaño y gradientes.}\label{sec:mas}
+La Tabla~\ref{tab:mas} reúne cinco estudios que cambian cada uno una cosa del planteo anterior.
+\begin{itemize}
+\item \textit{Entrenar con disparos} (4 conjuntos $\times$ 5 semillas). El modelo E se entrenó bajo T1 con $S$ disparos
+  nuevos por evaluación (SPSA en los ángulos) y se probó con 1000 disparos. Con el filtro llegó a 0.939 ($S=1000$) y
+  0.930 ($S=100$), sin él a 0.929 y 0.915. El costo en disparos del filtro no se notó en el entrenamiento. Entrenar
+  sin ruido y aplicar el filtro al ejecutar (0.945) fue tan bueno como cualquier otra vía.
+\item \textit{Multiclase} (iris, wine, dígitos 0--4; 5 semillas). Con el filtro cada corrida iguala su precisión sin
+  ruido. Sin él la lectura cabeza pierde 9.1 puntos en promedio y 18 en los dígitos de cinco clases; la lectura qubit
+  pierde menos, porque con T1 igual los $p_c$ crudos se encogen juntos (en iris, de tres clases, incluso quedó 0.9
+  puntos por delante). Entrenado con el ruido, el modelo crudo queda a menos de 2 puntos.
+\item \textit{5, 6 y 8 qubits} (cancer, wine, dígitos; 3 semillas; profundidad 9). Las capas RBS se construyen
+  directamente en cada sector de peso (\texttt{block\_unitaries}), lo que hace 13 veces más rápido el entrenamiento con
+  8 qubits. Con el filtro cada corrida iguala su precisión sin ruido. Sin él la pérdida en peso~1 se mantiene en
+  3.1--3.4 puntos de 5 a 8 qubits; en peso~2 crece de 8.7 a 26.0 puntos. El entrenamiento con ruido sin filtro queda a
+  menos de 0.9 puntos en cada celda.
+\item \textit{Gradientes} (circuitos aleatorios, $n=4,6,8$, peso 1 y $n/2$, 200 sorteos por celda, $\gamma=0.02$). El
+  gradiente filtrado es igual al sin ruido; la varianza del gradiente crudo es $K^2$ veces menor en peso~1, y se suprime
+  menos que $K$ a mitad de llenado, donde los disparos decaídos conservan parte de la señal. El propio sector aplana el
+  gradiente, con o sin filtro, $5.2$ veces (peso 1) y $20$ veces (mitad de llenado) de 4 a 8 qubits. Contando los
+  disparos conservados, el filtro resolvió el gradiente con menos disparos en 10 de 12 celdas; con $n=8$, $k=4$
+  ($K\le0.14$) necesitó entre 1.3 y 2.2 veces más.
+\item \textit{Multiclase en modelos de ruido de equipos} (dígitos 0--4, 100 entradas, 1000 disparos, los cinco backends
+  de la Sec.~\ref{sec:eco}, 5 circuitos de eco por modelo). Aquí un error dentro del sector es una confusión de clase, y
+  el eco corrige una parte: en promedio sobre los backends la lectura cabeza dio 0.858 cruda, 0.890 con el filtro y
+  0.900 con filtro más eco, contra 0.91 sin ruido.
+\end{itemize}
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccc}
+\toprule
+estudio & planteo & sin ruido & con qang & sin qang\\
+\midrule
+disparos (T1) & entrenado con $S=1000$ / $S=100$ & 0.945 & 0.939 / 0.930 & 0.929 / 0.915\\
+multiclase (T1) & lectura qubit / cabeza & 0.918 / 0.953 & 0.918 / 0.953 & 0.865 / 0.863\\
+tamaño (T1) & 8 qubits, peso 1 / peso 2 & 0.977 / 0.965 & 0.977 / 0.965 & 0.946 / 0.705\\
+gradientes (T1) & razón de varianza, peso 1 & 1 & 1 & $K^2$\\
+multiclase (equipos) & cabeza, cambios en 500 & 0.91 & 0.890 (24) & 0.858 (51)\\
+ & \quad con calibración por eco & & 0.900 (15) & \\
+\bottomrule
+\end{tabular}
+\caption{Estudios más allá del primer modelo, con y sin el filtro (precisión media salvo indicación).}
+\label{tab:mas}
+\end{table}
+
 \section{Discusión}
 
 La diferencia que hace el filtro depende de cómo se entrenó la red. Entrenada en simulador y ejecutada con
@@ -307,22 +384,26 @@ codificación que distorsiona y una lectura con muchos parámetros, los disparos
 estudio (1.2 puntos), pero en 60 corridas nuevas la diferencia fue de 0.5 puntos y no significativa; con una
 codificación fiel no apareció, y sumar las variables crudas a las filtradas no ganó nada. Para modelos de peso~2, importa más cómo se cargan los datos que qué se lee. El costo en disparos del filtro no decidió en su contra en ninguno de nuestros mapas de escala. Lo que el filtro
 no ve, los errores que mantienen la excitación en el sector pero la mueven, se puede calibrar con circuitos de eco, al
-costo de cinco circuitos extra por modelo.
+costo de cinco circuitos extra por modelo, siempre que el error filtrado esté bien por encima del ruido de disparo.
+Estas conclusiones se mantuvieron al entrenar con disparos, al pasar a cinco clases o al crecer a 8 qubits; con el
+tamaño, la pérdida sin filtro creció solo en peso~2. El filtro también le entrega al entrenamiento el gradiente sin
+ruido, pero no cura el aplanamiento que trae el propio sector con $n$ mayor.
 
 \paragraph{Limitaciones.} Todo el ruido es simulado, incluidos los modelos de ruido de equipos. Hay una
-arquitectura por peso, cinco qubits y conjuntos pequeños en los que una muestra de prueba vale 2--3 puntos. El
+arquitectura por peso, 5--8 qubits y conjuntos pequeños en los que una muestra de prueba vale 2--3 puntos. El
 modelo de peso~2 alcanza pero no supera la precisión del peso~1 en estos conjuntos. No se afirma ventaja cuántica: estas redes son simulables
 clásicamente. Una corrida en hardware con el filtro es la siguiente prueba natural.
 
 \section*{Disponibilidad de código y datos}
 
-Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.13 (\texttt{pip install qang}), solo NumPy, con
+Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.16 (\texttt{pip install qang}), solo NumPy, con
 \texttt{WeightQNN} (pesos 1 y 2, lecturas \texttt{"z"} y \texttt{"zz"}, codificaciones \texttt{"pairs"}, \texttt{"ring"} y
-\texttt{"dual"}; cualquier peso para simular; \texttt{qang="both"}), \texttt{kept\_fraction} y \texttt{compare\_qang}; calibración por eco en \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Script listo para hardware:
+\texttt{"dual"}; cualquier peso para simular; \texttt{qang="both"}), \texttt{kept\_fraction} y \texttt{compare\_qang}; \texttt{MultiClassQNN} y \texttt{block\_unitaries} en la rama
+principal; calibración por eco en \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Script listo para hardware:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM e IonQ). Estudios: \texttt{examples/qnn\_*\_qg.py} y
-RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S101, \S104--\S106, con pruebas en \texttt{tests/}. Los cuadernos Colab
+RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S101, \S104--\S113, con pruebas en \texttt{tests/}. Los cuadernos Colab
 \texttt{notebooks/qang\_qml\_es.ipynb} (español) y \texttt{qang\_qml.ipynb} (inglés) instalan la librería desde
-PyPI. Repositorio: \url{https://github.com/Viny2030/qang}.
+PyPI (o desde GitHub para el modelo multiclase) y muestran cada resultado con y sin el filtro. Repositorio: \url{https://github.com/Viny2030/qang}.
 
 \begin{lstlisting}[language=Python]
 from qang.qml import WeightQNN

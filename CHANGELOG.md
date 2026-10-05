@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- QML note (EN/ES, PDF and Word) updated with §107-§113: echo calibration at weight 2 and on narrow margins,
+  training from shots, multiclass, 5-8 qubits, gradients and the multiclass echo (122 predictions, 89 pass, 33 fail).
 - QML notebooks (EN/ES): section 11, class confusions inside the sector with the filter and the echo calibration
   (synthetic device with accuracy and flipped decisions without qang / qang / qang + echo, plus the §113 table).
 - `examples/qnn_multiclass_echo_qg.py` (§113): the multiclass QNN (5-class digits) on five device noise models with
