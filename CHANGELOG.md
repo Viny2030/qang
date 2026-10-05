@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.16] - 2026-10-05
+
+### Changed
+- The start-here notebooks (`qang_start_here`, `qang_inicio_formulacion`) gain section 6, the angle in radians
+  separated from the radius (`direction_from_qg`, `direction_estimate`), and section 7, the echo calibration of the
+  errors the filter keeps (`echo_transfer_matrix`, `unmix_sector`) with the shot-noise check of §108 for when not to
+  use it; built by `tools/add_radius_section.py`, executed, install `qang>=0.6.15`.
+
 ## [0.6.15] - 2026-10-05
 
 ### Added

@@ -10,16 +10,17 @@ import os
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "notebooks")
 
-INSTALL = '''# In Colab: installs qang from PyPI (0.6.4 or later ships the radius functions).
+INSTALL = '''# In Colab: installs qang from PyPI (0.6.15 or later ships the radius, angle and echo functions).
 import importlib, subprocess, sys
 def _ok():
     try:
         import qang.formulation as _F
-        return hasattr(_F, "radius_profile")
+        import qang.sectors as _S
+        return hasattr(_F, "direction_from_qg") and hasattr(_S, "echo_transfer_matrix")
     except ImportError:
         return False
 if not _ok():
-    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "qang>=0.6.4"], check=False)
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "qang>=0.6.15"], check=False)
     importlib.invalidate_caches()
     if not _ok():  # fallback: install from GitHub
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "git+https://github.com/Viny2030/qang.git"], check=True)
@@ -29,8 +30,8 @@ import qang
 from qang import formulation as F
 print("qang", qang.__version__)'''
 
-INSTALL_ES = INSTALL.replace("# In Colab: installs qang from PyPI (0.6.4 or later ships the radius functions).",
-                             "# En Colab: instala qang desde PyPI (0.6.4 o posterior trae las funciones del radio).") \
+INSTALL_ES = INSTALL.replace("# In Colab: installs qang from PyPI (0.6.15 or later ships the radius, angle and echo functions).",
+                             "# En Colab: instala qang desde PyPI (0.6.15 o posterior trae el radio, el ángulo y el eco).") \
                     .replace("# fallback: install from GitHub", "# si PyPI no la tiene, se instala desde GitHub")
 
 CODE_DEF = '''# r^2 = qg_X^2 + qg_Y^2 + qg_Z^2 for each qubit; area 4 pi r^2
@@ -84,6 +85,51 @@ kept = np.where(m.wt == 2, c, 0)
 est = [1 - qg2_unbiased(int(kept @ (m.zsign[:, q] > 0)), int(kept.sum())) for q in range(6)]
 print("from shots, qang :", np.round(est, 3), f"({kept.sum()} of 1000 shots kept)")'''
 
+CODE_ANGLE = """# The polar angle in radians, separated from the radius (§102)
+from qang.statistics import direction_estimate
+theta, phi = 0.5, 0.3
+q = np.array([np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)])
+for p in (0.0, 0.2, 0.4):                       # depolarizing: the vector shrinks by (1 - p)
+    qx, qy, qz = (1 - p) * q
+    t_qang, _, r = F.direction_from_qg(qx, qy, qz)
+    print(f"p = {p:.1f}: r = {r:.2f} | with qang theta = {t_qang:.3f} | without qang arccos(qg_Z) = {np.arccos(qz):.3f}"
+          f"   (true {theta})")
+# from shots: 1000 per basis (with qang) against 3000 in Z (without qang)
+rng = np.random.default_rng(0)
+qx, qy, qz = 0.8 * q
+k = lambda v, n: (rng.binomial(n, (1 + v) / 2), n)
+print("from counts, with qang:", round(direction_estimate(k(qx, 1000), k(qy, 1000), k(qz, 1000))[0], 3),
+      "| without qang:", round(float(np.arccos(2 * k(qz, 3000)[0] / 3000 - 1)), 3))"""
+
+CODE_ECHO = """# Echo calibration of the errors the filter keeps (§105-§108), weight 1 on 5 qubits, in NumPy
+from qang.sectors import echo_transfer_matrix, unmix_sector, filter_distribution, sector_states
+n, k = 5, 1
+states = sector_states(n, k)                     # the 5 weight-1 basis states
+rng = np.random.default_rng(1)
+A = 0.9 * np.eye(5) + rng.uniform(0, 0.025, (5, 5)) * (1 - np.eye(5)); A /= A.sum(0)  # forward in-sector error
+M_true = A @ A                                   # an echo has twice the gates
+def noisy(x_sector, kept=0.75):                  # in-sector error + decay out of the sector
+    p = np.zeros(2**n); p[states] = kept * (A @ x_sector); p[0] = 1 - kept; return p
+def echo(j, kept=0.7):
+    p = np.zeros(2**n); p[states] = kept * M_true[:, j]; p[0] = 1 - kept; return p
+M = echo_transfer_matrix([echo(j) for j in range(5)], n, k)
+x = rng.dirichlet(np.ones(5))                    # the noiseless excitation probabilities
+p = noisy(x)
+zs = 1 - 2 * ((np.arange(2**n)[:, None] >> np.arange(n)) & 1)   # qg_Z sign of every outcome, qubit i = bit i
+truth = np.zeros(2**n); truth[states] = x
+for label, d in (("without qang", p), ("qang (filter)", filter_distribution(p, n, k)[0]),
+                 ("qang + echo", unmix_sector(p, M, n, k, power=0.5))):
+    print(f"{label:14s} qg_Z error {np.mean(np.abs(d @ zs - truth @ zs)):.4f}")"""
+
+CODE_ECHO_RULE = """# When NOT to use the echo (§108): compare the filtered error with its shot-noise level
+shots = 1000
+qz_filter = filter_distribution(p, n, k)[0] @ zs
+shot_sd = np.sqrt((1 - qz_filter**2) / (0.75 * shots))   # 75% of the shots kept
+bias = np.abs(qz_filter - truth @ zs)
+print("filtered bias per qubit     :", np.round(bias, 3))
+print("shot-noise sd per qubit     :", np.round(shot_sd, 3))
+print("use the echo calibration?   :", bool(np.mean(bias) > 2 * np.mean(shot_sd)))"""
+
 EN = [
     ("markdown", "## 5. The local radius: the surface of the sphere (§97)\n\n"
      "Each qubit's local qg values are a point in the unit ball. Its squared radius\n\n"
@@ -110,6 +156,23 @@ EN = [
      "false deficit of 0.60–0.95; from shots the filter has the lower error in 30 of 30 configurations "
      "(24 of 30 with dephasing, which it does not correct). One prediction failed (the half-filling case). "
      "Article: `manuscript/qang_formulation.pdf`, section 6."),
+    ("markdown", "## 6. The angle in radians, separated from the radius (§102, §103)\n\n"
+     "$qg_Z = r\\cos\\theta$ mixes the direction with the length of the vector, so $\\arccos(qg_Z)$ drifts towards "
+     "$\\pi/2$ when noise shortens it. The radius separates them: "
+     "$\\theta = \\mathrm{atan2}(\\sqrt{qg_X^2+qg_Y^2},\\, qg_Z) = \\arccos(qg_Z/r)$. Exact under depolarizing noise, "
+     "5-9x more accurate on IBM and IonQ noise models (IonQ in the native gate set); worse under pure dephasing and "
+     "when the vector does not shrink (three bases cost shots)."),
+    ("code", CODE_ANGLE),
+    ("markdown", "## 7. Echo calibration of the errors the filter keeps (§105-§108)\n\n"
+     "The filter discards shots that left the sector, but errors that move an excitation inside it pass. An echo "
+     "circuit (a sector state, the circuit and its inverse) measures them: its filtered distribution is a column of a "
+     "transfer matrix $M$; inverting $M^{1/2}$ on the filtered distribution removes 38-47% of what the filter leaves on "
+     "IBM and IonQ noise models (weight 1 and 2), and it halved the classifier's decision error in §106."),
+    ("code", CODE_ECHO),
+    ("markdown", "**When not to use it (§108).** If the filtered error is already close to the shot noise, the "
+     "inversion adds variance and gains nothing: on narrow-margin inputs the filter cut flipped decisions from 47 to "
+     "17 and the echo left 19. Compare the two first:"),
+    ("code", CODE_ECHO_RULE),
 ]
 
 ES = [
@@ -140,6 +203,24 @@ ES = [
      "el decaimiento muestra un déficit falso de 0.60–0.95; con disparos el filtro tiene el menor error en 30 de "
      "30 configuraciones (24 de 30 con desfase, que no corrige). Una predicción falló (el caso a mitad de "
      "llenado). Artículo: `manuscript/qang_teoria_es.pdf`, sección 5."),
+    ("markdown", "## 6. El ángulo en radianes, separado del radio (§102, §103)\n\n"
+     "$qg_Z = r\\cos\\theta$ mezcla la dirección con la longitud del vector, así que $\\arccos(qg_Z)$ se corre hacia "
+     "$\\pi/2$ cuando el ruido lo acorta. El radio los separa: "
+     "$\\theta = \\mathrm{atan2}(\\sqrt{qg_X^2+qg_Y^2},\\, qg_Z) = \\arccos(qg_Z/r)$. Exacto con ruido despolarizante, "
+     "entre 5 y 9 veces más preciso en los modelos de ruido de IBM e IonQ (IonQ con compuertas nativas); peor con "
+     "desfase puro y cuando el vector no se achica (las tres bases cuestan disparos)."),
+    ("code", CODE_ANGLE),
+    ("markdown", "## 7. Calibración por eco de los errores que deja el filtro (§105-§108)\n\n"
+     "El filtro descarta los disparos que salieron del sector, pero los errores que mueven una excitación dentro del "
+     "sector pasan. Un circuito de eco (un estado del sector, el circuito y su inverso) los mide: su distribución "
+     "filtrada es una columna de una matriz de transferencia $M$; invertir $M^{1/2}$ sobre la distribución filtrada "
+     "quita entre el 38 y el 47 % de lo que deja el filtro en los modelos de ruido de IBM e IonQ (peso 1 y 2), y redujo "
+     "a la mitad el error de decisión del clasificador en §106."),
+    ("code", CODE_ECHO),
+    ("markdown", "**Cuándo no usarla (§108).** Si el error filtrado ya está cerca del ruido de disparos, la inversión "
+     "agrega varianza y no gana nada: en entradas de margen estrecho el filtro bajó las decisiones cambiadas de 47 a "
+     "17 y el eco dejó 19. Conviene comparar primero:"),
+    ("code", CODE_ECHO_RULE),
 ]
 
 

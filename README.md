@@ -135,6 +135,8 @@ print(f"Theta 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}] rad")
 `notebooks/qang_start_here.ipynb` (English; Spanish: `qang_inicio_formulacion.ipynb`) installs `qang` from PyPI
 and walks through the 15 main gates and 14 main algorithms in qg language with `qang.formulation`: a state is
 described by its qg values (qg_P = <P> for every Pauli string) and a gate acts as qg'_P = qg_{U^dag P U}.
+Sections 5–7 of the notebooks add the local radius, the angle in radians separated from the radius, and the echo
+calibration of the errors the filter keeps (with the check for when not to use it).
 Article: `manuscript/qang_formulation.pdf` (Spanish draft: `manuscript/qang_teoria_es.pdf`).
 
 ```python
