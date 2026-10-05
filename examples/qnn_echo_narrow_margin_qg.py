@@ -40,7 +40,34 @@ python examples/qnn_echo_narrow_margin_qg.py --mode ionq_sim --noise aria-1 --jo
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+120 inputs with noiseless margins 0.4-1.6 (noiseless accuracy 0.892 against
+the rule labels), 1000 shots; 5 echo calibrations at 4000 shots:
+
+  backend           decisions differing from    decision-value error       accuracy
+                    noiseless (raw/qang/echo)   raw / qang / echo          raw / qang / echo
+  fake_brisbane     10 / 5 / 6                  0.46 / 0.309 / 0.306       0.808 / 0.850 / 0.842
+  fake_sherbrooke   11 / 1 / 2                  0.43 / 0.267 / 0.272       0.800 / 0.900 / 0.892
+  fake_torino        6 / 4 / 3                  0.37 / 0.258 / 0.261       0.842 / 0.892 / 0.900
+  IonQ aria-1       10 / 3 / 4                  0.52 / 0.353 / 0.350       0.808 / 0.883 / 0.875
+  IonQ forte-1      10 / 4 / 4                  0.47 / 0.309 / 0.317       0.808 / 0.858 / 0.858
+  pooled            47 / 17 / 19                                           0.813 / 0.877 / 0.873
+
+  * M1-M4 all FAIL. The filter does what it did before: it cuts the flipped
+    decisions from 47 to 17 (600 readings) and raises the accuracy by 6.4
+    points. The echo calibration adds nothing here: 19 flips against 17,
+    decision error within 0.01 of the filter's, accuracy 0.3 points lower.
+  * Why, and why it differs from §106. With 1000 shots the decision value of
+    this model already scatters by about 0.22 from shot noise alone (the
+    noiseless check); with the filter the error is 0.26-0.35, so little
+    in-sector bias is left for the calibration to remove, while inverting the
+    transfer matrix adds variance. In §106 the trained heads had larger
+    weights and the filtered error was 0.47-0.87, mostly bias, which the echo
+    halved.
+  Verdict. The echo calibration helps when the in-sector bias is large
+  compared with the shot noise of the decision value, and not otherwise; it
+  never helped here and cost little. A practical check before using it:
+  compare the filtered decision error with its shot-noise level (for example
+  from a noiseless simulation with the same shots).
 """
 
 import argparse

@@ -5383,6 +5383,38 @@ backend; W3: at least 30% less qg_Z error on average; W4: filter below raw.
   state, against 5–23% at weight 1), and the calibration recovers the same
   share.
 
+## 108. Echo calibration on narrow-margin inputs (`examples/qnn_echo_narrow_margin_qg.py`)
+
+A weight-1 model trained on a synthetic rule; 120 test inputs chosen, before
+any noisy run, with noiseless margins 0.4–1.6 (below 0.4 shot noise alone
+flips decisions; the band was fixed after the noiseless check). §106
+readouts and backends.
+
+**Predictions, committed before any noisy run (4ae2674).** M1: fewer flipped
+decisions with the echo than with the filter, every backend; M2: pooled
+raw > filter > filter + echo; M3: lower decision error with the echo, every
+backend; M4: pooled accuracy with the echo at least the filter's.
+
+| backend | flipped decisions (raw / qang / echo) | decision error (raw / qang / echo) |
+|---|---|---|
+| fake brisbane | 10 / 5 / 6 | 0.46 / 0.309 / 0.306 |
+| fake sherbrooke | 11 / 1 / 2 | 0.43 / 0.267 / 0.272 |
+| fake torino | 6 / 4 / 3 | 0.37 / 0.258 / 0.261 |
+| IonQ aria-1 | 10 / 3 / 4 | 0.52 / 0.353 / 0.350 |
+| IonQ forte-1 | 10 / 4 / 4 | 0.47 / 0.309 / 0.317 |
+| pooled | 47 / 17 / 19 | |
+
+* **M1–M4 all fail.** The filter cuts flipped decisions from 47 to 17 (600
+  readings) and adds 6.4 points of accuracy; the echo adds nothing (19
+  flips, accuracy −0.3 points).
+* **Why.** This model's decision value scatters by about 0.22 from shot
+  noise alone; with the filter its error is 0.26–0.35, so little in-sector
+  bias remains, and inverting the transfer matrix adds variance. In §106
+  the filtered error was 0.47–0.87, mostly bias, and the echo halved it.
+* **Rule.** Use the echo calibration when the filtered error is well above
+  its shot-noise level; check that level with a noiseless simulation at the
+  same shots.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

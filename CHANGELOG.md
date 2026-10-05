@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.15] - 2026-10-05
+
+### Added
+- `examples/qnn_echo_narrow_margin_qg.py` (§108): the echo calibration on 120 narrow-margin inputs on five device
+  noise models. The filter cuts flipped decisions from 47 to 17 (600 readings, +6.4 accuracy points); the echo adds
+  nothing (19), because the filtered decision error is close to its shot-noise level (M1-M4 fail). Rule: use the echo
+  only when the filtered error is well above shot noise.
+
 ## [0.6.14] - 2026-10-05
 
 ### Added
