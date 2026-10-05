@@ -35,7 +35,35 @@ OMP_NUM_THREADS=1 python examples/qnn_scaling_qg.py [seeds]
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+9 runs per cell (3 datasets x 3 seeds), exact probabilities, mean test
+accuracy (kept fraction with qang: 0.47 at weight 1, 0.22 at weight 2; the
+depth is 9 sublayers at every n):
+
+  n  weight   noiseless   equal T1            unequal T1          noise-aware,
+                          qang / without      qang / without      without qang
+  5  1        0.958       0.958 / 0.924       0.952 / 0.926       0.961
+  5  2        0.948       0.948 / 0.861       0.944 / 0.881       0.954
+  6  1        0.969       0.969 / 0.937       0.946 / 0.919       0.965
+  6  2        0.957       0.957 / 0.878       0.950 / 0.889       0.954
+  8  1        0.977       0.977 / 0.946       0.971 / 0.954       0.968
+  8  2        0.965       0.965 / 0.705       0.958 / 0.718       0.968
+
+  * SC1, SC3, SC4, SC5 pass; SC2 fails.
+  * SC1: with qang the accuracy equals the noiseless one in all 54 runs.
+  * SC2 FAILS for weight 1: the loss without qang stays at 3.1-3.4 points
+    from 5 to 8 qubits. The depth (9 sublayers) and so the kept fraction do
+    not change with n, and at weight 1 the raw excitation probabilities only
+    shrink together. At weight 2 the loss grows as predicted, from 8.7 points
+    at 5 qubits to 26.0 at 8 (30-37 points on cancer and wine).
+  * SC3: weight 2 loses more than weight 1 at every n (2.4-8.4x).
+  * SC4: noise-aware training without qang stays within 0.9 points of the
+    filtered model in every cell, also at 8 qubits.
+  * SC5: under unequal T1 qang is ahead in every cell (+1.7 to +24 points).
+  Verdict. The filter keeps 5-8-qubit QNNs exactly at their noiseless
+  accuracy; without it the damage at fixed depth does not grow with the
+  number of qubits at weight 1, but it does at weight 2, where an 8-qubit
+  model drops 26 points. Noise-aware training remains a full alternative
+  when the noise is known.
 """
 
 import json

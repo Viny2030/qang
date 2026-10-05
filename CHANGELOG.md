@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.qml.WeightQNN.block_unitaries`: the RBS layers built directly in each weight sector; `probs` uses it
+  (8-qubit training 13x faster, results unchanged).
+- `examples/qnn_scaling_qg.py` (§111): QNNs at 5, 6 and 8 qubits, weight 1 and 2, with and without qang. With qang
+  exactly noiseless at every size; without qang -3 points at weight 1 (flat in n at fixed depth) and up to -26 at
+  weight 2 with 8 qubits (SC1, SC3-SC5 pass; SC2 fails for weight 1).
 - `qang.qml.MultiClassQNN` (weight 1): C classes with readout "qubit" (class c is qubit c) or "head" (linear
   softmax on the qg_Z values); `logits`, `predict`, `score` with and without qang, under T1, dephasing and shots.
 - `examples/qnn_multiclass_qg.py` (§110): multiclass with and without qang on iris, wine and digits 0-4. With qang

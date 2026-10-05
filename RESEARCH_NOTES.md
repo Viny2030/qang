@@ -5471,6 +5471,37 @@ Digits (5 classes), equal T1: qubit 0.853 / 0.704, head 0.942 / 0.758.
 * **Verdict.** The filter carries over to multiclass, exactly under equal T1;
   noiseless training plus the filter remains the cheapest route.
 
+## 111. QNN with and without qang at 5, 6 and 8 qubits (`examples/qnn_scaling_qg.py`)
+
+`WeightQNN.block_unitaries` now builds the RBS layers directly in each
+weight sector (no 2^n × 2^n matrices; 8-qubit training 13× faster, tested
+against the full unitaries). Grid: n = 5, 6, 8; weight 1 (qg_Z) and 2 (dual
+encoding, qg_ZZ); cancer, wine, digits; 3 seeds; equal T1 γ = 0.08 and
+unequal T1 (spread 0.5). Depth 9 sublayers at every n.
+
+**Predictions, committed before the run (34760c3).** SC1: with qang equal to
+noiseless in every run; SC2: the loss without qang larger at 8 qubits than
+at 5, both weights; SC3: weight 2 loses more than weight 1 at every n; SC4:
+noise-aware training without qang within 3 points of the filtered model in
+every cell; SC5: under unequal T1 qang at least as good in every cell.
+
+| n | weight | noiseless | equal T1 (qang / without) | unequal T1 (qang / without) | noise-aware, without |
+|---|---|---|---|---|---|
+| 5 | 1 | 0.958 | 0.958 / 0.924 | 0.952 / 0.926 | 0.961 |
+| 5 | 2 | 0.948 | 0.948 / 0.861 | 0.944 / 0.881 | 0.954 |
+| 6 | 1 | 0.969 | 0.969 / 0.937 | 0.946 / 0.919 | 0.965 |
+| 6 | 2 | 0.957 | 0.957 / 0.878 | 0.950 / 0.889 | 0.954 |
+| 8 | 1 | 0.977 | 0.977 / 0.946 | 0.971 / 0.954 | 0.968 |
+| 8 | 2 | 0.965 | 0.965 / 0.705 | 0.958 / 0.718 | 0.968 |
+
+* **SC1, SC3, SC4, SC5 pass; SC2 fails for weight 1.** At fixed depth the
+  weight-1 loss without qang stays at 3.1–3.4 points from 5 to 8 qubits; at
+  weight 2 it grows from 8.7 to 26.0 points.
+* **Noise-aware training** stays within 0.9 points of the filtered model in
+  every cell.
+* **Verdict.** The filter keeps 5–8-qubit QNNs exactly at their noiseless
+  accuracy; without it an 8-qubit weight-2 model drops 26 points.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
