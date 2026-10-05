@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- QML note (EN/ES, PDF and Word) updated with §114-§117: F5 (the filtered readout depends only on the ratios of
+  the decay rates), unequal T1 corrected by calibrated training with the filter, eight classes on eight qubits, the
+  echo at 8 qubits and the IonQ package (138 predictions, 99 pass, 39 fail).
 - QML notebooks (EN/ES): section 13, unequal T1 corrected by training with qang under the calibrated rates (mean of
   three initializations, with and without qang, including a 1.5x T1 drift).
 - `examples/qnn_unequal_t1_qg.py` (§117): unequal T1 corrected by training with qang under the calibrated decay rates
