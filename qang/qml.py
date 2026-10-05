@@ -120,6 +120,7 @@ class WeightQNN:
         else:
             self.features = self.zsign
         self.n_head = self.features.shape[1]
+        self._pair_cache = {}
         self.params_ = None
 
     # ------------------------------------------------------------------ #
@@ -146,6 +147,39 @@ class WeightQNN:
                     U = self._rbs(a, b, theta[k]) @ U
                     k += 1
                 out.append(U)
+        return out
+
+    def _rbs_pairs(self, k, a, b):
+        """Positions (i, j) in the weight-k block where RBS(a, b) rotates
+        |a=1, b=0> (i) into |a=0, b=1> (j); cached."""
+        key = (k, a, b)
+        if key not in self._pair_cache:
+            pos = {s: i for i, s in enumerate(self.idx[k])}
+            ba, bb = self._bit(a), self._bit(b)
+            ii = [pos[s] for s in self.idx[k] if (s & ba) and not (s & bb)]
+            jj = [pos[s ^ ba ^ bb] for s in self.idx[k] if (s & ba) and not (s & bb)]
+            self._pair_cache[key] = (np.array(ii, int), np.array(jj, int))
+        return self._pair_cache[key]
+
+    def block_unitaries(self, theta, weights=None):
+        """One dict {k: block of the sublayer unitary on the weight-k sector}
+        per sublayer, built directly in each block (no 2^n x 2^n matrices).
+        Equal to unitaries(theta) restricted to the sectors."""
+        weights = range(1, self.weight + 1) if weights is None else weights
+        out, k = [], 0
+        for _ in range(self.layers):
+            for pairs in self.sublayers:
+                blocks = {w: np.eye(len(self.idx[w])) for w in weights}
+                for a, b in pairs:
+                    c, s_ = math.cos(theta[k]), math.sin(theta[k])
+                    for w, B in blocks.items():
+                        i, j = self._rbs_pairs(w, a, b)
+                        if len(i):
+                            Bi, Bj = B[i].copy(), B[j].copy()
+                            B[i] = c * Bi - s_ * Bj
+                            B[j] = s_ * Bi + c * Bj
+                    k += 1
+                out.append(blocks)
         return out
 
     @property
@@ -190,9 +224,9 @@ class WeightQNN:
         a = psi[:, self.idx[k0]]
         M = {k: np.zeros((S, len(self.idx[k]), len(self.idx[k]))) for k in range(k0 + 1)}
         M[k0] = np.einsum("si,sj->sij", a, a)
-        for L in self.unitaries(theta):
+        for blocks in self.block_unitaries(theta):
             for k in range(1, k0 + 1):
-                B = L[np.ix_(self.idx[k], self.idx[k])]
+                B = blocks[k]
                 M[k] = B[None] @ M[k] @ B.T[None]
             for q in range(self.n):
                 g = 0.0 if gam is None else gam[q]

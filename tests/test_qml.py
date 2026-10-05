@@ -187,3 +187,13 @@ def test_multiclass_qnn_filter_exact_and_qubit_readout():
         MultiClassQNN(5, 6, readout="qubit")
     with pytest.raises(ValueError):
         MultiClassQNN(5, 3, readout="softmax")
+
+
+def test_block_unitaries_match_full_unitaries():
+    rng = np.random.default_rng(13)
+    for n, w in ((5, 1), (5, 2), (6, 3)):
+        m = WeightQNN(n, w)
+        th = rng.uniform(-3, 3, m.n_theta)
+        for L, blocks in zip(m.unitaries(th), m.block_unitaries(th)):
+            for k in range(1, w + 1):
+                assert np.allclose(L[np.ix_(m.idx[k], m.idx[k])], blocks[k], atol=1e-13)
