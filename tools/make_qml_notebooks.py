@@ -72,7 +72,7 @@ T = {
         "encoding, qg_ZZ readout), decay 0 to 0.16 across the qubits, calibration with a 10% error, and a drift in which "
         "every T1 gets 1.5 times shorter. Over 40 runs (§117) this model was within 0.5 points of noiseless (filter alone: "
         "2.7 points below) and, at weight 2, lost 0.7 points under the drift against 10 for the raw noise-aware model. "
-        "The four trainings take about three minutes.",
+        "Below: one split, mean of three initializations (one test sample is worth 1.7 points). In this split calibrated training lifts the filtered model from 0.872 to 0.939 (noiseless 0.944); the drift effect of §117 does not show here (one dataset, 60 test inputs). The nine trainings take about eight minutes.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -151,7 +151,7 @@ T = {
         "(codificación dual, lectura qg_ZZ), decaimiento de 0 a 0.16 entre qubits, calibración con 10 % de error y una deriva "
         "en la que todos los T1 se acortan 1.5 veces. En 40 corridas (§117) este modelo quedó a menos de 0.5 puntos del sin "
         "ruido (el filtro solo: 2.7 puntos abajo) y, en peso 2, perdió 0.7 puntos con la deriva contra 10 del modelo crudo "
-        "entrenado con ruido. Los cuatro entrenamientos tardan unos tres minutos.",
+        "entrenado con ruido. Abajo: una partición, promedio de tres inicializaciones (una muestra de prueba vale 1.7 puntos). En esta partición el entrenamiento calibrado sube el modelo filtrado de 0.872 a 0.939 (sin ruido 0.944); el efecto de la deriva de §117 no aparece aquí (un conjunto, 60 entradas de prueba). Los nueve entrenamientos tardan unos ocho minutos.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -318,13 +318,21 @@ show([("8 classes, T1, trained clean", mc8.score(Ee, ee, gamma=GAMMA, qang=True)
 cal = true * (1 + 0.10 * np.random.default_rng(7).normal(size=5))  # calibration with a 10% error
 drift = 1 - (1 - true) ** 1.5                                        # every T1 1.5x shorter
 mk = lambda: WeightQNN(5, 2, encoding="dual", readout="zz")
-mA = mk().fit(Xtr, ytr, epochs=120, seed=0)                          # trained without noise
-mC = mk().fit(Xtr, ytr, epochs=120, gamma=cal, qang=True, seed=0)   # trained with qang under the calibrated rates
-mD = mk().fit(Xtr, ytr, epochs=120, gamma=cal, qang=False, seed=0)  # trained without qang under the calibrated rates
-print(f"noiseless accuracy {mA.score(Xte, yte):.3f}")
-show([("unequal T1, trained clean", mA.score(Xte, yte, gamma=true, qang=True), mA.score(Xte, yte, gamma=true, qang=False)),
-      ("unequal T1, trained calibrated", mC.score(Xte, yte, gamma=true, qang=True), mD.score(Xte, yte, gamma=true, qang=False)),
-      ("T1 drift 1.5x, trained calibrated", mC.score(Xte, yte, gamma=drift, qang=True), mD.score(Xte, yte, gamma=drift, qang=False))])""",
+acc = {k: [] for k in ("noiseless", "clean q", "clean raw", "cal q", "cal raw", "drift q", "drift raw")}
+for seed in (0, 1, 2):                                               # one split, three initializations
+    mA = mk().fit(Xtr, ytr, epochs=120, seed=seed)                      # trained without noise
+    mC = mk().fit(Xtr, ytr, epochs=120, gamma=cal, qang=True, seed=seed)   # with qang, calibrated rates
+    mD = mk().fit(Xtr, ytr, epochs=120, gamma=cal, qang=False, seed=seed)  # without qang, calibrated rates
+    for k, v in (("noiseless", mA.score(Xte, yte)),
+                 ("clean q", mA.score(Xte, yte, gamma=true, qang=True)), ("clean raw", mA.score(Xte, yte, gamma=true, qang=False)),
+                 ("cal q", mC.score(Xte, yte, gamma=true, qang=True)), ("cal raw", mD.score(Xte, yte, gamma=true, qang=False)),
+                 ("drift q", mC.score(Xte, yte, gamma=drift, qang=True)), ("drift raw", mD.score(Xte, yte, gamma=drift, qang=False))):
+        acc[k].append(v)
+a_ = {k: float(np.mean(v)) for k, v in acc.items()}
+print(f"noiseless accuracy {a_['noiseless']:.3f} (mean of 3 initializations)")
+show([("unequal T1, trained clean", a_["clean q"], a_["clean raw"]),
+      ("unequal T1, trained calibrated", a_["cal q"], a_["cal raw"]),
+      ("T1 drift 1.5x, trained calibrated", a_["drift q"], a_["drift raw"])])""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
