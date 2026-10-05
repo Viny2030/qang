@@ -36,9 +36,40 @@ with 3 epochs, noiseless only):
 python examples/qnn_multiclass_8q_qg.py            # all seeds
 python examples/qnn_multiclass_8q_qg.py 1140 1141  # some seeds, JSON per seed
 
-Findings:
+Findings (5 seeds, 30 runs; test sets of 90 / 150 / 240 inputs per seed):
 
-FINDINGS_PLACEHOLDER
+   C readout  noiseless  T1 qang  T1 without  unequal qang  unequal without  noise-aware without
+   3 qubit      0.980     0.980     0.929        0.980          0.931             0.971
+   3 head       0.978     0.978     0.971        0.980          0.976             0.978
+   5 qubit      0.932     0.932     0.888        0.921          0.879             0.911
+   5 head       0.952     0.952     0.793        0.944          0.764             0.927
+   8 qubit      0.862     0.862     0.827        0.859          0.792             0.842
+   8 head       0.916     0.916     0.805        0.898          0.802             0.886
+
+  * Q1, Q6 pass; Q2, Q3, Q4, Q5 fail.
+  * Q1: with qang every run equals its noiseless accuracy, 8 qubits, both
+    readouts, every C.
+  * Q2 fails: the head readout loses 0.7 / 15.9 / 11.1 points without qang
+    for C = 3 / 5 / 8 (95% CI across seeds +-1.6 / +-15.6 / +-6.0). The loss
+    grows from 3 to 5 classes but not from 5 to 8; per seed it ranges from 2
+    to 34 points at C = 5.
+  * Q3 fails: 11.1 points at C = 8, not >= 15.
+  * Q4 fails at C = 3 only: there the qubit readout loses 5.1 points (one
+    seed 14.4) and the head 0.7; at C = 5 and 8 the qubit readout loses less
+    (4.4 against 15.9, 3.4 against 11.1).
+  * Q5 fails at the boundary: trained under T1 without qang, the 8-class
+    head model is 3.0 points behind the filtered one (36 of 1200 test inputs,
+    22 of them in one seed); the committed check (<= 0.03 in floating point)
+    reads it as above the bound. The other cells are within 0.0-2.5 points.
+    The gap grows with the classes: 0.9 / 0.0 (C = 3), 2.1 / 2.5 (C = 5),
+    2.0 / 3.0 (C = 8) for qubit / head.
+  * Q6: under unequal T1 the filter is ahead of the raw readout in every
+    cell (0.4 to 18.0 points) and at most 1.8 points below noiseless.
+  Verdict. At 8 qubits the filter keeps every multiclass model exactly at its
+  noiseless accuracy, and without it the head readout loses 11-16 points with
+  5 or 8 classes. The loss does not simply grow with the number of classes;
+  it varies a lot between seeds. Noise-aware training without the filter no
+  longer fully catches up with 5 and 8 classes (2-3 points behind).
 """
 
 import json

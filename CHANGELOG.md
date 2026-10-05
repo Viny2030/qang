@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_multiclass_8q_qg.py` (§114): multiclass QNN at 8 qubits with 3, 5 and 8 classes of digits, with and
+  without qang (head readout loses 0.7 / 15.9 / 11.1 points without the filter; Q1, Q6 pass; Q2-Q5 fail).
 - QML note (EN/ES, PDF and Word) updated with §107-§113: echo calibration at weight 2 and on narrow margins,
   training from shots, multiclass, 5-8 qubits, gradients and the multiclass echo (122 predictions, 89 pass, 33 fail).
 - QML notebooks (EN/ES): section 11, class confusions inside the sector with the filter and the echo calibration

@@ -5560,6 +5560,41 @@ least as accurate as raw on every backend.
   the filter alone, a third of the raw readout's; the head readout reaches
   0.90 of a noiseless 0.91. Per-backend counts are small and move both ways.
 
+## 114. Multiclass QNN at 8 qubits: 3, 5 and 8 classes (`examples/qnn_multiclass_8q_qg.py`)
+
+`MultiClassQNN` on 8 qubits (weight 1, class c on qubit c), digits 0..C-1
+for C = 3, 5, 8 (100 per class, PCA to 7), 5 seeds, both readouts. Equal T1
+gamma = 0.08 and unequal T1 (spread 0.5), noise-aware training without qang.
+
+**Predictions, committed before the run (d6e4f50).** Q1: with qang equal to
+noiseless in every run; Q2: head loss without qang grows with C; Q3: head
+loss >= 15 points at C = 8; Q4: qubit readout loses less than the head at
+every C; Q5: noise-aware without qang within 3 points in every cell; Q6:
+under unequal T1 qang at least as good in every cell.
+
+| C | readout | noiseless | equal T1 (qang / without) | unequal T1 (qang / without) | noise-aware, without |
+|---|---|---|---|---|---|
+| 3 | qubit | 0.980 | 0.980 / 0.929 | 0.980 / 0.931 | 0.971 |
+| 3 | head | 0.978 | 0.978 / 0.971 | 0.980 / 0.976 | 0.978 |
+| 5 | qubit | 0.932 | 0.932 / 0.888 | 0.921 / 0.879 | 0.911 |
+| 5 | head | 0.952 | 0.952 / 0.793 | 0.944 / 0.764 | 0.927 |
+| 8 | qubit | 0.862 | 0.862 / 0.827 | 0.859 / 0.792 | 0.842 |
+| 8 | head | 0.916 | 0.916 / 0.805 | 0.898 / 0.802 | 0.886 |
+
+* **Q1, Q6 pass; Q2–Q5 fail.**
+* **Q2, Q3:** the head readout loses 0.7 / 15.9 / 11.1 points without qang
+  (C = 3 / 5 / 8): more with 5 classes than with 3, not more with 8, and
+  with a large spread between seeds (2–34 points at C = 5).
+* **Q4** fails at C = 3 (qubit 5.1 points, head 0.7); at 5 and 8 classes the
+  qubit readout loses less.
+* **Q5** fails at the boundary: the 8-class head model trained under the
+  noise is exactly 3.0 points behind (36 of 1200 inputs, 22 in one seed),
+  which the committed floating-point check reads as above 3.
+* **Verdict.** At 8 qubits the filter keeps every multiclass model at its
+  noiseless accuracy; without it the head loses 11–16 points with 5 or 8
+  classes. Noise-aware training no longer fully catches up (2–3 points
+  behind with 5 and 8 classes), unlike at 5 qubits (§110).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
