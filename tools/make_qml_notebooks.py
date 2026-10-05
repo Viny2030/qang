@@ -47,13 +47,27 @@ T = {
         "small; at half filling with 8 qubits and long depth (K < 0.15) the raw readout needed fewer shots in §112. With "
         "only 40 draws, as here, the shot medians are noisy (in §112, with 200 draws, n = 6 at weight 3 needed 4215 "
         "shots with qang against 5570 without).",
+        "echo": "## 11. Class confusions inside the sector: filter plus echo calibration (§113)\n\n"
+        "The filter removes the shots that left the sector, but not the errors that move an excitation to another qubit "
+        "*inside* the sector: in the multiclass QNN those swap one class for another. An **echo** (the circuit followed "
+        "by its inverse, one run per sector state) measures that mixing as a transfer matrix M; `unmix_sector` undoes "
+        "half of it (M^1/2) after the filter. Below, a synthetic device: T1 plus nearest-neighbour hops of 6-16% "
+        "(echo diagonal 0.74-0.82, as on the device models of §113), echo measured with 2000 shots per state. "
+        "Accuracy and, in brackets, decisions that differ from the noiseless model.\n\n"
+        "Measured in §113 on five device noise models (100 digits each, 1000 shots, noiseless 0.82 / 0.91):\n\n"
+        "| readout | without qang | qang | qang + echo |\n|---|---|---|---|\n"
+        "| qubit | 0.792 (46 flips) | 0.818 (19) | 0.836 (15) |\n"
+        "| head | 0.858 (51) | 0.890 (24) | 0.900 (15) |\n\n"
+        "The filter does most of the work; the echo removes a further third of the flips. Per backend the counts are "
+        "small and move both ways (E2 and E4 failed on one or two backends).",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
         "* **Trained under the calibrated noise:** with and without qang are within about one test sample.\n"
         "* **Cost:** a known fraction of the shots, 1 - (1 - gamma)^(weight x depth).\n"
+        "* **Errors inside the sector:** the filter does not see them; an echo calibration removes part of them (§113).\n"
         "* **Limits:** unequal T1 and dephasing are not corrected; no quantum advantage.\n\n"
-        "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, scripts in `examples/qnn_*_qg.py`.",
+        "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, §109–§113, scripts in `examples/qnn_*_qg.py`.",
         "cols": ("reading", "with qang", "without qang", "difference"),
     },
     "es": {
@@ -97,13 +111,27 @@ T = {
         "mientras K no sea muy chico; a mitad de llenado con 8 qubits y mucha profundidad (K < 0.15) la lectura cruda "
         "necesitó menos disparos en §112. Con solo 40 sorteos, como aquí, las medianas de disparos tienen ruido (en §112, con "
         "200 sorteos, n = 6 en peso 3 necesitó 4215 disparos con qang contra 5570 sin qang).",
+        "echo": "## 11. Confusiones de clase dentro del sector: filtro más calibración por eco (§113)\n\n"
+        "El filtro elimina los disparos que salieron del sector, pero no los errores que mueven una excitación a otro "
+        "qubit *dentro* del sector: en la QNN multiclase esos cambian una clase por otra. Un **eco** (el circuito seguido "
+        "de su inverso, una corrida por estado del sector) mide esa mezcla como una matriz de transferencia M; "
+        "`unmix_sector` deshace la mitad (M^1/2) después del filtro. Abajo, un dispositivo sintético: T1 más saltos a "
+        "vecinos de 6-16% (diagonal del eco 0.74-0.82, como en los modelos de dispositivo de §113), eco medido con 2000 "
+        "disparos por estado. Exactitud y, entre paréntesis, decisiones que difieren del modelo sin ruido.\n\n"
+        "Medido en §113 sobre cinco modelos de ruido de dispositivo (100 dígitos cada uno, 1000 disparos, sin ruido 0.82 / 0.91):\n\n"
+        "| lectura | sin qang | qang | qang + eco |\n|---|---|---|---|\n"
+        "| qubit | 0.792 (46 cambios) | 0.818 (19) | 0.836 (15) |\n"
+        "| cabeza | 0.858 (51) | 0.890 (24) | 0.900 (15) |\n\n"
+        "El filtro hace la mayor parte del trabajo; el eco quita un tercio más de los cambios. Por backend los conteos "
+        "son chicos y se mueven en ambos sentidos (E2 y E4 fallaron en uno o dos backends).",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
         "* **Entrenada con el ruido calibrado:** con y sin qang quedan a menos de una muestra de prueba.\n"
         "* **Costo:** una fracción conocida de disparos, 1 - (1 - gamma)^(peso x profundidad).\n"
+        "* **Errores dentro del sector:** el filtro no los ve; una calibración por eco quita una parte (§113).\n"
         "* **Límites:** el T1 desigual y el desfase no se corrigen; no hay ventaja cuántica.\n\n"
-        "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, scripts en `examples/qnn_*_qg.py`.",
+        "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, §109–§113, scripts en `examples/qnn_*_qg.py`.",
         "cols": ("lectura", "con qang", "sin qang", "diferencia"),
     },
 }
@@ -213,6 +241,37 @@ print(f"{'circuit':<22}{'K':>7}{'Var(grad)':>11}{'ratio qang':>12}{'ratio raw':>
 for n, k, L in ((4, 1, 8), (6, 1, 12), (6, 3, 6), (8, 1, 8)):
     K, v0, rq, rr, sq, sr = grad_cell(n, k, L)
     print(f"n={n}, weight {k}, L={L:<5}{K:>7.3f}{v0:>11.2e}{rq:>12.3f}{rr:>11.3f}{sq:>12.0f}{sr:>11.0f}")""",
+    "echo": """from qang.sectors import sector_states, echo_transfer_matrix, unmix_sector
+n = 5; S = sector_states(n, 1)  # the 5 one-excitation states = the 5 classes
+rng = np.random.default_rng(0)
+eps = rng.uniform(0.06, 0.16, n)  # synthetic in-sector error: the excitation hops to a neighbouring qubit
+A = np.eye(n)
+for j in range(n):
+    for i in (j - 1, j + 1):
+        if 0 <= i < n: A[i, j] += eps[j]
+A /= A.sum(0, keepdims=True)
+def device(P):  # T1 already in P; the hops act inside the sector
+    Q = P.copy(); Q[:, S] = P[:, S] @ A.T; return Q
+echo = []  # echo = circuit + inverse: twice the hops (A @ A), some leakage, 2000 shots per prepared state
+for j in range(n):
+    p = np.zeros(2**n); p[0] = 0.15; p[S] = 0.85 * (A @ A)[:, j]
+    echo.append(rng.multinomial(2000, p))
+M = echo_transfer_matrix(echo, n, 1)
+print("echo diagonal", np.round(np.diag(M), 2))
+def decide(mc, P, mode):
+    if mode == "qang + echo": P = np.array([unmix_sector(p, M, n, 1) for p in P])
+    return mc._logits(mc.qg_z(P, mode != "without qang"), mc.params_[mc.n_theta:]).argmax(1)
+modes = ("without qang", "qang", "qang + echo")
+print(f"{'':<22}" + "".join(f"{m:>16}" for m in modes))
+for ro in ("qubit", "head"):
+    mc = MultiClassQNN(n_qubits=5, n_classes=5, readout=ro).fit(Ar, br, epochs=120, seed=0)
+    ref = mc.predict(Ae)
+    P = device(mc.probs(mc.params_[:mc.n_theta], mc.encode(Ae), GAMMA))
+    Ps = np.array([rng.multinomial(1000, p / p.sum()) / 1000 for p in P])
+    for label, PP in (("exact", P), ("1000 shots", Ps)):
+        cells = [decide(mc, PP, m) for m in modes]
+        print(f"{ro + ', ' + label:<22}" + "".join(f"{np.mean(c == be):>10.3f} ({int(np.sum(c != ref)):>2})" for c in cells))
+    print(f"{ro:<22} noiseless accuracy {np.mean(ref == be):.3f}")""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -224,7 +283,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))

@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- QML notebooks (EN/ES): section 11, class confusions inside the sector with the filter and the echo calibration
+  (synthetic device with accuracy and flipped decisions without qang / qang / qang + echo, plus the §113 table).
 - `examples/qnn_multiclass_echo_qg.py` (§113): the multiclass QNN (5-class digits) on five device noise models with
   the filter and the echo calibration of class confusions. Flipped decisions 46 / 19 / 15 (qubit readout) and
   51 / 24 / 15 (head) for raw / filter / filter + echo over 500 readings (E1, E3 pass; E2, E4 fail).
