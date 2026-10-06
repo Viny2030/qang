@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- QML notebooks (EN/ES): section 16, F7 and the seed-to-seed pull without qang (§121); notes on §120 and §122 in
+  sections 15 and 14; QML note (EN/ES, PDF and Word) with §120-§122.
 - `examples/qnn_dephasing_zne_8q_qg.py` (§122): dephasing with the filter plus ZNE at 8 qubits; Y1-Y5 pass (the 5-qubit
   picture of §118 holds).
 - `examples/qnn_seed_spread_qg.py` (§121): F7, the raw multiclass logits are K L + (1 - K) v; a pull index predicts

@@ -79,7 +79,7 @@ T = {
         "extrapolates every feature to zero noise. Weight 2 (dual, qg_ZZ), T1 0.08 plus dephasing 0.03. Over 40 runs "
         "(§118) filter + ZNE beat raw + ZNE by 3-10 points and, with exact probabilities, came within 1.3 points of "
         "noiseless; with 1000 shots per scale its variance cancelled the gain at weight 2. Training with the filter "
-        "under the calibrated noise recovered the noiseless accuracy. Below: one split, mean of three initializations; "
+        "under the calibrated noise recovered the noiseless accuracy. At 8 qubits (§122) the same holds. Below: one split, mean of three initializations; "
         "the first column of the last row is the noise-aware model, compared with the clean model read with the filter. "
         "The six trainings take about four minutes.",
         "device": "## 15. The whole pipeline on an IBM device noise model (§119)\n\n"
@@ -88,9 +88,16 @@ T = {
         "with qang under the device's published T1 and T2 (converted to decay and dephasing per sublayer). Over 189 inputs "
         "on three IBM noise models (§119) the filter lifted the accuracy from 0.958 to 0.972 (noiseless 0.979), the echo cut "
         "the decision error without changing decisions, and the T1/T2-calibrated training added nothing (0.968): on these "
-        "devices gate errors dominate, and the published decay is only 0.002-0.017 per sublayer. In this split (60 inputs, one input = 1.7 points) the accuracy is the same with "
+        "devices gate errors dominate, and the published decay is only 0.002-0.017 per sublayer. Calibrating with the device itself (echo-aware training, or refitting the readout on 40 device inputs) did not do better either (§120). In this split (60 inputs, one input = 1.7 points) the accuracy is the same with "
         "and without qang and the echo moves one decision the wrong way, while the decision error falls from 1.72 (raw) to "
         "0.95 (filter) and 0.50 (filter + echo). Installs Qiskit; about four minutes.",
+        "pull": "## 16. Why the loss without qang varies between seeds (§121)\n\n"
+        "At weight 1 under equal T1 every decayed shot lands in |0...0>, where every qg_Z is +1. So the raw logits are exactly "
+        "K L + (1 - K) v: the noiseless logits L, scaled by the kept fraction K, plus a constant vector v fixed by training "
+        "(v = W^T 1 + b for the head readout). Without the filter every input is pulled toward the class with the largest v_c. "
+        "Below, the head model of section 8: the raw decisions predicted by this formula match the simulated ones, and v "
+        "shows the pull. Over 20 seeds (§121) a pull index built from v and the training margins ranked the seeds by their "
+        "loss without qang (Spearman 0.65 for the head, 0.98 for the qubit readout; losses of 3-42 points). No training here.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -100,7 +107,8 @@ T = {
         "* **Eight classes on eight qubits:** with qang exact; without it the head readout loses about 11 points (§114).\n"
         "* **Unequal T1:** corrected by training with qang under the calibrated rates, which only need the ratios of the T1s (§117).\n"
         "* **Dephasing:** the filter leaves it as the only noise; ZNE of the filtered readout removes most of its bias with enough shots, and training with the filter under the calibrated noise corrects it (§118).\n"
-        "* **On IBM device noise models:** the filter gives most of the gain, the echo cuts the decision error, and training under the published T1/T2 adds nothing, since gate errors dominate (§119).\n"
+        "* **On IBM device noise models:** the filter gives most of the gain, the echo cuts the decision error, and training under the published T1/T2 or a device calibration adds nothing, since gate errors dominate (§119, §120).\n"
+        "* **Seed-to-seed spread:** without the filter the raw logits are K L + (1 - K) v, a trained constant pull that predicts the loss of each seed (§121).\n"
         "* **Limits:** unequal T1 and dephasing are corrected only with calibrated training (or ZNE with enough shots); no quantum advantage.\n\n"
         "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts in `examples/qnn_*_qg.py`.",
         "cols": ("reading", "with qang", "without qang", "difference"),
@@ -178,7 +186,7 @@ T = {
         "compuertas) y extrapola cada variable a ruido cero. Peso 2 (dual, qg_ZZ), T1 0.08 más desfase 0.03. En 40 corridas "
         "(§118) filtro + ZNE superó a crudo + ZNE por 3-10 puntos y, con probabilidades exactas, quedó a 1.3 puntos del sin "
         "ruido; con 1000 disparos por escala su varianza anuló la ganancia en peso 2. Entrenar con el filtro con el ruido "
-        "calibrado recuperó la precisión sin ruido. Abajo: una partición, promedio de tres inicializaciones; la primera "
+        "calibrado recuperó la precisión sin ruido. Con 8 qubits (§122) vale lo mismo. Abajo: una partición, promedio de tres inicializaciones; la primera "
         "columna de la última fila es el modelo entrenado con ruido, comparado con el modelo limpio leído con el filtro. "
         "Los seis entrenamientos tardan unos cuatro minutos.",
         "device": "## 15. Todo el proceso en un modelo de ruido de un equipo IBM (§119)\n\n"
@@ -188,9 +196,17 @@ T = {
         "subcapa). En 189 entradas sobre tres modelos de ruido de IBM (§119) el filtro subió la precisión de 0.958 a 0.972 (sin "
         "ruido 0.979), el eco bajó el error del valor de decisión sin cambiar decisiones, y el entrenamiento calibrado con T1/T2 "
         "no agregó nada (0.968): en estos equipos dominan los errores de compuerta, y el decaimiento publicado es de solo "
-        "0.002-0.017 por subcapa. En esta partición (60 entradas, una entrada = 1.7 puntos) la precisión es la misma con y sin "
+        "0.002-0.017 por subcapa. Calibrar con el propio equipo (entrenamiento con el eco, o reajustar la lectura con 40 entradas corridas en el equipo) tampoco mejoró (§120). En esta partición (60 entradas, una entrada = 1.7 puntos) la precisión es la misma con y sin "
         "qang y el eco mueve una decisión en contra, mientras el error del valor de decisión baja de 1.72 (crudo) a 0.95 (filtro) "
         "y 0.50 (filtro + eco). Instala Qiskit; unos cuatro minutos.",
+        "pull": "## 16. Por qué la pérdida sin qang varía entre semillas (§121)\n\n"
+        "En peso 1 con T1 igual, cada disparo decaído cae en |0...0>, donde todo qg_Z vale +1. Entonces los logits crudos son "
+        "exactamente K L + (1 - K) v: los logits sin ruido L, escalados por la fracción conservada K, más un vector constante v "
+        "fijado por el entrenamiento (v = W^T 1 + b en la lectura cabeza). Sin el filtro cada entrada es arrastrada hacia la "
+        "clase con el v_c más grande. Abajo, el modelo cabeza de la sección 8: las decisiones crudas que predice la fórmula "
+        "coinciden con las simuladas, y v muestra el arrastre. En 20 semillas (§121) un índice de arrastre construido con v y "
+        "los márgenes de entrenamiento ordenó las semillas por su pérdida sin qang (Spearman 0.65 en cabeza, 0.98 en qubit; "
+        "pérdidas de 3 a 42 puntos). Sin entrenamiento.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -200,7 +216,8 @@ T = {
         "* **Ocho clases en ocho qubits:** con qang exacto; sin él la lectura cabeza pierde unos 11 puntos (§114).\n"
         "* **T1 desigual:** se corrige entrenando con qang con las tasas calibradas, que solo necesitan los cocientes de los T1 (§117).\n"
         "* **Desfase:** el filtro lo deja como único ruido; la ZNE de la lectura filtrada quita la mayor parte de su sesgo con suficientes disparos, y entrenar con el filtro con el ruido calibrado lo corrige (§118).\n"
-        "* **En modelos de ruido de equipos IBM:** el filtro da la mayor parte de la ganancia, el eco baja el error del valor de decisión, y entrenar con los T1/T2 publicados no agrega nada, porque dominan los errores de compuerta (§119).\n"
+        "* **En modelos de ruido de equipos IBM:** el filtro da la mayor parte de la ganancia, el eco baja el error del valor de decisión, y entrenar con los T1/T2 publicados o una calibración del equipo no agrega nada, porque dominan los errores de compuerta (§119, §120).\n"
+        "* **Dispersión entre semillas:** sin el filtro los logits crudos son K L + (1 - K) v, un arrastre constante entrenado que predice la pérdida de cada semilla (§121).\n"
         "* **Límites:** el T1 desigual y el desfase se corrigen solo con entrenamiento calibrado (o ZNE con suficientes disparos); no hay ventaja cuántica.\n\n"
         "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts en `examples/qnn_*_qg.py`.",
         "cols": ("lectura", "con qang", "sin qang", "diferencia"),
@@ -475,6 +492,18 @@ show([("trained clean: filter", rA["filter"][0], rA["raw"][0]), ("trained clean:
 print("decision error against the noiseless model (lower is better):")
 for tag, r in (("trained clean", rA), ("T1/T2-calibrated", rC)):
     print(f"  {tag:<18} raw {r['raw'][1]:.3f}   filter {r['filter'][1]:.3f}   filter + echo {r['filter + echo'][1]:.3f}")""",
+    "pull": """from qang.qml import kept_fraction
+K = kept_fraction(GAMMA, 1, mc.depth)                    # mc: the head model of section 8 (5-class digits)
+head = mc.params_[mc.n_theta:]
+W = head[: mc.n * mc.n_classes].reshape(mc.n, mc.n_classes)
+v = W.sum(axis=0) + head[mc.n * mc.n_classes:]           # the constant pull of each class
+L = mc.logits(mc.params_, Ae)                            # noiseless logits
+pred_raw = np.argmax(K * L + (1 - K) * v, axis=1)        # F7: raw logits = K L + (1 - K) v
+sim_raw = mc.predict(Ae, gamma=GAMMA, qang=False)
+print(f"kept fraction K = {K:.3f}; pull per class v = {np.round(v, 2)} (largest: class {int(np.argmax(v))})")
+print(f"raw decisions predicted by K L + (1 - K) v: {np.mean(pred_raw == sim_raw):.3f} of the inputs agree with the simulation")
+show([("5 classes, T1", mc.score(Ae, be, gamma=GAMMA, qang=True), mc.score(Ae, be, gamma=GAMMA, qang=False))])
+print("raw decisions per class:", np.bincount(sim_raw, minlength=5), " noiseless:", np.bincount(np.argmax(L, axis=1), minlength=5))""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -486,7 +515,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix", "zne", "device"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix", "zne", "device", "pull"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))
