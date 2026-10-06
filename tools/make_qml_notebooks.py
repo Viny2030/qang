@@ -82,6 +82,15 @@ T = {
         "under the calibrated noise recovered the noiseless accuracy. Below: one split, mean of three initializations; "
         "the first column of the last row is the noise-aware model, compared with the clean model read with the filter. "
         "The six trainings take about four minutes.",
+        "device": "## 15. The whole pipeline on an IBM device noise model (§119)\n\n"
+        "The model of section 2 compiled to Qiskit (a loader cascade of 4 RBS gates, then the 15 trained RBS gates) and run on "
+        "the FakeBrisbane noise model (Aer), 1000 shots per input, with 5 echo circuits per model. A second model is trained "
+        "with qang under the device's published T1 and T2 (converted to decay and dephasing per sublayer). Over 189 inputs "
+        "on three IBM noise models (§119) the filter lifted the accuracy from 0.958 to 0.972 (noiseless 0.979), the echo cut "
+        "the decision error without changing decisions, and the T1/T2-calibrated training added nothing (0.968): on these "
+        "devices gate errors dominate, and the published decay is only 0.002-0.017 per sublayer. In this split (60 inputs, one input = 1.7 points) the accuracy is the same with "
+        "and without qang and the echo moves one decision the wrong way, while the decision error falls from 1.72 (raw) to "
+        "0.95 (filter) and 0.50 (filter + echo). Installs Qiskit; about four minutes.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -91,6 +100,7 @@ T = {
         "* **Eight classes on eight qubits:** with qang exact; without it the head readout loses about 11 points (§114).\n"
         "* **Unequal T1:** corrected by training with qang under the calibrated rates, which only need the ratios of the T1s (§117).\n"
         "* **Dephasing:** the filter leaves it as the only noise; ZNE of the filtered readout removes most of its bias with enough shots, and training with the filter under the calibrated noise corrects it (§118).\n"
+        "* **On IBM device noise models:** the filter gives most of the gain, the echo cuts the decision error, and training under the published T1/T2 adds nothing, since gate errors dominate (§119).\n"
         "* **Limits:** unequal T1 and dephasing are corrected only with calibrated training (or ZNE with enough shots); no quantum advantage.\n\n"
         "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts in `examples/qnn_*_qg.py`.",
         "cols": ("reading", "with qang", "without qang", "difference"),
@@ -171,6 +181,16 @@ T = {
         "calibrado recuperó la precisión sin ruido. Abajo: una partición, promedio de tres inicializaciones; la primera "
         "columna de la última fila es el modelo entrenado con ruido, comparado con el modelo limpio leído con el filtro. "
         "Los seis entrenamientos tardan unos cuatro minutos.",
+        "device": "## 15. Todo el proceso en un modelo de ruido de un equipo IBM (§119)\n\n"
+        "El modelo de la sección 2 compilado a Qiskit (una cascada de carga de 4 compuertas RBS y luego las 15 RBS entrenadas) "
+        "y ejecutado con el modelo de ruido FakeBrisbane (Aer), 1000 disparos por entrada, con 5 circuitos de eco por modelo. "
+        "Un segundo modelo se entrena con qang con los T1 y T2 publicados del equipo (convertidos a decaimiento y desfase por "
+        "subcapa). En 189 entradas sobre tres modelos de ruido de IBM (§119) el filtro subió la precisión de 0.958 a 0.972 (sin "
+        "ruido 0.979), el eco bajó el error del valor de decisión sin cambiar decisiones, y el entrenamiento calibrado con T1/T2 "
+        "no agregó nada (0.968): en estos equipos dominan los errores de compuerta, y el decaimiento publicado es de solo "
+        "0.002-0.017 por subcapa. En esta partición (60 entradas, una entrada = 1.7 puntos) la precisión es la misma con y sin "
+        "qang y el eco mueve una decisión en contra, mientras el error del valor de decisión baja de 1.72 (crudo) a 0.95 (filtro) "
+        "y 0.50 (filtro + eco). Instala Qiskit; unos cuatro minutos.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -180,6 +200,7 @@ T = {
         "* **Ocho clases en ocho qubits:** con qang exacto; sin él la lectura cabeza pierde unos 11 puntos (§114).\n"
         "* **T1 desigual:** se corrige entrenando con qang con las tasas calibradas, que solo necesitan los cocientes de los T1 (§117).\n"
         "* **Desfase:** el filtro lo deja como único ruido; la ZNE de la lectura filtrada quita la mayor parte de su sesgo con suficientes disparos, y entrenar con el filtro con el ruido calibrado lo corrige (§118).\n"
+        "* **En modelos de ruido de equipos IBM:** el filtro da la mayor parte de la ganancia, el eco baja el error del valor de decisión, y entrenar con los T1/T2 publicados no agrega nada, porque dominan los errores de compuerta (§119).\n"
         "* **Límites:** el T1 desigual y el desfase se corrigen solo con entrenamiento calibrado (o ZNE con suficientes disparos); no hay ventaja cuántica.\n\n"
         "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts en `examples/qnn_*_qg.py`.",
         "cols": ("lectura", "con qang", "sin qang", "diferencia"),
@@ -383,6 +404,77 @@ show([("T1 + dephasing, exact", r["filter"], r["raw"]),
       ("T1 + dephasing, 1000 shots", r["filter s"], r["raw s"]),
       ("T1 + dephasing + ZNE, 1000 shots", r["filter+ZNE s"], r["raw+ZNE s"]),
       ("trained with qang under noise vs clean", r["aware"], r["filter"])])""",
+    "device": """import subprocess, sys
+subprocess.run([sys.executable, "-m", "pip", "install", "-q", "qiskit", "qiskit-aer", "qiskit-ibm-runtime"], check=False)
+import math
+from qiskit import QuantumCircuit, transpile
+from qiskit.circuit.library import UnitaryGate
+from qiskit_aer import AerSimulator
+from qiskit_ibm_runtime.fake_provider import FakeBrisbane
+from qang.qml import WeightQNN
+from qang.sectors import echo_transfer_matrix, unmix_sector
+
+Ir, Ie, jr, je = Xtr, Xte, ytr, yte                                     # the breast-cancer split of section 2
+
+def rbs(t):  # RBS on [a, b] in Qiskit order
+    U = np.eye(4); c, s = math.cos(t), math.sin(t); U[1, 1], U[2, 2], U[2, 1], U[1, 2] = c, c, s, -s
+    return UnitaryGate(U, label="RBS")
+def blocks(m, th, reverse=False):
+    g, k = [], 0
+    for _ in range(m.layers):
+        for pairs in m.sublayers:
+            for a, b in pairs:
+                g.append((th[k], a, b)); k += 1
+    return g
+q = lambda i: 4 - i                                                     # qang qubit i = Qiskit qubit 4-i
+def circuit(m, x):                                                      # loader cascade + trained RBS block
+    qc = QuantumCircuit(5); v = np.append(x, 1.0); v /= np.linalg.norm(v); qc.x(q(0))
+    ang = [math.atan2(np.linalg.norm(v[k + 1:]), v[k]) for k in range(3)] + [math.atan2(v[4], v[3])]
+    for k, t in enumerate(ang): qc.append(rbs(t), [q(k), q(k + 1)])
+    for t, a, b in blocks(m, m.params_[: m.n_theta]): qc.append(rbs(t), [q(a), q(b)])
+    qc.measure_all(); return qc
+def echo(m, j):                                                         # qubit j excited, block, inverse
+    qc = QuantumCircuit(5); qc.x(q(j)); g = blocks(m, m.params_[: m.n_theta])
+    for t, a, b in g: qc.append(rbs(t), [q(a), q(b)])
+    for t, a, b in reversed(g): qc.append(rbs(-t), [q(a), q(b)])
+    qc.measure_all(); return qc
+def to_probs(c):
+    p = np.zeros(32); tot = sum(c.values())
+    for b, n in c.items(): p[int(b.replace(" ", ""), 2)] += n / tot
+    return p
+
+dev = FakeBrisbane(); sim = AerSimulator.from_backend(dev)
+mA = WeightQNN(5, 1).fit(Ir, jr, epochs=120, seed=0)                   # trained without noise
+tc0 = transpile(circuit(mA, Ie[0]), backend=dev, optimization_level=1, seed_transpiler=1)
+layout = list(tc0.layout.final_index_layout()); t = tc0.estimate_duration(dev.target, unit="s") / 13
+gam = np.zeros(5); deph = []
+for vq, ph in enumerate(layout):                                       # published T1/T2 -> qang noise per sublayer
+    qp = dev.target.qubit_properties[ph]; gam[4 - vq] = 1 - math.exp(-t / qp.t1)
+    deph.append((1 - math.exp(-t * max(1 / qp.t2 - 1 / (2 * qp.t1), 0))) / 2)
+print("calibration: gamma per sublayer", np.round(gam, 4), "dephasing", round(float(np.mean(deph)), 4))
+mC = WeightQNN(5, 1).fit(Ir, jr, epochs=120, gamma=gam, dephasing=float(np.mean(deph)), qang=True, seed=0)  # calibrated, with qang
+def run(m):
+    circs = [circuit(m, x) for x in Ie] + [echo(m, j) for j in range(5)]
+    tc = transpile(circs, backend=sim, optimization_level=1, seed_transpiler=1, initial_layout=layout)
+    pr = [to_probs(sim.run(c, shots=1000 if i < len(Ie) else 4000, seed_simulator=i).result().get_counts()) for i, c in enumerate(tc)]
+    M = echo_transfer_matrix(pr[len(Ie):], 5, 1, prepared=[1 << (4 - j) for j in range(5)])
+    w, b = m.params_[m.n_theta:-1], m.params_[-1]
+    d0 = m.decision(m.params_, Ie)                                       # noiseless decision values
+    P = pr[: len(Ie)]
+    F = {"raw": [m.qg_z(p, qang=False)[0] for p in P], "filter": [m.qg_z(p, qang=True)[0] for p in P],
+         "filter + echo": [m.qg_z(unmix_sector(p, M, 5, 1), qang=False)[0] for p in P]}
+    out = {}
+    for k, f in F.items():
+        d = np.array(f) @ w + b
+        out[k] = (float(np.mean((d > 0) == je)), float(np.mean(np.abs(d - d0))))
+    return out
+rA, rC = run(mA), run(mC)
+print(f"noiseless accuracy {mA.score(Ie, je):.3f}; FakeBrisbane noise model, 1000 shots per input")
+show([("trained clean: filter", rA["filter"][0], rA["raw"][0]), ("trained clean: filter + echo", rA["filter + echo"][0], rA["raw"][0]),
+      ("T1/T2-calibrated: filter", rC["filter"][0], rC["raw"][0]), ("T1/T2-calibrated: filter + echo", rC["filter + echo"][0], rC["raw"][0])])
+print("decision error against the noiseless model (lower is better):")
+for tag, r in (("trained clean", rA), ("T1/T2-calibrated", rC)):
+    print(f"  {tag:<18} raw {r['raw'][1]:.3f}   filter {r['filter'][1]:.3f}   filter + echo {r['filter + echo'][1]:.3f}")""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -394,7 +486,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix", "zne"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix", "zne", "device"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))
