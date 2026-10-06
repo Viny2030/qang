@@ -5,6 +5,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.19] - 2026-10-06
+
+Release of §119–§122. On IBM device noise models, where gate errors dominate, noiseless training plus the filter is
+the best pipeline: neither a calibration from the published T1/T2 (§119) nor one measured on the device itself (§120)
+beats it. F7: without the filter the raw multiclass logits are exactly K L + (1 - K) v, a constant pull set by
+training that explains the seed-to-seed loss (§121). The dephasing results of §118 hold at 8 qubits (§122). The QML
+Colab notebooks (EN/ES) gain sections 15-16 and the QML note (EN/ES, PDF and Word) covers §119-§122. The AI-tools
+section was removed from the manuscripts.
+
 ### Added
 - QML notebooks (EN/ES): section 16, F7 and the seed-to-seed pull without qang (§121); notes on §120 and §122 in
   sections 15 and 14; QML note (EN/ES, PDF and Word) with §120-§122.
