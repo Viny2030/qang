@@ -98,6 +98,12 @@ T = {
         "Below, the head model of section 8: the raw decisions predicted by this formula match the simulated ones, and v "
         "shows the pull. Over 20 seeds (§121) a pull index built from v and the training margins ranked the seeds by their "
         "loss without qang (Spearman 0.65 for the head, 0.98 for the qubit readout; losses of 3-42 points). No training here.",
+        "pullfree": "## 17. A readout with no pull: robust without the filter (§123)\n\n"
+        "If the logits are linear in the excitation probabilities with no class biases (head: W^T (qg_Z - 1)), the decayed "
+        "shots, which sit in |0...0> where every excitation probability is 0, add nothing and only rescale every logit. The raw "
+        "decisions then equal the filtered ones exactly, under equal or unequal T1 and with shots. Over 10 seeds (§123) this "
+        "pull-free head readout lost nothing noiselessly (0.938 against 0.932) and, without any filter, kept 0.938 under T1 "
+        "against 0.653 for the standard readout. Below, the digits split of section 8; one training, about a minute.",
         "summary": "## Summary\n\n"
         "* **Trained on a simulator, run under T1:** qang is decisive, exact under equal T1, and more so at higher "
         "weight.\n"
@@ -108,7 +114,7 @@ T = {
         "* **Unequal T1:** corrected by training with qang under the calibrated rates, which only need the ratios of the T1s (§117).\n"
         "* **Dephasing:** the filter leaves it as the only noise; ZNE of the filtered readout removes most of its bias with enough shots, and training with the filter under the calibrated noise corrects it (§118).\n"
         "* **On IBM device noise models:** the filter gives most of the gain, the echo cuts the decision error, and training under the published T1/T2 or a device calibration adds nothing, since gate errors dominate (§119, §120).\n"
-        "* **Seed-to-seed spread:** without the filter the raw logits are K L + (1 - K) v, a trained constant pull that predicts the loss of each seed (§121).\n"
+        "* **Seed-to-seed spread:** without the filter the raw logits are K L + (1 - K) v, a trained constant pull that predicts the loss of each seed (§121); a bias-free readout removes it and needs no filter (§123).\n"
         "* **Limits:** unequal T1 and dephasing are corrected only with calibrated training (or ZNE with enough shots); no quantum advantage.\n\n"
         "Details, pre-registered predictions and failures: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts in `examples/qnn_*_qg.py`.",
         "cols": ("reading", "with qang", "without qang", "difference"),
@@ -207,6 +213,13 @@ T = {
         "coinciden con las simuladas, y v muestra el arrastre. En 20 semillas (§121) un índice de arrastre construido con v y "
         "los márgenes de entrenamiento ordenó las semillas por su pérdida sin qang (Spearman 0.65 en cabeza, 0.98 en qubit; "
         "pérdidas de 3 a 42 puntos). Sin entrenamiento.",
+        "pullfree": "## 17. Una lectura sin arrastre: robusta sin el filtro (§123)\n\n"
+        "Si los logits son lineales en las probabilidades de excitación y sin sesgos por clase (cabeza: W^T (qg_Z - 1)), los "
+        "disparos decaídos, que caen en |0...0> donde toda probabilidad de excitación vale 0, no aportan nada y solo reescalan "
+        "todos los logits. Las decisiones crudas son entonces iguales a las filtradas, exactamente, con T1 igual o desigual y "
+        "con disparos. En 10 semillas (§123) esta lectura cabeza sin arrastre no perdió nada sin ruido (0.938 contra 0.932) y, "
+        "sin ningún filtro, mantuvo 0.938 con T1 contra 0.653 de la lectura estándar. Abajo, la partición de dígitos de la "
+        "sección 8; un entrenamiento, alrededor de un minuto.",
         "summary": "## Resumen\n\n"
         "* **Entrenada en simulador, ejecutada con T1:** qang es decisivo, exacto con T1 igual, y más cuanto mayor "
         "es el peso.\n"
@@ -217,7 +230,7 @@ T = {
         "* **T1 desigual:** se corrige entrenando con qang con las tasas calibradas, que solo necesitan los cocientes de los T1 (§117).\n"
         "* **Desfase:** el filtro lo deja como único ruido; la ZNE de la lectura filtrada quita la mayor parte de su sesgo con suficientes disparos, y entrenar con el filtro con el ruido calibrado lo corrige (§118).\n"
         "* **En modelos de ruido de equipos IBM:** el filtro da la mayor parte de la ganancia, el eco baja el error del valor de decisión, y entrenar con los T1/T2 publicados o una calibración del equipo no agrega nada, porque dominan los errores de compuerta (§119, §120).\n"
-        "* **Dispersión entre semillas:** sin el filtro los logits crudos son K L + (1 - K) v, un arrastre constante entrenado que predice la pérdida de cada semilla (§121).\n"
+        "* **Dispersión entre semillas:** sin el filtro los logits crudos son K L + (1 - K) v, un arrastre constante entrenado que predice la pérdida de cada semilla (§121); una lectura sin sesgos lo elimina y no necesita filtro (§123).\n"
         "* **Límites:** el T1 desigual y el desfase se corrigen solo con entrenamiento calibrado (o ZNE con suficientes disparos); no hay ventaja cuántica.\n\n"
         "Detalles, predicciones pre-registradas y fallas: `RESEARCH_NOTES.md` §75–§80, §109–§114, scripts en `examples/qnn_*_qg.py`.",
         "cols": ("lectura", "con qang", "sin qang", "diferencia"),
@@ -504,6 +517,62 @@ print(f"kept fraction K = {K:.3f}; pull per class v = {np.round(v, 2)} (largest:
 print(f"raw decisions predicted by K L + (1 - K) v: {np.mean(pred_raw == sim_raw):.3f} of the inputs agree with the simulation")
 show([("5 classes, T1", mc.score(Ae, be, gamma=GAMMA, qang=True), mc.score(Ae, be, gamma=GAMMA, qang=False))])
 print("raw decisions per class:", np.bincount(sim_raw, minlength=5), " noiseless:", np.bincount(np.argmax(L, axis=1), minlength=5))""",
+    "pullfree": """class PullFreeQNN(MultiClassQNN):
+    # MultiClassQNN whose logits are linear in the excitation probabilities with
+    # no bias: a p_c (qubit readout) or W^T (qg_Z - 1) (head readout)
+
+    def _logits(self, R, head):
+        C = self.n_classes
+        if self.class_readout == "qubit":
+            return head[0] * (1 - R[:, :C]) / 2
+        W = head[: self.n * C].reshape(self.n, C)
+        return (R - 1) @ W
+
+    def fit(self, X, y, epochs=120, lr=0.1, gamma=None, dephasing=0.0, qang=True, seed=0, h=1e-4):
+        y = np.asarray(y, int)
+        Y = np.eye(self.n_classes)[y]
+        psi = self.encode(X)
+        rng = np.random.default_rng(seed)
+        nt, C = self.n_theta, self.n_classes
+        head0 = (np.concatenate([[4.0], np.zeros(C)]) if self.class_readout == "qubit"
+                 else np.concatenate([rng.normal(0, 0.5, self.n * C), np.zeros(C)]))
+        p = np.concatenate([rng.uniform(-np.pi, np.pi, nt), head0])
+        m = np.zeros_like(p)
+        v = np.zeros_like(p)
+
+        def feats(th):
+            return self.qg_z(self.probs(th, psi, gamma, dephasing), qang)
+
+        for t in range(1, epochs + 1):
+            th, head = p[:nt], p[nt:]
+            R = feats(th)
+            Z = self._logits(R, head)
+            Z = Z - Z.max(axis=1, keepdims=True)
+            Pr = np.exp(Z) / np.exp(Z).sum(axis=1, keepdims=True)
+            G = (Pr - Y) / len(y)
+            g = np.zeros_like(p)
+            if self.class_readout == "qubit":
+                g[nt] = np.sum(G * (1 - R[:, :C]) / 2)
+            else:
+                g[nt:nt + self.n * C] = ((R - 1).T @ G).ravel()
+            for k in range(nt):
+                e = np.zeros(nt)
+                e[k] = h
+                dZ = (self._logits(feats(th + e), head) - self._logits(feats(th - e), head)) / (2 * h)
+                g[k] = np.sum(G * dZ)
+            m = 0.9 * m + 0.1 * g
+            v = 0.999 * v + 0.001 * g**2
+            p = p - lr * (m / (1 - 0.9**t)) / (np.sqrt(v / (1 - 0.999**t)) + 1e-8)
+        self.params_ = p
+        return self
+
+
+pf = PullFreeQNN(n_qubits=5, n_classes=5, readout="head").fit(Ar, br, epochs=120, seed=0)
+print(f"noiseless accuracy: standard {mc.score(Ae, be):.3f}, pull-free {pf.score(Ae, be):.3f}")
+show([("standard head, T1", mc.score(Ae, be, gamma=GAMMA, qang=True), mc.score(Ae, be, gamma=GAMMA, qang=False)),
+      ("pull-free head, T1", pf.score(Ae, be, gamma=GAMMA, qang=True), pf.score(Ae, be, gamma=GAMMA, qang=False)),
+      ("standard head, unequal T1", mc.score(Ae, be, gamma=unequal, qang=True), mc.score(Ae, be, gamma=unequal, qang=False)),
+      ("pull-free head, unequal T1", pf.score(Ae, be, gamma=unequal, qang=True), pf.score(Ae, be, gamma=unequal, qang=False))])""",
     "shots": """show([
     ("weight 1, T1, 200 shots", m1.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m1.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
     ("weight 2, T1, 200 shots", m2.score(Xte, yte, gamma=GAMMA, qang=True, shots=200, seed=1), m2.score(Xte, yte, gamma=GAMMA, qang=False, shots=200, seed=1)),
@@ -515,7 +584,7 @@ def build(lang):
     t = T[lang]
     nb = nbf.v4.new_notebook()
     cells = [nbf.v4.new_markdown_cell(t["title"])]
-    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix", "zne", "device", "pull"):
+    for key in ("install", "data", "w1", "w2", "aware", "real", "shots", "multi", "big", "grad", "echo", "multi8", "t1fix", "zne", "device", "pull", "pullfree"):
         cells.append(nbf.v4.new_markdown_cell(t[key]))
         code = CODE[key].replace("COLS", repr(t["cols"]))
         cells.append(nbf.v4.new_code_cell(code))

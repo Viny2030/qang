@@ -6,6 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- QML notebooks (EN/ES): section 17, the pull-free readout with and without qang (§123); QML note with §123.
 - `examples/qnn_pull_free_qg.py` (§123): a pull-free multiclass readout (bias-free, linear in the excitation
   probabilities) whose raw decisions equal the filtered ones exactly; P1-P5 pass (+28.5 points without the filter, no
   noiseless cost).
