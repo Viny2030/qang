@@ -51,7 +51,10 @@ desfase solo, así que extrapolar a ruido cero las variables filtradas reduce su
 varianza anula la ganancia en peso~2; entrenar con el filtro con el ruido calibrado recupera la precisión sin ruido
 también con desfase. En cambio, en modelos de ruido de equipos IBM, donde dominan los errores de compuerta y los T1 y T2
 publicados dan un decaimiento de solo 0.002--0.017 por subcapa, entrenar con esa calibración no agregó nada: el filtro
-solo subió de 0.958 a 0.972 (sin ruido 0.979). Con entrenamiento con ruido y una lectura más rica, el modelo sin
+solo subió de 0.958 a 0.972 (sin ruido 0.979), y una calibración medida en el propio equipo (entrenamiento con el
+eco, o reajustar la lectura con datos del equipo) no hizo nada mejor. Sin el filtro, los logits multiclase crudos son
+exactamente una mezcla de los logits sin ruido con un vector constante fijado por el entrenamiento, lo que explica por
+qué la pérdida sin qang varió entre 3 y 42 puntos según la semilla. Con entrenamiento con ruido y una lectura más rica, el modelo sin
 filtro fue $1.2$ puntos mejor en un estudio, pero en 60 corridas nuevas esa diferencia bajó a $+0.5$ puntos y no
 fue significativa. El déficit del peso~2
 viene de la codificación por productos de pares, no de la lectura; con una codificación que llena todo el
@@ -92,7 +95,7 @@ limitado por T1, y cuándo deja de importar?
 Respondemos con simulación exacta, un protocolo fijo y una comparación explícita. Cada lectura se toma con qang
 (filtrada) y sin qang (cruda), sobre los mismos parámetros entrenados o la misma inicialización. Las
 predicciones de cada estudio quedaron registradas en el repositorio antes de la corrida que las puso a prueba.
-De 147 predicciones pre-registradas en los estudios que se resumen aquí, 101 se cumplieron y 46 fallaron; las
+De 162 predicciones pre-registradas en los estudios que se resumen aquí, 110 se cumplieron y 52 fallaron; las
 fallas se reportan junto a los aciertos.
 
 \section{Modelo y teoría}
@@ -139,6 +142,12 @@ del equipo necesita solo los T1 relativos.
 el sector y conmuta con el canal diagonal de desfase, así que la lectura filtrada de un circuito con T1 y desfase es
 igual a la del mismo circuito con desfase solo (verificado a $10^{-16}$). El filtro deja un único parámetro de ruido,
 que la extrapolación a ruido cero puede quitar.
+
+\paragraph{F7: la lectura multiclase cruda es una mezcla.} En peso~1 con T1 igual, cada disparo decaído cae en
+$|0\cdots0\rangle$, donde todo $\qZ=+1$ (todo $p_c=0$). Los logits crudos son entonces $K L_c+(1-K)v_c$, con $L$ los
+logits sin ruido, $K$ la fracción conservada y $v$ un vector constante fijado por el entrenamiento ($W^{\mathsf T}\mathbf
+1+b$ en la lectura cabeza, $b$ en la lectura qubit): sin el filtro cada entrada es arrastrada hacia la clase con el
+$v_c$ más grande.
 
 \paragraph{Lectura multiclase.} \texttt{MultiClassQNN} usa la red de peso~1 con $C\le n$ clases, la clase $c$ en el
 qubit $c$. Su lectura ``qubit'' puntúa la clase $c$ con la probabilidad de excitación $p_c=(1-\qZ^{(c)})/2$ y logits
@@ -208,7 +217,8 @@ Las predicciones que fallaron:
   al menos la mitad del error de las variables del filtro (dejó el 50.3 y el 57.5\,\%), una precisión a menos de 1 punto
   del sin ruido en peso~2 (1.3 puntos abajo) y ninguna pérdida frente al filtro solo con 1000 disparos por escala en
   peso~2 (2.9 puntos abajo); y las cuatro predicciones de que el entrenamiento calibrado con los T1 y T2 publicados
-  ayudaría en modelos de ruido de equipos.
+  ayudaría en modelos de ruido de equipos; las cinco predicciones de que ayudaría una calibración medida en el equipo;
+  y un factor de al menos 3 entre las pérdidas del tercio superior e inferior del índice de arrastre (2.5).
 \end{itemize}
 
 \paragraph{Réplica en 60 corridas.} Las comparaciones clave se repitieron con 5 semillas $\times$ 3 particiones
@@ -403,6 +413,17 @@ La Tabla~\ref{tab:mas} reúne los estudios que cambian cada uno una cosa del pla
   ruido, el modelo dio 0.958 crudo y 0.972 con el filtro (con o sin eco), contra 0.979 sin ruido; entrenado con el
   filtro con esa calibración dio 0.968, y sin el filtro 0.968. Los errores de compuerta, que una calibración de T1/T2
   no describe, dominan estos modelos de ruido; el eco bajó el error del valor de decisión pero no cambió decisiones.
+\item \textit{Calibrar con el propio equipo} (mismos backends y entradas). Reentrenar con el filtro a través de la mezcla
+  dentro del sector que mide el eco dio 0.970, y reajustar la lectura lineal con 40 entradas de entrenamiento corridas en
+  el equipo dio 0.965, contra 0.972 de entrenar sin ruido más el filtro.
+\item \textit{Por qué la pérdida multiclase varía entre semillas} (dígitos de 5 clases, 20 semillas por lectura). F7
+  predijo cada decisión cruda en las 40 corridas. Un índice de arrastre, $(1-K)/K$ por la dispersión de $v$ sobre el
+  margen mediano de entrenamiento, ordenó las semillas por su pérdida sin qang (Spearman 0.98 en la lectura qubit, 0.65
+  en la cabeza); las pérdidas fueron de 3 a 42 puntos, y con qang cada corrida fue sin ruido.
+\item \textit{Desfase con 8 qubits} (cancer, wine, dígitos; 3 semillas; T1 0.08 más desfase 0.03). Como con 5 qubits,
+  filtro más ZNE lineal dejó el 50 y el 56\,\% del error del filtro y llegó a 0.955 / 0.962 (sin ruido 0.959 / 0.964)
+  con probabilidades exactas; con 1000 disparos por escala en peso~2 cayó a 0.879, debajo del filtro solo (0.915);
+  entrenar con el filtro con el ruido dio 0.963 / 0.961. Las cinco predicciones se cumplieron.
 \end{itemize}
 
 \begin{table}[h]
@@ -416,7 +437,7 @@ disparos (T1) & entrenado, $S=1000$ / $S=100$ & 0.945 & 0.939 / 0.930 & 0.929 / 
 multiclase (T1) & lectura qubit / cabeza & 0.918 / 0.953 & 0.918 / 0.953 & 0.865 / 0.863\\
 tamaño (T1) & 8 qubits, peso 1 / peso 2 & 0.977 / 0.965 & 0.977 / 0.965 & 0.946 / 0.705\\
 gradientes (T1) & razón de varianza, peso 1 & 1 & 1 & $K^2$\\
-multiclase (equipos) & cabeza, cambios (500) & 0.91 & 0.890 (24) & 0.858 (51)\\
+multiclase (equipos) & cabeza, cambios & 0.91 & 0.890 (24) & 0.858 (51)\\
  & \quad con calibración por eco & & 0.900 (15) & \\
 multiclase, 8 qubits (T1) & cabeza, 5 / 8 clases & 0.952 / 0.916 & 0.952 / 0.916 & 0.793 / 0.805\\
 T1 desigual ($\pm100\,\%$) & peso 1 / 2, solo filtro & 0.950 / 0.945 & 0.931 / 0.918 & 0.873 / 0.797\\
@@ -428,6 +449,9 @@ T1 + desfase 0.03 & peso 1 / 2, solo filtro & 0.952 / 0.956 & 0.933 / 0.919 & 0.
  & \quad entrenado con filtro y ruido & & 0.953 / 0.956 & \\
 ruido IBM (189) & peso 1, sin ruido & 0.979 & 0.972 & 0.958\\
  & \quad con calibración T1/T2 & & 0.968 & 0.968\\
+ & \quad calibración del equipo & & 0.970 / 0.965 & \\
+T1 + desf., 8 qubits & peso 1 / 2, solo filtro & 0.959 / 0.964 & 0.925 / 0.950 & 0.788 / 0.650\\
+ & \quad con ZNE lineal (exacta) & & 0.955 / 0.962 & 0.914 / 0.851\\
 \bottomrule
 \end{tabular}
 \caption{Estudios más allá del primer modelo, con y sin el filtro (precisión media salvo indicación).}
@@ -475,7 +499,7 @@ Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.18 (\texttt{pip install qang}), 
 \texttt{WeightQNN} (pesos 1 y 2, lecturas \texttt{"z"} y \texttt{"zz"}, codificaciones \texttt{"pairs"}, \texttt{"ring"} y
 \texttt{"dual"}; cualquier peso para simular; \texttt{qang="both"}), \texttt{kept\_fraction} y \texttt{compare\_qang}; \texttt{MultiClassQNN} y \texttt{block\_unitaries}; calibración por eco en \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Script listo para hardware:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM e IonQ). Estudios: \texttt{examples/qnn\_*\_qg.py} y
-RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S101, \S104--\S119, con pruebas en \texttt{tests/}. Los cuadernos Colab
+RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S101, \S104--\S122, con pruebas en \texttt{tests/}. Los cuadernos Colab
 \texttt{notebooks/qang\_qml\_es.ipynb} (español) y \texttt{qang\_qml.ipynb} (inglés) instalan la librería desde
 PyPI y muestran cada resultado con y sin el filtro. Repositorio: \url{https://github.com/Viny2030/qang}.
 

@@ -47,7 +47,10 @@ equals the dephasing-only one, so zero-noise extrapolation of the filtered featu
 scale its variance cancels the gain at weight~2; training with the filter under the calibrated noise recovers the
 noiseless accuracy under dephasing too. On IBM device noise models, however, where gate errors dominate and the
 published T1 and T2 give a decay of only 0.002--0.017 per sublayer, training under that calibration added nothing:
-the filter alone lifted 0.958 to 0.972 (noiseless 0.979). With noise-aware training and a richer readout, the model without the filter
+the filter alone lifted 0.958 to 0.972 (noiseless 0.979), and a calibration measured on the device itself (echo-aware
+training, or a readout refit on device data) did no better. Without the filter, the raw multiclass logits are exactly
+a blend of the noiseless logits with a constant vector fixed by training, which explains why the loss without qang
+ranged from 3 to 42 points between seeds. With noise-aware training and a richer readout, the model without the filter
 was $1.2$ points better in one study, but over 60 new runs that gap shrank to $+0.5$ points and was not
 significant. The weight-2 deficit comes from the
 pair-product encoding, not from the readout; with an encoding that fills the whole sector and a full-rank
@@ -86,7 +89,7 @@ mattering?
 
 We answer with exact simulation, a fixed protocol and an explicit comparison. Every reading is taken with
 qang (filtered) and without it (raw), on the same trained parameters or the same initialization. The
-predictions of every study were committed to the repository before the run that tested them. Of 147 pre-registered predictions in the studies summarized here, 101 passed and 46 failed; the failures are
+predictions of every study were committed to the repository before the run that tested them. Of 162 pre-registered predictions in the studies summarized here, 110 passed and 52 failed; the failures are
 reported alongside the passes.
 
 \section{Model and theory}
@@ -131,6 +134,11 @@ device's decay rates needs only the relative T1s.
 scalar on the sector and commutes with the diagonal dephasing channel, so the filtered readout of a circuit with T1
 and dephasing equals that of the same circuit with dephasing alone (checked to $10^{-16}$). The filter leaves a single
 noise parameter, which zero-noise extrapolation can remove.
+
+\paragraph{F7: the raw multiclass readout is a blend.} At weight~1 under equal T1 every decayed shot lands in
+$|0\cdots0\rangle$, where every $\qZ=+1$ (every $p_c=0$). The raw logits are therefore $K L_c+(1-K)v_c$, with $L$ the
+noiseless logits, $K$ the kept fraction and $v$ a constant vector set by training ($W^{\mathsf T}\mathbf 1+b$ for the head
+readout, $b$ for the qubit readout): without the filter every input is pulled toward the class with the largest $v_c$.
 
 \paragraph{Multiclass readout.} \texttt{MultiClassQNN} uses the weight-1 network with $C\le n$ classes, class $c$ on
 qubit $c$. Its ``qubit'' readout scores class $c$ by the excitation probability $p_c=(1-\qZ^{(c)})/2$ with logits
@@ -198,7 +206,9 @@ The predictions that failed:
   with zero-noise extrapolation, a linear extrapolation removing at least half of the filter's feature error (it left
   50.3\% and 57.5\%), accuracy within 1 point of noiseless at weight~2 (1.3 points below), and no loss against the filter
   alone with 1000 shots per scale at weight~2 (2.9 points below); and all four predictions that calibrated training
-  from the published T1 and T2 would help on device noise models.
+  from the published T1 and T2 would help on device noise models; all five predictions that a calibration measured on
+  the device would; and a factor of at least 3 between the losses of the top and bottom thirds of the pull index
+  (2.5).
 \end{itemize}
 
 \paragraph{Replication over 60 runs.} The key comparisons were repeated over 5 seeds $\times$ 3 splits
@@ -389,6 +399,17 @@ Table~\ref{tab:beyond} collects the studies that each change one thing in the se
   0.972 with the filter (with or without the echo), against 0.979 noiseless; trained with the filter under that
   calibration it gave 0.968, and trained without the filter under it 0.968. Gate errors, which a T1/T2 calibration
   does not describe, dominate these noise models; the echo cut the decision error but changed no decision.
+\item \textit{Calibrating with the device itself} (same backends and inputs). Retraining with the filter through the
+  in-sector mixing measured by the echo gave 0.970, and refitting the linear readout on 40 training inputs run on the
+  device gave 0.965, against 0.972 for noiseless training plus the filter.
+\item \textit{Why the multiclass loss varies between seeds} (5-class digits, 20 seeds per readout). F7 predicted every
+  raw decision in all 40 runs. A pull index, $(1-K)/K$ times the spread of $v$ over the median training margin,
+  ranked the seeds by their loss without qang (Spearman 0.98 for the qubit readout, 0.65 for the head); the losses
+  ran from 3 to 42 points, and with qang every run was noiseless.
+\item \textit{Dephasing at 8 qubits} (cancer, wine, digits; 3 seeds; T1 0.08 plus dephasing 0.03). As at 5 qubits,
+  linear filter plus ZNE left 50\% and 56\% of the filter's feature error and reached 0.955 / 0.962 (noiseless 0.959 /
+  0.964) with exact probabilities; with 1000 shots per scale at weight~2 it fell to 0.879, below the filter alone
+  (0.915); training with the filter under the noise gave 0.963 / 0.961. All five predictions passed.
 \end{itemize}
 
 \begin{table}[h]
@@ -414,6 +435,9 @@ T1 + dephasing 0.03 & weight 1 / 2, filter alone & 0.952 / 0.956 & 0.933 / 0.919
  & \quad trained with filter under noise & & 0.953 / 0.956 & \\
 IBM noise (189) & weight 1, clean training & 0.979 & 0.972 & 0.958\\
  & \quad T1/T2-calibrated training & & 0.968 & 0.968\\
+ & \quad device calibration & & 0.970 / 0.965 & \\
+T1 + deph., 8 qubits & weight 1 / 2, filter alone & 0.959 / 0.964 & 0.925 / 0.950 & 0.788 / 0.650\\
+ & \quad with linear ZNE (exact) & & 0.955 / 0.962 & 0.914 / 0.851\\
 \bottomrule
 \end{tabular}
 \caption{Studies beyond the first model, with and without the filter (mean accuracy unless stated).}
@@ -461,7 +485,7 @@ Models: \texttt{qang.qml} in \texttt{qang} 0.6.18 (\texttt{pip install qang}), N
 \texttt{WeightQNN} (weights 1 and 2, readouts \texttt{"z"} and \texttt{"zz"}, encodings \texttt{"pairs"}, \texttt{"ring"} and
 \texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}; \texttt{MultiClassQNN} and \texttt{block\_unitaries}; echo calibration in \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Hardware-ready script:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM and IonQ). Studies:
-\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S119, with tests in \texttt{tests/}. The Colab
+\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S122, with tests in \texttt{tests/}. The Colab
 notebooks \texttt{notebooks/qang\_qml.ipynb} (English) and \texttt{qang\_qml\_es.ipynb} (Spanish) install the
 library from PyPI and show
 every result with and without the filter. Repository: \url{https://github.com/Viny2030/qang}.
