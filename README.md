@@ -165,7 +165,7 @@ where arccos(qg_Z) drifts towards π/2 (§102, §103). Short note: `manuscript/q
 `qang.qml` (qang >= 0.6.4; `MultiClassQNN` and `block_unitaries` from 0.6.17) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(156 judged so far in this line, §75–§119: 109 passed, 47 failed, all reported; 4 more wait for the IonQ hardware run, §116). Note (with §104–§119): `manuscript/qang_qml.pdf` (Spanish:
+(161 judged so far in this line, §75–§120: 109 passed, 52 failed, all reported; 4 more wait for the IonQ hardware run, §116). Note (with §104–§119): `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -198,6 +198,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | unequal T1 corrected (§117, spread ±100%, 40 runs) | training with qang under the calibrated decay rates: 0.951 / 0.940 against noiseless 0.950 / 0.945 (filter alone 0.931 / 0.918), unaffected by a 10% calibration error; the filtered readout depends only on the ratios of the rates, so at weight 2 it survives a 1.5× drift of all T1 (−0.7 points) that costs the raw noise-aware model 10 |
 | dephasing: filter + zero-noise extrapolation (§118, T1 0.08 + dephasing 0.03/0.06, 40 runs) | the filter turns T1 + dephasing into dephasing alone (exact), so ZNE of the filtered features cuts their error to 50–58% (linear) or 27–35% (Richardson) of the filter's and beats ZNE of the raw readout by 3–10 points; with 1000 shots per scale the gain is lost at weight 2; training with the filter under the calibrated noise recovers the noiseless accuracy (0.951–0.956) |
 | the whole pipeline on device noise models (§119, IBM fake backends, 189 inputs, calibration from published T1/T2) | the filter lifts 0.958 to 0.972 (noiseless 0.979); calibrated training from T1/T2 adds nothing there (0.968), because gate errors dominate and decay is only 0.002–0.017 per sublayer: train noiselessly and filter, and keep calibrated training for strong decay or dephasing |
+| calibrating with the device itself (§120, echo-aware training and a readout refit on 40 device inputs, IBM noise models) | neither beats noiseless training plus the filter (0.970 and 0.965 against 0.972; noiseless 0.979) |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
@@ -248,7 +249,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1274 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1276 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

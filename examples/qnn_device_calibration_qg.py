@@ -34,9 +34,27 @@ noiseless --mode local only):
 python examples/qnn_device_calibration_qg.py --mode local
 python examples/qnn_device_calibration_qg.py --mode fake --out fake.json
 
-Findings:
+Findings (correct decisions of 189 per backend; noiseless 185):
 
-FINDINGS_PLACEHOLDER
+  backend           A raw  A qang  A qang+echo  E    H    H echo
+  fake_brisbane     179    182     182          182  181  181
+  fake_sherbrooke   181    184     184          184  182  182
+  fake_torino       183    185     185          184  184  184
+  mean accuracy     0.958  0.972   0.972        0.970 0.965 0.965
+
+  * G1-G5 all fail.
+  * Echo-aware training (E) equals the filter alone on brisbane and
+    sherbrooke and is one input behind on torino.
+  * Refitting the readout on 40 device-run training inputs (H, H echo) loses
+    1-2 inputs per backend: 40 shots-noisy inputs fit a 6-parameter head less
+    well than the noiseless training set did, and the echo adds nothing to it.
+  * The echo diagonal is 0.77-0.92: the in-sector mixing is real, but these
+    models' margins absorb it (as in sections 106 and 119).
+  Verdict. Calibrating with the device itself (echo-aware training, or a
+  readout refit on device data) does not beat noiseless training plus the
+  filter on IBM device noise models. With sections 119 and 120, the filter
+  alone gets within 0.7 points of noiseless here and no calibration tested
+  closes the rest.
 """
 
 import argparse

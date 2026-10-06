@@ -5751,6 +5751,37 @@ within 1 point of noiseless; K4: C + echo above D.
   calibrated training is the remedy for strong decay or dephasing, not a
   default.
 
+## 120. Calibrating with the device itself (`examples/qnn_device_calibration_qg.py`)
+
+Section 119's T1/T2 calibration missed the gate errors, so here the device is
+measured directly. E: the 5 echo circuits of model A give the in-sector
+mixing M, and a model is retrained with the filter and M^1/2 in its forward
+model (read on the device with the filter alone). H: 40 training inputs are
+run on the device and the linear readout is refit on their features (filter,
+or filter + echo); the angles stay those of A. IBM fake backends, 189 test
+inputs, as §119.
+
+**Predictions, committed before any noisy run (fcfdf3b).** G1: H ≥ A with
+the filter; G2: E ≥ A with the filter; G3: the best of E, H, H echo within
+0.5 points of noiseless; G4: H echo ≥ A with filter + echo; G5: on every
+backend one of them ≥ A with the filter.
+
+| backend | A raw | A qang | A qang + echo | E | H | H echo |
+|---|---|---|---|---|---|---|
+| fake brisbane | 179 | 182 | 182 | 182 | 181 | 181 |
+| fake sherbrooke | 181 | 184 | 184 | 184 | 182 | 182 |
+| fake torino | 183 | 185 | 185 | 184 | 184 | 184 |
+| mean accuracy | 0.958 | 0.972 | 0.972 | 0.970 | 0.965 | 0.965 |
+
+(correct decisions of 189; noiseless 185)
+
+* **G1–G5 all fail.** Echo-aware training ties the filter (−1 input on
+  torino); refitting the readout on 40 device inputs loses 1–2 inputs per
+  backend.
+* **Verdict.** On these device noise models neither a T1/T2 calibration
+  (§119) nor a calibration measured on the device (§120) beats noiseless
+  training plus the filter, which ends 0.7 points below noiseless.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

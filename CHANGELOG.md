@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_device_calibration_qg.py` (§120): calibration from the device (echo-aware training, readout refit on
+  device data); G1-G5 fail: neither beats noiseless training plus the filter on IBM noise models.
 - QML notebooks (EN/ES): section 15, the whole pipeline on the FakeBrisbane noise model (Qiskit/Aer): clean and
   T1/T2-calibrated training, filter and echo, accuracy and decision error with and without qang; QML note with §119.
 - `examples/qnn_full_pipeline_qg.py` (§119): calibrated training with qang (from published T1/T2) plus filter and echo
