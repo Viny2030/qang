@@ -36,9 +36,29 @@ tests on random parameters):
 python examples/qnn_seed_spread_qg.py            # all seeds
 python examples/qnn_seed_spread_qg.py 1210       # one seed, JSON rows
 
-Findings:
+Findings (20 seeds per readout; 5-class digits, 271 test inputs per seed):
 
-FINDINGS_PLACEHOLDER
+  readout  noiseless  without qang  loss: mean / min / max   pull index   Spearman(pull, loss)
+  qubit    0.853      0.679         0.174 / -0.007 / 0.413    0.42-2.80    0.98
+  head     0.933      0.718         0.215 /  0.033 / 0.417    0.71-2.36    0.65
+
+  * V1, V2, V4, V5 pass; V3 fails.
+  * F7 holds exactly: in all 40 runs the raw decisions equal
+    argmax(K L + (1 - K) v) for every test input (agreement 1.000), and in
+    the tests on random parameters to 1e-12.
+  * The pull index, computed from the trained readout and the training set
+    alone, ranks the seeds by their loss without qang: Spearman 0.98 for the
+    qubit readout and 0.65 for the head.
+  * V3 fails: the top third of the head seeds lose 28.0 points and the bottom
+    third 11.1, a factor 2.5, not 3.
+  * The spread is large: the head loss runs from 3.3 to 41.7 points and the
+    qubit loss from -0.7 to 41.3.
+  * V5: with qang every run equals its noiseless accuracy.
+  Verdict. The seed-to-seed spread is not noise: without the filter every
+  input is pulled toward the class with the largest constant term v_c, set by
+  training, and the loss follows how far v is spread relative to the
+  decision margins. The filter removes the pull exactly (it drops the |0...0>
+  shots that carry it).
 """
 
 import json

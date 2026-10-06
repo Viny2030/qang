@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_seed_spread_qg.py` (§121): F7, the raw multiclass logits are K L + (1 - K) v; a pull index predicts
+  the seed-to-seed loss without qang (Spearman 0.98 / 0.65); V1, V2, V4, V5 pass; V3 fails.
 - `examples/qnn_device_calibration_qg.py` (§120): calibration from the device (echo-aware training, readout refit on
   device data); G1-G5 fail: neither beats noiseless training plus the filter on IBM noise models.
 - QML notebooks (EN/ES): section 15, the whole pipeline on the FakeBrisbane noise model (Qiskit/Aer): clean and

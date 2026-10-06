@@ -5782,6 +5782,36 @@ backend one of them ≥ A with the filter.
   (§119) nor a calibration measured on the device (§120) beats noiseless
   training plus the filter, which ends 0.7 points below noiseless.
 
+## 121. Why the multiclass loss without qang varies between seeds (`examples/qnn_seed_spread_qg.py`)
+
+**Theory (F7).** At weight 1 under equal T1 every decayed shot lands in
+|0…0⟩, where each qg_Z = +1 (each p_c = 0). The raw logits are therefore
+K L_c + (1 − K) v_c, with L the noiseless logits, K the kept fraction and v a
+constant vector fixed by training (W^T 1 + b for the head readout, b for the
+qubit readout). Without the filter every input is pulled toward the class
+with the largest v_c. Pull index: (1 − K)/K · (max v − min v) / median
+training margin.
+
+Setting: MultiClassQNN, 5 qubits, 5-class digits, 20 seeds per readout,
+equal T1 0.08 (K = 0.472).
+
+**Predictions, committed before the run (efba91a).** V1/V2: Spearman
+correlation between pull index and loss ≥ 0.6 (head / qubit); V3: top third
+of the head seeds lose ≥ 3× the bottom third; V4: head loss spans ≥ 15
+points; V5: with qang every run is noiseless.
+
+| readout | noiseless | without qang | loss (mean / min / max) | Spearman (pull, loss) |
+|---|---|---|---|---|
+| qubit | 0.853 | 0.679 | 17.4 / −0.7 / 41.3 points | 0.98 |
+| head | 0.933 | 0.718 | 21.5 / 3.3 / 41.7 points | 0.65 |
+
+* **V1, V2, V4, V5 pass; V3 fails** (top third 28.0 points, bottom third
+  11.1: 2.5×, not 3×).
+* **F7 is exact:** the raw decisions equal argmax(K L + (1 − K) v) for every
+  input in all 40 runs.
+* **Verdict.** The spread between seeds is the trained constant pull v,
+  readable before running anything; the filter removes it exactly.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
