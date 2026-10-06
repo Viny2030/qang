@@ -26,9 +26,33 @@ Pre-registered predictions (committed before the run):
 python examples/qnn_dephasing_zne_8q_qg.py            # all seeds
 python examples/qnn_dephasing_zne_8q_qg.py 1220       # one seed, JSON rows
 
-Findings:
+Findings (3 datasets x 3 seeds = 9 runs per weight; accuracy, feature error
+in brackets; noiseless 0.959 / 0.964 for weight 1 / 2):
 
-FINDINGS_PLACEHOLDER
+  weight 1     raw          filter       raw + ZNE    filter + ZNE  Richardson
+    exact      0.788 (.158) 0.925 (.100) 0.914 (.113) 0.955 (.050)  0.955 (.026)
+    1000 shots 0.773 (.159) 0.913 (.102) 0.898 (.117) 0.942 (.070)  0.930 (.107)
+  weight 2
+    exact      0.650 (.387) 0.950 (.105) 0.851 (.210) 0.962 (.058)  0.966 (.035)
+    1000 shots 0.652 (.387) 0.915 (.116) 0.833 (.214) 0.879 (.155)  0.720 (.381)
+  trained with the filter under the noise: 0.963 (weight 1), 0.961 (weight 2)
+
+  * Y1-Y5 all pass.
+  * F6 holds at 8 qubits (tests).
+  * Y1: linear filter + ZNE leaves 50% / 56% of the filter's feature error
+    (Richardson 26% / 34%), as at 5 qubits.
+  * Y2, Y5: with exact probabilities filter + ZNE lands within 0.4 points of
+    noiseless and beats raw + ZNE by 4.1 / 11.1 points.
+  * Y3: with 1000 shots per scale at weight 2 it falls 3.6 points below the
+    filter alone, and Richardson to 0.720: the shot cost grows with the
+    number of features to extrapolate (28 correlations at weight 2).
+  * Y4: training with the filter under the noise stays within 0.3 points of
+    noiseless.
+  Verdict. The picture of section 118 holds at 8 qubits: the filter turns
+  T1 plus dephasing into dephasing alone, ZNE of the filtered readout removes
+  most of the bias with exact probabilities but not at 1000 shots for
+  weight 2, and noise-aware training with the filter is the practical
+  correction for classifiers.
 """
 
 import json

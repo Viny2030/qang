@@ -165,7 +165,7 @@ where arccos(qg_Z) drifts towards π/2 (§102, §103). Short note: `manuscript/q
 `qang.qml` (qang >= 0.6.4; `MultiClassQNN` and `block_unitaries` from 0.6.17) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(166 judged so far in this line, §75–§121: 113 passed, 53 failed, all reported; 4 more wait for the IonQ hardware run, §116). Note (with §104–§119): `manuscript/qang_qml.pdf` (Spanish:
+(171 judged so far in this line, §75–§122: 118 passed, 53 failed, all reported; 4 more wait for the IonQ hardware run, §116). Note (with §104–§119): `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**
@@ -200,6 +200,7 @@ classically simulable: a robustness tool, not a quantum advantage. Every predict
 | the whole pipeline on device noise models (§119, IBM fake backends, 189 inputs, calibration from published T1/T2) | the filter lifts 0.958 to 0.972 (noiseless 0.979); calibrated training from T1/T2 adds nothing there (0.968), because gate errors dominate and decay is only 0.002–0.017 per sublayer: train noiselessly and filter, and keep calibrated training for strong decay or dephasing |
 | calibrating with the device itself (§120, echo-aware training and a readout refit on 40 device inputs, IBM noise models) | neither beats noiseless training plus the filter (0.970 and 0.965 against 0.972; noiseless 0.979) |
 | why the multiclass loss without qang varies between seeds (§121, 40 runs) | without the filter the raw logits are K L + (1 − K) v (exact): every input is pulled toward the class with the largest trained constant v_c; a pull index from the trained readout ranks the seeds by loss (Spearman 0.98 qubit, 0.65 head; losses 3–42 points); with qang the pull is gone |
+| dephasing with filter + ZNE at 8 qubits (§122, 18 runs) | as at 5 qubits: linear ZNE leaves 50–56% of the filter's feature error and reaches 0.955 / 0.962 (noiseless 0.959 / 0.964) with exact probabilities; at 1000 shots, weight 2, it falls below the filter alone (0.879 against 0.915); training with the filter under the noise gives 0.963 / 0.961 |
 | not corrected exactly | dephasing; unequal T1 (the filter still has the lower error, but is biased); errors that move an excitation inside the sector |
 
 Hardware runs are prepared, with explicit cost confirmation, and pending:
@@ -250,7 +251,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1278 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1280 tests, run in CI on Python 3.9–3.12) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v

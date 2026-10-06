@@ -5812,6 +5812,29 @@ points; V5: with qang every run is noiseless.
 * **Verdict.** The spread between seeds is the trained constant pull v,
   readable before running anything; the filter removes it exactly.
 
+## 122. Dephasing with the filter plus ZNE at 8 qubits (`examples/qnn_dephasing_zne_8q_qg.py`)
+
+§118 at 8 qubits: weight 1 and weight 2 (dual, 28 qg_ZZ correlations);
+cancer, wine, digits; 3 seeds; equal T1 0.08 plus dephasing 0.03. F6 checked
+at 8 qubits.
+
+**Predictions, committed before the run (1bca045).** Y1: linear filter +
+ZNE ≤ 60% of the filter's feature error; Y2: filter + ZNE ≥ filter (exact);
+Y3: with 1000 shots, at weight 2, filter + ZNE below the filter; Y4: trained
+with the filter under the noise within 1 point of noiseless; Y5: filter +
+ZNE above raw + ZNE (exact).
+
+| weight | noiseless | raw | filter | raw + ZNE | filter + ZNE (exact / shots) | Richardson (exact / shots) | trained with filter |
+|---|---|---|---|---|---|---|---|
+| 1 | 0.959 | 0.788 | 0.925 | 0.914 | 0.955 / 0.942 | 0.955 / 0.930 | 0.963 |
+| 2 | 0.964 | 0.650 | 0.950 | 0.851 | 0.962 / 0.879 | 0.966 / 0.720 | 0.961 |
+
+* **Y1–Y5 all pass.** Linear ZNE leaves 50% / 56% of the filter's feature
+  error (Richardson 26% / 34%); with shots at weight 2 it loses 3.6 points to
+  the filter alone.
+* **Verdict.** §118 holds at 8 qubits; noise-aware training with the filter
+  stays the practical correction of dephasing for classifiers.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
