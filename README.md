@@ -165,7 +165,7 @@ where arccos(qg_Z) drifts towards π/2 (§102, §103). Short note: `manuscript/q
 `qang.qml` (qang >= 0.6.4; `MultiClassQNN` and `block_unitaries` from 0.6.17) trains weight-conserving QNN classifiers and reads every result with qang (the qg
 filter keeps only the shots that stayed in the input's Hamming-weight sector) and without it. These models are
 classically simulable: a robustness tool, not a quantum advantage. Every prediction was committed before its run
-(176 judged so far in this line, §75–§123: 123 passed, 53 failed, all reported; 4 more wait for the IonQ hardware run, §116). Note (with §104–§122): `manuscript/qang_qml.pdf` (Spanish:
+(176 judged so far in this line, §75–§123: 123 passed, 53 failed, all reported; 4 more wait for the IonQ hardware run, §116). Note (with §104–§123): `manuscript/qang_qml.pdf` (Spanish:
 `manuscript/qang_qml_es.pdf`).
 
 **Results so far (simulation; RESEARCH_NOTES §75–§98):**

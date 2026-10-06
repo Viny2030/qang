@@ -54,7 +54,8 @@ publicados dan un decaimiento de solo 0.002--0.017 por subcapa, entrenar con esa
 solo subió de 0.958 a 0.972 (sin ruido 0.979), y una calibración medida en el propio equipo (entrenamiento con el
 eco, o reajustar la lectura con datos del equipo) no hizo nada mejor. Sin el filtro, los logits multiclase crudos son
 exactamente una mezcla de los logits sin ruido con un vector constante fijado por el entrenamiento, lo que explica por
-qué la pérdida sin qang varió entre 3 y 42 puntos según la semilla. Con entrenamiento con ruido y una lectura más rica, el modelo sin
+qué la pérdida sin qang varió entre 3 y 42 puntos según la semilla; una lectura lineal en las probabilidades de excitación y sin sesgos por clase
+no tiene ese arrastre, lleva el filtro adentro y no perdió nada sin ruido. Con entrenamiento con ruido y una lectura más rica, el modelo sin
 filtro fue $1.2$ puntos mejor en un estudio, pero en 60 corridas nuevas esa diferencia bajó a $+0.5$ puntos y no
 fue significativa. El déficit del peso~2
 viene de la codificación por productos de pares, no de la lectura; con una codificación que llena todo el
@@ -95,7 +96,7 @@ limitado por T1, y cuándo deja de importar?
 Respondemos con simulación exacta, un protocolo fijo y una comparación explícita. Cada lectura se toma con qang
 (filtrada) y sin qang (cruda), sobre los mismos parámetros entrenados o la misma inicialización. Las
 predicciones de cada estudio quedaron registradas en el repositorio antes de la corrida que las puso a prueba.
-De 162 predicciones pre-registradas en los estudios que se resumen aquí, 110 se cumplieron y 52 fallaron; las
+De 167 predicciones pre-registradas en los estudios que se resumen aquí, 115 se cumplieron y 52 fallaron; las
 fallas se reportan junto a los aciertos.
 
 \section{Modelo y teoría}
@@ -147,7 +148,10 @@ que la extrapolación a ruido cero puede quitar.
 $|0\cdots0\rangle$, donde todo $\qZ=+1$ (todo $p_c=0$). Los logits crudos son entonces $K L_c+(1-K)v_c$, con $L$ los
 logits sin ruido, $K$ la fracción conservada y $v$ un vector constante fijado por el entrenamiento ($W^{\mathsf T}\mathbf
 1+b$ en la lectura cabeza, $b$ en la lectura qubit): sin el filtro cada entrada es arrastrada hacia la clase con el
-$v_c$ más grande.
+$v_c$ más grande. Una lectura sin sesgos por clase y con logits lineales en las probabilidades de excitación
+($W^{\mathsf T}(\qZ-\mathbf 1)$, o $a\,p_c$) no tiene arrastre: los disparos decaídos, con todo $p_c=0$, solo
+reescalan sus logits, así que sus decisiones crudas son iguales a las filtradas con cualquier T1, igual o no, y con
+disparos.
 
 \paragraph{Lectura multiclase.} \texttt{MultiClassQNN} usa la red de peso~1 con $C\le n$ clases, la clase $c$ en el
 qubit $c$. Su lectura ``qubit'' puntúa la clase $c$ con la probabilidad de excitación $p_c=(1-\qZ^{(c)})/2$ y logits
@@ -424,6 +428,10 @@ La Tabla~\ref{tab:mas} reúne los estudios que cambian cada uno una cosa del pla
   filtro más ZNE lineal dejó el 50 y el 56\,\% del error del filtro y llegó a 0.955 / 0.962 (sin ruido 0.959 / 0.964)
   con probabilidades exactas; con 1000 disparos por escala en peso~2 cayó a 0.879, debajo del filtro solo (0.915);
   entrenar con el filtro con el ruido dio 0.963 / 0.961. Las cinco predicciones se cumplieron.
+\item \textit{Una lectura multiclase sin arrastre} (dígitos de 5 clases, 10 semillas). Quitar los sesgos por clase no
+  costó nada sin ruido (0.938 contra 0.932 en la lectura cabeza). Sin el filtro, la lectura cabeza sin arrastre mantuvo
+  0.938 con T1 igual y 0.928 con T1 desigual, contra 0.653 y 0.624 de la lectura estándar, y sus decisiones crudas
+  fueron iguales a las filtradas en cada corrida y condición. Las cinco predicciones se cumplieron.
 \end{itemize}
 
 \begin{table}[h]
@@ -452,6 +460,7 @@ ruido IBM (189) & peso 1, sin ruido & 0.979 & 0.972 & 0.958\\
  & \quad calibración del equipo & & 0.970 / 0.965 & \\
 T1 + desf., 8 qubits & peso 1 / 2, solo filtro & 0.959 / 0.964 & 0.925 / 0.950 & 0.788 / 0.650\\
  & \quad con ZNE lineal (exacta) & & 0.955 / 0.962 & 0.914 / 0.851\\
+multiclase cabeza, T1 & estándar / sin arrastre & 0.932 / 0.938 & 0.932 / 0.938 & 0.653 / 0.938\\
 \bottomrule
 \end{tabular}
 \caption{Estudios más allá del primer modelo, con y sin el filtro (precisión media salvo indicación).}
@@ -499,7 +508,7 @@ Modelos: \texttt{qang.qml} en \texttt{qang} 0.6.19 (\texttt{pip install qang}), 
 \texttt{WeightQNN} (pesos 1 y 2, lecturas \texttt{"z"} y \texttt{"zz"}, codificaciones \texttt{"pairs"}, \texttt{"ring"} y
 \texttt{"dual"}; cualquier peso para simular; \texttt{qang="both"}), \texttt{kept\_fraction} y \texttt{compare\_qang}; \texttt{MultiClassQNN} y \texttt{block\_unitaries}; calibración por eco en \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Script listo para hardware:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM e IonQ). Estudios: \texttt{examples/qnn\_*\_qg.py} y
-RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S101, \S104--\S122, con pruebas en \texttt{tests/}. Los cuadernos Colab
+RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 y \S94--\S101, \S104--\S123, con pruebas en \texttt{tests/}. Los cuadernos Colab
 \texttt{notebooks/qang\_qml\_es.ipynb} (español) y \texttt{qang\_qml.ipynb} (inglés) instalan la librería desde
 PyPI y muestran cada resultado con y sin el filtro. Repositorio: \url{https://github.com/Viny2030/qang}.
 
