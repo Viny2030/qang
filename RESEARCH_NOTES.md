@@ -5835,6 +5835,40 @@ ZNE above raw + ZNE (exact).
 * **Verdict.** §118 holds at 8 qubits; noise-aware training with the filter
   stays the practical correction of dephasing for classifiers.
 
+## 123. A pull-free multiclass readout: robust without the filter (`examples/qnn_pull_free_qg.py`)
+
+From F7 (§121): if the pull v is the same for every class, the raw argmax
+equals the noiseless one. That holds exactly for logits linear in the
+excitation probabilities with no bias (head: W^T (qg_Z − 1); qubit: a p_c),
+the "pull-free" readout. 5-class digits, 5 qubits, 10 seeds, standard
+against pull-free, both readouts; equal T1 0.08, unequal T1 (spread 0.5),
+1000 shots.
+
+**Predictions, committed before the run (fc1e0ea).** P1: pull-free noiseless
+within 2 points of standard; P2: head, equal T1, raw: pull-free ≥ 10 points
+ahead; P3: unequal T1, raw: pull-free within 2 points of its noiseless
+accuracy; P4: head, unequal T1: pull-free raw within 1 point of standard
+with qang; P5: 1000 shots: pull-free raw within 2 points of standard with
+qang.
+
+| readout | model | noiseless | T1 (qang / raw) | unequal T1 (qang / raw) | 1000 shots (qang / raw) |
+|---|---|---|---|---|---|
+| qubit | standard | 0.860 | 0.860 / 0.725 | 0.849 / 0.688 | 0.861 / 0.724 |
+| qubit | pull-free | 0.862 | 0.862 / 0.862 | 0.851 / 0.851 | 0.863 / 0.863 |
+| head | standard | 0.932 | 0.932 / 0.653 | 0.932 / 0.624 | 0.927 / 0.651 |
+| head | pull-free | 0.938 | 0.938 / 0.938 | 0.928 / 0.928 | 0.932 / 0.932 |
+
+* **P1–P5 all pass.** Dropping the biases costs nothing (+0.2 / +0.6
+  points noiselessly); without the filter the pull-free head readout is
+  28.5 points ahead of the standard one.
+* **Not predicted, and exact:** for the pull-free readout raw and filtered
+  decisions coincide in every condition, unequal T1 and shots included: the
+  |0…0⟩ shots have every p_c = 0 and add nothing to bias-free logits; they
+  only rescale them. At weight 1 the readout carries the filter inside it.
+* **Verdict.** A bias-free multiclass readout linear in the excitation
+  probabilities is immune to T1 decay without filtering and loses no
+  accuracy.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

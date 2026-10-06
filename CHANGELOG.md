@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `examples/qnn_pull_free_qg.py` (§123): a pull-free multiclass readout (bias-free, linear in the excitation
+  probabilities) whose raw decisions equal the filtered ones exactly; P1-P5 pass (+28.5 points without the filter, no
+  noiseless cost).
+
 ## [0.6.19] - 2026-10-06
 
 Release of §119–§122. On IBM device noise models, where gate errors dominate, noiseless training plus the filter is

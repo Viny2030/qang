@@ -33,9 +33,35 @@ Pre-registered predictions (committed before the run):
 python examples/qnn_pull_free_qg.py            # all seeds
 python examples/qnn_pull_free_qg.py 1230       # one seed, JSON rows
 
-Findings:
+Findings (10 seeds; 5-class digits, 271 test inputs per seed; mean accuracy):
 
-FINDINGS_PLACEHOLDER
+  readout model      noiseless  T1 qang  T1 raw  unequal qang  unequal raw  shots qang  shots raw
+  qubit   standard   0.860      0.860    0.725   0.849         0.688        0.861       0.724
+  qubit   pull-free  0.862      0.862    0.862   0.851         0.851        0.863       0.863
+  head    standard   0.932      0.932    0.653   0.932         0.624        0.927       0.651
+  head    pull-free  0.938      0.938    0.938   0.928         0.928        0.932       0.932
+
+  * P1-P5 all pass.
+  * P1: giving up the class biases cost nothing; the pull-free model was 0.2
+    (qubit) and 0.6 (head) points more accurate noiselessly (per-seed
+    differences -1.1 to +3.7 points).
+  * P2: under equal T1 without the filter the pull-free head readout is
+    28.5 points ahead of the standard one (0.938 against 0.653).
+  * P3, P4: under unequal T1 without the filter it stays at 0.851 / 0.928,
+    within 1.1 points of its noiseless accuracy and 0.4 points of the
+    standard model read with the filter.
+  * P5: with 1000 shots it equals the standard model read with the filter
+    to within 0.5 points.
+  * Not predicted, and exact: for the pull-free readout the raw and the
+    filtered decisions coincide in every condition, unequal T1 and shots
+    included. The decayed shots sit in |0...0>, where every excitation
+    probability is 0, so they add nothing to logits that are linear in those
+    probabilities with no bias; they only rescale every logit together. At
+    weight 1 the pull-free readout carries the filter inside it.
+  Verdict. A multiclass readout with no class biases, linear in the
+  excitation probabilities, is immune to T1 decay without any filtering and
+  loses no accuracy: it reads like the filtered standard model with every
+  shot, and is the readout to use where shots cannot be filtered.
 """
 
 import json
