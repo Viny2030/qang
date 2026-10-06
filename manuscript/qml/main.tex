@@ -45,7 +45,9 @@ noiseless at a $\pm100\%$ spread, ignores a 10\% calibration error and, at weigh
 equals the dephasing-only one, so zero-noise extrapolation of the filtered features halves (linear) or thirds
 (Richardson) their error and beats extrapolating the raw readout by 3--10 points, although with 1000 shots per noise
 scale its variance cancels the gain at weight~2; training with the filter under the calibrated noise recovers the
-noiseless accuracy under dephasing too. With noise-aware training and a richer readout, the model without the filter
+noiseless accuracy under dephasing too. On IBM device noise models, however, where gate errors dominate and the
+published T1 and T2 give a decay of only 0.002--0.017 per sublayer, training under that calibration added nothing:
+the filter alone lifted 0.958 to 0.972 (noiseless 0.979). With noise-aware training and a richer readout, the model without the filter
 was $1.2$ points better in one study, but over 60 new runs that gap shrank to $+0.5$ points and was not
 significant. The weight-2 deficit comes from the
 pair-product encoding, not from the readout; with an encoding that fills the whole sector and a full-rank
@@ -84,7 +86,7 @@ mattering?
 
 We answer with exact simulation, a fixed protocol and an explicit comparison. Every reading is taken with
 qang (filtered) and without it (raw), on the same trained parameters or the same initialization. The
-predictions of every study were committed to the repository before the run that tested them. Of 143 pre-registered predictions in the studies summarized here, 101 passed and 42 failed; the failures are
+predictions of every study were committed to the repository before the run that tested them. Of 147 pre-registered predictions in the studies summarized here, 101 passed and 46 failed; the failures are
 reported alongside the passes.
 
 \section{Model and theory}
@@ -195,7 +197,8 @@ The predictions that failed:
   below) and a larger drift loss for the raw noise-aware model at weight~1 (it lost 0.2 points); and, for dephasing
   with zero-noise extrapolation, a linear extrapolation removing at least half of the filter's feature error (it left
   50.3\% and 57.5\%), accuracy within 1 point of noiseless at weight~2 (1.3 points below), and no loss against the filter
-  alone with 1000 shots per scale at weight~2 (2.9 points below).
+  alone with 1000 shots per scale at weight~2 (2.9 points below); and all four predictions that calibrated training
+  from the published T1 and T2 would help on device noise models.
 \end{itemize}
 
 \paragraph{Replication over 60 runs.} The key comparisons were repeated over 5 seeds $\times$ 3 splits
@@ -380,6 +383,12 @@ Table~\ref{tab:beyond} collects the studies that each change one thing in the se
   gained 10.6 points over the filter alone. With 1000 shots per scale, filter plus ZNE gave 0.945 / 0.864 against
   0.932 / 0.893 for the filter alone, and Richardson fell to 0.710 at weight~2. Training with the filter under the
   calibrated noise reached 0.951--0.956 at both dephasing levels (F6).
+\item \textit{The whole pipeline on device noise models} (the IBM fake backends of Sec.~\ref{sec:echo}, the 189 inputs of
+  the four datasets, a fixed layout). The published T1 and T2 of the chosen qubits and the circuit duration gave a decay
+  of 0.002--0.017 and a dephasing of 0.001--0.005 per sublayer. Trained noiselessly, the model gave 0.958 raw and
+  0.972 with the filter (with or without the echo), against 0.979 noiseless; trained with the filter under that
+  calibration it gave 0.968, and trained without the filter under it 0.968. Gate errors, which a T1/T2 calibration
+  does not describe, dominate these noise models; the echo cut the decision error but changed no decision.
 \end{itemize}
 
 \begin{table}[h]
@@ -403,6 +412,8 @@ T1 + dephasing 0.03 & weight 1 / 2, filter alone & 0.952 / 0.956 & 0.933 / 0.919
  & \quad with linear ZNE (exact) & & 0.949 / 0.943 & 0.915 / 0.844\\
  & \quad with linear ZNE (1000 shots) & & 0.945 / 0.864 & 0.909 / 0.841\\
  & \quad trained with filter under noise & & 0.953 / 0.956 & \\
+IBM noise (189) & weight 1, clean training & 0.979 & 0.972 & 0.958\\
+ & \quad T1/T2-calibrated training & & 0.968 & 0.968\\
 \bottomrule
 \end{tabular}
 \caption{Studies beyond the first model, with and without the filter (mean accuracy unless stated).}
@@ -423,7 +434,8 @@ common drift that the raw noise-aware model does not. Dephasing is corrected the
 under the calibrated noise; and because the filter turns T1 plus dephasing into dephasing alone (F6), zero-noise
 extrapolation of the filtered readout removes most of the remaining bias of observables, at a shot cost that at 1000
 shots per scale cancelled the gain at weight~2. The filter and calibrated training are most
-useful together. Two practical rules follow from the studies above. Up
+useful together where decay or dephasing is strong; on device noise models dominated by gate errors, a calibration
+from the published T1 and T2 added nothing, and noiseless training plus the filter was the best pipeline. Two practical rules follow from the studies above. Up
 to about a $\pm80\%$ spread of $1/T_1$ across qubits, a network trained on a simulator can be run with the
 filter alone, losing less than one point. When the network is instead trained under the calibrated noise
 with a distorting encoding and a readout with many parameters, the decayed shots looked useful in one study (1.2
@@ -449,7 +461,7 @@ Models: \texttt{qang.qml} in \texttt{qang} 0.6.18 (\texttt{pip install qang}), N
 \texttt{WeightQNN} (weights 1 and 2, readouts \texttt{"z"} and \texttt{"zz"}, encodings \texttt{"pairs"}, \texttt{"ring"} and
 \texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}; \texttt{MultiClassQNN} and \texttt{block\_unitaries}; echo calibration in \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Hardware-ready script:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM and IonQ). Studies:
-\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S118, with tests in \texttt{tests/}. The Colab
+\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S119, with tests in \texttt{tests/}. The Colab
 notebooks \texttt{notebooks/qang\_qml.ipynb} (English) and \texttt{qang\_qml\_es.ipynb} (Spanish) install the
 library from PyPI and show
 every result with and without the filter. Repository: \url{https://github.com/Viny2030/qang}.
