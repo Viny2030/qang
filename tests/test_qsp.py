@@ -116,3 +116,28 @@ def test_odd_total_weight_gives_odd_re_p():
     for w in ((1, 2), (1, 1, 1)):
         ph = rng.uniform(-np.pi, np.pi, len(w) + 1)
         assert np.allclose(qsp.wqsp_poly(-x, ph, w).real, -qsp.wqsp_poly(x, ph, w).real)
+
+
+def test_parity_kan_learns_an_even_toy():
+    pytest.importorskip("scipy")
+    import os
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "examples"))
+    import wqsp_kan_parity_qg as KP
+
+    rng = np.random.default_rng(0)
+    X = rng.uniform(-1, 1, (80, 2))
+    y = (X[:, 0] ** 2 + 0.5 * X[:, 1] > 0.4).astype(int)                   # needs an even activation
+    m = KP.ParityKAN(2).fit(X, y, starts=3, seed=1)
+    assert np.mean(m.predict(X) == y) >= 0.9
+
+
+def test_even_activation_represents_t2():
+    pytest.importorskip("scipy")
+    from scipy.optimize import least_squares
+
+    x = np.linspace(-1, 1, 101)
+    r = min((least_squares(lambda p: qsp.wqsp_poly(x, p, (1, 1, 1, 1)).real - (2 * x ** 2 - 1),
+                           np.random.default_rng(s).uniform(-3, 3, 5)) for s in range(10)), key=lambda r: r.cost)
+    assert r.cost < 1e-8
