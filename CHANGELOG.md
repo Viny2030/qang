@@ -10,6 +10,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   every parameter set of a SamplerV2 pub), `interop.qg_z_observables`, `interop.filtered_observables` and
   `interop.estimator_filtered_qg` (the filtered read-out as EstimatorV2 observables P_w and P_w Z_i);
   `pennylane_gate.filtered_qg_z`, `kept_fraction` and `qg_z_from_probs` on `qml.probs()`, differentiable.
+- `examples/qnn_ingate_dephasing_qg.py` (§133): pure dephasing inside each RBS, twirled into a per-qubit
+  depolarizing channel. Torino's kept fraction is now predicted within 0.012 (0.059 in §129); D1, D4 pass; D2, D3
+  fail on brisbane.
 - `examples/qnn_torino_residual_qg.py` (§132): channel-by-channel kept fraction, Aer vs qang's simulator, with a
   single-qubit gate channel added. T1, T4 pass; T2, T3 fail. Post hoc: the torino residual is pure dephasing during
   the gates, which changes the Hamming weight inside an RBS decomposition.

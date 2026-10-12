@@ -36,7 +36,34 @@ python examples/qnn_ingate_dephasing_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Kept fraction of model A (mean over the four datasets):
+
+                          brisbane   sherbrooke   torino
+  in-gate depolarizing    0.004-0.010  0.001-0.003  0.0005-0.006  (per qubit per RBS)
+  thermal, qang §132        0.882      0.934       0.974
+  thermal + in-gate         0.818      0.914       0.937
+  thermal, Aer              0.777      0.888       0.919
+  full, qang §132 (+ 1q)    0.644      0.680       0.761
+  full + in-gate            0.606      0.668       0.736
+  device (§124)             0.671      0.697       0.724
+
+  D1 PASS: on torino the thermal channel is now within 0.019 of Aer's
+     (0.056 before).
+  D2 FAIL: within 0.026 on sherbrooke, but 0.040 on brisbane.
+  D3 FAIL: within 0.03 on torino (0.012) and sherbrooke (0.029), not on
+     brisbane (0.065 too low).
+  D4 PASS: on torino the full prediction moves 0.025 of the 0.037 toward
+     the device (68%).
+  * Dephasing inside the gates explains most of the torino residual: with
+    it the simulator is within 0.012 of the device there, against 0.059 in
+    §129 and 0.037 in §132.
+  * On brisbane, the noisiest device, every channel of qang's simulator
+    loses less than Aer's, yet the full simulator loses more than Aer's
+    full model: the channels do not combine the same way. Per-channel
+    agreement does not carry into the total there; the cause is not
+    identified.
+  * For prediction, §129's simpler model remains the closest on the two
+    ECR devices (within 0.006), and this one on torino (within 0.012).
 """
 
 import json

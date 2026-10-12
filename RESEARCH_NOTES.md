@@ -6137,6 +6137,29 @@ Practical consequence: to predict the kept fraction, a simulator must place
 the T2 error inside each RBS. §129's agreement on the ECR devices was in part
 a compensation of channels that each lose too little.
 
+## 133. Dephasing inside the gates in the QNN simulator (`examples/qnn_ingate_dephasing_qg.py`)
+
+The pure dephasing that §132 located inside the gates is added to qang's
+simulator: for each qubit, its gate time per RBS t_q and its pure-dephasing
+time T_phi (1/T_phi = 1/T2 − 1/(2T1)) give a Z error z_q = (1 − e^{−t_q/T_phi})/2,
+twirled into a single-qubit depolarizing channel of probability 4z_q/3 after
+each RBS. Predictions D1–D4 were committed before the run; no new device
+simulation was needed.
+
+| kept fraction | brisbane | sherbrooke | torino |
+|---|---|---|---|
+| thermal, qang §132 / + in-gate / Aer | 0.882 / 0.818 / 0.777 | 0.934 / 0.914 / 0.888 | 0.974 / 0.937 / 0.919 |
+| full, qang §132 / + in-gate | 0.644 / 0.606 | 0.680 / 0.668 | 0.761 / 0.736 |
+| device (§124) | 0.671 | 0.697 | 0.724 |
+
+D1 passes (torino thermal within 0.019 of Aer) and D4 passes (68% of the
+remaining torino gap closed). D2 and D3 fail on brisbane only (0.040 and
+0.065). On torino the simulator is now within 0.012 of the device (0.059 in
+§129). On brisbane each of qang's channels loses less than Aer's but the
+full simulator loses more: the channels combine differently on the noisiest
+device, for a reason not identified here. For prediction, §129's model stays
+the closest on the ECR devices and this one on torino.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
