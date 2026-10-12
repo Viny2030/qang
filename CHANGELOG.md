@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `examples/qnn_gate_noise_qg.py` (§124): two-qubit depolarizing gate errors from the published calibration in qang's
+  simulator; R3 passes, R1, R2, R4, R5 fail (gate-aware training does not beat noiseless training plus the filter; the
+  simulator overestimates the kept fraction by 0.03-0.12).
+- `docs/IBM_RUN_PLAN.md`: plan for the first real-device run on the IBM Open Plan (§86 and §88, about two QPU minutes).
+- `manuscript/PAPERS_PLAN.md`: three separate results papers (QNN under device noise, proportions, real-device
+  characterization).
+- `qang.proportions` (§125): the qang angle as the classical arcsine transformation of a proportion
+  (theta = pi - 2 arcsin sqrt(p)); Anscombe-corrected angles, intervals on the angle, Cohen's h and two-sample
+  comparisons for any proportion. `examples/proportions_angular_qg.py`: S1, S2, S4 pass, S3 fails (exact binomial
+  sums); illustration with COMPR.AR 2020 data. The paper cites Bartlett (1947), Anscombe (1948), Freeman & Tukey
+  (1950) and Cohen (1988) for this connection.
 - QML notebooks (EN/ES): section 17, the pull-free readout with and without qang (§123); QML note with §123.
 - `examples/qnn_pull_free_qg.py` (§123): a pull-free multiclass readout (bias-free, linear in the excitation
   probabilities) whose raw decisions equal the filtered ones exactly; P1-P5 pass (+28.5 points without the filter, no

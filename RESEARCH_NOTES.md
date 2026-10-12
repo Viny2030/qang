@@ -5869,6 +5869,87 @@ qang.
   probabilities is immune to T1 decay without filtering and loses no
   accuracy.
 
+## 124. Gate errors in qang's simulator (`examples/qnn_gate_noise_qg.py`)
+
+§119 found that a T1/T2 calibration misses the gate errors that dominate the
+IBM device noise models. Here qang's simulator also gets them: after every RBS
+gate a two-qubit depolarizing channel with p = 4/3 (1 − (1 − e)^m), e the mean
+published two-qubit gate error on the layout and m the native gates per RBS
+(brisbane ECR 0.0059 → p = 0.028; sherbrooke ECR 0.0043 → 0.021; torino CZ
+0.0032 → 0.015). A: noiseless; C1: qang under T1/T2 (§119); C2: qang under
+T1/T2 + gate error; D2: raw under the same. Weight 1, four datasets, 189
+inputs, 1000 shots, Aer with each backend's noise model.
+
+**Predictions, committed before any noisy run (b37b344).** R1: pooled, C2
+with qang at least A with qang; R2: C2 at least C1; R3: D2 raw at least 1
+point above A raw; R4: the simulator predicts A's kept fraction within 0.05 on
+every backend; R5: C2 within 0.5 points of noiseless.
+
+| backend | A raw | A qang | C1 qang | C2 qang | D2 raw | kept device / predicted |
+|---|---|---|---|---|---|---|
+| fake brisbane | 179 | 182 | 185 | 183 | 182 | 0.671 / 0.703 |
+| fake sherbrooke | 181 | 184 | 184 | 182 | 184 | 0.697 / 0.774 |
+| fake torino | 183 | 185 | 182 | 183 | 184 | 0.724 / 0.845 |
+
+(correct decisions of 189; noiseless 185)
+
+* **R3 passes; R1, R2, R4 and R5 fail.** Pooled: A qang 0.972, C1 0.972,
+  C2 0.966, D2 raw 0.970, A raw 0.958, noiseless 0.979.
+* **Gate-aware training does not help with the filter** and helps without
+  it (+1.2 points raw). Noiseless training plus the filter remains the best
+  pipeline on these noise models, as in §119.
+* **The simulator overestimates the kept fraction** by 0.03–0.12, more where
+  the gate error is smaller. Readout error, which the device has and the
+  simulator does not, also removes weight-1 counts; a likely cause, not
+  tested.
+* **Resolution.** One input is 0.5 points per backend; C1 differs by up to 2
+  inputs from §119 because the device reads are sampled again, so 1–3 input
+  differences between trained models are within noise.
+* **Verdict.** A depolarizing gate-error model does not make calibrated
+  training worthwhile here; the next missing piece in the simulator is the
+  readout error, which a real-device run can measure directly
+  (`docs/IBM_RUN_PLAN.md`).
+
+## 125. The qang angle as the arcsine transformation of a proportion (`examples/proportions_angular_qg.py`)
+
+p0 = cos²(θ/2) makes the qang angle, up to θ → π − θ, the classical angular
+(arcsine) transformation of a binomial proportion, φ = 2 arcsin √p (Bartlett
+1947; Anscombe 1948; Freeman & Tukey 1950). That is the reason behind the
+θ-independent 1/N variance of `qang.statistics`, and the
+difference of two angles is Cohen's h. `qang.proportions` offers the same
+toolkit for any proportion: Anscombe-corrected angle
+2 arccos √((k + 3/8)/(n + 3/4)), an interval θ ± z/√(n + 1/2) mapped back,
+and two-sample comparisons on the angle. All checks are exact binomial sums
+(no Monte Carlo) on p ∈ {0.1, …, 0.9}.
+
+**Predictions, committed before the run (b42cde2).** S1: n = 100,
+(n + 1/2) Var(θ̂) in [0.9, 1.1]; S2: 95% coverage in [0.93, 0.97] for
+n ∈ {30, 100, 1000}; S3: n = 50, p ∈ {0.02, 0.05}: angular coverage ≥ Wald
++ 5 points; S4: n ∈ {100, 1000}: expected width within 10% of Wilson's.
+
+| check | result |
+|---|---|
+| S1 (n + 1/2) Var(θ̂), n = 100 | 1.000–1.001 |
+| S2 coverage, n = 30, 100, 1000 | 0.930–0.962 |
+| S3 coverage n = 50 (angular / Wald) | p = 0.02: 0.982 / 0.635; p = 0.05: 0.911 / 0.920 |
+| S4 width angular / Wilson | 0.99–1.01 |
+
+* **S1, S2, S4 pass; S3 fails.** At np = 1 the angular interval keeps its
+  coverage while Wald collapses, but at np = 2.5 both undercover and the
+  angular one is slightly worse. For np below about 3, use Wilson or the
+  Haar-prior Bayes interval of `qang.statistics`.
+* **Illustration (not a prediction; the shares were seen earlier).** Share
+  of direct contracts in COMPR.AR 2020 (datos.gob.ar, 25 agencies with most
+  procedures, `examples/data/comprar_2020_directas.csv`): Gendarmería 83.4%
+  [80.5, 86.1] and CNEA 81.1% [77.6, 84.3] cannot be told apart (h = 0.06,
+  95% CI −0.05 to 0.17, p = 0.30); Gendarmería against the Army (7.7%) is a
+  very large effect (h = 1.74).
+* **Verdict.** The qang angle is a variance-stabilized coordinate for any
+  binomial proportion; this is classical statistics and the paper now says
+  so. What qang adds is that the same coordinate is the native gate
+  parameter, so the error bars of a measured qubit and of a proportion in
+  ordinary data are computed the same way.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

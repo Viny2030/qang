@@ -26,6 +26,8 @@ This package covers, in order:
   - qang.cirq_gate    the same for Cirq (optional: needs cirq).
   - qang.statistics   shot-noise error propagation theta <-> qg, and
                        few-shot qg_Z intervals (Haar-prior Bayes, Wilson).
+  - qang.proportions  the qang angle as the arcsine transformation of any
+                       binomial proportion: intervals and Cohen's h (§125).
   - qang.phase        the qg_Phi phase unit.
   - qang.transformations  closed-form transition probabilities.
   - qang.formulation  the 15 main gates and 14 main algorithms in qg language

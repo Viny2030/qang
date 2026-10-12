@@ -32,7 +32,23 @@ python examples/proportions_angular_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+  S1 PASS: (n + 1/2) Var(theta_A) = 1.000-1.001 at n = 100 for every p of the
+     grid: Anscombe's corrected angle stabilizes the variance almost exactly.
+  S2 PASS: exact coverage 0.930-0.962 over n in {30, 100, 1000} and the grid
+     (the lowest values at n = 30).
+  S3 FAIL: n = 50, p = 0.02: angular 0.982 against Wald 0.635 (as predicted),
+     but p = 0.05: angular 0.911 against Wald 0.920. With np = 2.5 the
+     angular interval undercovers too; its advantage is at the extremes
+     (np ~ 1), not in the whole small-count region.
+  S4 PASS: angular / Wilson expected width 0.99-1.01 at n in {100, 1000}.
+  Verdict: for moderate and large n the qang angle gives intervals as good
+  as Wilson's, with a variance that does not depend on p; for very small
+  counts (np below ~3) prefer Wilson or the Bayes interval of
+  qang.statistics.
+  Illustration (COMPR.AR 2020): Gendarmería 83.4% [80.5, 86.1] and CNEA 81.1%
+  [77.6, 84.3] are indistinguishable (h = 0.06, 95% CI -0.05 to 0.17,
+  p = 0.30); Gendarmería against the Army (7.7%) is a very large effect
+  (h = 1.74).
 """
 
 import csv
