@@ -140,3 +140,17 @@ def test_example_w_state_agrees_across_installed_sdks():
         assert IO.joint_qg_s(c) == pytest.approx(math.log2(3) / 3, abs=0.01)
         for q, se in IO.qg_z_profile(c):
             assert abs(q - 1 / 3) <= 5 * se
+
+
+def test_joint_qg_s_se_matches_resampling():
+    rng = np.random.default_rng(134)
+    probs = np.array([0.5, 0.25, 0.15, 0.06, 0.04])
+    keys = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 1)]
+    shots = 2000
+    draws = []
+    for _ in range(2000):
+        c = rng.multinomial(shots, probs)
+        draws.append(IO.joint_qg_s({k: int(v) for k, v in zip(keys, c) if v}))
+    c0 = {k: int(v) for k, v in zip(keys, rng.multinomial(shots, probs)) if v}
+    assert IO.joint_qg_s_se(c0) == pytest.approx(np.std(draws), rel=0.12)
+    assert IO.joint_qg_s_se({(0, 1): 50, (1, 0): 50}) == 0.0          # uniform: no first-order error

@@ -16,7 +16,9 @@ and computes on it the qang read-outs used throughout the library:
                        (the sector of a weight-conserving circuit), with the
                        kept fraction;
   * ``joint_qg_s``     the measurement-outcome entropy of the register
-                       (Miller-Madow corrected by default).
+                       (Miller-Madow corrected by default);
+  * ``joint_qg_s_se``  its standard error, from the varentropy of the
+                       outcomes, sqrt(Var(-log2 p) / N) / n (§134).
 
 Supported inputs (no SDK is imported unless its object is passed):
   Qiskit   counts dict (``result.get_counts()``) with ``sdk="qiskit"``, or a
@@ -54,6 +56,7 @@ __all__ = [
     "weight_filter",
     "filtered_qg_z_profile",
     "joint_qg_s",
+    "joint_qg_s_se",
     "sampler_qg",
     "qg_z_observables",
     "filtered_observables",
@@ -169,6 +172,22 @@ def joint_qg_s(counts: Canonical, correction: str = "miller_madow") -> float:
     else:
         raise ValueError("correction must be 'miller_madow' or 'none'.")
     return h / n
+
+
+def joint_qg_s_se(counts: Canonical) -> float:
+    """Standard error of ``joint_qg_s`` (qg units), from the varentropy of the outcomes.
+
+    The entropy estimate has asymptotic variance Var(-log2 p) / N, the variance of the surprisal over the
+    measured distribution (the classical counterpart of the capacity of entanglement, which is the variance
+    of the entanglement Hamiltonian over the entanglement spectrum). It is computed on the observed
+    frequencies; it vanishes for a uniform distribution, where the error is of second order (~1/N).
+    """
+    n, shots = _n_and_shots(counts)
+    p = [c / shots for c in counts.values() if c > 0]
+    s = [-math.log2(x) for x in p]
+    h = sum(x * y for x, y in zip(p, s))
+    var = max(sum(x * y * y for x, y in zip(p, s)) - h * h, 0.0)
+    return math.sqrt(var / shots) / n
 
 
 # ---------------------------------------------------------------- Qiskit primitives (§131)
