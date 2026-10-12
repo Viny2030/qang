@@ -33,7 +33,20 @@ python examples/clock_redshift_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+  G1 PASS: relative bias +0.09%, +0.12%, +0.05%, -0.07% at delta = 0.15,
+     0.3, 0.6, 1.0 rad.
+  G2 PASS: standard deviation 0.0022 (ellipse) against 0.0075 (moment) at
+     delta = 0.15: fitting the ellipse removes the scatter that the random
+     common phase puts into the moment ratio.
+  G3 PASS: at N = 100 the uncorrected fit is 11.8% high; with the unbiased
+     squares it is 0.9% high.
+  G4 PASS: strontium, 1 m, t = 1 s: delta = 0.1471 rad estimated as
+     0.1472 +- 0.0022 from 200 runs, 68 sigma; that standard deviation is
+     about 1.5 cm of height (diagnostic, after the verdict).
+  Verdict: the qg pairs of two clocks give the differential phase without
+  holding the common phase, and the shot-noise correction of qang.statistics
+  is what keeps the fit unbiased at few shots. Real clocks add laser
+  decoherence, contrast below 1 and offsets that this model leaves out.
 """
 
 import os

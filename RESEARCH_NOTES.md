@@ -5950,6 +5950,71 @@ n ∈ {30, 100, 1000}; S3: n = 50, p ∈ {0.02, 0.05}: angular coverage ≥ Wald
   parameter, so the error bars of a measured qubit and of a proportion in
   ordinary data are computed the same way.
 
+## 126. Two clocks and gravity: the differential phase from the ellipse (`examples/clock_redshift_qg.py`)
+
+Two clocks read by the same laser give qg_Z1 = cos(φ + δ) and qg_Z2 =
+cos(φ − δ); with a random common phase φ the pairs lie on the ellipse
+x² + y² − 2xy c = 1 − c², c = cos 2δ (correlation spectroscopy; ellipse
+fitting as in Foster et al. 2002, Chwalla et al. 2007). For two strontium
+clocks 1 m apart, 2δ = 2π ν (g h / c²) t = 0.294 rad at t = 1 s.
+`qang.clock_comparison` fits c in one parameter, with the finite-shot bias of
+the squares removed by the unbiased square of `qang.statistics`. Simulation:
+uniform common phase, ideal contrast, binomial projection noise, 400
+estimates per condition.
+
+**Predictions, committed before the run (b2e92c4).** G1: N = 1000, M = 200
+runs: unbiased within 2% for δ ∈ {0.15, 0.3, 0.6, 1.0}; G2: at δ = 0.15 the
+ellipse fit's standard deviation at most a third of the moment estimator's;
+G3: N = 100: uncorrected bias above 10%, corrected within 3%; G4: Sr, 1 m,
+t = 1 s, N = 1000, M = 200: at least 5σ.
+
+| check | result |
+|---|---|
+| G1 relative bias | +0.09%, +0.12%, +0.05%, −0.07% |
+| G2 std ellipse / moment | 0.0022 / 0.0075 |
+| G3 bias at N = 100 (raw / corrected) | +11.8% / +0.9% |
+| G4 Sr, 1 m | δ = 0.1471, estimate 0.1472 ± 0.0022 (68σ) |
+
+* **G1–G4 pass.** The ellipse fit needs no control of the common phase, and
+  the shot-noise correction is what keeps it unbiased at few shots.
+* **Diagnostic (after the verdict).** The G4 spread is about 1.5 cm of height
+  per 200 runs in this idealized model.
+* **Limits.** No laser decoherence within the Ramsey time, contrast 1, no
+  offsets: the result describes the estimator, not a laboratory.
+
+## 127. Wave-particle duality as the Bloch radius, and entropic uncertainty with qg_S (`examples/complementarity_qg.py`)
+
+Predictability P = |qg_Z| and visibility V = √(qg_X² + qg_Y²) satisfy
+P² + V² = r² ≤ 1 (Greenberger & Yasin 1988; Jaeger, Shimony & Vaidman 1995;
+Englert 1996). For Z and X, qg_S(Z) + qg_S(X) ≥ 1 + S(ρ) with
+S(ρ) = H((1 + r)/2) (Maassen & Uffink 1988; Berta et al. 2010).
+`qang.complementarity` computes both from qg values and from counts.
+
+**Predictions, committed before the run (b2e92c4).** U1: P² + V² = r² within
+1e-12 on 2000 random states, never above 1; U2: the entropic bound holds and
+is tight; U3: N = 1000 per basis: unbiased |mean bias| < 5e-4 on 20 states,
+plug-in bias 0.0015–0.0035; U4: |0⟩, N = 100: plug-in sum below 1 in > 80% of
+runs, Miller–Madow in < 60%.
+
+| check | result |
+|---|---|
+| U1 max deviation / max P² + V² | 2.2e-16 / 0.99992 |
+| U2 minimum slack (random states / \|0⟩) | 1e-5 / 0 |
+| U3 unbiased max \|bias\| / plug-in mean bias | 0.0014 / 0.0027 |
+| U4 fraction below 1 (plug-in / Miller–Madow) | 93.1% / 37.2% |
+
+* **U1, U2, U4 pass; U3 fails.** The plug-in bias is as predicted; the 5e-4
+  threshold for the unbiased estimate was below the Monte Carlo standard
+  error (about 0.0012), so the failure reflects a badly designed prediction,
+  not a biased estimator.
+* **Not obvious, and practical:** with plug-in entropies a pure state seems
+  to violate the uncertainty relation in 93% of runs at 100 shots; the
+  Miller–Madow correction brings that down to 37%. Tests of the bound need
+  corrected estimators or intervals.
+* **Verdict.** Duality is the Bloch radius and entropic uncertainty is a
+  bound on two entropic qangs; both are classical results, now computed and
+  tested from counts in qang.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

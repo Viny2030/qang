@@ -27,7 +27,25 @@ python examples/complementarity_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+  U1 PASS: |P^2 + V^2 - r^2| <= 2.2e-16 and max P^2 + V^2 = 0.99992 on 2000
+     states (the identity is exact).
+  U2 PASS: the minimum slack of qg_S(Z) + qg_S(X) >= 1 + S(rho) over the
+     random states is 1e-5 and it is 0 for |0> (the bound is tight).
+  U3 FAIL: the plug-in estimate of P^2 + V^2 is biased upwards by 0.0027 on
+     average (0.0012-0.0037, as predicted), but the largest |mean bias| of
+     the unbiased estimate is 0.0014, above the 5e-4 threshold. The
+     threshold was set below the Monte Carlo resolution: the standard error
+     of a mean over 2000 repetitions is about 0.0012 here, so 0.0014 on the
+     worst of 20 states is noise; the estimator is exactly unbiased by
+     construction (qang.statistics.qg2_unbiased). The prediction was badly
+     designed, and it is reported as failed.
+  U4 PASS: for |0> with 100 shots per basis the plug-in entropic sum is
+     below 1 in 93.1% of runs (an apparent violation of the bound); with
+     the Miller-Madow correction, in 37.2%.
+  Verdict: duality is the Bloch radius and entropic uncertainty is a bound
+  on two entropic qangs. An experimental test of either needs bias-corrected
+  estimators: plug-in entropies make a pure state seem to violate the
+  uncertainty relation most of the time.
 """
 
 import math

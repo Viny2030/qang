@@ -28,6 +28,10 @@ This package covers, in order:
                        few-shot qg_Z intervals (Haar-prior Bayes, Wilson).
   - qang.proportions  the qang angle as the arcsine transformation of any
                        binomial proportion: intervals and Cohen's h (§125).
+  - qang.clock_comparison  differential phase of two clocks from the
+                       ellipse of their qg pairs (§126).
+  - qang.complementarity  duality as the Bloch radius and entropic
+                       uncertainty with qg_S (§127).
   - qang.phase        the qg_Phi phase unit.
   - qang.transformations  closed-form transition probabilities.
   - qang.formulation  the 15 main gates and 14 main algorithms in qg language

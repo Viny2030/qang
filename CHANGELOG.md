@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.clock_comparison` (§126): differential phase of two clocks from the ellipse of their qg pairs, with
+  shot-noise-corrected squares; `examples/clock_redshift_qg.py` (gravitational redshift of two Sr clocks): G1-G4 pass.
+- `qang.complementarity` (§127): wave-particle duality as the Bloch radius (P^2 + V^2 = r^2) and entropic uncertainty
+  qg_S(Z) + qg_S(X) >= 1 + S(rho); `examples/complementarity_qg.py`: U1, U2, U4 pass, U3 fails (threshold below the
+  Monte Carlo resolution).
+- README: "The idea in one figure" (`examples/unit_circle_qg.py`, unit circle to qg_Z, p0 and qg_S).
 - `examples/qnn_gate_noise_qg.py` (§124): two-qubit depolarizing gate errors from the published calibration in qang's
   simulator; R3 passes, R1, R2, R4, R5 fail (gate-aware training does not beat noiseless training plus the filter; the
   simulator overestimates the kept fraction by 0.03-0.12).
