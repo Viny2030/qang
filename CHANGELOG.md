@@ -10,6 +10,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   every parameter set of a SamplerV2 pub), `interop.qg_z_observables`, `interop.filtered_observables` and
   `interop.estimator_filtered_qg` (the filtered read-out as EstimatorV2 observables P_w and P_w Z_i);
   `pennylane_gate.filtered_qg_z`, `kept_fraction` and `qg_z_from_probs` on `qml.probs()`, differentiable.
+- `examples/wqsp_kan_parity_qg.py` (§136): odd + even QSP activations reach 182/189 (P1 passes, P2 fails).
 - `examples/wqsp_kan_qg.py` (§135): WQSP activations in a one-layer KAN; 179/189 with 17 parameters, same as standard
   QSP with 21 (K3 passes; K1, K2 fail); activations of odd total weight are odd functions.
 - `qang.qsp` (§134): QSP and weighted QSP with the signal in qg terms, Hadamard-test read-out as qg_Z, phase fitting

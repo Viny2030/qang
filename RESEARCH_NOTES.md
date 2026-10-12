@@ -6195,6 +6195,15 @@ and K2 (within 2 of 185) fail. With an odd total weight every activation is an
 odd function of its feature, so no even dependence is reachable: the parity
 constraint, not the phase count, is the likely limit of this model.
 
+## 136. Odd + even activations in the one-layer KAN (`examples/wqsp_kan_parity_qg.py`)
+
+Following §135, each feature gets an odd WQSP activation (weights (1, 2)) and
+an even one (standard QSP of degree 4; WQSP (2, 2) was found, before training,
+unable to represent T₂ = 2x² − 1). P1–P2 committed before training. The model
+gets 182 of 189 (41 parameters), three more than the odd-only model (P1 passes)
+but three below qang's QNN at 185 (P2 fails: needed 183). The even activation
+closes half of the gap.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

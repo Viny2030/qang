@@ -24,7 +24,21 @@ python examples/wqsp_kan_parity_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Correct test decisions (of 189):
+
+  model                         parameters   iris   cancer   wine   digits   total
+  odd WQSP only (§135)          17           26     58       37     58       179
+  odd WQSP + even QSP           41           28     58       38     58       182
+  qang weight-1 QNN (§124)                                                   185
+
+  P1 PASS: 182, three more than the odd-only model (iris +2, wine +1).
+  P2 FAIL: 3 inputs below the QNN's 185 (needed 183).
+  * Adding the even activation recovers half of the gap to the QNN; the
+    remaining 3 inputs are within the resolution of these test sets but
+    the one-layer KAN does not reach the QNN here.
+  * Design check: WQSP (2, 2) cannot represent T2 = 2x^2 - 1, so integer
+    weights that skip odd degrees also lose even ones; the even activation
+    had to be standard QSP of degree 4.
 """
 
 import json
