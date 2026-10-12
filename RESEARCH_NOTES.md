@@ -6015,6 +6015,52 @@ runs, Miller–Madow in < 60%.
   bound on two entropic qangs; both are classical results, now computed and
   tested from counts in qang.
 
+## 128. H2 with the qg filter on IonQ Forte-1 hardware (`examples/ionq_qpu_h2_qg.py`)
+
+The first real-device run: the 7 circuits of §20/§21 (H2 at the exact VQE
+angle, readout calibration included), 5000 shots each, about 181.50 USD by
+IonQ's job-estimate API, accepted by the author. Submission and retrieval are
+separate (Forte-1 queues for days); the job ids go to
+`examples/data/ionq_qpu_h2_jobs.json`.
+
+**Predictions, committed before submission (8a16974).** H1: witness mean
+qg_Z within 0.03 of 0; H2: at least 90% of the shots kept; H3: the filter
+lowers the energy error by at least 5 mHa against readout mitigation; H4:
+with the filter the error is below Hartree–Fock (20.3 mHa).
+
+* **Rehearsal (IonQ cloud simulator, forte-1 noise model, 2000 shots,
+  free):** witness +0.0003, 97.9% kept, 29.9 → 15.0 mHa with the filter; H1–H4
+  pass on the rehearsal.
+* **Status.** The first submission (11 Oct 2026) was refused by IonQ before
+  any job was accepted: the project does not have `qpu.forte-1` enabled
+  (Project Settings → QPU Targets). Nothing was charged. Pending.
+
+## 129. Readout error in qang's QNN simulator (`examples/qnn_readout_error_qg.py`)
+
+§124's simulator overestimated the kept fraction of the noiselessly trained
+model on every IBM fake backend (R4 failed). The device noise models also
+have readout error. Here each qubit's published asymmetric readout error
+(physical qubit of the fixed layout) is applied to the simulator's output and
+the prediction is compared with the device values recorded in §124 (no new
+device simulation). Without readout error the code reproduces §124 exactly.
+
+**Predictions, committed before the run (1a5507f).** K1: kept fraction
+within 0.05 on every backend; K2: the gap at least halved on every backend;
+K3: predicted filtered accuracy within 2 inputs of the device.
+
+| backend | kept device | predicted §124 | + readout error | A qang device / predicted |
+|---|---|---|---|---|
+| fake brisbane | 0.671 | 0.703 | 0.665 | 182 / 184 |
+| fake sherbrooke | 0.697 | 0.774 | 0.694 | 184 / 184 |
+| fake torino | 0.724 | 0.845 | 0.783 | 185 / 184 |
+
+* **K2 and K3 pass; K1 fails on torino.** With readout error the simulator
+  predicts the kept fraction within 0.006 on the two ECR devices; on torino
+  (CZ gates) the gap halves (0.121 → 0.059) but stays above 0.05.
+* **Verdict.** Readout error was the missing piece of §124 on brisbane and
+  sherbrooke. Torino's remaining loss of weight-1 shots is not explained by
+  T1, T2, the published gate error or readout; it is left open.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

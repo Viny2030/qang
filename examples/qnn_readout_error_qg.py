@@ -30,7 +30,24 @@ python examples/qnn_readout_error_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+  backend          kept device   predicted §124   + readout error   A qang device / predicted
+  fake brisbane      0.671          0.703            0.665             182 / 184
+  fake sherbrooke    0.697          0.774            0.694             184 / 184
+  fake torino        0.724          0.845            0.783             185 / 184
+  (mean published readout error 0.014 / 0.021 / 0.019; the code reproduces
+  §124's predictions without readout error exactly)
+
+  K1 FAIL: within 0.05 on brisbane (0.006) and sherbrooke (0.003), not on
+     torino (0.059).
+  K2 PASS: the gap shrinks from 0.033 / 0.078 / 0.121 to 0.006 / 0.003 /
+     0.059 (torino by 51%, just over half).
+  K3 PASS: the predicted filtered accuracy is within 2 inputs on every
+     backend.
+  * Readout error was the missing piece on the two ECR devices: with it the
+    simulator predicts the kept fraction within 0.006.
+  * On torino (CZ gates, the smallest published gate error) half of the gap
+    remains; something else in its noise model removes weight-1 shots and is
+    not identified here.
 """
 
 import json

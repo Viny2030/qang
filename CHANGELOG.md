@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `examples/ionq_qpu_h2_qg.py` (§128): H2 with the qg filter on IonQ Forte-1, submit / status / fetch / rehearse;
+  predictions H1-H4 pre-registered; rehearsal on the forte-1 noise model passes; hardware submission pending (the
+  IonQ project does not have qpu.forte-1 enabled).
+- `examples/qnn_readout_error_qg.py` (§129): per-qubit readout error in the QNN simulator closes the kept-fraction
+  gap of §124 on brisbane and sherbrooke (within 0.006); torino keeps half of it; K2, K3 pass, K1 fails.
+
 ## [0.7.0] - 2026-10-12
 
 Release of §123–§127. Three new modules, all NumPy or standard library only: `qang.proportions` (the qang angle as the
