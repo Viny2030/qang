@@ -32,6 +32,14 @@ Reference implementation and computational toolkit for:
 
 ---
 
+## The idea in one figure
+
+![From the unit circle to qang](examples/unit_circle_qg.png)
+
+A state at polar angle θ projects to qg_Z = cos θ, as on the unit circle; the
+probability of measuring 0 uses the half angle, p₀ = cos²(θ/2) = (1 + qg_Z)/2,
+and qg_S is the entropy of that outcome (`examples/unit_circle_qg.py`).
+
 ## Installation
 
 Install the minimal core library (NumPy only):
