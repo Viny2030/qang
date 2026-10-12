@@ -40,7 +40,33 @@ python examples/qnn_gate_noise_qg.py --mode fake --out fake.json
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Correct decisions of 189 (noiseless 185 on every backend); gate error per
+RBS from the published two-qubit errors (brisbane ECR 0.0059 -> p = 0.028,
+sherbrooke ECR 0.0043 -> 0.021, torino CZ 0.0032 -> 0.015):
+
+  backend          A raw  A qang  C1 qang  C2 qang  D2 raw   kept device / predicted
+  fake brisbane     179    182     185      183      182      0.671 / 0.703
+  fake sherbrooke   181    184     184      182      184      0.697 / 0.774
+  fake torino       183    185     182      183      184      0.724 / 0.845
+
+  pooled accuracy: A raw 0.958, A qang 0.972, C1 qang 0.972, C2 qang 0.966,
+  D2 raw 0.970, noiseless 0.979.
+
+  R1 FAIL (C2 0.966 < A 0.972), R2 FAIL (C2 < C1 0.972), R3 PASS (D2 raw is
+  1.2 points above A raw), R4 FAIL (kept fraction overestimated by 0.03,
+  0.08 and 0.12), R5 FAIL (C2 is 1.2 points below noiseless).
+
+  * Adding the gate error to qang's simulator does not improve training with
+    the filter: noiseless training plus the filter stays the best pipeline,
+    as in §119. Without the filter the gate-aware model does help (R3).
+  * The simulator overestimates the kept (weight-1) fraction on every
+    backend, more where the gate error is smaller. The device also loses
+    weight-1 counts through readout error, which this simulator does not
+    model; that is a likely cause, not tested here.
+  * Resolution: one input is 0.5 points per backend, 0.18 pooled; C1 (the
+    §119 model) moves by up to 2 inputs from its §119 values because the
+    device reads are sampled again. Differences of 1-3 inputs between
+    trained models are within that.
 """
 
 import argparse
