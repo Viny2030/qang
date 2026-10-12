@@ -16,6 +16,22 @@ Reference implementation and computational toolkit for:
 - **Polar Bias Qang (qg_Z):** qg_Z(θ) = cos θ = ⟨σ_z⟩ ∈ [−1, 1].
 - **Measurement-Outcome Entropy Qang (qg_S):** qg_S(θ) = H(cos²(θ/2)) ∈ [0, 1] (Shannon entropy of computational-basis outcomes).
 - Native SDK gate classes for **Qiskit**, **Cirq** and **PennyLane** (differentiable in qg_Z), regularized gradient optimizers, shot-noise error propagation, and density matrix/POVM metrics.
+- qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
+
+### What's new in 0.8
+
+- **Every SDK, one qubit order** (`qang.interop`): per-qubit qg_Z with error bars, the qg (Hamming-weight) filter and the register entropy with its standard error, from Qiskit, Cirq, PennyLane, Braket and pytket results.
+- **Qiskit V2 primitives**: `IO.sampler_qg` reads a whole SamplerV2 parameter sweep; `IO.filtered_observables` makes EstimatorV2 return the filtered read-out directly.
+- **Differentiable filter in PennyLane**: `pennylane_gate.filtered_qg_z(qml.probs(...), weight)` can be part of the loss.
+- **Quantum signal processing in qg terms** (`qang.qsp`): QSP and weighted QSP, Hadamard-test read-out as qg_Z, phase fitting in the arcsine (qg) scale.
+
+```python
+from qang import interop as IO
+res = sampler.run([(qc, values)]).result()[0]
+IO.sampler_qg(res, weight=1)          # {"qg", "se", "kept"} over the whole sweep
+```
+
+Full list in [CHANGELOG.md](CHANGELOG.md).
 
 ### What is in the library
 
@@ -28,7 +44,12 @@ Reference implementation and computational toolkit for:
 | `qang.qml` | weight-conserving QNN classifiers (binary and multiclass) read with and without the qg filter |
 | `qang.polarization` | polarized light: Stokes parameters are qg values, Mueller matrices are the qg gate rule |
 | `qang.geometric` | geometric (Berry/Pancharatnam) phase in qg units, Stokes' theorem on the Bloch sphere |
-| `qang.qiskit_gate`, `qang.cirq_gate`, `qang.pennylane_gate` | native gates for the three SDKs (optional) |
+| `qang.interop` | one qubit order for Qiskit, Cirq, PennyLane, Braket and pytket results; qg_Z profile, qg filter, register entropy and its error; Qiskit SamplerV2 / EstimatorV2 read-outs |
+| `qang.qsp` | quantum signal processing and weighted QSP in qg terms; Hadamard-test read-out; phase fitting in the arcsine scale |
+| `qang.proportions` | the qg angle as the arcsine transform of any binomial proportion: intervals, Cohen's h |
+| `qang.clock_comparison` | differential phase of two clocks from the ellipse of their qg pairs |
+| `qang.complementarity` | wave-particle duality as the Bloch radius; entropic uncertainty with qg_S |
+| `qang.qiskit_gate`, `qang.cirq_gate`, `qang.pennylane_gate` | native gates for the three SDKs (optional); parameterized qg_Z gates; differentiable filtered qg_Z in PennyLane |
 
 ---
 
