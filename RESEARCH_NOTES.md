@@ -6061,6 +6061,21 @@ K3: predicted filtered accuracy within 2 inputs of the device.
   sherbrooke. Torino's remaining loss of weight-1 shots is not explained by
   T1, T2, the published gate error or readout; it is left open.
 
+## 130. One qubit order for every SDK (`qang/interop.py`, `examples/interop_sdks_qg.py`)
+
+Qiskit writes qubit 0 at the right of a bitstring; Cirq, PennyLane, Braket and
+pytket put it first. `qang.interop` converts every result to
+{(b_0, …, b_{n−1}): count} and computes the qg read-outs on it (per-qubit
+qg_Z with its error, the qg filter, the Miller–Madow register entropy). The
+qg_Z gate also accepts a Qiskit `Parameter` and a sympy symbol, so it can sit
+in parameterized circuits.
+
+Check: a 3-qubit W state prepared and sampled with each SDK (20 000 shots)
+gives qg_Z = 0.316–0.343 (ideal 1/3, ±0.007), all shots in weight 1 and
+register entropy 0.528 (ideal log₂3/3) in Qiskit, Cirq and PennyLane alike;
+the tests also pin the bit order of each SDK with a single excited qubit and
+cover Braket- and pytket-like results.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

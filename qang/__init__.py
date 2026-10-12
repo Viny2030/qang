@@ -32,6 +32,9 @@ This package covers, in order:
                        ellipse of their qg pairs (§126).
   - qang.complementarity  duality as the Bloch radius and entropic
                        uncertainty with qg_S (§127).
+  - qang.interop      qg read-outs (profile, filter, entropy) from Qiskit,
+                       Cirq, PennyLane, Braket and pytket results, one
+                       qubit order (§130).
   - qang.phase        the qg_Phi phase unit.
   - qang.transformations  closed-form transition probabilities.
   - qang.formulation  the 15 main gates and 14 main algorithms in qg language

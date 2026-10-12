@@ -110,6 +110,18 @@ if _QISKIT_AVAILABLE:
         qc.append(gate, [qubit])
         return qc
 
+    def append_rqang_parameter(qc: "QuantumCircuit", qg_z, qubit: int) -> "QuantumCircuit":
+        """Append RY(arccos(qg_Z)) where ``qg_Z`` may be a Qiskit ``Parameter`` (or expression): the qg_Z gate
+        inside a parameterized circuit, bound later with ``assign_parameters`` or by an Estimator / Sampler
+        (§130). With a number it is the same rotation as RQangGate."""
+        from qiskit.circuit import ParameterExpression
+
+        if isinstance(qg_z, ParameterExpression):
+            qc.ry(qg_z.arccos(), qubit)
+        else:
+            qc.ry(Qang(float(qg_z), mode="polar").to_theta(), qubit)
+        return qc
+
 else:  # pragma: no cover - exercised only when qiskit is absent
 
     class RQangGate:  # type: ignore[no-redef]
@@ -125,4 +137,7 @@ else:  # pragma: no cover - exercised only when qiskit is absent
             _require_qiskit()
 
     def append_qang(*args, **kwargs):
+        _require_qiskit()
+
+    def append_rqang_parameter(*args, **kwargs):
         _require_qiskit()

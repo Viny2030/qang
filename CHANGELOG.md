@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.interop` (§130): one canonical qubit order (qubit 0 first) for Qiskit counts and BitArray, cirq.Result,
+  PennyLane qml.counts, Braket and pytket results; per-qubit qg_Z with errors, the qg filter and the register entropy
+  on any of them. `qang.qiskit_gate.append_rqang_parameter` (qg_Z gate with a Qiskit Parameter) and
+  `qang.cirq_gate.rqang_symbol` (sympy symbol). `examples/interop_sdks_qg.py`: the same W-state read-out from Qiskit,
+  Cirq and PennyLane.
 - `examples/ionq_qpu_h2_qg.py` (§128): H2 with the qg filter on IonQ Forte-1, submit / status / fetch / rehearse;
   predictions H1-H4 pre-registered; rehearsal on the forte-1 noise model passes; hardware submission pending (the
   IonQ project does not have qpu.forte-1 enabled).

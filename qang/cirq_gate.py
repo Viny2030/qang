@@ -94,6 +94,13 @@ if _CIRQ_AVAILABLE:
         qg = _as_polar_qang(qg_z)
         return cirq.ry(sign * qg.to_theta())
 
+    def rqang_symbol(symbol) -> "cirq.Gate":
+        """ry(acos(symbol)) with a sympy symbol (or expression) standing for qg_Z: the qg_Z gate in a
+        parameterized Cirq circuit, resolved later with a ``cirq.ParamResolver`` or a parameter sweep (§130)."""
+        import sympy
+
+        return cirq.ry(sympy.acos(symbol))
+
     def append_qang(
         circuit: "cirq.Circuit", qang: Qang, qubit: "cirq.Qid", full: bool = True
     ) -> "cirq.Circuit":
@@ -111,6 +118,9 @@ else:  # pragma: no cover - exercised only when cirq is absent
         _require_cirq()
 
     def signed_rqang_gate(*args, **kwargs):
+        _require_cirq()
+
+    def rqang_symbol(*args, **kwargs):
         _require_cirq()
 
     def append_qang(*args, **kwargs):

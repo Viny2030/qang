@@ -61,6 +61,28 @@ pip install ".[all]"      # Everything except chemistry (Qiskit, IBM Runtime, Io
 pip install -r requirements.txt  # same as .[all], without installing qang itself
 ```
 
+## Works with Qiskit, Cirq, PennyLane, Braket and pytket
+
+`qang.interop` reads qg quantities from the results of any of these SDKs with one
+qubit order (qubit 0 first), so the same code gives the same numbers whatever
+produced the counts: per-qubit qg_Z with error bars, the qg filter (keep one
+Hamming weight) and the register entropy.
+
+```python
+from qang import interop as IO
+
+c = IO.canonical_counts(result.get_counts(), sdk="qiskit")   # or a cirq.Result, a Qiskit BitArray,
+                                                              # qml.counts() with sdk="pennylane",
+                                                              # a Braket or pytket result
+IO.qg_z_profile(c)          # [(qg_Z, standard error)] per qubit
+IO.weight_filter(c, 1)      # (kept counts, kept fraction)
+IO.joint_qg_s(c)            # Miller-Madow corrected register entropy, in qg units
+```
+
+Parameterized circuits: `qang.qiskit_gate.append_rqang_parameter(qc, Parameter("qg"), q)` and
+`qang.cirq_gate.rqang_symbol(sympy.Symbol("qg"))` put the qg_Z gate in circuits bound later;
+`qang.pennylane_gate.rqang` is differentiable in qg_Z. Example: `examples/interop_sdks_qg.py`.
+
 ## Quickstart
 
 ### 1. Basic Unit Conversions & Inversion
