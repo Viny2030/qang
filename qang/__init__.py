@@ -55,4 +55,4 @@ See RESEARCH_NOTES.md for the derivations and results behind each module.
 from .core import Qang, MILLIQANG_PER_QANG
 
 __all__ = ["Qang", "MILLIQANG_PER_QANG"]
-__version__ = "0.6.19"
+__version__ = "0.7.0"

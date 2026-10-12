@@ -48,7 +48,8 @@ scale its variance cancels the gain at weight~2; training with the filter under 
 noiseless accuracy under dephasing too. On IBM device noise models, however, where gate errors dominate and the
 published T1 and T2 give a decay of only 0.002--0.017 per sublayer, training under that calibration added nothing:
 the filter alone lifted 0.958 to 0.972 (noiseless 0.979), and a calibration measured on the device itself (echo-aware
-training, or a readout refit on device data) did no better. Without the filter, the raw multiclass logits are exactly
+training, or a readout refit on device data) did no better, and neither did adding the published two-qubit gate
+errors to the training simulator (0.966). Without the filter, the raw multiclass logits are exactly
 a blend of the noiseless logits with a constant vector fixed by training, which explains why the loss without qang
 ranged from 3 to 42 points between seeds; a readout linear in the excitation probabilities with no class biases has no
 such pull, carries the filter inside it and lost nothing noiselessly. With noise-aware training and a richer readout, the model without the filter
@@ -72,7 +73,7 @@ turns class confusions back: flipped decisions of the five-class model fall from
 500 readings. The echo helped only where the filtered error was well above shot noise, and it still removed a third of the
 filtered error with a $28\times28$ matrix at 8 qubits. These models are classically simulable and no quantum
 advantage is claimed. The filter is a way to make noise-free training valid under relaxation, at a
-shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.6.19,
+shot cost known in advance. The models are released as \texttt{qang.qml} (version 0.7.0,
 \texttt{pip install qang}).
 \end{abstract}
 
@@ -418,6 +419,11 @@ Table~\ref{tab:beyond} collects the studies that each change one thing in the se
   noiselessly (0.938 against 0.932 for the head readout). Without the filter, the pull-free head readout kept 0.938 under
   equal T1 and 0.928 under unequal T1, against 0.653 and 0.624 for the standard readout, and its raw decisions equalled
   the filtered ones in every run and condition. All five predictions passed.
+\item \textit{Gate errors in the training simulator} (the IBM backends and inputs above; a two-qubit depolarizing
+  error after every RBS gate, $p=0.015$--$0.028$, from the published ECR or CZ error). Trained with the filter under
+  T1/T2 plus that gate error the model gave 0.966, against 0.972 for noiseless training plus the filter; trained
+  without the filter under it, 0.970, 1.2 points above the noiseless model read raw. The simulator overestimated the
+  kept fraction by 0.03--0.12, plausibly because it has no readout error. One of five predictions passed.
 \end{itemize}
 
 \begin{table}[h]
@@ -444,6 +450,7 @@ T1 + dephasing 0.03 & weight 1 / 2, filter alone & 0.952 / 0.956 & 0.933 / 0.919
 IBM noise (189) & weight 1, clean training & 0.979 & 0.972 & 0.958\\
  & \quad T1/T2-calibrated training & & 0.968 & 0.968\\
  & \quad device calibration & & 0.970 / 0.965 & \\
+ & \quad gate-error-aware training & & 0.966 & 0.970\\
 T1 + deph., 8 qubits & weight 1 / 2, filter alone & 0.959 / 0.964 & 0.925 / 0.950 & 0.788 / 0.650\\
  & \quad with linear ZNE (exact) & & 0.955 / 0.962 & 0.914 / 0.851\\
 multiclass head, T1 & standard / pull-free & 0.932 / 0.938 & 0.932 / 0.938 & 0.653 / 0.938\\
@@ -468,7 +475,7 @@ under the calibrated noise; and because the filter turns T1 plus dephasing into 
 extrapolation of the filtered readout removes most of the remaining bias of observables, at a shot cost that at 1000
 shots per scale cancelled the gain at weight~2. The filter and calibrated training are most
 useful together where decay or dephasing is strong; on device noise models dominated by gate errors, a calibration
-from the published T1 and T2 added nothing, and noiseless training plus the filter was the best pipeline. Two practical rules follow from the studies above. Up
+from the published T1 and T2, or with the published gate errors added, gave nothing, and noiseless training plus the filter was the best pipeline. Two practical rules follow from the studies above. Up
 to about a $\pm80\%$ spread of $1/T_1$ across qubits, a network trained on a simulator can be run with the
 filter alone, losing less than one point. When the network is instead trained under the calibrated noise
 with a distorting encoding and a readout with many parameters, the decayed shots looked useful in one study (1.2
@@ -490,11 +497,11 @@ committed, and waits for hardware credits.
 
 \section*{Code and data availability}
 
-Models: \texttt{qang.qml} in \texttt{qang} 0.6.19 (\texttt{pip install qang}), NumPy only, with
+Models: \texttt{qang.qml} in \texttt{qang} 0.7.0 (\texttt{pip install qang}), NumPy only, with
 \texttt{WeightQNN} (weights 1 and 2, readouts \texttt{"z"} and \texttt{"zz"}, encodings \texttt{"pairs"}, \texttt{"ring"} and
 \texttt{"dual"}; any weight for simulation; \texttt{qang="both"}), \texttt{kept\_fraction} and \texttt{compare\_qang}; \texttt{MultiClassQNN} and \texttt{block\_unitaries}; echo calibration in \texttt{qang.sectors} (\texttt{echo\_transfer\_matrix}, \texttt{unmix\_sector}). Hardware-ready script:
 \texttt{examples/qnn\_hardware\_qg.py} (IBM and IonQ). Studies:
-\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S123, with tests in \texttt{tests/}. The Colab
+\texttt{examples/qnn\_*\_qg.py} and RESEARCH\_NOTES \S75--\S82, \S85, \S87, \S90, \S91 and \S94--\S101, \S104--\S124, with tests in \texttt{tests/}. The Colab
 notebooks \texttt{notebooks/qang\_qml.ipynb} (English) and \texttt{qang\_qml\_es.ipynb} (Spanish) install the
 library from PyPI and show
 every result with and without the filter. Repository: \url{https://github.com/Viny2030/qang}.

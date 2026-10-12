@@ -5,6 +5,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-12
+
+Release of §123–§127. Three new modules, all NumPy or standard library only: `qang.proportions` (the qang angle as the
+classical arcsine transformation of any binomial proportion), `qang.clock_comparison` (the differential phase of two
+clocks from the ellipse of their qg pairs) and `qang.complementarity` (wave-particle duality as the Bloch radius and
+entropic uncertainty with qg_S). §124 adds the published two-qubit gate errors to the QNN training simulator: on the
+IBM device noise models noiseless training plus the filter stays the best pipeline. The QML note (EN/ES, PDF and Word)
+covers §124. The paper cites the classical sources of the arcsine transformation. A plan for the first real-device run
+on the IBM Open Plan and a plan for three separate results papers are added.
+
 ### Added
 - `qang.clock_comparison` (§126): differential phase of two clocks from the ellipse of their qg pairs, with
   shot-noise-corrected squares; `examples/clock_redshift_qg.py` (gravitational redshift of two Sr clocks): G1-G4 pass.
