@@ -93,3 +93,18 @@ def test_example_runs_small():
 
     e = E.errors(100, reps=2, starts=2)
     assert set(e) == {"linear", "arcsine"} and all(len(v) == 2 for v in e.values())
+
+
+def test_wqsp_kan_learns_a_separable_toy():
+    pytest.importorskip("scipy")
+    import os
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "examples"))
+    import wqsp_kan_qg as K
+
+    rng = np.random.default_rng(0)
+    X = rng.uniform(-1, 1, (80, 2))
+    y = (X[:, 0] ** 2 + 0.5 * X[:, 1] > 0.4).astype(int)
+    m = K.WQSPKAN(2, (1, 2)).fit(X, y, starts=3, seed=1)
+    assert np.mean(m.predict(X) == y) >= 0.9
