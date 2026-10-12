@@ -6076,6 +6076,34 @@ register entropy 0.528 (ideal log₂3/3) in Qiskit, Cirq and PennyLane alike;
 the tests also pin the bit order of each SDK with a single excited qubit and
 cover Braket- and pytket-like results.
 
+## 131. The qg read-out from Qiskit primitives and a differentiable filter in PennyLane (`qang/interop.py`, `qang/pennylane_gate.py`)
+
+**Sampler.** `interop.sampler_qg(pub_result, weight=None)` reads a SamplerV2
+pub result for every parameter set of the pub at once: per-qubit qg_Z and
+its error as arrays of shape (pub shape, n), and with `weight` the profile of
+the kept shots plus the kept fraction.
+
+**Estimator.** The qg_Z of qubit i is the Estimator value of Z_i
+(`qg_z_observables`). The filtered read-out is a ratio of two diagonal
+observables, qg_Z_i | w = ⟨P_w Z_i⟩ / ⟨P_w⟩, where P_w projects on Hamming
+weight w. `filtered_observables(n, w)` writes P_w and the n products
+P_w Z_i as Pauli-Z sums (a Walsh–Hadamard transform of their diagonals, at
+most 2ⁿ terms), so an EstimatorV2 pub returns the filtered read-out and the
+kept fraction directly; `estimator_filtered_qg` takes the ratio.
+
+**PennyLane.** `pennylane_gate.filtered_qg_z(probs, w)`,
+`kept_fraction(probs, w)` and `qg_z_from_probs(probs)` act on `qml.probs()`
+with `qml.math`, so the filtered qg_Z is differentiable in any interface and
+can be the loss of a training loop. The filter is classical
+post-processing: it costs no extra circuit.
+
+Check: on product states the Estimator values and the PennyLane read-out
+equal the exact filtered qg_Z and kept fraction to 1e-9; the PennyLane
+gradient of a filtered qg_Z equals the finite difference of the exact one to
+1e-6; a two-point Sampler sweep (40 000 shots) agrees with the exact values
+within 4.5 standard errors; on the same PennyLane counts, `filtered_qg_z` and
+`interop.filtered_qg_z_profile` agree to 1e-12.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

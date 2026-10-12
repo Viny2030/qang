@@ -27,6 +27,18 @@ Supported inputs (no SDK is imported unless its object is passed):
   Braket   a task result (``measurement_counts``) or that dict with
            ``sdk="braket"``;
   pytket   a ``BackendResult`` (``get_counts()``) or its dict of tuples.
+
+Qiskit primitives (§131):
+  * ``sampler_qg``            the qg_Z profile, the filtered profile and the
+                              kept fraction of every parameter set of a
+                              SamplerV2 pub result, as arrays;
+  * ``qg_z_observables``      the n observables whose EstimatorV2 values ARE
+                              the qg_Z of each qubit;
+  * ``filtered_observables``  the weight-w projector P_w and the n products
+                              P_w Z_i as Pauli sums, so that EstimatorV2
+                              returns the filtered read-out directly;
+  * ``estimator_filtered_qg`` (kept fraction, filtered qg_Z) from those values:
+                              filtered qg_Z_i = <P_w Z_i> / <P_w>.
 """
 
 from __future__ import annotations
@@ -42,6 +54,10 @@ __all__ = [
     "weight_filter",
     "filtered_qg_z_profile",
     "joint_qg_s",
+    "sampler_qg",
+    "qg_z_observables",
+    "filtered_observables",
+    "estimator_filtered_qg",
 ]
 
 Canonical = Dict[Tuple[int, ...], int]
@@ -153,3 +169,98 @@ def joint_qg_s(counts: Canonical, correction: str = "miller_madow") -> float:
     else:
         raise ValueError("correction must be 'miller_madow' or 'none'.")
     return h / n
+
+
+# ---------------------------------------------------------------- Qiskit primitives (§131)
+
+
+def _bitarray(pub_result, creg: Optional[str]):
+    data = getattr(pub_result, "data", pub_result)
+    if hasattr(data, "get_bitstrings"):
+        return data
+    names = list(data.keys()) if hasattr(data, "keys") else [k for k in vars(data) if not k.startswith("_")]
+    if creg is None:
+        if len(names) != 1:
+            raise ValueError(f"the pub result has registers {names}: pass creg=.")
+        creg = names[0]
+    return getattr(data, creg)
+
+
+def sampler_qg(pub_result, weight: Optional[int] = None, creg: Optional[str] = None) -> dict:
+    """qg read-out of a Qiskit SamplerV2 pub result, for every parameter set of the pub.
+
+    Returns a dict of numpy arrays, ``shape`` being the pub's shape:
+      "qg", "se"   shape + (n,)  per-qubit qg_Z and its error (qubit 0 first);
+      "kept"       shape         fraction of shots of Hamming weight ``weight`` (1 without a filter);
+    with ``weight`` given, "qg" and "se" are those of the kept shots (nan where none is kept).
+    """
+    import numpy as np
+
+    bits = _bitarray(pub_result, creg)
+    shape, n = tuple(bits.shape), int(bits.num_bits)
+    qg, se, kept = np.full(shape + (n,), np.nan), np.full(shape + (n,), np.nan), np.ones(shape)
+    for idx in np.ndindex(*shape) if shape else [()]:
+        c = _from_strings(bits.get_counts(loc=idx) if shape else bits.get_counts(), qubit0_last=True)
+        if weight is not None:
+            c, kept[idx] = weight_filter(c, weight)
+            if not c:
+                continue
+        prof = qg_z_profile(c)
+        qg[idx] = [q for q, _ in prof]
+        se[idx] = [e for _, e in prof]
+    return {"qg": qg, "se": se, "kept": kept}
+
+
+def qg_z_observables(n_qubits: int) -> List[str]:
+    """Pauli labels (Qiskit order, qubit 0 rightmost) of Z_0, ..., Z_{n-1}: EstimatorV2 returns qg_Z directly."""
+    return ["I" * (n_qubits - 1 - i) + "Z" + "I" * i for i in range(n_qubits)]
+
+
+def _diag_to_paulis(diag, n: int) -> Dict[str, float]:
+    """Pauli-Z expansion {label: coeff} of a diagonal operator given by its 2^n diagonal (Qiskit index order)."""
+    import numpy as np
+
+    c = np.asarray(diag, float).copy()
+    h = 1
+    while h < len(c):                                      # fast Walsh-Hadamard transform
+        for i in range(0, len(c), 2 * h):
+            a, b = c[i:i + h].copy(), c[i + h:i + 2 * h].copy()
+            c[i:i + h], c[i + h:i + 2 * h] = a + b, a - b
+        h *= 2
+    c /= 2 ** n
+    out = {}
+    for s, v in enumerate(c):
+        if abs(v) > 1e-12:
+            out["".join("Z" if (s >> (n - 1 - k)) & 1 else "I" for k in range(n))] = float(v)
+    return out
+
+
+def filtered_observables(n_qubits: int, weight: int) -> List[Dict[str, float]]:
+    """[P_w, P_w Z_0, ..., P_w Z_{n-1}] as {Pauli label: coeff} (Qiskit order), for EstimatorV2.
+
+    P_w projects on the computational states of Hamming weight w. Both are diagonal, so each is a sum of
+    Z strings; the expansion has up to 2^n terms (fine for the register sizes of current devices' tests,
+    n <= ~12). Pass the list as one observables array of an Estimator pub.
+    """
+    import numpy as np
+
+    if not 0 <= weight <= n_qubits:
+        raise ValueError(f"weight must be in [0, {n_qubits}].")
+    idx = np.arange(2 ** n_qubits)
+    w = np.array([bin(i).count("1") for i in idx])
+    mask = (w == weight).astype(float)
+    obs = [_diag_to_paulis(mask, n_qubits)]
+    for i in range(n_qubits):
+        z = 1.0 - 2.0 * ((idx >> i) & 1)
+        obs.append(_diag_to_paulis(mask * z, n_qubits))
+    return obs
+
+
+def estimator_filtered_qg(evs):
+    """(kept fraction, filtered qg_Z array) from EstimatorV2 values of ``filtered_observables`` (last axis)."""
+    import numpy as np
+
+    evs = np.asarray(evs, float)
+    kept = evs[..., 0]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return kept, evs[..., 1:] / kept[..., None]

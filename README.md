@@ -83,6 +83,18 @@ Parameterized circuits: `qang.qiskit_gate.append_rqang_parameter(qc, Parameter("
 `qang.cirq_gate.rqang_symbol(sympy.Symbol("qg"))` put the qg_Z gate in circuits bound later;
 `qang.pennylane_gate.rqang` is differentiable in qg_Z. Example: `examples/interop_sdks_qg.py`.
 
+Qiskit primitives and a differentiable filter in PennyLane:
+
+```python
+IO.sampler_qg(sampler.run([(qc, values)]).result()[0], weight=1)   # arrays over the whole sweep:
+                                                                   # "qg", "se", "kept"
+obs = IO.filtered_observables(n, 1)                                # P_w and P_w Z_i for EstimatorV2
+kept, qg = IO.estimator_filtered_qg(estimator.run([(qc, obs, values)]).result()[0].data.evs)
+
+from qang.pennylane_gate import filtered_qg_z                       # on qml.probs(), differentiable:
+loss = lambda x: filtered_qg_z(circuit(x), 1)[0]                    # qml.grad(loss) works
+```
+
 ## Quickstart
 
 ### 1. Basic Unit Conversions & Inversion

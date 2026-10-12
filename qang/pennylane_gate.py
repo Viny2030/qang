@@ -96,6 +96,45 @@ if _PENNYLANE_AVAILABLE:
         """Convenience: apply the right operation for ``qang`` on ``wires``."""
         return full_rqang(qang, wires) if full else rqang(qang, wires)
 
+    # ------------------------------------------------ qg read-out of qml.probs (§131)
+
+    def _masks(n: int, weight: Optional[int]):
+        import numpy as np
+
+        idx = np.arange(2 ** n)
+        # PennyLane orders probs with wire 0 as the most significant bit
+        z = np.stack([1.0 - 2.0 * ((idx >> (n - 1 - i)) & 1) for i in range(n)], axis=1)
+        if weight is None:
+            return np.ones(2 ** n), z
+        w = np.array([bin(i).count("1") for i in idx])
+        return (w == weight).astype(float), z
+
+    def _n_of(probs) -> int:
+        d = qml.math.shape(probs)[-1]
+        n = int(d).bit_length() - 1
+        if 2 ** n != d:
+            raise ValueError("probs must have 2^n entries on its last axis.")
+        return n
+
+    def qg_z_from_probs(probs):
+        """Per-wire qg_Z = <Z_i> from ``qml.probs()`` (wire order of the probs), differentiable."""
+        _, z = _masks(_n_of(probs), None)
+        return qml.math.tensordot(probs, qml.math.convert_like(z, probs), axes=[[-1], [0]])
+
+    def kept_fraction(probs, weight: int):
+        """Probability of Hamming weight ``weight`` (the qg filter's kept fraction), differentiable."""
+        m, _ = _masks(_n_of(probs), weight)
+        return qml.math.tensordot(probs, qml.math.convert_like(m, probs), axes=[[-1], [0]])
+
+    def filtered_qg_z(probs, weight: int):
+        """qg_Z of each wire after the qg filter (post-selection on Hamming weight ``weight``):
+        <P_w Z_i> / <P_w>, differentiable through ``probs`` in every PennyLane interface.
+        Use it on ``qml.probs()`` returned by a QNode; the filter is a classical post-processing,
+        so it costs no extra circuit (with shots, the ratio is the post-selected estimate)."""
+        m, z = _masks(_n_of(probs), weight)
+        num = qml.math.tensordot(probs, qml.math.convert_like(m[:, None] * z, probs), axes=[[-1], [0]])
+        return num / qml.math.expand_dims(kept_fraction(probs, weight), -1)
+
 else:  # pragma: no cover - exercised only when pennylane is absent
 
     def rqang(*args, **kwargs):
@@ -105,4 +144,13 @@ else:  # pragma: no cover - exercised only when pennylane is absent
         _require_pennylane()
 
     def append_qang(*args, **kwargs):
+        _require_pennylane()
+
+    def qg_z_from_probs(*args, **kwargs):
+        _require_pennylane()
+
+    def kept_fraction(*args, **kwargs):
+        _require_pennylane()
+
+    def filtered_qg_z(*args, **kwargs):
         _require_pennylane()
