@@ -50,11 +50,57 @@ Pre-registered predictions (committed before any run):
   T4  with the single-qubit channel added, qang's full prediction is within
       0.05 of the §124 device kept fraction on all three backends.
 
-python examples/qnn_torino_residual_qg.py
+python examples/qnn_torino_residual_qg.py            (pre-registered run)
+python examples/qnn_torino_residual_qg.py explore    (post hoc: thermal without pure dephasing)
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Kept (weight-1) fraction of model A, mean over the four datasets (2000
+shots per input; each channel alone, then all together):
+
+                       brisbane        sherbrooke      torino
+                      Aer    qang     Aer    qang     Aer    qang
+  2q gates           0.733  0.768    0.782  0.816    0.834  0.864
+  1q gates           0.948  0.955    0.970  0.975    0.950  0.968
+  thermal            0.777  0.882    0.888  0.934    0.919  0.974
+  readout            0.934  0.928    0.904  0.880    0.911  0.919
+  full               0.673  0.665    0.697  0.694    0.726  0.783
+  qang full + 1q            0.644           0.680           0.761
+  device (§124)      0.671           0.697           0.724
+
+  Sanity: Aer's full model reproduces §124 within 0.002 on every backend.
+
+  T1 PASS: on torino the single-qubit gate errors alone lose 0.050.
+  T2 FAIL: qang's two-qubit channel loses 0.030 less than Aer's on torino
+     (and 0.035 / 0.034 on brisbane / sherbrooke: a common bias, not the
+     torino residual).
+  T3 FAIL, with the opposite sign: on every backend Aer's thermal channel
+     loses MORE than qang's (0.105 / 0.046 / 0.056 more), although Aer
+     applies relaxation only during gates.
+  T4 PASS: with the single-qubit channel the prediction is within 0.05 on
+     all three backends (0.027 / 0.017 / 0.037), but the ECR devices move
+     away from the device (they were within 0.006 without it).
+
+Exploratory (after the predictions were scored; ``explore()``): Aer's
+thermal channel rebuilt by hand reproduces it (0.775 brisbane, 0.919
+torino). With the pure dephasing removed (T2 set to 2 T1) it gives 0.848
+and 0.974: on torino exactly qang's thermal channel (0.974). So the torino
+residual is pure dephasing DURING the gates. Inside the CZ/ECR decomposition
+of an RBS the qubits are not in the computational basis, so a phase error
+there becomes a change of Hamming weight; qang's simulator applies
+dephasing only between RBS gates, where it commutes with the weight and
+cannot remove a shot from the filter. Torino's layout has short T2 (28 us
+on qubit 80, 61 us on qubit 98), which is why its gap was the largest.
+
+  * The weight-preserving filter is blind to dephasing between gates, not
+    inside them; a simulator that predicts the kept fraction must put the
+    T2 error inside each RBS (or convert it into a two-qubit depolarizing
+    term).
+  * Aer's readout model is symmetric (the mean of the two published
+    errors), which explains the 0.008-0.024 readout differences above;
+    qang uses the asymmetric pair.
+  * Agreement on the ECR devices in §129 was partly a compensation: each of
+    qang's channels loses too little, and the total still matched.
 """
 
 import json
@@ -160,6 +206,54 @@ def aer_models(backend):
     }
 
 
+def thermal_model(backend, pure_dephasing=True):
+    """Aer thermal relaxation on every timed gate, built by hand; with pure_dephasing=False T2 is set to 2 T1."""
+    from qiskit_aer.noise import NoiseModel, thermal_relaxation_error
+
+    t = backend.target
+    qps = t.qubit_properties
+    nm = NoiseModel(basis_gates=backend.operation_names)
+
+    def err(q, dur):
+        t1 = qps[q].t1
+        return thermal_relaxation_error(t1, min(qps[q].t2, 2 * t1) if pure_dephasing else 2 * t1, dur)
+
+    for op in ("sx", "x", "id", "cz", "ecr"):
+        if op not in t.operation_names:
+            continue
+        for qs, p in t[op].items():
+            if p is None or not p.duration:
+                continue
+            e = err(qs[0], p.duration) if len(qs) == 1 else err(qs[0], p.duration).tensor(err(qs[1], p.duration))
+            nm.add_quantum_error(e, op, qs)
+    return nm
+
+
+def explore(names=("fake_brisbane", "fake_torino"), shots=SHOTS):
+    """Exploratory (post hoc): the thermal channel with and without pure dephasing."""
+    from qiskit import transpile
+    from qiskit_aer import AerSimulator
+
+    out = {}
+    for name in names:
+        b = H.get_backend("fake", name)
+        models = {"published T2": thermal_model(b, True), "T2 = 2 T1": thermal_model(b, False)}
+        layout, k = None, {m: [] for m in models}
+        for d, ds in enumerate(Q.DATASETS):
+            Xtr, Xte, ytr, yte = P.data(ds)
+            A = WeightQNN(N, 1).fit(Xtr, ytr, G.EPOCHS, seed=DS.TRAIN_SEED)
+            if layout is None:
+                layout, _ = P.calibration(b, H.build_circuit(A, Xte[0]))
+            tc = transpile([H.build_circuit(A, x) for x in Xte], backend=b, optimization_level=1,
+                           seed_transpiler=119, initial_layout=layout)
+            for m, nm in models.items():
+                res = AerSimulator(noise_model=nm).run(tc, shots=shots, seed_simulator=1320 + d).result()
+                k[m].append(float(np.mean([kept_of_counts(res.get_counts(i)) for i in range(len(tc))])))
+        out[name] = {m: float(np.mean(v)) for m, v in k.items()}
+        print(name, {m: round(v, 4) for m, v in out[name].items()}, flush=True)
+    return out
+
+
 def kept_of_counts(counts):
     n = sum(counts.values())
     return sum(c for k, c in counts.items() if k.replace(" ", "").count("1") == 1) / n
@@ -246,4 +340,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    explore() if sys.argv[1:] == ["explore"] else main()

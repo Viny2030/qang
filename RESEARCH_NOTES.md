@@ -6104,6 +6104,39 @@ gradient of a filtered qg_Z equals the finite difference of the exact one to
 within 4.5 standard errors; on the same PennyLane counts, `filtered_qg_z` and
 `interop.filtered_qg_z_profile` agree to 1e-12.
 
+## 132. The torino residual is dephasing inside the gates (`examples/qnn_torino_residual_qg.py`)
+
+§129 left torino's kept fraction 0.059 above the device. The model A
+circuits were run with Aer under each channel of the device noise model
+alone, and qang's simulator was decomposed the same way, with a
+single-qubit depolarizing channel added (predictions T1–T4 committed before
+the run).
+
+| kept fraction | brisbane Aer / qang | sherbrooke Aer / qang | torino Aer / qang |
+|---|---|---|---|
+| 2q gates | 0.733 / 0.768 | 0.782 / 0.816 | 0.834 / 0.864 |
+| 1q gates | 0.948 / 0.955 | 0.970 / 0.975 | 0.950 / 0.968 |
+| thermal | 0.777 / 0.882 | 0.888 / 0.934 | 0.919 / 0.974 |
+| readout | 0.934 / 0.928 | 0.904 / 0.880 | 0.911 / 0.919 |
+| full | 0.673 / 0.665 | 0.697 / 0.694 | 0.726 / 0.783 |
+| qang full + 1q | 0.644 | 0.680 | 0.761 |
+
+T1 passes (single-qubit errors alone lose 0.050 on torino). T2 fails (qang's
+two-qubit channel loses ~0.03 too little on every backend). T3 fails with the
+opposite sign: Aer's thermal channel loses more than qang's everywhere.
+T4 passes (within 0.05 everywhere with the single-qubit channel), but the ECR
+devices move away from the device.
+
+Exploratory, after scoring: with T2 set to 2 T1 (no pure dephasing), Aer's
+thermal channel gives 0.974 on torino, exactly qang's value (0.848 on
+brisbane against 0.882). The residual is pure dephasing during the gates:
+inside the CZ/ECR decomposition of an RBS a phase error turns into a change
+of Hamming weight, whereas between RBS gates it commutes with the weight and
+the filter cannot see it. Torino's layout has T2 = 28 µs on one qubit.
+Practical consequence: to predict the kept fraction, a simulator must place
+the T2 error inside each RBS. §129's agreement on the ECR devices was in part
+a compensation of channels that each lose too little.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

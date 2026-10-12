@@ -10,6 +10,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   every parameter set of a SamplerV2 pub), `interop.qg_z_observables`, `interop.filtered_observables` and
   `interop.estimator_filtered_qg` (the filtered read-out as EstimatorV2 observables P_w and P_w Z_i);
   `pennylane_gate.filtered_qg_z`, `kept_fraction` and `qg_z_from_probs` on `qml.probs()`, differentiable.
+- `examples/qnn_torino_residual_qg.py` (§132): channel-by-channel kept fraction, Aer vs qang's simulator, with a
+  single-qubit gate channel added. T1, T4 pass; T2, T3 fail. Post hoc: the torino residual is pure dephasing during
+  the gates, which changes the Hamming weight inside an RBS decomposition.
 - `qang.interop` (§130): one canonical qubit order (qubit 0 first) for Qiskit counts and BitArray, cirq.Result,
   PennyLane qml.counts, Braket and pytket results; per-qubit qg_Z with errors, the qg filter and the register entropy
   on any of them. `qang.qiskit_gate.append_rqang_parameter` (qg_Z gate with a Qiskit Parameter) and
