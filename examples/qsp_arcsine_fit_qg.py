@@ -37,7 +37,22 @@ python examples/qsp_arcsine_fit_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Mean RMS error of Re P over 200 data sets:
+
+  shots per x   linear fit   arcsine fit   arcsine better in
+  100           0.0228       0.0220        125 / 200
+  1000          0.00742      0.00708       147 / 200
+
+  Q1 PASS: the arcsine fit is better at N = 100 (by 3.6%).
+  Q2 FAIL: it is 0.96 times the linear error, not 0.9 or less.
+  Q3 PASS: it stays better at N = 1000 (by 4.6%, in 74% of the data sets).
+  Q4 FAIL: the theta scale is stabilized (sd 0.90 to 1.18 times 1/sqrt N
+     at the 36 eligible x, within 20%), but over those x the linear sd
+     varies by 1.93, short of the predicted factor 2: the x where it
+     varies most (Re P near -1) are the ones excluded by N p0 (1 - p0) >= 5.
+  * Fitting in the qg (arcsine) scale is consistently, but only slightly,
+    better: the gain comes from the few x near the pole, where the linear
+    scale is most precise and plain least squares underuses it.
 """
 
 import json

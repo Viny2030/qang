@@ -10,6 +10,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   every parameter set of a SamplerV2 pub), `interop.qg_z_observables`, `interop.filtered_observables` and
   `interop.estimator_filtered_qg` (the filtered read-out as EstimatorV2 observables P_w and P_w Z_i);
   `pennylane_gate.filtered_qg_z`, `kept_fraction` and `qg_z_from_probs` on `qml.probs()`, differentiable.
+- `qang.qsp` (§134): QSP and weighted QSP with the signal in qg terms, Hadamard-test read-out as qg_Z, phase fitting
+  in the linear or arcsine scale, PennyLane ops. `examples/qsp_arcsine_fit_qg.py`: the arcsine fit is slightly but
+  consistently better (Q1, Q3 pass; Q2, Q4 fail). `interop.joint_qg_s_se`: standard error of the register entropy.
 - `examples/qnn_ingate_dephasing_qg.py` (§133): pure dephasing inside each RBS, twirled into a per-qubit
   depolarizing channel. Torino's kept fraction is now predicted within 0.012 (0.059 in §129); D1, D4 pass; D2, D3
   fail on brisbane.

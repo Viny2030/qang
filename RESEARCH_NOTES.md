@@ -6160,6 +6160,30 @@ full simulator loses more: the channels combine differently on the noisiest
 device, for a reason not identified here. For prediction, §129's model stays
 the closest on the ECR devices and this one on torino.
 
+## 134. Quantum signal processing in qg terms (`qang/qsp.py`, `examples/qsp_arcsine_fit_qg.py`)
+
+The QSP signal rotation U(x) = exp(i arccos(x) X) turns the Bloch vector by
+2 arccos(x), the qang angle of a state with √p₀ = x; its Hadamard-test read-out
+Re P(x) = 2p₀ − 1 is the ancilla's qg_Z. `qang.qsp` builds QSP and weighted QSP
+(Sarkar et al., arXiv:2609.21567) with NumPy, queues them in PennyLane
+(differentiable in the phases) and fits phases from shot counts in the linear
+or the arcsine (qg angle) scale.
+
+Experiment (Q1–Q4 committed before the run): a WQSP target with weights
+(1, 2, 1, 2), 41 values of x, 200 simulated data sets. Mean RMS error of the
+fitted Re P: 0.0228 linear vs 0.0220 arcsine at 100 shots per x (Q1 passes, Q2
+fails: ratio 0.96, not ≤ 0.9), 0.00742 vs 0.00708 at 1000 shots (Q3 passes).
+The θ scale has standard deviation 0.90–1.18 × 1/√N where N p₀(1 − p₀) ≥ 5,
+but the linear one varies only 1.93-fold over those points (Q4 fails). The
+qg scale helps consistently but slightly; the gain comes from the points near
+the pole.
+
+`interop.joint_qg_s_se` adds the standard error of the register entropy,
+√(Var(−log₂ p)/N)/n: the classical counterpart of the capacity of
+entanglement used for nonlocal magic (Aditya, Sierant, Turkeshi,
+arXiv:2609.20951). It matches the spread of 2000 multinomial resamples within
+12%.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
