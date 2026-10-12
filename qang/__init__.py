@@ -32,6 +32,7 @@ This package covers, in order:
                        ellipse of their qg pairs (§126).
   - qang.complementarity  duality as the Bloch radius and entropic
                        uncertainty with qg_S (§127).
+  - qang.qsp          quantum signal processing and weighted QSP in qg terms
   - qang.interop      qg read-outs (profile, filter, entropy) from Qiskit,
                        Cirq, PennyLane, Braket and pytket results, one
                        qubit order (§130).
@@ -58,4 +59,4 @@ See RESEARCH_NOTES.md for the derivations and results behind each module.
 from .core import Qang, MILLIQANG_PER_QANG
 
 __all__ = ["Qang", "MILLIQANG_PER_QANG"]
-__version__ = "0.7.0"
+__version__ = "0.8.0"

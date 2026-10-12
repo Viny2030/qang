@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-12
+
+Release of §128–§136. qang now reads results from every major SDK with one qubit order (`qang.interop`: Qiskit,
+Cirq, PennyLane, Braket, pytket), supports the Qiskit V2 primitives (SamplerV2 sweeps and filtered EstimatorV2
+observables), gives a differentiable filtered read-out in PennyLane and adds `qang.qsp` (quantum signal processing in
+qg terms). The QNN noise studies locate the remaining kept-fraction gap on the IBM Torino noise model in dephasing
+inside the gates (§132–§133). The IonQ Forte-1 hardware run (§128) is prepared and rehearsed, not yet submitted.
+
 ### Added
 - Qiskit primitives and PennyLane (§131): `interop.sampler_qg` (qg_Z profile, filtered profile and kept fraction for
   every parameter set of a SamplerV2 pub), `interop.qg_z_observables`, `interop.filtered_observables` and
