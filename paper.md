@@ -46,7 +46,7 @@ Translating raw angles into observable spaces presents non-trivial software and 
 - **Error Propagation Under Finite Sampling:** Real hardware estimates expectation values via finite measurement shots $N$, introducing binomial shot noise. Understanding how variance in $\widehat{qg}_Z$ propagates into the angular estimate $\hat{\theta}$ is vital for setting realistic error tolerances in hardware benchmarks.
 - **Mixed State and Entanglement Characterization:** Pure-state geometric parameters are insufficient when dealing with open quantum systems or entangled registers. A unified software metric must scale consistently to density matrices $\rho$, positive operator-valued measures (POVMs), and partial-trace subsystems, and must state plainly what a Z-basis metric cannot detect.
 
-`qang` addresses these needs by supplying a lightweight, modular library that automates these conversions, resolves numerical singularities, and embeds directly into existing quantum circuit compilation pipelines.
+`qang` automates these conversions, handles the singularities, and embeds directly into existing circuit pipelines.
 
 # State of the field
 
@@ -55,30 +55,13 @@ Existing quantum computing frameworks handle parameterizations and state diagnos
 - **Circuit Construction (Qiskit, Cirq, PennyLane):** Standard libraries focus on unitary execution and statevector manipulation using raw angles. Users must manually compose parameterized gates with custom cost functions, without native types representing bias or entropy metrics directly inside the circuit DAG.
 - **Quantum Information Toolkits (QETLAB, QuTiP):** Software packages such as QuTiP [@johansson2012qutip] provide extensive density-matrix and entropy routines. However, they are heavy scientific frameworks geared toward master-equation simulation rather than lightweight, parameter-level circuit abstraction or drop-in gate definitions for execution on physical backends.
 
-`qang` fills this distinct niche by introducing a dedicated unit abstraction layer. It does not replace quantum execution backends; rather, it augments Qiskit and Cirq circuits with native gate classes (`RQangGate`, `full_rqang_gate`) that accept $qg$ instances directly, eliminating boilerplate and providing built-in domain validation, branch inversion, and noise propagation.
+`qang` fills this niche with a unit abstraction layer: it does not replace execution backends, but adds native gate classes (`RQangGate`, `full_rqang_gate`) that accept $qg$ values directly, with domain validation, branch inversion, and noise propagation.
 
 # Software Design
 
 `qang` is architected as a lightweight package with minimal overhead, requiring only `NumPy` as a core runtime dependency, with optional integration extras for `qiskit`, `cirq`, and development toolchains. Modules that need an SDK raise a clear error only when imported without it; `import qang` never does.
 
-```
-qang/
-├── __init__.py         # Public API exposure
-├── core.py             # Qang class, conversions, milliqang, branch inversion, qg_Z <-> qg_S identity
-├── phase.py            # qg_Phi phase unit (full-domain invertible)
-├── gradients.py        # Jacobian inverses, clipped/Tikhonov regularization, pole-damped descent
-├── statistics.py       # Binomial shot-noise propagation, confidence intervals
-├── mixed.py            # Density-matrix qg_Z, von Neumann entropy, POVM metrics
-├── multiqubit.py       # Marginal profiles, joint qg_S, Miller-Madow estimator, qg_correlation
-├── transformations.py  # Closed-form transition probabilities between qang states
-├── qiskit_gate.py      # Qiskit native RQangGate and FullRQangGate
-├── cirq_gate.py        # Cirq native rqang_gate and full_rqang_gate
-├── pennylane_gate.py   # PennyLane rqang / full_rqang (autodiff in qg_Z)
-├── circuits.py         # Bell/GHZ/W/Dicke/graph-state builders and circuit -> qg profile
-├── ansatze.py          # Excitation and hardware-efficient ansatze, incl. qg-native layers
-├── qec.py              # 3-qubit bit-flip code with qg_Z syndrome readout
-└── algorithms.py       # Teleportation, superdense coding, Grover
-```
+The modules are `core` (units, conversions, branch inversion), `phase`, `gradients`, `statistics` and `proportions` (finite-sample error propagation), `mixed` and `multiqubit` (density matrices, POVMs, registers), `transformations`, the SDK gates (`qiskit_gate`, `cirq_gate`, `pennylane_gate`), and Qiskit builders for circuits, ansätze, the bit-flip code and textbook algorithms.
 
 ### Core Representations and Branch Inversion (`qang.core`)
 The `Qang` class encapsulates both $qg_Z$ and $qg_S$ operational modes. Because $qg_S(\theta) = qg_S(\pi - \theta)$, inversion from entropy to angle is non-injective over $[0, \pi]$. `qang.core` formalizes the half-domain invertibility: it enforces monotonic branches via bisection over $H(p)$ for $\theta \in [0, \pi/2]$ (`branch='lower'`) and $\theta \in [\pi/2, \pi]$ (`branch='upper'`), providing bidirectional consistency within $10^{-4}$ rad. The forward direction needs no branch: `qg_s_from_qg_z` implements $qg_S = H((1+qg_Z)/2)$ on the whole domain.
@@ -95,6 +78,8 @@ Neither fixes the $\arccos$ range limit. The module therefore also provides `the
 `qang.statistics` implements analytical error propagation using the first-order delta method. Given $N$ measurement shots, the variance of the estimator $\widehat{qg}_Z$ is $\operatorname{Var}(\widehat{qg}_Z) = \sin^2\theta / N$. Propagating through the inverse Jacobian yields:
 $$\operatorname{Var}(\hat{\theta}) \approx \operatorname{Var}(\widehat{qg}_Z) \left(\frac{d\theta}{dqg_Z}\right)^2 = \left[\frac{\sin^2\theta}{N}\right] \left[\frac{1}{\sin^2\theta}\right] = \frac{1}{N}$$
 The angular variance is invariant to $\theta$ to first order ($\operatorname{std}(\hat{\theta}) \approx 1/\sqrt{N}$). The module provides analytical confidence intervals and validates this behavior against empirical bootstrap trials executed via Qiskit's `AerSimulator`, including the regime near the poles where the first-order result breaks down.
+
+This invariance is classical statistics: since $p_0=\cos^2(\theta/2)$, the qang angle is, up to $\theta\mapsto\pi-\theta$, the angular (arcsine) transformation $\phi=2\arcsin\sqrt{p}$, the variance-stabilizing transformation of the binomial [@bartlett1947; @anscombe1948; @freeman1950], and the difference of two angles is Cohen's $h$ [@cohen1988]. `qang.proportions` applies it to any proportion (Anscombe-corrected angles, intervals, two-sample comparisons); with exact binomial sums the 95% interval keeps 93–96% coverage for $N\in\{30,100,1000\}$.
 
 ### Open Quantum Systems and Multi-Qubit Registers (`qang.mixed`, `qang.multiqubit`)
 The framework evaluates mixed states via $\operatorname{Tr}(\rho \sigma_z)$ and POVM measurements normalized by $\log_2(n_{\text{outcomes}})$. For multi-qubit systems, it computes single-qubit marginal projection profiles and the joint measurement entropy ($qg_S^{\text{joint}}$). For finite-shot data, `joint_qg_s_from_counts` applies the Miller–Madow bias correction [@miller1955], and `mean_qg_z_from_counts` gives the register's mean $qg_Z$ (its relaxation bias) as an unbiased sample mean. `qg_correlation` $= \sum_i qg_S^{(i)} - qg_S^{\text{joint}}$ is the total correlation [@watanabe1960] of the Z-basis outcomes: it is zero for product states, 1 bit for Bell states, and $n-1$ bits for GHZ$_n$. The documentation states its limits plainly. It is a classical correlation measure, not an entanglement measure: it is positive for classical mixtures and zero for graph states, whose entanglement lives entirely in phases that no Z-diagonal statistic can see [@hein2004graph].
