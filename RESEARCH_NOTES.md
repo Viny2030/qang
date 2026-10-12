@@ -6184,6 +6184,17 @@ entanglement used for nonlocal magic (Aditya, Sierant, Turkeshi,
 arXiv:2609.20951). It matches the spread of 2000 multinomial resamples within
 12%.
 
+## 135. Weighted-QSP activations in a one-layer KAN (`examples/wqsp_kan_qg.py`)
+
+The smallest Kolmogorov–Arnold model of Sarkar et al., score = Σᵢ aᵢ Re Pᵢ(xᵢ) + b
+with a WQSP polynomial per feature, on the four QNN datasets (189 test
+inputs; K1–K3 committed before training). WQSP with weights (1, 2) (17
+parameters) gets 179, standard QSP (1, 1, 1) (21 parameters) 178, against 185
+for qang's weight-1 QNN. K3 passes (fewer phases, same accuracy); K1 (≥ 180)
+and K2 (within 2 of 185) fail. With an odd total weight every activation is an
+odd function of its feature, so no even dependence is reachable: the parity
+constraint, not the phase count, is the likely limit of this model.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

@@ -25,7 +25,21 @@ python examples/wqsp_kan_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Correct test decisions (of 189):
+
+  model                       parameters   iris   cancer   wine   digits   total
+  WQSP (1, 2)                 17           26     58       37     58       179
+  QSP (1, 1, 1)               21           26     58       36     58       178
+  qang weight-1 QNN (§124)                                                 185
+
+  K1 FAIL: 179, one input short of 180.
+  K2 FAIL: 6 inputs below the QNN's 185.
+  K3 PASS: WQSP with 3 phases per feature matches QSP with 4 (179 vs 178).
+  * The weights do what the paper claims: fewer phases, same accuracy.
+  * Both activations are odd functions of their feature (total weight 3
+    is odd, so Re P(-x) = -Re P(x); tested), so no even dependence such
+    as x^2 is reachable. That parity constraint, not the number of phases,
+    is the likely reason this one-layer model trails the QNN.
 """
 
 import json

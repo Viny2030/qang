@@ -105,6 +105,14 @@ def test_wqsp_kan_learns_a_separable_toy():
 
     rng = np.random.default_rng(0)
     X = rng.uniform(-1, 1, (80, 2))
-    y = (X[:, 0] ** 2 + 0.5 * X[:, 1] > 0.4).astype(int)
+    y = (X[:, 0] - 0.6 * X[:, 0] ** 3 + 0.5 * X[:, 1] > 0.1).astype(int)    # odd activations suffice
     m = K.WQSPKAN(2, (1, 2)).fit(X, y, starts=3, seed=1)
     assert np.mean(m.predict(X) == y) >= 0.9
+
+
+def test_odd_total_weight_gives_odd_re_p():
+    rng = np.random.default_rng(5)
+    x = np.linspace(0, 1, 11)
+    for w in ((1, 2), (1, 1, 1)):
+        ph = rng.uniform(-np.pi, np.pi, len(w) + 1)
+        assert np.allclose(qsp.wqsp_poly(-x, ph, w).real, -qsp.wqsp_poly(x, ph, w).real)

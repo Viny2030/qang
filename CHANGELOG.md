@@ -10,6 +10,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   every parameter set of a SamplerV2 pub), `interop.qg_z_observables`, `interop.filtered_observables` and
   `interop.estimator_filtered_qg` (the filtered read-out as EstimatorV2 observables P_w and P_w Z_i);
   `pennylane_gate.filtered_qg_z`, `kept_fraction` and `qg_z_from_probs` on `qml.probs()`, differentiable.
+- `examples/wqsp_kan_qg.py` (§135): WQSP activations in a one-layer KAN; 179/189 with 17 parameters, same as standard
+  QSP with 21 (K3 passes; K1, K2 fail); activations of odd total weight are odd functions.
 - `qang.qsp` (§134): QSP and weighted QSP with the signal in qg terms, Hadamard-test read-out as qg_Z, phase fitting
   in the linear or arcsine scale, PennyLane ops. `examples/qsp_arcsine_fit_qg.py`: the arcsine fit is slightly but
   consistently better (Q1, Q3 pass; Q2, Q4 fail). `interop.joint_qg_s_se`: standard error of the register entropy.
