@@ -59,6 +59,7 @@ __all__ = [
     "linear_chains",
     "best_chain",
     "best_layout",
+    "plan_shots",
     "fold_two_qubit_gates",
     "zne_qg",
     "qnn_template",
@@ -389,6 +390,37 @@ def best_chain(circuit, backend, weight: int, limit: int = 100, seed: int = 0, s
         if best is None or pred["kept"] > best[1]["kept"]:
             best = (chain, pred, tc)
     return best
+
+
+# ---------------------------------------------------------------- shot planning (§143)
+
+
+def plan_shots(transpiled, backend, weight: int, target_se: float, qg=None) -> dict:
+    """Shots needed so that every filtered qg_Z has standard error <= ``target_se``, and the device time.
+
+    The filter keeps a fraction k of the shots (``predict_kept_fraction``, kept_mixed_floor); a filtered
+    qg_Z read from N k kept shots has standard error sqrt((1 - qg^2) / (N k)). With the expected qg values
+    (``qg``, e.g. from a noiseless simulation) the worst qubit sets N; without them qg = 0 (worst case).
+    Device time ~ N (circuit duration + repetition delay), an estimate of the QPU seconds (overheads such
+    as compilation and queue are not included).
+    """
+    import math
+
+    k = predict_kept_fraction(transpiled, backend, weight)["kept_mixed_floor"]
+    q = np.zeros(1) if qg is None else np.asarray(qg, float)
+    need = float(np.max(1 - q ** 2))
+    shots = int(math.ceil(need / (k * target_se ** 2)))
+    try:
+        dur = float(transpiled.estimate_duration(backend.target, unit="s"))
+    except Exception:
+        dur = 0.0
+    rep = 0.0
+    try:
+        rep = float(getattr(backend, "default_rep_delay", None) or backend.configuration().default_rep_delay)
+    except Exception:
+        rep = 0.0
+    return {"shots": shots, "kept": k, "kept_shots": int(round(shots * k)), "circuit_s": dur,
+            "rep_delay_s": rep, "qpu_seconds": shots * (dur + rep)}
 
 
 # ---------------------------------------------------------------- ZNE with the qg filter (§142)

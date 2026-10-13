@@ -181,3 +181,18 @@ def test_folding_keeps_the_unitary_and_triples_two_qubit_gates():
         ibm.fold_two_qubit_gates(qc, 2)
     assert ibm._extrapolate([1, 3], [0.8, 0.6], "linear") == pytest.approx(0.9)
     assert ibm._extrapolate([1, 3, 5], [0.8, 0.6, 0.4], "richardson") == pytest.approx(0.9)
+
+
+def test_plan_shots_scales_with_target():
+    pytest.importorskip("qiskit_ibm_runtime")
+    from qiskit_ibm_runtime.fake_provider import FakeSherbrooke
+
+    b = FakeSherbrooke()
+    qm = _w_like(4, seed=1)
+    qm.measure_all()
+    t = transpile(qm, b, optimization_level=1, seed_transpiler=3)
+    p1 = ibm.plan_shots(t, b, 1, 0.02)
+    p2 = ibm.plan_shots(t, b, 1, 0.01)
+    assert 3.9 < p2["shots"] / p1["shots"] < 4.1
+    assert p1["qpu_seconds"] > 0 and 0 < p1["kept"] < 1
+    assert ibm.plan_shots(t, b, 1, 0.02, qg=[0.9, 0.9, 0.9, 0.9])["shots"] < p1["shots"]
