@@ -44,7 +44,10 @@ res = Sampler(mode=backend).run([t]).result()[0]
 ibm.ibm_qg(res, t, backend, weight=1)["filtered_readout"]   # qg filter + calibrated readout correction
 
 layout, pred, t = ibm.best_chain(qc, backend, weight=1)      # qubits with the most shots kept (predicted)
+r = ibm.run_qnn(model, X_test, backend)                      # qang's QNN: whole test set in one job
 ```
+
+Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md).
 
 ### What is in the library
 

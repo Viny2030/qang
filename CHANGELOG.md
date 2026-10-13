@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.ibm` (§139): `qnn_template`, `qnn_parameter_values`, `run_qnn`: the weight-conserving QNN as one
+  parameterized job on IBM; `examples/ibm_qnn_qg.py` (Q1, Q3 pass; Q2 fails by one input).
+  `docs/ibm_quickstart.md`: qang on IBM Quantum in five steps.
 - `qang.ibm` (§138): `estimator_qg` (qg_Z and filtered qg_Z from an IBM Runtime Estimator), `predict_kept_fraction`
   (kept fraction from calibration, with a mixed-state floor), `linear_chains` and `best_chain` (choose the physical
   qubits). `examples/ibm_layout_qg.py`: best_chain keeps 6-17 points more shots than Qiskit's default layout

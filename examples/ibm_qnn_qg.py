@@ -30,7 +30,27 @@ python examples/ibm_qnn_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Correct test decisions (of 189 per backend, noiseless 185):
+
+  backend          default: raw  qang  qang+ro    best_chain: raw  qang  qang+ro    kept default / best
+  FakeBrisbane              180   183   182                    183   184   184       0.642 / 0.663
+  FakeSherbrooke            182   183   183                    182   184   184       0.721 / 0.697
+  FakeTorino                183   184   184                    182   183   183       0.757 / 0.729
+  pooled (of 567)           545   550   549                    547   551   551
+
+  Q1 PASS: best_chain + filter + readout 551 >= default + filter 550.
+  Q2 FAIL: 551, one input short of 552 (noiseless 555).
+  Q3 PASS: the one-job template with the filter gets 550, within 1 of the
+     per-input circuits of §124 (551).
+  * The filter adds 5 inputs pooled to the raw read-out with the default
+    layout (545 -> 550), as in §124; readout correction adds nothing to the
+    decisions (they are already far from the threshold once filtered).
+  * best_chain kept more shots only on brisbane; on sherbrooke and torino
+    it kept fewer (0.697 vs 0.721, 0.729 vs 0.757). The QNN's last sublayer
+    couples qubits 4 and 0 (a ring), which a linear chain must route with
+    SWAPs, and best_chain scored a circuit with bound angles while the job
+    runs the parameterized template: the prediction scored a different
+    circuit from the one that ran. Chains for ring circuits are left open.
 """
 
 import json

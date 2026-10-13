@@ -6235,6 +6235,20 @@ passes). After scoring, adding the share of shots that return to the sector
 as for a fully mixed state brings the mean error to 0.023–0.041
 (`kept_mixed_floor`).
 
+## 139. qang's QNN on IBM in one job (`examples/ibm_qnn_qg.py`)
+
+`qang.ibm.qnn_template` writes the weight-1 WeightQNN as one parameterized
+circuit of native XX+YY gates (equal to WeightQNN.probs, tested); `run_qnn`
+transpiles it once and sends a whole test set as one Sampler pub. Model A of
+§124 on three IBM fake backends through Runtime (Q1–Q3 committed before the
+run), pooled of 567 (noiseless 555): default layout 545 raw, 550 with the
+filter, 549 with filter and readout correction; best_chain 547 / 551 / 551.
+Q1 (best_chain + filter + readout ≥ default + filter) and Q3 (the one-job
+template agrees with §124's per-input circuits, 550 vs 551) pass; Q2 (≥ 552)
+fails by one input. best_chain kept fewer shots on two backends: the QNN's
+ring coupling (4, 0) does not fit a linear chain, and the chain was scored on
+a bound circuit rather than the parameterized template that ran.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
