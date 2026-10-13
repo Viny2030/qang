@@ -6264,6 +6264,18 @@ through the Runtime local Sampler; 548 pooled with the filter against 550 for
 every shot as 0 for a circuit measured before transpilation;
 `qang_sampler_qnn` transpiles itself and drops the layout.
 
+## 141. Choosing qubits for the ring-coupled QNN (`examples/ibm_qnn_layout_qg.py`)
+
+`qang.ibm.best_layout` scores the default layout and 100 chains by
+transpiling the circuit that will run (routing included) and keeps the highest
+predicted kept fraction; `run_qnn(layout="best")` now uses it. Before the run
+it kept the default on FakeSherbrooke and FakeTorino and chose a chain on
+FakeBrisbane (predicted +0.025). Measured (R1–R3 committed before): never
+worse than the default (R1 passes), +0.022 on brisbane (R2 passes), 550 of 567
+pooled with filter and readout correction (R3, ≥ 551, fails by one input).
+Runs with the identical layout differ by up to two inputs, so accuracy
+differences of that size here are shot noise.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

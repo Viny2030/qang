@@ -70,8 +70,12 @@ layout, pred, t = ibm.best_chain(qc_measured, backend, weight=1)
 ```
 
 `best_chain` searches chains of the coupling map and keeps the one with the
-highest predicted kept fraction. On three fake backends (§138) it kept 6–17
-points more shots than the transpiler's default layout.
+highest predicted kept fraction; on three fake backends (§138) it kept 6–17
+points more shots than the transpiler's default layout for chain circuits.
+For circuits that are not chains (rings, like qang's QNN) use
+`ibm.best_layout(circuit, backend, weight)`: it scores the circuit as it will
+run, routing included, and includes the transpiler's default among the
+candidates, so it is never worse than the default by the prediction (§141).
 
 ## 5. The weight-conserving QNN in one job
 

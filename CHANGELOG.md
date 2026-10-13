@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `qang.ibm.best_layout` (§141): scores the default layout and chains on the circuit that will run (routing
+  included); `run_qnn(layout="best")` uses it (`"best_chain"` keeps the §139 behaviour). R1, R2 pass; R3 fails by one
+  input.
+
 ## [0.9.0] - 2026-10-13
 
 Release of §137–§140: qang on IBM Quantum and in Qiskit. `qang.ibm` reads qg quantities from IBM devices through IBM

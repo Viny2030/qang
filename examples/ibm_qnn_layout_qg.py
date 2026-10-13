@@ -31,7 +31,22 @@ python examples/ibm_qnn_layout_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+                  kept default / best    correct (of 189) default: raw qang qang+ro / best: raw qang qang+ro
+  FakeBrisbane    0.639 / 0.661          183 184 184 / 181 184 184
+  FakeSherbrooke  0.721 / 0.722          183 182 183 / 182 182 182
+  FakeTorino      0.757 / 0.755          184 184 184 / 182 183 184
+  pooled best + filter + readout: 550 of 567
+
+  R1 PASS: best_layout never keeps fewer shots than the default (by more
+     than 0.005); on sherbrooke and torino it is the default layout.
+  R2 PASS: on brisbane it keeps 2.2 points more shots (0.661 vs 0.639), as
+     predicted (+2.5).
+  R3 FAIL: 550, one short of 551.
+  * best_layout fixes §139's problem: scoring the circuit that runs, routing
+    included, it no longer picks layouts worse than the default.
+  * Same-layout runs differ by up to 2 inputs (torino raw: 184 vs 182 with
+    the identical layout): accuracy differences of 1-2 inputs between these
+    pipelines are shot noise; the kept fraction is the sharper measure.
 """
 
 import json
