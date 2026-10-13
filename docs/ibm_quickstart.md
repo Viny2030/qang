@@ -135,6 +135,21 @@ give every eigenvalue. On 21 device noise models (§146, d = 5) filter +
 readout cut the spectrum error 4.6× (median). No quantum speed-up is claimed:
 d features use d qubits.
 
+## 7. Hamiltonian simulation (Trotter) and quantum walks
+
+```python
+qc = ibm.xy_trotter(n, J, h, t, steps, initial=(0,))    # XY chain, first-order Trotter, measured
+ibm.xy_exact_occupations(n, J, h, t, initial=0)        # exact single-excitation dynamics
+out = ibm.ibm_qg(res, transpile(qc, backend), backend, weight=1)
+ibm.occupations(out)                                    # P(qubit k excited), filter + readout
+```
+
+Every gate conserves the excitation number, so the filter applies. On 21
+device noise models (§147) it halved the best simulation error and let the
+simulation use more Trotter steps (median optimum 12 against 8); with h = 0
+and one excitation the circuit is a quantum walk, whose ballistic spreading
+is visible only with the filter.
+
 ## On a real device
 
 ```python

@@ -11,6 +11,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   raising a singular-matrix error (found on FakeCusco, §144).
 
 ### Added
+- `qang.ibm.xy_trotter`, `xy_exact_occupations`, `occupations` (§147): first-order Trotter circuits of the XY chain
+  (weight-preserving, so the filter applies) and its exact single-excitation dynamics.
+  `examples/ibm_trotter_walk_qg.py`: on 21 IBM device noise models the filter halves the best Trotter-simulation error
+  and moves the optimal number of Trotter steps deeper (16 of 21); in a quantum walk it turns a raw spreading
+  indistinguishable from a classical walk (exponent 0.87) into ballistic spreading (1.84). Five of six predictions pass.
 - `qang.ibm.unary_loader`, `unary_orthogonal`, `pca_rotation`, `unary_spectrum` (§146): data loading and real
   orthogonal rotations on the weight-1 sector with nearest-neighbour RBS gates, and a PCA spectrum read from it.
   `examples/ibm_pca_spectrum_qg.py`: on 21 IBM device noise models the filter + readout cut the spectrum error 4.6x

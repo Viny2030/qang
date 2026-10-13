@@ -42,6 +42,55 @@ Pre-registered predictions (committed before the run):
       at all four times on at least 15.
 
 python examples/ibm_trotter_walk_qg.py
+
+Findings:
+
+r* = the number of Trotter steps with the lowest error; best = that error;
+exponent = slope of log sigma^2 against log t in part B; W3 = sigma^2 within
+20% at all four times (filter + readout); kept = share of shots in the
+weight-1 sector at r = 12 (96 native two-qubit gates):
+
+  backend          r* raw  f+ro  best raw  f+ro   exp raw  f+ro  W3   kept
+  FakeBrisbane          6     6     0.187  0.091    0.59  1.76  yes   0.35
+  FakeSherbrooke        8     8     0.152  0.072    0.14  1.26  no    0.49
+  FakeTorino            8    12     0.152  0.054    0.59  1.83  yes   0.50
+  FakeAachen            8    12     0.094  0.043    1.13  1.90  yes   0.73
+  FakeBerlin            8    12     0.101  0.046    1.12  1.88  yes   0.69
+  FakeBoston            8    12     0.123  0.063    1.30  1.84  yes   0.61
+  FakeBrussels          6     8     0.175  0.079    0.70  1.70  no    0.40
+  FakeCusco             1     6     0.246  0.154    0.17  1.29  no    0.30
+  FakeFez               8    12     0.129  0.067    0.87  1.90  yes   0.58
+  FakeKawasaki          6     8     0.147  0.078    0.89  1.84  yes   0.49
+  FakeKingston         12    12     0.099  0.036    0.91  1.96  yes   0.68
+  FakeKyiv              6     8     0.159  0.084    0.98  1.84  yes   0.43
+  FakeKyoto             6     6     0.378  0.185    0.00 -0.02  no    0.15
+  FakeMarrakesh        12    12     0.097  0.039    1.31  1.88  yes   0.72
+  FakeMiami             8    12     0.082  0.039    1.05  1.89  yes   0.77
+  FakeNighthawk         8    12     0.095  0.046    1.31  1.96  yes   0.70
+  FakeOsaka             6     8     0.176  0.091    0.85  1.72  yes   0.39
+  FakePittsburgh        8    12     0.102  0.054    1.20  1.95  yes   0.71
+  FakeQuebec            4     6     0.222  0.118    0.40  1.38  no    0.27
+  FakeStrasbourg        6    12     0.131  0.056    0.83  1.89  yes   0.57
+  FakeWashingtonV2      4     6     0.252  0.144    0.59  1.31  no    0.22
+
+  H1 PASS: all 21 ran; the best filter + readout error is below the best
+     raw error on every one (1.6-2.8x lower, median 2.0x).
+  H2 PASS: r*(filter + readout) >= r*(raw) on 21 of 21.
+  H3 PASS: strictly deeper on 16 of 21 (median r* 12 against 8).
+  W1 FAIL: the filter + readout exponent is >= 1.5 on 16 of 21, not 18; it
+     is 1.26-1.38 on the four noisiest devices after Kyoto (Sherbrooke,
+     Cusco, Quebec, WashingtonV2) and about 0 on FakeKyoto, where the walk
+     is lost.
+  W2 PASS: the raw exponent is below the filter + readout one on 20 of 21
+     (all but FakeKyoto, where both are about 0).
+  W3 PASS: sigma^2 within 20% at all four times on 15 of 21 (raw: 0).
+  * Without the filter the walk looks classical: the median raw exponent is
+    0.87, the value of the classical random walk (0.85), because noise puts
+    the walker everywhere at once from the start (raw sigma^2 at t = 0.4 is
+    1.6 on FakeBrisbane, against 0.33 exact). With the filter the median is
+    1.84 (noiseless 1.94): the ballistic spreading is visible.
+  * On 11 devices r*(filter + readout) is 12, the deepest tested, so the
+    true optimum may lie beyond it: H3 is a lower bound on the shift.
 """
 
 import json

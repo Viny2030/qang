@@ -6346,6 +6346,29 @@ gets the order of all five eigenvalues right on 18 of 21 devices (raw: 13).
 The remaining error is a flattening of the spectrum that grows as the kept
 share falls (FakeKyoto keeps 15% and fails).
 
+## 147. Trotter simulation and a quantum walk on the XY chain (`qang.ibm.xy_trotter`, `examples/ibm_trotter_walk_qg.py`)
+
+The XY chain with fields conserves the excitation number, and so do all the
+gates of its first-order Trotter circuit (RZ, XX+YY), so the qg filter
+applies; with one excitation it is a continuous-time quantum walk. 21 IBM
+device noise models, H1–H3 and W1–W3 committed before the run; five passed,
+W1 failed.
+
+Part A (n = 5, random fields, T = 3, r = 1–12 steps). More steps lower the
+Trotter error and add noise, so the error has a minimum at r*. With filter +
+readout the best error is 1.6–2.8× lower than raw (median 2.0×) and r* is
+never smaller and strictly larger on 16 of 21 (median 12 against 8): the
+filter lets the simulation use deeper circuits. On 11 devices r* = 12, the
+deepest tested.
+
+Part B (n = 7, walker in the middle, t = 0.4–1.6). Raw data look like a
+classical random walk (median exponent of sigma^2 against t 0.87; classical
+0.85), because noise spreads the walker at once; with the filter the median
+exponent is 1.84 (noiseless 1.94), ballistic, and sigma^2 is within 20% of
+the exact value at all times on 15 of 21 (raw: 0). The exponent reached 1.5
+on 16 of 21, not the predicted 18 (W1 fails): the four noisiest devices
+after Kyoto give 1.26–1.38, FakeKyoto about 0.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
