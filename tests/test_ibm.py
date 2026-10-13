@@ -288,3 +288,35 @@ def test_xxz_trotter_many_excitations():
     assert pm.property_set["qg_weight_preserving"] and pm.property_set["qg_initial_weight"] == 2
     with pytest.raises(ValueError):
         ibm.xxz_trotter(4, 1.0, 2.0, h, 1.2, 2, (0,), 3)
+
+
+def test_inversion_and_swap_tests_give_the_overlap():
+    from qiskit.quantum_info import Statevector
+
+    rng = np.random.default_rng(149)
+    x, y = rng.normal(size=4), rng.normal(size=4)
+    F = (x @ y) ** 2 / (x @ x) / (y @ y)
+    p = np.abs(Statevector(ibm.unary_overlap_circuit(x, y, measure=False)).data) ** 2
+    assert abs(p[1] - F) < 1e-9 and abs(sum(p[1 << k] for k in range(4)) - 1) < 1e-9
+    p = np.abs(Statevector(ibm.swap_test_circuit(x, y, measure=False)).data) ** 2
+    idx = np.arange(len(p))
+    assert abs(2 * p[(idx & 1) == 0].sum() - 1 - F) < 1e-9
+    w = np.array([bin(i >> 1).count("1") for i in idx])
+    assert abs(p[w == 2].sum() - 1) < 1e-9          # the data registers keep weight 2
+    pm = PassManager([ibm.WeightPreservationCheck()])
+    pm.run(ibm.unary_overlap_circuit(x, y, measure=False))
+    assert pm.property_set["qg_weight_preserving"] and pm.property_set["qg_initial_weight"] == 1
+
+
+def test_overlap_and_swap_readouts_on_fake_backend():
+    from qiskit_ibm_runtime.fake_provider import FakeTorino
+    from qiskit_ibm_runtime import SamplerV2
+
+    b = FakeTorino()
+    x = np.array([1.0, 0.5, -0.3])
+    t = transpile(ibm.unary_overlap_circuit(x, x), b, optimization_level=1, seed_transpiler=1)
+    o = ibm.overlap_fidelity(SamplerV2(mode=b).run([t], shots=2000).result()[0], t, b)
+    assert o["filtered_readout"] > o["raw"] - 0.02 and o["filtered_readout"] > 0.85
+    t = transpile(ibm.swap_test_circuit(x, x), b, optimization_level=1, seed_transpiler=1)
+    s = ibm.swap_test_fidelity(SamplerV2(mode=b).run([t], shots=2000).result()[0], t, b)
+    assert 0 < s["kept_raw"] <= 1 and s["filtered"] > 0.3

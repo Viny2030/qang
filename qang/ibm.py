@@ -74,6 +74,10 @@ __all__ = [
     "occupations",
     "xxz_trotter",
     "xxz_exact_occupations",
+    "unary_overlap_circuit",
+    "swap_test_circuit",
+    "overlap_fidelity",
+    "swap_test_fidelity",
 ]
 
 # gates that conserve the excitation number for every parameter value
@@ -843,3 +847,101 @@ def xxz_exact_occupations(n: int, J: float, V: float, h, t: float, initial: Sequ
     p = np.abs(psi) ** 2
     idx = np.arange(2 ** n)
     return np.array([p[(idx >> k) & 1 == 1].sum() for k in range(n)])
+
+
+# ---------------------------------------------------------------- state overlaps: inversion and swap tests (§149)
+#
+# For unary (weight-1) states |x> = sum_k x_k |e_k>, F = |<x|y>|^2 can be read two ways:
+#   inversion test: load x, undo the loader of y; P(e_0) = F. n qubits, every gate conserves the weight.
+#   swap test: ancilla (Qiskit qubit 0) in |+>, x on qubits 1..n, y on n+1..2n, controlled SWAPs, H on the
+#   ancilla; P(ancilla 0) = (1 + F) / 2. The controlled SWAPs conserve the total weight of the two data
+#   registers (2), so the filter applies to them; the ancilla, which carries the answer, is outside it.
+
+
+def _loader_rbs(qc, v, offset=0):
+    for k, t in enumerate(_loader_angles(np.asarray(v, float) / np.linalg.norm(v))):
+        _rbs(qc, t, offset + k, offset + k + 1)
+
+
+def unary_overlap_circuit(x, y, measure: bool = True):
+    """Inversion test: P(only qubit 0 excited) = |<x|y>|^2 for the unary states of x and y."""
+    from qiskit import QuantumCircuit
+
+    n = len(x)
+    if len(y) != n:
+        raise ValueError("x and y must have the same length.")
+    qc = QuantumCircuit(n)
+    qc.x(0)
+    _loader_rbs(qc, x)
+    inv = QuantumCircuit(n)
+    _loader_rbs(inv, y)
+    qc.compose(inv.inverse(), inplace=True)
+    if measure:
+        qc.measure_all()
+    return qc
+
+
+def swap_test_circuit(x, y, measure: bool = True):
+    """Swap test on 2n + 1 qubits: ancilla 0, x on 1..n, y on n+1..2n. P(ancilla 0) = (1 + |<x|y>|^2) / 2."""
+    from qiskit import QuantumCircuit
+
+    n = len(x)
+    if len(y) != n:
+        raise ValueError("x and y must have the same length.")
+    qc = QuantumCircuit(2 * n + 1)
+    qc.x(1)
+    qc.x(n + 1)
+    _loader_rbs(qc, x, offset=1)
+    _loader_rbs(qc, y, offset=n + 1)
+    qc.h(0)
+    for k in range(n):
+        qc.cswap(0, 1 + k, n + 1 + k)
+    qc.h(0)
+    if measure:
+        qc.measure_all()
+    return qc
+
+
+def _distributions(pub_result, transpiled, backend):
+    """(p, q, n): measured distribution indexed by the integer of the bitstring (bit j = clbit j) and its
+    readout-corrected quasi-distribution."""
+    from . import interop as IO
+
+    bits = IO._bitarray(pub_result, None)
+    counts = bits.get_counts()
+    n = len(next(iter(counts)).replace(" ", ""))
+    p = np.zeros(2 ** n)
+    for key, c in counts.items():
+        p[int(key.replace(" ", ""), 2)] += c
+    p /= p.sum()
+    errs = readout_errors(backend, measured_physical_qubits(transpiled))[::-1]
+    return p, readout_inverse_distribution(p, errs), n
+
+
+def _weights(n):
+    return np.array([bin(i).count("1") for i in range(2 ** n)])
+
+
+def overlap_fidelity(pub_result, transpiled, backend) -> dict:
+    """|<x|y>|^2 from an inversion test: raw, readout, filtered (weight-1 shots), filtered_readout."""
+    p, q, n = _distributions(pub_result, transpiled, backend)
+    w1 = _weights(n) == 1
+    out = {"raw": float(p[1]), "readout": float(q[1])}
+    out["filtered"] = float(p[1] / p[w1].sum()) if p[w1].sum() > 0 else float("nan")
+    out["filtered_readout"] = float(q[1] / q[w1].sum()) if q[w1].sum() > 0 else float("nan")
+    out["kept_raw"] = float(p[w1].sum())
+    return out
+
+
+def swap_test_fidelity(pub_result, transpiled, backend) -> dict:
+    """|<x|y>|^2 = 2 P(ancilla 0) - 1 from a swap test; filtered: shots whose data registers hold weight 2."""
+    p, q, n = _distributions(pub_result, transpiled, backend)
+    idx = np.arange(2 ** n)
+    anc0 = (idx & 1) == 0
+    keep = _weights(n - 1)[idx >> 1] == 2
+    out = {"raw": float(2 * p[anc0].sum() - 1), "readout": float(2 * q[anc0].sum() - 1)}
+    out["filtered"] = float(2 * p[anc0 & keep].sum() / p[keep].sum() - 1) if p[keep].sum() > 0 else float("nan")
+    out["filtered_readout"] = (float(2 * q[anc0 & keep].sum() / q[keep].sum() - 1) if q[keep].sum() > 0
+                               else float("nan"))
+    out["kept_raw"] = float(p[keep].sum())
+    return out
