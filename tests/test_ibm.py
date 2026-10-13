@@ -119,3 +119,38 @@ def test_estimator_predictor_and_chains():
     assert p["kept"] >= max(ibm.predict_kept_fraction(
         transpile(qm, b, initial_layout=c, optimization_level=1, seed_transpiler=0), b, 1)["kept"]
         for c in ibm.linear_chains(b, 4, limit=10, seed=1)) - 1e-12
+
+
+def test_qnn_template_matches_weightqnn():
+    from qiskit.quantum_info import Statevector
+
+    from qang.qml import WeightQNN
+
+    m = WeightQNN(5, 1)
+    rng = np.random.default_rng(0)
+    X = rng.uniform(-1, 1, (4, 4))
+    m.fit(X, (X[:, 0] > 0).astype(int), epochs=2)
+    tpl = ibm.qnn_template(m, measure=False)
+    vals = ibm._ordered_values(tpl, ibm.qnn_parameter_values(m, X))
+    ref = m.probs(m.params_[: m.n_theta], m.encode(X))
+    for i in range(len(X)):
+        assert np.allclose(Statevector(tpl.assign_parameters(vals[i])).probabilities(), ref[i], atol=1e-9)
+    ps = _check(tpl)
+    assert ps["qg_weight_preserving"] is True and ps["qg_initial_weight"] == 1
+
+
+def test_run_qnn_on_fake_backend():
+    pytest.importorskip("qiskit_ibm_runtime")
+    from qiskit_ibm_runtime.fake_provider import FakeSherbrooke
+
+    from qang.qml import WeightQNN
+
+    m = WeightQNN(5, 1)
+    rng = np.random.default_rng(1)
+    X = rng.uniform(-1, 1, (6, 4))
+    y = (X[:, 0] > 0).astype(int)
+    m.fit(X, y, epochs=30)
+    r = ibm.run_qnn(m, X, FakeSherbrooke(), shots=400)
+    ideal = m.decision(m.params_, X)
+    assert set(r["decision"]) == {"raw", "qang", "qang_readout"} and len(r["kept_raw"]) == 6
+    assert np.mean(np.sign(r["decision"]["qang_readout"]) == np.sign(ideal)) >= 0.8

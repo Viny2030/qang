@@ -30,6 +30,14 @@ Also (§138):
   * ``linear_chains`` / ``best_chain``  candidate physical-qubit chains of the
     coupling map, and the one with the highest predicted kept fraction.
 
+And qang's weight-conserving QNN (qang.qml.WeightQNN) on IBM (§139):
+  * ``qnn_template``  the QNN as ONE parameterized Qiskit circuit (amplitude
+    loader + trained layers, every RBS a native XX+YY gate), so a whole data
+    set is a single Sampler pub: one transpilation, one job;
+  * ``run_qnn``       transpile (optionally on ``best_chain``), run, and read
+    the decision values raw, with the qg filter, and with the filter after
+    calibrated readout correction.
+
 Requires Qiskit (imported on use). Qubit order everywhere: qubit 0 first,
 as in qang.interop.
 """
@@ -50,6 +58,9 @@ __all__ = [
     "predict_kept_fraction",
     "linear_chains",
     "best_chain",
+    "qnn_template",
+    "qnn_parameter_values",
+    "run_qnn",
 ]
 
 # gates that conserve the excitation number for every parameter value
@@ -345,3 +356,116 @@ def best_chain(circuit, backend, weight: int, limit: int = 100, seed: int = 0, s
         if best is None or pred["kept"] > best[1]["kept"]:
             best = (chain, pred, tc)
     return best
+
+
+# ---------------------------------------------------------------- QNN on IBM (§139)
+
+
+def _check_qnn(model):
+    if getattr(model, "weight", 1) != 1:
+        raise ValueError("qnn_template supports the weight-1 (amplitude) encoding.")
+
+
+def qnn_template(model, measure: bool = True):
+    """The weight-1 WeightQNN as a parameterized circuit: parameters x[0..n-2] are the loader angles of the
+    input and w[0..n_theta-1] the trained RBS angles. RBS(t) on [a, b] = XXPlusYYGate(2t, pi/2), with qang
+    qubit i on Qiskit qubit n-1-i (so the integer of a Qiskit bitstring is the model's basis index)."""
+    import math
+
+    from qiskit import QuantumCircuit
+    from qiskit.circuit import ParameterVector
+    from qiskit.circuit.library import XXPlusYYGate
+
+    _check_qnn(model)
+    n = model.n
+    q = lambda i: n - 1 - i  # noqa: E731
+    xa, wa = ParameterVector("x", n - 1), ParameterVector("w", model.n_theta)
+    qc = QuantumCircuit(n)
+    qc.x(q(0))
+    for k in range(n - 1):
+        qc.append(XXPlusYYGate(2 * xa[k], math.pi / 2), [q(k), q(k + 1)])
+    k = 0
+    for _ in range(model.layers):
+        for pairs in model.sublayers:
+            for a, b in pairs:
+                qc.append(XXPlusYYGate(2 * wa[k], math.pi / 2), [q(a), q(b)])
+                k += 1
+    if measure:
+        qc.measure_all()
+    return qc
+
+
+def _loader_angles(v):
+    import math
+
+    v = np.asarray(v, float)
+    n = len(v)
+    ang = [math.atan2(np.linalg.norm(v[k + 1:]), v[k]) for k in range(n - 2)]
+    ang.append(math.atan2(v[n - 1], v[n - 2]))
+    return ang
+
+
+def qnn_parameter_values(model, X, params=None) -> np.ndarray:
+    """(S, n-1+n_theta) parameter values of ``qnn_template`` for the inputs X (order: x then w)."""
+    _check_qnn(model)
+    params = model.params_ if params is None else params
+    X = np.atleast_2d(np.asarray(X, float))
+    V = np.concatenate([X, np.ones((len(X), 1))], axis=1)
+    V = V / np.linalg.norm(V, axis=1, keepdims=True)
+    th = np.asarray(params[: model.n_theta], float)
+    return np.array([np.concatenate([_loader_angles(v), th]) for v in V])
+
+
+def _ordered_values(template, values):
+    """Reorder [x..., w...] columns to the template's parameter order."""
+    names = [p.name for p in template.parameters]
+    n_x = sum(1 for nm in names if nm.startswith("x["))
+    col = {f"x[{i}]": i for i in range(n_x)}
+    col.update({f"w[{i}]": n_x + i for i in range(values.shape[1] - n_x)})
+    return values[:, [col[nm] for nm in names]]
+
+
+def run_qnn(model, X, backend, sampler=None, layout=None, shots: int = 1000, params=None,
+            seed_transpiler: int = 137) -> dict:
+    """Run a trained weight-1 WeightQNN on ``backend`` for all inputs X in one Sampler job.
+
+    ``layout``: None (transpiler default), "best" (``best_chain``) or a list of physical qubits.
+    Returns {"layout": [...], "kept_raw": [...], "decision": {"raw", "qang", "qang_readout"}: arrays}.
+    """
+    from qiskit import transpile
+
+    from . import interop as IO
+
+    params = model.params_ if params is None else params
+    tpl = qnn_template(model)
+    if isinstance(layout, str) and layout == "best":
+        bound = tpl.assign_parameters(_ordered_values(tpl, qnn_parameter_values(model, X[:1], params))[0])
+        layout = best_chain(bound, backend, 1, seed_transpiler=seed_transpiler)[0]
+    kw = {"initial_layout": layout} if layout is not None else {}
+    t = transpile(tpl, backend, optimization_level=1, seed_transpiler=seed_transpiler, **kw)
+    vals = _ordered_values(tpl, qnn_parameter_values(model, X, params))
+    if sampler is None:
+        try:
+            from qiskit_ibm_runtime.executor_sampler import Sampler
+        except ImportError:  # pragma: no cover
+            from qiskit_ibm_runtime import SamplerV2 as Sampler
+        sampler = Sampler(mode=backend)
+    res = sampler.run([(t, vals)], shots=shots).result()[0]
+    bits = IO._bitarray(res, None)
+    n = model.n
+    phys = measured_physical_qubits(t)
+    errs = readout_errors(backend, phys)[::-1]          # Qiskit index: clbit j is bit j from the right
+    w_head, b = params[model.n_theta:model.n_theta + model.n_head], params[-1]
+    raw, filt, filt_ro, kept = [], [], [], []
+    for i in range(len(vals)):
+        p = np.zeros(2 ** n)
+        for key, c in bits.get_counts(loc=i).items():
+            p[int(key.replace(" ", ""), 2)] += c
+        p /= p.sum()
+        q = readout_inverse_distribution(p, errs)
+        raw.append(float(model.qg_z(p, qang=False)[0] @ w_head + b))
+        filt.append(float(model.qg_z(p, qang=True)[0] @ w_head + b))
+        filt_ro.append(float(model.qg_z(q, qang=True)[0] @ w_head + b))
+        kept.append(float(sum(p[1 << j] for j in range(n))))
+    return {"layout": list(layout) if layout is not None else measured_physical_qubits(t), "kept_raw": kept,
+            "decision": {"raw": np.array(raw), "qang": np.array(filt), "qang_readout": np.array(filt_ro)}}
