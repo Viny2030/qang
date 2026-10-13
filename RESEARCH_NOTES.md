@@ -6314,6 +6314,20 @@ inverse was singular; such qubits are now left uncorrected and reported.
 After scoring, on FakeCusco `best_layout` avoids that qubit and brings
 filtered + readout from 0.098 to 0.021.
 
+## 145. Coherent conditional-phase errors (`examples/ibm_coherent_zz_qg.py`)
+
+A coherent RZZ(ε) after every native two-qubit gate (ε = 0, 0.05, 0.10 rad),
+on top of the device noise model, on the ten circuits of §137 (X1–X3
+committed before the run). The prediction assumed the error is invisible to
+the filter; all three predictions failed. The kept fraction fell by
+0.009–0.020 at ε = 0.10 and the filtered error grew only 4% on the ECR
+devices but 62% on FakeTorino (CZ). As in §133, an error added to the native
+gate acts inside the decomposition of the logical XX+YY gate, where the qubits
+are not in the computational frame, so part of it leaves the sector and is
+filtered. A ZZ error on the logical pair in the computational frame (always-on
+ZZ between idle neighbours) would stay invisible to the filter and was not
+simulated.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

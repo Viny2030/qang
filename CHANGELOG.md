@@ -11,6 +11,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   raising a singular-matrix error (found on FakeCusco, §144).
 
 ### Added
+- `examples/ibm_coherent_zz_qg.py` (§145): a coherent conditional-phase error on every native two-qubit gate; it is
+  partly caught by the filter (it acts inside the native decomposition) and hurts most on CZ devices. X1-X3 fail.
 - `examples/ibm_fleet_qg.py` (§144): the filter on 18 more IBM device noise models; 2.4-8.9x lower qg_Z error on all
   17 that ran (F1-F3 fail as written: one crash, and the filter alone is best on 7).
 - `qang.ibm.plan_shots` (§143): shots and estimated QPU seconds for a target precision of the filtered qg_Z; the plan

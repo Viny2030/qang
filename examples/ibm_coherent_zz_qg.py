@@ -28,7 +28,29 @@ python examples/ibm_coherent_zz_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Mean |qg_Z - ideal| raw / filtered, and kept fraction (10 circuits, 8000 shots):
+
+  backend          eps = 0                 eps = 0.05              eps = 0.10
+  FakeBrisbane     0.103 / 0.024, 0.731    0.104 / 0.024, 0.729    0.107 / 0.025, 0.722
+  FakeSherbrooke   0.064 / 0.016, 0.819    0.065 / 0.016, 0.816    0.068 / 0.017, 0.804
+  FakeTorino       0.101 / 0.018, 0.690    0.107 / 0.019, 0.685    0.124 / 0.030, 0.671
+
+  X1 FAIL: the kept fraction falls by 0.009 / 0.015 / 0.020 at eps = 0.10:
+     the error does move shots out of the sector.
+  X2 FAIL: the filtered error grows by 1.04x / 1.04x on the ECR devices and
+     1.62x on torino (CZ); the prediction needed 1.5x on every backend.
+  X3 FAIL: the filter's gain falls on brisbane (4.31 -> 4.30) and torino
+     (5.53 -> 4.20) but rises on sherbrooke (4.01 -> 4.09).
+  * The premise was wrong in the same way as §133: the conditional phase is
+    added to the NATIVE gate (ECR or CZ), and inside the native
+    decomposition of an XX+YY gate the qubits are not in the computational
+    frame, so the error is not weight-preserving for the logical circuit. Part
+    of it leaves the sector (kept falls) and the filter removes that part.
+  * Its effect depends on the native gate: on the ECR devices a 0.1 rad
+    conditional phase barely changes the filtered read-out; on torino (CZ) it
+    raises the filtered error by 60%. A ZZ error on the logical pair itself
+    (e.g. always-on ZZ between neighbours idling in the computational frame)
+    would stay invisible to the filter; it was not simulated here.
 """
 
 import json
