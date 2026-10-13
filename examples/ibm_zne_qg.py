@@ -26,7 +26,30 @@ python examples/ibm_zne_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Mean |qg_Z - ideal| (10 circuits, 8000 shots per scale):
+
+                    raw     readout   filtered   filtered_readout
+  FakeBrisbane      0.106   0.075     0.025      0.024
+    + ZNE           0.053   0.025     0.012      0.015
+  FakeSherbrooke    0.064   0.037     0.016      0.014
+    + ZNE           0.034   0.013     0.011      0.011
+  FakeTorino        0.102   0.036     0.020      0.013
+    + ZNE           0.085   0.022     0.015      0.014
+
+  Z1 FAIL: ZNE lowers filtered_readout on brisbane (0.024 -> 0.015) and
+     sherbrooke (0.014 -> 0.011), not on torino (0.013 -> 0.014).
+  Z2 PASS: the filter (with readout correction) beats ZNE alone on every
+     backend, by 2-7x.
+  Z3 FAIL: the best combination is filter + ZNE (without readout
+     correction) on brisbane and sherbrooke, filter + readout without ZNE on
+     torino.
+  * ZNE and the filter stack: filter + ZNE reaches 0.011-0.015 on every
+     backend, the lowest errors of these sections.
+  * Readout correction and ZNE overlap: folding scales the gate noise but not
+    the readout, and once the filter has removed most readout damage the two
+    corrections add variance rather than accuracy (torino, where readout
+    errors are largest, is the exception where readout correction alone is
+    best).
 """
 
 import json

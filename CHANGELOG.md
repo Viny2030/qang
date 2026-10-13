@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.ibm.fold_two_qubit_gates`, `zne_qg` (§142): zero-noise extrapolation by local folding that stacks with the qg
+  filter; filter + ZNE gives the lowest qg_Z errors so far (0.011-0.015). Z2 passes; Z1, Z3 fail.
 - `qang.ibm.best_layout` (§141): scores the default layout and chains on the circuit that will run (routing
   included); `run_qnn(layout="best")` uses it (`"best_chain"` keeps the §139 behaviour). R1, R2 pass; R3 fails by one
   input.

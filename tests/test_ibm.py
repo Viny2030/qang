@@ -172,7 +172,7 @@ def test_best_layout_never_below_default_prediction():
 def test_folding_keeps_the_unitary_and_triples_two_qubit_gates():
     from qiskit.quantum_info import Operator
 
-    qc = transpile(_w_like(3, seed=4), basis_gates=["cz", "rz", "sx", "x"], optimization_level=0)
+    qc = transpile(_w_like(4, seed=4), basis_gates=["cz", "rz", "sx", "x"], optimization_level=0)
     f = ibm.fold_two_qubit_gates(qc, 3)
     n2 = lambda c: sum(1 for i in c.data if i.operation.name == "cz")  # noqa: E731
     assert n2(f) == 3 * n2(qc)

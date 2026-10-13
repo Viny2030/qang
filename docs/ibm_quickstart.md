@@ -77,6 +77,18 @@ For circuits that are not chains (rings, like qang's QNN) use
 run, routing included, and includes the transpiler's default among the
 candidates, so it is never worse than the default by the prediction (§141).
 
+## 4b. Zero-noise extrapolation with the filter
+
+```python
+r = ibm.zne_qg(Sampler(mode=backend), t, backend, weight=1, scales=(1, 3))
+r["zne"]["filtered"]                      # qg_Z: filter + ZNE (folded two-qubit gates)
+```
+
+On IBM devices Runtime's own ZNE (`resilience_level`) can be used with the
+Estimator path; in local testing mode it has no effect, so `zne_qg` folds the
+gates itself. Filter + ZNE gave qg_Z errors of 0.011–0.015 on three device
+noise models (§142).
+
 ## 5. The weight-conserving QNN in one job
 
 ```python

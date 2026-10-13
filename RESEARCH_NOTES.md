@@ -6276,6 +6276,19 @@ pooled with filter and readout correction (R3, ≥ 551, fails by one input).
 Runs with the identical layout differ by up to two inputs, so accuracy
 differences of that size here are shot noise.
 
+## 142. ZNE with the qg filter (`qang.ibm.zne_qg`, `examples/ibm_zne_qg.py`)
+
+IBM Runtime's mitigation options have no effect in local mode, so
+`qang.ibm.zne_qg` folds every two-qubit gate of the transpiled circuit (scale
+3), runs both scales and extrapolates linearly; folding keeps the circuit
+weight-preserving, so ZNE stacks with the filter and readout correction. On the
+ten circuits of §137 (Z1–Z3 committed before the run), filter + ZNE reaches
+0.012 / 0.011 / 0.015 on FakeBrisbane / FakeSherbrooke / FakeTorino, against
+0.053 / 0.034 / 0.085 for ZNE alone (Z2 passes: the filter does 2–7× more
+than ZNE). ZNE lowers filtered + readout-corrected error on two backends but
+not on torino (Z1 fails), and the best combination is filter + ZNE on two
+backends and filter + readout on torino (Z3 fails).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
