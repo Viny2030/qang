@@ -19,6 +19,11 @@ Reference implementation and computational toolkit for:
 - qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
 - **IBM Quantum** through IBM Runtime (transpiler pass, calibrated readout correction, qubit selection) and **qiskit-machine-learning** integration.
 
+### In the repository, next release — spectra and dynamics on IBM device noise models
+
+- **A PCA spectrum in the weight-1 sector** (`unary_loader`, `unary_orthogonal`, `pca_rotation`, `unary_spectrum`): the loaded data form the density matrix that quantum PCA diagonalizes, and a nearest-neighbour RBS rotation puts each eigenvalue on one qubit. On 21 IBM device noise models filter plus readout cut the spectrum error 4.6× (median) and order all five eigenvalues on 18 of 21 (raw: 13) (§146). No quantum speed-up is claimed.
+- **Hamiltonian simulation and quantum walks** (`xy_trotter`, `xy_exact_occupations`, `occupations`): Trotter circuits of the XY chain, all weight-preserving. The filter halves the best simulation error and moves the optimal number of Trotter steps deeper (median 12 against 8); in a quantum walk raw data spread like a classical random walk (exponent 0.87) and filtered data ballistically (1.84; noiseless 1.94) (§147).
+
 ### What's new in 0.9 — qang on IBM Quantum and in Qiskit
 
 - **IBM devices through IBM Runtime** (`qang.ibm`): a Qiskit transpiler analysis pass that says whether the qg filter applies (every gate conserves the Hamming weight) and on which sector; readout correction from the device's published per-qubit errors; qg_Z from IBM Runtime Sampler and Estimator results, raw, readout-corrected, filtered, or both. On three IBM device noise models the qg_Z error falls from 0.065–0.104 raw to 0.013–0.022 with filter plus readout correction (§137).
@@ -39,7 +44,7 @@ layout, pred, t = ibm.best_chain(qc, backend, weight=1)      # qubits with the m
 r = ibm.run_qnn(model, X_test, backend)                      # qang's QNN: whole test set in one job
 ```
 
-Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§144): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
+Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§147): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
 
 ### New in 0.8
 
@@ -62,7 +67,7 @@ Full list in [CHANGELOG.md](CHANGELOG.md).
 | `qang.polarization` | polarized light: Stokes parameters are qg values, Mueller matrices are the qg gate rule |
 | `qang.geometric` | geometric (Berry/Pancharatnam) phase in qg units, Stokes' theorem on the Bloch sphere |
 | `qang.interop` | one qubit order for Qiskit, Cirq, PennyLane, Braket and pytket results; qg_Z profile, qg filter, register entropy and its error; Qiskit SamplerV2 / EstimatorV2 read-outs |
-| `qang.ibm` | IBM devices: transpiler pass that checks weight conservation, calibrated readout correction, qg read-out of IBM Runtime Sampler and Estimator results, kept-fraction prediction and qubit selection |
+| `qang.ibm` | IBM devices: transpiler pass that checks weight conservation, calibrated readout correction, qg read-out of IBM Runtime Sampler and Estimator results, kept-fraction prediction and qubit selection, ZNE, shot planning, the QNN, PCA spectra and Trotter simulation in the weight-1 sector |
 | `qang.qiskit_ml` | qang's weight-conserving QNN as a qiskit-machine-learning `SamplerQNN`, with raw and filtered qg_Z features |
 | `qang.qsp` | quantum signal processing and weighted QSP in qg terms; Hadamard-test read-out; phase fitting in the arcsine scale |
 | `qang.proportions` | the qg angle as the arcsine transform of any binomial proportion: intervals, Cohen's h |
