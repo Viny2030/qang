@@ -205,3 +205,19 @@ def test_dead_readout_qubit_is_left_uncorrected():
     # the healthy qubit is still corrected exactly
     q = ibm.readout_inverse_distribution(p, [(0.0, 0.0), (0.02, 0.03)])
     assert np.allclose(out, q)
+
+
+def test_coherent_zz_error_is_weight_preserving():
+    from qiskit.circuit.library import RZZGate
+
+    U = RZZGate(0.1).to_matrix()
+    n = np.array([0, 1, 1, 2])
+    assert np.allclose(U * (n[:, None] != n[None, :]), 0)           # never connects different weights
+    import os
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "examples"))
+    import ibm_coherent_zz_qg as X
+    from qiskit_ibm_runtime.fake_provider import FakeSherbrooke
+
+    assert X.noise_model(FakeSherbrooke(), 0.1) is not None
