@@ -154,3 +154,16 @@ def test_run_qnn_on_fake_backend():
     ideal = m.decision(m.params_, X)
     assert set(r["decision"]) == {"raw", "qang", "qang_readout"} and len(r["kept_raw"]) == 6
     assert np.mean(np.sign(r["decision"]["qang_readout"]) == np.sign(ideal)) >= 0.8
+
+
+def test_best_layout_never_below_default_prediction():
+    pytest.importorskip("qiskit_ibm_runtime")
+    from qiskit_ibm_runtime.fake_provider import FakeSherbrooke
+
+    from qang.qml import WeightQNN
+
+    b = FakeSherbrooke()
+    tpl = ibm.qnn_template(WeightQNN(5, 1))
+    r = ibm.best_layout(tpl, b, 1, limit=8, seed=2)
+    assert r["candidates"] == 9
+    assert r["prediction"]["kept_mixed_floor"] >= r["default_prediction"]["kept_mixed_floor"]

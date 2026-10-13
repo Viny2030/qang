@@ -58,6 +58,7 @@ __all__ = [
     "predict_kept_fraction",
     "linear_chains",
     "best_chain",
+    "best_layout",
     "qnn_template",
     "qnn_parameter_values",
     "run_qnn",
@@ -344,6 +345,36 @@ def linear_chains(backend, length: int, limit: int = 200, seed: int = 0) -> List
     return out
 
 
+def best_layout(circuit, backend, weight: int, limit: int = 100, seed: int = 0, seed_transpiler: int = 137,
+                optimization_level: int = 1) -> dict:
+    """The initial layout with the highest predicted kept fraction (``kept_mixed_floor``) for ``circuit`` AS IT
+    WILL RUN (parameterized circuits are fine: the prediction uses gate errors, not angles).
+
+    Candidates: the transpiler's own default layout and ``limit`` chains of the coupling map; each is
+    transpiled with the same settings and scored, so the choice is never worse than the default by the
+    prediction, and circuits that are not chains (rings, all-to-all) are scored after their routing.
+    Returns {"layout", "prediction", "transpiled", "default_prediction", "candidates"}.
+    """
+    from qiskit import transpile
+
+    def score(lay):
+        kw = {"initial_layout": lay} if lay is not None else {}
+        tc = transpile(circuit, backend, optimization_level=optimization_level, seed_transpiler=seed_transpiler, **kw)
+        return tc, predict_kept_fraction(tc, backend, weight)
+
+    t0, p0 = score(None)
+    best = {"layout": None, "prediction": p0, "transpiled": t0}
+    n_cand = 1
+    for chain in linear_chains(backend, circuit.num_qubits, limit=limit, seed=seed):
+        tc, pr = score(chain)
+        n_cand += 1
+        if pr["kept_mixed_floor"] > best["prediction"]["kept_mixed_floor"]:
+            best = {"layout": chain, "prediction": pr, "transpiled": tc}
+    best["default_prediction"] = p0
+    best["candidates"] = n_cand
+    return best
+
+
 def best_chain(circuit, backend, weight: int, limit: int = 100, seed: int = 0, seed_transpiler: int = 0):
     """The chain (initial layout) with the highest predicted kept fraction among ``linear_chains``.
     ``circuit`` must be measured. Returns (layout, prediction, transpiled circuit)."""
@@ -429,7 +460,8 @@ def run_qnn(model, X, backend, sampler=None, layout=None, shots: int = 1000, par
             seed_transpiler: int = 137) -> dict:
     """Run a trained weight-1 WeightQNN on ``backend`` for all inputs X in one Sampler job.
 
-    ``layout``: None (transpiler default), "best" (``best_chain``) or a list of physical qubits.
+    ``layout``: None (transpiler default), "best" (``best_layout`` on the template that runs; §141),
+    "best_chain" (§139 behaviour) or a list of physical qubits.
     Returns {"layout": [...], "kept_raw": [...], "decision": {"raw", "qang", "qang_readout"}: arrays}.
     """
     from qiskit import transpile
@@ -439,6 +471,8 @@ def run_qnn(model, X, backend, sampler=None, layout=None, shots: int = 1000, par
     params = model.params_ if params is None else params
     tpl = qnn_template(model)
     if isinstance(layout, str) and layout == "best":
+        layout = best_layout(tpl, backend, 1, seed_transpiler=seed_transpiler)["layout"]
+    elif isinstance(layout, str) and layout == "best_chain":
         bound = tpl.assign_parameters(_ordered_values(tpl, qnn_parameter_values(model, X[:1], params))[0])
         layout = best_chain(bound, backend, 1, seed_transpiler=seed_transpiler)[0]
     kw = {"initial_layout": layout} if layout is not None else {}

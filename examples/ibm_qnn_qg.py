@@ -89,7 +89,7 @@ def run_backend(name, datasets=Q.DATASETS, shots=SHOTS):
         A = WeightQNN(G.N, 1).fit(Xtr, ytr, G.EPOCHS, seed=DS.TRAIN_SEED)
         acc["noiseless"] += int(np.sum(A.predict(Xte) == yte))
         total += len(yte)
-        for tag, lay in (("default", None), ("best", "best")):
+        for tag, lay in (("default", None), ("best", "best_chain")):
             r = ibm.run_qnn(A, Xte, b, layout=lay, shots=shots)
             layouts[f"{ds} {tag}"] = r["layout"]
             kept[tag] += r["kept_raw"]
