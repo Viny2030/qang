@@ -48,7 +48,8 @@ filter plus read-out correction lowers the error 4.6$\times$ (median over twenty
 spectrum correctly on 18 of 21 (13 raw). In Trotter simulation of the XY chain the filter halves the best
 error and moves the optimal number of Trotter steps deeper (16 of 21 devices), and in a quantum walk it turns
 a raw spreading indistinguishable from a classical random walk (exponent 0.87) into ballistic spreading
-(1.84).
+(1.84). With two or three interacting excitations (XXZ chain) the gain falls from 5.6$\times$ to
+2.6$\times$: larger sectors let more of the noise through.
 Two interoperability bugs were found, one in qiskit-machine-learning and one in the library. All results are
 on device noise models; no hardware run is reported.
 \end{abstract}
@@ -68,7 +69,7 @@ This paper asks what the filter is worth on IBM devices and gives the tools to u
 runs through IBM Runtime~\cite{qiskitibmruntime} and Qiskit~\cite{javadiabhari2024qiskit}, here in local
 testing mode on the device noise models (fake backends), unchanged on a device. Each experiment fixed its
 circuits, settings and predictions in a commit before running; failures are reported as such. Sections
-§137--§147 refer to the research notes of the repository, where every number below is reproduced by a
+§137--§148 refer to the research notes of the repository, where every number below is reproduced by a
 script in \texttt{examples/}.
 
 \section{Methods}
@@ -127,7 +128,10 @@ energies $-h_k$. \texttt{xy\_trotter} writes $r$ first-order Trotter steps~\cite
 (fields, odd bonds, even bonds) with RZ and XX+YY gates, all weight-preserving, so the filter applies;
 \texttt{xy\_exact\_occupations} gives the exact single-excitation dynamics. The spread of a walker started
 on site $c$ is $\sigma^2=\sum_kP_k(k-c)^2$ with $P_k$ the normalized occupations; ballistic spreading gives
-$\sigma^2\propto t^2$, a classical random walk $\sigma^2\propto t$.
+$\sigma^2\propto t^2$, a classical random walk $\sigma^2\propto t$. The XXZ chain adds $V\sum_kZ_kZ_{k+1}/4$, which
+makes the excitations interact and still conserves the weight; \texttt{xxz\_trotter} writes each bond as one
+two-qubit gate $\exp(-i\,\delta t\,[J(XX+YY)/2+VZZ/4])$ (the two parts commute), in first- or second-order
+(symmetric) Trotter steps, and \texttt{xxz\_exact\_occupations} evolves in the full Hilbert space.
 
 \paragraph{Test circuits.} Ten random five-qubit weight-1 circuits: X on qubit~0 and two layers of XX+YY
 gates on neighbours with angles uniform in $[0.3,2.8]$ (seeds 0--9). Error is the mean
@@ -264,6 +268,38 @@ lower on 20 of 21 (passed), and $\sigma^2$ is within 20\% of the exact value at 
 (raw: none; passed). The exponent reached 1.5 on 16 devices, not the predicted 18 (failed): the four noisiest
 after FakeKyoto give 1.26--1.38, and on FakeKyoto (15\% of shots kept at 96 gates) the walk is lost.
 
+\subsection{Interacting excitations (§148)}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lccccc}
+\toprule
+excitations & raw & read-out & filter & filter + read-out & raw / filter + read-out\\
+\midrule
+1 & 0.066 & 0.038 & 0.008 & 0.009 & 5.6 (2.4--14.4)\\
+2 & 0.080 & 0.072 & 0.030 & 0.028 & 2.6 (1.1--3.8)\\
+3 & 0.065 & 0.055 & 0.030 & 0.024 & 2.6 (1.0--4.6)\\
+\bottomrule
+\end{tabular}
+\caption{XXZ chain, $n=6$, $V=2$, $T=2$: best error over Trotter order (1, 2) and steps (1--8), median over
+twenty-one device noise models; the last column is the median ratio and its range across devices.}
+\label{tab:xxz}
+\end{table}
+
+One excitation is the filter's easiest case and is easy classically too. With $V=2$, random fields in
+$[-0.5,0.5]$, $T=2$ and 1, 2 or 3 excitations starting on the first qubits of a six-qubit chain, the dynamics
+is many-body. The filter's benefit falls from 5.6$\times$ with one excitation to 2.6$\times$ with two and with
+three (Table~\ref{tab:xxz}; predicted to fall with each excitation, passed only just between two and three).
+Sectors with more excitations keep more shots (0.49 against 0.43 at 120 two-qubit gates) yet gain less: more
+of the noise lands inside a larger sector (20 of 64 states at half filling, against 6), where the filter
+cannot see it. Filter + read-out was best on 62 of the 63 device--sector pairs; on FakeKyoto at half filling
+it was not (0.238 against 0.231), so that prediction failed. The filter again moved the optimal number of
+Trotter steps deeper (61 of 63; median 8 or 6 against 4), and second-order Trotter was better with two
+excitations on 20 of 21 devices (passed); with three, only on 5, because its extra gates cost more than its
+smaller Trotter error saves. Building this experiment showed that the transpiler pass read state-preparation
+X gates in the order the DAG lists them and could misreport the initial weight; it now takes an X as
+preparation when it is the first operation on its qubit.
+
 \section{Discussion}
 
 As a read-out tool the filter is robust: on every one of twenty IBM device noise models it lowered the $\qZ$
@@ -276,7 +312,8 @@ The limits are as clear. The gain in classification accuracy is small, because t
 mostly far from threshold; spectrum estimation, where the answer is a set of
 probabilities rather than a decision, gains more (4.6$\times$), and so does
 dynamics: the filter lets a Trotter simulation use more steps and makes the ballistic spreading of a quantum
-walk visible where raw data look classical. Ten of the thirty-three predictions failed as written, several through the analysis rather
+walk visible where raw data look classical. Its benefit is largest with one excitation and halves when the
+excitations interact. Eleven of the thirty-seven predictions failed as written, several through the analysis rather
 than the filter: a prediction that ignored returning shots, a per-qubit error model that ignored the poles,
 and an experiment that required every device to run. And all results are on device noise models, which
 model gate, relaxation, dephasing and read-out errors as independent channels; leakage, crosstalk and drift
@@ -285,7 +322,7 @@ are absent. A run on hardware is the next step.
 \section*{Code and data availability}
 
 Everything is in the open-source library qang (MIT license), version 0.9.0 and later (the
-functions of §146--§147 are in the repository and in the next release):
+functions of §146--§148 are in the repository and in the next release):
 \url{https://github.com/Viny2030/qang}, \texttt{pip install qang}. The module is \texttt{qang.ibm} (with
 \texttt{qang.qiskit\_ml}); each section has a script in \texttt{examples/} and its output in
 \texttt{examples/data/}; \texttt{docs/ibm\_quickstart.md} shows the workflow.
