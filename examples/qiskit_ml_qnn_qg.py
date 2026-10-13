@@ -6,9 +6,17 @@ qang.qiskit_ml.qang_sampler_qnn builds a qiskit-machine-learning SamplerQNN
 from qang's weight-1 QNN (loader angles as inputs, RBS angles as weights);
 QangQNNClassifier runs a trained qang.qml.WeightQNN through it and reads the
 decision from the raw or the qg-filtered qg_Z. Any qiskit-machine-learning
-sampler works; here the qiskit StatevectorSampler and Aer's SamplerV2 with the
-noise models of FakeBrisbane, FakeSherbrooke and FakeTorino (with a preset
-pass manager for the device, optimization_level 1, seed 137).
+sampler works; here the qiskit StatevectorSampler and IBM Runtime's Sampler in
+local mode on FakeBrisbane, FakeSherbrooke and FakeTorino (Aer with each
+device's noise model), with a preset pass manager for the device
+(optimization_level 1, seed 137).
+
+Plumbing note (before any noisy result was seen): the first attempt used Aer's
+SamplerV2 directly; on a 127/133-qubit device circuit it returned no shots,
+and qiskit-machine-learning 0.9.1 reads measured bits at the physical-qubit
+positions of the layout, which returns 0 for circuits measured before
+transpilation. qang_sampler_qnn now transpiles itself and hands over the
+circuit without its layout, and the Runtime local Sampler is used.
 
 Set-up (fixed before the run): model A of §124 (iris, cancer, wine, digits;
 189 test inputs), 1000 shots per input everywhere. Noiseless model: 185.
@@ -53,15 +61,13 @@ OUT = os.path.join(HERE, "data", "qiskit_ml_qnn_qg.json")
 def samplers():
     from qiskit.primitives import StatevectorSampler
     from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
-    from qiskit_aer.noise import NoiseModel
-    from qiskit_aer.primitives import SamplerV2 as AerSampler
     import qiskit_ibm_runtime.fake_provider as fp
+    from qiskit_ibm_runtime.executor_sampler import Sampler
 
     yield "noiseless", StatevectorSampler(default_shots=SHOTS, seed=140), None
-    for i, name in enumerate(BACKENDS):
+    for name in BACKENDS:
         b = getattr(fp, name)()
-        s = AerSampler(default_shots=SHOTS, seed=1400 + i,
-                       options={"backend_options": {"noise_model": NoiseModel.from_backend(b)}})
+        s = Sampler(mode=b, options={"default_shots": SHOTS})
         yield name, s, generate_preset_pass_manager(backend=b, optimization_level=1, seed_transpiler=137)
 
 

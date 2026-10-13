@@ -42,6 +42,10 @@ def loader_inputs(X) -> np.ndarray:
     return np.array([_loader_angles(v) for v in V])
 
 
+def _identity(k: int) -> int:
+    return k
+
+
 def _structure(model_or_n, layers=3, sublayers=None):
     if isinstance(model_or_n, int):
         from .qml import WeightQNN
@@ -59,11 +63,17 @@ def qang_sampler_qnn(model_or_n, sampler=None, pass_manager=None, layers: int = 
     from .ibm import qnn_template
 
     m = _structure(model_or_n, layers, sublayers)
-    tpl = qnn_template(m, measure=False)
+    tpl = qnn_template(m, measure=True)      # measured: with a device pass manager only these n qubits are read
     xs = [p for p in tpl.parameters if p.name.startswith("x[")]
     ws = [p for p in tpl.parameters if p.name.startswith("w[")]
+    if pass_manager is not None:
+        # Transpile here and drop the layout before handing the circuit over: qiskit-machine-learning 0.9.1
+        # reads the measured bits at the PHYSICAL qubit positions of the layout, but a circuit measured
+        # before transpilation keeps one classical bit per logical qubit, so every key would read as 0.
+        tpl = pass_manager.run(tpl)
+        tpl._layout = None
     qnn = SamplerQNN(circuit=tpl, sampler=sampler, input_params=xs, weight_params=ws,
-                     pass_manager=pass_manager, input_gradients=input_gradients)
+                     interpret=_identity, output_shape=2 ** m.n, input_gradients=input_gradients)
     return qnn, m
 
 
