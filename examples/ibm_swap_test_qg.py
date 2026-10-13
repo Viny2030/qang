@@ -43,6 +43,14 @@ Pre-registered predictions (committed before the run):
       swap test than for the inversion test on at least 5 of 6 backends.
 
 python examples/ibm_swap_test_qg.py
+python examples/ibm_swap_test_qg.py --backend FakeTorino   # one backend (written to data/ibm_swap_test_qg_parts/)
+python examples/ibm_swap_test_qg.py --aggregate            # score the per-backend parts
+
+Amendment (before any result was seen): the first run, all backends in one
+process, stopped at the 2-hour limit of the environment (the 11-qubit swap
+test takes about 20 s per circuit to simulate with noise). The run is split
+into one process per backend with the same protocol, and scored by
+--aggregate.
 """
 
 import json
@@ -122,23 +130,42 @@ def run_backend(name, pairs, labels, exact):
     return out
 
 
-def main():
+PARTS = os.path.join(HERE, "data", "ibm_swap_test_qg_parts")
+
+
+def one(name, pairs, labels, exact):
+    try:
+        r = run_backend(name, pairs, labels, exact)
+        print(json.dumps({"backend": name, **{t: {"err": {k: round(v, 4) for k, v in r[t]["error"].items()},
+                                                  "acc": r[t]["accuracy"],
+                                                  "same": {k: round(v, 3) for k, v in r[t]["identical_mean"].items()},
+                                                  "kept": round(r[t]["kept_raw"], 3)}
+                                              for t in ("inversion", "swap")}}), flush=True)
+    except Exception as e:  # a backend that cannot run is reported, not hidden
+        r = {"backend": name, "failure": f"{type(e).__name__}: {e}"[:300]}
+        print(json.dumps(r), flush=True)
+    return r
+
+
+def main(argv=()):
     pairs, labels = dataset()
     exact = np.array([(x @ y) ** 2 for x, y in pairs])
+    argv = list(argv)
+    if "--backend" in argv:
+        name = argv[argv.index("--backend") + 1]
+        os.makedirs(PARTS, exist_ok=True)
+        r = one(name, pairs, labels, exact)
+        with open(os.path.join(PARTS, name + ".json"), "w", encoding="utf-8") as fh:
+            json.dump(r, fh)
+        return r
     print(json.dumps({"noiseless accuracy": accuracy(exact, labels)}), flush=True)
-    rows = []
-    for name in BACKENDS:
-        try:
-            r = run_backend(name, pairs, labels, exact)
-            print(json.dumps({"backend": name, **{t: {"err": {k: round(v, 4) for k, v in r[t]["error"].items()},
-                                                      "acc": r[t]["accuracy"],
-                                                      "same": {k: round(v, 3) for k, v in r[t]["identical_mean"].items()},
-                                                      "kept": round(r[t]["kept_raw"], 3)}
-                                                  for t in ("inversion", "swap")}}), flush=True)
-        except Exception as e:  # a backend that cannot run is reported, not hidden
-            r = {"backend": name, "failure": f"{type(e).__name__}: {e}"[:300]}
-            print(json.dumps(r), flush=True)
-        rows.append(r)
+    if "--aggregate" in argv:
+        rows = []
+        for name in BACKENDS:
+            f = os.path.join(PARTS, name + ".json")
+            rows.append(json.load(open(f)) if os.path.exists(f) else {"backend": name, "failure": "not run"})
+    else:
+        rows = [one(name, pairs, labels, exact) for name in BACKENDS]
     ok = [r for r in rows if "inversion" in r]
     fr = "filtered_readout"
     ratio = lambda r, t: r[t]["error"]["raw"] / r[t]["error"][fr]  # noqa: E731
@@ -154,4 +181,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
