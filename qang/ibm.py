@@ -178,12 +178,25 @@ def readout_errors(backend, physical_qubits: Sequence[int]) -> List[Tuple[float,
     return out
 
 
+MIN_READOUT_CONTRAST = 0.05
+
+
+def uncorrectable_qubits(errors: Sequence[Tuple[float, float]]) -> List[int]:
+    """Indices whose readout cannot be inverted: contrast 1 - P(1|0) - P(0|1) below MIN_READOUT_CONTRAST
+    (for instance a qubit published as always reading 1). Their readout is left uncorrected (§144)."""
+    return [i for i, (a, b) in enumerate(errors) if 1 - a - b < MIN_READOUT_CONTRAST]
+
+
 def readout_inverse_distribution(probs: np.ndarray, errors: Sequence[Tuple[float, float]]) -> np.ndarray:
     """Invert independent per-qubit readout errors on a distribution indexed qubit 0 first
-    (index bit n-1-i is qubit i). Returns a quasi-probability vector (may have small negatives)."""
+    (index bit n-1-i is qubit i). Returns a quasi-probability vector (may have small negatives).
+    Qubits whose confusion matrix is (near-)singular are left uncorrected (see uncorrectable_qubits)."""
     n = len(errors)
     p = np.asarray(probs, float).reshape((2,) * n)
+    skip = set(uncorrectable_qubits(errors))
     for i, (e01, e10) in enumerate(errors):
+        if i in skip:
+            continue
         M = np.array([[1 - e01, e10], [e01, 1 - e10]])          # columns: prepared 0, 1
         p = np.moveaxis(np.tensordot(np.linalg.inv(M), np.moveaxis(p, i, 0), axes=(1, 0)), 0, i)
     return p.reshape(-1)
@@ -222,8 +235,9 @@ def ibm_qg(pub_result, transpiled, backend, weight: Optional[int] = None, creg: 
     for k, c in counts.items():
         p[int("".join(map(str, k)), 2)] += c / shots
     q = readout_inverse_distribution(p, errs)
-    amp = [1 / max(1 - a - b, 1e-9) for a, b in errs]
-    out = {"physical_qubits": phys, "readout_errors": errs,
+    bad = uncorrectable_qubits(errs)
+    amp = [1.0 if i in bad else 1 / (1 - a - b) for i, (a, b) in enumerate(errs)]
+    out = {"physical_qubits": phys, "readout_errors": errs, "uncorrectable_qubits": [phys[i] for i in bad],
            "raw": IO.qg_z_profile(counts),
            "readout": [(v, se * a) for (v, se), a in zip(_profile(q, n, shots), amp)]}
     if weight is not None:

@@ -5,7 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- `qang.ibm.readout_inverse_distribution`: qubits whose readout cannot be inverted (contrast below 0.05, e.g. a qubit
+  published as always reading 1) are left uncorrected and reported in `ibm_qg(...)["uncorrectable_qubits"]` instead of
+  raising a singular-matrix error (found on FakeCusco, §144).
+
 ### Added
+- `examples/ibm_fleet_qg.py` (§144): the filter on 18 more IBM device noise models; 2.4-8.9x lower qg_Z error on all
+  17 that ran (F1-F3 fail as written: one crash, and the filter alone is best on 7).
 - `qang.ibm.plan_shots` (§143): shots and estimated QPU seconds for a target precision of the filtered qg_Z; the plan
   met a 0.02 target on three device noise models (P1 passes; P2, per-qubit prediction, fails near the poles).
 - `qang.ibm.fold_two_qubit_gates`, `zne_qg` (§142): zero-noise extrapolation by local folding that stacks with the qg

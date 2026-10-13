@@ -6301,6 +6301,19 @@ the qubits near a pole (|qg| > 0.8, ratio 2.4–3.1; 0.8–1.0 elsewhere), whose
 qg_Z the noise pulls away from ±1. The plan uses the worst qubit and still
 meets the target; qg = None (worst case) is the safe default.
 
+## 144. The qg filter across the IBM fleet (`examples/ibm_fleet_qg.py`)
+
+The §137 protocol on the 18 other fake backends of qiskit-ibm-runtime with
+≥ 100 qubits (F1–F3 committed before the run). On the 17 that ran, the filter
+cuts the raw qg_Z error 2.4–8.9× on every device (median raw / filtered +
+readout 3.12), but all three predictions fail as written: FakeCusco crashed
+(F1, F3 required all 18), and filtered + readout was lowest on 10 of 17, the
+filter alone on the other 7 (F2). The crash was a qang bug: FakeCusco's
+physical qubit 0 always reads 1, the transpiler used it, and the readout
+inverse was singular; such qubits are now left uncorrected and reported.
+After scoring, on FakeCusco `best_layout` avoids that qubit and brings
+filtered + readout from 0.098 to 0.021.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

@@ -196,3 +196,12 @@ def test_plan_shots_scales_with_target():
     assert 3.9 < p2["shots"] / p1["shots"] < 4.1
     assert p1["qpu_seconds"] > 0 and 0 < p1["kept"] < 1
     assert ibm.plan_shots(t, b, 1, 0.02, qg=[0.9, 0.9, 0.9, 0.9])["shots"] < p1["shots"]
+
+
+def test_dead_readout_qubit_is_left_uncorrected():
+    p = np.array([0.1, 0.2, 0.3, 0.4])
+    out = ibm.readout_inverse_distribution(p, [(1.0, 0.0), (0.02, 0.03)])
+    assert np.all(np.isfinite(out)) and ibm.uncorrectable_qubits([(1.0, 0.0), (0.02, 0.03)]) == [0]
+    # the healthy qubit is still corrected exactly
+    q = ibm.readout_inverse_distribution(p, [(0.0, 0.0), (0.02, 0.03)])
+    assert np.allclose(out, q)

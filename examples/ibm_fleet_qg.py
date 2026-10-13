@@ -24,7 +24,44 @@ python examples/ibm_fleet_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Mean |qg_Z - ideal| (5 circuits, 4000 shots):
+
+  backend          raw     readout   filtered   filtered+readout   raw / filt+ro
+  FakeAachen       0.037   0.032     0.009      0.014              2.5
+  FakeBerlin       0.034   0.023     0.012      0.012              2.9
+  FakeBoston       0.038   0.039     0.010      0.010              3.8
+  FakeBrussels     0.077   0.040     0.016      0.013              6.1
+  FakeCusco        crashed (see below)
+  FakeFez          0.037   0.035     0.012      0.012              3.1
+  FakeKawasaki     0.062   0.045     0.014      0.014              4.4
+  FakeKingston     0.076   0.036     0.009      0.015              5.0
+  FakeKyiv         0.073   0.052     0.021      0.024              3.1
+  FakeKyoto        0.647   0.649     0.269      0.264              2.4
+  FakeMarrakesh    0.030   0.029     0.011      0.012              2.6
+  FakeMiami        0.029   0.013     0.010      0.009              3.1
+  FakeNighthawk    0.030   0.026     0.012      0.011              2.7
+  FakeOsaka        0.094   0.064     0.018      0.020              4.8
+  FakePittsburgh   0.023   0.021     0.008      0.008              2.8
+  FakeQuebec       0.108   0.092     0.028      0.024              4.6
+  FakeStrasbourg   0.071   0.027     0.012      0.013              5.3
+  FakeWashingtonV2 0.184   0.147     0.048      0.042              4.4
+
+  F1 FAIL: the run on FakeCusco crashed, so the prediction (every one of the
+     18) cannot hold. On the 17 that ran, the filter halves the raw error on
+     every one (by 2.4-8.9x).
+  F2 FAIL: filtered + readout is the lowest on 10 of 17, not 15 of 18; where
+     readout errors are small, readout correction adds variance and the
+     filter alone is lowest (7 backends).
+  F3 FAIL: the protocol required all 18; over the 17 that ran the median
+     ratio is 3.12 (>= 3).
+  * The crash was a qang bug: FakeCusco publishes physical qubit 0 as always
+    reading 1 (P(1|0) = 1, P(0|1) = 0), the transpiler placed the circuit on
+    it, and the readout inverse was singular. qang.ibm now leaves such qubits
+    uncorrected and reports them (``uncorrectable_qubits``).
+  * Exploratory (after scoring), FakeCusco with the fix: default layout (on
+    the dead qubit) raw 0.202, filtered + readout 0.098; with
+    qang.ibm.best_layout, which avoids it ([2..6]): raw 0.087, filtered +
+    readout 0.021.
 """
 
 import json
