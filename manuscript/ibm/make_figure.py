@@ -23,7 +23,7 @@ def rows():
     return sorted(out, key=lambda x: x[1])
 
 
-def main():
+def main(lang="en"):
     rs = rows()
     plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 9})
     fig, ax = plt.subplots(figsize=(6.2, 5.6))
@@ -34,7 +34,8 @@ def main():
     ax.set_yticks(range(len(rs)))
     ax.set_yticklabels([f"{n}{'*' if s == '§137' else ''}" for n, _, _, s in rs], color=INK)
     ax.set_xscale("log")
-    ax.set_xlabel("mean |qg_Z - ideal| (log scale)", color=INK2)
+    ax.set_xlabel("mean |qg_Z - ideal| (log scale)" if lang == "en" else "|qg_Z - ideal| medio (escala log)",
+                  color=INK2)
     ax.grid(axis="x", color=GRID, lw=0.7)
     ax.set_axisbelow(True)
     for s in ("top", "right", "left"):
@@ -42,13 +43,17 @@ def main():
     ax.spines["bottom"].set_color(GRID)
     ax.tick_params(axis="y", length=0)
     ax.tick_params(axis="x", colors=MUTED)
-    ax.scatter([], [], s=34, color=RAW, label="raw")
-    ax.scatter([], [], s=34, color=FILT, label="qg filter + readout correction")
+    ax.scatter([], [], s=34, color=RAW, label="raw" if lang == "en" else "crudo")
+    ax.scatter([], [], s=34, color=FILT, label="qg filter + readout correction" if lang == "en"
+               else "filtro qg + corrección de lectura")
     ax.legend(frameon=False, loc="lower right", fontsize=8.5)
     fig.tight_layout()
-    fig.savefig(os.path.join(HERE, "fig_fleet.pdf"))
-    fig.savefig(os.path.join(HERE, "fig_fleet.png"), dpi=160)
+    suffix = "" if lang == "en" else "_es"
+    fig.savefig(os.path.join(HERE, f"fig_fleet{suffix}.pdf"))
+    fig.savefig(os.path.join(HERE, f"fig_fleet{suffix}.png"), dpi=160)
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    main(sys.argv[1] if len(sys.argv) > 1 else "en")
