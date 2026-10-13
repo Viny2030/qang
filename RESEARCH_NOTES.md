@@ -6249,6 +6249,21 @@ fails by one input. best_chain kept fewer shots on two backends: the QNN's
 ring coupling (4, 0) does not fit a linear chain, and the chain was scored on
 a bound circuit rather than the parameterized template that ran.
 
+## 140. qang's QNN inside qiskit-machine-learning (`qang/qiskit_ml.py`, `examples/qiskit_ml_qnn_qg.py`)
+
+`qang.qiskit_ml.qang_sampler_qnn` turns qang's weight-1 QNN into a
+qiskit-machine-learning SamplerQNN (loader angles as inputs, RBS angles as
+weights, the 2ⁿ distribution as output); `qg_features` gives raw and filtered
+qg_Z and the kept fraction from its outputs; `QangQNNClassifier` runs a
+classically trained WeightQNN through it. On the four datasets (S1–S3
+committed before the run; 1000 shots): 185/189 noiselessly; raw / filtered
+181/181, 182/183, 184/184 on FakeBrisbane, FakeSherbrooke, FakeTorino
+through the Runtime local Sampler; 548 pooled with the filter against 550 for
+`qang.ibm.run_qnn` (§139). All three predictions pass. qiskit-machine-learning
+0.9.1 reads measured bits at the physical positions of the layout, which reads
+every shot as 0 for a circuit measured before transpilation;
+`qang_sampler_qnn` transpiles itself and drops the layout.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

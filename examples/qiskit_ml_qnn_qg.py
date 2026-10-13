@@ -33,7 +33,27 @@ python examples/qiskit_ml_qnn_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Correct test decisions (of 189):
+
+  sampler                         raw   filtered
+  StatevectorSampler (noiseless)  185   185
+  FakeBrisbane (Runtime local)    181   181
+  FakeSherbrooke                  182   183
+  FakeTorino                      184   184
+  pooled noisy (of 567)           547   548
+
+  S1 PASS: 185 noiselessly, the model's own accuracy.
+  S2 PASS: the filter is never worse than raw (equal on two backends, +1 on
+     sherbrooke).
+  S3 PASS: 548 pooled, within 2 of §139's 550 (run_qnn, same layout policy).
+  * qang's QNN runs inside qiskit-machine-learning on any of its samplers,
+    including device noise through IBM Runtime, with the same accuracy as
+    qang's own IBM path.
+  * Interoperability finding: qiskit-machine-learning 0.9.1 reads measured
+    bits at the physical-qubit positions of a transpiled circuit's layout, so
+    a circuit measured before transpilation reads every shot as 0;
+    qang_sampler_qnn transpiles itself and drops the layout (regression
+    test in tests/test_qiskit_ml.py).
 """
 
 import json

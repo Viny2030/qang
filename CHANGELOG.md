@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.qiskit_ml` (§140): qang's QNN as a qiskit-machine-learning `SamplerQNN` (`qang_sampler_qnn`, `loader_inputs`,
+  `qg_features`, `QangQNNClassifier`), with a workaround for the 0.9.1 layout read-out; optional extra `[ml]`.
+  `examples/qiskit_ml_qnn_qg.py`: S1-S3 pass.
 - `qang.ibm` (§139): `qnn_template`, `qnn_parameter_values`, `run_qnn`: the weight-conserving QNN as one
   parameterized job on IBM; `examples/ibm_qnn_qg.py` (Q1, Q3 pass; Q2 fails by one input).
   `docs/ibm_quickstart.md`: qang on IBM Quantum in five steps.

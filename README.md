@@ -62,6 +62,7 @@ Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md).
 | `qang.geometric` | geometric (Berry/Pancharatnam) phase in qg units, Stokes' theorem on the Bloch sphere |
 | `qang.interop` | one qubit order for Qiskit, Cirq, PennyLane, Braket and pytket results; qg_Z profile, qg filter, register entropy and its error; Qiskit SamplerV2 / EstimatorV2 read-outs |
 | `qang.ibm` | IBM devices: transpiler pass that checks weight conservation, calibrated readout correction, qg read-out of IBM Runtime Sampler and Estimator results, kept-fraction prediction and qubit selection |
+| `qang.qiskit_ml` | qang's weight-conserving QNN as a qiskit-machine-learning `SamplerQNN`, with raw and filtered qg_Z features |
 | `qang.qsp` | quantum signal processing and weighted QSP in qg terms; Hadamard-test read-out; phase fitting in the arcsine scale |
 | `qang.proportions` | the qg angle as the arcsine transform of any binomial proportion: intervals, Cohen's h |
 | `qang.clock_comparison` | differential phase of two clocks from the ellipse of their qg pairs |
@@ -94,6 +95,7 @@ pip install ".[pennylane]" # Native PennyLane operations (autodiff in qg_Z)
 pip install ".[hardware]" # IBM Quantum hardware / calibrated fake backends
 pip install ".[ionq]"     # IonQ simulator / hardware scripts (qiskit-ionq)
 pip install ".[qec]"      # Surface-code decoding examples (pymatching)
+pip install ".[ml]"       # qiskit-machine-learning integration (qang.qiskit_ml)
 pip install ".[chemistry]" # PySCF/OpenFermion molecules (Linux/macOS or WSL)
 pip install ".[all]"      # Everything except chemistry (Qiskit, IBM Runtime, IonQ, pymatching, Cirq, PennyLane, SciPy, Pytest, Matplotlib)
 pip install -r requirements.txt  # same as .[all], without installing qang itself
