@@ -43,6 +43,9 @@ PAPERS = [
      ["restricted Boltzmann machines", "mutual information", "comment", "qang"]),
     ("battery_network", "battery_network", "qang_baterias_redes.pdf", None, None,
      ["quantum batteries", "entanglement distillation", "quantum networks", "qang"]),
+    ("ibm", "ibm", "qang_ibm.pdf", "qang_ibm_es.pdf", None,
+     ["quantum error mitigation", "symmetry verification", "post-selection", "IBM Quantum",
+      "quantum machine learning"]),
 ]
 
 REPL = [
