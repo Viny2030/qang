@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-13
+
+Release of §137–§140: qang on IBM Quantum and in Qiskit. `qang.ibm` reads qg quantities from IBM devices through IBM
+Runtime (a transpiler pass for weight conservation, calibrated readout correction, Sampler and Estimator read-outs,
+kept-fraction prediction and qubit selection, and the weight-conserving QNN as one parameterized job);
+`qang.qiskit_ml` puts the QNN inside qiskit-machine-learning as a `SamplerQNN`.
+
 ### Added
 - `qang.qiskit_ml` (§140): qang's QNN as a qiskit-machine-learning `SamplerQNN` (`qang_sampler_qnn`, `loader_inputs`,
   `qg_features`, `QangQNNClassifier`), with a workaround for the 0.9.1 layout read-out; optional extra `[ml]`.

@@ -17,29 +17,21 @@ Reference implementation and computational toolkit for:
 - **Measurement-Outcome Entropy Qang (qg_S):** qg_S(θ) = H(cos²(θ/2)) ∈ [0, 1] (Shannon entropy of computational-basis outcomes).
 - Native SDK gate classes for **Qiskit**, **Cirq** and **PennyLane** (differentiable in qg_Z), regularized gradient optimizers, shot-noise error propagation, and density matrix/POVM metrics.
 - qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
+- **IBM Quantum** through IBM Runtime (transpiler pass, calibrated readout correction, qubit selection) and **qiskit-machine-learning** integration.
 
-### What's new in 0.8
+### What's new in 0.9 — qang on IBM Quantum and in Qiskit
 
-- **Every SDK, one qubit order** (`qang.interop`): per-qubit qg_Z with error bars, the qg (Hamming-weight) filter and the register entropy with its standard error, from Qiskit, Cirq, PennyLane, Braket and pytket results.
-- **Qiskit V2 primitives**: `IO.sampler_qg` reads a whole SamplerV2 parameter sweep; `IO.filtered_observables` makes EstimatorV2 return the filtered read-out directly.
-- **Differentiable filter in PennyLane**: `pennylane_gate.filtered_qg_z(qml.probs(...), weight)` can be part of the loss.
-- **Quantum signal processing in qg terms** (`qang.qsp`): QSP and weighted QSP, Hadamard-test read-out as qg_Z, phase fitting in the arcsine (qg) scale.
-
-```python
-from qang import interop as IO
-res = sampler.run([(qc, values)]).result()[0]
-IO.sampler_qg(res, weight=1)          # {"qg", "se", "kept"} over the whole sweep
-```
-
-Full list in [CHANGELOG.md](CHANGELOG.md).
-
-On IBM devices (`qang.ibm`, on `main`, next release):
+- **IBM devices through IBM Runtime** (`qang.ibm`): a Qiskit transpiler analysis pass that says whether the qg filter applies (every gate conserves the Hamming weight) and on which sector; readout correction from the device's published per-qubit errors; qg_Z from IBM Runtime Sampler and Estimator results, raw, readout-corrected, filtered, or both. On three IBM device noise models the qg_Z error falls from 0.065–0.104 raw to 0.013–0.022 with filter plus readout correction (§137).
+- **Choose the qubits before spending device time**: `predict_kept_fraction` predicts from the calibration how many shots the filter will keep; `best_chain` picks the chain of physical qubits with the most, 6–17 points above Qiskit's default layout (§138).
+- **qang's QNN on IBM in one job**: `qnn_template` is the weight-conserving QNN as one parameterized circuit of native XX+YY gates; `run_qnn` sends a whole test set as a single Sampler pub (§139).
+- **qiskit-machine-learning** (`qang.qiskit_ml`): qang's QNN as a `SamplerQNN`, with raw and filtered qg_Z features, on any of its samplers (§140). `pip install "qang[ml]"`.
 
 ```python
-from qang import ibm
+from qiskit import transpile
 from qiskit_ibm_runtime.executor_sampler import Sampler
+from qang import ibm
 
-t = transpile(qc, backend)                               # qc: weight-preserving circuit, measured
+t = transpile(qc, backend)                                   # qc: weight-preserving circuit, measured
 res = Sampler(mode=backend).run([t]).result()[0]
 ibm.ibm_qg(res, t, backend, weight=1)["filtered_readout"]   # qg filter + calibrated readout correction
 
@@ -48,6 +40,15 @@ r = ibm.run_qnn(model, X_test, backend)                      # qang's QNN: whole
 ```
 
 Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md).
+
+### New in 0.8
+
+- **Every SDK, one qubit order** (`qang.interop`): per-qubit qg_Z with error bars, the qg (Hamming-weight) filter and the register entropy with its standard error, from Qiskit, Cirq, PennyLane, Braket and pytket results.
+- **Qiskit V2 primitives**: `IO.sampler_qg` reads a whole SamplerV2 parameter sweep; `IO.filtered_observables` makes EstimatorV2 return the filtered read-out directly.
+- **Differentiable filter in PennyLane**: `pennylane_gate.filtered_qg_z(qml.probs(...), weight)` can be part of the loss.
+- **Quantum signal processing in qg terms** (`qang.qsp`): QSP and weighted QSP, Hadamard-test read-out as qg_Z, phase fitting in the arcsine (qg) scale.
+
+Full list in [CHANGELOG.md](CHANGELOG.md).
 
 ### What is in the library
 
