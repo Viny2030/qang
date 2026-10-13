@@ -167,3 +167,17 @@ def test_best_layout_never_below_default_prediction():
     r = ibm.best_layout(tpl, b, 1, limit=8, seed=2)
     assert r["candidates"] == 9
     assert r["prediction"]["kept_mixed_floor"] >= r["default_prediction"]["kept_mixed_floor"]
+
+
+def test_folding_keeps_the_unitary_and_triples_two_qubit_gates():
+    from qiskit.quantum_info import Operator
+
+    qc = transpile(_w_like(3, seed=4), basis_gates=["cz", "rz", "sx", "x"], optimization_level=0)
+    f = ibm.fold_two_qubit_gates(qc, 3)
+    n2 = lambda c: sum(1 for i in c.data if i.operation.name == "cz")  # noqa: E731
+    assert n2(f) == 3 * n2(qc)
+    assert Operator(f).equiv(Operator(qc))
+    with pytest.raises(ValueError):
+        ibm.fold_two_qubit_gates(qc, 2)
+    assert ibm._extrapolate([1, 3], [0.8, 0.6], "linear") == pytest.approx(0.9)
+    assert ibm._extrapolate([1, 3, 5], [0.8, 0.6, 0.4], "richardson") == pytest.approx(0.9)

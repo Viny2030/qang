@@ -59,6 +59,8 @@ __all__ = [
     "linear_chains",
     "best_chain",
     "best_layout",
+    "fold_two_qubit_gates",
+    "zne_qg",
     "qnn_template",
     "qnn_parameter_values",
     "run_qnn",
@@ -387,6 +389,64 @@ def best_chain(circuit, backend, weight: int, limit: int = 100, seed: int = 0, s
         if best is None or pred["kept"] > best[1]["kept"]:
             best = (chain, pred, tc)
     return best
+
+
+# ---------------------------------------------------------------- ZNE with the qg filter (§142)
+
+
+def fold_two_qubit_gates(transpiled, scale: int):
+    """Local unitary folding of every two-qubit gate of a transpiled circuit: G -> G (G^dagger G)^k with
+    scale = 2k + 1 (odd). Routing, layout and measurements are kept; barriers around each fold stop the
+    folds from being simplified away. Folding keeps a weight-preserving circuit weight-preserving."""
+    if scale < 1 or scale % 2 == 0:
+        raise ValueError("scale must be an odd positive integer.")
+    out = transpiled.copy_empty_like()
+    k = (scale - 1) // 2
+    for inst in transpiled.data:
+        out.append(inst)
+        if k and inst.operation.num_qubits == 2 and inst.operation.name not in ("barrier", "measure"):
+            out.barrier(inst.qubits)
+            for _ in range(k):
+                out.append(inst.operation.inverse(), inst.qubits)
+                out.append(inst.operation, inst.qubits)
+            out.barrier(inst.qubits)
+    return out
+
+
+def _extrapolate(scales, values, method: str):
+    x = np.asarray(scales, float)
+    y = np.asarray(values, float)
+    if method == "linear":
+        b, a = np.polyfit(x, y, 1)
+        return a
+    if method == "richardson":
+        # Lagrange extrapolation to 0 through all points
+        tot = 0.0
+        for i in range(len(x)):
+            w = np.prod([x[j] / (x[j] - x[i]) for j in range(len(x)) if j != i])
+            tot += w * y[i]
+        return tot
+    raise ValueError("method must be 'linear' or 'richardson'.")
+
+
+def zne_qg(sampler, transpiled, backend, weight: int, scales=(1, 3), shots: int = 4000,
+           method: str = "linear") -> dict:
+    """Zero-noise extrapolation of qg_Z with folded two-qubit gates, for each read-out of ``ibm_qg``
+    (raw, readout, filtered, filtered_readout). Returns {"scales", "values": {kind: [[qg per qubit] per
+    scale]}, "zne": {kind: [extrapolated qg per qubit, clipped to [-1, 1]]}, "kept": [kept_raw per scale]}."""
+    kinds = ("raw", "readout", "filtered", "filtered_readout")
+    circs = [fold_two_qubit_gates(transpiled, s) for s in scales]
+    res = sampler.run(circs, shots=shots).result()
+    vals = {k: [] for k in kinds}
+    kept = []
+    for r, c in zip(res, circs):
+        out = ibm_qg(r, c, backend, weight=weight)
+        for k in kinds:
+            vals[k].append([v for v, _ in out[k]])
+        kept.append(out["kept_raw"])
+    zne = {k: [float(np.clip(_extrapolate(scales, np.array(vals[k])[:, i], method), -1, 1))
+               for i in range(len(vals[k][0]))] for k in kinds}
+    return {"scales": list(scales), "values": vals, "zne": zne, "kept": kept}
 
 
 # ---------------------------------------------------------------- QNN on IBM (§139)
