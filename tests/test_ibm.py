@@ -245,3 +245,23 @@ def test_unary_orthogonal_and_pca_spectrum():
     assert np.allclose(est, p) and np.all(se > 0)
     with pytest.raises(ValueError):
         ibm.unary_orthogonal(np.ones((3, 3)))
+
+
+def test_xy_trotter_converges_to_exact_dynamics():
+    from qiskit.quantum_info import Statevector
+
+    rng = np.random.default_rng(0)
+    h = rng.uniform(-1, 1, 4)
+    exact = ibm.xy_exact_occupations(4, 1.0, h, 1.5, initial=0)
+    errs = []
+    for steps in (2, 8, 256):
+        sv = Statevector(ibm.xy_trotter(4, 1.0, h, 1.5, steps, measure=False)).data
+        p = np.array([abs(sv[1 << k]) ** 2 for k in range(4)])
+        assert abs(p.sum() - 1) < 1e-9
+        errs.append(np.abs(p - exact).max())
+    assert errs[0] > errs[1] > errs[2] and errs[2] < 3e-3
+    pm = PassManager([ibm.WeightPreservationCheck()])
+    pm.run(ibm.xy_trotter(4, 1.0, h, 1.5, 2, measure=False))
+    assert pm.property_set["qg_weight_preserving"] and pm.property_set["qg_initial_weight"] == 1
+    out = {"raw": [(1.0, 0.0), (-1.0, 0.0)]}
+    assert np.allclose(ibm.occupations(out, "raw"), [0, 1])

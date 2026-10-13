@@ -69,6 +69,9 @@ __all__ = [
     "unary_orthogonal",
     "pca_rotation",
     "unary_spectrum",
+    "xy_trotter",
+    "xy_exact_occupations",
+    "occupations",
 ]
 
 # gates that conserve the excitation number for every parameter value
@@ -693,3 +696,56 @@ def unary_spectrum(outs, weights, kind: str = "filtered_readout"):
     vals = np.array([[(1 - z) / 2 for z, _ in o[kind]] for o in outs])
     ses = np.array([[se / 2 for _, se in o[kind]] for o in outs])
     return w @ vals, np.sqrt((w ** 2) @ ses ** 2)
+
+
+# ---------------------------------------------------------------- XY-chain dynamics (§147)
+#
+# H = J sum_k (X_k X_{k+1} + Y_k Y_{k+1}) / 2 + sum_k h_k Z_k / 2 on a chain of Qiskit qubits 0..n-1. It
+# conserves the number of excitations; in the weight-1 sector it is a tight-binding (continuous-time quantum
+# walk) Hamiltonian with hopping J and on-site energy -h_k. First-order Trotter step: the fields, then the odd
+# bonds (1-2, 3-4, ...), then the even bonds (0-1, 2-3, ...).
+
+
+def _xy_sector_hamiltonian(n, J, h):
+    H = np.diag(-np.asarray(h, float)).astype(complex)
+    for k in range(n - 1):
+        H[k, k + 1] = H[k + 1, k] = J
+    return H
+
+
+def xy_trotter(n: int, J: float, h, t: float, steps: int, initial: Sequence[int] = (0,), measure: bool = True):
+    """First-order Trotter circuit of the XY chain for time t in ``steps`` steps, starting with the qubits in
+    ``initial`` excited. Every gate (RZ, XX+YY) conserves the weight."""
+    from qiskit import QuantumCircuit
+    from qiskit.circuit.library import XXPlusYYGate
+
+    h = np.zeros(n) if h is None else np.asarray(h, float)
+    dt = t / steps
+    qc = QuantumCircuit(n)
+    for q in initial:
+        qc.x(q)
+    for _ in range(steps):
+        for k in range(n):
+            if h[k] != 0:
+                qc.rz(h[k] * dt, k)
+        for start in (1, 0):
+            for k in range(start, n - 1, 2):
+                qc.append(XXPlusYYGate(2 * J * dt, 0.0), [k, k + 1])
+    if measure:
+        qc.measure_all()
+    return qc
+
+
+def xy_exact_occupations(n: int, J: float, h, t: float, initial: int = 0) -> np.ndarray:
+    """Exact P(qubit k excited) at time t for one excitation starting on qubit ``initial`` (no Trotter error)."""
+    from scipy.linalg import expm
+
+    h = np.zeros(n) if h is None else h
+    e = np.zeros(n, complex)
+    e[initial] = 1
+    return np.abs(expm(-1j * _xy_sector_hamiltonian(n, J, h) * t) @ e) ** 2
+
+
+def occupations(out: dict, kind: str = "filtered_readout") -> np.ndarray:
+    """P(qubit k excited) = (1 - qg_Z) / 2 from an ibm_qg output."""
+    return np.array([(1 - z) / 2 for z, _ in out[kind]])
