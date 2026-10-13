@@ -42,7 +42,10 @@ extrapolation reaches 0.011--0.015. On seventeen further devices never used befo
 error 2.4--8.9$\times$ on every one (median 3.1$\times$ with read-out correction). Choosing the qubits by
 the predicted kept fraction keeps 6--17 points more shots than Qiskit's default layout on chain circuits,
 avoids a qubit published as reading 1 always, and the shot planner met a 0.02 target precision on three
-devices. For classification the gain is small: the QNN recovers 5--6 of the 10 decisions noise costs it.
+devices. For classification the gain is small: the QNN recovers 5--6 of the 10 decisions noise costs it. Reading a
+known five-component principal-component spectrum out of the data's density matrix in the weight-1 sector,
+filter plus read-out correction lowers the error 4.6$\times$ (median over twenty-one devices) and orders the
+spectrum correctly on 18 of 21 (13 raw).
 Two interoperability bugs were found, one in qiskit-machine-learning and one in the library. All results are
 on device noise models; no hardware run is reported.
 \end{abstract}
@@ -62,7 +65,7 @@ This paper asks what the filter is worth on IBM devices and gives the tools to u
 runs through IBM Runtime~\cite{qiskitibmruntime} and Qiskit~\cite{javadiabhari2024qiskit}, here in local
 testing mode on the device noise models (fake backends), unchanged on a device. Each experiment fixed its
 circuits, settings and predictions in a commit before running; failures are reported as such. Sections
-§137--§144 refer to the research notes of the repository, where every number below is reproduced by a
+§137--§146 refer to the research notes of the repository, where every number below is reproduced by a
 script in \texttt{examples/}.
 
 \section{Methods}
@@ -103,6 +106,16 @@ of native XX+YY gates, $\mathrm{RBS}(t)=\mathrm{XXPlusYY}(2t,\pi/2)$, equal to t
 $10^{-9}$. \texttt{run\_qnn} sends a whole test set as one Sampler pub. \texttt{qang\_sampler\_qnn} wraps
 the same circuit as a qiskit-machine-learning \texttt{SamplerQNN}~\cite{qiskitml}. The model is trained
 noiselessly on four datasets (iris, cancer, wine, digits; 189 test inputs; 185 correct noiselessly).
+
+\paragraph{PCA spectrum.} In the unary encoding a real vector $x$ is $\sum_k x_k|e_k\rangle$, $e_k$ the state
+with only qubit $k$ excited, prepared by $d-1$ RBS gates. Loading the centred data vectors $x_j$ with
+probabilities $|x_j|^2/\sum_i|x_i|^2$ gives $\rho=C/\mathrm{tr}\,C$, $C=\frac1m\sum_j x_jx_j^{\mathsf T}$:
+the density matrix that quantum PCA diagonalizes~\cite{lloyd2014qpca}. \texttt{unary\_orthogonal}
+decomposes a real orthogonal matrix into at most $d(d-1)/2$ nearest-neighbour RBS gates (up to output
+signs); with the PCA basis it sends eigenvalue $\lambda_k$ to qubit $k$, so
+$P(\text{qubit }k\text{ excited})=\lambda_k/\sum\lambda$, read by \texttt{unary\_spectrum} from the four
+read-outs of \texttt{ibm\_qg}. The rotation is computed classically and $d$ features use $d$ qubits: this
+tests read-out, not a speed-up.
 
 \paragraph{Test circuits.} Ten random five-qubit weight-1 circuits: X on qubit~0 and two layers of XX+YY
 gates on neighbours with angles uniform in $[0.3,2.8]$ (seeds 0--9). Error is the mean
@@ -198,6 +211,22 @@ bits at the physical-qubit positions of the layout, so a circuit measured before
 shot as 0 unless its layout is $[0,\dots,n-1]$; the library transpiles itself and drops the layout, and the
 issue was reported upstream.
 
+\subsection{A PCA spectrum (§146)}
+
+Five features, 16 samples from a Gaussian with standard deviations $(2.0,1.4,1.0,0.6,0.35)$ on random axes;
+exact spectrum $(0.640,0.203,0.122,0.023,0.011)$; one circuit per sample (4 + 10 RBS, 26--28 native
+two-qubit gates), 2000 shots, on the three devices of §137 and the eighteen of §144, FakeCusco included
+after the fix. Error is $L_1=\sum_k|\hat\lambda_k-\lambda_k/\sum\lambda|$. All four predictions passed:
+noiselessly $L_1=0.020$; all twenty-one ran and filter + read-out was below raw on every one; the median
+ratio raw / filter + read-out was 4.6 (1.6--7.7); and the five eigenvalues came out in order on 18 of 21
+(raw 13, read-out 14, filter 18). Median $L_1$: raw 0.266, read-out 0.166, filter 0.062, filter + read-out
+0.048. The raw estimate is biased upwards for every eigenvalue, because shots that leave the sector add
+excitations on all qubits (the raw spectrum sums to more than 1); the filter removes that bias. What
+remains is a flattening of the spectrum that grows as the kept share falls: on FakeKyoto (15\% kept) the
+order is lost, and on FakeBrisbane only the two smallest eigenvalues, 0.012 apart, swap. Quantum PCA's
+exponential speed-up rests on the assumption that copies of $\rho$ are given~\cite{tang2021qpca}; this
+experiment makes no claim on it.
+
 \section{Discussion}
 
 As a read-out tool the filter is robust: on every one of twenty IBM device noise models it lowered the $\qZ$
@@ -207,7 +236,8 @@ and adds variance where they are small. The calibration also tells, before any d
 shots the filter will keep, which qubits keep most, and how many shots a target precision needs.
 
 The limits are as clear. The gain in classification accuracy is small, because the model's decisions are
-mostly far from threshold. Nine of the twenty-three predictions failed as written, several through the analysis rather
+mostly far from threshold; spectrum estimation, where the answer is a set of
+probabilities rather than a decision, gains more (4.6$\times$). Nine of the twenty-seven predictions failed as written, several through the analysis rather
 than the filter: a prediction that ignored returning shots, a per-qubit error model that ignored the poles,
 and an experiment that required every device to run. And all results are on device noise models, which
 model gate, relaxation, dephasing and read-out errors as independent channels; leakage, crosstalk and drift
@@ -215,7 +245,8 @@ are absent. A run on hardware is the next step.
 
 \section*{Code and data availability}
 
-Everything is in the open-source library qang (MIT license), version 0.9.0 and later:
+Everything is in the open-source library qang (MIT license), version 0.9.0 and later (the
+functions of §146 are in the repository and in the next release):
 \url{https://github.com/Viny2030/qang}, \texttt{pip install qang}. The module is \texttt{qang.ibm} (with
 \texttt{qang.qiskit\_ml}); each section has a script in \texttt{examples/} and its output in
 \texttt{examples/data/}; \texttt{docs/ibm\_quickstart.md} shows the workflow.
