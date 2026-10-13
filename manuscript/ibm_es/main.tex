@@ -53,7 +53,10 @@ precisión objetivo de 0{,}02 en tres dispositivos. Para clasificación la ganan
 5--6 de las 10 decisiones que le cuesta el ruido. Al leer un espectro de componentes principales
 conocido, de cinco componentes, desde la matriz densidad de los datos en el sector de peso 1, el filtro con
 corrección de lectura baja el error 4{,}6 veces (mediana sobre veintiún dispositivos) y ordena bien el
-espectro en 18 de 21 (13 sin corrección). Se encontraron dos errores de interoperabilidad, uno en
+espectro en 18 de 21 (13 sin corrección). En la simulación de Trotter de la cadena XY el filtro reduce a la
+mitad el mejor error y corre a circuitos más profundos el número óptimo de pasos de Trotter (16 de 21
+dispositivos), y en una caminata cuántica convierte una dispersión cruda indistinguible de una caminata
+clásica (exponente 0{,}87) en una dispersión balística (1{,}84). Se encontraron dos errores de interoperabilidad, uno en
 qiskit-machine-learning y otro en la biblioteca. Todos los resultados son sobre modelos de ruido de
 dispositivos; no se informa ninguna corrida en hardware.
 \end{abstract}
@@ -73,7 +76,7 @@ Este trabajo pregunta cuánto vale el filtro en dispositivos de IBM y da las her
 todo corre mediante IBM Runtime~\cite{qiskitibmruntime} y Qiskit~\cite{javadiabhari2024qiskit}, aquí en el
 modo de prueba local sobre los modelos de ruido de los dispositivos (\emph{fake backends}), y sin cambios en
 un dispositivo. Cada experimento fijó sus circuitos, parámetros y predicciones en un commit antes de
-correr; los fracasos se informan como tales. Las secciones §137--§146 remiten a las notas de investigación
+correr; los fracasos se informan como tales. Las secciones §137--§147 remiten a las notas de investigación
 del repositorio, donde cada número de este trabajo lo reproduce un script de \texttt{examples/}.
 
 \section{Métodos}
@@ -128,6 +131,16 @@ vecinos (salvo signos de salida); con la base de PCA envía el autovalor $\lambd
 $P(\text{qubit }k\text{ excitado})=\lambda_k/\sum\lambda$, que \texttt{unary\_spectrum} lee de las cuatro
 lecturas de \texttt{ibm\_qg}. La rotación se calcula clásicamente y $d$ variables usan $d$ qubits: esto
 prueba la lectura, no una aceleración.
+
+\paragraph{Simulación hamiltoniana y caminata cuántica.} La cadena XY
+$H=J\sum_k(X_kX_{k+1}+Y_kY_{k+1})/2+\sum_k h_kZ_k/2$ conserva el número de excitaciones; con una excitación es
+un modelo de enlace fuerte, una caminata cuántica de tiempo continuo~\cite{kempe2003walks} con salto $J$ y
+energías locales $-h_k$. \texttt{xy\_trotter} escribe $r$ pasos de Trotter de primer
+orden~\cite{lloyd1996simulators} (campos, enlaces impares, enlaces pares) con compuertas RZ y XX+YY, todas
+conservan el peso, así que el filtro se aplica; \texttt{xy\_exact\_occupations} da la dinámica exacta con una
+excitación. La dispersión de un caminante que parte del sitio $c$ es $\sigma^2=\sum_kP_k(k-c)^2$, con $P_k$
+las ocupaciones normalizadas; la dispersión balística da $\sigma^2\propto t^2$ y una caminata clásica
+$\sigma^2\propto t$.
 
 \paragraph{Circuitos de prueba.} Diez circuitos aleatorios de cinco qubits y peso 1: X en el qubit~0 y dos
 capas de compuertas XX+YY entre vecinos con ángulos uniformes en $[0{,}3;\,2{,}8]$ (semillas 0--9). El error
@@ -247,6 +260,34 @@ autovalores menores, que difieren en 0{,}012. La aceleración exponencial del PC
 supuesto de que se dispone de copias de $\rho$~\cite{tang2021qpca}; este experimento no afirma nada sobre
 ella.
 
+\subsection{Simulación hamiltoniana y caminata cuántica (§147)}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{fig_trotter_es.pdf}
+\caption{(a) Error de las ocupaciones simuladas en $T=3$ según el número de pasos de Trotter (cinco qubits,
+campos aleatorios): más pasos bajan el error de Trotter (punteado) y agregan ruido; el filtro mantiene el
+error en descenso hasta circuitos más profundos. (b) Dispersión de una caminata cuántica en siete qubits: los
+datos crudos siguen una caminata clásica; los filtrados siguen la caminata cuántica exacta. Medianas sobre
+veintiún modelos de ruido de dispositivos, 4000 disparos.}
+\label{fig:trotter}
+\end{figure}
+
+Parte A: $n=5$, $J=1$, $h_k$ uniforme en $[-1,1]$, $T=3$, $r\in\{1,2,3,4,6,8,12\}$ (hasta 96 compuertas
+nativas de dos qubits). Sin ruido el error de Trotter baja de 0{,}38 a 0{,}033; en un dispositivo tiene un
+mínimo en algún $r^*$. Las tres predicciones se cumplieron (Figura~\ref{fig:trotter}a): con filtro + lectura
+el mejor error es menor que el mejor error crudo en los veintiún dispositivos (1{,}6--2{,}8 veces, mediana
+2{,}0), $r^*$ nunca es menor y es mayor en 16 de 21 (mediana 12 contra 8). En once dispositivos $r^*=12$, el
+más profundo probado, así que el corrimiento es una cota inferior. Parte B: $h=0$, $n=7$, el caminante en el
+qubit central, $t\in\{0{,}4;0{,}8;1{,}2;1{,}6\}$ con paso de Trotter 0{,}2; la dispersión exacta crece con
+exponente 1{,}94 y una caminata clásica con la misma tasa con 0{,}85. Los datos crudos dan un exponente
+mediano de 0{,}87: el ruido dispersa al caminante desde el principio y la caminata parece clásica
+(Figura~\ref{fig:trotter}b). Con filtro + lectura el exponente mediano es 1{,}84, el crudo es menor en 20 de 21
+(cumplida) y $\sigma^2$ queda dentro del 20\% del valor exacto en los cuatro tiempos en 15 de 21 (crudo:
+ninguno; cumplida). El exponente llegó a 1{,}5 en 16 dispositivos, no en los 18 predichos (fallida): los cuatro
+más ruidosos después de FakeKyoto dan 1{,}26--1{,}38, y en FakeKyoto (15\% de disparos conservados con 96
+compuertas) la caminata se pierde.
+
 \section{Discusión}
 
 Como herramienta de lectura, el filtro es robusto: en cada uno de los veinte modelos de ruido de
@@ -258,8 +299,9 @@ qubits conservan más y cuántos disparos necesita una precisión objetivo.
 
 Los límites son igual de claros. La ganancia en exactitud de clasificación es chica, porque las decisiones
 del modelo están en su mayoría lejos del umbral; la estimación de espectros, donde la respuesta es un
-conjunto de probabilidades y no una decisión, gana más (4{,}6 veces). Nueve de las veintisiete predicciones
-fallaron tal como
+conjunto de probabilidades y no una decisión, gana más (4{,}6 veces), y también la dinámica: el filtro permite que una simulación de Trotter use más
+pasos y hace visible la dispersión balística de una caminata cuántica donde los datos crudos parecen
+clásicos. Diez de las treinta y tres predicciones fallaron tal como
 estaban escritas, varias por el análisis y no por el filtro: una predicción que ignoraba los disparos que
 vuelven, un modelo de error por qubit que ignoraba los polos y un experimento que exigía que corrieran todos
 los dispositivos. Y todos los resultados son sobre modelos de ruido de dispositivos, que tratan los errores
@@ -269,7 +311,7 @@ entre qubits ni deriva. El paso siguiente es una corrida en hardware.
 \section*{Disponibilidad de código y datos}
 
 Todo está en la biblioteca de código abierto qang (licencia MIT), versión 0.9.0 o posterior (las
-funciones de §146 están en el repositorio y en la próxima versión):
+funciones de §146--§147 están en el repositorio y en la próxima versión):
 \url{https://github.com/Viny2030/qang}, \texttt{pip install qang}. El módulo es \texttt{qang.ibm} (con
 \texttt{qang.qiskit\_ml}); cada sección tiene un script en \texttt{examples/} y su salida en
 \texttt{examples/data/}; \texttt{docs/ibm\_quickstart.md} muestra el flujo de trabajo.

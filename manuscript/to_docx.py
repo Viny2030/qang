@@ -6,7 +6,13 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 src, out, fig_png = sys.argv[1], sys.argv[2], sys.argv[3]
 t = open(src, encoding="utf-8").read()
-t = re.sub(r"\\includegraphics\[[^\]]*\]\{[^}]*\}", r"\\includegraphics[width=0.9\\textwidth]{" + fig_png + "}", t)
+def _png(m):
+    import os
+    name = re.sub(r"\.pdf$", "", m.group(1)) + ".png"
+    return r"\includegraphics[width=0.9\textwidth]{" + (name if os.path.exists(name) else fig_png) + "}"
+
+
+t = re.sub(r"\\includegraphics\[[^\]]*\]\{([^}]*)\}", _png, t)
 t = t.replace(">{\\raggedright\\arraybackslash}p{", "p{").replace("\\rm ", "\\mathrm ")
 t = t.replace("\\newcommand{\\qZ}{qg_Z}", "").replace("\\qZ", "qg_Z")
 tmp = src.replace(".tex", "_pandoc.tex")

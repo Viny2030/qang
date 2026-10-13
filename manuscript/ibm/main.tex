@@ -45,7 +45,10 @@ avoids a qubit published as reading 1 always, and the shot planner met a 0.02 ta
 devices. For classification the gain is small: the QNN recovers 5--6 of the 10 decisions noise costs it. Reading a
 known five-component principal-component spectrum out of the data's density matrix in the weight-1 sector,
 filter plus read-out correction lowers the error 4.6$\times$ (median over twenty-one devices) and orders the
-spectrum correctly on 18 of 21 (13 raw).
+spectrum correctly on 18 of 21 (13 raw). In Trotter simulation of the XY chain the filter halves the best
+error and moves the optimal number of Trotter steps deeper (16 of 21 devices), and in a quantum walk it turns
+a raw spreading indistinguishable from a classical random walk (exponent 0.87) into ballistic spreading
+(1.84).
 Two interoperability bugs were found, one in qiskit-machine-learning and one in the library. All results are
 on device noise models; no hardware run is reported.
 \end{abstract}
@@ -65,7 +68,7 @@ This paper asks what the filter is worth on IBM devices and gives the tools to u
 runs through IBM Runtime~\cite{qiskitibmruntime} and Qiskit~\cite{javadiabhari2024qiskit}, here in local
 testing mode on the device noise models (fake backends), unchanged on a device. Each experiment fixed its
 circuits, settings and predictions in a commit before running; failures are reported as such. Sections
-§137--§146 refer to the research notes of the repository, where every number below is reproduced by a
+§137--§147 refer to the research notes of the repository, where every number below is reproduced by a
 script in \texttt{examples/}.
 
 \section{Methods}
@@ -116,6 +119,15 @@ signs); with the PCA basis it sends eigenvalue $\lambda_k$ to qubit $k$, so
 $P(\text{qubit }k\text{ excited})=\lambda_k/\sum\lambda$, read by \texttt{unary\_spectrum} from the four
 read-outs of \texttt{ibm\_qg}. The rotation is computed classically and $d$ features use $d$ qubits: this
 tests read-out, not a speed-up.
+
+\paragraph{Hamiltonian simulation and quantum walk.} The XY chain
+$H=J\sum_k(X_kX_{k+1}+Y_kY_{k+1})/2+\sum_k h_kZ_k/2$ conserves the excitation number; with one excitation
+it is a tight-binding model, a continuous-time quantum walk~\cite{kempe2003walks} with hopping $J$ and on-site
+energies $-h_k$. \texttt{xy\_trotter} writes $r$ first-order Trotter steps~\cite{lloyd1996simulators}
+(fields, odd bonds, even bonds) with RZ and XX+YY gates, all weight-preserving, so the filter applies;
+\texttt{xy\_exact\_occupations} gives the exact single-excitation dynamics. The spread of a walker started
+on site $c$ is $\sigma^2=\sum_kP_k(k-c)^2$ with $P_k$ the normalized occupations; ballistic spreading gives
+$\sigma^2\propto t^2$, a classical random walk $\sigma^2\propto t$.
 
 \paragraph{Test circuits.} Ten random five-qubit weight-1 circuits: X on qubit~0 and two layers of XX+YY
 gates on neighbours with angles uniform in $[0.3,2.8]$ (seeds 0--9). Error is the mean
@@ -227,6 +239,31 @@ order is lost, and on FakeBrisbane only the two smallest eigenvalues, 0.012 apar
 exponential speed-up rests on the assumption that copies of $\rho$ are given~\cite{tang2021qpca}; this
 experiment makes no claim on it.
 
+\subsection{Hamiltonian simulation and a quantum walk (§147)}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{fig_trotter.pdf}
+\caption{(a) Error of the simulated occupations at $T=3$ against the number of Trotter steps (five qubits,
+random fields): more steps lower the Trotter error (dashed) and add noise; the filter keeps the error falling
+to deeper circuits. (b) Spread of a quantum walk on seven qubits: raw data follow a classical random walk;
+filtered data follow the exact quantum walk. Medians over twenty-one device noise models, 4000 shots.}
+\label{fig:trotter}
+\end{figure}
+
+Part A: $n=5$, $J=1$, $h_k$ uniform in $[-1,1]$, $T=3$, $r\in\{1,2,3,4,6,8,12\}$ (up to 96 native two-qubit
+gates). Without noise the Trotter error falls from 0.38 to 0.033; on a device it has a minimum at some $r^*$.
+All three predictions passed (Figure~\ref{fig:trotter}a): with filter + read-out the best error is lower than
+the best raw error on all twenty-one devices (1.6--2.8$\times$, median 2.0$\times$), $r^*$ is never smaller,
+and it is larger on 16 of 21 (median 12 against 8). On eleven devices $r^*=12$, the deepest tested, so the
+shift is a lower bound. Part B: $h=0$, $n=7$, the walker on the middle qubit, $t\in\{0.4,0.8,1.2,1.6\}$ with
+Trotter step 0.2; the exact spread grows with exponent 1.94, a classical random walk with the same rate with
+0.85. Raw data give a median exponent of 0.87: noise spreads the walker from the start and the walk looks
+classical (Figure~\ref{fig:trotter}b). With filter + read-out the median exponent is 1.84, the raw exponent is
+lower on 20 of 21 (passed), and $\sigma^2$ is within 20\% of the exact value at all four times on 15 of 21
+(raw: none; passed). The exponent reached 1.5 on 16 devices, not the predicted 18 (failed): the four noisiest
+after FakeKyoto give 1.26--1.38, and on FakeKyoto (15\% of shots kept at 96 gates) the walk is lost.
+
 \section{Discussion}
 
 As a read-out tool the filter is robust: on every one of twenty IBM device noise models it lowered the $\qZ$
@@ -237,7 +274,9 @@ shots the filter will keep, which qubits keep most, and how many shots a target 
 
 The limits are as clear. The gain in classification accuracy is small, because the model's decisions are
 mostly far from threshold; spectrum estimation, where the answer is a set of
-probabilities rather than a decision, gains more (4.6$\times$). Nine of the twenty-seven predictions failed as written, several through the analysis rather
+probabilities rather than a decision, gains more (4.6$\times$), and so does
+dynamics: the filter lets a Trotter simulation use more steps and makes the ballistic spreading of a quantum
+walk visible where raw data look classical. Ten of the thirty-three predictions failed as written, several through the analysis rather
 than the filter: a prediction that ignored returning shots, a per-qubit error model that ignored the poles,
 and an experiment that required every device to run. And all results are on device noise models, which
 model gate, relaxation, dephasing and read-out errors as independent channels; leakage, crosstalk and drift
@@ -246,7 +285,7 @@ are absent. A run on hardware is the next step.
 \section*{Code and data availability}
 
 Everything is in the open-source library qang (MIT license), version 0.9.0 and later (the
-functions of §146 are in the repository and in the next release):
+functions of §146--§147 are in the repository and in the next release):
 \url{https://github.com/Viny2030/qang}, \texttt{pip install qang}. The module is \texttt{qang.ibm} (with
 \texttt{qang.qiskit\_ml}); each section has a script in \texttt{examples/} and its output in
 \texttt{examples/data/}; \texttt{docs/ibm\_quickstart.md} shows the workflow.
