@@ -72,6 +72,8 @@ __all__ = [
     "xy_trotter",
     "xy_exact_occupations",
     "occupations",
+    "xxz_trotter",
+    "xxz_exact_occupations",
 ]
 
 # gates that conserve the excitation number for every parameter value
@@ -127,16 +129,19 @@ class WeightPreservationCheck(_AnalysisPass):
 
         qc = dag_to_circuit(dag)
         bad, undecided = [], False
-        leading_x, started = set(), False
+        leading_x, touched = set(), set()
         for i, inst in enumerate(qc.data):
             name = inst.operation.name
             qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
             if name in ("measure", "barrier"):
                 continue
-            if not started and name == "x" and qubits[0] not in leading_x:
+            # an X that is the first operation on its qubit prepares an excitation from |0> (per qubit, so
+            # the order in which the DAG lists gates on different qubits does not matter)
+            if name == "x" and qubits[0] not in touched:
                 leading_x.add(qubits[0])
+                touched.add(qubits[0])
                 continue
-            started = True
+            touched.update(qubits)
             ok = _gate_preserves_weight(inst)
             if ok is None:
                 undecided = True
@@ -749,3 +754,92 @@ def xy_exact_occupations(n: int, J: float, h, t: float, initial: int = 0) -> np.
 def occupations(out: dict, kind: str = "filtered_readout") -> np.ndarray:
     """P(qubit k excited) = (1 - qg_Z) / 2 from an ibm_qg output."""
     return np.array([(1 - z) / 2 for z, _ in out[kind]])
+
+
+# ---------------------------------------------------------------- XXZ chain, several excitations (§148)
+#
+# H = sum_k [J (X_k X_{k+1} + Y_k Y_{k+1}) / 2 + V Z_k Z_{k+1} / 4] + sum_k h_k Z_k / 2. The ZZ term makes
+# the excitations interact; every term conserves the weight. Each bond is one two-qubit gate,
+# exp(-i dt [J (XX + YY)/2 + V ZZ/4]) (the two parts commute), so a step costs no more two-qubit gates than in
+# the XY chain.
+
+
+def _bond_unitary(J, V, dt):
+    from scipy.linalg import expm
+
+    X = np.array([[0, 1], [1, 0]], complex)
+    Y = np.array([[0, -1j], [1j, 0]], complex)
+    Z = np.diag([1.0, -1.0]).astype(complex)
+    H = J * (np.kron(X, X) + np.kron(Y, Y)) / 2 + V * np.kron(Z, Z) / 4
+    return expm(-1j * dt * H)
+
+
+def xxz_trotter(n: int, J: float, V: float, h, t: float, steps: int, initial: Sequence[int] = (0,),
+                order: int = 1, measure: bool = True):
+    """Trotter circuit of the XXZ chain. order 1: per step the fields, the odd bonds, the even bonds. order 2
+    (symmetric): fields/2, odd/2, even, odd/2, fields/2 per step, adjacent half-steps merged."""
+    from qiskit import QuantumCircuit
+    from qiskit.circuit.library import UnitaryGate
+
+    if order not in (1, 2):
+        raise ValueError("order must be 1 or 2.")
+    h = np.zeros(n) if h is None else np.asarray(h, float)
+    dt = t / steps
+    qc = QuantumCircuit(n)
+    for q in initial:
+        qc.x(q)
+
+    def fields(f):
+        for k in range(n):
+            if h[k] != 0:
+                qc.rz(h[k] * dt * f, k)
+
+    def bonds(start, f):
+        g = UnitaryGate(_bond_unitary(J, V, dt * f), label="xxz")
+        for k in range(start, n - 1, 2):
+            qc.append(g, [k, k + 1])   # Qiskit order: the matrix is symmetric under the swap of the pair
+
+    if order == 1:
+        for _ in range(steps):
+            fields(1)
+            bonds(1, 1)
+            bonds(0, 1)
+    else:
+        fields(0.5)
+        for s in range(steps):
+            bonds(1, 0.5)
+            bonds(0, 1)
+            bonds(1, 0.5)
+            fields(1 if s < steps - 1 else 0.5)
+    if measure:
+        qc.measure_all()
+    return qc
+
+
+def xxz_exact_occupations(n: int, J: float, V: float, h, t: float, initial: Sequence[int] = (0,)) -> np.ndarray:
+    """Exact P(qubit k excited) at time t from the basis state with ``initial`` excited (full Hilbert space,
+    n <= 12)."""
+    from qiskit.quantum_info import SparsePauliOp
+    from scipy.sparse.linalg import expm_multiply
+
+    h = np.zeros(n) if h is None else np.asarray(h, float)
+    terms = []
+    for k in range(n - 1):
+        for P in ("X", "Y"):
+            lab = ["I"] * n
+            lab[n - 1 - k] = lab[n - 2 - k] = P
+            terms.append(("".join(lab), J / 2))
+        lab = ["I"] * n
+        lab[n - 1 - k] = lab[n - 2 - k] = "Z"
+        terms.append(("".join(lab), V / 4))
+    for k in range(n):
+        lab = ["I"] * n
+        lab[n - 1 - k] = "Z"
+        terms.append(("".join(lab), h[k] / 2))
+    H = SparsePauliOp.from_list(terms).to_matrix(sparse=True)
+    psi = np.zeros(2 ** n, complex)
+    psi[sum(1 << q for q in initial)] = 1
+    psi = expm_multiply(-1j * t * H, psi)
+    p = np.abs(psi) ** 2
+    idx = np.arange(2 ** n)
+    return np.array([p[(idx >> k) & 1 == 1].sum() for k in range(n)])

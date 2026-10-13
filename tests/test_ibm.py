@@ -265,3 +265,26 @@ def test_xy_trotter_converges_to_exact_dynamics():
     assert pm.property_set["qg_weight_preserving"] and pm.property_set["qg_initial_weight"] == 1
     out = {"raw": [(1.0, 0.0), (-1.0, 0.0)]}
     assert np.allclose(ibm.occupations(out, "raw"), [0, 1])
+
+
+def test_xxz_trotter_many_excitations():
+    from qiskit.quantum_info import Statevector
+
+    h = np.random.default_rng(1).uniform(-0.5, 0.5, 4)
+    assert np.allclose(ibm.xxz_exact_occupations(4, 1.0, 0.0, h, 1.2, (0,)), ibm.xy_exact_occupations(4, 1.0, h, 1.2))
+    exact = ibm.xxz_exact_occupations(4, 1.0, 2.0, h, 1.2, (0, 1))
+    assert abs(exact.sum() - 2) < 1e-9
+
+    def occ(qc):
+        p = np.abs(Statevector(qc).data) ** 2
+        idx = np.arange(16)
+        return np.array([p[(idx >> k) & 1 == 1].sum() for k in range(4)])
+
+    e1 = [np.abs(occ(ibm.xxz_trotter(4, 1.0, 2.0, h, 1.2, r, (0, 1), 1, measure=False)) - exact).max() for r in (2, 32)]
+    e2 = [np.abs(occ(ibm.xxz_trotter(4, 1.0, 2.0, h, 1.2, r, (0, 1), 2, measure=False)) - exact).max() for r in (2, 32)]
+    assert e1[1] < e1[0] and e2[1] < e2[0] and e2[1] < 1e-3 and e2[1] < e1[1]
+    pm = PassManager([ibm.WeightPreservationCheck()])
+    pm.run(ibm.xxz_trotter(4, 1.0, 2.0, h, 1.2, 2, (0, 1), 2, measure=False))
+    assert pm.property_set["qg_weight_preserving"] and pm.property_set["qg_initial_weight"] == 2
+    with pytest.raises(ValueError):
+        ibm.xxz_trotter(4, 1.0, 2.0, h, 1.2, 2, (0,), 3)
