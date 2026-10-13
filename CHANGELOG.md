@@ -5,6 +5,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-13
+
 ### Fixed
 - `qang.ibm.WeightPreservationCheck`: an X gate counts as state preparation when it is the first operation on its
   qubit, independently of the order in which the DAG lists gates on other qubits (a second-order Trotter circuit with

@@ -19,7 +19,7 @@ Reference implementation and computational toolkit for:
 - qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
 - **IBM Quantum** through IBM Runtime (transpiler pass, calibrated readout correction, qubit selection) and **qiskit-machine-learning** integration.
 
-### In the repository, next release — spectra and dynamics on IBM device noise models
+### What's new in 0.10 — spectra and dynamics on IBM device noise models
 
 - **A PCA spectrum in the weight-1 sector** (`unary_loader`, `unary_orthogonal`, `pca_rotation`, `unary_spectrum`): the loaded data form the density matrix that quantum PCA diagonalizes, and a nearest-neighbour RBS rotation puts each eigenvalue on one qubit. On 21 IBM device noise models filter plus readout cut the spectrum error 4.6× (median) and order all five eigenvalues on 18 of 21 (raw: 13) (§146). No quantum speed-up is claimed.
 - **Hamiltonian simulation and quantum walks** (`xy_trotter`, `xy_exact_occupations`, `occupations`): Trotter circuits of the XY chain, all weight-preserving. The filter halves the best simulation error and moves the optimal number of Trotter steps deeper (median 12 against 8); in a quantum walk raw data spread like a classical random walk (exponent 0.87) and filtered data ballistically (1.84; noiseless 1.94) (§147).

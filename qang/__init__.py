@@ -62,4 +62,4 @@ See RESEARCH_NOTES.md for the derivations and results behind each module.
 from .core import Qang, MILLIQANG_PER_QANG
 
 __all__ = ["Qang", "MILLIQANG_PER_QANG"]
-__version__ = "0.9.0"
+__version__ = "0.10.0"
