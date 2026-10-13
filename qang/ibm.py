@@ -264,8 +264,11 @@ def predict_kept_fraction(transpiled, backend, weight: int) -> dict:
       relaxation over the busy time t of a qubit -> (1 - exp(-t/T1)) * w/n (only excited qubits decay);
       pure dephasing during the gates -> 2z/3 with z = (1 - exp(-t/T_phi))/2 (§133, twirled);
       readout                         -> w/n * P(0|1) + (1 - w/n) * P(1|0).
-    The kept fraction is the product of the survivals; shots that come back into the sector are ignored,
-    so the prediction is a lower bound in spirit. Returns the prediction and its parts.
+    The kept fraction is the product S of the survivals; shots that come back into the sector are ignored,
+    so ``kept`` is a lower bound in spirit. ``kept_mixed_floor`` = S + (1 - S) C(n, w) / 2^n also counts the
+    shots that land in the sector after a weight error, as for a fully mixed state; it is the better
+    estimate (found after the §138 predictions were scored: mean error 0.013-0.041 instead of 0.08-0.13).
+    Returns both and the parts.
     """
     t = backend.target
     phys = measured_physical_qubits(transpiled)
@@ -296,7 +299,10 @@ def predict_kept_fraction(transpiled, backend, weight: int) -> dict:
     for e01, e10 in readout_errors(backend, phys):
         s_read *= 1 - (frac * e10 + (1 - frac) * e01)
     kept = s_gate * s_relax * s_deph * s_read
-    return {"kept": float(kept), "gates": float(s_gate), "relaxation": float(s_relax),
+    from math import comb
+
+    mixed = comb(n, weight) / 2 ** n
+    return {"kept": float(kept), "kept_mixed_floor": float(kept + (1 - kept) * mixed), "gates": float(s_gate), "relaxation": float(s_relax),
             "dephasing": float(s_deph), "readout": float(s_read)}
 
 

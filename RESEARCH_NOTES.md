@@ -6221,6 +6221,20 @@ readout correction, 0.023 / 0.019 / 0.018 with the filter and
 correction helps, the filter helps more, and the combination is best.
 Readout correction raises the weight-1 mass from 0.69–0.82 to 0.82–0.92.
 
+## 138. Predicting the kept fraction from IBM calibration, and choosing qubits with it (`examples/ibm_layout_qg.py`)
+
+`qang.ibm.predict_kept_fraction` multiplies the survival of the weight under
+each calibrated channel (gate errors, T1, pure dephasing during the gates,
+readout); `best_chain` picks the chain of physical qubits with the highest
+prediction; `estimator_qg` reads qg_Z and the filtered qg_Z from an IBM
+Runtime Estimator. On three fake backends, ten layouts each (L1–L3 committed
+before the run): the prediction is too low (mean error 0.08–0.13, L1 fails)
+but ranks the layouts correctly (Spearman 0.94–0.98, L2 passes), and
+best_chain keeps 6–17 points more shots than Qiskit's default layout (L3
+passes). After scoring, adding the share of shots that return to the sector
+as for a fully mixed state brings the mean error to 0.023–0.041
+(`kept_mixed_floor`).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

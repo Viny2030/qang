@@ -28,7 +28,26 @@ python examples/ibm_layout_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Predicted / measured kept fraction (mean over three circuits):
+
+  backend          default        best_chain     mean |error|   Spearman   best - default
+  FakeBrisbane     0.672/0.728    0.807/0.856    0.082          0.96       +0.128
+  FakeSherbrooke   0.773/0.817    0.842/0.878    0.128          0.98       +0.061
+  FakeTorino       0.673/0.685    0.846/0.854    0.080          0.94       +0.169
+
+  L1 FAIL: the mean error is 0.080-0.128, not <= 0.05. The prediction is
+     low on every layout, most of all on chains crossing a broken coupler
+     (published two-qubit error 1, predicted 0, measured 0.18-0.32).
+  L2 PASS: the ranking is right (Spearman 0.94-0.98).
+  L3 PASS: best_chain keeps 6-17 points more shots than the transpiler's
+     default layout on every backend.
+  * As a ranking tool the predictor works: choosing qubits with it is a
+    large, free gain on top of Qiskit's own layout selection.
+  * Exploratory (after scoring): the missing piece is the shots that come
+    back into the sector after an error. Adding the fully-mixed share,
+    S + (1 - S) C(5,1)/2^5, gives a mean error of 0.023 / 0.041 / 0.040
+    (0.023 / 0.013 / 0.014 without the broken chains). It is returned as
+    ``kept_mixed_floor``; ``kept`` is unchanged.
 """
 
 import json

@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.ibm` (§138): `estimator_qg` (qg_Z and filtered qg_Z from an IBM Runtime Estimator), `predict_kept_fraction`
+  (kept fraction from calibration, with a mixed-state floor), `linear_chains` and `best_chain` (choose the physical
+  qubits). `examples/ibm_layout_qg.py`: best_chain keeps 6-17 points more shots than Qiskit's default layout
+  (L2, L3 pass; L1 fails: the raw prediction is low).
 - `qang.ibm` (§137): `WeightPreservationCheck` transpiler analysis pass (is the qg filter applicable, and on which
   sector), `readout_errors` from the device calibration, `readout_inverse_distribution`, and `ibm_qg` (raw,
   readout-corrected, filtered and filtered-after-readout qg_Z from an IBM Runtime Sampler result).
