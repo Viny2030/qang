@@ -26,7 +26,21 @@ python examples/ibm_shot_plan_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+  backend          planned shots   QPU s (est.)   worst measured se   mean measured/predicted
+  FakeBrisbane     3399 / 3383     0.88 / 0.88    0.0206              1.46
+  FakeSherbrooke   3040 / 3025     0.79 / 0.78    0.0214              1.63
+  FakeTorino       3394 / 3377     0.86 / 0.85    0.0229              1.44
+
+  P1 PASS: the plan delivers the target: the worst qubit's measured standard
+     error is 0.021-0.023 for a target of 0.02 (limit 0.025).
+  P2 FAIL: the per-qubit prediction is too small on average (ratio
+     1.44-1.63).
+  * Exploratory (after scoring): the misses are the qubits near a pole. For
+    |qg| <= 0.8 the ratio is 0.83 / 1.00 / 1.03; for |qg| > 0.8 it is
+    2.4-3.1: noise pulls qg_Z away from +-1, where sqrt(1 - qg^2) is small,
+    so the ideal qg underestimates their error. The plan is set by the worst
+    qubit (the one with the largest 1 - qg^2), which is why it still meets
+    the target; passing qg=None (worst case, qg = 0) is the safe choice.
 """
 
 import json

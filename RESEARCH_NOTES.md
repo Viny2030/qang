@@ -6289,6 +6289,18 @@ than ZNE). ZNE lowers filtered + readout-corrected error on two backends but
 not on torino (Z1 fails), and the best combination is filter + ZNE on two
 backends and filter + readout on torino (Z3 fails).
 
+## 143. Planning shots for a target qg precision (`qang.ibm.plan_shots`, `examples/ibm_shot_plan_qg.py`)
+
+`plan_shots` turns a target standard error of the filtered qg_Z into shots
+and estimated QPU seconds from the predicted kept fraction. For a target of
+0.02 on two circuits per backend (P1–P2 committed before the run) it planned
+3000–3400 shots (about 0.8–0.9 QPU seconds), and over 30 repetitions the
+worst qubit's error was 0.021–0.023 (P1 passes). The per-qubit prediction
+was 1.4–1.6× too small on average (P2 fails): after scoring, the misses are
+the qubits near a pole (|qg| > 0.8, ratio 2.4–3.1; 0.8–1.0 elsewhere), whose
+qg_Z the noise pulls away from ±1. The plan uses the worst qubit and still
+meets the target; qg = None (worst case) is the safe default.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

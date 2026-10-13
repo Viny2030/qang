@@ -77,6 +77,17 @@ For circuits that are not chains (rings, like qang's QNN) use
 run, routing included, and includes the transpiler's default among the
 candidates, so it is never worse than the default by the prediction (§141).
 
+## 4a. How many shots, how many device seconds?
+
+```python
+ibm.plan_shots(t, backend, weight=1, target_se=0.02)
+# {"shots": ~3000-3400, "kept": ..., "qpu_seconds": ~0.8-0.9, ...}
+```
+
+The plan accounts for the shots the filter will discard; on three device
+noise models it met a 0.02 target (§143). Leave `qg=None` (worst case) unless
+you know the expected values.
+
 ## 4b. Zero-noise extrapolation with the filter
 
 ```python
