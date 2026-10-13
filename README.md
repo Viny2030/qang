@@ -33,6 +33,17 @@ IO.sampler_qg(res, weight=1)          # {"qg", "se", "kept"} over the whole swee
 
 Full list in [CHANGELOG.md](CHANGELOG.md).
 
+On IBM devices (`qang.ibm`, on `main`, next release):
+
+```python
+from qang import ibm
+from qiskit_ibm_runtime.executor_sampler import Sampler
+
+t = transpile(qc, backend)                               # qc: weight-preserving circuit, measured
+res = Sampler(mode=backend).run([t]).result()[0]
+ibm.ibm_qg(res, t, backend, weight=1)["filtered_readout"]   # qg filter + calibrated readout correction
+```
+
 ### What is in the library
 
 | module | what it does |
@@ -45,6 +56,7 @@ Full list in [CHANGELOG.md](CHANGELOG.md).
 | `qang.polarization` | polarized light: Stokes parameters are qg values, Mueller matrices are the qg gate rule |
 | `qang.geometric` | geometric (Berry/Pancharatnam) phase in qg units, Stokes' theorem on the Bloch sphere |
 | `qang.interop` | one qubit order for Qiskit, Cirq, PennyLane, Braket and pytket results; qg_Z profile, qg filter, register entropy and its error; Qiskit SamplerV2 / EstimatorV2 read-outs |
+| `qang.ibm` | IBM devices: transpiler pass that checks weight conservation, calibrated readout correction, qg read-out of IBM Runtime Sampler results |
 | `qang.qsp` | quantum signal processing and weighted QSP in qg terms; Hadamard-test read-out; phase fitting in the arcsine scale |
 | `qang.proportions` | the qg angle as the arcsine transform of any binomial proportion: intervals, Cohen's h |
 | `qang.clock_comparison` | differential phase of two clocks from the ellipse of their qg pairs |

@@ -6204,6 +6204,23 @@ gets 182 of 189 (41 parameters), three more than the odd-only model (P1 passes)
 but three below qang's QNN at 185 (P2 fails: needed 183). The even activation
 closes half of the gap.
 
+## 137. qang on IBM devices through IBM Runtime (`qang/ibm.py`, `examples/ibm_runtime_qg.py`)
+
+`qang.ibm` adds a Qiskit transpiler analysis pass that decides whether every
+gate conserves the Hamming weight (so the qg filter applies, and on which
+sector), reads the published asymmetric readout errors of the physical qubits
+a transpiled circuit measures, and turns an IBM Runtime Sampler result into
+per-qubit qg_Z raw, readout-corrected (tensor-product inverse), filtered, and
+filtered after readout correction.
+
+On ten random weight-1 circuits of five qubits (FakeBrisbane, FakeSherbrooke,
+FakeTorino in Runtime local mode, 8000 shots; M1–M3 committed before the run)
+the mean qg_Z error is 0.104 / 0.065 / 0.102 raw, 0.074 / 0.038 / 0.036 with
+readout correction, 0.023 / 0.019 / 0.018 with the filter and
+0.022 / 0.016 / 0.013 with both. All three predictions pass: readout
+correction helps, the filter helps more, and the combination is best.
+Readout correction raises the weight-1 mass from 0.69–0.82 to 0.82–0.92.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

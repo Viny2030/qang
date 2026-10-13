@@ -31,7 +31,24 @@ python examples/ibm_runtime_qg.py
 
 Findings:
 
-FINDINGS_PLACEHOLDER
+Mean |qg_Z - ideal| (5 qubits x 10 circuits, 8000 shots):
+
+  backend          raw      readout   filtered   filtered + readout   kept raw / readout
+  FakeBrisbane     0.104    0.074     0.023      0.022                0.73 / 0.82
+  FakeSherbrooke   0.065    0.038     0.019      0.016                0.82 / 0.90
+  FakeTorino       0.102    0.036     0.018      0.013                0.69 / 0.92
+
+  M1 PASS: readout correction lowers the raw error on every backend (by
+     29-64%).
+  M2 PASS: filter + readout correction is the best on every backend.
+  M3 PASS: the filter alone beats readout correction alone everywhere.
+  * The two corrections are complementary: readout correction alone leaves
+    2-3x the filtered error; the filter alone is close to the combination,
+    which adds most on torino (0.018 -> 0.013), whose measured qubits have
+    the largest readout errors.
+  * After readout correction the weight-1 mass rises from 0.69-0.82 to
+    0.82-0.92: about a third to two thirds of the shots the filter would
+    discard were readout errors, not gate errors.
 """
 
 import json

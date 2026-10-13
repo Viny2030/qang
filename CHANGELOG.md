@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `qang.ibm` (§137): `WeightPreservationCheck` transpiler analysis pass (is the qg filter applicable, and on which
+  sector), `readout_errors` from the device calibration, `readout_inverse_distribution`, and `ibm_qg` (raw,
+  readout-corrected, filtered and filtered-after-readout qg_Z from an IBM Runtime Sampler result).
+  `examples/ibm_runtime_qg.py`: on three IBM fake backends the filter plus readout correction cuts the qg_Z error
+  from 0.065-0.104 to 0.013-0.022 (M1-M3 pass).
+
 ## [0.8.0] - 2026-10-12
 
 Release of §128–§136. qang now reads results from every major SDK with one qubit order (`qang.interop`: Qiskit,
