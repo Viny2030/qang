@@ -35,6 +35,54 @@ Pre-registered predictions (committed before the run):
       least 18 of the 21 backends.
 
 python examples/ibm_pca_spectrum_qg.py
+
+Findings:
+
+Noiseless: (0.650, 0.199, 0.116, 0.024, 0.012) against the exact (0.640,
+0.203, 0.122, 0.023, 0.011), L1 = 0.020.
+
+L1 error of the spectrum (16 circuits x 2000 shots; 26-28 native two-qubit
+gates per circuit; kept = share of shots in the weight-1 sector):
+
+  backend          raw     readout  filtered  filt+ro  order (f+ro)  kept
+  FakeBrisbane     0.504   0.419    0.132     0.109    no            0.60
+  FakeSherbrooke   0.266   0.192    0.062     0.055    yes           0.76
+  FakeTorino       0.278   0.151    0.082     0.049    yes           0.68
+  FakeAachen       0.129   0.106    0.016     0.029    yes           0.85
+  FakeBerlin       0.129   0.077    0.029     0.024    yes           0.87
+  FakeBoston       0.168   0.166    0.039     0.041    yes           0.85
+  FakeBrussels     0.388   0.288    0.090     0.071    yes           0.66
+  FakeCusco        0.454   0.440    0.230     0.227    yes           0.44
+  FakeFez          0.167   0.155    0.050     0.047    yes           0.85
+  FakeKawasaki     0.284   0.223    0.063     0.048    yes           0.74
+  FakeKingston     0.165   0.100    0.012     0.044    yes           0.77
+  FakeKyiv         0.345   0.236    0.070     0.054    yes           0.70
+  FakeKyoto        1.762   1.760    0.964     1.121    no            0.15
+  FakeMarrakesh    0.116   0.104    0.018     0.018    yes           0.89
+  FakeMiami        0.110   0.047    0.016     0.014    yes           0.88
+  FakeNighthawk    0.119   0.112    0.026     0.030    yes           0.89
+  FakeOsaka        0.445   0.335    0.104     0.076    yes           0.63
+  FakePittsburgh   0.090   0.081    0.027     0.025    yes           0.92
+  FakeQuebec       0.502   0.475    0.180     0.167    yes           0.55
+  FakeStrasbourg   0.248   0.163    0.042     0.044    yes           0.74
+  FakeWashingtonV2 0.843   0.734    0.300     0.244    no            0.41
+
+  V1 PASS: noiseless L1 = 0.020 (<= 0.03).
+  V2 PASS: all 21 ran; filtered + readout is below raw on every one.
+  V3 PASS: median raw / (filtered + readout) = 4.63 (range 1.6-7.7; the
+     lowest is FakeKyoto, where only 15% of the shots survive).
+  V4 PASS: the five eigenvalues come out in order on 18 of 21 with
+     filtered + readout (raw: 13, readout: 14, filtered: 18). On
+     FakeBrisbane only the last two (0.023 and 0.011) swap.
+  * The raw estimate is biased upwards for every eigenvalue: shots that
+    leave the sector put extra excitations on all qubits, so the raw
+    "spectrum" sums to more than 1 (median L1 0.27). The filter removes
+    that bias; what remains is mostly a flattening of the spectrum
+    (depolarizing inside the sector) that grows as the kept share falls.
+  * Median L1: raw 0.266, readout 0.166, filtered 0.062, filtered +
+    readout 0.048. As in §144, readout correction after the filter helps
+    on most devices but not where readout errors are small (Aachen,
+    Kingston, Nighthawk).
 """
 
 import json

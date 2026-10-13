@@ -114,6 +114,27 @@ r["decision"]["qang_readout"] > 0                       # predictions
 XX+YY gates; `run_qnn` transpiles it once and sends the whole test set as a
 single Sampler pub.
 
+## 6. A PCA spectrum in the weight-1 sector
+
+```python
+O, lam = ibm.pca_rotation(X)                  # X: (m, d) data; O sends component k to qubit k
+qcs = []
+for x in X - X.mean(axis=0):
+    qc = ibm.unary_loader(x)                   # sum_k x_k |e_k>, d - 1 RBS
+    qc.compose(ibm.unary_orthogonal(O), inplace=True)   # d(d-1)/2 nearest-neighbour RBS
+    qc.measure_all()
+    qcs.append(qc)
+# run them, ibm_qg(..., weight=1) on each, then
+w = ((X - X.mean(axis=0)) ** 2).sum(axis=1)
+ibm.unary_spectrum(outs, w)                    # estimate of lam / lam.sum()
+```
+
+The weighted mixture of loaded vectors is the density matrix that quantum PCA
+diagonalizes; the filter removes the upward bias that out-of-sector shots
+give every eigenvalue. On 21 device noise models (§146, d = 5) filter +
+readout cut the spectrum error 4.6× (median). No quantum speed-up is claimed:
+d features use d qubits.
+
 ## On a real device
 
 ```python

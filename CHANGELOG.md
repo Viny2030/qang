@@ -11,6 +11,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   raising a singular-matrix error (found on FakeCusco, §144).
 
 ### Added
+- `qang.ibm.unary_loader`, `unary_orthogonal`, `pca_rotation`, `unary_spectrum` (§146): data loading and real
+  orthogonal rotations on the weight-1 sector with nearest-neighbour RBS gates, and a PCA spectrum read from it.
+  `examples/ibm_pca_spectrum_qg.py`: on 21 IBM device noise models the filter + readout cut the spectrum error 4.6x
+  (median) and order all five eigenvalues on 18 of 21 (raw: 13). V1-V4 pass.
 - `examples/ibm_coherent_zz_qg.py` (§145): a coherent conditional-phase error on every native two-qubit gate; it is
   partly caught by the filter (it acts inside the native decomposition) and hurts most on CZ devices. X1-X3 fail.
 - `examples/ibm_fleet_qg.py` (§144): the filter on 18 more IBM device noise models; 2.4-8.9x lower qg_Z error on all

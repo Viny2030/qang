@@ -6328,6 +6328,24 @@ filtered. A ZZ error on the logical pair in the computational frame (always-on
 ZZ between idle neighbours) would stay invisible to the filter and was not
 simulated.
 
+## 146. A PCA spectrum in the weight-1 sector (`qang.ibm.unary_orthogonal`, `examples/ibm_pca_spectrum_qg.py`)
+
+Quantum PCA [Lloyd, Mohseni & Rebentrost 2014] diagonalizes rho = C / tr C.
+In the unary encoding a mixture of loaded data vectors (weights |x_j|^2)
+is exactly that rho, and the RBS circuit of the PCA rotation (n(n-1)/2
+nearest-neighbour RBS, `unary_orthogonal`) puts eigenvalue lambda_k on
+qubit k. All gates conserve the weight, so the qg filter applies. This is
+not the speed-up of quantum PCA (d features use d qubits, the rotation is
+computed classically): it tests how well a device reads a known spectrum
+out of rho. Data: d = 5, m = 16, exact spectrum (0.640, 0.203, 0.122,
+0.023, 0.011); 21 IBM device noise models (V1–V4 committed before the
+run). All four predictions passed. The raw estimate is biased upwards
+(shots leaving the sector add excitations on every qubit; median L1 0.27);
+filter + readout brings the median L1 to 0.048 (4.6× lower, 1.6–7.7×) and
+gets the order of all five eigenvalues right on 18 of 21 devices (raw: 13).
+The remaining error is a flattening of the spectrum that grows as the kept
+share falls (FakeKyoto keeps 15% and fails).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
