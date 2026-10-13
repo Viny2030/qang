@@ -23,6 +23,7 @@ Reference implementation and computational toolkit for:
 
 - **A PCA spectrum in the weight-1 sector** (`unary_loader`, `unary_orthogonal`, `pca_rotation`, `unary_spectrum`): the loaded data form the density matrix that quantum PCA diagonalizes, and a nearest-neighbour RBS rotation puts each eigenvalue on one qubit. On 21 IBM device noise models filter plus readout cut the spectrum error 4.6× (median) and order all five eigenvalues on 18 of 21 (raw: 13) (§146). No quantum speed-up is claimed.
 - **Hamiltonian simulation and quantum walks** (`xy_trotter`, `xy_exact_occupations`, `occupations`): Trotter circuits of the XY chain, all weight-preserving. The filter halves the best simulation error and moves the optimal number of Trotter steps deeper (median 12 against 8); in a quantum walk raw data spread like a classical random walk (exponent 0.87) and filtered data ballistically (1.84; noiseless 1.94) (§147).
+- **Interacting excitations** (`xxz_trotter`, `xxz_exact_occupations`): the XXZ chain with 1, 2 or 3 excitations, first- or second-order Trotter. The filter's benefit falls from 5.6× with one excitation to 2.6× with two or three: larger sectors let more noise through (§148).
 
 ### What's new in 0.9 — qang on IBM Quantum and in Qiskit
 
@@ -44,7 +45,7 @@ layout, pred, t = ibm.best_chain(qc, backend, weight=1)      # qubits with the m
 r = ibm.run_qnn(model, X_test, backend)                      # qang's QNN: whole test set in one job
 ```
 
-Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§147): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
+Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§148): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
 
 ### New in 0.8
 
@@ -67,7 +68,7 @@ Full list in [CHANGELOG.md](CHANGELOG.md).
 | `qang.polarization` | polarized light: Stokes parameters are qg values, Mueller matrices are the qg gate rule |
 | `qang.geometric` | geometric (Berry/Pancharatnam) phase in qg units, Stokes' theorem on the Bloch sphere |
 | `qang.interop` | one qubit order for Qiskit, Cirq, PennyLane, Braket and pytket results; qg_Z profile, qg filter, register entropy and its error; Qiskit SamplerV2 / EstimatorV2 read-outs |
-| `qang.ibm` | IBM devices: transpiler pass that checks weight conservation, calibrated readout correction, qg read-out of IBM Runtime Sampler and Estimator results, kept-fraction prediction and qubit selection, ZNE, shot planning, the QNN, PCA spectra and Trotter simulation in the weight-1 sector |
+| `qang.ibm` | IBM devices: transpiler pass that checks weight conservation, calibrated readout correction, qg read-out of IBM Runtime Sampler and Estimator results, kept-fraction prediction and qubit selection, ZNE, shot planning, the QNN, PCA spectra, and Trotter simulation of the XY and XXZ chains |
 | `qang.qiskit_ml` | qang's weight-conserving QNN as a qiskit-machine-learning `SamplerQNN`, with raw and filtered qg_Z features |
 | `qang.qsp` | quantum signal processing and weighted QSP in qg terms; Hadamard-test read-out; phase fitting in the arcsine scale |
 | `qang.proportions` | the qg angle as the arcsine transform of any binomial proportion: intervals, Cohen's h |

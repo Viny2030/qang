@@ -6369,6 +6369,26 @@ the exact value at all times on 15 of 21 (raw: 0). The exponent reached 1.5
 on 16 of 21, not the predicted 18 (W1 fails): the four noisiest devices
 after Kyoto give 1.26–1.38, FakeKyoto about 0.
 
+## 148. Interacting excitations: the XXZ chain with 1, 2 and 3 excitations (`qang.ibm.xxz_trotter`, `examples/ibm_xxz_many_body_qg.py`)
+
+The XXZ chain adds V Z_k Z_{k+1}/4 to the XY chain: the excitations interact,
+every term still conserves the weight, and each bond is one two-qubit gate.
+n = 6, V = 2, random fields, T = 2, first- and second-order Trotter with 1–8
+steps, 21 device noise models (K1–K4 committed before the run). Three
+predictions passed. The filter's benefit falls from 5.6× (median ratio of
+best raw to best filter + readout error) with one excitation to 2.6× with two
+and 2.6× with three (K2 passed, only just between two and three): sectors
+with more excitations keep more shots (0.49 against 0.43 at 120 two-qubit
+gates) but more of the noise lands inside them, where the filter cannot see
+it. K1 failed on one of 63 pairs: on FakeKyoto at half filling the filtered
+error (0.238) is not below the raw one (0.231). The filter still moves the
+optimal number of Trotter steps deeper (61 of 63, K4), and second-order
+Trotter is better with two excitations on 20 of 21 devices (K3), with three
+on only 5 (exploratory). Earlier, WeightPreservationCheck reported a
+second-order circuit with two excitations as not weight-preserving because
+it read leading X gates in DAG order; it now treats an X as preparation when
+it is the first operation on its qubit.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

@@ -6,11 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
+- `qang.ibm.WeightPreservationCheck`: an X gate counts as state preparation when it is the first operation on its
+  qubit, independently of the order in which the DAG lists gates on other qubits (a second-order Trotter circuit with
+  two excitations was reported as not weight-preserving, §148).
 - `qang.ibm.readout_inverse_distribution`: qubits whose readout cannot be inverted (contrast below 0.05, e.g. a qubit
   published as always reading 1) are left uncorrected and reported in `ibm_qg(...)["uncorrectable_qubits"]` instead of
   raising a singular-matrix error (found on FakeCusco, §144).
 
 ### Added
+- `qang.ibm.xxz_trotter`, `xxz_exact_occupations` (§148): Trotter circuits (first and second order) of the
+  interacting XXZ chain with any number of excitations, one two-qubit gate per bond, and its exact dynamics.
+  `examples/ibm_xxz_many_body_qg.py`: on 21 IBM device noise models the filter's benefit falls from 5.6x with one
+  excitation to 2.6x with two or three; K2-K4 pass, K1 fails on one of 63 cases (FakeKyoto at half filling).
 - `qang.ibm.xy_trotter`, `xy_exact_occupations`, `occupations` (§147): first-order Trotter circuits of the XY chain
   (weight-preserving, so the filter applies) and its exact single-excitation dynamics.
   `examples/ibm_trotter_walk_qg.py`: on 21 IBM device noise models the filter halves the best Trotter-simulation error

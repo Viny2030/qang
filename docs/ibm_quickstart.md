@@ -150,6 +150,11 @@ simulation use more Trotter steps (median optimum 12 against 8); with h = 0
 and one excitation the circuit is a quantum walk, whose ballistic spreading
 is visible only with the filter.
 
+With interacting excitations use `ibm.xxz_trotter(n, J, V, h, t, steps, initial=(0, 1), order=2)`
+and `ibm.xxz_exact_occupations`, and filter on `weight=len(initial)`. The filter
+helps less as the sector grows (§148: 5.6× with one excitation, 2.6× with two
+or three).
+
 ## On a real device
 
 ```python

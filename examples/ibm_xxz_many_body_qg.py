@@ -44,6 +44,40 @@ Pre-registered predictions (committed before the run):
       54 of the 63 (backend, sector) pairs.
 
 python examples/ibm_xxz_many_body_qg.py
+
+Findings:
+
+Best error over r and order (median over the 21 devices; range of the ratio
+raw / filter + readout across devices):
+
+  excitations  raw     readout  filtered  filt+ro  raw / filt+ro (range)
+  w = 1        0.066   0.038    0.008     0.009    5.6 (2.4-14.4)
+  w = 2        0.080   0.072    0.030     0.028    2.6 (1.1-3.8)
+  w = 3        0.065   0.055    0.030     0.024    2.6 (1.0-4.6)
+
+Share of shots in the sector (median, first order): r = 1: 0.76-0.77; r = 8
+(120 native two-qubit gates): 0.43 (w = 1), 0.47 (w = 2), 0.49 (w = 3).
+
+  K1 FAIL: on 62 of the 63 (backend, sector) pairs filter + readout is
+     best; on FakeKyoto with three excitations it is not (0.238 against raw
+     0.231): on the noisiest device the filtered half-filled state is no
+     better than the raw one.
+  K2 PASS, but only just between w = 2 and w = 3: the median ratio is 5.6,
+     2.60 and 2.58. The benefit halves from one excitation to two, then
+     stays.
+  K3 PASS: for w = 2 second-order Trotter is better on 20 of 21.
+  K4 PASS: r*(filter + readout) >= r*(raw) on 61 of 63 (first order;
+     median r* 8, 6, 6 against 4, 4, 4). On 31 of the 63 pairs r* = 8, the
+     deepest tested, so the shift is a lower bound.
+  * The sectors with more excitations keep more shots (0.49 against 0.43
+     at r = 8) yet gain less from the filter: more of the noise lands
+     inside a larger sector (20 states of 64 at half filling, 6 with one
+     excitation), where the filter cannot see it. One excitation is the
+     filter's best case; with interacting excitations it still halves the
+     error or better on the median device.
+  * Exploratory (not predicted): second-order Trotter is better for w = 1
+     on 20 of 21 but for w = 3 on only 5: at three excitations its extra
+     gates cost more than its smaller Trotter error saves.
 """
 
 import json
