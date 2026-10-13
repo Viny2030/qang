@@ -221,3 +221,27 @@ def test_coherent_zz_error_is_weight_preserving():
     from qiskit_ibm_runtime.fake_provider import FakeSherbrooke
 
     assert X.noise_model(FakeSherbrooke(), 0.1) is not None
+
+
+def test_unary_orthogonal_and_pca_spectrum():
+    from qiskit.quantum_info import Statevector
+
+    rng = np.random.default_rng(146)
+    X = rng.normal(size=(12, 5)) @ np.diag([2.0, 1.2, 0.8, 0.4, 0.2])
+    O, lam = ibm.pca_rotation(X)
+    Xc = X - X.mean(axis=0)
+    w = (Xc ** 2).sum(axis=1)
+    p = np.zeros(5)
+    for x, wj in zip(Xc, w):
+        qc = ibm.unary_loader(x)
+        qc.compose(ibm.unary_orthogonal(O), inplace=True)
+        sv = Statevector(qc).data
+        assert abs(sum(abs(sv[1 << k]) ** 2 for k in range(5)) - 1) < 1e-9   # stays in the weight-1 sector
+        p += wj / w.sum() * np.array([abs(sv[1 << k]) ** 2 for k in range(5)])
+    assert np.allclose(p, lam / lam.sum(), atol=1e-9)
+    assert len(ibm.unary_orthogonal(O).data) <= 10
+    outs = [{"filtered_readout": [(1 - 2 * pk, 0.01) for pk in p]}] * 2
+    est, se = ibm.unary_spectrum(outs, [1, 1])
+    assert np.allclose(est, p) and np.all(se > 0)
+    with pytest.raises(ValueError):
+        ibm.unary_orthogonal(np.ones((3, 3)))

@@ -65,6 +65,10 @@ __all__ = [
     "qnn_template",
     "qnn_parameter_values",
     "run_qnn",
+    "unary_loader",
+    "unary_orthogonal",
+    "pca_rotation",
+    "unary_spectrum",
 ]
 
 # gates that conserve the excitation number for every parameter value
@@ -609,3 +613,83 @@ def run_qnn(model, X, backend, sampler=None, layout=None, shots: int = 1000, par
         kept.append(float(sum(p[1 << j] for j in range(n))))
     return {"layout": list(layout) if layout is not None else measured_physical_qubits(t), "kept_raw": kept,
             "decision": {"raw": np.array(raw), "qang": np.array(filt), "qang_readout": np.array(filt_ro)}}
+
+
+# ---------------------------------------------------------------- spectra in the weight-1 sector (§146)
+#
+# Unary encoding: component k of a real vector is the amplitude of the state with only Qiskit qubit k
+# excited. A mixture of loaded vectors x_j with weights |x_j|^2 / sum |x|^2 is rho = C / tr C, C the
+# (uncentred) second-moment matrix of the data: the density matrix quantum PCA diagonalizes. Rotating with
+# the PCA basis puts eigenvalue lambda_k on qubit k, so P(qubit k excited) = lambda_k / sum(lambda).
+
+
+def _rbs(qc, t, a, b):
+    import math
+
+    from qiskit.circuit.library import XXPlusYYGate
+
+    # on (e_a, e_b): [[cos t, -sin t], [sin t, cos t]]
+    qc.append(XXPlusYYGate(2 * t, math.pi / 2), [a, b])
+
+
+def unary_loader(v):
+    """Circuit preparing sum_k v_k |e_k> (v normalized; e_k = only Qiskit qubit k excited), n-1 RBS on a chain."""
+    from qiskit import QuantumCircuit
+
+    v = np.asarray(v, float)
+    v = v / np.linalg.norm(v)
+    n = len(v)
+    qc = QuantumCircuit(n)
+    qc.x(0)
+    for k, t in enumerate(_loader_angles(v)):
+        _rbs(qc, t, k, k + 1)
+    return qc
+
+
+def unary_orthogonal(O, atol: float = 1e-12):
+    """Nearest-neighbour RBS circuit acting as the real orthogonal matrix O on the weight-1 sector, up to signs
+    of the output components (irrelevant to computational-basis read-out): at most n(n-1)/2 RBS."""
+    from qiskit import QuantumCircuit
+
+    O = np.asarray(O, float)
+    n = O.shape[0]
+    if O.shape != (n, n) or not np.allclose(O @ O.T, np.eye(n), atol=1e-8):
+        raise ValueError("O must be a square real orthogonal matrix.")
+    M = O.T.copy()           # reduce O^T to a diagonal with rotations on rows: R O^T = D, so O = D R
+    gates = []
+    for c in range(n - 1):
+        for r in range(n - 1, c, -1):
+            a, b = r - 1, r
+            if abs(M[b, c]) < atol:
+                continue
+            t = np.arctan2(-M[b, c], M[a, c])
+            ct, st = np.cos(t), np.sin(t)
+            Ma, Mb = M[a].copy(), M[b].copy()
+            M[a], M[b] = ct * Ma - st * Mb, st * Ma + ct * Mb
+            gates.append((t, a, b))
+    qc = QuantumCircuit(n)
+    for t, a, b in gates:
+        _rbs(qc, t, a, b)
+    return qc
+
+
+def pca_rotation(X, center: bool = True):
+    """(O, eigenvalues) of the PCA of the rows of X: C = X^T X / m (after centring), eigenvalues descending,
+    O = V^T so that unary_orthogonal(O) sends principal component k to Qiskit qubit k."""
+    X = np.asarray(X, float)
+    if center:
+        X = X - X.mean(axis=0)
+    C = X.T @ X / len(X)
+    lam, V = np.linalg.eigh(C)
+    order = np.argsort(lam)[::-1]
+    return V[:, order].T, lam[order]
+
+
+def unary_spectrum(outs, weights, kind: str = "filtered_readout"):
+    """Estimate lambda_k / sum(lambda) from the ibm_qg outputs of the circuits loader(x_j) + rotation:
+    sum_j w_j P_j(qubit k excited), P = (1 - qg_Z) / 2, w_j = |x_j|^2 / sum |x|^2. Returns (values, se)."""
+    w = np.asarray(weights, float)
+    w = w / w.sum()
+    vals = np.array([[(1 - z) / 2 for z, _ in o[kind]] for o in outs])
+    ses = np.array([[se / 2 for _, se in o[kind]] for o in outs])
+    return w @ vals, np.sqrt((w ** 2) @ ses ** 2)
