@@ -20,6 +20,16 @@ matrices on the measured distribution (exact for independent readout
 errors; 2^n entries, so n <= 14). The corrected distribution is a
 quasi-probability; the qg filter keeps its weight-w part and renormalizes.
 
+Also (§138):
+  * ``estimator_qg``            qg_Z (and the filtered qg_Z) from an Estimator
+    (IBM Runtime or any V2 estimator): the qg observables mapped through the
+    circuit's layout, so device-side mitigation (TREX, ZNE) applies to them;
+  * ``predict_kept_fraction``   the fraction of shots the qg filter will keep,
+    predicted from the calibration before running: gate errors, relaxation
+    and pure dephasing during the gates (§133), and readout;
+  * ``linear_chains`` / ``best_chain``  candidate physical-qubit chains of the
+    coupling map, and the one with the highest predicted kept fraction.
+
 Requires Qiskit (imported on use). Qubit order everywhere: qubit 0 first,
 as in qang.interop.
 """
@@ -36,6 +46,10 @@ __all__ = [
     "readout_errors",
     "readout_inverse_distribution",
     "ibm_qg",
+    "estimator_qg",
+    "predict_kept_fraction",
+    "linear_chains",
+    "best_chain",
 ]
 
 # gates that conserve the excitation number for every parameter value
@@ -211,3 +225,117 @@ def ibm_qg(pub_result, transpiled, backend, weight: Optional[int] = None, creg: 
         else:
             out["filtered_readout"] = None
     return out
+
+
+# ---------------------------------------------------------------- Estimator, prediction, layout (§138)
+
+
+def estimator_qg(estimator, transpiled, weight: Optional[int] = None, n_qubits: Optional[int] = None,
+                 parameter_values=None) -> dict:
+    """qg_Z per virtual qubit (and, with ``weight``, the filtered qg_Z and kept fraction) from a V2 estimator.
+
+    ``transpiled`` is the device circuit WITHOUT measurements; the qg observables of qang.interop are mapped
+    through its layout. Returns {"qg": [(value, std)], "kept": float, "filtered": [values]}.
+    """
+    from qiskit.quantum_info import SparsePauliOp
+
+    from . import interop as IO
+
+    n = n_qubits or len(transpiled.layout.initial_virtual_layout(filter_ancillas=True))
+    obs = [SparsePauliOp(lab) for lab in IO.qg_z_observables(n)]
+    if weight is not None:
+        obs += [SparsePauliOp.from_list(list(d.items())) for d in IO.filtered_observables(n, weight)]
+    obs = [o.apply_layout(transpiled.layout) for o in obs]
+    pub = (transpiled, obs) if parameter_values is None else (transpiled, obs, parameter_values)
+    data = estimator.run([pub]).result()[0].data
+    evs, stds = np.asarray(data.evs, float), np.asarray(data.stds, float)
+    out = {"qg": [(float(evs[i]), float(stds[i])) for i in range(n)]}
+    if weight is not None:
+        kept, q = IO.estimator_filtered_qg(evs[n:])
+        out["kept"], out["filtered"] = float(kept), [float(x) for x in q]
+    return out
+
+
+def predict_kept_fraction(transpiled, backend, weight: int) -> dict:
+    """Predicted fraction of shots of Hamming weight ``weight`` for a weight-preserving circuit transpiled to
+    ``backend``, from its calibration. Each channel is turned into a probability of changing the weight:
+      single-qubit gate of error e   -> e        (depolarizing 2e, X/Y half of it);
+      two-qubit gate of error e      -> 5e/6     (depolarizing 4e/3, 10 of 15 Paulis move the weight);
+      relaxation over the busy time t of a qubit -> (1 - exp(-t/T1)) * w/n (only excited qubits decay);
+      pure dephasing during the gates -> 2z/3 with z = (1 - exp(-t/T_phi))/2 (§133, twirled);
+      readout                         -> w/n * P(0|1) + (1 - w/n) * P(1|0).
+    The kept fraction is the product of the survivals; shots that come back into the sector are ignored,
+    so the prediction is a lower bound in spirit. Returns the prediction and its parts.
+    """
+    t = backend.target
+    phys = measured_physical_qubits(transpiled)
+    n = len(phys)
+    frac = weight / n
+    s_gate, busy = 1.0, {}
+    for inst in transpiled.data:
+        name = inst.operation.name
+        if name in ("measure", "barrier", "rz", "delay", "reset"):
+            continue
+        qs = tuple(transpiled.find_bit(q).index for q in inst.qubits)
+        props = t[name].get(qs) if name in t.operation_names else None
+        e = (props.error or 0.0) if props is not None else 0.0
+        d = (props.duration or 0.0) if props is not None else 0.0
+        s_gate *= 1 - (e if len(qs) == 1 else 5 * e / 6)
+        for q in qs:
+            busy[q] = busy.get(q, 0.0) + d
+    s_relax = s_deph = 1.0
+    for q in phys:
+        qp = t.qubit_properties[q]
+        tb = busy.get(q, 0.0)
+        if qp is not None and qp.t1:
+            s_relax *= 1 - (1 - np.exp(-tb / qp.t1)) * frac
+            if qp.t2:
+                rate = max(1 / min(qp.t2, 2 * qp.t1) - 1 / (2 * qp.t1), 0.0)
+                s_deph *= 1 - 2 * (1 - np.exp(-tb * rate)) / 2 / 3
+    s_read = 1.0
+    for e01, e10 in readout_errors(backend, phys):
+        s_read *= 1 - (frac * e10 + (1 - frac) * e01)
+    kept = s_gate * s_relax * s_deph * s_read
+    return {"kept": float(kept), "gates": float(s_gate), "relaxation": float(s_relax),
+            "dephasing": float(s_deph), "readout": float(s_read)}
+
+
+def linear_chains(backend, length: int, limit: int = 200, seed: int = 0) -> List[List[int]]:
+    """Up to ``limit`` distinct simple paths of ``length`` physical qubits in the coupling map (random DFS)."""
+    cmap = backend.target.build_coupling_map()
+    nbrs: Dict[int, set] = {}
+    for a, b in cmap.get_edges():
+        nbrs.setdefault(a, set()).add(b)
+        nbrs.setdefault(b, set()).add(a)
+    rng = np.random.default_rng(seed)
+    nodes = sorted(nbrs)
+    seen, out = set(), []
+    tries = 0
+    while len(out) < limit and tries < 50 * limit:
+        tries += 1
+        path = [int(rng.choice(nodes))]
+        while len(path) < length:
+            opts = [v for v in nbrs[path[-1]] if v not in path]
+            if not opts:
+                break
+            path.append(int(rng.choice(opts)))
+        if len(path) == length:
+            key = tuple(path) if path[0] < path[-1] else tuple(reversed(path))
+            if key not in seen:
+                seen.add(key)
+                out.append(list(key))
+    return out
+
+
+def best_chain(circuit, backend, weight: int, limit: int = 100, seed: int = 0, seed_transpiler: int = 0):
+    """The chain (initial layout) with the highest predicted kept fraction among ``linear_chains``.
+    ``circuit`` must be measured. Returns (layout, prediction, transpiled circuit)."""
+    from qiskit import transpile
+
+    best = None
+    for chain in linear_chains(backend, circuit.num_qubits, limit=limit, seed=seed):
+        tc = transpile(circuit, backend, initial_layout=chain, optimization_level=1, seed_transpiler=seed_transpiler)
+        pred = predict_kept_fraction(tc, backend, weight)
+        if best is None or pred["kept"] > best[1]["kept"]:
+            best = (chain, pred, tc)
+    return best
