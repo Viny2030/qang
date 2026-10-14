@@ -6389,6 +6389,25 @@ second-order circuit with two excitations as not weight-preserving because
 it read leading X gates in DAG order; it now treats an X as preparation when
 it is the first operation on its qubit.
 
+## 149. Swap test, inversion test and a fidelity classifier (`qang.ibm.swap_test_circuit`, `unary_overlap_circuit`, `examples/ibm_swap_test_qg.py`)
+
+The fidelity F = |<x|y>|^2 of two unary states, estimated two ways on six
+IBM device noise models (S1–S5 committed before the run; all passed). The
+inversion test (load x, undo the loader of y, P(e_0) = F) uses n = 5 qubits
+and 12–16 two-qubit gates, all weight-preserving; the filter cuts its error
+3.8–11.2×, to 0.010–0.036. The swap test uses 11 qubits and 113–119
+two-qubit gates; the controlled SWAPs conserve the weight of the data
+registers, so the filter applies there, but the answer is on the ancilla,
+outside the symmetry, and the gain is only 1.4–1.8× (error 0.089–0.239). A
+fidelity classifier with class prototypes (iris versicolor/virginica, 40 test
+flowers) keeps its noiseless score (37/40) on every device with the filtered
+inversion test, and also with the raw swap test (36–38): comparing two
+fidelities cancels most of the common shrinkage. The hypothesis test "are
+these two states equal?" needs the absolute value, and there the difference
+shows: for identical states the filtered inversion test reads 0.92–1.00, the
+raw swap test 0.20–0.65. The run was split into one process per backend after
+the single run hit the environment's 2-hour limit (no result had been seen).
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

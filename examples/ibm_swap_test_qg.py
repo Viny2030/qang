@@ -51,6 +51,38 @@ process, stopped at the 2-hour limit of the environment (the 11-qubit swap
 test takes about 20 s per circuit to simulate with noise). The run is split
 into one process per backend with the same protocol, and scored by
 --aggregate.
+
+Findings:
+
+Fidelity error mean |F_hat - F| over 90 pairs (filter + readout), the ratio
+raw / filter + readout, the mean F_hat of the 10 identical pairs (exact 1),
+correct classifications of 40 (noiseless 37) and the share of shots kept:
+
+                   inversion test (12-16 two-qubit gates)  swap test (113-119)
+  backend          raw    f+ro   ratio  same   acc  kept   raw    f+ro   ratio  same   acc  kept
+  FakeBrisbane     0.139  0.036  3.8    0.92   37   0.74   0.267  0.162  1.7    0.63   36   0.52
+  FakeSherbrooke   0.094  0.020  4.7    0.96   37   0.82   0.298  0.216  1.4    0.49   38   0.53
+  FakeTorino       0.138  0.012  11.2   1.00   37   0.70   0.248  0.137  1.8    0.69   37   0.54
+  FakeFez          0.047  0.011  4.3    1.00   37   0.90   0.159  0.089  1.8    0.81   37   0.71
+  FakeKingston     0.094  0.010  9.6    1.00   37   0.79   0.156  0.095  1.6    0.80   37   0.71
+  FakeOsaka        0.135  0.030  4.4    0.93   37   0.74   0.354  0.239  1.5    0.44   38   0.41
+
+  S1 PASS: inversion test, filter + readout below raw on all 6 (3.8-11.2x).
+  S2 PASS: swap test, filter + readout below raw on all 6 (1.4-1.8x).
+  S3 PASS: the inversion test beats the swap test on all 6 (0.010-0.036
+     against 0.089-0.239).
+  S4 PASS: the classifier with the inversion test and filter + readout gets
+     37 of 40 on all 6, the noiseless score.
+  S5 PASS: the filter helps the swap test less on all 6 (1.4-1.8x against
+     3.8-11.2x): the answer sits on the ancilla, outside the symmetry, and
+     the 11-qubit circuit is 7-9 times deeper.
+  * The classifier is robust even without the filter: raw swap tests score
+    36-38 of 40. Noise shrinks both fidelities of a test flower by about the
+    same factor, so their comparison survives; the absolute value does not.
+  * The hypothesis test ("are these states equal?") needs the absolute
+    value: for identical states the raw swap test reads F = 0.20-0.65 and
+    the inversion test 0.67-0.96; with filter + readout the inversion test
+    reads 0.92-1.00 and the swap test still only 0.44-0.81.
 """
 
 import json

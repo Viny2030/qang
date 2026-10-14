@@ -155,6 +155,20 @@ and `ibm.xxz_exact_occupations`, and filter on `weight=len(initial)`. The filter
 helps less as the sector grows (§148: 5.6× with one excitation, 2.6× with two
 or three).
 
+## 8. Fidelity of two states: inversion test and swap test
+
+```python
+qc = ibm.unary_overlap_circuit(x, y)          # n qubits: P(e_0) = |<x|y>|^2, weight-preserving
+t = transpile(qc, backend)
+ibm.overlap_fidelity(res, t, backend)["filtered_readout"]
+qc = ibm.swap_test_circuit(x, y)              # 2n + 1 qubits: P(ancilla 0) = (1 + |<x|y>|^2) / 2
+ibm.swap_test_fidelity(res, t, backend)["filtered_readout"]   # filter on the data registers (weight 2)
+```
+
+Prefer the inversion test for states qang loads: it is 7–9 times shallower and
+the whole answer is inside the symmetry (§149: error 0.010–0.036 against
+0.089–0.239 for the swap test).
+
 ## On a real device
 
 ```python

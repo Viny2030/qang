@@ -7,6 +7,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.10.0] - 2026-10-13
 
+### Added
+- `qang.ibm.unary_overlap_circuit`, `swap_test_circuit`, `overlap_fidelity`, `swap_test_fidelity` (§149): the fidelity
+  of two unary states by the inversion test (n qubits, weight-preserving) and by the swap test (2n + 1 qubits, filter on
+  the data registers). `examples/ibm_swap_test_qg.py`: on six IBM device noise models the filter cuts the inversion-test
+  error 3.8-11.2x and the swap-test error only 1.4-1.8x (the answer is on the ancilla, outside the symmetry); a
+  fidelity classifier keeps its noiseless score. S1-S5 pass.
+
 ### Fixed
 - `qang.ibm.WeightPreservationCheck`: an X gate counts as state preparation when it is the first operation on its
   qubit, independently of the order in which the DAG lists gates on other qubits (a second-order Trotter circuit with
