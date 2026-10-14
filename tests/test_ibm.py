@@ -320,3 +320,22 @@ def test_overlap_and_swap_readouts_on_fake_backend():
     t = transpile(ibm.swap_test_circuit(x, x), b, optimization_level=1, seed_transpiler=1)
     s = ibm.swap_test_fidelity(SamplerV2(mode=b).run([t], shots=2000).result()[0], t, b)
     assert 0 < s["kept_raw"] <= 1 and s["filtered"] > 0.3
+
+
+def test_static_zz_conserves_weight_and_is_identity_at_zero():
+    from qiskit.quantum_info import Operator
+    from qiskit_ibm_runtime.fake_provider import FakeBrisbane
+
+    b = FakeBrisbane()
+    qc = QuantumCircuit(3)
+    qc.x(0)
+    qc.append(XXPlusYYGate(1.0), [0, 1])
+    qc.append(XXPlusYYGate(0.7), [1, 2])
+    t = transpile(qc, b, optimization_level=1, seed_transpiler=1)
+    assert ibm.add_static_zz(t, b, 0.0).count_ops() == t.count_ops()
+    z = ibm.add_static_zz(t, b, 30e3)
+    assert z.count_ops().get("unitary", 0) > 0
+    for inst in z.data:
+        if inst.operation.name == "unitary":
+            U = Operator(inst.operation).data
+            assert np.allclose(U, np.diag(np.diag(U)))     # diagonal: conserves the weight

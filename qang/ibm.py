@@ -78,6 +78,7 @@ __all__ = [
     "swap_test_circuit",
     "overlap_fidelity",
     "swap_test_fidelity",
+    "add_static_zz",
 ]
 
 # gates that conserve the excitation number for every parameter value
@@ -944,4 +945,53 @@ def swap_test_fidelity(pub_result, transpiled, backend) -> dict:
     out["filtered_readout"] = (float(2 * q[anc0 & keep].sum() / q[keep].sum() - 1) if q[keep].sum() > 0
                                else float("nan"))
     out["kept_raw"] = float(p[keep].sum())
+    return out
+
+
+# ---------------------------------------------------------------- always-on ZZ crosstalk (§150)
+
+
+def add_static_zz(transpiled, backend, nu_hz: float, label: str = "static_zz"):
+    """Copy of a transpiled circuit with always-on ZZ between coupled qubits: after every layer of the circuit,
+    each coupling-map edge between two qubits the circuit uses gets exp(-i theta ZZ / 2),
+    theta = 2 pi nu_hz x (layer duration), the duration being the longest calibrated gate of the layer.
+    The ZZ terms are inserted as unitary gates (no noise is attached to them in Aer). They conserve the
+    weight, so the qg filter cannot remove what they do in the computational frame."""
+    import math
+
+    from qiskit import QuantumCircuit
+    from qiskit.circuit.library import UnitaryGate
+    from qiskit.converters import circuit_to_dag, dag_to_circuit
+
+    used = sorted({transpiled.find_bit(q).index for inst in transpiled.data
+                   if inst.operation.name not in ("barrier", "measure") for q in inst.qubits})
+    used_set = set(used)
+    edges = sorted({tuple(sorted(e)) for e in backend.coupling_map.get_edges()
+                    if e[0] in used_set and e[1] in used_set})
+    out = QuantumCircuit(*transpiled.qregs, *transpiled.cregs)
+    tgt = backend.target
+    for layer in circuit_to_dag(transpiled).layers():
+        sub = dag_to_circuit(layer["graph"])
+        dur, has_measure = 0.0, False
+        for inst in sub.data:
+            name = inst.operation.name
+            if name == "measure":
+                has_measure = True
+            qs = tuple(sub.find_bit(q).index for q in inst.qubits)
+            try:
+                d = tgt[name][qs].duration
+            except Exception:
+                d = None
+            dur = max(dur, d or 0.0)
+        if has_measure:
+            pass
+        elif nu_hz and dur > 0:
+            theta = 2 * math.pi * nu_hz * dur
+            g = np.diag(np.exp(-0.5j * theta * np.array([1, -1, -1, 1])))
+            zz = UnitaryGate(g, label=label)
+            out.compose(sub, inplace=True)
+            for a, b in edges:
+                out.append(zz, [a, b])
+            continue
+        out.compose(sub, inplace=True)
     return out
