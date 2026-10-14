@@ -51,7 +51,9 @@ a raw spreading indistinguishable from a classical random walk (exponent 0.87) i
 (1.84). With two or three interacting excitations (XXZ chain) the gain falls from 5.6$\times$ to
 2.6$\times$: larger sectors let more of the noise through. Estimating the fidelity of two states, the filter cuts the
 error of a weight-preserving inversion test 3.8--11.2$\times$ but that of the swap test only 1.4--1.8$\times$,
-because the swap test's answer is on an ancilla outside the symmetry.
+because the swap test's answer is on an ancilla outside the symmetry. Coherent ZZ errors, which conserve the
+weight, are still partly filtered (32--60\% of the added error for always-on ZZ crosstalk), because they act
+partly inside native gate decompositions.
 Two interoperability bugs were found, one in qiskit-machine-learning and one in the library. All results are
 on device noise models; no hardware run is reported.
 \end{abstract}
@@ -71,7 +73,7 @@ This paper asks what the filter is worth on IBM devices and gives the tools to u
 runs through IBM Runtime~\cite{qiskitibmruntime} and Qiskit~\cite{javadiabhari2024qiskit}, here in local
 testing mode on the device noise models (fake backends), unchanged on a device. Each experiment fixed its
 circuits, settings and predictions in a commit before running; failures are reported as such. Sections
-§137--§149 refer to the research notes of the repository, where every number below is reproduced by a
+§137--§150 refer to the research notes of the repository, where every number below is reproduced by a
 script in \texttt{examples/}.
 
 \section{Methods}
@@ -325,6 +327,22 @@ filtered inversion test 0.92--1.00, which is what a test of equality needs. The 
 process per device after a single run exceeded the 2-hour limit of the environment, before any result was
 seen.
 
+\subsection{Coherent ZZ errors the filter should not see (§145, §150)}
+
+The device noise models are incoherent channels. Two coherent errors that conserve the weight were added
+to the ten circuits of §137 on three devices: a miscalibrated conditional phase, RZZ($\varepsilon$) after
+every native two-qubit gate on its pair ($\varepsilon=0,0.05,0.10$ rad, §145), and always-on ZZ crosstalk,
+$\exp(-i\theta ZZ/2)$ with $\theta=2\pi\nu t$ after every layer on every coupled pair of used qubits, $t$ from
+the calibrated layer durations ($\nu=0,5,15$ kHz; \texttt{add\_static\_zz}, §150). The predictions assumed both
+invisible to the filter; five of the seven failed. Both errors are partly filtered: the kept fraction fell
+by 0.009--0.020 ($\varepsilon=0.10$) and by up to 0.023 (15 kHz), and the filter removed 32--60\% of the error
+the crosstalk added. A ZZ term is diagonal in the computational frame, but the qubits are in that frame only
+between logical gates; inside the native decomposition of an XX+YY gate they are rotated, and there ZZ moves
+excitations out of the sector. What passes the filter is modest at these strengths: the filtered error grew by
+0.001--0.011 with the gate error (4\% on the ECR devices, 62\% on FakeTorino, where the CZ decomposition exposes
+more of it) and by 0.003--0.009 (14--38\%) with 15 kHz of crosstalk, least on FakeTorino, whose circuits last
+2.1~$\mu$s against 9--10~$\mu$s.
+
 \section{Discussion}
 
 As a read-out tool the filter is robust: on every one of twenty IBM device noise models it lowered the $\qZ$
@@ -339,12 +357,12 @@ probabilities rather than a decision, gains more (4.6$\times$), and so does
 dynamics: the filter lets a Trotter simulation use more steps and makes the ballistic spreading of a quantum
 walk visible where raw data look classical. Its benefit is largest with one excitation and halves when the
 excitations interact. Where the answer of a circuit lies outside the symmetry, as on the swap test's
-ancilla, the filter helps little; a weight-preserving alternative, when one exists, gains far more. Eleven of
-the forty-two predictions failed as written, several through the analysis rather
+ancilla, the filter helps little; a weight-preserving alternative, when one exists, gains far more. Errors that conserve the weight pass the filter only in part, because the qubits leave the
+computational frame inside native gates. Sixteen of the forty-nine predictions failed as written, several through the analysis rather
 than the filter: a prediction that ignored returning shots, a per-qubit error model that ignored the poles,
 and an experiment that required every device to run. And all results are on device noise models, which
-model gate, relaxation, dephasing and read-out errors as independent channels; leakage, crosstalk and drift
-are absent. A run on hardware is the next step.
+model gate, relaxation, dephasing and read-out errors as independent channels; ZZ crosstalk was added by
+hand (§150), leakage and drift are absent. A run on hardware is the next step.
 
 \section*{Code and data availability}
 

@@ -59,7 +59,9 @@ dispositivos), y en una caminata cuántica convierte una dispersión cruda indis
 clásica (exponente 0{,}87) en una dispersión balística (1{,}84). Con dos o tres excitaciones que interactúan (cadena XXZ) la ganancia
 baja de 5{,}6 a 2{,}6 veces: los sectores más grandes dejan pasar más ruido. Al estimar la fidelidad de dos estados, el filtro reduce
 3{,}8--11{,}2 veces el error de un test de inversión que conserva el peso, pero el del swap test solo
-1{,}4--1{,}8 veces, porque la respuesta del swap test está en un qubit auxiliar fuera de la simetría. Se encontraron dos errores de interoperabilidad, uno en
+1{,}4--1{,}8 veces, porque la respuesta del swap test está en un qubit auxiliar fuera de la simetría. Los errores ZZ coherentes,
+que conservan el peso, igual se filtran en parte (32--60\% del error agregado por interferencia ZZ
+permanente), porque actúan en parte dentro de las descomposiciones nativas de las compuertas. Se encontraron dos errores de interoperabilidad, uno en
 qiskit-machine-learning y otro en la biblioteca. Todos los resultados son sobre modelos de ruido de
 dispositivos; no se informa ninguna corrida en hardware.
 \end{abstract}
@@ -79,7 +81,7 @@ Este trabajo pregunta cuánto vale el filtro en dispositivos de IBM y da las her
 todo corre mediante IBM Runtime~\cite{qiskitibmruntime} y Qiskit~\cite{javadiabhari2024qiskit}, aquí en el
 modo de prueba local sobre los modelos de ruido de los dispositivos (\emph{fake backends}), y sin cambios en
 un dispositivo. Cada experimento fijó sus circuitos, parámetros y predicciones en un commit antes de
-correr; los fracasos se informan como tales. Las secciones §137--§149 remiten a las notas de investigación
+correr; los fracasos se informan como tales. Las secciones §137--§150 remiten a las notas de investigación
 del repositorio, donde cada número de este trabajo lo reproduce un script de \texttt{examples/}.
 
 \section{Métodos}
@@ -353,6 +355,23 @@ swap test crudo lee 0{,}20--0{,}65 y el test de inversión filtrado 0{,}92--1{,}
 de igualdad. La corrida se dividió en un proceso por dispositivo después de que una corrida única superó el
 límite de 2 horas del entorno, antes de ver ningún resultado.
 
+\subsection{Errores ZZ coherentes que el filtro no debería ver (§145, §150)}
+
+Los modelos de ruido de los dispositivos son canales incoherentes. A los diez circuitos de §137 en tres
+dispositivos se agregaron dos errores coherentes que conservan el peso: una fase condicional mal calibrada,
+RZZ($\varepsilon$) después de cada compuerta nativa de dos qubits sobre su par ($\varepsilon=0;0{,}05;0{,}10$ rad,
+§145), y una interferencia ZZ permanente, $\exp(-i\theta ZZ/2)$ con $\theta=2\pi\nu t$ después de cada capa en
+cada par acoplado de qubits usados, con $t$ tomado de las duraciones calibradas de las capas ($\nu=0;5;15$ kHz;
+\texttt{add\_static\_zz}, §150). Las predicciones suponían que ambos eran invisibles para el filtro; cinco de las
+siete fallaron. Los dos errores se filtran en parte: la fracción conservada bajó 0{,}009--0{,}020
+($\varepsilon=0{,}10$) y hasta 0{,}023 (15 kHz), y el filtro eliminó el 32--60\% del error que agregó la
+interferencia. Un término ZZ es diagonal en la base computacional, pero los qubits están en esa base solo
+entre compuertas lógicas; dentro de la descomposición nativa de una compuerta XX+YY están rotados, y ahí ZZ
+saca excitaciones del sector. Lo que pasa el filtro es modesto con estas intensidades: el error filtrado
+creció 0{,}001--0{,}011 con el error de compuerta (4\% en los dispositivos ECR, 62\% en FakeTorino, donde la
+descomposición con CZ expone más) y 0{,}003--0{,}009 (14--38\%) con 15 kHz de interferencia, menos en FakeTorino,
+cuyos circuitos duran 2{,}1~$\mu$s contra 9--10~$\mu$s.
+
 \section{Discusión}
 
 Como herramienta de lectura, el filtro es robusto: en cada uno de los veinte modelos de ruido de
@@ -368,13 +387,14 @@ conjunto de probabilidades y no una decisión, gana más (4{,}6 veces), y tambi�
 pasos y hace visible la dispersión balística de una caminata cuántica donde los datos crudos parecen
 clásicos. Su beneficio es mayor con una excitación y se reduce a la mitad cuando las excitaciones
 interactúan. Cuando la respuesta de un circuito está fuera de la simetría, como en el qubit auxiliar del
-swap test, el filtro ayuda poco; una alternativa que conserve el peso, cuando existe, gana mucho más. Once de
-las cuarenta y dos predicciones fallaron tal como
+swap test, el filtro ayuda poco; una alternativa que conserve el peso, cuando existe, gana mucho más. Los errores que conservan el peso pasan el
+filtro solo en parte, porque los qubits salen de la base computacional dentro de las compuertas nativas.
+Dieciséis de las cuarenta y nueve predicciones fallaron tal como
 estaban escritas, varias por el análisis y no por el filtro: una predicción que ignoraba los disparos que
 vuelven, un modelo de error por qubit que ignoraba los polos y un experimento que exigía que corrieran todos
 los dispositivos. Y todos los resultados son sobre modelos de ruido de dispositivos, que tratan los errores
-de compuerta, relajación, desfase y lectura como canales independientes; no incluyen fugas, interferencia
-entre qubits ni deriva. El paso siguiente es una corrida en hardware.
+de compuerta, relajación, desfase y lectura como canales independientes; la interferencia ZZ se agregó a mano
+(§150) y no incluyen fugas ni deriva. El paso siguiente es una corrida en hardware.
 
 \section*{Disponibilidad de código y datos}
 

@@ -46,7 +46,7 @@ layout, pred, t = ibm.best_chain(qc, backend, weight=1)      # qubits with the m
 r = ibm.run_qnn(model, X_test, backend)                      # qang's QNN: whole test set in one job
 ```
 
-Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§149): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
+Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§150): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
 
 ### New in 0.8
 
