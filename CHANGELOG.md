@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `qang.ibm.add_static_zz` (§150): always-on ZZ crosstalk on every used coupling-map edge, with phases from the
+  calibrated layer durations. `examples/ibm_static_zz_qg.py`: at 15 kHz the filter still removes 32-60% of the added
+  error (ZZ acts partly inside native gate decompositions) and the filtered error grows by 14-38%. Z1, Z4 pass; Z2, Z3
+  fail.
+
 ## [0.10.0] - 2026-10-13
 
 ### Added

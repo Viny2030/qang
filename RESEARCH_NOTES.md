@@ -6408,6 +6408,24 @@ shows: for identical states the filtered inversion test reads 0.92–1.00, the
 raw swap test 0.20–0.65. The run was split into one process per backend after
 the single run hit the environment's 2-hour limit (no result had been seen).
 
+## 150. Always-on ZZ crosstalk (`qang.ibm.add_static_zz`, `examples/ibm_static_zz_qg.py`)
+
+The ZZ that coupled transmons pick up all the time, inserted after every
+layer of the transpiled circuit on every used coupling-map edge, with the
+phase 2 pi nu t from the calibrated layer durations (nu = 0, 5, 15 kHz), on
+the ten circuits of §137 and three device noise models (Z1–Z4 committed
+before the run; Z1 and Z4 passed, Z2 and Z3 failed). The prediction assumed
+the error is invisible to the filter. It is only partly: between logical
+gates the qubits are in the computational frame, where ZZ is diagonal and
+passes the filter, but most of the time is spent inside the native
+decompositions of the XX+YY gates, where ZZ moves some excitations out of the
+sector (the kept fraction fell by 0.019–0.023 on the ECR devices). The filter
+removed 32–60% of the added error; the filtered error grew by 0.003–0.009
+(14–38%) at 15 kHz and stayed 4–5× below raw. Shorter circuits (FakeTorino,
+2.1 µs against 9–10 µs) suffer least. Together with §133 and §145: coherent
+errors on these devices are filtered in proportion to the time the qubits
+spend outside the computational frame.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

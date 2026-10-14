@@ -33,6 +33,35 @@ Pre-registered predictions (committed before the run):
       FakeTorino (shortest circuits).
 
 python examples/ibm_static_zz_qg.py
+
+Findings:
+
+Mean |qg_Z - ideal| raw / filtered, and kept fraction (10 circuits, 8000
+shots), at nu = 0, 5 and 15 kHz:
+
+  backend          nu = 0                 5 kHz                  15 kHz
+  FakeBrisbane     0.102 / 0.023  0.729   0.104 / 0.023  0.727   0.115 / 0.031  0.710
+  FakeSherbrooke   0.063 / 0.016  0.816   0.064 / 0.015  0.814   0.078 / 0.021  0.794
+  FakeTorino       0.101 / 0.018  0.691   0.102 / 0.019  0.690   0.105 / 0.021  0.689
+
+  Z1 PASS: at 15 kHz the filtered error is higher on all 3 (+0.009, +0.006,
+     +0.003).
+  Z2 FAIL: the filter removes less than half of the added error on FakeBrisbane
+     (it lets 68% through) and FakeTorino (66%), but more than half on
+     FakeSherbrooke (it lets 40% through).
+  Z3 FAIL: the kept fraction falls by 0.019 and 0.023 on the two ECR devices
+     (0.001 on FakeTorino): part of the ZZ does leave the sector.
+  Z4 PASS: the increase is smallest on FakeTorino (0.003; circuits of 2.1 us
+     against 9-10 us).
+  * The premise was only half right. ZZ is invisible to the filter when it
+    acts between logical gates, in the computational frame; but most of the
+    circuit's time is spent inside the native decompositions of the XX+YY
+    gates, where the qubits are in rotated frames and ZZ partly moves
+    excitations out of the sector. So even always-on ZZ is partly filtered
+    (32-60% of the added error is removed). What passes is modest at these
+    rates: the filtered error grows by 14-38% at 15 kHz and stays 4-5x below
+    the raw error.
+  * The 5 kHz runs change nothing beyond shot noise.
 """
 
 import json
