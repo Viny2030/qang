@@ -49,7 +49,9 @@ spectrum correctly on 18 of 21 (13 raw). In Trotter simulation of the XY chain t
 error and moves the optimal number of Trotter steps deeper (16 of 21 devices), and in a quantum walk it turns
 a raw spreading indistinguishable from a classical random walk (exponent 0.87) into ballistic spreading
 (1.84). With two or three interacting excitations (XXZ chain) the gain falls from 5.6$\times$ to
-2.6$\times$: larger sectors let more of the noise through.
+2.6$\times$: larger sectors let more of the noise through. Estimating the fidelity of two states, the filter cuts the
+error of a weight-preserving inversion test 3.8--11.2$\times$ but that of the swap test only 1.4--1.8$\times$,
+because the swap test's answer is on an ancilla outside the symmetry.
 Two interoperability bugs were found, one in qiskit-machine-learning and one in the library. All results are
 on device noise models; no hardware run is reported.
 \end{abstract}
@@ -69,7 +71,7 @@ This paper asks what the filter is worth on IBM devices and gives the tools to u
 runs through IBM Runtime~\cite{qiskitibmruntime} and Qiskit~\cite{javadiabhari2024qiskit}, here in local
 testing mode on the device noise models (fake backends), unchanged on a device. Each experiment fixed its
 circuits, settings and predictions in a commit before running; failures are reported as such. Sections
-§137--§148 refer to the research notes of the repository, where every number below is reproduced by a
+§137--§149 refer to the research notes of the repository, where every number below is reproduced by a
 script in \texttt{examples/}.
 
 \section{Methods}
@@ -132,6 +134,13 @@ $\sigma^2\propto t^2$, a classical random walk $\sigma^2\propto t$. The XXZ chai
 makes the excitations interact and still conserves the weight; \texttt{xxz\_trotter} writes each bond as one
 two-qubit gate $\exp(-i\,\delta t\,[J(XX+YY)/2+VZZ/4])$ (the two parts commute), in first- or second-order
 (symmetric) Trotter steps, and \texttt{xxz\_exact\_occupations} evolves in the full Hilbert space.
+
+\paragraph{Fidelity of two states.} For unary states the fidelity $F=|\langle x|y\rangle|^2$ is read by an
+inversion test (\texttt{unary\_overlap\_circuit}: load $x$, undo the loader of $y$, $P(e_0)=F$; $n$ qubits, all
+gates weight-preserving) or by the swap test~\cite{buhrman2001fingerprinting} (\texttt{swap\_test\_circuit}: an
+ancilla in $|+\rangle$, $x$ and $y$ on two registers, $n$ controlled SWAPs, $P(\text{ancilla }0)=(1+F)/2$;
+$2n+1$ qubits). The controlled SWAPs conserve the total weight of the data registers, so the filter keeps
+the shots where they hold weight 2; the ancilla is outside the symmetry.
 
 \paragraph{Test circuits.} Ten random five-qubit weight-1 circuits: X on qubit~0 and two layers of XX+YY
 gates on neighbours with angles uniform in $[0.3,2.8]$ (seeds 0--9). Error is the mean
@@ -300,6 +309,22 @@ smaller Trotter error saves. Building this experiment showed that the transpiler
 X gates in the order the DAG lists them and could misreport the initial weight; it now takes an X as
 preparation when it is the first operation on its qubit.
 
+\subsection{Swap test, inversion test and a fidelity classifier (§149)}
+
+Five-qubit embeddings $v=(z,1)/|(z,1)|$ of iris versicolor and virginica ($z$: four standardized features;
+15 training and 20 test flowers per class); a test flower goes to the class whose prototype (normalized mean
+training embedding) has the larger fidelity, as in~\cite{blank2020kernel}; 37 of 40 noiselessly. Each test
+estimated 90 fidelities (80 for the classifier, 10 of a state with itself) on six devices, 2000 shots. All
+five predictions passed. The inversion test (12--16 native two-qubit gates) with filter + read-out reaches a
+mean error of 0.010--0.036, 3.8--11.2$\times$ below raw; the swap test (113--119 gates) reaches only
+0.089--0.239, 1.4--1.8$\times$ below raw: its answer is on the ancilla, which the filter cannot protect. The
+classifier keeps its noiseless score with the filtered inversion test on every device, and the raw swap test
+scores 36--38: noise shrinks both fidelities of a flower alike, so their comparison survives. The absolute
+value does not: for a state compared with itself ($F=1$) the raw swap test reads 0.20--0.65 and the
+filtered inversion test 0.92--1.00, which is what a test of equality needs. The run was split into one
+process per device after a single run exceeded the 2-hour limit of the environment, before any result was
+seen.
+
 \section{Discussion}
 
 As a read-out tool the filter is robust: on every one of twenty IBM device noise models it lowered the $\qZ$
@@ -313,7 +338,9 @@ mostly far from threshold; spectrum estimation, where the answer is a set of
 probabilities rather than a decision, gains more (4.6$\times$), and so does
 dynamics: the filter lets a Trotter simulation use more steps and makes the ballistic spreading of a quantum
 walk visible where raw data look classical. Its benefit is largest with one excitation and halves when the
-excitations interact. Eleven of the thirty-seven predictions failed as written, several through the analysis rather
+excitations interact. Where the answer of a circuit lies outside the symmetry, as on the swap test's
+ancilla, the filter helps little; a weight-preserving alternative, when one exists, gains far more. Eleven of
+the forty-two predictions failed as written, several through the analysis rather
 than the filter: a prediction that ignored returning shots, a per-qubit error model that ignored the poles,
 and an experiment that required every device to run. And all results are on device noise models, which
 model gate, relaxation, dephasing and read-out errors as independent channels; leakage, crosstalk and drift

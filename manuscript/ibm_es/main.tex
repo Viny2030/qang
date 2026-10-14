@@ -57,7 +57,9 @@ espectro en 18 de 21 (13 sin corrección). En la simulación de Trotter de la ca
 mitad el mejor error y corre a circuitos más profundos el número óptimo de pasos de Trotter (16 de 21
 dispositivos), y en una caminata cuántica convierte una dispersión cruda indistinguible de una caminata
 clásica (exponente 0{,}87) en una dispersión balística (1{,}84). Con dos o tres excitaciones que interactúan (cadena XXZ) la ganancia
-baja de 5{,}6 a 2{,}6 veces: los sectores más grandes dejan pasar más ruido. Se encontraron dos errores de interoperabilidad, uno en
+baja de 5{,}6 a 2{,}6 veces: los sectores más grandes dejan pasar más ruido. Al estimar la fidelidad de dos estados, el filtro reduce
+3{,}8--11{,}2 veces el error de un test de inversión que conserva el peso, pero el del swap test solo
+1{,}4--1{,}8 veces, porque la respuesta del swap test está en un qubit auxiliar fuera de la simetría. Se encontraron dos errores de interoperabilidad, uno en
 qiskit-machine-learning y otro en la biblioteca. Todos los resultados son sobre modelos de ruido de
 dispositivos; no se informa ninguna corrida en hardware.
 \end{abstract}
@@ -77,7 +79,7 @@ Este trabajo pregunta cuánto vale el filtro en dispositivos de IBM y da las her
 todo corre mediante IBM Runtime~\cite{qiskitibmruntime} y Qiskit~\cite{javadiabhari2024qiskit}, aquí en el
 modo de prueba local sobre los modelos de ruido de los dispositivos (\emph{fake backends}), y sin cambios en
 un dispositivo. Cada experimento fijó sus circuitos, parámetros y predicciones en un commit antes de
-correr; los fracasos se informan como tales. Las secciones §137--§148 remiten a las notas de investigación
+correr; los fracasos se informan como tales. Las secciones §137--§149 remiten a las notas de investigación
 del repositorio, donde cada número de este trabajo lo reproduce un script de \texttt{examples/}.
 
 \section{Métodos}
@@ -145,6 +147,14 @@ $\sigma^2\propto t$. La cadena XXZ agrega $V\sum_kZ_kZ_{k+1}/4$, que hace intera
 conservando el peso; \texttt{xxz\_trotter} escribe cada enlace como una sola compuerta de dos qubits
 $\exp(-i\,\delta t\,[J(XX+YY)/2+VZZ/4])$ (las dos partes conmutan), en pasos de Trotter de primer o segundo
 orden (simétrico), y \texttt{xxz\_exact\_occupations} evoluciona en el espacio de Hilbert completo.
+
+\paragraph{Fidelidad de dos estados.} Para estados unarios la fidelidad $F=|\langle x|y\rangle|^2$ se lee con un
+test de inversión (\texttt{unary\_overlap\_circuit}: cargar $x$, deshacer el cargador de $y$, $P(e_0)=F$; $n$
+qubits, todas las compuertas conservan el peso) o con el swap test~\cite{buhrman2001fingerprinting}
+(\texttt{swap\_test\_circuit}: un qubit auxiliar en $|+\rangle$, $x$ e $y$ en dos registros, $n$ SWAP controlados,
+$P(\text{auxiliar }0)=(1+F)/2$; $2n+1$ qubits). Los SWAP controlados conservan el peso total de los registros de
+datos, así que el filtro conserva los disparos en que suman peso 2; el qubit auxiliar queda fuera de la
+simetría.
 
 \paragraph{Circuitos de prueba.} Diez circuitos aleatorios de cinco qubits y peso 1: X en el qubit~0 y dos
 capas de compuertas XX+YY entre vecinos con ángulos uniformes en $[0{,}3;\,2{,}8]$ (semillas 0--9). El error
@@ -326,6 +336,23 @@ este experimento apareció que el pase del transpilador leía las X de preparaci
 lista las compuertas y podía informar mal el peso inicial; ahora toma una X como preparación cuando es la
 primera operación en su qubit.
 
+\subsection{Swap test, test de inversión y un clasificador por fidelidades (§149)}
+
+Codificaciones de cinco qubits $v=(z,1)/|(z,1)|$ de iris versicolor y virginica ($z$: cuatro variables
+estandarizadas; 15 flores de entrenamiento y 20 de prueba por clase); una flor de prueba va a la clase cuyo
+prototipo (media normalizada de las codificaciones de entrenamiento) tiene mayor fidelidad, como
+en~\cite{blank2020kernel}; 37 de 40 sin ruido. Cada test estimó 90 fidelidades (80 para el clasificador y 10
+de un estado consigo mismo) en seis dispositivos, con 2000 disparos. Las cinco predicciones se cumplieron. El
+test de inversión (12--16 compuertas nativas de dos qubits) con filtro + lectura llega a un error medio de
+0{,}010--0{,}036, 3{,}8--11{,}2 veces menor que el crudo; el swap test (113--119 compuertas) llega solo a
+0{,}089--0{,}239, 1{,}4--1{,}8 veces menor: su respuesta está en el qubit auxiliar, que el filtro no puede
+proteger. El clasificador conserva su puntaje sin ruido con el test de inversión filtrado en todos los
+dispositivos, y el swap test crudo obtiene 36--38: el ruido achica por igual las dos fidelidades de una flor,
+así que la comparación sobrevive. El valor absoluto no: para un estado comparado consigo mismo ($F=1$) el
+swap test crudo lee 0{,}20--0{,}65 y el test de inversión filtrado 0{,}92--1{,}00, que es lo que necesita un test
+de igualdad. La corrida se dividió en un proceso por dispositivo después de que una corrida única superó el
+límite de 2 horas del entorno, antes de ver ningún resultado.
+
 \section{Discusión}
 
 Como herramienta de lectura, el filtro es robusto: en cada uno de los veinte modelos de ruido de
@@ -340,7 +367,9 @@ del modelo están en su mayoría lejos del umbral; la estimación de espectros, 
 conjunto de probabilidades y no una decisión, gana más (4{,}6 veces), y también la dinámica: el filtro permite que una simulación de Trotter use más
 pasos y hace visible la dispersión balística de una caminata cuántica donde los datos crudos parecen
 clásicos. Su beneficio es mayor con una excitación y se reduce a la mitad cuando las excitaciones
-interactúan. Once de las treinta y siete predicciones fallaron tal como
+interactúan. Cuando la respuesta de un circuito está fuera de la simetría, como en el qubit auxiliar del
+swap test, el filtro ayuda poco; una alternativa que conserve el peso, cuando existe, gana mucho más. Once de
+las cuarenta y dos predicciones fallaron tal como
 estaban escritas, varias por el análisis y no por el filtro: una predicción que ignoraba los disparos que
 vuelven, un modelo de error por qubit que ignoraba los polos y un experimento que exigía que corrieran todos
 los dispositivos. Y todos los resultados son sobre modelos de ruido de dispositivos, que tratan los errores
