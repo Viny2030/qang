@@ -13,6 +13,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `notebooks/qang_ibm_recent.ipynb`: a short runnable version of §145–§150 (coherent and always-on ZZ, PCA
   spectrum, XY Trotter and quantum walk, XXZ with 1–3 excitations, swap vs inversion test) on FakeBrisbane and
   FakeTorino, raw against filtered read-out, saved with outputs (about 15 minutes on a laptop CPU).
+- `qang.angular` (§155): the quantum numbers n, l, m_l, m_s in qg terms. m is the Hamming weight of a symmetric
+  register (the weight filter is the m projection), ⟨J²⟩ = Σ⟨SWAP_ij⟩ + n(4−n)/4 gives l from qg values of SWAP,
+  and a hydrogen shell n is two spins (n−1)/2. `examples/quantum_numbers_qg.py` reads each number with qang on
+  sampled circuits.
+- `qang.neutrino.collective_mass_hamiltonian`, `collective_exact`, `collective_trotter_circuit`,
+  `mass_sector_probabilities` and `qang.sectors.reweight_sectors` (§154): collective neutrino oscillations, where
+  the conserved number is the mass number, not the flavour number; the filter for a known distribution over weight
+  sectors. `examples/neutrino_collective_qg.py`: pre-registered C1–C7 all fail (the Trotter error exceeds the
+  noise); post-hoc against the noiseless circuit the filter gains 2.2–2.8× and reweighting 1.6–1.7×.
+- `examples/lih_lambda_filter_qg.py` and `tools/make_lih_lambda_hamiltonian.py` (§153): LiH with complex π±
+  orbitals, so Λ (the molecular m_l) is diagonal and filterable shot by shot. L1–L3, L5, L6 pass, L4 fails: Λ reaches
+  28 off-diagonal groups and discards 4–10% of their shots, but their error barely moves (it checks the π qubits,
+  the error sits on the σ qubits).
 
 ## [0.10.0] - 2026-10-13
 

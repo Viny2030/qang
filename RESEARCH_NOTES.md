@@ -6499,6 +6499,41 @@ passed, one of them vacuously; M1 failed narrowly.
 * **M5's gap to the exact value is Trotter error**, not noise: the filtered
   values sit within 0.004 of the r = 2 Trotter value.
 
+## 153. Λ, the molecular m_l, as a third qg filter: LiH with complex π orbitals (`examples/lih_lambda_filter_qg.py`, `tools/make_lih_lambda_hamiltonian.py`)
+
+A linear molecule conserves Λ = Σ m_l(i) n_i, the projection of the orbital
+angular momentum on its axis. With the π orbitals written as π± (m_l = ±1)
+instead of p_x, p_y, Λ is diagonal and can be checked shot by shot, like N.
+It needs only the four π qubits in the Z basis, so it also reaches the
+off-diagonal measurement groups, unlike the N filter. LiH, 1.6 Å, STO-3G,
+frozen 1s, 3 σ + π± orbitals, 10 qubits; the Hamiltonian was built with PySCF
+and checked to commute with N, S_z and Λ. A unary loader over the five
+electron pairs needs 28 two-qubit gates and sits 5.0 mHa above CASCI. 317
+measurement groups: N_up/N_down applies to 1, Λ to 29. Pre-registration:
+sha256 in `examples/data/lih_lambda_filter_qg.prereg` before the run (L1–L6).
+Five passed; L4 failed.
+
+| backend | raw | N_up/N_down | Λ | both | π occupation raw / both |
+|---|---|---|---|---|---|
+| FakeBrisbane | 227.4 mHa | 13.9 | 199.8 | 13.3 | 0.235 / 0.0037 |
+| FakeTorino | 163.8 | 11.9 | 147.4 | 11.7 | 0.138 / 0.0023 |
+| FakeFez | 112.0 | 8.18 | 107.0 | 8.02 | 0.104 / 0.0081 |
+
+* **Where N already applies, Λ adds almost nothing** (L1): NSL keeps 99.9% of
+  the shots NS keeps. An error that keeps N_up and N_down but changes Λ needs
+  an electron to move between σ and π without being caught, which takes two
+  errors.
+* **The extra reach is real, and it does not pay** (L3 pass, L4 fail). In the
+  28 Λ-only groups Λ discards 4–10% of the shots, yet their error barely moves
+  (8.54 → 8.27, 8.64 → 8.76, 3.54 → 3.46 mHa). It catches flips on the π
+  qubits, which do not affect terms that are I there. The error that matters
+  in those groups is on the σ qubits measured in X/Y, which Λ cannot see.
+* **Λ is the right check on the π occupation** (L5): noise multiplies it
+  52–118×, and adding Λ to N/S_z lowers it further on every backend.
+* After N/S_z, most of the remaining 8–13 mHa sits in the Λ-checkable
+  off-diagonal groups, not in the 288 groups no filter reaches. Those terms
+  nearly vanish on this pair state.
+
 ## 154. Collective neutrino oscillations: the conserved number is the mass number (`qang.neutrino.collective_trotter_circuit`, `qang.sectors.reweight_sectors`, `examples/neutrino_collective_qg.py`)
 
 §151 named dense neutrino gases a target for the weight filter because "the

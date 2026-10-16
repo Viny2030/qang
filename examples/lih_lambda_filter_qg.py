@@ -83,6 +83,49 @@ corrected:
   L6  none of this reaches chemical accuracy: every read-out has a total
       error above 1.6 mHa on every backend (the 288 groups no filter can
       check are left raw).
+
+Findings (pre-registration sha256 5fb77126...ba6f, recorded 2026-10-16; the
+run used that exact file, then only this block was added):
+
+Noiseless circuit energy -7.877097 Ha (5.0 mHa above CASCI), ideal pi
+occupation 0.0020, 28 two-qubit gates on every backend. Errors in mHa against
+that energy; "off L" = the 28 off-diagonal groups where only Lambda applies.
+
+  backend       read-out  total   all-Z   off L  kept all-Z  kept off L  pi occ.
+  FakeBrisbane  raw       227.4   218.6    8.54     1.000       1.000     0.235
+                NS         13.9     5.16   8.54     0.721       1.000     0.0051
+                L         199.8   191.3    8.27     0.902       0.902     0.127
+                NSL        13.3     4.79   8.27     0.720       0.902     0.0037
+  FakeTorino    raw       163.8   154.4    8.64     1.000       1.000     0.138
+                NS         11.9     2.55   8.64     0.741       1.000     0.0037
+                L         147.4   138.0    8.76     0.938       0.903     0.073
+                NSL        11.7     2.26   8.76     0.740       0.903     0.0023
+  FakeFez       raw       112.0   108.2    3.54     1.000       1.000     0.104
+                NS          8.18    4.39   3.54     0.853       1.000     0.0085
+                L         107.0   103.3    3.46     0.974       0.960     0.079
+                NSL         8.02    4.31   3.46     0.853       0.960     0.0081
+
+  L1 PASS: where N_up/N_down already applies, Lambda removes almost nothing
+     more (NSL keeps 99.9%, 99.9%, 99.95% of what NS keeps).
+  L2 PASS: the all-Z error falls 42x, 60x, 25x from raw to NS (median 42).
+  L3 PASS: in the Lambda-only groups L keeps 0.902, 0.903, 0.960.
+  L4 FAIL: NSL is only 0.64, 0.18, 0.16 mHa below NS (needed >= 1 mHa on 2
+     of 3). Lambda does reach the 28 off-diagonal groups and does discard
+     4-10% of their shots, but their error barely moves (8.54 -> 8.27,
+     8.64 -> 8.76, 3.54 -> 3.46): what it discards there is mostly read-out
+     flips on the pi qubits, which do not change terms that are I on the pi
+     qubits, while the error that matters is on the sigma qubits measured in
+     X/Y, which Lambda cannot see.
+  L5 PASS: noise puts 52-118x the ideal pi occupation into the pi orbitals
+     (raw 0.10-0.24); NSL lowers it below NS on all 3 (0.0037 vs 0.0051,
+     0.0023 vs 0.0037, 0.0081 vs 0.0085).
+  L6 PASS: the best total error is 8.0-13.3 mHa.
+  * Lambda alone is a weak filter (all-Z error 191 vs raw 219 on Brisbane):
+    it checks 4 of 10 qubits. Its value is as a third check and in the pi
+    occupation, not in the energy.
+  * After NS, most of the remaining error (3.5-8.8 of 8.0-13.3 mHa) sits in
+    the Lambda-checkable off-diagonal groups, not in the 288 groups no
+    filter reaches (whose terms nearly vanish on this pair state).
 """
 
 import hashlib
