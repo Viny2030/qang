@@ -9,6 +9,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      # scikit-learn and qiskit-aer each bundle their own libgomp, and each needs a
+      # slot in glibc's static TLS block; the default surplus (512 bytes) only fits
+      # one, so whichever loads second fails with "cannot allocate memory in static
+      # TLS block". Enlarge the surplus for every Python process in the job.
+      GLIBC_TUNABLES: glibc.rtld.optional_static_tls=16384
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
