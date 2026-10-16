@@ -6426,6 +6426,79 @@ removed 32–60% of the added error; the filtered error grew by 0.003–0.009
 errors on these devices are filtered in proportion to the time the qubits
 spend outside the computational frame.
 
+## 151. Neutrino flavour oscillations in qg terms (`qang/neutrino.py`, `examples/neutrino_oscillation_qg.py`)
+
+A neutrino is produced and detected in a flavour state but propagates in mass
+states, so flavour oscillation is the textbook two- or three-level rotation:
+mixing (PMNS) then a phase Delta = dm2 L / 2E per mass state. With two flavours
+on one qubit (RY(-2 theta), RZ(Delta), RY(2 theta)):
+
+    qg_Z = 1 - 2 P(e -> mu) = cos^2(2 theta) + sin^2(2 theta) cos(Delta).
+
+This is the spherical law of cosines: the Bloch vector precesses on a cone of
+half-angle 2 theta about the mass axis and the qang angle arccos(qg_Z) is the
+great-circle distance travelled. At the oscillation maximum (Delta = pi) it
+equals 4 theta exactly (theta <= pi/4), so theta = arccos(qg_Z)/4 inherits the
+theta-independent shot-noise std 1/(4 sqrt(N + 1/2)) of §125. Elsewhere the
+relation is not linear: qg removes the sin^2 only at the maximum, and that is
+the arcsine transformation of §125, not new physics. Three flavours go on
+three qubits in the weight-1 sector: U = R23 U_delta R13 U_delta^dagger R12 is
+three RBS rotations and two phase gates, propagation is one phase gate per
+qubit, so every gate conserves the weight and the qg filter applies.
+Antineutrinos use delta_CP -> -delta_CP. Pre-registration: sha256 of the
+script recorded in `examples/data/neutrino_oscillation_qg.prereg` before the
+run (N1–N4; not yet committed separately). All four passed.
+
+| check | result |
+|---|---|
+| N1 std of theta_hat at Delta = pi, N = 1000 (theory 0.0079) | 0.0077–0.0081, bias < 0.001 |
+| N2 mean \|P_hat − P\|, mu-start, 1300 km, 0.8–5 GeV: raw / filter + readout | Brisbane 0.048 / 0.013, Torino 0.034 / 0.010, Fez 0.025 / 0.009 (median 3.4×) |
+| N3 minimum of P(mu → mu) | 2.6 GeV on all 3 (first maximum 2.63 GeV) |
+| N4 A_CP at 2.6 GeV, delta_CP = −pi/2 (exact 0.0250): raw / filter + readout | 0.024 / 0.026, 0.017 / 0.022, 0.020 / 0.022 |
+
+* **The filter works as for §146–§149** (3 qubits, 18 two-qubit gates, kept
+  86–94%), most of the gain is the filter, not the readout correction.
+* **The CP asymmetry survives without it too**: it is a difference of two
+  nearly identical circuits, so common shrinkage cancels (as in the fidelity
+  classifier of §149); the filter halves the error on the CZ devices.
+* **What the link between neutrinos and qang is, and is not.** It is
+  modelling: the oscillation is a rotation, and qang's angle reads the mixing
+  angle directly at the maximum with a known error bar. It does not remove the
+  trigonometry in general, and it does not speed up variational methods for
+  dense neutrino gases (collective oscillations in supernovae): those are
+  many-body problems in which the total flavour number is conserved, which
+  makes them a natural next target for the weight filter, not a solved one.
+* **Limits.** Vacuum only (a 1300 km baseline has sizeable matter effects;
+  see §152), fixed parameters, simulated device noise.
+
+## 152. Neutrinos through the Earth: matter (MSW) as a weight-preserving Trotter circuit (`qang.neutrino.matter_trotter_circuit`, `examples/neutrino_matter_qg.py`)
+
+Electrons in the Earth add A = 2√2 G_F N_e E to the nu_e entry of the flavour
+Hamiltonian (−A for antineutrinos). The circuit alternates the exact vacuum
+step of §151 with a phase gate on the nu_e qubit (second-order Trotter), so
+every gate still conserves the weight; it is the set-up of §147 with a
+physical Hamiltonian. L = 1300 km, rho = 2.85 g/cm³, Y_e = 0.5, nu_mu start,
+0.8–5 GeV, r = 1–6 steps, three device noise models. Pre-registration: sha256
+in `examples/data/neutrino_matter_qg.prereg` before the run (M1–M5). Four
+passed, one of them vacuously; M1 failed narrowly.
+
+| check | result |
+|---|---|
+| M1 noiseless Trotter error, r = 2 / 4 (needed < 0.005 / < 0.001) | 0.0052 / 0.0011 — FAIL |
+| M2 matter-only A_CP at delta_CP = 0, 2.6 GeV | 0.042 (vacuum CP signal of §151: 0.025) |
+| M3 best error raw / filter + readout | Brisbane 0.046 / 0.017, Torino 0.027 / 0.009, Fez 0.023 / 0.014 (median 2.8×) |
+| M4 r* filter + readout ≥ r* raw | r* = 1 everywhere (vacuous) |
+| M5 A_CP(delta_CP = 0), filter + readout, r = 2 | 0.035, 0.035, 0.029 (exact 0.042; Trotter r = 2: 0.033) |
+
+* **Matter fakes CP violation, and the filtered circuit sees it.** At this
+  baseline the matter asymmetry exceeds the vacuum CP one, which is why
+  long-baseline experiments must model it.
+* **No depth trade-off here, unlike §147.** One Trotter step already has less
+  error (0.012) than the noise, so r* = 1 with or without the filter; M4 holds
+  only because both are 1.
+* **M5's gap to the exact value is Trotter error**, not noise: the filtered
+  values sit within 0.004 of the r = 2 Trotter value.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
