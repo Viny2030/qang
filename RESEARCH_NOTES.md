@@ -6536,6 +6536,49 @@ scored against the noiseless Trotter circuit:
   circuit when the Trotter error is not known to be small, or check the
   Trotter error at the chosen step before fixing the predictions.
 
+## 155. The four quantum numbers in qg terms (`qang/angular.py`, `examples/quantum_numbers_qg.py`)
+
+Exact identities, no noise, checked numerically in `tests/test_angular.py`.
+
+* **qg_Z for any angular momentum** is ⟨J_z⟩/j ∈ [−1, 1]. A register of n
+  qubits in its permutation-symmetric subspace is a spin j = n/2, with
+  |0⟩ ↦ m = +½. Each shot's **magnetic quantum number is read from its
+  Hamming weight**, m = n/2 − w, and the qg weight filter is the projection
+  onto one value of m. The total spin j (l for orbital momentum) is the
+  permutation symmetry, which the swap test of §149 checks.
+* **m_s** is one qubit, with qg_Z = 2m_s. **m_l** of an l orbital is the
+  weight of a 2l-qubit symmetric register. The three complex p orbitals are
+  the triplet |00⟩, (|01⟩+|10⟩)/√2, |11⟩. The real p_x and p_y are
+  superpositions of m_l = ±1, i.e. of weights 0 and 2. All three real ones
+  have qg_Z = 0: p_z is sharp (entropy over m = 0), while p_x and p_y have
+  entropy log 2/log 3 = 0.63. That is why §153 had to use complex π±
+  orbitals before Λ could be filtered.
+* **n**: hydrogen's hidden SO(4) symmetry makes shell n two spins
+  j₁ = j₂ = (n−1)/2, i.e. two symmetric registers of n−1 qubits. Coupling
+  them gives l = 0 … n−1 with m_l = m₁ + m₂ and n² states, found
+  numerically for n = 1–4. So in every shell m_l is (n−1) minus the total
+  Hamming weight of 2(n−1) qubits, and the weight filter fixes it.
+* **The angle.** A spin-coherent state (every qubit at θ) has qg_Z = cos θ
+  for every j (binomial P(m)), so the qang angle is the direction of the
+  spin, as for one qubit. An eigenstate |l, m⟩ has qang angle arccos(m/l).
+  The textbook vector-model angle is arccos(m/√(l(l+1))) and always lies
+  closer to the equator, because |l, m⟩ has transverse spread
+  ⟨J_x²+J_y²⟩ = l(l+1) − m² > 0:
+
+| l, m | qang angle | vector-model angle | ⟨J_x²+J_y²⟩ |
+|---|---|---|---|
+| 1, +1 | 0° | 45.0° | 1 |
+| 2, +2 | 0° | 35.3° | 2 |
+| 2, +1 | 60.0° | 65.9° | 5 |
+| 3, +3 | 0° | 30.0° | 3 |
+| 3, +1 | 70.5° | 73.2° | 11 |
+
+  qg_Z measures where ⟨J⟩ points; the vector model draws a vector of length
+  √(l(l+1)). The two agree only at m = 0.
+* **Limits.** This section is a translation, not new physics. The register
+  picture fixes m_l and m_s shot by shot; l needs a symmetry test, not a
+  Z-basis filter, and n is the register size, not something measured.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

@@ -51,6 +51,8 @@ This package covers, in order:
   - qang.geometric    geometric (Berry/Pancharatnam) phase in qg units and
                        Stokes' theorem on the Bloch sphere (§84).
   - qang.knitting     the sampling cost of circuit cutting in qg units.
+  - qang.angular      the quantum numbers n, l, m_l, m_s in qg terms: m is the
+                       Hamming weight of a symmetric register (§155).
   - qang.circuits, qang.ansatze, qang.qec, qang.algorithms
                        Qiskit circuit builders, variational ansatze, the
                        3-qubit bit-flip code, and textbook algorithms
