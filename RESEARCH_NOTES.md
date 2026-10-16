@@ -6499,6 +6499,43 @@ passed, one of them vacuously; M1 failed narrowly.
 * **M5's gap to the exact value is Trotter error**, not noise: the filtered
   values sit within 0.004 of the r = 2 Trotter value.
 
+## 154. Collective neutrino oscillations: the conserved number is the mass number (`qang.neutrino.collective_trotter_circuit`, `qang.sectors.reweight_sectors`, `examples/neutrino_collective_qg.py`)
+
+§151 named dense neutrino gases a target for the weight filter because "the
+total flavour number is conserved". That holds for the neutrino-neutrino term
+alone. With the vacuum term, H_m = −Σ ω_i Z_i/2 + (μ/2N) Σ_{i<j} σ_i·σ_j in the
+mass basis (single angle, two flavours), and what is conserved is the number
+of ν₂. The filter applies to mass-basis read-outs. A flavour initial state is
+a superposition of mass sectors with known, conserved probabilities, and
+`reweight_sectors` rescales each sector to its probability; with a delta
+distribution it is the filter. N = 4, ω = 0.25–1, μ = 4, θ = 0.195,
+t = 0.5–2, dt = 0.5 (27–108 two-qubit gates). Pre-registration: sha256 in
+`examples/data/neutrino_collective_qg.prereg` before the run (C1–C7).
+
+**All seven failed, for one reason:** the noiseless Trotter error (0.095) is
+larger than the whole noisy error against the exact evolution (0.074–0.088),
+so every read-out is scored mostly on Trotter error. The total flavour number
+moved by only 0.016 (C6 needed 0.05): it is not conserved, but at θ = 0.195
+and ωt ≤ 2 the change is small.
+
+Post-hoc (not pre-registered, `examples/neutrino_collective_qg_posthoc.py`),
+scored against the noiseless Trotter circuit:
+
+| backend | mass basis raw / filter+ro | flavour state in mass basis raw / reweighted+ro | flavour basis raw / ro |
+|---|---|---|---|
+| FakeBrisbane | 0.054 / 0.025 | 0.054 / 0.034 | 0.057 / 0.055 |
+| FakeTorino | 0.032 / 0.011 | 0.031 / 0.019 | 0.035 / 0.031 |
+| FakeFez | 0.028 / 0.012 | 0.027 / 0.016 | 0.027 / 0.026 |
+
+* **The filter works on the conserved mass number** (2.2–2.8×). A known
+  distribution over sectors helps less (1.6–1.7×), and the flavour basis,
+  where nothing is conserved, gets nothing beyond readout correction. Both
+  gains fall at t = 2. All of this matches what the predictions meant to
+  test, but it was seen after the failure.
+* **Lesson for the next pre-registration:** score against the noiseless
+  circuit when the Trotter error is not known to be small, or check the
+  Trotter error at the chosen step before fixing the predictions.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

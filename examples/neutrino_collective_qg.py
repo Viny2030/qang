@@ -62,6 +62,47 @@ examples/data/neutrino_collective_qg.prereg before the run):
       conserved quantity).
   C7  Part C, where nothing is conserved: its readout error is larger than
       the Part B reweighted_readout error on all 3 backends.
+
+Findings (pre-registration sha256 6a3441ef...c5b7, recorded 2026-10-16; the
+run used that exact file, then only this block was added):
+
+All seven predictions FAIL. The reason is one design error, not seven
+results: at dt = 0.5 the noiseless Trotter error is 0.095 (Part A; B 0.089,
+C 0.090), LARGER than the whole noisy error against the exact evolution
+(0.074-0.088). Scored against the exact evolution every read-out is mostly
+Trotter error, and a read-out that removes noise moves the estimate towards
+the Trotter value, which here is not closer to the exact one.
+
+  backend       A raw / f+ro     B raw / rw+ro    C raw / ro       kept A (t = 0.5 .. 2)
+  FakeBrisbane  0.0748 / 0.0756  0.0750 / 0.0771  0.0769 / 0.0786  0.79 0.66 0.58 0.52
+  FakeTorino    0.0761 / 0.0844  0.0748 / 0.0803  0.0760 / 0.0782  0.87 0.80 0.76 0.71
+  FakeFez       0.0799 / 0.0883  0.0740 / 0.0769  0.0758 / 0.0767  0.91 0.85 0.80 0.76
+
+  C1 FAIL: Trotter error 0.095 (needed < 0.02); the exchange gates of the six
+     pairs do not commute and mu dt / 2N = 0.25 is too coarse for 4 pairs
+     per qubit.
+  C2-C5, C7 FAIL as scored (median gain A 0.90, B 0.96); see the post-hoc
+     scoring below for what the filter does to the noise.
+  C6 FAIL: the total flavour number moves by only 0.016 (needed > 0.05). It
+     is not conserved (tests/test_neutrino.py), but with theta = 0.195 and
+     omega t <= 2 the change is small: the correction to §151 is right in
+     principle and small at these parameters.
+
+Post-hoc, NOT pre-registered (examples/neutrino_collective_qg_posthoc.py,
+new samples): the same circuits scored against the noiseless Trotter
+circuit, as §153 and the chemistry sections do:
+
+  backend       A raw / f+ro     B raw / rw+ro    C raw / ro
+  FakeBrisbane  0.0537 / 0.0246  0.0541 / 0.0339  0.0567 / 0.0548
+  FakeTorino    0.0318 / 0.0113  0.0313 / 0.0191  0.0347 / 0.0309
+  FakeFez       0.0275 / 0.0124  0.0268 / 0.0156  0.0266 / 0.0256
+
+  The filter in the mass basis gains 2.2x, 2.8x, 2.2x; reweighting the known
+  sector distribution 1.6x, 1.6x, 1.7x, less, as C5 expected; the flavour
+  basis, with nothing conserved, gains nothing beyond readout correction.
+  Both gains fall at t = 2 on all 3 backends (A: 1.5, 2.0, 1.2; B: 1.1, 0.8,
+  0.9), as C3 expected. These agree with the intended predictions, but they
+  were computed after seeing the failure and do not count as tests.
 """
 
 import hashlib
