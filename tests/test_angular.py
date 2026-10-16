@@ -82,3 +82,22 @@ def test_hydrogen_shell_is_two_spins_n_minus_1_over_2():
         assert len(ls) == n * n
         assert np.allclose(sorted(ls), expected)
         assert A.shell_register_qubits(n) == 2 * (n - 1)
+
+
+def test_j_squared_is_a_sum_of_swap_qg_values():
+    rng = np.random.default_rng(5)
+    for n in (2, 3, 4):
+        Jx, Jy, Jz = A.spin_operators(n)
+        J2 = Jx @ Jx + Jy @ Jy + Jz @ Jz
+        v = rng.normal(size=2 ** n) + 1j * rng.normal(size=2 ** n)
+        v /= np.linalg.norm(v)
+        idx = np.arange(2 ** n)
+        swaps = []
+        for i in range(n):
+            for j in range(i + 1, n):
+                bi, bj = (idx >> i) & 1, (idx >> j) & 1
+                perm = idx ^ ((bi ^ bj) << i) ^ ((bi ^ bj) << j)
+                swaps.append(np.real(np.vdot(v, v[perm])))
+        assert A.j_squared_from_swaps(n, swaps) == pytest.approx(np.real(np.vdot(v, J2 @ v)), abs=1e-12)
+    assert A.l_from_j_squared(A.j_squared_from_swaps(2, [1.0])) == pytest.approx(1)
+    assert A.l_from_j_squared(A.j_squared_from_swaps(2, [-1.0])) == pytest.approx(0)

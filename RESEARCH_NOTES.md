@@ -6575,9 +6575,33 @@ Exact identities, no noise, checked numerically in `tests/test_angular.py`.
 
   qg_Z measures where ⟨J⟩ points; the vector model draws a vector of length
   √(l(l+1)). The two agree only at m = 0.
+* **l from qang values of SWAP.** J² = Σ_{i<j} SWAP_ij + n(4−n)/4, so for
+  two qubits ⟨J²⟩ = 1 + qg_SWAP, with qg_SWAP = ⟨SWAP⟩ ∈ [−1, 1] read as
+  1 − 2P(singlet) in the Bell basis (`j_squared_from_swaps`,
+  `l_from_j_squared`).
+
+**Each number read with qang** (`examples/quantum_numbers_qg.py`, sampled
+circuits, 20,000 shots; a demonstration, not a pre-registered test):
+
+| quantum number | prepared | qang read-out |
+|---|---|---|
+| m_s | RY(60°) on one qubit | qg_Z = +0.502 (501.8 mqg), qang angle 59.9°, ⟨m_s⟩ = +0.251, qg_S = 0.810 |
+| m_l | p₊₁, p₀, p₋₁ on 2 qubits | register qg_Z = +1.000, 0.000, −1.000 = ⟨m_l⟩/l; qg_S(m) = 0 |
+| m_l | p_x, p_y | qg_Z ≈ 0 like p_z, but P(m_l = ±1) = ½ each and qg_S(m) = 0.631 |
+| l | p₀ against the singlet (both m_l = 0, qg_Z = 0) | qg_SWAP = +1.000 → l = 1; −1.000 → l = 0 |
+| n | shell n = 2 = the 2-qubit register | (qg_SWAP, register qg_Z) gives 2s (l 0, m 0) and 2p (l 1, m +1/0/−1) |
+| n | shell n = 3, 4 qubits (exact states) | register qg_Z = m_l/2: qang angles 0°, 60°, 90°, 120°, 180° for m_l = +2 … −2 |
+
+Under the FakeTorino noise model p_z (m_l = 0) leaks to m_l = ±1 in 19% of
+shots on the default layout, whose qubit 0 has 17% readout error. On the
+chain chosen by `ibm.best_chain` it leaks in 2.2% of shots; the filter
+predicted it would keep 0.977 and kept 0.978. In both cases the weight
+filter returns P(m_l = 0) = 1: it is the m_l = 0 projection.
+
 * **Limits.** This section is a translation, not new physics. The register
-  picture fixes m_l and m_s shot by shot; l needs a symmetry test, not a
-  Z-basis filter, and n is the register size, not something measured.
+  picture fixes m_l and m_s shot by shot; l needs a SWAP (Bell-basis)
+  read-out rather than a Z-basis filter, and n is the register size, not
+  something measured.
 
 ## Suggested next steps
 

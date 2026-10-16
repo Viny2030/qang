@@ -172,3 +172,19 @@ def shell_l_spectrum(n: int) -> np.ndarray:
     J2 = Jx @ Jx + Jy @ Jy + Jz @ Jz
     ev = np.linalg.eigvalsh(P.conj().T @ J2 @ P)
     return np.round((-1 + np.sqrt(1 + 4 * ev)) / 2, 9)
+
+
+# ---------------------------------------------------------------- l from qg values of SWAP
+
+def j_squared_from_swaps(n_qubits: int, swaps: Sequence[float]) -> float:
+    """<J^2> of n qubits from the qg values <SWAP_ij> of all pairs i < j (each in [-1, 1]):
+    J^2 = sum_{i<j} SWAP_ij + n (4 - n) / 4. For two qubits <J^2> = 1 + qg_SWAP: l (l + 1) from one qang number."""
+    swaps = np.asarray(swaps, float)
+    if swaps.size != n_qubits * (n_qubits - 1) // 2:
+        raise ValueError("one SWAP value per pair i < j is needed.")
+    return float(swaps.sum() + n_qubits * (4 - n_qubits) / 4)
+
+
+def l_from_j_squared(j2: float) -> float:
+    """Solve l (l + 1) = <J^2> for l >= 0."""
+    return (-1 + math.sqrt(1 + 4 * max(j2, 0.0))) / 2
