@@ -229,3 +229,130 @@ def first_maximum_energy(L: float, dm2: float = NUFIT_NO["dm31"]) -> float:
 def occupation_profile(probs: Sequence[float]) -> np.ndarray:
     """qg_Z of each flavour qubit from P(flavour): 1 - 2 P."""
     return 1 - 2 * np.asarray(probs, float)
+
+
+# ---------------------------------------------------------------- collective oscillations (§154)
+#
+# N neutrinos, two flavours, one qubit each, single-angle approximation:
+#
+#     H = sum_i (omega_i / 2) B . sigma_i + (mu / 2N) sum_{i<j} sigma_i . sigma_j,
+#
+# omega_i = dm2 / 2E_i the vacuum frequency of neutrino i, B the mass axis (at angle 2 theta from the
+# flavour z axis), mu the neutrino-neutrino coupling. sigma_i . sigma_j = XX + YY + ZZ is the same in every
+# basis, so it conserves the number of excitations in the flavour basis AND in the mass basis; the vacuum
+# term is diagonal only in the mass basis. In the mass basis (|0> = nu_1, |1> = nu_2)
+#
+#     H_m = - sum_i omega_i Z_i / 2 + (mu / 2N) sum_{i<j} (X_i X_j + Y_i Y_j + Z_i Z_j),
+#
+# every term conserves the weight: the conserved quantity is the total number of nu_2, not the total flavour
+# number (which the vacuum term changes). A flavour state is a superposition of mass sectors:
+# nu_e = cos theta nu_1 + sin theta nu_2, nu_x = -sin theta nu_1 + cos theta nu_2, i.e. RY(2 theta) on |0> or |1>.
+
+
+def collective_mass_hamiltonian(omegas: Sequence[float], mu: float) -> np.ndarray:
+    """Dense H_m (mass basis, qubit i = bit i of the index)."""
+    n = len(omegas)
+    X = np.array([[0, 1], [1, 0]], complex)
+    Y = np.array([[0, -1j], [1j, 0]], complex)
+    Z = np.diag([1.0, -1.0]).astype(complex)
+
+    def op(single):
+        out = np.ones((1, 1), complex)
+        for q in reversed(range(n)):
+            out = np.kron(out, single.get(q, np.eye(2)))
+        return out
+
+    H = sum(-0.5 * w * op({i: Z}) for i, w in enumerate(omegas))
+    J = mu / (2 * n)
+    for i in range(n):
+        for j in range(i + 1, n):
+            for P in (X, Y, Z):
+                H = H + J * op({i: P, j: P})
+    return H
+
+
+def _initial_state(initial: str, theta: float, basis: str) -> np.ndarray:
+    """Product state in the mass basis. basis 'flavour': characters e / x; basis 'mass': 0 / 1."""
+    one = []
+    for ch in initial:
+        if basis == "mass":
+            one.append(np.array([1, 0], complex) if ch == "0" else np.array([0, 1], complex))
+        elif ch == "e":
+            one.append(np.array([math.cos(theta), math.sin(theta)], complex))
+        else:
+            one.append(np.array([-math.sin(theta), math.cos(theta)], complex))
+    psi = np.ones(1, complex)
+    for v in reversed(one):
+        psi = np.kron(psi, v)
+    return psi
+
+
+def collective_exact(omegas: Sequence[float], mu: float, theta: float, initial: str, t: float,
+                     initial_basis: str = "flavour", measure_basis: str = "mass") -> np.ndarray:
+    """Exact P(qubit i = 1) at time t: P(nu_2) (measure_basis 'mass') or P(nu_x) ('flavour')."""
+    from scipy.linalg import expm
+
+    n = len(omegas)
+    psi = expm(-1j * t * collective_mass_hamiltonian(omegas, mu)) @ _initial_state(initial, theta, initial_basis)
+    if measure_basis == "flavour":
+        c, s = math.cos(theta), math.sin(theta)
+        R = np.array([[c, s], [-s, c]], complex)  # mass -> flavour amplitudes
+        full = np.ones((1, 1), complex)
+        for _ in range(n):
+            full = np.kron(full, R)
+        psi = full @ psi
+    p = np.abs(psi) ** 2
+    idx = np.arange(2 ** n)
+    return np.array([p[(idx >> i) & 1 == 1].sum() for i in range(n)])
+
+
+def mass_sector_probabilities(initial: str, theta: float, initial_basis: str = "flavour") -> np.ndarray:
+    """P(total number of nu_2 = w), w = 0..N: conserved by H, so known from the initial state alone."""
+    p = np.abs(_initial_state(initial, theta, initial_basis)) ** 2
+    n = len(initial)
+    w = np.array([bin(k).count("1") for k in range(2 ** n)])
+    return np.bincount(w, weights=p, minlength=n + 1)
+
+
+def _exchange_unitary(a: float) -> np.ndarray:
+    from scipy.linalg import expm
+
+    X = np.array([[0, 1], [1, 0]], complex)
+    Y = np.array([[0, -1j], [1j, 0]], complex)
+    Z = np.diag([1.0, -1.0]).astype(complex)
+    return expm(-1j * a * (np.kron(X, X) + np.kron(Y, Y) + np.kron(Z, Z)))
+
+
+def collective_trotter_circuit(omegas: Sequence[float], mu: float, theta: float, initial: str, t: float,
+                               steps: int, initial_basis: str = "flavour", measure_basis: str = "mass",
+                               measure: bool = True):
+    """Trotter circuit of H_m in the mass basis. Each step: fields for dt/2, the exchange gate
+    exp(-i (mu dt / 2N) sigma.sigma) on every pair (order reversed on every other step), fields for dt/2.
+    The initial flavour state is prepared with X and RY(2 theta); measure_basis 'flavour' rotates back with
+    RY(-2 theta) before measuring. Everything between preparation and read-out conserves the weight."""
+    from qiskit import QuantumCircuit
+    from qiskit.circuit.library import UnitaryGate
+
+    n = len(omegas)
+    dt = t / steps
+    pairs = [(i, j) for i in range(n) for j in range(i + 1, n)]
+    U = UnitaryGate(_exchange_unitary(mu * dt / (2 * n)), label="exch")
+    qc = QuantumCircuit(n)
+    for q, ch in enumerate(initial):
+        if ch in "x1":
+            qc.x(q)
+        if initial_basis == "flavour":
+            qc.ry(2 * theta, q)
+    for s in range(steps):
+        for q, w in enumerate(omegas):
+            qc.rz(-w * dt / 2, q)
+        for i, j in (pairs if s % 2 == 0 else pairs[::-1]):
+            qc.append(U, [i, j])
+        for q, w in enumerate(omegas):
+            qc.rz(-w * dt / 2, q)
+    if measure_basis == "flavour":
+        for q in range(n):
+            qc.ry(-2 * theta, q)
+    if measure:
+        qc.measure_all()
+    return qc

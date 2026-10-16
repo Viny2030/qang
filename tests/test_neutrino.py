@@ -78,3 +78,31 @@ def test_matter_trotter_converges_and_preserves_weight():
         assert a2[[1, 2, 4]].sum() == pytest.approx(1, abs=1e-12)
         errs.append(np.abs(a2[[1, 2, 4]] - P[1]).max())
     assert errs[1] < errs[0] / 8  # second order: error ~ r^-2
+
+
+def test_collective_hamiltonian_conserves_mass_number_not_flavour_number():
+    H = NU.collective_mass_hamiltonian([0.25, 0.5, 0.75, 1.0], 2.0)
+    w = np.array([bin(k).count("1") for k in range(16)])
+    assert np.abs(H * w[None, :] - w[:, None] * H).max() < 1e-12
+    P0 = NU.collective_exact([0.25, 0.5, 0.75, 1.0], 2.0, 0.195, "eexx", 0.0, measure_basis="flavour")
+    P1 = NU.collective_exact([0.25, 0.5, 0.75, 1.0], 2.0, 0.195, "eexx", 3.0, measure_basis="flavour")
+    assert np.allclose(P0, [0, 0, 1, 1], atol=1e-12)
+    assert abs(P1.sum() - P0.sum()) > 1e-3  # total flavour number is not conserved
+    sec = NU.mass_sector_probabilities("eexx", 0.195)
+    assert sec.sum() == pytest.approx(1, abs=1e-12)
+    P = NU.collective_exact([0.25, 0.5, 0.75, 1.0], 2.0, 0.195, "eexx", 3.0)
+    assert P.sum() == pytest.approx(np.dot(np.arange(5), sec), abs=1e-12)  # total nu_2 number is
+
+
+def test_collective_trotter_converges_to_exact():
+    from qiskit.quantum_info import Statevector
+
+    om, mu, th = [0.25, 0.5, 0.75, 1.0], 2.0, 0.195
+    idx = np.arange(16)
+    for ib, ini, mb in (("mass", "0011", "mass"), ("flavour", "eexx", "flavour")):
+        ex = NU.collective_exact(om, mu, th, ini, 2.0, ib, mb)
+        errs = []
+        for r in (4, 16):
+            p = Statevector(NU.collective_trotter_circuit(om, mu, th, ini, 2.0, r, ib, mb, measure=False)).probabilities()
+            errs.append(np.abs(np.array([p[(idx >> i) & 1 == 1].sum() for i in range(4)]) - ex).max())
+        assert errs[1] < errs[0] / 4

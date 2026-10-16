@@ -8,6 +8,9 @@ without any noise model:
   * ``filter_distribution``: the filter as an operation on an outcome
     distribution (or counts): keep the outcomes with Hamming weight N and
     renormalize; also returns the kept fraction.
+  * ``reweight_sectors``: the same when the weight is not sharp but its
+    distribution is known (a weight-conserving evolution of a superposition
+    of sectors, §154): rescale each sector to its known probability.
   * ``sector_exposure``: how far a circuit's intermediate states leave the
     conserved sector right after its multi-qubit gates, from a noiseless
     statevector simulation. A decay that happens while part of the state is
@@ -54,6 +57,31 @@ def filter_distribution(probs, n_qubits: int, weight: int):
     if kept > 0:
         out = out / kept
     return out, float(kept / total) if total > 0 else 0.0
+
+
+def reweight_sectors(probs, n_qubits: int, sector_probs):
+    """The filter when the conserved weight is known only as a distribution (§154).
+
+    A Hamiltonian that conserves the Hamming weight keeps the initial weight distribution
+    ``sector_probs`` (sector_probs[w] = P(weight w), length n_qubits + 1) for all time, even when the
+    initial state is not a weight eigenstate. Each sector's outcomes are rescaled so that the sector
+    carries exactly that probability; sectors with probability 0 are dropped. With a delta distribution
+    this is ``filter_distribution``. Exact for observables diagonal in the computational basis.
+    Returns (reweighted distribution, normalized to 1, and the measured probability of the sectors
+    that were kept).
+    """
+    p = np.asarray(probs, dtype=float)
+    p = p / p.sum()
+    target = np.asarray(sector_probs, dtype=float)
+    if target.shape != (n_qubits + 1,):
+        raise ValueError(f"sector_probs needs {n_qubits + 1} entries.")
+    w = hamming_weights(n_qubits)
+    measured = np.bincount(w, weights=p, minlength=n_qubits + 1)
+    use = (target > 0) & (measured > 0)
+    scale = np.where(use, target / np.where(measured > 0, measured, 1), 0.0)
+    out = p * scale[w]
+    tot = out.sum()
+    return (out / tot if tot > 0 else out), float(measured[target > 0].sum())
 
 
 def sector_exposure(circuit, weight: int, min_qubits: int = 2):
