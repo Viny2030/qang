@@ -46,6 +46,8 @@ layout, pred, t = ibm.best_chain(qc, backend, weight=1)      # qubits with the m
 r = ibm.run_qnn(model, X_test, backend)                      # qang's QNN: whole test set in one job
 ```
 
+Notebook with §145–§150 on local IBM device simulators (no account needed): [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_ibm_recent.ipynb)
+
 Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§150): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
 
 ### New in 0.8

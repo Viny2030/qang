@@ -10,6 +10,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   calibrated layer durations. `examples/ibm_static_zz_qg.py`: at 15 kHz the filter still removes 32-60% of the added
   error (ZZ acts partly inside native gate decompositions) and the filtered error grows by 14-38%. Z1, Z4 pass; Z2, Z3
   fail.
+- `notebooks/qang_ibm_recent.ipynb`: a short runnable version of §145–§150 (coherent and always-on ZZ, PCA
+  spectrum, XY Trotter and quantum walk, XXZ with 1–3 excitations, swap vs inversion test) on FakeBrisbane and
+  FakeTorino, raw against filtered read-out, saved with outputs (about 15 minutes on a laptop CPU).
 
 ## [0.10.0] - 2026-10-13
 
