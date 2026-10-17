@@ -6797,6 +6797,31 @@ ansatz floor is 0.0245), lr tuned per method on 6 seeds, 20 test seeds. Pre-regi
 * **Limits.** Noiseless, exact gradients, one small model; barren plateaus (§12, §23) are untouched by any of
   this.
 
+## 161. Quantum kernels with the qg filter against the diagonal normalization (`qang/kernels.py`, `examples/quantum_kernel_qg.py`)
+
+A fidelity kernel estimated on a noisy device is shrunk (K_ii < 1) and pulled toward the noise value. The usual
+repair, K_ij/√(K_ii K_jj), costs the diagonal circuits. When the kernel circuit conserves the Hamming weight, the
+qg filter is another repair. The kernel is the weight-1 fidelity kernel K = (x·y)², estimated with the inversion
+test of §149. It is a degree-2 polynomial kernel and classically easy, so this is a test of Gram-matrix repair,
+not of advantage. In qg terms arccos(2K − 1) = 2φ is a qang angle, φ the angle between the data vectors.
+Breast-cancer data, PCA to 4 features plus a constant (5 qubits), 40 + 40 points, QSVC with a precomputed
+kernel, 2000 shots, three device noise models. Pre-registration: sha256 in
+`examples/data/quantum_kernel_qg.prereg` before the run (K1–K5). K1 and K5 passed; K2–K4 failed.
+
+| backend | Gram error raw / normalized / filtered / both | accuracy (exact 35/40) | diagonal raw / filtered |
+|---|---|---|---|
+| FakeBrisbane | 0.097 / 0.016 / 0.016 / 0.015 | 32 / 34 / 34 / 35 | 0.674 / 0.944 |
+| FakeTorino | 0.101 / 0.021 / 0.017 / 0.014 | 34 / 35 / 34 / 34 | 0.717 / 0.971 |
+| FakeFez | 0.039 / 0.027 / 0.011 / 0.011 | 34 / 34 / 35 / 35 | 0.953 / 1.000 |
+
+* **The filter repairs the Gram matrix best** (K1): 2.4–6× below raw and 1.0–2.5× below the normalization,
+  without the 80 diagonal circuits the normalization needs. Normalizing after the filter adds almost nothing (K5).
+* **Accuracy hardly cares** (K2 failed on one raw kernel, three points down). As in §149, an SVM compares kernel
+  values, and a common shrink cancels.
+* **Kernel-target alignment is blind to the shrink** (K3 failed): it divides by ‖K‖.
+* K4 failed on its thresholds, not on its direction: FakeFez is good enough that its raw diagonal is 0.953.
+* **Limits.** One small kernel, 5 qubits, no exponential concentration at this size.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

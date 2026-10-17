@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `qang.kernels` (§161): the weight-1 fidelity kernel (x·y)² from the inversion test, with raw, filtered and
+  diagonal-normalized Gram matrices and the kernel-target alignment. `examples/quantum_kernel_qg.py` (QSVC, breast
+  cancer, three device noise models): the qg filter repairs the Gram matrix 2.4–6× and beats the diagonal
+  normalization without its 80 extra circuits; accuracy barely moves. K1, K5 pass; K2–K4 fail.
+
 ## [0.11.0] - 2026-10-17
 
 ### Added
