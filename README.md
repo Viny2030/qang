@@ -19,6 +19,31 @@ Reference implementation and computational toolkit for:
 - qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
 - **IBM Quantum** through IBM Runtime (transpiler pass, calibrated readout correction, qubit selection) and **qiskit-machine-learning** integration.
 
+### What's new in 0.11 — neutrinos, quantum numbers, QPON teleportation and the Fisher metric
+
+- **Neutrinos** (`qang.neutrino`, §151–§156): flavour oscillation is a rotation. In vacuum qg_Z = cos²2θ + sin²2θ cos Δ,
+  and at the maximum the mixing angle is a quarter of the qang angle, with a θ-independent error bar. Three flavours fit
+  the weight-1 sector, so the qg filter applies (error 3× lower on device noise models). Also included: Earth matter (MSW)
+  as a weight-preserving Trotter circuit, collective oscillations, where the conserved number is the mass number
+  (`qang.sectors.reweight_sectors`), and solar neutrinos (`solar_circuit`). The whole Sun is one rotation in the mass basis.
+- **The four quantum numbers in qg terms** (`qang.angular`, §155): m_s is one qubit's qg_Z, and m_l is the Hamming weight of
+  a symmetric register, so the weight filter is the m_l projection. l comes from the qang value of SWAP, and the shell n is
+  two spins (n−1)/2. The qang angle of |l, m⟩ is arccos(m/l), not the vector-model angle. **Λ as a third filter on LiH**
+  (§153).
+- **Teleportation through a quantum passive optical network** (`qang.qpon`, §157–§158): the optimal resource is not a Bell
+  pair. tan α* = √η/κ, F* = (2 + η/κ)/3, and its qg_Z is the whole design rule. When the other users herald, that is a
+  sector filter. The fidelity is a linear qg read-out of the resource, (3 + qg_XX − qg_YY + qg_ZZ)/6. In dual rail the
+  filter heralds every loss, and at 20 km it beats the noiseless single-rail optimum on two of three device models.
+- **Fisher information and the natural gradient** (`qang.fisher`, §159): the angle is the Fisher-flat coordinate and qg_Z
+  the curved one. No shift rule needs fewer than 2 evaluations per parameter in any coordinate. In a real RY + CZ ansatz
+  every metric diagonal is exactly 1/4, and the block metric is a set of qg_Y correlators read from one circuit per layer.
+  Descent in qg coordinates does not converge, and the qg_YY natural gradient is 1.3× faster than descent in θ.
+- **Always-on ZZ crosstalk** (`ibm.add_static_zz`, §150).
+
+Notebooks: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_neutrinos.ipynb) Neutrinos &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_neutrinos_es.ipynb) Neutrinos (ES) &nbsp;·&nbsp;
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_quantum_numbers.ipynb) Quantum numbers &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_quantum_numbers_es.ipynb) Números cuánticos &nbsp;·&nbsp;
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_ibm_recent.ipynb) IBM §145–§150
+
 ### What's new in 0.10 — spectra and dynamics on IBM device noise models
 
 - **A PCA spectrum in the weight-1 sector** (`unary_loader`, `unary_orthogonal`, `pca_rotation`, `unary_spectrum`): the loaded data form the density matrix that quantum PCA diagonalizes, and a nearest-neighbour RBS rotation puts each eigenvalue on one qubit. On 21 IBM device noise models filter plus readout cut the spectrum error 4.6× (median) and order all five eigenvalues on 18 of 21 (raw: 13) (§146). No quantum speed-up is claimed.
@@ -47,10 +72,6 @@ r = ibm.run_qnn(model, X_test, backend)                      # qang's QNN: whole
 ```
 
 Notebook with §145–§150 on local IBM device simulators (no account needed): [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_ibm_recent.ipynb)
-
-**Neutrinos (§151–§156).** Flavour oscillation is a rotation: in vacuum qg_Z = cos²2θ + sin²2θ cos Δ and at the maximum the mixing angle is a quarter of the qang angle; three flavours fit the weight-1 sector, so the filter applies (`qang.neutrino`: vacuum, Earth matter, collective oscillations, solar MSW). Notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_neutrinos.ipynb) English &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_neutrinos_es.ipynb) Español
-
-**Quantum numbers (§155) and Λ on LiH (§153).** m_s is one qubit's qg_Z, m_l the Hamming weight of a symmetric register (the weight filter is the m_l projection), l the qang value of SWAP, n two spins (n−1)/2; Λ = Σ m_l n_i is a third filter on LiH. Notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_quantum_numbers.ipynb) English &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_quantum_numbers_es.ipynb) Español
 
 Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§150): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
 

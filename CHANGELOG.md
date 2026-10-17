@@ -5,6 +5,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-17
+
 ### Added
 - `qang.fisher` (§159): Fisher information per shot (1 in the angle, 1/(1 − qg²) in qg_Z), the two-evaluation bound of
   shift rules in any coordinate (`indistinguishable_pair`), a real RY + CZ ansatz whose metric diagonal is exactly 1/4,
