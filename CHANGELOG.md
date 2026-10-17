@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.pulse_area` (§160): the minimal-area rule for fractional gates (RX period 2π, RZZ/RXX/RYY period π via virtual
+  Paulis), `minimal_area_circuit` (unitary preserved), the qg damping cos θ e^(−θ²σ²/2) and the sensitivity −sin θ.
+  `examples/pulse_area_qg.py`: on a QAOA model with area-proportional errors the error follows the area; P1–P3 pass, P4
+  fails (the period-π gain over a 2π wrap is 1.14×).
 - `qang.kernels` (§161): the weight-1 fidelity kernel (x·y)² from the inversion test, with raw, filtered and
   diagonal-normalized Gram matrices and the kernel-target alignment. `examples/quantum_kernel_qg.py` (QSVC, breast
   cancer, three device noise models): the qg filter repairs the Gram matrix 2.4–6× and beats the diagonal

@@ -6797,6 +6797,35 @@ ansatz floor is 0.0245), lr tuned per method on 6 seeds, 20 test seeds. Pre-regi
 * **Limits.** Noiseless, exact gradients, one small model; barren plateaus (§12, §23) are untouched by any of
   this.
 
+## 160. The minimal-area rule for fractional gates, with a qg error budget (`qang/pulse_area.py`, `examples/pulse_area_qg.py`)
+
+On devices with fractional native gates (continuously parameterized RX(θ), RZZ(θ)) the pulse area grows with
+|θ|. With it grow the amplitude-miscalibration error and the relaxation during the pulse. In qg terms, a random
+amplitude error ε ~ N(0, σ²) damps the read-out as qg_Z = cos θ · e^(−θ²σ²/2), and a fixed one gives
+cos(θ(1 + ε)), with first-order error εθ sin θ. The read-out sensitivity d qg_Z/dθ = −sin θ is largest at
+π/2 and vanishes to first order at 0 and π. Every gate has shorter representatives. RX(θ) = −RX(θ − 2π) has
+period 2π up to a global phase. RZZ(θ + π) = RZZ(θ)(−i Z⊗Z), and Z⊗Z is two virtual RZ(π), so RZZ has period
+π and its area never needs to exceed π/2. `minimal_area_circuit` rewrites a circuit with the unitary exactly
+preserved, global phase included. On IBM hardware single-qubit rotations are virtual RZ plus fixed SX pulses,
+so this applies to fractional gates (RZZ(θ), RX(θ)) and to platforms whose pulses scale with θ. Qiskit's
+`WrapAngles` enforces a target's bounds. This rule picks the shortest representative. Model: QAOA MaxCut on a
+4-ring, p = 2, random angles, fixed calibration errors (σ = 0.02 per qubit or edge) and relaxation for
+τ = τ_π|θ|/π with τ_π/T1 = 0.01, exact density matrices, 150 instances. Pre-registration: sha256 in
+`examples/data/pulse_area_qg.prereg` before the run (P1–P4). Three passed; P4 failed.
+
+| compilation | median TVD | median summed area |
+|---|---|---|
+| angles as given (up to 4π) | 0.134 | 101.3 rad |
+| 2π wrap | 0.033 | 23.1 |
+| minimal area (RZZ period π) | 0.024 | 19.7 |
+
+* **The error follows the area** (P2, P3: minimal area wins in 93% of instances). The 2π wrap cuts area 4.4× and
+  error 4.1×. The RZZ period-π wrap cuts area 1.17× and error 1.14× (P4 failed against 1.5×), because the RX half
+  is already minimal after the 2π wrap.
+* The damping formula matches Monte Carlo to 0.0016 (P1).
+* **Limits.** A model noise, not a device: the gain depends on how strongly error scales with area on a given
+  platform.
+
 ## 161. Quantum kernels with the qg filter against the diagonal normalization (`qang/kernels.py`, `examples/quantum_kernel_qg.py`)
 
 A fidelity kernel estimated on a noisy device is shrunk (K_ii < 1) and pulled toward the noise value. The usual
