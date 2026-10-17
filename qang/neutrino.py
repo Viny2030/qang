@@ -511,3 +511,142 @@ def solar_circuit(E: float, h: float, X: float, r: int, encoding: str = "unary",
     if measure:
         qc.measure_all()
     return qc
+
+
+# ---------------------------------------------------------------- what oscillation circuits see (§163)
+#
+# Mass ordering: inverted ordering (IO) has dm31 < 0. In vacuum P(nu_mu -> nu_e) is nearly blind to the sign of
+# dm31; in matter the sign of A dm31 decides whether nu or anti-nu is enhanced, so the ordering is read from
+# matter_probabilities / matter_trotter_circuit with NUFIT_IO.
+# Majorana phases: U_M = U diag(1, e^{i a21/2}, e^{i a31/2}). They are diagonal in the mass basis, so they commute
+# with the propagation phases and cancel in U_M D U_M^dagger: no oscillation probability, in vacuum or in matter,
+# depends on them (``majorana_invisible``). Neutrinoless double beta decay does: m_bb = |sum_i U_ei^2 m_i|.
+# Sterile neutrino (3+1): a fourth flavour that does not interact, one more qubit in the weight-1 sector.
+
+NUFIT_IO = {"theta12": math.radians(33.4), "theta13": math.radians(8.6), "theta23": math.radians(49.3),
+            "dm21": 7.42e-5, "dm31": -2.42e-3}
+
+
+def pmns_majorana(theta12: float, theta13: float, theta23: float, delta_cp: float, a21: float,
+                  a31: float) -> np.ndarray:
+    """U diag(1, e^{i a21 / 2}, e^{i a31 / 2})."""
+    return pmns(theta12, theta13, theta23, delta_cp) @ np.diag([1, np.exp(1j * a21 / 2), np.exp(1j * a31 / 2)])
+
+
+def majorana_invisible(L: float, E: float, delta_cp: float, a21: float, a31: float, rho: float = 0.0,
+                       params: dict = None) -> float:
+    """max |P(a21, a31) - P(0, 0)| over the 3x3 transition probabilities (vacuum, or constant matter rho)."""
+    from scipy.linalg import expm
+
+    p = dict(NUFIT_NO, **(params or {}))
+
+    def probs(U):
+        M = U @ np.diag([0.0, p["dm21"], p["dm31"]]) @ U.conj().T + np.diag([matter_potential(rho, E), 0, 0])
+        return np.abs(expm(-1j * 2 * K_OSC * L / E * M)) ** 2
+
+    U0 = pmns_majorana(p["theta12"], p["theta13"], p["theta23"], delta_cp, 0, 0)
+    U1 = pmns_majorana(p["theta12"], p["theta13"], p["theta23"], delta_cp, a21, a31)
+    return float(np.abs(probs(U1) - probs(U0)).max())
+
+
+def masses(m_lightest: float, ordering: str = "NO", params: dict = None) -> np.ndarray:
+    """(m1, m2, m3) in eV from the lightest mass and the splittings."""
+    p = dict(NUFIT_NO if ordering == "NO" else NUFIT_IO, **(params or {}))
+    if ordering == "NO":
+        m1 = m_lightest
+        return np.array([m1, math.sqrt(m1 ** 2 + p["dm21"]), math.sqrt(m1 ** 2 + p["dm31"])])
+    m3 = m_lightest
+    m1 = math.sqrt(m3 ** 2 - p["dm31"])
+    return np.array([m1, math.sqrt(m1 ** 2 + p["dm21"]), m3])
+
+
+def m_bb(m_lightest: float, a21: float, a31: float, ordering: str = "NO", delta_cp: float = 0.0,
+         params: dict = None) -> float:
+    """Effective Majorana mass |sum_i U_ei^2 m_i| (eV) of neutrinoless double beta decay."""
+    p = dict(NUFIT_NO if ordering == "NO" else NUFIT_IO, **(params or {}))
+    U = pmns_majorana(p["theta12"], p["theta13"], p["theta23"], delta_cp, a21, a31)
+    return float(abs(np.sum(U[0] ** 2 * masses(m_lightest, ordering, p))))
+
+
+def majorana_circuit(initial: str, L: float, E: float, delta_cp: float, a21: float, a31: float,
+                     params: dict = None, measure: bool = True):
+    """three_flavour_circuit with the Majorana phases inserted as phase gates in the mass basis (U_M D U_M^dagger)."""
+    from qiskit import QuantumCircuit
+
+    p = dict(NUFIT_NO, **(params or {}))
+    d = delta_cp
+    qc = QuantumCircuit(3)
+    qc.x(FLAVOURS.index(initial))
+    _apply_rotation(qc, 1, 2, -p["theta23"])
+    qc.p(-d, 2)
+    _apply_rotation(qc, 0, 2, -p["theta13"])
+    qc.p(d, 2)
+    _apply_rotation(qc, 0, 1, -p["theta12"])
+    qc.p(-a21 / 2, 1)  # Majorana phases (U_M^dagger side)
+    qc.p(-a31 / 2, 2)
+    qc.p(-phase(p["dm21"], L, E), 1)
+    qc.p(-phase(p["dm31"], L, E), 2)
+    qc.p(a21 / 2, 1)  # U_M side
+    qc.p(a31 / 2, 2)
+    _apply_rotation(qc, 0, 1, p["theta12"])
+    qc.p(-d, 2)
+    _apply_rotation(qc, 0, 2, p["theta13"])
+    qc.p(d, 2)
+    _apply_rotation(qc, 1, 2, p["theta23"])
+    if measure:
+        qc.measure_all()
+    return qc
+
+
+STERILE = ("e", "mu", "tau", "s")
+
+
+def _r4(i: int, j: int, t: float) -> np.ndarray:
+    R = np.eye(4)
+    R[i, i] = R[j, j] = math.cos(t)
+    R[i, j] = math.sin(t)
+    R[j, i] = -math.sin(t)
+    return R
+
+
+def sterile_angles(params: dict = None, theta14: float = 0.15, theta24: float = 0.15, theta34: float = 0.0) -> list:
+    """Rotation sequence (i, j, angle) of the real 3+1 mixing U = R34 R24 R14 R23 R13 R12 (no CP phases)."""
+    p = dict(NUFIT_NO, **(params or {}))
+    return [(2, 3, theta34), (1, 3, theta24), (0, 3, theta14), (1, 2, p["theta23"]), (0, 2, p["theta13"]),
+            (0, 1, p["theta12"])]
+
+
+def sterile_mixing(params: dict = None, **angles) -> np.ndarray:
+    U = np.eye(4)
+    for i, j, t in sterile_angles(params, **angles):
+        U = U @ _r4(i, j, t)
+    return U
+
+
+def sterile_probabilities(L: float, E: float, dm41: float = 1.0, params: dict = None, **angles) -> np.ndarray:
+    """P[alpha, beta], 4x4, in vacuum for 3+1 (masses 0, dm21, dm31, dm41)."""
+    p = dict(NUFIT_NO, **(params or {}))
+    U = sterile_mixing(p, **angles)
+    D = np.diag(np.exp(-1j * np.array([0, phase(p["dm21"], L, E), phase(p["dm31"], L, E), phase(dm41, L, E)])))
+    A = U @ D @ U.conj().T
+    return (np.abs(A) ** 2).T
+
+
+def sterile_circuit(initial: str, L: float, E: float, dm41: float = 1.0, params: dict = None, measure: bool = True,
+                    **angles):
+    """Weight-1 circuit on 4 qubits (e, mu, tau, s): U^dagger, mass phases, U; RBS and phase gates only."""
+    from qiskit import QuantumCircuit
+
+    p = dict(NUFIT_NO, **(params or {}))
+    seq = sterile_angles(p, **angles)
+    qc = QuantumCircuit(4)
+    qc.x(STERILE.index(initial))
+    for i, j, t in seq:  # U^dagger = R12^T ... R34^T: R34^T acts first
+        _apply_rotation(qc, i, j, -t)
+    for k, dm in ((1, p["dm21"]), (2, p["dm31"]), (3, dm41)):
+        qc.p(-phase(dm, L, E), k)
+    for i, j, t in reversed(seq):  # U = R34 ... R12: R12 acts first
+        _apply_rotation(qc, i, j, t)
+    if measure:
+        qc.measure_all()
+    return qc

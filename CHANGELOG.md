@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.neutrino` (§163): `NUFIT_IO` (inverted ordering), `pmns_majorana`, `majorana_invisible`, `majorana_circuit`,
+  `masses`, `m_bb` (neutrinoless double beta decay), and the 3+1 sterile model (`sterile_mixing`,
+  `sterile_probabilities`, `sterile_circuit`, 4 qubits, weight 1). `examples/neutrino_ordering_majorana_sterile_qg.py`:
+  the ordering is read through matter on three device models, Majorana phases change no probability (the transpiler
+  deletes them), the sterile dip is found with a 5.5× filter gain. O1, O2, S1–S3 pass; O3 fails.
 - `qang.pulse_area` (§160): the minimal-area rule for fractional gates (RX period 2π, RZZ/RXX/RYY period π via virtual
   Paulis), `minimal_area_circuit` (unitary preserved), the qg damping cos θ e^(−θ²σ²/2) and the sensitivity −sin θ.
   `examples/pulse_area_qg.py`: on a QAOA model with area-proportional errors the error follows the area; P1–P3 pass, P4

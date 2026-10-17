@@ -129,3 +129,32 @@ def test_solar_circuits_agree_and_preserve_weight():
             assert c[idx] == pytest.approx(p2, abs=1e-10)
         q = Statevector(NU.solar_circuit(E, 100.0, 800.0, 8, "qubit", measure=False)).probabilities()
         assert q[1] == pytest.approx(p2, abs=1e-10)
+
+
+def test_majorana_phases_are_invisible_to_oscillations():
+    from qiskit.quantum_info import Statevector
+
+    for rho in (0.0, 2.85):
+        assert NU.majorana_invisible(1300, 2.6, -1.0, 1.1, 2.3, rho=rho) < 1e-12
+    p = Statevector(NU.majorana_circuit("mu", 1300, 2.6, -1.0, 1.1, 2.3, measure=False)).probabilities()
+    P = NU.three_flavour_probabilities(1300, 2.6, -1.0)
+    assert max(abs(p[1 << k] - P[1, k]) for k in range(3)) < 1e-12
+    assert NU.m_bb(0, 0, 0) != pytest.approx(NU.m_bb(0, math.pi, 0), abs=1e-4)
+
+
+def test_inverted_ordering_masses_and_matter():
+    m = NU.masses(0.0, "IO")
+    assert m[2] == 0 and m[0] ** 2 - m[2] ** 2 == pytest.approx(-NU.NUFIT_IO["dm31"])
+    no = NU.matter_probabilities(1300, 2.6, -1.57, 2.85, params=NU.NUFIT_NO)[1, 0]
+    io = NU.matter_probabilities(1300, 2.6, -1.57, 2.85, params=NU.NUFIT_IO)[1, 0]
+    assert no > io
+
+
+def test_sterile_circuit_matches_formula():
+    from qiskit.quantum_info import Statevector
+
+    for L, E in ((0.5, 0.4), (1300, 2.6)):
+        p = Statevector(NU.sterile_circuit("mu", L, E, measure=False)).probabilities()
+        P = NU.sterile_probabilities(L, E)
+        assert max(abs(p[1 << k] - P[1, k]) for k in range(4)) < 1e-12
+        assert np.allclose(P.sum(axis=1), 1)

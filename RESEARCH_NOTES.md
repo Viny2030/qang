@@ -6851,6 +6851,38 @@ kernel, 2000 shots, three device noise models. Pre-registration: sha256 in
 * K4 failed on its thresholds, not on its direction: FakeFez is good enough that its raw diagonal is 0.953.
 * **Limits.** One small kernel, 5 qubits, no exponential concentration at this size.
 
+## 163. What oscillation circuits can and cannot see: mass ordering, Majorana phases, a sterile neutrino (`qang.neutrino`, `examples/neutrino_ordering_majorana_sterile_qg.py`)
+
+Three open questions about neutrinos, each mapped to what a weight-preserving oscillation circuit reads.
+
+* **Mass ordering** (is Δm²31 > 0?) is visible through matter. The sign of AΔm²31 decides whether ν or ν̄
+  μ → e is enhanced (`NUFIT_IO`, `matter_trotter_circuit`).
+* **Majorana phases are invisible.** U_M = U diag(1, e^{iα21/2}, e^{iα31/2}) is diagonal in the mass basis,
+  commutes with the propagation phases and cancels in U_M D U_M†. No oscillation probability depends on it,
+  in vacuum or in matter (4e-16). On all three device models the transpiler, merging phase gates, outputs the
+  same circuit with and without them: the compiler deletes them. Neutrinoless double beta decay does see them:
+  m_ββ = |Σ U_ei² m_i| = 1.4–3.7 meV (normal) and 19–48 meV (inverted) for a massless lightest neutrino (`m_bb`).
+* **A sterile neutrino** (3+1) is a fourth flavour that does not interact, one more qubit in the weight-1
+  sector (`sterile_circuit`, RBS and phase gates only).
+
+Pre-registration: sha256 in `examples/data/neutrino_ordering_majorana_sterile_qg.prereg` before the run (O1–O3,
+S1–S3). Five passed; O3 failed.
+
+| | FakeBrisbane | FakeTorino | FakeFez | exact |
+|---|---|---|---|---|
+| P(μ→e) NO ν / ν̄, filtered | 0.105 / 0.057 | 0.092 / 0.042 | 0.091 / 0.040 | 0.081 / 0.024 |
+| P(μ→e) IO ν / ν̄, filtered | 0.070 / 0.081 | 0.058 / 0.070 | 0.055 / 0.068 | 0.045 / 0.053 |
+| 3+1, P(μ→μ) at 0.4 GeV raw / filtered | 0.678 / 0.879 | 0.749 / 0.890 | 0.792 / 0.890 | 0.915 |
+
+(DUNE-like 1300 km, 2.6 GeV, δ_CP = −π/2, Earth matter; 3+1 with hypothetical θ14 = θ24 = 0.15,
+Δm²41 = 1 eV², 0.5 km.)
+
+* **The ordering is read correctly** (O1, O2) on all three, with the right sign of the ν/ν̄ asymmetry. The
+  filtered values sit 0.010–0.033 high (O3 failed): noise inside the sector moves probability toward the other
+  flavours. The bias is common, so NO − IO (0.034–0.036, exact 0.037) survives.
+* **The sterile dip is found** at the right energy on all three (S3), and the filter cuts the error 5.5× (S1, S2).
+* **Limits.** Fixed parameters, no fit; the sterile mixing is hypothetical; simulated device noise.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
