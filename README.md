@@ -19,6 +19,28 @@ Reference implementation and computational toolkit for:
 - qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
 - **IBM Quantum** through IBM Runtime (transpiler pass, calibrated readout correction, qubit selection) and **qiskit-machine-learning** integration.
 
+### What's new in 0.12 — compiling, kernels, dynamics, postselection and what neutrino circuits cannot see
+
+- **Minimal pulse area** (`qang.pulse_area`, §160): every fractional gate moved to its shortest equivalent (RX period 2π,
+  RZZ period π via virtual Z), with the unitary preserved. The error follows the area, and the qg damping is
+  cos θ e^(−θ²σ²/2).
+- **Quantum kernels with the qg filter** (`qang.kernels`, §161): for a weight-preserving fidelity kernel the filter repairs
+  the Gram matrix 2.4–6× and beats the diagonal normalization without its extra circuits.
+- **Channels and fixed-depth time evolution** (`qang.channels`, `qang.varqte`, §162): every channel is an affine map of
+  (qg_X, qg_Y, qg_Z), and McLachlan evolution at fixed depth beats the best Trotter circuit at late times.
+- **Neutrinos, part two** (§163): the mass ordering is read through matter (`NUFIT_IO`). Majorana phases change no
+  oscillation probability (`majorana_invisible`; the transpiler deletes them) but set m_ββ (`m_bb`). A sterile neutrino
+  is a fourth qubit in the weight-1 sector (`sterile_circuit`, 5.5× filter gain).
+- **Time loops and black holes as postselected teleportation** (`qang.postselection`, §164): P-CTC success is cos²(φ/2),
+  whose qang angle is φ, and the grandfather paradox has probability 0. The Yoshida–Kitaev decoder recovers a message
+  from a scrambling 3-qubit black hole (fidelity 0.55–0.74 on device models).
+- **Neutrino paper** (EN/ES): [`manuscript/qang_neutrinos.pdf`](manuscript/qang_neutrinos.pdf),
+  [`manuscript/qang_neutrinos_es.pdf`](manuscript/qang_neutrinos_es.pdf). Summary of every line, in Spanish:
+  [`docs/RESUMEN_PUNTOS_QANG.md`](docs/RESUMEN_PUNTOS_QANG.md).
+
+Notebooks: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_methods.ipynb) Methods §159–§164 &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_methods_es.ipynb) Métodos &nbsp;·&nbsp;
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_qpon_teleport.ipynb) QPON teleportation &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_qpon_teleport_es.ipynb) Teleportación QPON
+
 ### What's new in 0.11 — neutrinos, quantum numbers, QPON teleportation and the Fisher metric
 
 - **Neutrinos** (`qang.neutrino`, §151–§156): flavour oscillation is a rotation. In vacuum qg_Z = cos²2θ + sin²2θ cos Δ,

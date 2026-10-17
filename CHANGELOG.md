@@ -5,7 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-17
+
 ### Added
+- Notebooks `qang_qpon_teleport` and `qang_methods` (English and Spanish, with outputs); §163 added to
+  `qang_neutrinos` (EN/ES). Neutrino paper `manuscript/qang_neutrinos.pdf` (Spanish: `qang_neutrinos_es.pdf`),
+  built by `tools/make_neutrino_paper.py`; `docs/RESUMEN_PUNTOS_QANG.md`.
 - `qang.postselection` (§164): postselected closed timelike curves (P-CTC: success cos²(φ/2), whose qang angle is φ;
   the paradoxical branch suppressed) and the Hayden–Preskill/Yoshida–Kitaev black-hole decoder with a scrambling
   Clifford (`find_scrambler`, `yk_decoder_circuit`). `examples/postselection_ctc_blackhole_qg.py`: the decoder recovers
