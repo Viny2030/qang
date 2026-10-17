@@ -6759,6 +6759,44 @@ One passed (B4).
   and N. Here the filter keeps the fidelity high and pays in rate (kept ≈ η), until false heralds, not loss, set the
   limit.
 
+## 159. The qang angle is the Fisher-flat coordinate; shift rules cannot be beaten by a change of coordinate; the natural gradient from qg_Y correlators (`qang/fisher.py`, `examples/fisher_natural_gradient_qg.py`)
+
+A claim that circulates: writing a variational circuit in probability (qg) coordinates accelerates the
+parameter-shift gradient and flattens the landscape. Three results say the opposite, and one of them gives qang
+a role.
+
+* **One qubit** (§15.1, recalled): the Fisher information per shot is 1 in the angle and 1/(1 − qg_Z²) in
+  qg_Z. The angle is the flat coordinate, and qg_Z is curved and diverges at the poles. The sample mean
+  qg_hat attains the Cramér–Rao bound (1 − qg_Z²)/N.
+* **Shift rules.** For a gate exp(−iθG) with G² = I/4, E(θ) = a + b cos θ + c sin θ. One evaluation
+  E(θ + s) cannot give E′(θ), because two such functions agree there and differ in the derivative
+  (`indistinguishable_pair`). Two suffice, so 2 per parameter is the minimum in any coordinate. In qg,
+  dE/dqg = −E′(θ)/sin θ uses the same two numbers and adds a pole. A coordinate cannot lower the count.
+* **Several qubits, real ansatz (RY + CZ).** Every state along the circuit is real, so ⟨Y_k⟩ = 0 before every
+  RY, and every diagonal entry of the Fubini–Study metric is exactly 1/4. The angles are flat one by one, and
+  all curvature sits in the off-diagonal terms. Inside a layer they are g_ij = ⟨Y_i Y_j⟩/4, qg_Y correlators read
+  from one Y-basis circuit per layer: the block-diagonal metric of Stokes et al. (2020) as qg read-outs.
+
+Experiment: TFIM n = 4, h = 1, three layers (12 parameters), success E − E0 ≤ 0.03 within 300 steps (the
+ansatz floor is 0.0245), lr tuned per method on 6 seeds, 20 test seeds. Pre-registration: sha256 in
+`examples/data/fisher_natural_gradient_qg.prereg` before the run (V1, G1–G4). Four passed; G2 failed.
+
+| method | median steps | successes | final gap |
+|---|---|---|---|
+| descent in θ | 103 | 19/20 | 0.030 |
+| descent in qg (signed, clipped Jacobian) | never | 0/20 | 0.35 |
+| natural gradient, block metric from qg_YY | 79.5 | 19/20 | 0.030 |
+| natural gradient, full metric | 22.5 | 20/20 | 0.029 |
+
+* **Descent in qg coordinates fails** (G1) at every learning rate of the grid. The angle is the
+  coordinate to optimize in, and qg is the coordinate to read out in.
+* **The qg_YY block metric helps, modestly** (1.3×, G2 failed against 1.5×). The full metric is 4.6× faster.
+  Post hoc, counting circuit evaluations (24 per gradient, +3 for the block metric, about +78 for the full
+  one on hardware), the three end within 15%.
+* The 1000-shot block metric is accurate to 0.013–0.022 per entry (V1).
+* **Limits.** Noiseless, exact gradients, one small model; barren plateaus (§12, §23) are untouched by any of
+  this.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

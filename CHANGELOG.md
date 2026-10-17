@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.fisher` (§159): Fisher information per shot (1 in the angle, 1/(1 − qg²) in qg_Z), the two-evaluation bound of
+  shift rules in any coordinate (`indistinguishable_pair`), a real RY + CZ ansatz whose metric diagonal is exactly 1/4,
+  and the block-diagonal Fubini–Study metric from qg_Y correlators (`block_metric_from_counts`).
+  `examples/fisher_natural_gradient_qg.py` (TFIM n = 4): descent in qg coordinates never converges, the qg_YY block
+  metric speeds descent up 1.3×, the full metric 4.6×. V1, G1, G3, G4 pass; G2 fails.
 - `qang.qpon` (§157, §158): teleportation through a quantum passive optical network (fibre + 1:N splitter), discrete
   variables. Closed forms tan α* = √η/κ, F* = (2 + η/κ)/3, qg_Z* = (κ² − η)/(κ² + η) for the non-assisted (κ = 1) and
   assisted (the other users herald, a sector filter) protocols; `teleport_circuit` (5 qubits). `fidelity_from_correlators`:

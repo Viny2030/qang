@@ -32,6 +32,28 @@ before the run):
   G4  successes of QNG-block >= successes of GD-theta (out of 20).
 
 python examples/fisher_natural_gradient_qg.py
+
+Findings (pre-registration sha256 ca4c4ff5...dd90, recorded 2026-10-17 19:04 UTC; the run used that exact file,
+then only this block was added; data/fisher_natural_gradient_qg_run.log):
+
+  Part V: max entry error of the 1000-shot block metric 0.013-0.022 in all 20 points.
+  Test seeds 6-25 (lr from tuning), steps to E - E0 <= 0.03:
+
+  method      lr     median steps  successes  final gap (median)
+  GD-theta    0.2    103           19 / 20    0.0298
+  GD-qg       0.005  301 (never)    0 / 20    0.351
+  QNG-block   0.05   79.5          19 / 20    0.0298
+  QNG-full    0.1    22.5          20 / 20    0.0294
+
+  V1 PASS (20 of 20 within 0.04).
+  G1 PASS: descent in qg coordinates never reaches the tolerance at any lr of the grid (tuning medians 301 for all
+     seven), while descent in the angle does.
+  G2 FAIL: the block metric speeds descent up by 1.3x (103 -> 79.5), not 1.5x.
+  G3 PASS: the full metric is fastest, 4.6x fewer steps than GD-theta.
+  G4 PASS: 19 = 19.
+  * Post hoc, circuit evaluations to the tolerance (parameter shift 24 per step; block metric +3 Y-basis
+    circuits; full metric about p(p+1)/2 = 78 overlap circuits on hardware): GD-theta 103 x 24 = 2472,
+    QNG-block 79.5 x 27 = 2147, QNG-full 22.5 x 102 = 2295. Per evaluation the three are within 15%.
 """
 
 import json
