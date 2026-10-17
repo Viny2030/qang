@@ -6851,6 +6851,34 @@ kernel, 2000 shots, three device noise models. Pre-registration: sha256 in
 * K4 failed on its thresholds, not on its direction: FakeFez is good enough that its raw diagonal is 0.953.
 * **Limits.** One small kernel, 5 qubits, no exponential concentration at this size.
 
+## 162. Variational time evolution at fixed depth against Trotter, and channels as qg affine maps (`qang/varqte.py`, `qang/channels.py`, `examples/varqte_kraus_qg.py`)
+
+**Channels.** A qubit state is ρ = (I + r·σ)/2 with r = (qg_X, qg_Y, qg_Z). Every channel with Kraus
+operators acts as r′ = M r + c, M_ij = Tr(σ_i E(σ_j))/2, c_i = Tr(σ_i E(I))/2 (`bloch_affine`): the qg values
+after any noise are affine in those before it. Amplitude damping: qg_Z → (1 − γ)qg_Z + γ. Phase damping
+leaves qg_Z alone. Depolarizing scales r and keeps the qang angle (§102). T1/T2 relaxation:
+qg_Z → e^(−t/T1) qg_Z + (1 − e^(−t/T1))(1 − 2p1), qg_X,Y → e^(−t/T2) qg_X,Y (identities, tests).
+
+**Variational time evolution.** McLachlan's principle (A θ̇ = C, A_ij = Re⟨∂_iψ|∂_jψ⟩, C_i = Im⟨∂_iψ|H|ψ⟩, phase-
+projected derivatives) with a weight-preserving ansatz of fixed depth: RBS bricks and RZ, 6 layers, 54
+parameters. Evolving further changes the angles, not the circuit, whereas Trotter grows with t. The
+integration is classical; the device prepares and reads the state. XXZ chain, n = 5, V = 2, two excitations,
+weight-2 filter on both. Pre-registration: sha256 in `examples/data/varqte_kraus_qg.prereg` before the run
+(V1–V5). Four passed; V1 failed.
+
+| backend | filtered error at t = 2: variational (48 two-qubit gates) / best Trotter | variational error, t = 0.5 → 2 |
+|---|---|---|
+| FakeBrisbane | 0.036 / 0.076 (72 gates) | 0.052, 0.030, 0.030, 0.036 |
+| FakeTorino | 0.030 / 0.042 (72) | 0.034, 0.022, 0.012, 0.030 |
+| FakeFez | 0.022 / 0.032 (72) | 0.017, 0.008, 0.005, 0.022 |
+
+* **Fixed depth wins at late times** (V3): at t = 2 on all three, despite a noiseless fidelity of only 0.934
+  (V1 failed: the ansatz is not expressive enough late). Before t ≈ 1 a shallow Trotter circuit wins.
+* The variational error stays flat (V4) while the best Trotter error grows 2.6–11× (V5). The filter helps the
+  variational circuit everywhere (V2).
+* **Limits.** The integration costs classical state-vector work (here exact; on hardware, metric and gradient
+  circuits per step); n = 5 is classically trivial.
+
 ## 163. What oscillation circuits can and cannot see: mass ordering, Majorana phases, a sterile neutrino (`qang.neutrino`, `examples/neutrino_ordering_majorana_sterile_qg.py`)
 
 Three open questions about neutrinos, each mapped to what a weight-preserving oscillation circuit reads.
@@ -6882,6 +6910,38 @@ S1–S3). Five passed; O3 failed.
   flavours. The bias is common, so NO − IO (0.034–0.036, exact 0.037) survives.
 * **The sterile dip is found** at the right energy on all three (S3), and the filter cuts the error 5.5× (S1, S2).
 * **Limits.** Fixed parameters, no fit; the sterile mixing is hypothetical; simulated device noise.
+
+## 164. Time loops and black holes as teleportation with postselection, read in qg (`qang/postselection.py`, `examples/postselection_ctc_blackhole_qg.py`)
+
+Two information-theoretic models, not statements about spacetime. Both are teleportation with postselection
+on a Bell outcome, which is a filter on the Bell sector.
+
+* **P-CTC** (Lloyd et al. 2011). A qubit sent to its own past is half of a Bell pair projected back on the
+  Bell state. Rotated by RX(φ), the postselection succeeds with probability cos²(φ/2), and its qang angle
+  arccos(2P − 1) is φ itself. The grandfather paradox (φ = π) has probability 0. If a system controls the
+  rotation, Tr_C(U) = diag(1, cos(φ/2)) suppresses the paradoxical branch: postselected
+  qg_Z(S) = (1 − c²)/(1 + c²), which is 1 at φ = π.
+* **Hayden–Preskill with the Yoshida–Kitaev decoder.** A message qubit falls into a 3-qubit black hole. With a
+  scrambling Clifford (every single-qubit Pauli spread over all 3 qubits), postselecting one radiated qubit and
+  its partner on a Bell state succeeds with probability 1/4 and recovers the message's entanglement with
+  fidelity 1. Without scrambling the numbers are 1 and 1/4 (8 qubits, 90 two-qubit gates on the devices).
+
+Pre-registration: sha256 in `examples/data/postselection_ctc_blackhole_qg.prereg` before the run (C1–C3,
+H1–H3). H2 and H3 passed; C1–C3 and H1 failed, mostly narrowly.
+
+| backend | P-CTC success at φ = 0 / π (exact 1 / 0) | controlled qg_Z(S) at φ = π (exact 1) | decoded fidelity: scrambler / identity |
+|---|---|---|---|
+| FakeBrisbane | 0.950 / 0.019 | 0.903 | 0.547 / 0.248 |
+| FakeTorino | 0.931 / 0.056 | 0.600 | 0.578 / 0.250 |
+| FakeFez | 0.983 / 0.009 | 0.955 | 0.742 / 0.250 |
+
+* **The paradox is suppressed to the noise floor** on Brisbane and Fez (C2 failed on Torino, 0.056). The success
+  follows cos²(φ/2) within 0.05 except at φ = 0 on two devices (C1). Torino's controlled rotation loses most of
+  the suppression (C3).
+* **The black-hole decoder works on all three** (H2, H3): success ≈ 1/4 and fidelity 0.55–0.74 > 1/2. Without
+  scrambling, 0.25. H1 missed by 0.001 on Brisbane.
+* **Limits.** Toy models (3-qubit scrambler, a single CTC qubit), simulated device noise; postselection costs
+  rate (1/4, cos²(φ/2)).
 
 ## Suggested next steps
 

@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.postselection` (§164): postselected closed timelike curves (P-CTC: success cos²(φ/2), whose qang angle is φ;
+  the paradoxical branch suppressed) and the Hayden–Preskill/Yoshida–Kitaev black-hole decoder with a scrambling
+  Clifford (`find_scrambler`, `yk_decoder_circuit`). `examples/postselection_ctc_blackhole_qg.py`: the decoder recovers
+  the message (fidelity 0.55–0.74, success ≈ 1/4) on three device models; H2, H3 pass; C1–C3, H1 fail, mostly narrowly.
+- `qang.channels` and `qang.varqte` (§162): every single-qubit channel as an affine map of the qg vector
+  (`bloch_affine`, amplitude and phase damping, depolarizing, T1/T2 relaxation), and McLachlan variational time
+  evolution with a fixed-depth weight-preserving ansatz. `examples/varqte_kraus_qg.py`: at t = 2 the variational
+  circuit beats the best Trotter circuit on three device models; V2–V5 pass, V1 fails (late-time fidelity 0.934).
 - `qang.neutrino` (§163): `NUFIT_IO` (inverted ordering), `pmns_majorana`, `majorana_invisible`, `majorana_circuit`,
   `masses`, `m_bb` (neutrinoless double beta decay), and the 3+1 sterile model (`sterile_mixing`,
   `sterile_probabilities`, `sterile_circuit`, 4 qubits, weight 1). `examples/neutrino_ordering_majorana_sterile_qg.py`:
