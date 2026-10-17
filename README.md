@@ -50,6 +50,8 @@ Notebook with §145–§150 on local IBM device simulators (no account needed): 
 
 **Neutrinos (§151–§156).** Flavour oscillation is a rotation: in vacuum qg_Z = cos²2θ + sin²2θ cos Δ and at the maximum the mixing angle is a quarter of the qang angle; three flavours fit the weight-1 sector, so the filter applies (`qang.neutrino`: vacuum, Earth matter, collective oscillations, solar MSW). Notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_neutrinos.ipynb) English &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_neutrinos_es.ipynb) Español
 
+**Quantum numbers (§155) and Λ on LiH (§153).** m_s is one qubit's qg_Z, m_l the Hamming weight of a symmetric register (the weight filter is the m_l projection), l the qang value of SWAP, n two spins (n−1)/2; Λ = Σ m_l n_i is a third filter on LiH. Notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_quantum_numbers.ipynb) English &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_quantum_numbers_es.ipynb) Español
+
 Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§150): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
 
 ### New in 0.8

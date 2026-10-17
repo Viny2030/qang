@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `notebooks/qang_quantum_numbers.ipynb` (English) and `qang_quantum_numbers_es.ipynb` (Spanish): §155 (m_s, m_l,
+  l and n read with qang; qang angle vs vector-model angle; the weight filter as the m_l = 0 projection under
+  FakeTorino noise) and §153 (Λ as a third filter on LiH, FakeTorino, 4000 shots per group), with outputs.
 - `qang.neutrino.solar_circuit`, `solar_p2`, `solar_p2_exact`, `solar_pee_adiabatic`, `solar_pee_from_p2`,
   `solar_slab_unitaries` (§156): solar neutrinos, the adiabatic MSW conversion with two effective flavours, read in
   the vacuum mass basis (P_ee linear in qg_Z of the nu_2 qubit), as a weight-1 slab circuit, a one-qubit circuit or
