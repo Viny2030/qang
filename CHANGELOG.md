@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.qpon` (§157, §158): teleportation through a quantum passive optical network (fibre + 1:N splitter), discrete
+  variables. Closed forms tan α* = √η/κ, F* = (2 + η/κ)/3, qg_Z* = (κ² − η)/(κ² + η) for the non-assisted (κ = 1) and
+  assisted (the other users herald, a sector filter) protocols; `teleport_circuit` (5 qubits). `fidelity_from_correlators`:
+  F = (3 + qg_XX − qg_YY + qg_ZZ)/6 from the resource alone. `dual_rail_teleport_circuit` (8 qubits, photon-number
+  conserving): the qg filter heralds every loss. `examples/qpon_teleport_qg.py`: Q1–Q4, Q6 pass, Q5 fails where F* = 1.
+  `examples/qpon_teleport_dual_rail_qg.py`: only B4 passes; false heralds (3–6% at 20 km) make the filtered dual-rail F
+  fall with distance, yet at 20 km it beats the noiseless single-rail optimum on FakeTorino and FakeFez (post hoc).
 - `notebooks/qang_quantum_numbers.ipynb` (English) and `qang_quantum_numbers_es.ipynb` (Spanish): §155 (m_s, m_l,
   l and n read with qang; qang angle vs vector-model angle; the weight filter as the m_l = 0 projection under
   FakeTorino noise) and §153 (Λ as a third filter on LiH, FakeTorino, 4000 shots per group), with outputs.

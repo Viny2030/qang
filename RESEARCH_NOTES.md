@@ -6685,6 +6685,80 @@ All six passed, S1 narrowly.
   noise, which is why the noisy runs were scored against the noiseless
   circuit.
 
+## 157. Teleportation through a quantum passive optical network, discrete variables (`qang/qpon.py`, `examples/qpon_teleport_qg.py`)
+
+Yaghoobianzadeh & Salehi (Academia Quantum 2026, 10.20935/AcadQuant8460) treat continuous-variable teleportation
+over a QPON (fibre + passive 1:N splitter) and find an optimum finite squeezing for the non-assisted protocol and
+a better assisted protocol, in which the other users measure and help, whose optimum squeezing goes to infinity at
+short distance. This is the qubit version. Alice shares cos α|00⟩ + sin α|11⟩ and sends the second qubit (a photon
+present or absent) through the fibre (T) and the splitter (1/N), two beam splitters (RBS gates), so the photon
+reaches Bob with probability η = T/N. Standard teleportation then has
+
+    f = (cos α + √η sin α)² / (2 (cos²α + κ sin²α)),   F = (2f + 1)/3,
+    tan α* = √η / κ,   F* = (2 + η/κ)/3,   qg_Z* = cos 2α* = (κ² − η)/(κ² + η),
+
+with κ = 1 for the non-assisted protocol and κ = η + 1 − T for the assisted one. In the assisted protocol the
+other users report a photon that went to them and those shots are discarded: it is a sector filter on their
+register, and only the fibre loss stays unheralded. The optimal resource is not the Bell pair (the analogue of
+finite squeezing), and its qg_Z is the whole design rule: one qubit measured in Z sets α = arccos(qg_Z)/2. Without
+fibre loss the assisted optimum is F* = 1 at tan α* = √N > 1. The resource is then more than maximally entangled
+before the splitter, and the splitter's filtering brings it back to a Bell pair. Pre-registration: sha256 in
+`examples/data/qpon_teleport_qg.prereg` before the run (Q1–Q6). The run stopped after two backends when its
+session ended. FakeFez was run afterwards with the same code. Five passed; Q5 failed.
+
+| check | result |
+|---|---|
+| Q1 best non-assisted grid angle within 0.1 rad of α* | 12 of 12 |
+| Q2 L = 0, N = 8: Bell pair below 2/3, best angle above | 0.624–0.627 and 0.690–0.701 on all 3 |
+| Q3 assisted beats non-assisted | 12 of 12 |
+| Q4 assisted optimum above π/4 at L = 0 | 1.0–1.2 rad on all 3 |
+| Q5 \|best F − F*\| < 0.05 | 19 of 24: the 5 misses are assisted at L = 0 (F* = 1, measured 0.897–0.957) |
+| Q6 kept fraction within 0.03 of cos²α + κ sin²α | 12 of 12 (largest gap 0.028) |
+
+* **The design rule survives device noise.** On a 1:8 splitter only the optimal resource beats the
+  classical 2/3.
+* **qang adds nothing against the device noise here.** The teleportation circuit (H, CX) does not conserve the
+  weight, so the only filter is the heralding. That is why the misses are where F* is near 1. §158 asks what
+  changes when every gate conserves the photon number.
+* **Limits.** Downlink only, single rail (photon present or absent), simulated device noise, no detector
+  inefficiency or dark counts beyond the readout errors of the noise models.
+
+## 158. QPON teleportation, part two: the fidelity from three qg correlators, and dual rail with the qg filter (`qang.qpon.fidelity_from_correlators`, `dual_rail_teleport_circuit`, `examples/qpon_teleport_dual_rail_qg.py`)
+
+**A.** ⟨Φ+|ρ|Φ+⟩ = (1 + ⟨XX⟩ − ⟨YY⟩ + ⟨ZZ⟩)/4, so the fidelity a resource will give is a linear qg read-out of
+the resource alone: F = (3 + qg_XX − qg_YY + qg_ZZ)/6. That is three circuits with 4–5 two-qubit gates, without
+the Bell measurement (10–11).
+
+**B.** In dual rail every qubit is one photon in two modes. The logical CNOT is a controlled SWAP of the target's
+modes, the logical CZ a CZ between modes, and logical one-qubit gates act on span{|10⟩, |01⟩}. Every gate
+conserves the photon number, and every loss leaves Bob's pair empty, so the qg filter (weight 1 on each pair)
+heralds all of it, fibre included, without the other users. Noiseless, the filtered F is 1 at any distance
+with kept fraction η. Raw, Bob guesses when no photon arrives, and F = (1 + η)/2, below the single-rail optimum.
+The price is 65–66 two-qubit gates. Pre-registration: sha256 in
+`examples/data/qpon_teleport_dual_rail_qg.prereg` before the run (A1–A3, B1–B5; 10,000 shots, the links of §157).
+One passed (B4).
+
+| backend | dual rail filtered F, (0,4) → (20,8) | kept / η | at L = 20 km: dual filtered vs noiseless single-rail F* |
+|---|---|---|---|
+| FakeBrisbane | 0.786, 0.720, 0.709, 0.650 | 0.91 → 1.98 | 0.709 vs 0.714; 0.650 vs 0.692 |
+| FakeTorino | 0.847, 0.790, 0.783, 0.727 | 0.97 → 2.14 | 0.783 vs 0.714; 0.727 vs 0.692 |
+| FakeFez | 0.869, 0.814, 0.791, 0.710 | 0.98 → 1.74 | 0.791 vs 0.714; 0.710 vs 0.692 |
+
+* **A works as a predictor, not as a decomposition** (A1 failed 5/24, A2 3/24, A3 2/12). |F_corr − F_tele| ≤ 0.029
+  in all 24, so three short circuits predict the teleported fidelity. They read two data qubits and the herald,
+  though, so they carry most of the noise the teleportation sees, and the gap does not isolate the Bell
+  measurement.
+* **False heralds set a floor** (B1, B2, B5 failed). When the photon is lost a device error can still leave Bob's
+  pair with weight 1: (kept − η)/(1 − η) = 3–6% at 20 km. Those shots carry F ≈ ½, and as η falls they become a
+  larger share of what the filter keeps, so the filtered F falls with distance. It is the dark-count floor of a
+  heralded link, here made by gate and readout errors.
+* **Heralding still wins at 20 km** (B3 failed only on Brisbane at N = 8). Post hoc, not pre-registered: on
+  Torino and Fez the filtered dual rail beats the *noiseless* single-rail optimum at both N, with six times the
+  two-qubit gates. Raw it loses everywhere (B4), so the gain is the filter.
+* **The comparison with the CV paper** (qualitative): there the fidelity is deterministic and falls with distance
+  and N. Here the filter keeps the fidelity high and pays in rate (kept ≈ η), until false heralds, not loss, set the
+  limit.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

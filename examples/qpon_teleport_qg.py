@@ -34,6 +34,40 @@ the run):
       cos^2 alpha + kappa sin^2 alpha for all 4 links on all 3 backends.
 
 python examples/qpon_teleport_qg.py
+
+Findings (pre-registration sha256 3f61b98a...b28c, recorded 2026-10-17 11:19 UTC; the run used that exact file,
+then only this block was added). The single run stopped after FakeBrisbane and FakeTorino, when the session that
+started it ended; FakeFez was run afterwards with the same, unchanged run_backend (data/qpon_teleport_qg_run1.log,
+data/qpon_teleport_qg_run2_fez.log, data/qpon_teleport_qg_fez.json; data/qpon_teleport_qg.json combines the
+three, the first two from the rounded log). 10-11 two-qubit gates per circuit.
+
+Best F on the grid (best alpha) against the closed form F* (alpha*), and F at alpha = pi/4:
+
+  link (L km, N)    non-assisted: best F (alpha)  F*  F(pi/4)      assisted: best F (alpha)  F*   kept / exact
+  FakeBrisbane 0,4    0.723 (0.4)  0.750  0.688          0.924 (1.1)  1.000  0.419 / 0.404
+               0,8    0.692 (0.3)  0.708  0.625          0.897 (1.2)  1.000  0.265 / 0.240
+               20,4   0.682 (0.3)  0.700  0.611          0.699 (0.4)  0.714  0.930 / 0.955
+               20,8   0.669 (0.3)  0.683  0.576          0.678 (0.3)  0.692  0.942 / 0.970
+  FakeTorino   0,4    0.727 (0.5)  0.750  0.694          0.932 (1.0)  1.000  0.410 / 0.404
+               0,8    0.690 (0.3)  0.708  0.627          0.914 (1.2)  1.000  0.262 / 0.240
+               20,4   0.686 (0.3)  0.700  0.609          0.703 (0.4)  0.714  0.927 / 0.955
+               20,8   0.663 (0.2)  0.683  0.575          0.675 (0.3)  0.692  0.940 / 0.970
+  FakeFez      0,4    0.740 (0.5)  0.750  0.697          0.957 (1.1)  1.000  0.411 / 0.404
+               0,8    0.701 (0.3)  0.708  0.624          0.936 (1.2)  1.000  0.252 / 0.240
+               20,4   0.691 (0.3)  0.700  0.613          0.704 (0.5)  0.714  0.934 / 0.955
+               20,8   0.674 (0.2)  0.683  0.579          0.684 (0.3)  0.692  0.943 / 0.970
+
+  Q1 PASS: the best non-assisted angle is within 0.1 rad of alpha* in all 12.
+  Q2 PASS: at L = 0, N = 8 the Bell pair (pi/4) is below 2/3 (0.624-0.627) and the best angle above it
+     (0.690-0.701) on all 3 backends.
+  Q3 PASS: assisted beats non-assisted in all 12.
+  Q4 PASS: at L = 0 the best assisted angle is 1.0-1.2 rad, above pi/4, on all 3.
+  Q5 FAIL in 5 of 24: all are the assisted protocol at L = 0, where F* = 1; the device gives 0.897-0.957.
+     Every other pair is within 0.024 of F*.
+  Q6 PASS: kept within 0.03 of the closed form in all 12 (largest gap 0.028); at L = 20 km the kept fraction is
+     below it by 0.02-0.03, readout errors on the other users' qubit that herald a photon that did not go there.
+  * The design rule survives the device: the measured optimum sits at tan alpha* = sqrt(eta) / kappa, and on a
+    1:8 splitter only the optimal resource beats the classical limit. The noise shows only where F* is near 1.
 """
 
 import json

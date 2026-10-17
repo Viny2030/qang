@@ -40,6 +40,45 @@ before the run):
   B5  the filtered dual-rail F exceeds 2/3 for all 12.
 
 python examples/qpon_teleport_dual_rail_qg.py
+
+Findings (pre-registration sha256 3f11d66d...4ef2, recorded 2026-10-17 14:09 UTC; the run used that exact file,
+then only this block was added; data/qpon_teleport_dual_rail_qg_run.log). Two-qubit gates: resource 4-5,
+single-rail teleportation 10-11, dual rail 65-66.
+
+  link        F* non / assisted   F_corr / F_tele non   assisted        dual rail filtered / raw, kept (eta)
+  FakeBrisbane 0,4   0.750 / 1.000    0.725 / 0.729   0.932 / 0.924   0.786 / 0.572, 0.227 (0.250)
+               0,8   0.708 / 1.000    0.693 / 0.693   0.897 / 0.886   0.720 / 0.536, 0.149 (0.125)
+               20,4  0.700 / 0.714    0.685 / 0.682   0.701 / 0.697   0.709 / 0.531, 0.133 (0.100)
+               20,8  0.683 / 0.692    0.665 / 0.670   0.679 / 0.676   0.650 / 0.516, 0.099 (0.050)
+  FakeTorino   0,4                    0.741 / 0.727   0.963 / 0.938   0.847 / 0.595, 0.242
+               0,8                    0.694 / 0.691   0.941 / 0.911   0.790 / 0.552, 0.158
+               20,4                   0.687 / 0.679   0.698 / 0.696   0.783 / 0.545, 0.139
+               20,8                   0.672 / 0.666   0.686 / 0.678   0.727 / 0.528, 0.106
+  FakeFez      0,4                    0.739 / 0.735   0.973 / 0.959   0.869 / 0.594, 0.245
+               0,8                    0.701 / 0.697   0.959 / 0.932   0.814 / 0.548, 0.147
+               20,4                   0.688 / 0.689   0.707 / 0.706   0.791 / 0.538, 0.127
+               20,8                   0.676 / 0.674   0.687 / 0.686   0.710 / 0.519, 0.086
+
+  A1 FAIL in 5 of 24: F_corr is 0.027-0.103 below F* for the assisted protocol at L = 0 (and on Brisbane at
+     L = 20 km). The three correlator circuits have only 4-5 two-qubit gates, but they read two data qubits and
+     the herald, so they carry most of the noise the teleportation sees.
+  A2 FAIL in 3 of 24: the non-assisted gaps are -0.006 to +0.013, within twice their shot error.
+  A3 FAIL in 2 of 12 (Brisbane and Torino at 20,4); the gap is larger for the assisted protocol in 10.
+  B1 FAIL: the filtered dual-rail F falls with the distance, 0.79 -> 0.65 (Brisbane), 0.85 -> 0.73 (Torino),
+     0.87 -> 0.71 (Fez).
+  B2 FAIL: kept / eta grows from 0.9-1.0 at (0, 4) to 1.7-2.1 at (20, 8).
+  B3 FAIL on one of 6: Brisbane at (20, 8); dual rail wins the other 5.
+  B4 PASS: the raw dual-rail F (0.516-0.595) is below the single-rail non-assisted one everywhere.
+  B5 FAIL on one of 12: Brisbane at (20, 8), 0.650.
+  * B1, B2 and B5 have one cause: false heralds. When the photon is lost, a device error can still leave Bob's pair
+    with weight 1; (kept - eta) / (1 - eta) is 3-6% at L = 20 km. Those shots carry F of about 1/2, and as eta
+    falls they become a larger share of the kept ones. It is the dark-count floor of a real heralded link,
+    produced here by gate and readout errors.
+  * Post hoc (not pre-registered): at L = 20 km the filtered dual rail beats the NOISELESS single-rail optimum F* on
+    Torino and Fez (0.783 and 0.791 against 0.714 at N = 4; 0.727 and 0.710 against 0.692 at N = 8), with six times
+    the two-qubit gates. Heralding every loss is worth more than those gates cost, until false heralds take over.
+  * Post hoc: |F_corr - F_tele| <= 0.029 in all 24: three short circuits predict the teleported fidelity to 0.03,
+    but they do not separate the Bell measurement's noise from the resource's.
 """
 
 import json
