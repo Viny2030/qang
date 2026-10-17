@@ -48,6 +48,8 @@ r = ibm.run_qnn(model, X_test, backend)                      # qang's QNN: whole
 
 Notebook with §145–§150 on local IBM device simulators (no account needed): [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_ibm_recent.ipynb)
 
+**Neutrinos (§151–§156).** Flavour oscillation is a rotation: in vacuum qg_Z = cos²2θ + sin²2θ cos Δ and at the maximum the mixing angle is a quarter of the qang angle; three flavours fit the weight-1 sector, so the filter applies (`qang.neutrino`: vacuum, Earth matter, collective oscillations, solar MSW). Notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_neutrinos.ipynb) English &nbsp;·&nbsp; [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_neutrinos_es.ipynb) Español
+
 Step by step: [docs/ibm_quickstart.md](docs/ibm_quickstart.md). Paper (§137–§150): [`manuscript/qang_ibm.pdf`](manuscript/qang_ibm.pdf) (Spanish: [`manuscript/qang_ibm_es.pdf`](manuscript/qang_ibm_es.pdf); Word: `qang_ibm.docx`, `qang_ibm_es.docx`).
 
 ### New in 0.8

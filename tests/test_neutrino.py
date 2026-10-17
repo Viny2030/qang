@@ -106,3 +106,26 @@ def test_collective_trotter_converges_to_exact():
             p = Statevector(NU.collective_trotter_circuit(om, mu, th, ini, 2.0, r, ib, mb, measure=False)).probabilities()
             errs.append(np.abs(np.array([p[(idx >> i) & 1 == 1].sum() for i in range(4)]) - ex).max())
         assert errs[1] < errs[0] / 4
+
+
+def test_solar_slabs_converge_to_the_adiabatic_answer():
+    for E in (0.0005, 0.002, 0.010):
+        ex = NU.solar_pee_from_p2(NU.solar_p2_exact(E, 100.0, 800.0, n=4000))
+        assert ex == pytest.approx(NU.solar_pee_adiabatic(E), abs=0.012)
+        assert NU.solar_pee_from_p2(NU.solar_p2(E, 100.0, 800.0, 16)) == pytest.approx(ex, abs=0.01)
+    assert NU.solar_pee_adiabatic(0.0003) > 0.5 > 0.32 > NU.solar_pee_adiabatic(0.015)  # the MSW drop
+
+
+def test_solar_circuits_agree_and_preserve_weight():
+    from qiskit.quantum_info import Statevector
+
+    for E in (0.001, 0.006):
+        p2 = NU.solar_p2(E, 100.0, 800.0, 8)
+        u = Statevector(NU.solar_circuit(E, 100.0, 800.0, 8, measure=False)).probabilities()
+        assert u[1] + u[2] == pytest.approx(1, abs=1e-12)
+        assert u[2] == pytest.approx(p2, abs=1e-10)
+        for enc, idx in (("qubit", 1), ("unary", 2)):
+            c = Statevector(NU.solar_circuit(E, 100.0, 800.0, 8, enc, compiled=True, measure=False)).probabilities()
+            assert c[idx] == pytest.approx(p2, abs=1e-10)
+        q = Statevector(NU.solar_circuit(E, 100.0, 800.0, 8, "qubit", measure=False)).probabilities()
+        assert q[1] == pytest.approx(p2, abs=1e-10)

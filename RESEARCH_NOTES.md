@@ -6638,6 +6638,53 @@ filter returns P(m_l = 0) = 1: it is the m_l = 0 projection.
   read-out rather than a Z-basis filter, and n is the register size, not
   something measured.
 
+## 156. Solar neutrinos: the adiabatic MSW conversion, and why the whole Sun is one rotation (`qang.neutrino.solar_circuit`, `examples/neutrino_solar_qg.py`)
+
+A nu_e born at the solar core meets an electron density that falls from
+(rho Y_e) = 100 g/cm³ to zero. Above a few MeV the core density exceeds the
+MSW resonance and the neutrino follows the heavier matter eigenstate out of
+the Sun as nu_2, so P_ee falls from 0.54 to 0.30. The mass states lose their
+coherence on the way to the Earth, so the read-out is in the vacuum mass
+basis and
+
+    P_ee = c13⁴ (cos² theta12 p_1 + sin² theta12 p_2) + s13⁴,
+
+linear in qg_Z of the nu_2 qubit. Two effective flavours (nu_3 decoupled;
+agrees with three flavours to 0.001), a scaled Sun (exponential profile,
+h = 100 km, 800 km; the real one is more adiabatic and has the same
+adiabatic answer), cut into r slabs uniform in theta_m. Each slab is one
+exact 2×2 propagator, RZ·RBS·RZ on two qubits in the weight-1 sector, so the
+filter applies. Controls: one qubit (no filter, no two-qubit gate), and the
+compiled circuit: only p_2 is observed, so the whole Sun is the single RBS
+that loads it. During development the flavour-basis Strang splitting of §152
+needed far more steps here (errors 0.1–0.35 at r ≤ 16) because the dm31
+phase per step is large; that is why exact slabs are used. Pre-registration:
+sha256 in `examples/data/neutrino_solar_qg.prereg` before the run (S1–S6).
+All six passed, S1 narrowly.
+
+| read-out (mean \|P_ee error\| vs the noiseless circuit) | Brisbane | Torino | Fez |
+|---|---|---|---|
+| slab r = 8, raw / filter + readout (S1) | 0.025 / 0.011 | 0.018 / 0.008 | 0.027 / 0.015 |
+| slab r = 4 / 16, filter + readout | 0.009 / 0.021 | 0.004 / 0.014 | 0.008 / 0.026 |
+| compiled (1 RBS), raw / filter + readout (S3, S4) | 0.008 / 0.002 | 0.005 / 0.002 | 0.006 / 0.003 |
+| one qubit, raw / readout (S5) | 0.004 / 0.002 | 0.031 / 0.003 | 0.004 / 0.002 |
+| MSW drop P_ee(0.5) − P_ee(10 MeV), slab r = 8 filtered (S2; exact 0.231) | 0.218 | 0.218 | 0.202 |
+
+* **The filter works as in §147 and §152**: 1.9–2.3× on the slab circuit
+  (median 2.19); against the exact P_ee it moves the best r from 4 to 8 on
+  Fez (S6; on Brisbane and Torino r* = 8 for every read-out).
+* **The physics makes the circuit unnecessary.** Because the phases are lost
+  before detection, the observable is one population: the compiled circuit
+  beats every slab circuit even without the filter, and for two flavours one
+  qubit with readout correction is as good as anything. The adiabatic answer
+  is classical (sin² theta_m at the core); a quantum computer could add
+  something only where coherence survives, e.g. day–night regeneration in
+  the Earth or collective effects (§154).
+* **Limits.** Scaled profile, two flavours, simulated device noise; the
+  slab discretization error (0.009 at r = 8) is of the size of the filtered
+  noise, which is why the noisy runs were scored against the noiseless
+  circuit.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

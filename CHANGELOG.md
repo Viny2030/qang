@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.neutrino.solar_circuit`, `solar_p2`, `solar_p2_exact`, `solar_pee_adiabatic`, `solar_pee_from_p2`,
+  `solar_slab_unitaries` (§156): solar neutrinos, the adiabatic MSW conversion with two effective flavours, read in
+  the vacuum mass basis (P_ee linear in qg_Z of the nu_2 qubit), as a weight-1 slab circuit, a one-qubit circuit or
+  one compiled RBS. `examples/neutrino_solar_qg.py`: S1–S6 pass; the filter gains 1.9–2.3× on the slab circuit, but
+  the compiled one-rotation circuit beats it even unfiltered, because the observable is a population.
+- `notebooks/qang_neutrinos.ipynb` (English) and `notebooks/qang_neutrinos_es.ipynb` (Spanish): §151, §152, §154 and
+  §156 on FakeBrisbane and FakeTorino, raw against filtered read-out, saved with outputs (about 5 minutes).
 - `qang.ibm.add_static_zz` (§150): always-on ZZ crosstalk on every used coupling-map edge, with phases from the
   calibrated layer durations. `examples/ibm_static_zz_qg.py`: at 15 kHz the filter still removes 32-60% of the added
   error (ZZ acts partly inside native gate decompositions) and the filtered error grows by 14-38%. Z1, Z4 pass; Z2, Z3

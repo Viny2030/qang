@@ -356,3 +356,158 @@ def collective_trotter_circuit(omegas: Sequence[float], mu: float, theta: float,
     if measure:
         qc.measure_all()
     return qc
+
+
+# ---------------------------------------------------------------- solar neutrinos: adiabatic MSW (§156)
+#
+# Two effective flavours (nu_3 decoupled): P_ee = c13^4 P_2nu + s13^4, with dm21, theta12 and the potential
+# A c13^2. The electron density falls exponentially from the core, A(x) = A_core exp(-x / h), with
+# A_core = 1.52e-4 (rho Y_e)_core E. Solar neutrinos reach the Earth as incoherent mass states, so the
+# read-out is in the vacuum mass basis: p_2 = P(nu_2) and P_2nu = cos^2 theta12 (1 - p_2) + sin^2 theta12 p_2,
+# i.e. P_2nu = 1/2 + cos(2 theta12) qg_Z(nu_2) / 2, linear in qg_Z. Two encodings: one qubit (|0> = nu_e,
+# |1> = nu_x), or two qubits in the weight-1 sector (qubit 0 = nu_e, qubit 1 = nu_x; after the read-out
+# rotation qubit 0 = nu_1, qubit 1 = nu_2), where the qg filter applies.
+
+SOLAR_RHO_YE = 100.0  # (rho Y_e) at the solar core, g/cm^3
+
+
+def _solar_params(params):
+    p = dict(NUFIT_NO, **(params or {}))
+    return p["theta12"], p["theta13"], p["dm21"]
+
+
+def solar_core_potential(E: float, rho_ye: float = SOLAR_RHO_YE, params: dict = None) -> float:
+    """A_core c13^2 in eV^2 (E in GeV): the effective two-flavour potential at the centre of the Sun."""
+    _, t13, _ = _solar_params(params)
+    return 1.52e-4 * rho_ye * E * math.cos(t13) ** 2
+
+
+def solar_matter_angle(a: float, params: dict = None) -> float:
+    """Two-flavour mixing angle in matter, theta_m in [0, pi/2], for the effective potential a (eV^2)."""
+    t12, _, dm21 = _solar_params(params)
+    return 0.5 * math.atan2(math.sin(2 * t12) * dm21, math.cos(2 * t12) * dm21 - a)
+
+
+def solar_pee_from_p2(p2: float, params: dict = None) -> float:
+    """P_ee = c13^4 (cos^2 theta12 (1 - p2) + sin^2 theta12 p2) + s13^4 from the nu_2 population p2."""
+    t12, t13, _ = _solar_params(params)
+    return math.cos(t13) ** 4 * (math.cos(t12) ** 2 * (1 - p2) + math.sin(t12) ** 2 * p2) + math.sin(t13) ** 4
+
+
+def solar_pee_adiabatic(E: float, rho_ye: float = SOLAR_RHO_YE, params: dict = None) -> float:
+    """Adiabatic P_ee: the nu_e born at the core leaves as nu_2 with probability sin^2 theta_m(core)."""
+    return solar_pee_from_p2(math.sin(solar_matter_angle(solar_core_potential(E, rho_ye, params), params)) ** 2,
+                             params)
+
+
+def solar_slab_edges(E: float, h: float, X: float, r: int, grid: str = "theta", rho_ye: float = SOLAR_RHO_YE,
+                     params: dict = None) -> np.ndarray:
+    """Boundaries (km) of r constant-density slabs from the core (0) to X: uniform in x (grid="x") or
+    uniform in the matter angle theta_m (grid="theta", finer where theta_m changes fastest)."""
+    if grid == "x":
+        return np.linspace(0.0, X, r + 1)
+    t12, _, dm21 = _solar_params(params)
+    a0 = solar_core_potential(E, rho_ye, params)
+    a1 = a0 * math.exp(-X / h)
+    xs = []
+    for th in np.linspace(solar_matter_angle(a0, params), solar_matter_angle(a1, params), r + 1):
+        tn = math.tan(2 * th)
+        a = dm21 * (math.cos(2 * t12) - math.sin(2 * t12) / tn) if abs(tn) > 1e-12 else 0.0
+        a = min(max(a, a1), a0)
+        xs.append(-h * math.log(a / a0))
+    xs[0], xs[-1] = 0.0, X
+    return np.array(xs)
+
+
+def solar_slab_unitaries(E: float, h: float, X: float, r: int, grid: str = "theta",
+                         rho_ye: float = SOLAR_RHO_YE, params: dict = None):
+    """2x2 flavour-basis propagators of the r slabs (density at each slab's midpoint), in order."""
+    from scipy.linalg import expm
+
+    t12, _, dm21 = _solar_params(params)
+    U2 = np.array([[math.cos(t12), math.sin(t12)], [-math.sin(t12), math.cos(t12)]])
+    M0 = U2 @ np.diag([0.0, dm21]) @ U2.T
+    a0 = solar_core_potential(E, rho_ye, params)
+    edges = solar_slab_edges(E, h, X, r, grid, rho_ye, params)
+    out = []
+    for x0, x1 in zip(edges[:-1], edges[1:]):
+        a = a0 * math.exp(-(x0 + x1) / (2 * h))
+        out.append(expm(-1j * 2 * K_OSC / E * (x1 - x0) * (M0 + np.diag([a, 0.0]))))
+    return out
+
+
+def _solar_p2(mats, t12):
+    psi = np.array([1.0, 0.0], complex)
+    for S in mats:
+        psi = S @ psi
+    return float(abs(math.sin(t12) * psi[0] + math.cos(t12) * psi[1]) ** 2)  # nu_2 = s nu_e + c nu_x
+
+
+def solar_p2(E: float, h: float, X: float, r: int, grid: str = "theta", rho_ye: float = SOLAR_RHO_YE,
+             params: dict = None) -> float:
+    """nu_2 population at the exit after r slabs (what the noiseless slab circuit gives)."""
+    return _solar_p2(solar_slab_unitaries(E, h, X, r, grid, rho_ye, params), _solar_params(params)[0])
+
+
+def solar_p2_exact(E: float, h: float, X: float, n: int = 20000, rho_ye: float = SOLAR_RHO_YE,
+                   params: dict = None) -> float:
+    """nu_2 population at the exit from a fine evolution (n uniform slabs): the reference."""
+    return solar_p2(E, h, X, n, "x", rho_ye, params)
+
+
+def _zyz(S):
+    # S = exp(i a) RZ(b) RY(c) RZ(d); returns (b, c, d)
+    V = S / np.sqrt(np.linalg.det(S))
+    c = 2 * math.atan2(abs(V[1, 0]), abs(V[0, 0]))
+    s, t = np.angle(V[1, 1]), np.angle(V[1, 0])
+    return float(s + t), c, float(s - t)
+
+
+def _sector_rz(qc, angle, a, b):
+    # RZ(angle) on the weight-1 pair (e_a, e_b): diag(exp(-i angle/2), exp(i angle/2))
+    qc.p(-angle / 2, a)
+    qc.p(angle / 2, b)
+
+
+def solar_circuit(E: float, h: float, X: float, r: int, encoding: str = "unary", compiled: bool = False,
+                  grid: str = "theta", rho_ye: float = SOLAR_RHO_YE, params: dict = None, measure: bool = True):
+    """Circuit for a nu_e born at the solar core, read out in the vacuum mass basis.
+
+    encoding="unary": 2 qubits, weight 1; qubit 1 excited at the end = nu_2. Each slab is RZ RBS RZ on the
+    pair (phase gates and one XX+YY gate), so every gate conserves the weight and the qg filter applies.
+    encoding="qubit": 1 qubit, |1> = nu_2 at the end; every slab is one single-qubit rotation.
+    compiled=True: only the final nu_2 population matters (the phases are lost on the way to the Earth),
+    so the whole Sun is replaced by one rotation that loads it: one RBS (unary) or one RY (qubit).
+    """
+    from qiskit import QuantumCircuit
+
+    t12, _, _ = _solar_params(params)
+    mats = solar_slab_unitaries(E, h, X, r, grid, rho_ye, params)
+    if compiled:
+        ang = math.asin(math.sqrt(min(1.0, max(0.0, _solar_p2(mats, t12)))))
+        if encoding == "qubit":
+            qc = QuantumCircuit(1)
+            qc.ry(2 * ang, 0)
+        else:
+            qc = QuantumCircuit(2)
+            qc.x(0)
+            _rbs(qc, ang, 0, 1)
+    else:
+        to_mass = np.array([[math.cos(t12), -math.sin(t12)], [math.sin(t12), math.cos(t12)]], complex)
+        mats = mats + [to_mass]
+        qc = QuantumCircuit(1 if encoding == "qubit" else 2)
+        if encoding != "qubit":
+            qc.x(0)
+        for S in mats:
+            b, c, d = _zyz(S)
+            if encoding == "qubit":
+                qc.rz(d, 0)
+                qc.ry(c, 0)
+                qc.rz(b, 0)
+            else:
+                _sector_rz(qc, d, 0, 1)
+                _rbs(qc, c / 2, 0, 1)
+                _sector_rz(qc, b, 0, 1)
+    if measure:
+        qc.measure_all()
+    return qc
