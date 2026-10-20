@@ -6943,6 +6943,33 @@ H1–H3). H2 and H3 passed; C1–C3 and H1 failed, mostly narrowly.
 * **Limits.** Toy models (3-qubit scrambler, a single CTC qubit), simulated device noise; postselection costs
   rate (1/4, cos²(φ/2)).
 
+## 165. The first real-hardware data point: three-flavour neutrinos on IQM Garnet (`examples/iqm_neutrino_qg.py`)
+
+The circuit of §151 (initial nu_mu, L = 1300 km, delta_CP = −pi/2, 8 energies 0.8–5 GeV, all three flavours
+read) on IQM's 20-qubit superconducting device Garnet through IQM Resonance, compiled to its native gates
+(r, cz): 12 CZ per circuit, against 18 two-qubit gates on IBM. A free rehearsal on IQM's fake backends gave a
+filter gain of 2.2× (IQMFakeApollo 0.126 → 0.058). A probe (1 circuit, 100 shots) cost 0.50 of the 30 starter
+credits. Pre-registration: sha256 b320f51f in `examples/data/iqm_neutrino_qg.prereg`, committed (a74c07c)
+before any job; the author approved I1–I4. Run: job 01a15b04, 8 × 300 shots, 2026-10-20. **All four passed.**
+
+| check | result |
+|---|---|
+| I1 filtered error below raw | 0.0386 < 0.0615 |
+| I2 raw / filtered ≥ 1.5 | 1.59 (narrowly) |
+| I3 filtered P(mu → mu) lowest at 2.6 GeV | yes; **raw lowest at 0.8 GeV** |
+| I4 kept ≥ 0.5 | 0.880 |
+
+* **On real hardware the filter puts the oscillation maximum back where it is.** Without it the minimum of
+  P(mu → mu) is read at 0.8 GeV; with it at 2.6 GeV (exact 2.63).
+* **The chip did better than its fake model** (raw 0.062 against 0.126) and the filter gained less (1.6×
+  against 2.2×): fewer shots leave the sector, so there is less to remove.
+* **What remains is inside the sector**: the nu_e error halves (0.054 → 0.023) but nu_tau barely moves
+  (0.062 → 0.052), and P(mu → mu) at the maximum reads 0.10 against 0.013. The filter cannot see that error
+  (§132, §133, §145).
+* **Limits.** One run on one day, 300 shots per circuit, no readout correction (the fake backends do not
+  expose the readout errors in the form `qang.ibm` uses); the probe at 2.6 GeV read worse (raw 0.176, 100
+  shots), within its larger statistical error and possibly another calibration.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

@@ -32,7 +32,40 @@ Pre-registered predictions (for --run; the probe is a cost measurement, not a te
   I3  the filtered P(mu -> mu) has its minimum at E = 2.6 GeV (first oscillation maximum 2.63 GeV).
   I4  the kept fraction is at least 0.5 on average.
 
-Findings: (after the run)
+Findings (2026-10-20; pre-registration sha256 b320f51f...906c, committed in a74c07c before any job; the run
+used that exact file, then only this block was added):
+
+Probe (cost measurement, not a test): job 01a15b01-8c81-77a3-86aa-2743d6ea401c, Garnet, E = 2.6 GeV,
+100 shots, 12 CZ: raw 0.176, filtered 0.132, kept 0.84; it cost 0.50 credits (30.00 -> 29.50).
+
+Run: job 01a15b04-5878-741b-8859-4247178a8b94, Garnet, 8 circuits x 300 shots, 12 CZ each, 4.4 s wall.
+
+  E (GeV)  exact P(mu->e, mu, tau)   raw                  filtered
+  0.8      0.084 0.129 0.787         0.133 0.170 0.737    0.124 0.120 0.757
+  1.2      0.009 0.943 0.048         0.063 0.853 0.103    0.030 0.902 0.068
+  1.6      0.023 0.674 0.302         0.070 0.703 0.290    0.042 0.706 0.253
+  2.0      0.054 0.203 0.744         0.133 0.283 0.643    0.086 0.251 0.663
+  2.6      0.063 0.013 0.924         0.123 0.173 0.787    0.089 0.101 0.809
+  3.2      0.055 0.102 0.842         0.133 0.180 0.767    0.086 0.113 0.802
+  4.0      0.043 0.290 0.668         0.070 0.280 0.657    0.049 0.258 0.693
+  5.0      0.030 0.482 0.488         0.067 0.420 0.540    0.041 0.417 0.542
+
+  mean |P_hat - P|: raw 0.0615, filtered 0.0386 (1.59x); kept 0.880.
+
+  I1 PASS: filtered below raw.
+  I2 PASS, narrowly: 1.59x against the 1.5x threshold.
+  I3 PASS: the filtered P(mu -> mu) is lowest at 2.6 GeV. The raw one is lowest at 0.8 GeV: without the
+     filter the oscillation maximum is in the wrong place.
+  I4 PASS: 88% of the shots kept.
+  * The device did better than IQM's own fake backends (raw 0.062 against 0.126 for IQMFakeApollo), and the
+    filter gain was smaller (1.6x against 2.2x): fewer shots leave the sector on the real chip, so there is
+    less for the filter to remove.
+  * The filter halves the nu_e error (0.054 -> 0.023) but barely moves nu_tau (0.062 -> 0.052). What remains
+    is inside the sector (e.g. P(mu -> mu) = 0.10 at the maximum against 0.013), the kind of error the
+    filter cannot see (§132, §133, §145).
+  * The probe at 2.6 GeV read worse than the same energy in the run (raw 0.176 against 0.119); with 100 shots
+    the statistical error is about 0.04 per probability, and the two jobs may have used different
+    calibrations. One run, one day: no claim about stability.
 """
 
 import hashlib
