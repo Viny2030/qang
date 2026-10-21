@@ -1,0 +1,208 @@
+# La brecha geometría–probabilidad y las unidades qang {#sec-cap01}
+
+Un qubit se diseña con ángulos y se observa con frecuencias. Quien escribe un circuito elige rotaciones
+$R_y(\theta)$; quien lo ejecuta recibe cuentas de ceros y unos. Entre ambas descripciones media una función
+trigonométrica que casi nunca se nombra, y que es la fuente de varias dificultades prácticas: gradientes que
+divergen, barras de error que se encogen o se inflan según el estado, y parámetros que no se pueden leer
+directamente del experimento. Este capítulo introduce la unidad qang (qg), que describe el qubit por lo que se
+mide, y establece las propiedades que el resto del libro usa.
+
+## La parametrización de Bloch y su desconexión con lo que se mide {#sec-bloch}
+
+Todo estado puro de un qubit se escribe, salvo una fase global, como
+
+$$
+|\psi\rangle = \cos\frac{\theta}{2}\,|0\rangle + e^{i\varphi}\sin\frac{\theta}{2}\,|1\rangle ,
+\qquad \theta\in[0,\pi],\ \varphi\in[0,2\pi).
+$$
+
+La pareja $(\theta,\varphi)$ es un punto de la esfera de Bloch y es la forma natural de *preparar* el estado: una
+rotación $R_y(\theta)$ seguida de una fase $R_z(\varphi)$. Pero una medición en la base computacional no devuelve
+$\theta$: devuelve, para cada disparo, un resultado 0 con probabilidad
+
+$$
+p_0 = \cos^2\frac{\theta}{2}.
+$$
+
+La relación entre el parámetro de control y la cantidad observada es no lineal, y su derivada se anula en los
+polos. Esto tiene consecuencias concretas. Si un algoritmo variacional quiere ajustar el estado en función de lo
+que mide, la regla de la cadena introduce el factor
+
+$$
+\frac{dE}{dq} = -\frac{1}{\sin\theta}\,\frac{dE}{d\theta},
+$$
+
+que diverge en $\theta=0$ y $\theta=\pi$ (notas de investigación, §1). Y si se quiere estimar $\theta$ a partir de
+$N$ disparos, la varianza de $\hat p_0$ cambia con el estado, de modo que la incertidumbre de cada lectura depende
+de dónde esté el qubit (§5). Ninguno de los dos problemas es exótico: aparecen en cuanto se intenta razonar en
+términos de lo que el experimento entrega.
+
+## El sesgo polar qang: $qg_Z$ {#sec-qgz}
+
+La unidad qang toma como coordenada primaria el valor esperado de $\sigma_z$:
+
+$$
+qg_Z = \langle\sigma_z\rangle = p_0 - p_1 = 2p_0 - 1 = \cos\theta .
+$$
+
+Tres propiedades hacen de $qg_Z$ una buena coordenada de trabajo:
+
+1. **Es una biyección.** En $\theta\in[0,\pi]$, la función $\cos\theta$ es estrictamente decreciente y recorre
+   $[-1,1]$: cada valor de $qg_Z$ corresponde a una única latitud de la esfera.
+2. **Es directamente medible.** $\widehat{qg}_Z = (n_0-n_1)/N$ es el promedio de los resultados $\pm1$ de los
+   disparos; no requiere inversión ni ajuste.
+3. **Vale para cualquier estado.** Para un estado mixto, $qg_Z = \operatorname{Tr}(\rho\,\sigma_z)$, y se reduce a
+   $\cos\theta$ cuando $\rho=|\psi\rangle\langle\psi|$ (§3).
+
+El signo y el rango tienen una lectura física inmediata: $qg_Z=+1$ es el polo $|0\rangle$, $qg_Z=-1$ el polo
+$|1\rangle$, y $qg_Z=0$ cualquier punto del ecuador, donde el resultado de la medición es máximamente incierto.
+
+## Inversión, anclajes y el signo de rama {#sec-inversion}
+
+El ángulo se recupera con $\theta=\arccos(qg_Z)$, que llamaremos **ángulo qang**. Algunos valores de referencia:
+
+| $\theta$ | $qg_Z$ | $p_0$ | estado |
+|---|---|---|---|
+| $0$ | $+1$ | $1$ | polo $|0\rangle$ |
+| $\pi/4$ | $+0{,}707$ | $0{,}854$ | |
+| $\pi/3$ | $+0{,}5$ | $0{,}75$ | |
+| $\pi/2$ | $0$ | $0{,}5$ | ecuador ($|+\rangle$, $|{+i}\rangle$, …) |
+| $2\pi/3$ | $-0{,}5$ | $0{,}25$ | |
+| $\pi$ | $-1$ | $0$ | polo $|1\rangle$ |
+
+: Anclajes del sesgo polar. {#tbl-anclajes}
+
+La inversión tiene un límite: $\cos\theta$ es par, de modo que $qg_Z$ no distingue $\theta$ de $-\theta$. Mientras
+se trabaja en $[0,\pi]$ no hay problema, pero un optimizador que necesita cruzar un polo queda atrapado. El
+remedio es medir también el signo del seno: el par $(qg_Z, s)$ con $s=\operatorname{sign}(qg_X)$ es biunívoco en
+todo el círculo (§65). En la molécula de H₂ el óptimo variacional está en $\theta\approx-0{,}22$; toda
+actualización que usa solo $qg_Z$ se detiene en el estado de Hartree–Fock, mientras que la versión con signo llega
+a la energía exacta.
+
+## La entropía del resultado: $qg_S$ {#sec-qgs}
+
+El sesgo polar dice *hacia dónde* apunta el qubit; no dice cuán impredecible es la medición. Para eso se define la
+**dispersión de superposición**, la entropía de Shannon del resultado:
+
+$$
+qg_S = H(p_0) = -p_0\log_2 p_0 - (1-p_0)\log_2(1-p_0) \in [0,1].
+$$
+
+Como $qg_Z$ y $qg_S$ dependen de la misma población $p_0$, están ligadas por una identidad exacta y sin ramas
+(§7):
+
+$$
+qg_S = H\!\left(\frac{1+qg_Z}{2}\right),
+$$
+
+válida para todo estado de un qubit, puro o mixto, cualquiera sea su preparación. Su derivada,
+$\tfrac{d\,qg_S}{d\,qg_Z}=\tfrac12\log_2\tfrac{1-qg_Z}{1+qg_Z}$, diverge en los polos: es la contraparte entrópica
+de la singularidad del gradiente. Cerca de un polo, un cambio mínimo del sesgo produce un cambio relativo enorme
+de la entropía.
+
+## Invertibilidad de $qg_S$ y sus barras de error {#sec-qgs-errores}
+
+A diferencia de $qg_Z$, la entropía no es invertible en todo el dominio: $qg_S(\theta)=qg_S(\pi-\theta)$. La
+población $p_0$ decrece de 1 a 0 en $[0,\pi]$ y $H$ crece hasta $p=\tfrac12$ y luego decrece, de modo que $qg_S$ es
+estrictamente creciente en $[0,\pi/2]$ y estrictamente decreciente en $[\pi/2,\pi]$. La inversión exige elegir una
+de las dos mitades (§2).
+
+Estimar $qg_S$ con disparos finitos plantea un problema adicional: la entropía es plana en su máximo, y el método
+delta da un error estándar nulo exactamente donde $qg_S\approx1$. La solución nativa de qang es construir el
+intervalo de Wilson para $qg_Z$ y transformarlo con la identidad anterior; como $H$ es unimodal, la imagen es un
+intervalo válido. Con 2000 repeticiones, ese intervalo mantuvo una cobertura de 0,90–0,99 en todos los casos
+probados, incluso donde el intervalo de Wald o el bootstrap caían por debajo de 0,40 (§51).
+
+## Una unidad de ingeniería {#sec-unidad}
+
+Una unidad útil no necesita ser una magnitud física nueva; necesita volver legible lo que se mide. El decibelio
+no agrega física a la potencia: la expresa en una escala que vuelve sumables las ganancias de una cadena de
+amplificadores. El qang cumple un papel análogo para el qubit: expresa su estado en la escala en la que el
+experimento lo entrega, de modo que preparación, ruido y lectura se comparan en las mismas unidades. Es una
+convención operativa, y como toda convención vale por lo que simplifica.
+
+## El mili-qang y el presupuesto de ruido {#sec-miliqang}
+
+Para hablar de desviaciones pequeñas conviene un submúltiplo: el **mili-qang**, $1\ \text{qg} = 1000\ \text{m-qg}$.
+Un estado con $qg_Z=0{,}502$ está a 501,8 m-qg; la diferencia con el ideal $0{,}5$ es de 1,8 m-qg.
+
+La escala permite expresar un presupuesto de error de compuerta en las mismas unidades que la lectura. Si la
+amplitud de un pulso tiene un error aleatorio relativo de desviación $\sigma$, el sesgo polar esperado tras
+$R_x(\theta)$ es
+
+$$
+\mathbb E[qg_Z] = \cos\theta\; e^{-\theta^2\sigma^2/2}
+$$
+
+(§160). Con $\sigma=0{,}05$, una compuerta $X$ ($\theta=\pi$) entrega $qg_Z=-0{,}988$ en lugar de $-1$: un error de
+12 m-qg, que crece con el cuadrado del ángulo. El capítulo 2 usa esta fórmula para elegir, entre representaciones
+equivalentes de una misma compuerta, la de menor área de pulso.
+
+## El ángulo qang como transformación arcoseno {#sec-arcoseno}
+
+La propiedad estadística central de la unidad se obtiene propagando el ruido de disparo. Con
+$\widehat{qg}_Z = 2\hat p_0-1$,
+
+$$
+\operatorname{Var}(\widehat{qg}_Z)=\frac{\sin^2\theta}{N},
+\qquad
+\operatorname{Var}(\hat\theta)\approx \operatorname{Var}(\widehat{qg}_Z)\left(\frac{d\theta}{d\,qg_Z}\right)^2
+=\frac{\sin^2\theta}{N}\cdot\frac{1}{\sin^2\theta}=\frac1N .
+$$
+
+Los factores $\sin^2\theta$ se cancelan exactamente: **la incertidumbre del ángulo qang no depende del estado**
+(§5). No es una coincidencia. Como $p_0=\cos^2(\theta/2)$, el ángulo qang es, salvo la reflexión
+$\theta\to\pi-\theta$, la clásica transformación arcoseno de una proporción, $\phi=2\arcsin\sqrt p$, introducida por
+Bartlett (1947), Anscombe (1948) y Freeman y Tukey (1950) precisamente para estabilizar la varianza (§125).
+
+La afirmación se verificó con sumas binomiales exactas, sin simulación: con $n=100$, $(n+\tfrac12)\operatorname{Var}
+(\hat\theta)$ vale entre 1,000 y 1,001; la cobertura del intervalo $\hat\theta\pm z/\sqrt{n+1/2}$ queda entre 0,930 y
+0,962 para $n\in\{30,100,1000\}$. La predicción falló en un caso, y conviene decirlo: con $np\approx2{,}5$ tanto el
+intervalo angular como el de Wald pierden cobertura. La estabilización es asintótica, y el régimen de muy pocos
+eventos requiere los intervalos exactos del capítulo 4.
+
+## Estados mixtos y registros de varios qubits {#sec-mixtos}
+
+Las definiciones se extienden sin cambios a estados mixtos y a registros:
+
+- **Estados mixtos.** $qg_Z=\operatorname{Tr}(\rho\sigma_z)$ ya no determina el estado. La mezcla clásica de
+  $|0\rangle$ con peso 0,2 y $|1\rangle$ con peso 0,8 tiene $qg_Z=-0{,}6$ y entropía de von Neumann 0,72, una
+  combinación que ningún estado puro reproduce (§3). Para un qubit de longitud de Bloch $r<1$, la cancelación
+  de la sección anterior deja de ser exacta:
+  $\operatorname{Var}(\hat\theta)=\big[1+\tfrac{1-r^2}{r^2\sin^2\theta}\big]/N$, igual a la cota cuántica de
+  Cramér–Rao $1/(Nr^2)$ en el ecuador (§45).
+- **Registros.** Cada qubit tiene su perfil local, obtenido por traza parcial, y el registro tiene una entropía
+  conjunta normalizada por el número de qubits (§4). El estado de Bell lo ilustra: cada qubit tiene $qg_Z=0$ y
+  entropía local de 1 bit, pero la entropía conjunta normalizada es 0,5. El registro es globalmente puro y
+  localmente mezclado; los perfiles locales no bastan para describirlo, y el capítulo 5 vuelve sobre este punto con
+  el radio de Bloch.
+
+## En código {#sec-codigo01}
+
+```python
+from qang.core import Qang, qg_s_from_qg_z
+from qang import statistics
+
+q = Qang(0.5)                 # sesgo polar qg_Z = 0.5
+q.to_theta("deg")             # 60.0: el ángulo qang
+q.milliqang                   # 500.0 m-qg
+qg_s_from_qg_z(0.5)           # 0.811: entropía del resultado
+
+# 750 ceros en 1000 disparos: intervalo de Wilson para qg_Z
+e = statistics.wilson_qg_estimate(750, 1000)
+e.qg_z, e.low, e.high         # 0.500, 0.444, 0.552
+
+statistics.propagated_theta_std(1.047, 1000)   # 0.0316 = 1/sqrt(1000), para cualquier ángulo
+```
+
+## Resumen {#sec-resumen01}
+
+- El qubit se prepara con ángulos y se observa con frecuencias; la función que los une introduce
+  singularidades en gradientes y errores.
+- El sesgo polar $qg_Z=\cos\theta=\langle\sigma_z\rangle$ es biyectivo, medible directamente y válido para estados
+  mixtos.
+- La entropía del resultado $qg_S=H((1+qg_Z)/2)$ mide la imprevisibilidad; se invierte por mitades y sus barras de
+  error se construyen desde el intervalo de $qg_Z$.
+- El ángulo qang es la transformación arcoseno de una proporción: su varianza es $1/N$ para todo estado puro, con
+  una corrección conocida para estados mixtos.
+- El mili-qang permite presupuestar errores de compuerta en las unidades de la lectura.
