@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `qang.algebra` (§166): the universal single-qubit gate as an algebraic function of qg_Z (`u3_qang`), its
+  phase-free transition matrix, the Householder reflector and Grover diffuser in qg, the transition probability between
+  two qg states, and the qudit generalization of qg_Z through the Cartan subalgebra of su(d).
+
 ## [0.12.0] - 2026-10-17
 
 ### Added

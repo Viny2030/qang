@@ -6970,6 +6970,25 @@ before any job; the author approved I1–I4. Run: job 01a15b04, 8 × 300 shots, 
   expose the readout errors in the form `qang.ibm` uses); the probe at 2.6 GeV read worse (raw 0.176, 100
   shots), within its larger statistical error and possibly another calibration.
 
+## 166. Closed-form qg algebra: the universal gate, reflections, transition probabilities and qudits (`qang/algebra.py`)
+
+Exact identities, no noise, checked in `tests/test_algebra.py`.
+
+* **The universal gate in qg.** With q = qg_Z, cos(θ/2) = √((1+q)/2) and sin(θ/2) = √((1−q)/2), so
+  U3_qang(q, φ, λ) = [[√((1+q)/2), −e^{iλ}√((1−q)/2)], [e^{iφ}√((1−q)/2), e^{i(φ+λ)}√((1+q)/2)]] is an algebraic
+  function of q and two phases. It equals Qiskit's U(arccos q, φ, λ) to 3.5·10⁻¹⁴ on 2000 random gates, and gives
+  I, X, Z, H at (q, φ, λ) = (1, 0, 0), (−1, 0, π), (1, 0, π), (0, 0, π).
+* **Its transition matrix** |U_ij|² = [[(1+q)/2, (1−q)/2], [(1−q)/2, (1+q)/2]] is doubly stochastic, rational in q
+  and independent of the phases.
+* **Reflections.** The Householder reflector through |ψ(q)⟩ is I − 2|ψ⟩⟨ψ| = −q Z − √(1 − q²) X, and the Grover
+  diffuser about the same state is its negative, 2|ψ⟩⟨ψ| − I = q Z + √(1 − q²) X.
+* **Transition probability** between two pure states with qg vectors r₁, r₂: (1 + r₁·r₂)/2; on a common meridian
+  [1 + q₁q₂ + √((1 − q₁²)(1 − q₂²))]/2.
+* **Qudits.** The diagonal generalized Gell-Mann matrices (the Cartan subalgebra of su(d)) are the Z-basis
+  generalization of σ_z: their d − 1 expectation values are linear in the populations and determine them,
+  p = 1/d + ½ Σ_k ⟨λ_k⟩ diag(λ_k); d = 2 gives qg_Z. This is a definition and an identity; whether a qudit readout
+  gives qang an advantage was asked in §70 for leakage and is not claimed here.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
