@@ -1,0 +1,55 @@
+name: Book
+
+# Renders the Spanish and English books (HTML, PDF and Word) and publishes ONLY the rendered site to gh-pages.
+# The branch is replaced on every run (force_orphan), so nothing from the working tree ever reaches it.
+
+on:
+  push:
+    branches: [main]
+    paths: ["book/**", ".github/workflows/book.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: book-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fonts for the PDF
+        run: sudo apt-get update && sudo apt-get install -y fonts-dejavu
+
+      - name: Set up Quarto with TinyTeX
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: true
+
+      - name: Render the Spanish book
+        run: quarto render book/es
+
+      - name: Render the English book
+        run: quarto render book/en
+
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp book/index.html _site/index.html
+          cp -r book/es/_book _site/es
+          cp -r book/en/_book _site/en
+          touch _site/.nojekyll
+          ls -R _site | head -50
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "Book site"

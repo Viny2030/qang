@@ -117,7 +117,7 @@ def build(lang):
              "book:", f'  title: "{cfg["title"]}"', f'  subtitle: "{cfg["subtitle"]}"',
              '  author: "Vicente Humberto Monteverde"', '  date: "2026"',
              "  repo-url: https://github.com/Viny2030/qang", "  repo-subdir: book/" + lang,
-             "  repo-actions: [issue]", "  search: true",
+             "  repo-actions: [issue]", "  search: true", "  downloads: [pdf, docx]", "  output-file: " + ("qang-libro-es" if lang == "es" else "qang-book-en"),
              "  sidebar:", "    tools:", f'      - text: "{cfg["other"]}"', f"        href: {cfg['other_url']}",
              "  chapters:", "    - index.qmd"]
     for p, files in yml_parts:
@@ -127,7 +127,10 @@ def build(lang):
     lines.append("  appendices:")
     lines += [f"    - {f}" for f in app_files]
     lines += ["", "bibliography: references.bib", "", "format:", "  html:", "    theme: cosmo", "    toc: true",
-              "    number-sections: true", "    html-math-method: mathjax", "    code-copy: true", ""]
+              "    number-sections: true", "    html-math-method: mathjax", "    code-copy: true",
+              "  pdf:", "    documentclass: scrreprt", "    pdf-engine: xelatex", "    mainfont: DejaVu Serif",
+              "    sansfont: DejaVu Sans", "    monofont: DejaVu Sans Mono", "    number-sections: true",
+              "    toc: true", "  docx:", "    toc: true", "    number-sections: true", ""]
     with open(os.path.join(root, "_quarto.yml"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(lines))
     n_ch = sum(len(f) for _, f in yml_parts)
