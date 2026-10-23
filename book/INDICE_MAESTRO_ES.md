@@ -78,6 +78,7 @@ hasta que exista una corrida real (Parte X).
 
 ### Capítulo 6. Polarización óptica y parámetros de Stokes en unidades qg
 6.0 La ley de Malus como ecuación de probabilidad: la transmisión de un polarizador es p_0=cos ²Δ, de modo que el ángulo qang es 2Δ y cada parámetro de Stokes normalizado se lee en m-qg (S_1/S_0=qg_Z) — §167
+6.0b ✅ escrito: Malus como p₀ = cos²Δ (θ = 2Δ, m = 1000·r·a), Stokes como valores qg, grado de polarización = radio, Mueller = regla de compuertas, polarimetría por conteo con el sesgo de P̂ — §83, §167; figuras: duplicación de ángulos, Malus en m-qg, sesgo del grado de polarización
 6.1 Equivalencia Poincaré–Bloch: qg_Z = S1/S0, qg_X = S2/S0, qg_Y = S3/S0 — §83
 6.2 Grado de polarización como norma del vector qg y pureza de estados mixtos — §83
 6.3 Matrices de Mueller sin pérdidas y la regla qg_P′ = qg{U†PU} — §83

@@ -20,6 +20,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Book chapter 5 (ES/EN) written on the chapter 1 base (the probability equation with a radius, the deficit as
   4p0(1 - p0), direction apart from the radius, duality), with three figures from `tools/make_cap05_figures.py`;
   outline of chapters 6-11 redefined around the probability equation, chapter 8 now opens with Fisher geometry.
+- Book chapter 6 (ES/EN), polarization on the chapter 1 base (Malus's law as the probability equation, Stokes
+  parameters as qg values, photon-counting polarimetry), with three figures from `tools/make_cap06_figures.py`.
 
 ## [0.12.0] - 2026-10-17
 

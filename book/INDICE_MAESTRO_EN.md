@@ -79,6 +79,7 @@ devices until a real run exists (Part X).
 
 ### Chapter 6. Optical polarization and Stokes parameters in qg units
 6.0 Malus's law as a probability equation: the transmission of a polarizer is p_0=cos ²Δ, so the qang angle is 2Δ and each normalized Stokes parameter reads in m-qg (S_1/S_0=qg_Z) — §167
+6.0b ✅ written: Malus as p₀ = cos²Δ (θ = 2Δ, m = 1000·r·a), Stokes as qg values, degree of polarization = radius, Mueller = gate rule, photon-counting polarimetry with the bias of P̂ — §83, §167; figures: angle doubling, Malus in m-qg, bias of the degree of polarization
 6.1 The Poincaré–Bloch equivalence: qg_Z = S1/S0, qg_X = S2/S0, qg_Y = S3/S0 — §83
 6.2 Degree of polarization as the norm of the qg vector, and the purity of mixed states — §83
 6.3 Lossless Mueller matrices and the rule qg_P′ = qg{U†PU} — §83
