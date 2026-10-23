@@ -176,11 +176,11 @@ hasta que exista una corrida real (Parte X).
 15.1 La paradoja de la pérdida de información de Hawking y la complementariedad de agujeros negros — §164 (contexto)
 15.2 Caos cuántico y dispersión de información (scrambling): un micro-agujero negro de 3 qubits con un Clifford que esparce todo Pauli — §164
 15.3 El protocolo de Hayden–Preskill con el decodificador de Yoshida–Kitaev: reconstrucción del mensaje arrojado al horizonte usando la radiación de Hawking — §164
-15.4 Formulación en unidades qg y posselección asistida por el filtro de simetría: éxito 1/4, fidelidad 1 sin ruido — §164
+15.4 Formulación en unidades qg y posselección asistida por el filtro de simetría: éxito 1/4 (m = −500), fidelidad 1 sin ruido; decodificar es cruzar el ecuador (F > 1/2 ↔ m_F > 0); la ley exacta P·F = 1/4 como hipérbola (1000 + m_P)(1000 + m_F) = 10⁶, y 4PF como diagnóstico (el éxito 1/4 también lo da el ruido total) — §164; en el libro, verificada en Cliffords y Haar
 15.5 ⚠️ Fidelidad recuperada 0,55–0,74 (> 1/2) **en modelos de ruido de IBM** (Brisbane, Torino, Fez); sin scrambling, 0,25. El índice original citaba IonQ: no hay corrida IonQ de este experimento — §164 🧪
-15.6 🆕 Agujeros negros más grandes: scramblers de 5–7 qubits, el costo en compuertas y hasta dónde llega el filtro
-15.7 🆕 La curva de Page en juguete: entropía de la radiación frente al tiempo de evaporación, leída con qg_S
-15.8 🆕 Agujeros de gusano atravesables como teleportación (protocolo tipo ER = EPR) y la fidelidad leída en correladores qg
+15.6 🆕 Agujeros negros más grandes: scramblers de 5–7 qubits, el costo en compuertas y hasta dónde llega el filtro: en el libro, exacto (Haar con un qubit radiado da F ≈ 4/7; con 2 y 3, 0,84 y 0,95) y en el modelo de FakeFez (Clifford: 35, 126 y 252 compuertas; F 0,80–0,89 pero el éxito cae a 0,105 y 4PF a 0,37); el scrambler de §164 como Clifford baja de 90 a 35 compuertas; sin corrida en dispositivos
+15.7 🆕 La curva de Page en juguete: entropía de la radiación frente al tiempo de evaporación, leída con qg_S: en el libro, ⚠️ qg_S no ve la curva (la lectura en Z sigue subiendo); la Rényi-2 desde la suma de qg_P² sí, al costo de 4^k − 1 correladores
+15.8 🆕 Agujeros de gusano atravesables como teleportación (protocolo tipo ER = EPR) y la fidelidad leída en correladores qg: en el libro, F = (1 + qg_XX − qg_YY + qg_ZZ)/4 exacta, (1, −1, 1) con scrambler y (0, 0, 0) sin él; el experimento tipo Jafferis 2022 queda 🔬
 
 ---
 

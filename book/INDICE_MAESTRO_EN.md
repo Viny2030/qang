@@ -177,11 +177,11 @@ devices until a real run exists (Part X).
 15.1 Hawking's information-loss paradox and black-hole complementarity — §164 (context)
 15.2 Quantum chaos and information scrambling: a 3-qubit micro black hole with a Clifford that spreads every Pauli — §164
 15.3 The Hayden–Preskill protocol with the Yoshida–Kitaev decoder: recovering the message thrown into the horizon from the Hawking radiation — §164
-15.4 Formulation in qg units and postselection assisted by the symmetry filter: success 1/4, fidelity 1 without noise — §164
+15.4 Formulation in qg units and postselection assisted by the symmetry filter: success 1/4 (m = −500), fidelity 1 without noise; decoding is crossing the equator (F > 1/2 ↔ m_F > 0); the exact law P·F = 1/4 as a hyperbola (1000 + m_P)(1000 + m_F) = 10⁶, and 4PF as a diagnostic (full noise also gives success 1/4) — §164; in the book, checked on Cliffords and Haar
 15.5 ⚠️ Recovered fidelity 0.55–0.74 (> 1/2) **on IBM noise models** (Brisbane, Torino, Fez); without scrambling, 0.25. The original index cited IonQ: there is no IonQ run of this experiment — §164 🧪
-15.6 🆕 Larger black holes: 5–7-qubit scramblers, the gate cost and how far the filter reaches
-15.7 🆕 A toy Page curve: entropy of the radiation against evaporation time, read with qg_S
-15.8 🆕 Traversable wormholes as teleportation (an ER = EPR-type protocol) with the fidelity read in qg correlators
+15.6 🆕 Larger black holes: 5–7-qubit scramblers, the gate cost and how far the filter reaches: in the book, exact (Haar with one radiated qubit gives F ≈ 4/7; with 2 and 3, 0.84 and 0.95) and on the FakeFez model (Clifford: 35, 126 and 252 gates; F 0.80–0.89 but the success falls to 0.105 and 4PF to 0.37); the §164 scrambler as a Clifford drops from 90 to 35 gates; no device run
+15.7 🆕 A toy Page curve: entropy of the radiation against evaporation time, read with qg_S: in the book, ⚠️ qg_S does not see the curve (the Z reading keeps rising); the Rényi-2 entropy from the sum of qg_P² does, at the cost of 4^k − 1 correlators
+15.8 🆕 Traversable wormholes as teleportation (an ER = EPR-type protocol) with the fidelity read in qg correlators: in the book, F = (1 + qg_XX − qg_YY + qg_ZZ)/4 exact, (1, −1, 1) with the scrambler and (0, 0, 0) without; a Jafferis-2022-type experiment stays 🔬
 
 ---
 
