@@ -7014,7 +7014,7 @@ Exact identities, no noise, checked in `tests/test_probability.py`; the book's c
 Does reasoning in m-qg predict a real chip? 26 circuits on one qubit of Garnet, 4000 shots each, one job: the two
 poles (readout errors e0, e1), R_y sweeps to +707, +500, -500, -707 m-qg, ten copies of the equator and chains of
 k = 3..41 X gates. Pre-registered (sha256 a5de8db2, commit 32f36452) before the run; a free rehearsal on IQM's fake
-backends passed M1-M4 on both. A 100-shot probe cost 0.50 credits.
+backends passed M1-M4 on both. A 100-shot probe cost 0.50 credits; the run (104 000 shots) cost about 16 credits (28.50 -> 12.50), about 0.15 credits per 1000 shots. Cost scales with shots, with a floor of about 0.50 per job; the earlier estimate of 0.50 per job regardless of shots, drawn from small jobs, was wrong.
 
 **Predictions.** M1: from the poles alone the affine readout m_pred = (1 - e0 - e1) m + 1000 (e1 - e0) predicts the
 sweep and the equator, at least 4 of 5 within 3 sigma. M2: the scatter of the ten equator copies is binomial,
