@@ -32,6 +32,7 @@ hasta que exista una corrida real (Parte X).
 1.7 El ángulo qang como transformación arcoseno de una proporción (Bartlett, Anscombe, Freeman–Tukey) — §125
 1.8 Estados mixtos y registros de varios qubits — §3, §4, §45
 1.9 En código: `qang.probability` como herramienta de análisis (`analyze`) — §167
+1.10 Alcance y límites de la base: no es física nueva sino una escala de trabajo; primera prueba en hardware (§168, IQM Garnet): 1,64 m-qg por compuerta X, errores de ángulo de 16–55 m-qg, M2 falló; figura de hardware — §168
 
 ### Capítulo 2. Compuertas nativas, álgebra cerrada y el operador universal
 2.1 La compuerta elemental RQangGate(qg_Z) y su descomposición nativa en Ry(θ) — §6
@@ -87,6 +88,7 @@ hasta que exista una corrida real (Parte X).
 
 ### Capítulo 7. Fases geométricas y el teorema de Stokes en la esfera
 7.0 La fase geométrica en la ecuación de probabilidad: un bucle a qg_Z constante acumula (qg_Z-1)/2=-p_1 vueltas, es decir, (m-1000)/2000 vueltas en mili-qang — §167
+7.0b ✅ escrito: la fase de un bucle a altura constante es p₀ vueltas (mód. 1); el interferómetro convierte la fase en cos²(γ/2) y su ángulo qang es la fase, con 1/√N para cualquier valor; octante de Pancharatnam — §84, §167; figuras: fase contra m-qg con tres cálculos, medición interferométrica
 7.1 La conexión de Berry A = i⟨ψ|∇ψ⟩ y su curvatura como campo monopolar — §84
 7.2 Stokes en la esfera: γ(C) = −Ω(C)/2 como flujo de curvatura — §84
 7.3 Bucles a qg_Z constante: fase φ = (qg_Z − 1)/2 vueltas (mod 1) — §84

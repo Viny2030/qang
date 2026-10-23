@@ -24,6 +24,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   parameters as qg values, photon-counting polarimetry), with three figures from `tools/make_cap06_figures.py`.
 - `examples/iqm_milliqang_qg.py` (§168): the milli-qang on IQM Garnet, pre-registered; M1, M3, M4 pass, M2 fails.
   An X gate costs 1.64 m-qg, linearly in the number of gates; intermediate R_y angles read 16-55 m-qg off.
+- Book: chapter 1 gains "Scope and limits of the base" with the §168 hardware result and figure; chapter 7
+  (ES/EN), geometric phases on the chapter 1 base, with two figures from `tools/make_cap07_figures.py`.
+### Fixed
+- `tests/test_geometric.py`: the cone-phase test compares on the circle, so +pi and -pi agree on the equator.
 
 ## [0.12.0] - 2026-10-17
 

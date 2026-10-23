@@ -36,8 +36,9 @@ def test_cone_phase_is_fixed_by_qg_z(qg_z):
     expect = G.cone_phase_turns(qg_z)
     d = (phi - expect + 0.5) % 1.0 - 0.5
     assert abs(d) < 1e-5
-    assert G.pancharatnam_phase([G.state_from_bloch(r) for r in path]) == pytest.approx(
-        wrap(-math.pi * (1 - qg_z)), abs=1e-5)
+    gamma = G.pancharatnam_phase([G.state_from_bloch(r) for r in path])
+    # compare on the circle: on the equator (qg_z = 0) the phase is pi, and +pi and -pi are the same angle
+    assert abs(wrap(gamma - (-math.pi * (1 - qg_z)))) < 1e-5
 
 
 @pytest.mark.parametrize("qg_z", [0.8, 0.2, -0.6])

@@ -289,6 +289,46 @@ Las definiciones se extienden sin cambios a estados mixtos y a registros:
   localmente mezclado; los perfiles locales no bastan para describirlo, y el capítulo 5 vuelve sobre este punto con
   el radio de Bloch.
 
+## Alcance y límites de la base {#sec-alcance}
+
+Conviene decir con precisión qué aporta esta base y qué no, antes de construir el resto del libro sobre ella.
+
+**Lo que no es.** La unidad qang no es física nueva. El sesgo polar es el valor esperado de $\sigma_z$, el ángulo
+qang es la transformación arcoseno de una proporción y el mili-qang es, matemáticamente, $1000\,\langle\sigma_z\rangle$.
+Ninguna de estas lecturas contiene información que la probabilidad $p_0$ no tenga ya; la ecuación de probabilidad lo
+dice explícitamente. Tampoco reduce los disparos que exige una precisión dada (capítulo 4).
+
+**Lo que es.** Una escala de trabajo, en el sentido del decibelio: pone en las mismas unidades la preparación, el
+error de compuerta, el ruido de disparo y la lectura, de modo que se suman, se comparan y se presupuestan. La
+pregunta que importa es entonces empírica: ¿razonar en mili-qang predice lo que hace un procesador real?
+
+**Primera prueba en hardware (§168).** Se respondió con un experimento pre-registrado en un qubit del procesador
+superconductor IQM Garnet: 26 circuitos de 4000 disparos, con cuatro predicciones fijadas antes de la corrida. El
+resultado fue mixto, y se informa completo:
+
+- **El costo de una compuerta es medible y presupuestable en m-qg.** Encadenando de 3 a 41 compuertas $X$, el
+  faltante de la lectura (corregida por los errores de lectura medidos en los polos) crece con una sola pendiente:
+  **1,64 m-qg por compuerta $X$**, con $\chi^2$ por grado de libertad de 0,81. Tras 41 compuertas son 63 m-qg, ocho
+  desviaciones estándar por encima de cero (@fig-hardware, izquierda). Que el crecimiento sea lineal y no
+  cuadrático indica error incoherente, relajación durante los pulsos, y no una sobre-rotación coherente.
+- **La escala hace visible un error que el modelo de lectura oculta.** La lectura afín predicha desde los polos
+  encaja en el ecuador, pero los cuatro ángulos intermedios leen entre 16 y 55 m-qg por debajo (@fig-hardware,
+  derecha). El procesador calibra bien los ángulos $0$, $\pi/2$ y $\pi$; los demás tienen un error de rotación de
+  decenas de m-qg. La predicción pasó por la regla de 4 de 5, no limpiamente.
+- **Una predicción falló.** Las diez copias del circuito del ecuador variaron la mitad de lo que permite el ruido de
+  disparo binomial, algo que disparos independientes no pueden producir y que por azar ocurre con probabilidad
+  0,013. Una sola corrida no decide si fue casualidad o una propiedad de cómo el dispositivo devuelve circuitos en
+  lote.
+- **Otra predicción estaba mal diseñada.** El ajuste de dos parámetros sobre cuatro puntos dejó una banda de
+  extrapolación tan ancha que cualquier lectura pasaba. Se registra como defecto del diseño, no como éxito.
+
+![Primera prueba del mili-qang en hardware (§168, IQM Garnet, un qubit, 4000 disparos por circuito). Izquierda: faltante de la lectura tras $k$ compuertas $X$, corregido por la lectura, con la recta de una sola pendiente. Derecha: diferencia entre lo medido y lo predicho por la lectura afín; los polos valen cero por construcción, porque definen la calibración.](figuras/cap01_hardware.png){#fig-hardware width=100%}
+
+El balance: en un chip real, el mili-qang convirtió el error de una compuerta en un número presupuestable y expuso un
+error de ángulo que el modelo usual no ve. Pero se probó en un qubit, una vez, y el ruido de disparo no describió la
+dispersión de circuitos repetidos. La replicación en más qubits y en otro día queda pendiente, y el libro trata
+esta base como sólida en lo matemático y prometedora, pero todavía no consolidada, en lo experimental.
+
 ## En código {#sec-codigo01}
 
 El módulo `qang.probability` es la herramienta de análisis de este capítulo: lee conteos y devuelve todas las
@@ -327,3 +367,6 @@ Las figuras de este capítulo se generan con `tools/make_cap01_figures.py`, que 
   $p_0$; con varios resultados, el ángulo qang se generaliza a la distancia estadística de Wootters.
 - **Estadística.** El ángulo qang es la transformación arcoseno de una proporción: su varianza es $1/N$ para todo
   estado puro, con una corrección conocida para estados mixtos.
+- **Alcance.** La unidad no es física nueva sino una escala de trabajo. En hardware real (§168) midió un costo de
+  1,64 m-qg por compuerta $X$, lineal en el número de compuertas, y expuso errores de ángulo de 16–55 m-qg; una
+  predicción sobre el ruido de disparo falló y la replicación queda pendiente.

@@ -33,6 +33,7 @@ devices until a real run exists (Part X).
 1.7 The qang angle as the arcsine transformation of a proportion (Bartlett, Anscombe, Freeman–Tukey) — §125
 1.8 Mixed states and multi-qubit registers — §3, §4, §45
 1.9 In code: `qang.probability` as the analysis tool (`analyze`) — §167
+1.10 Scope and limits of the base: not new physics but a working scale; first hardware test (§168, IQM Garnet): 1.64 m-qg per X gate, angle errors of 16–55 m-qg, M2 failed; hardware figure — §168
 
 ### Chapter 2. Native gates, closed algebra and the universal operator
 2.1 The elementary gate RQangGate(qg_Z) and its native decomposition into Ry(θ) — §6
@@ -88,6 +89,7 @@ devices until a real run exists (Part X).
 
 ### Chapter 7. Geometric phases and Stokes' theorem on the sphere
 7.0 The geometric phase in the probability equation: a loop at constant qg_Z picks up (qg_Z-1)/2=-p_1 turns, that is, (m-1000)/2000 turns in milli-qang — §167
+7.0b ✅ written: the phase of a loop at constant height is p₀ turns (mod 1); the interferometer turns the phase into cos²(γ/2) and its qang angle is the phase, with 1/√N for any value; Pancharatnam's octant — §84, §167; figures: phase against m-qg with three computations, interferometric measurement
 7.1 The Berry connection A = i⟨ψ|∇ψ⟩ and its curvature as a monopole field — §84
 7.2 Stokes on the sphere: γ(C) = −Ω(C)/2 as a curvature flux — §84
 7.3 Loops at constant qg_Z: phase φ = (qg_Z − 1)/2 turns (mod 1) — §84

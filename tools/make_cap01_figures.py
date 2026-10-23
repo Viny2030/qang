@@ -219,7 +219,58 @@ def fig_pulse(t, lang):
     return fig
 
 
+HW = {
+    "es": {"k": "compuertas X encadenadas, $k$", "s": "faltante corregido $s(k)$ (m-qg)",
+           "fit": "una pendiente: {c} m-qg por X", "sw_x": "lectura pedida (m-qg)",
+           "sw_y": "medido − predicho (m-qg)", "poles": "polos y ecuador (ángulos calibrados)",
+           "inter": "ángulos intermedios"},
+    "en": {"k": "chained X gates, $k$", "s": "corrected shortfall $s(k)$ (m-qg)",
+           "fit": "one slope: {c} m-qg per X", "sw_x": "requested reading (m-qg)",
+           "sw_y": "measured − predicted (m-qg)", "poles": "poles and equator (calibrated angles)",
+           "inter": "intermediate angles"},
+}
+
+
+def fig_hardware(t, lang):
+    """§168 on IQM Garnet: the m-qg cost of chained X gates and the residuals of the affine readout."""
+    import json
+
+    path = os.path.join(ROOT, "examples", "data", "iqm_milliqang_qg_analysis.json")
+    with open(path, encoding="utf-8") as fh:
+        r = json.load(fh)
+    h = HW[lang]
+    ks = np.array(sorted(int(k) for k in r["chains"]))
+    s = np.array([r["chains"][str(k)]["s"] for k in ks])
+    sg = np.array([r["chains"][str(k)]["sigma"] for k in ks])
+    w = 1 / sg ** 2
+    c = float((w * (ks - 1) * s).sum() / (w * (ks - 1) ** 2).sum())
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4.4))
+    a1.errorbar(ks, s, yerr=sg, fmt="o", color=BLUE, ms=6, capsize=3)
+    x = np.linspace(1, 42, 50)
+    a1.plot(x, c * (x - 1), color=ORANGE, lw=2, label=h["fit"].format(c=_num(round(c, 2), lang)))
+    a1.axhline(0, color="#cccccc", lw=1)
+    a1.set_xlabel(h["k"])
+    a1.set_ylabel(h["s"])
+    a1.legend(frameon=False, loc="upper left")
+    a1.grid(alpha=0.25)
+    for row in r["M1"]:
+        cal = row["target"] == 0.0
+        a2.errorbar([row["target"]], [row["measured"] - row["predicted"]], yerr=[row["sigma"]], fmt="o",
+                    color=GREEN if cal else ORANGE, ms=7, capsize=3)
+    a2.errorbar([-1000, 1000], [0, 0], fmt="s", color=GREEN, ms=6, label=h["poles"])
+    a2.plot([], [], "o", color=ORANGE, label=h["inter"])
+    a2.axhline(0, color="#cccccc", lw=1)
+    a2.set_xlim(-1100, 1100)
+    a2.set_xlabel(h["sw_x"])
+    a2.set_ylabel(h["sw_y"])
+    a2.legend(frameon=False, loc="lower left", fontsize=9)
+    a2.grid(alpha=0.25)
+    fig.tight_layout()
+    return fig
+
+
 FIGURES = {
+    "cap01_hardware": fig_hardware,
     "cap01_circulo": fig_circle,
     "cap01_lecturas": fig_readings,
     "cap01_regla": fig_ruler,
