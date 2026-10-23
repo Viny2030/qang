@@ -22,16 +22,16 @@ hasta que exista una corrida real (Parte X).
 
 ## PARTE I. Fundamentos: la métrica angular-probabilística (la unidad qang)
 
-### Capítulo 1. La brecha geometría–probabilidad y las unidades qang
-1.1 Parametrización de Bloch y la desconexión trigonométrica con el espacio proyectivo — §1, §5
-1.2 Sesgo polar qang (qg_Z): qg_Z = cos θ = ⟨σ_z⟩, biyección en [−1, 1] — §7
-1.3 Inversión θ = arccos(qg_Z) y tabla de anclajes (polos, ecuador, compuerta T); el signo de rama que quita el límite de arccos — §65
-1.4 Dispersión de superposición / entropía del resultado (qg_S): entropía de Shannon de la regla de Born — §2, §7
-1.5 No invertibilidad de qg_S en el dominio completo y restricción a [0, π/2]; barras de error de qg_S — §2, §51
-1.6 🔬 La analogía del decibelio y del cent musical: qang como unidad de ingeniería y convención operativa
-1.7 Submúltiplos: el mili-qang (m-qg) y el presupuesto de tolerancia de ruido — §160 (presupuesto de error qg)
-1.8 El ángulo qang como transformación arcoseno de una proporción (Bartlett, Anscombe, Freeman–Tukey): por qué la varianza no depende de θ — §125
-1.9 Estados mixtos y POVM; perfiles de varios qubits como producto tensorial — §3, §4, §45
+### Capítulo 1. La unidad qang: definición, mili-qang y la ecuación de probabilidad ✅ escrito
+1.1 Definición del qang: regla de Born p₀ = cos²(θ/2), sesgo polar qg_Z = ⟨σ_z⟩ = 2p₀ − 1 = cos θ, ángulo qang y qg_S; el qang como unidad de ingeniería (analogía del decibelio) — §7; figura: el círculo qang con escala en m-qg
+1.2 Teoría del mili-qang: definición y escala (−1000 a +1000 m-qg); lineal en probabilidad (1 m-qg = Δp₀ = 0,0005), no lineal en ángulo (1 mrad en el ecuador, 2,56° junto al polo); resolución por disparos σ_m = 1000 sin θ/√N y N = (1000 sin θ/δ)²; presupuesto de error de compuerta en m-qg — §160, §167; figuras: regla del mili-qang, resolución por disparos, presupuesto de pulso
+1.3 La ecuación de probabilidad del qang y del mili-qang: θ, qg_Z, qg_S y m como funciones exactas de p₀; tabla de anclajes; generalización a varios resultados por la distancia estadística de Wootters (ángulo de Bhattacharyya) — §167; figura: las lecturas de una misma probabilidad
+1.4 Por qué medir en qg: la brecha geometría–probabilidad (singularidad del gradiente y varianza dependiente del estado) — §1, §5
+1.5 Inversión θ = arccos(qg_Z) y el signo de rama — §65
+1.6 La entropía del resultado qg_S, su invertibilidad por mitades y sus barras de error — §2, §7, §51
+1.7 El ángulo qang como transformación arcoseno de una proporción (Bartlett, Anscombe, Freeman–Tukey) — §125
+1.8 Estados mixtos y registros de varios qubits — §3, §4, §45
+1.9 En código: `qang.probability` como herramienta de análisis (`analyze`) — §167
 
 ### Capítulo 2. Compuertas nativas, álgebra cerrada y el operador universal
 2.1 La compuerta elemental RQangGate(qg_Z) y su descomposición nativa en Ry(θ) — §6
@@ -41,6 +41,7 @@ hasta que exista una corrida real (Parte X).
 2.5 El principio de área de pulso mínima (`qang.pulse_area`) y el amortiguamiento cos θ·e^(−θ²σ²/2) — §160
 2.6 La compuerta qg con signo y la pantalla sin ruido de cuánto T1 deja pasar el filtro — §68
 2.7 Un único orden de qubits para todos los SDK (Qiskit, Cirq, PennyLane, Braket, pytket) — §130
+2.8 Sobre la base del capítulo 1: preparar desde p₀ o m-qg; la compuerta como ecuación de probabilidad (un número en m-qg fija su acción, capacidad 1 − qg_S); el área de pulso en m-qg — §160, §167; figura: error de R_x en m-qg, ángulo pedido frente a representante de área mínima
 
 ### Capítulo 3. Reflexiones, Householder y la dinámica de Grover
 3.1 🔬 Matrices uniestocásticas y estocásticas de rotación cerrada sin funciones trascendentes
@@ -50,6 +51,7 @@ hasta que exista una corrida real (Parte X).
 3.5 La trayectoria de Grover como polinomio de Chebyshev: qg_Z(θ_k) = cos((2k+1)θ_0) — §37
 3.6 Límites analíticos, ángulo grueso y sobreoscilación cuando M/N no es despreciable; Grover con ruido: la lectura qg pierde contra el histograma — §37, §63
 3.7 Estimación de amplitud de Grover en el simulador ruidoso de IonQ — §39
+3.8 Sobre la base del capítulo 1: la probabilidad de transición tiene ángulo qang γ (el ángulo entre los estados) y lectura 1000·r₁·r₂ m-qg; la trayectoria de Grover y la resolución por profundidad en m-qg — §37, §166, §167; figura: trayectoria de Grover en m-qg (a = 0,1 y 0,3)
 
 ### Capítulo 4. Estadística de muestreo, inferencia bayesiana y la distribución de Haar
 4.1 Propagación del ruido de disparo por el método delta: Var(θ̂) ≈ 1/N — §5, §125
@@ -59,6 +61,7 @@ hasta que exista una corrida real (Parte X).
 4.5 ⚠️ Presupuesto adaptativo de disparos — §143 (planificar disparos para una precisión qg dada). 🔬 La cifra "33,9 % de disparos ahorrados" no está en el repo: medirla o sacarla
 4.6 Tomografía de un qubit con pocos disparos; sombras clásicas contra medición directa — §35, §62
 4.7 Fundamento de análisis funcional: Riesz–Fréchet, por qué qg_Z es la lectura lineal canónica y qg_S no — Apéndice A
+4.8 Sobre la base del capítulo 1: Haar es uniforme en m-qg y en p₀ (½ sin θ en el ángulo); intervalos en m-qg (el método delta colapsa o se sale de la escala); planificar disparos en m-qg; el mili-qang como funcional lineal (Riesz–Fréchet) — §15, §143, §167; figuras: Haar en m-qg y en ángulo, ancho de intervalos con 50 disparos
 
 ---
 
@@ -326,6 +329,17 @@ hasta que exista una corrida real (Parte X).
 32.4 ⚠️ El ZZ estático: `ibm.add_static_zz` **simula** el crosstalk para medir cuánto ve el filtro; no lo mitiga — §150
 32.5 ZNE con el filtro y planificación de disparos — §142, §143
 32.6 Directrices para hardware superconductor (IBM, IQM) y de iones (IonQ Cloud / AWS Braket) — §128, §137, Cap. 31
+
+## PARTE XI. Nanocuántica 🆕
+
+### Capítulo 33. Nanocuántica: transmisión, ruido de partición y qubits a escala nanométrica
+⚠️ Sin módulo ni sección de las notas todavía: cada punto parte de la ecuación de probabilidad del capítulo 1 y requiere desarrollo y verificación propios.
+33.1 La probabilidad de transmisión por túnel T como probabilidad qang: θ_T = 2 arccos √T y su lectura en m-qg
+33.2 La fórmula de Landauer G = (2e²/h) Σ T_n: cada canal de un contacto puntual cuántico es una lectura qang
+33.3 Ruido de partición S = 2eI(1 − T) y factor de Fano F = 1 − T: la varianza binomial T(1 − T), estabilizada por el ángulo qang
+33.4 Bloqueo de Coulomb y transistor de un electrón: la ocupación de un nivel como p₀ y qg_Z = −tanh(x/2)
+33.5 Puntos cuánticos como qubits de carga y de espín: Rabi y lectura por sensor de carga en qg; fidelidad de lectura en m-qg
+33.6 Centros NV en nanodiamante: contraste de ODMR como qg_Z y magnetometría nanométrica en m-qg
 
 ---
 

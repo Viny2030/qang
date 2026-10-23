@@ -1,9 +1,11 @@
 # Compuertas nativas, álgebra cerrada y el operador universal {#sec-cap02}
 
-El capítulo 1 describió el estado de un qubit en unidades qg. Este capítulo hace lo mismo con las operaciones:
-cómo se prepara un estado a partir de su sesgo polar, cómo se escribe cualquier compuerta de un qubit como función
-algebraica de $qg_Z$, cómo se extiende la idea a sistemas de más niveles, y qué reglas de compilación se desprenden
-cuando el error de una compuerta depende de su ángulo.
+El capítulo 1 describió el estado de un qubit en unidades qg y redujo todas sus lecturas a una sola probabilidad,
+$p_0$, con el mili-qang como escala de trabajo. Este capítulo hace lo mismo con las operaciones: cómo se prepara un
+estado a partir de su probabilidad o de su lectura en m-qg, cómo se escribe cualquier compuerta de un qubit como
+función algebraica de $qg_Z$, por qué su acción sobre las poblaciones es la ecuación de probabilidad del capítulo 1,
+cómo se extiende la idea a sistemas de más niveles, y qué reglas de compilación se desprenden cuando el error de una
+compuerta, medido en m-qg, depende de su ángulo.
 
 ## La compuerta elemental $R_{qg}$ {#sec-rqang}
 
@@ -14,6 +16,10 @@ $\theta=\arccos q$. qang la ofrece como compuerta nativa en los tres kits de des
 - **Cirq:** `rqang_gate(q)`, construida sobre `cirq.ry`, y `full_rqang_gate(q, φ)`, una `MatrixGate` con la
   misma convención que la compuerta `U` de Qiskit.
 - **PennyLane:** el mismo par, diferenciable respecto de $q$.
+
+Por la ecuación de probabilidad (@sec-ecuacion), el parámetro de la compuerta se puede fijar desde cualquiera de las
+lecturas: para obtener una probabilidad $p_0$ se usa $q=2p_0-1$, y para una lectura de $m$ m-qg, $q=m/1000$. Pedir
+$p_0=0{,}75$ o $+500$ m-qg es pedir la misma compuerta, $R_y(60^\circ)$.
 
 Las tres preparan exactamente el mismo estado para un mismo valor de qg, lo que se verifica tanto con las
 probabilidades medidas como con la fidelidad del vector de estado. La compuerta acepta parámetros simbólicos
@@ -51,17 +57,41 @@ $$
 doblemente estocástica, racional en $q$ e independiente de las fases. Desde el punto de vista de la medición en la
 base computacional, toda compuerta de un qubit es un canal binario simétrico de parámetro $(1-q)/2$.
 
+## La compuerta como ecuación de probabilidad {#sec-compuerta-probabilidad}
+
+La matriz de transición es la ecuación de probabilidad del capítulo 1 escrita para una operación. Con
+$p_0=(1+q)/2$,
+
+$$
+T=\begin{pmatrix}p_0&1-p_0\\1-p_0&p_0\end{pmatrix},\qquad p_0=\frac{1000+m}{2000}:
+$$
+
+la acción de cualquier compuerta de un qubit sobre las poblaciones queda fijada por **un solo número**, su lectura
+en m-qg. La identidad y $Z$ están en $+1000$ m-qg (no mueven poblaciones), $X$ en $-1000$ (las intercambia) y la
+Hadamard en $0$ (las iguala). Las fases $\varphi$ y $\lambda$ no aparecen: son invisibles para una medición en $Z$ y
+solo se revelan al componer compuertas, como muestra el capítulo 3.
+
+La lectura entrópica también tiene su versión para operaciones. La capacidad del canal binario simétrico de
+parámetro $(1-q)/2$ es $1-H\big((1-q)/2\big)$, y como $H$ es simétrica, $H\big((1-q)/2\big)=H(p_0)=qg_S$:
+
+$$
+C = 1-qg_S .
+$$
+
+Una compuerta en un polo ($qg_S=0$) transmite un bit completo por cada uso; la Hadamard ($qg_S=1$) no transmite nada
+de la base computacional a sí misma.
+
 ## Verificación contra las bibliotecas estándar {#sec-verificacion}
 
 La fórmula se comprobó contra la compuerta `U` de Qiskit en 2000 compuertas aleatorias, con una diferencia máxima
 de $3{,}5\times10^{-14}$ (§166). Las compuertas habituales aparecen en valores simples:
 
-| compuerta | $q$ | $\varphi$ | $\lambda$ |
-|---|---|---|---|
-| $I$ | $1$ | $0$ | $0$ |
-| $X$ | $-1$ | $0$ | $\pi$ |
-| $Z$ | $1$ | $0$ | $\pi$ |
-| $H$ | $0$ | $0$ | $\pi$ |
+| compuerta | $q$ | m-qg | $\varphi$ | $\lambda$ |
+|---|---|---|---|---|
+| $I$ | $1$ | $+1000$ | $0$ | $0$ |
+| $X$ | $-1$ | $-1000$ | $0$ | $\pi$ |
+| $Z$ | $1$ | $+1000$ | $0$ | $\pi$ |
+| $H$ | $0$ | $0$ | $0$ | $\pi$ |
 
 : Compuertas estándar como puntos de $U_3^{qg}$. {#tbl-compuertas}
 
@@ -84,8 +114,10 @@ $$
 p=\frac1d+\frac12\sum_{k=1}^{d-1}\langle\lambda_k\rangle\,\operatorname{diag}(\lambda_k).
 $$
 
-Para $d=2$ queda una sola matriz, $\lambda_1=\sigma_z$, y su valor esperado es $qg_Z$. Esta es la generalización
-natural de la unidad: un vector de $d-1$ valores qg medibles en la base computacional (§166).
+Para $d=2$ queda una sola matriz, $\lambda_1=\sigma_z$, su valor esperado es $qg_Z$ y la fórmula se reduce a
+$p_0=\tfrac12+\tfrac12\,qg_Z$: la ecuación de probabilidad del capítulo 1. Esta es la generalización natural de la
+unidad: un vector de $d-1$ valores qg medibles en la base computacional, cada uno expresable en m-qg, que fija las
+$d$ probabilidades del mismo modo que $qg_Z$ fija $p_0$ (§166).
 
 Conviene separar la definición de la utilidad. La pregunta de si una lectura de tres niveles le da a qang una
 ventaja se planteó con un caso concreto, la fuga de un transmon al nivel $|2\rangle$ en una memoria de código de
@@ -103,11 +135,19 @@ $$
 qg_Z=\cos\theta\;e^{-\theta^2\sigma^2/2},
 $$
 
-y uno fijo $\varepsilon$ da $\cos(\theta(1+\varepsilon))$, con error de primer orden $\varepsilon\,\theta\sin\theta$. La
-sensibilidad $d\,qg_Z/d\theta=-\sin\theta$ es máxima en $\pi/2$ y se anula a primer orden en $0$ y $\pi$ (§160).
+y uno fijo $\varepsilon$ da $\cos(\theta(1+\varepsilon))$, con error de primer orden $1000\,\varepsilon\,\theta\sin\theta$
+m-qg. La sensibilidad $d\,qg_Z/d\theta=-\sin\theta$ es máxima en $\pi/2$ y se anula a primer orden en $0$ y $\pi$
+(§160). Es el presupuesto de error en mili-qang del capítulo 1 (@fig-pulso), y la escala hace comparables el error
+de la compuerta y el ruido de disparo de la lectura: con $\sigma=0{,}05$, el corrimiento de una $X$ (12,3 m-qg) es
+del orden de la resolución de $10^4$ disparos en el ecuador (10 m-qg).
 
 Cada compuerta tiene representantes más cortos. $R_X(\theta)=-R_X(\theta-2\pi)$ tiene período $2\pi$ salvo una fase
-global. Más interesante: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, y $Z\otimes Z$ son dos rotaciones $R_Z(\pi)$
+global, y la @fig-area muestra lo que se gana: pedir $R_X(324^\circ)$ tal cual corre la lectura $-31{,}7$ m-qg, mientras
+que su representante $R_X(-36^\circ)$, la misma compuerta, la corre $-0{,}4$ m-qg.
+
+![Error en mili-qang de $R_x(\theta)$ con un error de amplitud aleatorio $\sigma=0{,}05$: el ángulo tal como se pide frente al representante de área mínima. Por debajo de $180^\circ$ coinciden; por encima, el representante corto evita el error que crece con el cuadrado del ángulo.](figuras/cap02_area.png){#fig-area width=90%}
+
+Más interesante: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, y $Z\otimes Z$ son dos rotaciones $R_Z(\pi)$
 virtuales, sin costo en los procesadores superconductores. Así $R_{ZZ}$ tiene período $\pi$ y su área nunca necesita
 superar $\pi/2$. La función `minimal_area_circuit` reescribe un circuito con esos representantes y conserva el
 unitario exactamente, fase global incluida.
@@ -150,20 +190,23 @@ mientras que Cirq, PennyLane, Braket y pytket lo ponen primero. `qang.interop` c
 $\{(b_0,\dots,b_{n-1}):\text{cuenta}\}$ y calcula sobre esa forma las lecturas qg: $qg_Z$ por qubit con su error, el
 filtro y la entropía del registro (§130). Un estado W de 3 qubits muestreado con 20 000 disparos en cada kit dio
 $qg_Z$ entre 0,316 y 0,343 (ideal $1/3$), todos los disparos en peso 1 y entropía del registro 0,528 (ideal
-$\log_2 3/3$), igual en los tres.
+$\log_2 3/3$), igual en los tres. En mili-qang, las lecturas van de 316 a 343 m-qg frente a 333 ideales; con
+20 000 disparos la resolución es $\sigma_m=1000\sin\theta/\sqrt N=6{,}7$ m-qg, de modo que la mayor desviación
+($-17$ m-qg) está a unos 2,6σ: es ruido de disparo, no una diferencia entre kits.
 
 ## En código {#sec-codigo02}
 
 ```python
 import math
-from qang import algebra, pulse_area
+from qang import algebra, probability, pulse_area
 
 U = algebra.u3_qang(0.0, 0.0, math.pi)     # la Hadamard como punto (q, φ, λ) = (0, 0, π)
-algebra.transition_matrix(0.3)             # [[0.65, 0.35], [0.35, 0.65]]
+algebra.transition_matrix(0.3)             # [[0.65, 0.35], [0.35, 0.65]]: p0 = 0.65, +300 m-qg
 algebra.cartan_values([0.5, 0.3, 0.2])     # los dos valores qg de un qutrit
 
 pulse_area.minimal_area_angle(3.5, math.pi)    # (0.358, 1): RZZ(3.5) = RZZ(0.358) · (Z ⊗ Z) · fase
-pulse_area.rx_qg_z_random_amplitude(math.pi, 0.05)   # -0.988: 12 m-qg de error en una X
+pulse_area.rx_qg_z_random_amplitude(math.pi, 0.05)   # -0.988 en lugar de -1
+probability.pulse_error_milliqang(math.pi, 0.05)     # 12.3 m-qg de error en una X
 ```
 
 ## Resumen {#sec-resumen02}
@@ -171,9 +214,11 @@ pulse_area.rx_qg_z_random_amplitude(math.pi, 0.05)   # -0.988: 12 m-qg de error 
 - La preparación por sesgo polar es nativa en Qiskit, Cirq y PennyLane, con la misma convención y una variante con
   signo.
 - Toda compuerta de un qubit es una función algebraica de $q=qg_Z$ y dos fases; su matriz de transición es
-  doblemente estocástica y no depende de las fases.
+  doblemente estocástica, no depende de las fases y es la ecuación de probabilidad del capítulo 1: un solo número en
+  m-qg fija su acción sobre las poblaciones, y la capacidad del canal es $1-qg_S$.
 - La subálgebra de Cartan de $\mathfrak{su}(d)$ generaliza $qg_Z$ a qudits como identidad; no se demostró una ventaja
   de la lectura de más niveles.
-- En compuertas fraccionarias el error sigue al área de pulso; elegir el representante más corto lo reduce, y el
-  presupuesto se expresa en qg.
+- En compuertas fraccionarias el error sigue al área de pulso; elegir el representante más corto lo reduce (de
+  $-31{,}7$ a $-0{,}4$ m-qg para $R_X(324^\circ)$), y el presupuesto se expresa en m-qg, la misma escala que el ruido de
+  disparo.
 - La exposición fuera del sector, calculada sin ruido, ordena compilaciones según cuánto T1 dejará pasar el filtro.

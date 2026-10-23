@@ -3,8 +3,10 @@
 Cada número que entrega un procesador cuántico es una estimación hecha con un número finito de disparos. Este
 capítulo reúne las herramientas estadísticas de la unidad qg: cómo se propaga el ruido de disparo, qué distribución
 previa es la natural para un qubit desconocido, cómo construir intervalos que no colapsan cerca de los polos, cómo
-corregir los sesgos de las cantidades cuadráticas y cuántos disparos hace falta planificar. Cierra con el
-fundamento matemático que explica por qué $qg_Z$ es la lectura canónica.
+corregir los sesgos de las cantidades cuadráticas y cuántos disparos hace falta planificar. Todas se apoyan en la
+base del capítulo 1: lo que se estima es siempre la probabilidad $p_0$, y como el mili-qang es lineal en ella, cada
+intervalo y cada plan de disparos se expresa directamente en m-qg. Cierra con el fundamento matemático que explica
+por qué $qg_Z$ es la lectura canónica.
 
 ## Propagación del ruido de disparo {#sec-delta}
 
@@ -16,6 +18,7 @@ $$
 $$
 
 que alcanza la cota de Cramér–Rao del parámetro $qg_Z$: no hay estimador insesgado mejor con la misma información.
+En mili-qang es la resolución $\sigma_m=1000\sqrt{1-qg_Z^2}/\sqrt N$ del capítulo 1 (@fig-ruido).
 Propagada al ángulo por el método delta, la varianza se vuelve constante, $\operatorname{Var}(\hat\theta)\approx1/N$,
 como se vio en el capítulo 1 (§5). Las dos afirmaciones son compatibles: $qg_Z$ es la coordenada *curva*, con
 información de Fisher $1/(1-qg_Z^2)$ por disparo, y $\theta$ la coordenada *plana*, con información 1 (capítulo 23).
@@ -41,6 +44,14 @@ $$
 de la que se obtiene un intervalo de credibilidad para $qg_Z=2p_0-1$ con solo una función beta (`bayes_qg_estimate`,
 implementada sin dependencias externas y verificada contra `scipy.stats.beta`).
 
+La ecuación de probabilidad del capítulo 1 explica por qué esta previa es tan simple. Como $m=2000\,p_0-1000$ es
+lineal, una distribución uniforme en $qg_Z$ es uniforme en mili-qang y uniforme en $p_0$: los tres enunciados son el
+mismo. En el ángulo, en cambio, la misma medida tiene densidad $\tfrac12\sin\theta$ y se concentra en el ecuador
+(@fig-haar). La previa "no informativa" depende de la escala en la que se la escribe, y la de Haar es plana
+exactamente en la escala en la que se mide.
+
+![Doscientos mil estados de Haar leídos en mili-qang (izquierda) y en ángulo (derecha). La línea punteada es la densidad teórica: $1/2000$ por m-qg y $\tfrac12\sin\theta$ en el ángulo.](figuras/cap04_haar.png){#fig-haar width=100%}
+
 ## Intervalos exactos cerca de los polos {#sec-intervalos}
 
 La comparación con 50 disparos muestra dónde importa la elección del intervalo (§15):
@@ -55,6 +66,13 @@ La comparación con 50 disparos muestra dónde importa la elección del interval
 Cerca del polo el método delta cubre el valor verdadero en menos de uno de cada diez experimentos; Wilson y la
 posterior de Haar recuperan la cobertura nominal. Sobre estados de Haar, la media posterior tiene un error
 cuadrático 4% menor que la frecuencia cruda.
+
+La @fig-intervalos muestra la causa en mili-qang. Con 50 disparos, el ancho del intervalo del método delta cae a
+cero en los extremos de la escala: con 50 ceros en 50 disparos da $[+1000,+1000]$ m-qg, un intervalo sin ancho. Con
+48 ceros da $[+811,+1029]$ m-qg, que se sale de la escala por arriba. Wilson da $[+731,+978]$ y Bayes–Haar
+$+885$ $[+731,+975]$ m-qg: anchos que no colapsan y quedan dentro de $[-1000,+1000]$.
+
+![Ancho del intervalo de 95 % con 50 disparos, en mili-qang, según la estimación. El método delta colapsa en los polos; Wilson y Bayes–Haar no.](figuras/cap04_intervalos.png){#fig-intervalos width=90%}
 
 La lectura honesta de la tabla tiene dos partes. La previa de Haar repara el colapso del método delta y tiene una
 justificación geométrica limpia; pero el intervalo de Wilson, estándar en estadística, logra la misma cobertura, y
@@ -83,8 +101,10 @@ interviene en la lectura del corrimiento gravitatorio con dos relojes (§126, ca
 La relación inversa, cuántos disparos hacen falta para un error dado, es la que se usa al preparar un experimento.
 `plan_shots` convierte un error estándar objetivo del $qg_Z$ filtrado en disparos y en segundos estimados de
 procesador, teniendo en cuenta la fracción de disparos que el filtro va a conservar (§143). Para un objetivo de 0,02
-en dos circuitos por dispositivo planificó 3000–3400 disparos, y en 30 repeticiones el error del peor qubit fue
-0,021–0,023: el plan cumplió.
+(20 m-qg) en dos circuitos por dispositivo planificó 3000–3400 disparos, y en 30 repeticiones el error del peor qubit
+fue 0,021–0,023 (21–23 m-qg): el plan cumplió. Como referencia, la fórmula del capítulo 1 sin filtro da
+$N=(1000\sin\theta/\delta)^2=2500$ disparos para 20 m-qg en el ecuador; el plan pide más porque descuenta los
+disparos que el filtro va a descartar.
 
 La predicción por qubit, en cambio, resultó 1,4–1,6 veces optimista en promedio, y su análisis es instructivo: los
 qubits que fallaron eran los cercanos a un polo ($|qg|>0{,}8$, con cocientes de 2,4–3,1), cuyo $qg_Z$ el ruido aleja de
@@ -135,25 +155,36 @@ hecho estructural se siguen dos propiedades ya vistas: los funcionales lineales 
 promedio muestral y la entropía no (desigualdad de Jensen), y la identidad $qg_S=H((1+qg_Z)/2)$ muestra que $qg_S$ no
 contiene información sobre el estado que el representante de $qg_Z$ no extraiga ya.
 
+El mili-qang hereda esta propiedad: $m(\rho)=1000\,\operatorname{Tr}(\rho\,\sigma_z)$ también es lineal, con representante
+$1000\,\sigma_z$, y por eso su estimador es el promedio de los disparos, sin sesgo. Es la razón de fondo por la que el
+capítulo 1 definió la unidad sobre la probabilidad y no sobre el ángulo: $\theta=\arccos(qg_Z)$ no es lineal en
+$\rho$, no tiene representante y su estimador directo tiene sesgo.
+
 ## En código {#sec-codigo04}
 
 ```python
-from qang import statistics
+import math
+from qang import probability, statistics
 
 statistics.bayes_qg_estimate(48, 50)     # posterior de Haar: qg_Z 0.885, intervalo [0.731, 0.975]
 statistics.wilson_qg_estimate(48, 50)    # la alternativa frecuentista
 statistics.qg2_unbiased(16, 20)          # qg^2 sin el sesgo (1 - qg^2)/N
+
+probability.analyze(48, 50).milliqang    # (920.0, 730.8, 977.9) m-qg con el intervalo de Wilson
+probability.shots_for_resolution(20, math.pi / 2)   # 2500 disparos para 20 m-qg en el ecuador
 ```
 
 ## Resumen {#sec-resumen04}
 
-- $\widehat{qg}_Z$ es insesgado y alcanza la cota de Cramér–Rao; el método delta colapsa cerca de los polos.
-- Bajo la medida de Haar, $qg_Z$ es uniforme en $[-1,1]$; la previa correspondiente es $\mathrm{Beta}(1,1)$ y da
-  intervalos exactos con una función beta.
+- $\widehat{qg}_Z$ es insesgado y alcanza la cota de Cramér–Rao; el método delta colapsa cerca de los polos, donde su
+  intervalo en m-qg pierde el ancho o se sale de la escala.
+- Bajo la medida de Haar, $qg_Z$ es uniforme en $[-1,1]$, es decir, uniforme en mili-qang y en $p_0$; la previa
+  correspondiente es $\mathrm{Beta}(1,1)$ y da intervalos exactos con una función beta.
 - Wilson y Bayes–Haar recuperan la cobertura nominal donde el método delta cubre menos de 10%; ninguno reduce los
   disparos necesarios.
 - Las cantidades cuadráticas necesitan la corrección $(N\widehat{qg}^{\,2}-1)/(N-1)$; sin ella, los radios de Bloch se
   sobreestiman.
 - Planificar con el peor qubit cumple el objetivo; los qubits cerca de un polo son los que el ruido más aleja.
 - Para las cantidades de qang, medir directamente en $Z$ cuesta 3–41 veces menos disparos que las sombras clásicas.
-- $qg_Z$ es la lectura lineal canónica por el teorema de Riesz–Fréchet; $qg_S$ no es lineal y no tiene representante.
+- $qg_Z$, y con él el mili-qang, es la lectura lineal canónica por el teorema de Riesz–Fréchet; $qg_S$ y el ángulo no
+  son lineales y no tienen representante.

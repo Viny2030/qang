@@ -23,16 +23,16 @@ devices until a real run exists (Part X).
 
 ## PART I. Foundations: the angular–probabilistic metric (the qang unit)
 
-### Chapter 1. The geometry–probability gap and the qang units
-1.1 The Bloch parametrization and its trigonometric disconnect from projective space — §1, §5
-1.2 Polar bias qang (qg_Z): qg_Z = cos θ = ⟨σ_z⟩, a bijection onto [−1, 1] — §7
-1.3 Inversion θ = arccos(qg_Z) and the table of anchor points (poles, equator, T gate); the branch sign that removes the arccos range limit — §65
-1.4 Superposition dispersion / measurement-outcome entropy (qg_S): the Shannon entropy of the Born rule — §2, §7
-1.5 Non-invertibility of qg_S on the full domain and restriction to [0, π/2]; error bars for qg_S — §2, §51
-1.6 🔬 The decibel and musical-cent analogy: qang as an engineering unit and an operational convention
-1.7 Sub-units: the milli-qang (m-qg) and noise-tolerance budgeting — §160 (qg error budget)
-1.8 The qang angle as the arcsine transformation of a proportion (Bartlett, Anscombe, Freeman–Tukey): why the variance does not depend on θ — §125
-1.9 Mixed states and POVMs; multi-qubit profiles as tensor products — §3, §4, §45
+### Chapter 1. The qang unit: definition, milli-qang and the probability equation ✅ written
+1.1 Definition of the qang: Born's rule p₀ = cos²(θ/2), polar bias qg_Z = ⟨σ_z⟩ = 2p₀ − 1 = cos θ, qang angle and qg_S; the qang as an engineering unit (decibel analogy) — §7; figure: the qang circle with an m-qg scale
+1.2 Theory of the milli-qang: definition and scale (−1000 to +1000 m-qg); linear in probability (1 m-qg = Δp₀ = 0.0005), not linear in angle (1 mrad on the equator, 2.56° next to the pole); resolution from shots σ_m = 1000 sin θ/√N and N = (1000 sin θ/δ)²; gate error budget in m-qg — §160, §167; figures: milli-qang ruler, resolution from shots, pulse budget
+1.3 The probability equation of the qang and the milli-qang: θ, qg_Z, qg_S and m as exact functions of p₀; anchor table; generalization to several outcomes through Wootters' statistical distance (Bhattacharyya angle) — §167; figure: the readings of one probability
+1.4 Why measure in qg: the geometry–probability gap (gradient singularity and state-dependent variance) — §1, §5
+1.5 Inversion θ = arccos(qg_Z) and the branch sign — §65
+1.6 The outcome entropy qg_S, its invertibility by halves and its error bars — §2, §7, §51
+1.7 The qang angle as the arcsine transformation of a proportion (Bartlett, Anscombe, Freeman–Tukey) — §125
+1.8 Mixed states and multi-qubit registers — §3, §4, §45
+1.9 In code: `qang.probability` as the analysis tool (`analyze`) — §167
 
 ### Chapter 2. Native gates, closed algebra and the universal operator
 2.1 The elementary gate RQangGate(qg_Z) and its native decomposition into Ry(θ) — §6
@@ -42,6 +42,7 @@ devices until a real run exists (Part X).
 2.5 The minimal pulse-area principle (`qang.pulse_area`) and the damping cos θ·e^(−θ²σ²/2) — §160
 2.6 The signed qg gate and the noise-free screen for how much T1 the filter lets through — §68
 2.7 One qubit order for every SDK (Qiskit, Cirq, PennyLane, Braket, pytket) — §130
+2.8 On the base of Chapter 1: preparing from p₀ or m-qg; the gate as a probability equation (one m-qg number fixes its action, capacity 1 − qg_S); pulse area in m-qg — §160, §167; figure: m-qg error of R_x, requested angle against the minimal-area representative
 
 ### Chapter 3. Reflections, Householder and Grover dynamics
 3.1 🔬 Unistochastic and stochastic closed-rotation matrices without transcendental functions
@@ -51,6 +52,7 @@ devices until a real run exists (Part X).
 3.5 The Grover trajectory as a Chebyshev polynomial: qg_Z(θ_k) = cos((2k+1)θ_0) — §37
 3.6 Analytic limits, coarse angles and overshoot when M/N is not negligible; Grover with noise: the qg reading loses to the histogram — §37, §63
 3.7 Grover amplitude estimation on IonQ's noisy simulator — §39
+3.8 On the base of Chapter 1: the transition probability has qang angle γ (the angle between the states) and reading 1000·r₁·r₂ m-qg; the Grover trajectory and depth resolution in m-qg — §37, §166, §167; figure: Grover trajectory in m-qg (a = 0.1 and 0.3)
 
 ### Chapter 4. Sampling statistics, Bayesian inference and the Haar distribution
 4.1 Shot-noise propagation by the delta method: Var(θ̂) ≈ 1/N — §5, §125
@@ -60,6 +62,7 @@ devices until a real run exists (Part X).
 4.5 ⚠️ Adaptive shot budgeting — §143 (planning shots for a target qg precision). 🔬 The figure "33.9% of shots saved" is not in the repository: measure it or drop it
 4.6 Few-shot single-qubit tomography; classical shadows against direct measurement — §35, §62
 4.7 Functional-analysis foundation: Riesz–Fréchet, why qg_Z is the canonical linear readout and qg_S is not — Appendix A
+4.8 On the base of Chapter 1: Haar is uniform in m-qg and in p₀ (½ sin θ in angle); intervals in m-qg (the delta method collapses or runs off the scale); planning shots in m-qg; the milli-qang as a linear functional (Riesz–Fréchet) — §15, §143, §167; figures: Haar in m-qg and in angle, interval widths with 50 shots
 
 ---
 
@@ -327,6 +330,17 @@ devices until a real run exists (Part X).
 32.4 ⚠️ Static ZZ: `ibm.add_static_zz` **simulates** the crosstalk to measure how much the filter sees; it does not mitigate it — §150
 32.5 ZNE with the filter, and shot planning — §142, §143
 32.6 Guidelines for superconducting (IBM, IQM) and trapped-ion (IonQ Cloud / AWS Braket) hardware — §128, §137, Ch. 31
+
+## PART XI. Nanoquantum 🆕
+
+### Chapter 33. Nanoquantum: transmission, partition noise and qubits at the nanoscale
+⚠️ No module or research-notes section yet: each item starts from the probability equation of chapter 1 and needs its own development and verification.
+33.1 The tunnelling transmission probability T as a qang probability: θ_T = 2 arccos √T and its reading in m-qg
+33.2 The Landauer formula G = (2e²/h) Σ T_n: each channel of a quantum point contact is a qang reading
+33.3 Partition noise S = 2eI(1 − T) and the Fano factor F = 1 − T: the binomial variance T(1 − T), stabilized by the qang angle
+33.4 Coulomb blockade and the single-electron transistor: the occupation of a level as p₀ and qg_Z = −tanh(x/2)
+33.5 Quantum dots as charge and spin qubits: Rabi and charge-sensor read-out in qg; read-out fidelity in m-qg
+33.6 NV centres in nanodiamond: the ODMR contrast as qg_Z and nanoscale magnetometry in m-qg
 
 ---
 

@@ -2,8 +2,10 @@
 
 El algoritmo de Grover es, en el fondo, una sucesión de reflexiones. Escrito en unidades qg, cada reflexión es una
 matriz algebraica en el sesgo polar, la trayectoria del algoritmo es un polinomio de Chebyshev y la información que
-aporta cada iteración tiene una fórmula cerrada. Este capítulo desarrolla esa lectura y la contrasta con lo que
-ocurre cuando las compuertas tienen ruido, donde la lectura qg pierde frente a la herramienta más simple.
+aporta cada iteración tiene una fórmula cerrada. Todo descansa en la base del capítulo 1: la probabilidad de
+transición entre dos estados es una probabilidad como $p_0$, con su propio ángulo qang y su lectura en m-qg, y el
+sesgo de la bandera de Grover se lee en la misma escala. Este capítulo desarrolla esa lectura y la contrasta con lo
+que ocurre cuando las compuertas tienen ruido, donde la lectura qg pierde frente a la herramienta más simple.
 
 ## Matrices de transición sin funciones trascendentes {#sec-transicion}
 
@@ -22,8 +24,9 @@ q_{12}=\cos(\theta_1+\theta_2)=q_1q_2-\sqrt{(1-q_1^2)(1-q_2^2)} .
 $$
 
 El término $-\sqrt{(1-q_1^2)(1-q_2^2)}$ es la interferencia: la parte transversal de cada estado, invisible en $T$,
-que se suma en amplitud. Con $q_1=0{,}3$ y $q_2=-0{,}5$, la composición clásica da $-0{,}15$ y la cuántica $-0{,}976$. La
-matriz de transición describe cada compuerta por separado, pero no la secuencia: para eso hacen falta las fases.
+que se suma en amplitud. Con $q_1=0{,}3$ y $q_2=-0{,}5$, la composición clásica da $-0{,}15$ y la cuántica $-0{,}976$:
+en mili-qang, $-150$ frente a $-976$, una interferencia de 826 m-qg, cerca de la mitad de la escala. La matriz de
+transición describe cada compuerta por separado, pero no la secuencia: para eso hacen falta las fases.
 
 ## El reflector de Householder en espacio qg {#sec-householder}
 
@@ -68,6 +71,19 @@ $$
 La condición importa: con azimutes distintos, los sesgos polares no bastan y hace falta la parte transversal
 completa. La fórmula se verificó contra el producto interno en 200 pares aleatorios (§166).
 
+**La probabilidad de transición en la ecuación del capítulo 1.** $P$ es una probabilidad, de modo que tiene sus
+propias lecturas qang. Si $\gamma$ es el ángulo entre los dos vectores de Bloch, $\mathbf r_1\cdot\mathbf r_2=\cos\gamma$ y
+$P=\cos^2(\gamma/2)$: es la regla de Born con $\gamma$ en el lugar de $\theta$. Por lo tanto
+
+$$
+2\arccos\sqrt P=\gamma,\qquad m_P = 2000\,P-1000 = 1000\;\mathbf r_1\cdot\mathbf r_2\ \text{m-qg}:
+$$
+
+el ángulo qang de la probabilidad de transición es el ángulo entre los estados, y su lectura en mili-qang es mil
+veces el producto escalar de sus vectores qg. Es la distancia estadística de Wootters del capítulo 1 aplicada a dos
+estados (@sec-ecuacion). Con $q_1=0{,}3$ y $q_2=-0{,}5$ en el mismo meridiano, $P=0{,}838$, $m_P=+676$ m-qg y
+$\gamma=0{,}828$ rad, que es exactamente $|\theta_1-\theta_2|=|\arccos 0{,}3-\arccos(-0{,}5)|$.
+
 ## La trayectoria de Grover como polinomio de Chebyshev {#sec-chebyshev}
 
 Sea $a=\sin^2 t$ la fracción de estados buenos, leída con un qubit bandera cuyo sesgo inicial es $qg_0=1-2a=\cos 2t$.
@@ -77,9 +93,12 @@ $$
 qg_k=\cos\big((2k+1)\,2t\big)=T_{2k+1}(qg_0),
 $$
 
-con $T_m$ el polinomio de Chebyshev de primera especie, $T_m(\cos x)=\cos mx$ (§37). Por ejemplo, con $a=0{,}1$,
-$qg_0=0{,}8$ y las iteraciones sucesivas dan $0{,}8$, $-0{,}352$, $-0{,}997$, $-0{,}206$: el sesgo atraviesa el polo
-$-1$ (éxito casi seguro) en $k=2$ y luego se aleja.
+con $T_m$ el polinomio de Chebyshev de primera especie, $T_m(\cos x)=\cos mx$ (§37). Por la ecuación de
+probabilidad, la probabilidad de éxito es $P_k=(1-qg_k)/2$, y el éxito seguro es el polo $-1000$ m-qg. Por ejemplo,
+con $a=0{,}1$, $qg_0=0{,}8$ y las iteraciones sucesivas dan $+800$, $-352$, $-997$ y $-206$ m-qg: el sesgo atraviesa
+el polo en $k=2$ ($P_2=0{,}9986$) y luego se aleja (@fig-grover).
+
+![La trayectoria de Grover en mili-qang: el sesgo de la bandera muestrea un coseno en los puntos impares $(2k+1)\,2t$. Con $a=0{,}1$ el éxito llega en $k=2$; con $a=0{,}3$ el ángulo es grueso, llega en $k=1$ y en $k=2$ ya se pasó del polo.](figuras/cap03_grover.png){#fig-grover width=90%}
 
 La estructura de Chebyshev da gratis la información de Fisher de un disparo a profundidad $m=2k+1$. Como
 $T_m'=mU_{m-1}$ y $1-T_m^2=(1-q^2)U_{m-1}^2$,
@@ -89,7 +108,9 @@ F_m=\frac{m^2}{1-qg_0^2}:
 $$
 
 la profundidad multiplica por $m^2$ la información qg del capítulo 1, de manera uniforme a lo largo de la franja. Es
-la forma qg del conocido factor $4m^2$ para el ángulo (Suzuki y colaboradores, 2020).
+la forma qg del conocido factor $4m^2$ para el ángulo (Suzuki y colaboradores, 2020). En la escala del mili-qang, la
+resolución sobre $qg_0$ con $N$ disparos a profundidad $m$ es $1000\sqrt{1-qg_0^2}/(m\sqrt N)$ m-qg: con $a=0{,}1$ y
+100 disparos, 60 m-qg sin iterar y 12 m-qg a profundidad $m=5$.
 
 ## Límites analíticos: ángulo grueso y sobreoscilación {#sec-limites}
 
@@ -97,7 +118,9 @@ El número óptimo de iteraciones es $k^\ast=\operatorname{round}\!\big(\tfrac{\
 buscada $a=M/N$ es pequeña, $t$ es pequeño, $k^\ast\approx\tfrac{\pi}{4}\sqrt{N/M}$ y el redondeo apenas pesa. Cuando
 $M/N$ no es despreciable, el ángulo por iteración es *grueso*: el sesgo salta en pasos grandes sobre la curva
 $\cos((2k+1)2t)$ y puede pasarse del polo. Iterar de más no mejora; empeora, porque la rotación sigue de largo. La
-lectura qg hace visible ese comportamiento: $qg_k$ recorre un coseno muestreado en puntos impares.
+lectura qg hace visible ese comportamiento: $qg_k$ recorre un coseno muestreado en puntos impares. Con $a=0{,}3$,
+$k^\ast=1$ da $-944$ m-qg ($P=0{,}972$) y una iteración más salta a $+884$ m-qg ($P=0{,}058$), la curva naranja de la
+@fig-grover.
 
 ### Grover con ruido
 
@@ -135,12 +158,13 @@ que un Monte Carlo realista, cuyo circuito de profundidad cero está sesgado por
 ## En código {#sec-codigo03}
 
 ```python
-from qang import algebra
+from qang import algebra, probability
 
 algebra.householder_qg(0.45)        # -0.45 Z - 0.893 X, una reflexión: H @ H = I
 algebra.grover_diffuser_qg(0.45)    # +0.45 Z + 0.893 X
-algebra.transition_probability(0.3, -0.5)            # mismo meridiano
+P = algebra.transition_probability(0.3, -0.5)        # 0.838, mismo meridiano
 algebra.transition_probability(0.3, -0.5, 0.0, 1.2)  # con azimutes distintos
+probability.readings_from_p0(P)     # theta = 0.828 rad (el ángulo entre los estados), +676 m-qg
 ```
 
 ## Resumen {#sec-resumen03}
@@ -149,7 +173,9 @@ algebra.transition_probability(0.3, -0.5, 0.0, 1.2)  # con azimutes distintos
   entre $q_1q_2$ y $\cos(\theta_1+\theta_2)$ es la interferencia.
 - El reflector de Householder y el difusor de Grover son $\mp(q\,\sigma_z+\sqrt{1-q^2}\,\sigma_x)$.
 - La probabilidad de transición entre dos estados es $(1+\mathbf r_1\cdot\mathbf r_2)/2$; en un mismo meridiano depende solo
-  de los sesgos polares.
-- La trayectoria de Grover es $qg_k=T_{2k+1}(qg_0)$, y la información de Fisher a profundidad $m$ es $m^2/(1-qg_0^2)$.
+  de los sesgos polares. Leída con la ecuación del capítulo 1, su ángulo qang es el ángulo entre los estados y su
+  lectura es $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg.
+- La trayectoria de Grover es $qg_k=T_{2k+1}(qg_0)$, con éxito seguro en $-1000$ m-qg, y la información de Fisher a
+  profundidad $m$ es $m^2/(1-qg_0^2)$: la resolución en m-qg mejora en un factor $m$.
 - Con ruido, la lectura qg por qubit pierde frente al histograma en la búsqueda; en la estimación de amplitud la
   ventaja se mantiene si el ruido entra en la verosimilitud, y termina cerca de la profundidad $1/p$.

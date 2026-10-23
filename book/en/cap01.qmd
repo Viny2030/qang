@@ -1,13 +1,15 @@
-# The geometry–probability gap and the qang units {#sec-ch01}
+# The qang unit: definition, milli-qang and the probability equation {#sec-ch01}
 
 A qubit is designed with angles and observed with frequencies. Whoever writes a circuit chooses rotations
 $R_y(\theta)$; whoever runs it receives counts of zeros and ones. Between the two descriptions sits a trigonometric
 function that is rarely named, and that is the source of several practical difficulties: gradients that diverge,
 error bars that shrink or swell with the state, and parameters that cannot be read directly from the experiment.
-This chapter introduces the qang unit (qg), which describes the qubit by what is measured, and sets out the
-properties the rest of the book relies on.
+This chapter builds the foundation of the book in three steps: the **definition** of the qang unit (qg), the
+**theory of the milli-qang** (its submultiple) and the **probability equation** that ties both to what is measured.
+Every result is backed by a figure computed with the package itself (`qang.probability`, §167), so the figures and
+the text quote the same numbers.
 
-## The Bloch parametrization and its disconnect from what is measured {#sec-bloch}
+## Definition of the qang {#sec-definition}
 
 Every pure state of a qubit can be written, up to a global phase, as
 
@@ -16,17 +18,182 @@ $$
 \qquad \theta\in[0,\pi],\ \varphi\in[0,2\pi).
 $$
 
-The pair $(\theta,\varphi)$ is a point on the Bloch sphere and the natural way to *prepare* the state: a rotation
-$R_y(\theta)$ followed by a phase $R_z(\varphi)$. But a measurement in the computational basis does not return
-$\theta$. For each shot it returns the outcome 0 with probability
+The pair $(\theta,\varphi)$ is a point on the Bloch sphere and is the natural way to *prepare* the state: a rotation
+$R_y(\theta)$ followed by a phase $R_z(\varphi)$. A measurement in the computational basis does not return $\theta$:
+it returns, on each shot, the outcome 0 with probability
 
 $$
-p_0 = \cos^2\frac{\theta}{2}.
+p_0 = \cos^2\frac{\theta}{2}\qquad\text{(Born's rule).}
 $$
 
-The relation between the control parameter and the observed quantity is non-linear, and its derivative vanishes at
-the poles. This has concrete consequences. If a variational algorithm wants to adjust the state according to what it
-measures, the chain rule introduces the factor
+**Definition.** The qang unit takes as its primary coordinate the expectation value of $\sigma_z$, called the
+*polar bias*:
+
+$$
+\boxed{\;qg_Z = \langle\sigma_z\rangle = p_0 - p_1 = 2p_0 - 1 = \cos\theta\;}\qquad qg_Z\in[-1,1].
+$$
+
+The other two readings of the unit come from the same probability: the **qang angle**
+$\theta=\arccos(qg_Z)\in[0,\pi]$ and the **superposition spread** $qg_S=H(p_0)\in[0,1]$, the Shannon entropy of the
+outcome (studied below). @fig-circle summarizes the definition: the point on the circle is the state, its
+projection on the vertical axis is $qg_Z$, and the scale on the right gives the same reading in milli-qang and in
+probability.
+
+![The qang circle. The state at angle $\theta=60^\circ$ has $p_0=0.75$, $qg_Z=\cos\theta=0.5$ and a reading of $+500$ m-qg. The four equations on the right are the same probability read in four ways.](figures/cap01_circulo.png){#fig-circle width=100%}
+
+Three properties make $qg_Z$ a good working coordinate:
+
+1. **It is a bijection.** On $\theta\in[0,\pi]$, $\cos\theta$ is strictly decreasing and covers $[-1,1]$: each value
+   of $qg_Z$ corresponds to a single latitude of the sphere.
+2. **It is directly measurable.** $\widehat{qg}_Z = (n_0-n_1)/N$ is the average of the $\pm1$ outcomes of the shots;
+   it needs no inversion and no fit.
+3. **It holds for any state.** For a mixed state, $qg_Z = \operatorname{Tr}(\rho\,\sigma_z)$, which reduces to
+   $\cos\theta$ when $\rho=|\psi\rangle\langle\psi|$ (§3).
+
+The sign and range have an immediate physical reading: $qg_Z=+1$ is the pole $|0\rangle$, $qg_Z=-1$ the pole
+$|1\rangle$, and $qg_Z=0$ any point of the equator, where the measurement outcome is maximally uncertain.
+
+**An engineering unit.** A useful unit does not need to be a new physical quantity; it needs to make what is
+measured legible. The decibel adds no physics to power: it expresses it on a scale that makes the gains of a chain
+of amplifiers additive. The qang plays an analogous role for the qubit: it expresses its state on the scale in which
+the experiment delivers it, so that preparation, noise and read-out are compared in the same units. It is an
+operational convention, and like every convention it is worth what it simplifies.
+
+## Theory of the milli-qang {#sec-milliqang}
+
+### Definition and scale
+
+The deviations that matter in a real qubit are small: calibration errors, drift, read-out noise. A submultiple is
+convenient to express them, the **milli-qang** (m-qg):
+
+$$
+1\ \text{qg} = 1000\ \text{m-qg},\qquad m = 1000\,qg_Z\ \in[-1000,\,+1000]\ \text{m-qg}.
+$$
+
+The scale runs from $-1000$ m-qg at the pole $|1\rangle$ to $+1000$ m-qg at the pole $|0\rangle$, with zero on the
+equator. A state with $qg_Z=0.502$ sits at $501.8$ m-qg; its difference from the ideal $0.5$ is $1.8$ m-qg. The same
+definition holds for the other axes, $qg_X$ and $qg_Y$, so the whole Bloch vector can be expressed in m-qg.
+
+### Linear in probability, not linear in angle
+
+Since $qg_Z=2p_0-1$, the milli-qang is **linear in probability**: one m-qg is always $\Delta p_0=0.0005$, that is,
+0.05 percentage points, anywhere on the scale. It is **not linear in angle**:
+
+$$
+\frac{dm}{d\theta} = -1000\,\sin\theta
+\qquad\Longrightarrow\qquad
+\Delta\theta \approx \frac{1}{1000\,\sin\theta}\ \text{rad per m-qg}.
+$$
+
+On the equator ($\theta=90^\circ$) one m-qg is exactly one milliradian; at $\theta=30^\circ$ it is two. Near a pole
+the linear relation fails and the exact one must be used: a state $\delta$ m-qg below the pole $|0\rangle$ makes
+with it the angle
+
+$$
+\theta_\delta = \arccos\!\left(1-\frac{\delta}{1000}\right)\approx\sqrt{\frac{2\delta}{1000}} .
+$$
+
+One m-qg from the pole is $0.0447$ rad ($2.56^\circ$); ten m-qg, $8.1^\circ$. @fig-ruler shows the consequence: on
+the milli-qang ruler the probability marks are evenly spaced and the angle marks crowd at the poles. That is why the
+unit is defined on probability and not on angle: it is the scale in which the instrument delivers the data.
+
+![The milli-qang ruler. Top, the scale in m-qg; middle, the probability $p_0$, aligned and linear; bottom, the qang angle, whose marks every $15^\circ$ are compressed towards the poles.](figures/cap01_regla.png){#fig-ruler width=100%}
+
+### Resolution from shots
+
+With $N$ shots, $\widehat{qg}_Z$ has variance $\sin^2\theta/N$ (derived in the arcsine section), so the standard
+deviation of the reading in milli-qang is
+
+$$
+\sigma_m = \frac{1000\,\sin\theta}{\sqrt N}\ \text{m-qg},
+\qquad
+N_\delta = \left(\frac{1000\,\sin\theta}{\delta}\right)^{2}
+$$
+
+where $N_\delta$ is the number of shots needed to resolve $\delta$ m-qg at one sigma. On the equator, resolving
+10 m-qg takes $10^4$ shots and resolving 1 m-qg, $10^6$. At $60^\circ$ and 1000 shots, $\sigma_m=27.4$ m-qg; to get
+down to 5 m-qg at that point takes 30,000 shots. @fig-noise compares $\sigma_m$ with the uncertainty of the angle,
+$\sigma_\theta=1/\sqrt N$: the m-qg reading is more precise near the poles, and the angle's is the same all around
+the circle. The two curves touch on the equator, where one m-qg is one milliradian.
+
+![Resolution from shots. Solid lines: standard deviation $\sigma_m$ of the m-qg reading; dashed lines: $\sigma_\theta$ of the qang angle in milliradians, which does not depend on the state. For each $N$, the two coincide at $\theta=90^\circ$.](figures/cap01_ruido.png){#fig-noise width=90%}
+
+### Gate error budget
+
+The scale lets a gate error be expressed in the same units as the read-out. If the amplitude of a pulse has a
+random relative error of standard deviation $\sigma$, the expected polar bias after $R_x(\theta)$ is
+
+$$
+\mathbb E[qg_Z] = \cos\theta\; e^{-\theta^2\sigma^2/2}
+\qquad\Longrightarrow\qquad
+\varepsilon_m = 1000\cos\theta\left(e^{-\theta^2\sigma^2/2}-1\right)\ \text{m-qg}
+$$
+
+(§160). The error pulls the reading towards the equator: with $\sigma=0.05$, an $X$ gate ($\theta=\pi$) delivers
+$qg_Z=-0.988$ instead of $-1$, a shift of $12.3$ m-qg, and it grows with the square of the angle (@fig-pulse). A
+$\pi/2$ rotation does not shift at all, because it already sits on the equator. Chapter 2 uses this formula to
+choose, among equivalent representations of the same gate, the one with the smallest pulse area.
+
+![Error budget in milli-qang: shift of the polar bias after $R_x(\theta)$ for several relative amplitude errors $\sigma$.](figures/cap01_pulso.png){#fig-pulse width=90%}
+
+## The probability equation of the qang and the milli-qang {#sec-equation}
+
+The previous sections lead to a single statement, which is the foundation of the whole book: **every qang reading
+of a qubit is an exact function of a single probability**, $p_0$:
+
+$$
+\boxed{\;
+\theta = 2\arccos\sqrt{p_0},\qquad
+qg_Z = 2p_0-1,\qquad
+qg_S = H(p_0),\qquad
+m = 2000\,p_0-1000\ \text{m-qg}
+\;}
+$$
+
+and, in the other direction, the probability equation of the milli-qang:
+
+$$
+p_0 = \frac{1000+m}{2000},\qquad \theta = \arccos\frac{m}{1000}.
+$$
+
+There are no approximations: they are four readings of one number. @fig-readings shows them together. $qg_Z$ and
+the milli-qang are the same straight line on two scales; the angle is monotonic but steepens at the poles; the
+entropy rises up to the equator and falls again, which is why it needs a branch to be inverted. @tbl-anchors gives
+the reference values.
+
+![The readings of one probability. The right axis expresses $qg_Z$ in milli-qang.](figures/cap01_lecturas.png){#fig-readings width=90%}
+
+| $\theta$ | $p_0$ | $qg_Z$ | m-qg | state |
+|---|---|---|---|---|
+| $0$ | $1$ | $+1$ | $+1000$ | pole $|0\rangle$ |
+| $\pi/4$ | $0.854$ | $+0.707$ | $+707$ | |
+| $\pi/3$ | $0.75$ | $+0.5$ | $+500$ | |
+| $\pi/2$ | $0.5$ | $0$ | $0$ | equator ($|+\rangle$, $|{+i}\rangle$, …) |
+| $2\pi/3$ | $0.25$ | $-0.5$ | $-500$ | |
+| $\pi$ | $0$ | $-1$ | $-1000$ | pole $|1\rangle$ |
+
+: Anchor points of the probability equation. {#tbl-anchors}
+
+### More than two outcomes: the statistical distance
+
+The equation generalizes to a measurement with several outcomes. For two distributions $p=(p_k)$ and $q=(q_k)$,
+**Wootters' statistical distance** (1981), or Bhattacharyya angle, is
+
+$$
+d(p,q) = \arccos\sum_k\sqrt{p_k\,q_k}.
+$$
+
+For two outcomes, the distance between $(p_0,1-p_0)$ and the pole $(1,0)$ is $\arccos\sqrt{p_0}=\theta/2$: up to the
+factor 2, the qang angle is the statistical distance between what is measured and the reference state. With three
+outcomes, for example, $p=(0.5, 0.3, 0.2)$ and $q=(0.4, 0.4, 0.2)$ are $0.113$ rad apart. This is the door through
+which the unit leaves the qubit: Part II uses it for the Fisher information and the Fubini–Study metric, and the same
+geometry holds for any measured proportion, quantum or not.
+
+## Why measure in qg: the geometry–probability gap {#sec-bloch}
+
+The relation $p_0=\cos^2(\theta/2)$ between the control parameter and the observed quantity is non-linear, and its
+derivative vanishes at the poles. This has concrete consequences. If a variational algorithm wants to adjust the
+state according to what it measures, the chain rule introduces the factor
 
 $$
 \frac{dE}{dq} = -\frac{1}{\sin\theta}\,\frac{dE}{d\theta},
@@ -34,54 +201,22 @@ $$
 
 which diverges at $\theta=0$ and $\theta=\pi$ (research notes, §1). And if $\theta$ is to be estimated from $N$
 shots, the variance of $\hat p_0$ changes with the state, so the uncertainty of each reading depends on where the
-qubit is (§5). Neither problem is exotic: both appear as soon as one tries to reason in terms of what the experiment
-delivers.
+qubit is (§5). Neither problem is exotic: both appear as soon as one reasons in terms of what the experiment
+delivers, and the probability equation is the tool to handle them.
 
-## The polar bias: $qg_Z$ {#sec-qgz}
+## Inversion and the branch sign {#sec-inversion}
 
-The qang unit takes the expectation value of $\sigma_z$ as its primary coordinate:
-
-$$
-qg_Z = \langle\sigma_z\rangle = p_0 - p_1 = 2p_0 - 1 = \cos\theta .
-$$
-
-Three properties make $qg_Z$ a good working coordinate:
-
-1. **It is a bijection.** On $\theta\in[0,\pi]$, $\cos\theta$ is strictly decreasing and covers $[-1,1]$: each value
-   of $qg_Z$ corresponds to a single latitude of the sphere.
-2. **It is directly measurable.** $\widehat{qg}_Z = (n_0-n_1)/N$ is the mean of the $\pm1$ outcomes of the shots; no
-   inversion or fit is needed.
-3. **It holds for every state.** For a mixed state, $qg_Z = \operatorname{Tr}(\rho\,\sigma_z)$, which reduces to
-   $\cos\theta$ when $\rho=|\psi\rangle\langle\psi|$ (§3).
-
-The sign and the range read physically at once: $qg_Z=+1$ is the pole $|0\rangle$, $qg_Z=-1$ the pole $|1\rangle$,
-and $qg_Z=0$ any point of the equator, where the measurement outcome is maximally uncertain.
-
-## Inversion, anchor points and the branch sign {#sec-inversion}
-
-The angle is recovered as $\theta=\arccos(qg_Z)$, which we call the **qang angle**. Some reference values:
-
-| $\theta$ | $qg_Z$ | $p_0$ | state |
-|---|---|---|---|
-| $0$ | $+1$ | $1$ | pole $|0\rangle$ |
-| $\pi/4$ | $+0.707$ | $0.854$ | |
-| $\pi/3$ | $+0.5$ | $0.75$ | |
-| $\pi/2$ | $0$ | $0.5$ | equator ($|+\rangle$, $|{+i}\rangle$, …) |
-| $2\pi/3$ | $-0.5$ | $0.25$ | |
-| $\pi$ | $-1$ | $0$ | pole $|1\rangle$ |
-
-: Anchor points of the polar bias. {#tbl-anchors}
-
-The inversion has a limit: $\cos\theta$ is even, so $qg_Z$ does not tell $\theta$ from $-\theta$. Within $[0,\pi]$
-this is harmless, but an optimizer that needs to cross a pole gets stuck. The remedy is to measure the sign of the
-sine as well: the pair $(qg_Z, s)$ with $s=\operatorname{sign}(qg_X)$ is one-to-one on the whole circle (§65). In the
-H₂ molecule the variational optimum sits at $\theta\approx-0.22$; every update that uses $qg_Z$ alone stops at the
-Hartree–Fock state, while the signed version reaches the exact energy.
+The angle is recovered with $\theta=\arccos(qg_Z)$. The inversion has a limit: $\cos\theta$ is even, so $qg_Z$ does
+not distinguish $\theta$ from $-\theta$. As long as one works on $[0,\pi]$ there is no problem, but an optimizer that
+needs to cross a pole gets stuck. The remedy is to measure the sign of the sine as well: the pair $(qg_Z, s)$ with
+$s=\operatorname{sign}(qg_X)$ is one-to-one on the whole circle (§65). In the H₂ molecule the variational optimum is
+at $\theta\approx-0.22$; every update that uses only $qg_Z$ stops at the Hartree–Fock state, while the signed version
+reaches the exact energy.
 
 ## The outcome entropy: $qg_S$ {#sec-qgs}
 
-The polar bias says *where* the qubit points; it does not say how unpredictable the measurement is. For that we
-define the **superposition dispersion**, the Shannon entropy of the outcome:
+The polar bias says *where* the qubit points; it does not say how unpredictable the measurement is. That is the
+role of the **superposition spread**, the Shannon entropy of the outcome:
 
 $$
 qg_S = H(p_0) = -p_0\log_2 p_0 - (1-p_0)\log_2(1-p_0) \in [0,1].
@@ -94,50 +229,27 @@ qg_S = H\!\left(\frac{1+qg_Z}{2}\right),
 $$
 
 valid for every single-qubit state, pure or mixed, however it was prepared. Its derivative,
-$\tfrac{d\,qg_S}{d\,qg_Z}=\tfrac12\log_2\tfrac{1-qg_Z}{1+qg_Z}$, diverges at the poles: it is the entropic counterpart of
-the gradient singularity. Near a pole, a tiny change in the bias produces a huge relative change in the entropy.
+$\tfrac{d\,qg_S}{d\,qg_Z}=\tfrac12\log_2\tfrac{1-qg_Z}{1+qg_Z}$, diverges at the poles: it is the entropic counterpart
+of the gradient singularity. Near a pole, a minimal change of the bias produces an enormous relative change of the
+entropy.
 
 ## Invertibility of $qg_S$ and its error bars {#sec-qgs-errors}
 
-Unlike $qg_Z$, the entropy is not invertible on the whole domain: $qg_S(\theta)=qg_S(\pi-\theta)$. The population
-$p_0$ decreases from 1 to 0 on $[0,\pi]$ and $H$ increases up to $p=\tfrac12$ and then decreases, so $qg_S$ is strictly
-increasing on $[0,\pi/2]$ and strictly decreasing on $[\pi/2,\pi]$. Inverting it requires choosing one of the two
-halves (§2).
+Unlike $qg_Z$, the entropy is not invertible over the whole domain: $qg_S(\theta)=qg_S(\pi-\theta)$. The population
+$p_0$ decreases from 1 to 0 on $[0,\pi]$ and $H$ rises up to $p=\tfrac12$ and then falls, so $qg_S$ is strictly
+increasing on $[0,\pi/2]$ and strictly decreasing on $[\pi/2,\pi]$ (@fig-readings). Inversion requires choosing one
+of the two halves (§2).
 
 Estimating $qg_S$ from finite shots raises a further problem: the entropy is flat at its maximum, and the delta
-method gives a zero standard error exactly where $qg_S\approx1$. qang's native solution is to build the Wilson
-interval for $qg_Z$ and map it through the identity above; since $H$ is unimodal, the image is a valid interval. Over
-2000 repetitions this interval kept a coverage of 0.90–0.99 in every case tested, even where the Wald interval or the
-bootstrap fell below 0.40 (§51).
-
-## An engineering unit {#sec-unit}
-
-A useful unit need not be a new physical quantity; it needs to make what is measured legible. The decibel adds no
-physics to power: it expresses power on a scale where the gains of a chain of amplifiers add up. The qang plays a
-similar role for the qubit: it expresses the state on the scale on which the experiment delivers it, so that
-preparation, noise and read-out are compared in the same units. It is an operational convention, and like every
-convention it is worth what it simplifies.
-
-## The milli-qang and the noise budget {#sec-milliqang}
-
-Small deviations call for a sub-unit: the **milli-qang**, $1\ \text{qg} = 1000\ \text{m-qg}$. A state with
-$qg_Z=0.502$ sits at 501.8 m-qg; its difference from the ideal $0.5$ is 1.8 m-qg.
-
-The scale lets a gate-error budget be stated in the same units as the read-out. If the amplitude of a pulse has a
-random relative error of standard deviation $\sigma$, the expected polar bias after $R_x(\theta)$ is
-
-$$
-\mathbb E[qg_Z] = \cos\theta\; e^{-\theta^2\sigma^2/2}
-$$
-
-(§160). With $\sigma=0.05$, an $X$ gate ($\theta=\pi$) delivers $qg_Z=-0.988$ instead of $-1$: an error of 12 m-qg,
-growing with the square of the angle. Chapter 2 uses this formula to choose, among equivalent forms of the same gate,
-the one with the smallest pulse area.
+method gives a zero standard error exactly where $qg_S\approx1$. The native qang solution is to build the Wilson
+interval for $qg_Z$ and map it through the identity above; since $H$ is unimodal, the image is a valid interval.
+Over 2000 repetitions that interval kept a coverage of 0.90–0.99 in every case tested, even where the Wald interval
+or the bootstrap fell below 0.40 (§51).
 
 ## The qang angle as the arcsine transformation {#sec-arcsine}
 
-The central statistical property of the unit follows from propagating the shot noise. With
-$\widehat{qg}_Z = 2\hat p_0-1$,
+The central statistical property of the unit follows from propagating shot noise. With $\widehat{qg}_Z = 2\hat
+p_0-1$,
 
 $$
 \operatorname{Var}(\widehat{qg}_Z)=\frac{\sin^2\theta}{N},
@@ -146,57 +258,67 @@ $$
 =\frac{\sin^2\theta}{N}\cdot\frac{1}{\sin^2\theta}=\frac1N .
 $$
 
-The $\sin^2\theta$ factors cancel exactly: **the uncertainty of the qang angle does not depend on the state** (§5).
-This is no coincidence. Since $p_0=\cos^2(\theta/2)$, the qang angle is, up to the reflection $\theta\to\pi-\theta$,
-the classical arcsine transformation of a proportion, $\phi=2\arcsin\sqrt p$, introduced by Bartlett (1947), Anscombe
-(1948) and Freeman and Tukey (1950) precisely to stabilize the variance (§125).
+The $\sin^2\theta$ factors cancel exactly: **the uncertainty of the qang angle does not depend on the state** (§5),
+which is the horizontal dashed line of @fig-noise. It is not a coincidence. Since $p_0=\cos^2(\theta/2)$, the qang
+angle is, up to the reflection $\theta\to\pi-\theta$, the classical arcsine transformation of a proportion,
+$\phi=2\arcsin\sqrt p$, introduced by Bartlett (1947), Anscombe (1948) and Freeman and Tukey (1950) precisely to
+stabilize the variance (§125).
 
-The claim was checked with exact binomial sums, without simulation: with $n=100$, $(n+\tfrac12)\operatorname{Var}(\hat
-\theta)$ is between 1.000 and 1.001; the coverage of the interval $\hat\theta\pm z/\sqrt{n+1/2}$ stays between 0.930 and
-0.962 for $n\in\{30,100,1000\}$. The prediction failed in one case, and it should be said: with $np\approx2.5$ both the
-angular and the Wald intervals lose coverage. The stabilization is asymptotic, and the regime of very few events needs
-the exact intervals of Chapter 4.
+The claim was checked with exact binomial sums, without simulation: with $n=100$, $(n+\tfrac12)\operatorname{Var}
+(\hat\theta)$ lies between 1.000 and 1.001; the coverage of the interval $\hat\theta\pm z/\sqrt{n+1/2}$ stays between
+0.930 and 0.962 for $n\in\{30,100,1000\}$. The prediction failed in one case, and it is worth saying: with
+$np\approx2.5$ both the angular and the Wald intervals lose coverage. The stabilization is asymptotic, and the regime
+of very few events requires the exact intervals of chapter 4.
 
 ## Mixed states and multi-qubit registers {#sec-mixed}
 
-The definitions extend unchanged to mixed states and registers:
+The definitions extend unchanged to mixed states and to registers:
 
 - **Mixed states.** $qg_Z=\operatorname{Tr}(\rho\sigma_z)$ no longer determines the state. The classical mixture of
   $|0\rangle$ with weight 0.2 and $|1\rangle$ with weight 0.8 has $qg_Z=-0.6$ and von Neumann entropy 0.72, a
-  combination no pure state reproduces (§3). For a qubit of Bloch length $r<1$ the cancellation of the previous
-  section is no longer exact:
-  $\operatorname{Var}(\hat\theta)=\big[1+\tfrac{1-r^2}{r^2\sin^2\theta}\big]/N$, equal to the quantum Cramér–Rao bound
-  $1/(Nr^2)$ at the equator (§45).
-- **Registers.** Each qubit has its local profile, obtained by a partial trace, and the register has a joint entropy
-  normalized by the number of qubits (§4). The Bell state illustrates it: each qubit has $qg_Z=0$ and a local entropy
-  of 1 bit, but the normalized joint entropy is 0.5. The register is globally pure and locally mixed; local profiles do
-  not suffice to describe it, and Chapter 5 returns to this point with the Bloch radius.
+  combination no pure state reproduces (§3). For a qubit of Bloch length $r<1$, the cancellation of the previous
+  section is no longer exact: $\operatorname{Var}(\hat\theta)=\big[1+\tfrac{1-r^2}{r^2\sin^2\theta}\big]/N$, equal to
+  the quantum Cramér–Rao bound $1/(Nr^2)$ on the equator (§45).
+- **Registers.** Each qubit has its local profile, obtained by partial trace, and the register has a joint entropy
+  normalized by the number of qubits (§4). The Bell state illustrates it: each qubit has $qg_Z=0$ and a local
+  entropy of 1 bit, but the normalized joint entropy is 0.5. The register is globally pure and locally mixed; the
+  local profiles are not enough to describe it, and chapter 5 returns to this point with the Bloch radius.
 
 ## In code {#sec-code01}
 
+The `qang.probability` module is this chapter's analysis tool: it reads counts and returns every reading, each with
+its interval.
+
 ```python
-from qang.core import Qang, qg_s_from_qg_z
-from qang import statistics
+import math
+from qang import probability as pb
 
-q = Qang(0.5)                 # polar bias qg_Z = 0.5
-q.to_theta("deg")             # 60.0: the qang angle
-q.milliqang                   # 500.0 m-qg
-qg_s_from_qg_z(0.5)           # 0.811: outcome entropy
+pb.readings_from_p0(0.75)        # theta = 1.047 (60°), qg_Z = 0.5, qg_S = 0.811, 500 m-qg
 
-# 750 zeros in 1000 shots: Wilson interval for qg_Z
-e = statistics.wilson_qg_estimate(750, 1000)
-e.qg_z, e.low, e.high         # 0.500, 0.444, 0.552
+# 750 zeros in 1000 shots, against a target qg_Z = 0.5
+r = pb.analyze(750, 1000, target_qg_z=0.5)
+r.milliqang                      # (500.0, 444.5, 551.7) m-qg: estimate and Wilson interval
+r.theta                          # (1.047, 0.986, 1.110) rad = 60.0°, 56.5°, 63.6°
+r.qg_s                           # (0.811, 0.768, 0.852)
+r.deviation_milliqang            # 0.0 m-qg from the target
 
-statistics.propagated_theta_std(1.047, 1000)   # 0.0316 = 1/sqrt(1000), for any angle
+pb.angle_per_milliqang(math.pi / 2)        # 0.001 rad: one m-qg is one milliradian on the equator
+pb.pole_angle(1.0)                         # 0.0447 rad: one m-qg below the pole
+pb.shots_for_resolution(10, math.pi / 2)   # 10000 shots to resolve 10 m-qg
+pb.pulse_error_milliqang(math.pi, 0.05)    # 12.3 m-qg: X gate with a 5 % amplitude error
+pb.statistical_angle([0.5, 0.3, 0.2], [0.4, 0.4, 0.2])   # 0.113 rad
 ```
+
+The figures of this chapter are generated by `tools/make_cap01_figures.py`, which uses the same functions.
 
 ## Summary {#sec-summary01}
 
-- The qubit is prepared with angles and observed with frequencies; the function between them introduces
-  singularities in gradients and errors.
-- The polar bias $qg_Z=\cos\theta=\langle\sigma_z\rangle$ is bijective, directly measurable and valid for mixed states.
-- The outcome entropy $qg_S=H((1+qg_Z)/2)$ measures unpredictability; it is inverted by halves, and its error bars are
-  built from the interval of $qg_Z$.
-- The qang angle is the arcsine transformation of a proportion: its variance is $1/N$ for every pure state, with a
-  known correction for mixed states.
-- The milli-qang lets gate errors be budgeted in the units of the read-out.
+- **Definition.** The polar bias $qg_Z=\langle\sigma_z\rangle=2p_0-1=\cos\theta$ is bijective, directly measurable and
+  valid for mixed states; the qang angle $\theta=\arccos qg_Z$ and the entropy $qg_S=H(p_0)$ complete the unit.
+- **Milli-qang.** $1\ \text{qg}=1000$ m-qg; the scale is linear in probability (1 m-qg $=\Delta p_0=0.0005$) and not
+  linear in angle (1 mrad on the equator, $2.56^\circ$ next to the pole). Resolving $\delta$ m-qg takes
+  $(1000\sin\theta/\delta)^2$ shots, and gate errors are budgeted in the same units.
+- **Probability equation.** $\theta$, $qg_Z$, $qg_S$ and $m$ are exact functions of a single probability $p_0$; with
+  several outcomes, the qang angle generalizes to Wootters' statistical distance.
+- **Statistics.** The qang angle is the arcsine transformation of a proportion: its variance is $1/N$ for every pure
+  state, with a known correction for mixed states.

@@ -26,6 +26,8 @@ This package covers, in order:
   - qang.cirq_gate    the same for Cirq (optional: needs cirq).
   - qang.statistics   shot-noise error propagation theta <-> qg, and
                        few-shot qg_Z intervals (Haar-prior Bayes, Wilson).
+  - qang.probability  the qang probability equation and the milli-qang:
+                       every reading of one probability, with intervals (§167).
   - qang.proportions  the qang angle as the arcsine transformation of any
                        binomial proportion: intervals and Cohen's h (§125).
   - qang.clock_comparison  differential phase of two clocks from the

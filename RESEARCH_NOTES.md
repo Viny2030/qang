@@ -6989,6 +6989,26 @@ Exact identities, no noise, checked in `tests/test_algebra.py`.
   p = 1/d + ½ Σ_k ⟨λ_k⟩ diag(λ_k); d = 2 gives qg_Z. This is a definition and an identity; whether a qudit readout
   gives qang an advantage was asked in §70 for leakage and is not claimed here.
 
+## 167. The qang probability equation and the milli-qang (`qang/probability.py`)
+
+Exact identities, no noise, checked in `tests/test_probability.py`; the book's chapter 1 and its figures
+(`tools/make_cap01_figures.py`) are built on them.
+
+* **One probability, four readings.** θ = 2 arccos √p₀, qg_Z = 2p₀ − 1, qg_S = H(p₀) and m = 2000 p₀ − 1000 m-qg
+  are exact functions of the Z-basis population p₀; conversely p₀ = (1000 + m)/2000 and θ = arccos(m/1000).
+* **The milli-qang is linear in probability and not in angle.** 1 m-qg = Δp₀ = 0.0005 everywhere; dm/dθ =
+  −1000 sin θ, so one m-qg is 1 mrad on the equator and 2 mrad at 30°. A state δ m-qg below a pole is at the exact
+  angle arccos(1 − δ/1000) ≈ √(2δ/1000): 0.0447 rad (2.56°) for 1 m-qg, 8.1° for 10 m-qg.
+* **Resolution from shots.** σ_m = 1000 |sin θ|/√N m-qg, so resolving δ m-qg at one sigma takes
+  N = (1000 sin θ/δ)² shots: 10⁴ for 10 m-qg and 10⁶ for 1 m-qg on the equator, 30 000 for 5 m-qg at 60°.
+* **Gate error budget (§160) in m-qg.** E[qg_Z] − cos θ = 1000 cos θ (e^{−θ²σ²/2} − 1) m-qg: the error pulls the
+  reading towards the equator, 12.3 m-qg for an X gate with σ = 0.05 and none for a π/2 rotation.
+* **More than two outcomes.** Wootters' statistical distance (Bhattacharyya angle) arccos Σ√(p_k q_k) reduces, for
+  two outcomes and q = (1, 0), to arccos √p₀ = θ/2.
+* **`analyze(k0, n)`** maps the Wilson interval of qg_Z through these monotone relations (the θ bounds swap) and
+  gives p₀, qg_Z, m, θ and qg_S with intervals: 750 zeros in 1000 shots read 500.0 [444.5, 551.7] m-qg and
+  θ = 60.0° [56.5°, 63.6°]. Nothing here is new statistics; it is the same estimator written in every qang unit.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

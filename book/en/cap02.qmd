@@ -1,9 +1,10 @@
 # Native gates, closed algebra and the universal operator {#sec-ch02}
 
-Chapter 1 described the state of a qubit in qg units. This chapter does the same for operations: how a state is
-prepared from its polar bias, how any single-qubit gate is written as an algebraic function of $qg_Z$, how the idea
-extends to systems with more levels, and which compilation rules follow when the error of a gate depends on its
-angle.
+Chapter 1 described the state of a qubit in qg units and reduced all its readings to a single probability, $p_0$,
+with the milli-qang as the working scale. This chapter does the same for operations: how a state is prepared from its
+probability or its m-qg reading, how any single-qubit gate is written as an algebraic function of $qg_Z$, why its
+action on the populations is the probability equation of Chapter 1, how the idea extends to systems with more levels,
+and which compilation rules follow when the error of a gate, measured in m-qg, depends on its angle.
 
 ## The elementary gate $R_{qg}$ {#sec-rqang}
 
@@ -14,6 +15,10 @@ $\theta=\arccos q$. qang provides it as a native gate in the three most widely u
 - **Cirq:** `rqang_gate(q)`, built on `cirq.ry`, and `full_rqang_gate(q, φ)`, a `MatrixGate` with the same
   convention as Qiskit's `U` gate.
 - **PennyLane:** the same pair, differentiable with respect to $q$.
+
+By the probability equation (@sec-equation), the gate parameter can be set from any of the readings: for a
+probability $p_0$ use $q=2p_0-1$, and for a reading of $m$ m-qg, $q=m/1000$. Asking for $p_0=0.75$ or for $+500$ m-qg
+is asking for the same gate, $R_y(60^\circ)$.
 
 All three prepare exactly the same state for the same qg value, which is checked both on the measured probabilities
 and on the state-vector fidelity. The gate accepts symbolic parameters (Qiskit `Parameter`, sympy symbols), so it can
@@ -51,17 +56,40 @@ $$
 doubly stochastic, rational in $q$ and independent of the phases. Seen from a measurement in the computational basis,
 every single-qubit gate is a binary symmetric channel with parameter $(1-q)/2$.
 
+## The gate as a probability equation {#sec-gate-probability}
+
+The transition matrix is Chapter 1's probability equation written for an operation. With $p_0=(1+q)/2$,
+
+$$
+T=\begin{pmatrix}p_0&1-p_0\\1-p_0&p_0\end{pmatrix},\qquad p_0=\frac{1000+m}{2000}:
+$$
+
+the action of any single-qubit gate on the populations is fixed by **a single number**, its reading in m-qg. The
+identity and $Z$ sit at $+1000$ m-qg (they do not move populations), $X$ at $-1000$ (it swaps them) and the Hadamard at
+$0$ (it equalizes them). The phases $\varphi$ and $\lambda$ do not appear: they are invisible to a $Z$ measurement and
+only show up when gates are composed, as Chapter 3 shows.
+
+The entropic reading has its version for operations too. The capacity of the binary symmetric channel with parameter
+$(1-q)/2$ is $1-H\big((1-q)/2\big)$, and since $H$ is symmetric, $H\big((1-q)/2\big)=H(p_0)=qg_S$:
+
+$$
+C = 1-qg_S .
+$$
+
+A gate at a pole ($qg_S=0$) carries one full bit per use; the Hadamard ($qg_S=1$) carries nothing from the
+computational basis to itself.
+
 ## Verification against standard libraries {#sec-verification}
 
 The formula was checked against Qiskit's `U` gate on 2000 random gates, with a largest difference of
 $3.5\times10^{-14}$ (§166). The usual gates appear at simple values:
 
-| gate | $q$ | $\varphi$ | $\lambda$ |
-|---|---|---|---|
-| $I$ | $1$ | $0$ | $0$ |
-| $X$ | $-1$ | $0$ | $\pi$ |
-| $Z$ | $1$ | $0$ | $\pi$ |
-| $H$ | $0$ | $0$ | $\pi$ |
+| gate | $q$ | m-qg | $\varphi$ | $\lambda$ |
+|---|---|---|---|---|
+| $I$ | $1$ | $+1000$ | $0$ | $0$ |
+| $X$ | $-1$ | $-1000$ | $0$ | $\pi$ |
+| $Z$ | $1$ | $+1000$ | $0$ | $\pi$ |
+| $H$ | $0$ | $0$ | $0$ | $\pi$ |
 
 : Standard gates as points of $U_3^{qg}$. {#tbl-gates}
 
@@ -84,8 +112,10 @@ $$
 p=\frac1d+\frac12\sum_{k=1}^{d-1}\langle\lambda_k\rangle\,\operatorname{diag}(\lambda_k).
 $$
 
-For $d=2$ a single matrix remains, $\lambda_1=\sigma_z$, and its expectation value is $qg_Z$. This is the natural
-generalization of the unit: a vector of $d-1$ qg values measurable in the computational basis (§166).
+For $d=2$ a single matrix remains, $\lambda_1=\sigma_z$, its expectation value is $qg_Z$ and the formula reduces to
+$p_0=\tfrac12+\tfrac12\,qg_Z$: the probability equation of Chapter 1. This is the natural generalization of the unit:
+a vector of $d-1$ qg values measurable in the computational basis, each expressible in m-qg, which fixes the $d$
+probabilities the way $qg_Z$ fixes $p_0$ (§166).
 
 Definition and usefulness should be kept apart. Whether a three-level readout gives qang an advantage was asked on a
 concrete case, a transmon leaking to the level $|2\rangle$ in a surface-code memory, and the answer was no: reading
@@ -102,11 +132,19 @@ $$
 qg_Z=\cos\theta\;e^{-\theta^2\sigma^2/2},
 $$
 
-and a fixed one $\varepsilon$ gives $\cos(\theta(1+\varepsilon))$, with first-order error $\varepsilon\,\theta\sin\theta$.
-The sensitivity $d\,qg_Z/d\theta=-\sin\theta$ is largest at $\pi/2$ and vanishes to first order at $0$ and $\pi$ (§160).
+and a fixed one $\varepsilon$ gives $\cos(\theta(1+\varepsilon))$, with first-order error
+$1000\,\varepsilon\,\theta\sin\theta$ m-qg. The sensitivity $d\,qg_Z/d\theta=-\sin\theta$ is largest at $\pi/2$ and
+vanishes to first order at $0$ and $\pi$ (§160). This is Chapter 1's milli-qang error budget (@fig-pulse), and the
+scale makes the gate error comparable with the shot noise of the read-out: with $\sigma=0.05$, the shift of an $X$
+(12.3 m-qg) is of the order of the resolution of $10^4$ shots on the equator (10 m-qg).
 
-Every gate has shorter representatives. $R_X(\theta)=-R_X(\theta-2\pi)$ has period $2\pi$ up to a global phase. More
-interesting: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, and $Z\otimes Z$ is two virtual $R_Z(\pi)$ rotations, free
+Every gate has shorter representatives. $R_X(\theta)=-R_X(\theta-2\pi)$ has period $2\pi$ up to a global phase, and
+@fig-area shows what is gained: asking for $R_X(324^\circ)$ as is shifts the reading by $-31.7$ m-qg, while its
+representative $R_X(-36^\circ)$, the same gate, shifts it by $-0.4$ m-qg.
+
+![Milli-qang error of $R_x(\theta)$ under a random amplitude error $\sigma=0.05$: the angle as requested against the minimal-area representative. Below $180^\circ$ they coincide; above it, the short representative avoids the error that grows with the square of the angle.](figures/cap02_area.png){#fig-area width=90%}
+
+More interesting: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, and $Z\otimes Z$ is two virtual $R_Z(\pi)$ rotations, free
 on superconducting processors. So $R_{ZZ}$ has period $\pi$ and its area never needs to exceed $\pi/2$. The function
 `minimal_area_circuit` rewrites a circuit with those representatives and preserves the unitary exactly, global phase
 included.
@@ -147,30 +185,34 @@ A practical detail that causes silent errors: Qiskit writes qubit 0 at the right
 PennyLane, Braket and pytket put it first. `qang.interop` converts any result to $\{(b_0,\dots,b_{n-1}):\text{count}\}$
 and computes the qg read-outs on that form: per-qubit $qg_Z$ with its error, the filter and the register entropy
 (§130). A 3-qubit W state sampled with 20 000 shots in each kit gave $qg_Z$ between 0.316 and 0.343 (ideal $1/3$), all
-shots in weight 1 and register entropy 0.528 (ideal $\log_2 3/3$), alike in all three.
+shots in weight 1 and register entropy 0.528 (ideal $\log_2 3/3$), alike in all three. In milli-qang the readings
+run from 316 to 343 m-qg against 333 ideal; with 20 000 shots the resolution is $\sigma_m=1000\sin\theta/\sqrt N=6.7$
+m-qg, so the largest deviation ($-17$ m-qg) sits at about 2.6σ: it is shot noise, not a difference between kits.
 
 ## In code {#sec-code02}
 
 ```python
 import math
-from qang import algebra, pulse_area
+from qang import algebra, probability, pulse_area
 
 U = algebra.u3_qang(0.0, 0.0, math.pi)     # the Hadamard as the point (q, φ, λ) = (0, 0, π)
-algebra.transition_matrix(0.3)             # [[0.65, 0.35], [0.35, 0.65]]
+algebra.transition_matrix(0.3)             # [[0.65, 0.35], [0.35, 0.65]]: p0 = 0.65, +300 m-qg
 algebra.cartan_values([0.5, 0.3, 0.2])     # the two qg values of a qutrit
 
 pulse_area.minimal_area_angle(3.5, math.pi)    # (0.358, 1): RZZ(3.5) = RZZ(0.358) · (Z ⊗ Z) · phase
-pulse_area.rx_qg_z_random_amplitude(math.pi, 0.05)   # -0.988: 12 m-qg of error on an X
+pulse_area.rx_qg_z_random_amplitude(math.pi, 0.05)   # -0.988 instead of -1
+probability.pulse_error_milliqang(math.pi, 0.05)     # 12.3 m-qg of error on an X
 ```
 
 ## Summary {#sec-summary02}
 
 - Preparation by polar bias is native in Qiskit, Cirq and PennyLane, with the same convention and a signed variant.
 - Every single-qubit gate is an algebraic function of $q=qg_Z$ and two phases; its transition matrix is doubly
-  stochastic and does not depend on the phases.
+  stochastic, does not depend on the phases and is the probability equation of Chapter 1: a single m-qg number fixes
+  its action on the populations, and the channel capacity is $1-qg_S$.
 - The Cartan subalgebra of $\mathfrak{su}(d)$ generalizes $qg_Z$ to qudits as an identity; no advantage of a
   multi-level readout was shown.
-- In fractional gates the error follows the pulse area; choosing the shortest representative reduces it, and the
-  budget is stated in qg.
+- In fractional gates the error follows the pulse area; choosing the shortest representative reduces it (from
+  $-31.7$ to $-0.4$ m-qg for $R_X(324^\circ)$), and the budget is stated in m-qg, the same scale as the shot noise.
 - The exposure outside the sector, computed without noise, ranks compilations by how much T1 the filter will let
   through.

@@ -2,8 +2,10 @@
 
 Grover's algorithm is, at heart, a sequence of reflections. Written in qg units, each reflection is an algebraic
 matrix in the polar bias, the trajectory of the algorithm is a Chebyshev polynomial and the information each
-iteration brings has a closed form. This chapter develops that reading and sets it against what happens when the
-gates are noisy, where the qg reading loses to the simplest tool.
+iteration brings has a closed form. Everything rests on the base of Chapter 1: the transition probability between
+two states is a probability like $p_0$, with its own qang angle and m-qg reading, and the bias of Grover's flag is read
+on the same scale. This chapter develops that reading and sets it against what happens when the gates are noisy,
+where the qg reading loses to the simplest tool.
 
 ## Transition matrices without transcendental functions {#sec-transition}
 
@@ -22,8 +24,9 @@ q_{12}=\cos(\theta_1+\theta_2)=q_1q_2-\sqrt{(1-q_1^2)(1-q_2^2)} .
 $$
 
 The term $-\sqrt{(1-q_1^2)(1-q_2^2)}$ is the interference: the transverse part of each state, invisible in $T$, adding
-up in amplitude. With $q_1=0.3$ and $q_2=-0.5$, the classical composition gives $-0.15$ and the quantum one $-0.976$.
-The transition matrix describes each gate on its own, but not the sequence: that needs the phases.
+up in amplitude. With $q_1=0.3$ and $q_2=-0.5$, the classical composition gives $-0.15$ and the quantum one $-0.976$:
+in milli-qang, $-150$ against $-976$, an interference of 826 m-qg, close to half the scale. The transition matrix
+describes each gate on its own, but not the sequence: that needs the phases.
 
 ## The Householder reflector in qg space {#sec-householder}
 
@@ -69,6 +72,19 @@ $$
 The condition matters: with different azimuths the polar biases are not enough and the full transverse part is
 needed. The formula was checked against the inner product on 200 random pairs (§166).
 
+**The transition probability in the equation of Chapter 1.** $P$ is a probability, so it has its own qang readings.
+If $\gamma$ is the angle between the two Bloch vectors, $\mathbf r_1\cdot\mathbf r_2=\cos\gamma$ and $P=\cos^2(\gamma/2)$: it is
+Born's rule with $\gamma$ in place of $\theta$. Therefore
+
+$$
+2\arccos\sqrt P=\gamma,\qquad m_P = 2000\,P-1000 = 1000\;\mathbf r_1\cdot\mathbf r_2\ \text{m-qg}:
+$$
+
+the qang angle of the transition probability is the angle between the states, and its milli-qang reading is a
+thousand times the dot product of their qg vectors. It is Chapter 1's Wootters statistical distance applied to two
+states (@sec-equation). With $q_1=0.3$ and $q_2=-0.5$ on the same meridian, $P=0.838$, $m_P=+676$ m-qg and
+$\gamma=0.828$ rad, which is exactly $|\theta_1-\theta_2|=|\arccos 0.3-\arccos(-0.5)|$.
+
 ## The Grover trajectory as a Chebyshev polynomial {#sec-chebyshev}
 
 Let $a=\sin^2 t$ be the fraction of good states, read with a flag qubit whose initial bias is $qg_0=1-2a=\cos 2t$. Each
@@ -78,9 +94,12 @@ $$
 qg_k=\cos\big((2k+1)\,2t\big)=T_{2k+1}(qg_0),
 $$
 
-with $T_m$ the Chebyshev polynomial of the first kind, $T_m(\cos x)=\cos mx$ (§37). For instance, with $a=0.1$,
-$qg_0=0.8$ and the successive iterations give $0.8$, $-0.352$, $-0.997$, $-0.206$: the bias crosses the pole $-1$
-(almost certain success) at $k=2$ and then moves away.
+with $T_m$ the Chebyshev polynomial of the first kind, $T_m(\cos x)=\cos mx$ (§37). By the probability equation, the
+success probability is $P_k=(1-qg_k)/2$, and certain success is the pole at $-1000$ m-qg. For instance, with $a=0.1$,
+$qg_0=0.8$ and the successive iterations give $+800$, $-352$, $-997$ and $-206$ m-qg: the bias crosses the pole at
+$k=2$ ($P_2=0.9986$) and then moves away (@fig-grover).
+
+![The Grover trajectory in milli-qang: the flag bias samples a cosine at the odd points $(2k+1)\,2t$. With $a=0.1$ success arrives at $k=2$; with $a=0.3$ the angle is coarse, success arrives at $k=1$ and by $k=2$ the bias has overshot the pole.](figures/cap03_grover.png){#fig-grover width=90%}
 
 The Chebyshev structure yields for free the one-shot Fisher information at depth $m=2k+1$. Since $T_m'=mU_{m-1}$ and
 $1-T_m^2=(1-q^2)U_{m-1}^2$,
@@ -90,7 +109,9 @@ F_m=\frac{m^2}{1-qg_0^2}:
 $$
 
 depth multiplies the qg information of Chapter 1 by $m^2$, uniformly along the fringe. It is the qg form of the known
-factor $4m^2$ for the angle (Suzuki and co-workers, 2020).
+factor $4m^2$ for the angle (Suzuki and co-workers, 2020). On the milli-qang scale, the resolution on $qg_0$ with $N$
+shots at depth $m$ is $1000\sqrt{1-qg_0^2}/(m\sqrt N)$ m-qg: with $a=0.1$ and 100 shots, 60 m-qg without iterating and
+12 m-qg at depth $m=5$.
 
 ## Analytic limits: coarse angles and overshoot {#sec-limits}
 
@@ -98,7 +119,8 @@ The optimal number of iterations is $k^\ast=\operatorname{round}\!\big(\tfrac{\p
 fraction $a=M/N$ is small, $t$ is small, $k^\ast\approx\tfrac{\pi}{4}\sqrt{N/M}$ and the rounding hardly matters. When
 $M/N$ is not negligible, the angle per iteration is *coarse*: the bias jumps in large steps along the curve
 $\cos((2k+1)2t)$ and can overshoot the pole. Iterating more does not help; it hurts, because the rotation keeps going.
-The qg reading makes this behaviour visible: $qg_k$ samples a cosine at odd points.
+The qg reading makes this behaviour visible: $qg_k$ samples a cosine at odd points. With $a=0.3$, $k^\ast=1$ gives
+$-944$ m-qg ($P=0.972$) and one more iteration jumps to $+884$ m-qg ($P=0.058$), the orange curve of @fig-grover.
 
 ### Grover with noise
 
@@ -137,12 +159,13 @@ Monte Carlo, whose depth-zero circuit is biased by the device noise (§39).
 ## In code {#sec-code03}
 
 ```python
-from qang import algebra
+from qang import algebra, probability
 
 algebra.householder_qg(0.45)        # -0.45 Z - 0.893 X, a reflection: H @ H = I
 algebra.grover_diffuser_qg(0.45)    # +0.45 Z + 0.893 X
-algebra.transition_probability(0.3, -0.5)            # same meridian
+P = algebra.transition_probability(0.3, -0.5)        # 0.838, same meridian
 algebra.transition_probability(0.3, -0.5, 0.0, 1.2)  # different azimuths
+probability.readings_from_p0(P)     # theta = 0.828 rad (the angle between the states), +676 m-qg
 ```
 
 ## Summary {#sec-summary03}
@@ -151,7 +174,9 @@ algebra.transition_probability(0.3, -0.5, 0.0, 1.2)  # different azimuths
   $q_1q_2$ and $\cos(\theta_1+\theta_2)$ is the interference.
 - The Householder reflector and the Grover diffuser are $\mp(q\,\sigma_z+\sqrt{1-q^2}\,\sigma_x)$.
 - The transition probability between two states is $(1+\mathbf r_1\cdot\mathbf r_2)/2$; on a common meridian it depends on
-  the polar biases alone.
-- The Grover trajectory is $qg_k=T_{2k+1}(qg_0)$, and the Fisher information at depth $m$ is $m^2/(1-qg_0^2)$.
+  the polar biases alone. Read with the equation of Chapter 1, its qang angle is the angle between the states and its
+  reading is $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg.
+- The Grover trajectory is $qg_k=T_{2k+1}(qg_0)$, with certain success at $-1000$ m-qg, and the Fisher information at
+  depth $m$ is $m^2/(1-qg_0^2)$: the m-qg resolution improves by a factor $m$.
 - With noise, the per-qubit qg reading loses to the histogram in search; in amplitude estimation the advantage holds
   if the noise enters the likelihood, and ends near depth $1/p$.
