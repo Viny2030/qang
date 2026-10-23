@@ -170,8 +170,8 @@ devices until a real run exists (Part X).
 14.4 The grandfather paradox: P(paradox) = 0 at φ = π; suppressed to the noise floor on Brisbane and Fez — §164
 14.5 A rotation controlled by a system: Tr_C(U) = diag(1, cos(φ/2)) and qg_Z(S) = (1 − c²)/(1 + c²) — §164
 14.6 Non-linear effects of P-CTCs and limits on discriminating non-orthogonal states — 🔬 (pending: circuit and prediction)
-14.7 🆕 Deutsch's D-CTC as a fixed point: a numerical comparison with P-CTC on the same circuit, and what qg sees in each
-14.8 🆕 The cost of postselection as a rate (cos²(φ/2)): how many shots "time travel" costs on a device 🧪
+14.7 🆕 Deutsch's D-CTC as a fixed point: a numerical comparison with P-CTC on the same circuit, and what qg sees in each: in the book, exact algebra (P-CTC moves m_Z of S, D-CTC does not and lowers m_X; the local radius separates Deutsch's fixed points); the device run is still open
+14.8 🆕 The cost of postselection as a rate (cos²(φ/2)): how many shots "time travel" costs on a device: in the book, 1/P shots per useful shot (2 at π/2, 4 at 2π/3, 400 at 0.1 rad from the paradox; never above 2 when controlled) 🧪
 
 ### Chapter 15. Black-hole thermodynamics, quantum chaos and the Yoshida–Kitaev decoder
 15.1 Hawking's information-loss paradox and black-hole complementarity — §164 (context)

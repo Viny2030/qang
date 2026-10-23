@@ -169,8 +169,8 @@ hasta que exista una corrida real (Parte X).
 14.4 La paradoja del abuelo: P(paradoja) = 0 en φ = π; suprimida hasta el piso de ruido en Brisbane y Fez — §164
 14.5 La rotación controlada por un sistema: Tr_C(U) = diag(1, cos(φ/2)) y qg_Z(S) = (1 − c²)/(1 + c²) — §164
 14.6 Efectos no lineales de las P-CTC y límites en la discriminación de estados no ortogonales — 🔬 (pendiente: circuito y predicción)
-14.7 🆕 D-CTC de Deutsch como punto fijo: comparación numérica con P-CTC en el mismo circuito, y qué ve qg en cada una
-14.8 🆕 El costo de la posselección como tasa (cos²(φ/2)): cuántos disparos cuesta "viajar en el tiempo" en un dispositivo 🧪
+14.7 🆕 D-CTC de Deutsch como punto fijo: comparación numérica con P-CTC en el mismo circuito, y qué ve qg en cada una: en el libro, álgebra exacta (P-CTC mueve m_Z de S, D-CTC no y baja m_X; el radio local separa los puntos fijos de Deutsch); la corrida en dispositivos sigue pendiente
+14.8 🆕 El costo de la posselección como tasa (cos²(φ/2)): cuántos disparos cuesta "viajar en el tiempo" en un dispositivo: en el libro, 1/P disparos por disparo útil (2 en π/2, 4 en 2π/3, 400 a 0,1 rad de la paradoja; nunca más de 2 con control) 🧪
 
 ### Capítulo 15. Termodinámica de agujeros negros, caos cuántico y el decodificador de Yoshida–Kitaev
 15.1 La paradoja de la pérdida de información de Hawking y la complementariedad de agujeros negros — §164 (contexto)
