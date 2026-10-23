@@ -187,11 +187,12 @@ hasta que exista una corrida real (Parte X).
 ## PARTE VI. Ciberseguridad cuántica, generación aleatoria y fronteras post-cuánticas
 
 ### Capítulo 16. Demarcación: criptografía cuántica frente a criptografía post-cuántica (PQC)
-16.1 La naturaleza de la PQC: algoritmos clásicos de retículos (ML-KEM/Kyber, ML-DSA/Dilithium), códigos y hash — §13, §14 (contexto)
-16.2 Por qué qg no se aplica a la PQC: no hay operadores hermíticos, qubits ni esfera de Bloch en esos esquemas — §13, §14
-16.3 El vector de ataque cuántico (Shor/QPE): el registro de autoestados proyecta a qg_Z = −1 sin resolver la fase — §13
+16.0 ✅ escrito sobre la base del capítulo 1: la QBER de BB84 está en el centro de la escala (umbral de Shor–Preskill en 780 m-qg), la falla de descifrado de ML-KEM pegada al polo (≤ 2^−138,8, a 3·10⁻³⁹ m-qg: se demuestra, no se mide); esquema de juguete contado y exacto — figuras: frontera BB84/PQC, Grover, Shor por qubit
+16.1 La naturaleza de la PQC: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205) y HQC (códigos, 2025) — §13, §14 (contexto)
+16.2 Por qué qg no se aplica a la PQC: no hay operadores hermíticos, qubits ni esfera de Bloch; la única probabilidad, δ, se cuenta y no se puede contar — §13, §14
+16.3 El vector de ataque cuántico: Grover avanza el ángulo qang 4·arcsin 2^(−n/2) por iteración (verificado a 10⁻¹⁰ rad, n = 4–10); en la QPE de un autoestado el registro objetivo queda en qg_Z = −1 y cada qubit de conteo lleva un bit en m_X; en Shor las lecturas por qubit sólo ven el orden si es potencia de 2 (N = 15 sí, N = 21 con r = 6 no) — §13; en el libro, estado exacto
 16.4 Conclusión: qang es una herramienta de capa física y cuántica, no de criptografía algebraica clásica — §14
-16.5 ⚠️ No existe un módulo `qang.crypto`: la criptografía vive en `examples/` (bb84_*, certified_qrng_*) y en `manuscript/crypto*`
+16.5 ⚠️ No existe un módulo `qang.crypto`: la criptografía vive en `examples/` (bb84_*, qrng_qg_certified, ionq_sim_*) y en `manuscript/crypto*`
 
 ### Capítulo 17. Distribución cuántica de claves (QKD) y BB84 en espacio qg
 17.1 QBER en observables qg: QBER_Z = (1 − |qg_Z|)/2, QBER_X = (1 − |qg_X|)/2 — §40

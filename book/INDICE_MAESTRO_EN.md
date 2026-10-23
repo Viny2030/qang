@@ -188,11 +188,12 @@ devices until a real run exists (Part X).
 ## PART VI. Quantum cybersecurity, random-number generation and post-quantum frontiers
 
 ### Chapter 16. Demarcation: quantum cryptography against post-quantum cryptography (PQC)
-16.1 The nature of PQC: classical lattice algorithms (ML-KEM/Kyber, ML-DSA/Dilithium), codes and hashes — §13, §14 (context)
-16.2 Why qg does not apply to PQC: no Hermitian operators, qubits or Bloch sphere in those schemes — §13, §14
-16.3 The quantum attack vector (Shor/QPE): the eigenstate register projects onto qg_Z = −1 without resolving the phase — §13
+16.0 ✅ written on the chapter 1 base: BB84's QBER sits in the middle of the scale (Shor–Preskill threshold at 780 m-qg), ML-KEM's decryption failure against the pole (≤ 2^−138.8, 3·10⁻³⁹ m-qg away: proved, not measured); toy scheme counted and exact — figures: BB84/PQC frontier, Grover, Shor per qubit
+16.1 The nature of PQC: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205) and HQC (codes, 2025) — §13, §14 (context)
+16.2 Why qg does not apply to PQC: no Hermitian operators, qubits or Bloch sphere; the only probability, δ, is counted and cannot be — §13, §14
+16.3 The quantum attack vector: Grover advances the qang angle by 4·arcsin 2^(−n/2) per iteration (checked to 10⁻¹⁰ rad, n = 4–10); in the QPE of an eigenstate the target register stays at qg_Z = −1 and each counting qubit carries one bit in m_X; in Shor single-qubit readings see the order only for a power of 2 (N = 15 yes, N = 21 with r = 6 no) — §13; in the book, exact state
 16.4 Conclusion: qang is a physical- and quantum-layer tool, not classical algebraic cryptography — §14
-16.5 ⚠️ There is no `qang.crypto` module: the cryptography lives in `examples/` (bb84_*, certified_qrng_*) and in `manuscript/crypto*`
+16.5 ⚠️ There is no `qang.crypto` module: the cryptography lives in `examples/` (bb84_*, qrng_qg_certified, ionq_sim_*) and in `manuscript/crypto*`
 
 ### Chapter 17. Quantum key distribution (QKD) and BB84 in qg space
 17.1 QBER in qg observables: QBER_Z = (1 − |qg_Z|)/2, QBER_X = (1 − |qg_X|)/2 — §40
