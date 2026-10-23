@@ -108,13 +108,13 @@ hasta que exista una corrida real (Parte X).
 ## PARTE III. Física de neutrinos, oscilaciones y simulación cuántica (`qang.neutrino`)
 
 ### Capítulo 9. Cinemática cuántica de la oscilación de sabor en el vacío
-9.0 La probabilidad de oscilación P(ν_α→ν_β) como probabilidad qang: su ángulo 2arccos √P, su lectura en m-qg y su barra de error en la escala del capítulo 1 — §167
+9.0 La probabilidad de oscilación P(ν_α→ν_β) como probabilidad qang: su ángulo 2 arcsin √P, su lectura m = 1000(1 − 2P) m-qg y su barra de error en la escala del capítulo 1 — §167
 9.1 La oscilación ν_e ↔ ν_μ ↔ ν_τ como rotación geométrica unitaria en la esfera qg — §151
 9.2 Probabilidad en el vacío: qg_Z = cos²2θ + sin²2θ·cos Δ (ley de cosenos esférica) y P(ν_α → ν_β) — §151
-9.3 El ángulo de mezcla en el máximo de oscilación es un cuarto del ángulo qang: θ_mezcla = θ_qg/4 — §151
+9.3 El ángulo de mezcla en el máximo de oscilación es un cuarto del ángulo qang: θ_mezcla = θ_qg/4; para θ > π/4 devuelve π/2 − θ (degeneración de octante) — §151
 9.4 Barras de error que no dependen de θ: σ = 1/(4√(N+½)) — §151
 9.5 Tres sabores en el sector de peso 1 (|100⟩, |010⟩, |001⟩) sobre 3 qubits; PMNS como tres RBS y dos fases — §151
-9.6 ⚠️ Supresión del ruido con el filtro qg: el error baja ~3× (3,0–3,8×) **en modelos de ruido simulados** — §151 🧪
+9.6 ⚠️ Supresión del ruido con el filtro qg: el error baja ~3× (3,0–3,8×) **en modelos de ruido simulados** — §151; en hardware real (IQM Garnet) 1,6× y el máximo de oscilación vuelve a 2,6 GeV — §165; figuras: cono de precesión, espectro de tres sabores, corrida en Garnet
 9.7 La asimetría CP en el vacío y por qué sobrevive incluso sin filtro — §151
 
 ### Capítulo 10. Efectos de materia, neutrinos solares y oscilaciones colectivas

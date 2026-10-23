@@ -109,13 +109,13 @@ devices until a real run exists (Part X).
 ## PART III. Neutrino physics, oscillations and quantum simulation (`qang.neutrino`)
 
 ### Chapter 9. Quantum kinematics of flavour oscillation in vacuum
-9.0 The oscillation probability P(ν_α→ν_β) as a qang probability: its angle 2arccos √P, its m-qg reading and its error bar on the scale of Chapter 1 — §167
+9.0 The oscillation probability P(ν_α→ν_β) as a qang probability: its angle 2 arcsin √P, its reading m = 1000(1 − 2P) m-qg and its error bar on the scale of Chapter 1 — §167
 9.1 ν_e ↔ ν_μ ↔ ν_τ oscillation as a unitary geometric rotation on the qg sphere — §151
 9.2 Vacuum probability: qg_Z = cos²2θ + sin²2θ·cos Δ (the spherical law of cosines) and P(ν_α → ν_β) — §151
-9.3 At the oscillation maximum the mixing angle is a quarter of the qang angle: θ_mix = θ_qg/4 — §151
+9.3 At the oscillation maximum the mixing angle is a quarter of the qang angle: θ_mix = θ_qg/4; for θ > π/4 it returns π/2 − θ (octant degeneracy) — §151
 9.4 Error bars independent of θ: σ = 1/(4√(N+½)) — §151
 9.5 Three flavours in the weight-1 sector (|100⟩, |010⟩, |001⟩) on 3 qubits; PMNS as three RBS gates and two phases — §151
-9.6 ⚠️ Noise suppression with the qg filter: the error falls ~3× (3.0–3.8×) **on simulated noise models** — §151 🧪
+9.6 ⚠️ Noise suppression with the qg filter: the error falls ~3× (3.0–3.8×) **on simulated noise models** — §151; on real hardware (IQM Garnet) 1.6× and the oscillation maximum returns to 2.6 GeV — §165; figures: precession cone, three-flavour spectrum, Garnet run
 9.7 The CP asymmetry in vacuum, and why it survives even without the filter — §151
 
 ### Chapter 10. Matter effects, solar neutrinos and collective oscillations
