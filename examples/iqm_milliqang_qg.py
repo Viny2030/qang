@@ -40,6 +40,37 @@ environment that has iqm-client[qiskit], e.g. .venv-iqm):
   python examples/iqm_milliqang_qg.py --probe --yes-i-accept-qpu-cost      1 circuit, 100 shots, cost only
   python examples/iqm_milliqang_qg.py --prereg              freeze this file (sha256) before --run
   python examples/iqm_milliqang_qg.py --run --yes-i-accept-qpu-cost        the 26 circuits
+
+Findings (2026-10-23; pre-registration sha256 a5de8db2...50a8, committed in 32f36452 before the run; the run used
+that exact file, then only this block was added):
+
+Probe (cost measurement, not a test): job 01a167a8-8fae-73fc-b7e2-044fbfb11461, |0> on QB1, 100 shots, 100 zeros;
+0.50 credits.
+
+Run: job 01a167ab-10d0-7089-9585-8007897b412f, Garnet, qubit 0, 26 circuits x 4000 shots, 37 s wall.
+Readout from the poles: e0 = 0.0055, e1 = 0.029 (contrast 0.966), far better than the fake backends (~0.05).
+
+  M1 target   measured   predicted   sigma   z          (m-qg)
+     +707      +690.5     +706.1     11.6   -1.34
+     +500      +474.0     +506.3     14.1   -2.29
+     -500      -514.5     -459.2     14.1   -3.91
+     -707      -687.0     -659.1     12.4   -2.26
+        0       +25.0      +23.5      5.8   +0.25   (pooled equator, 40 000 shots)
+  M2 equator copies (m-qg): 28.0 22.5 23.0 20.5 37.5 17.5 34.5 20.5 13.0 32.5; sd 7.9 against the binomial 15.8.
+  Chains, readout-corrected shortfall s(k) (m-qg): k = 3: -2.6, 5: 8.3, 7: 17.1, 9: 10.4, 11: 18.1, 15: 23.3,
+     21: 45.1, 27: 34.7, 33: 53.9, 41: 63.2 (sigma 5.4-7.7).
+
+  M1 PASS (4 of 5 within 3 sigma), but not cleanly: the four sweep points all read below the prediction, by 16 to
+     55 m-qg, while the poles and the equator fit. The affine readout model holds at the calibrated angles (0,
+     pi/2, pi); at intermediate angles the R_y rotation itself is off by tens of m-qg.
+  M2 FAIL: the equator copies scatter half as much as binomial shot noise (ratio 0.50, below the 0.55 bound).
+     Independent shots cannot do that; by chance it happens with probability 0.013. Not explained by this run.
+  M3 PASS, but uninformative beyond k = 15: fitting two parameters on four noisy points makes the extrapolation
+     sigma grow to 86-423 m-qg at k = 21-41, so any reading passes. A design flaw of the prediction, recorded as such.
+  M4 PASS: s(41) = 63.2 +- 7.7 m-qg, 8 sigma. The accumulated error is plainly visible in m-qg.
+  * The growth is linear, not quadratic: a single slope fits all ten chains, 1.64 m-qg per X gate (chi2/dof 0.81).
+    A linear cost per gate points to incoherent error (relaxation during the pulses), not a coherent over-rotation,
+    which would grow as k^2. In m-qg the X gate of this qubit costs about 1.6 m-qg, a number one can budget with.
 """
 
 import hashlib

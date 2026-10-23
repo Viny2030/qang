@@ -7009,6 +7009,42 @@ Exact identities, no noise, checked in `tests/test_probability.py`; the book's c
   gives p₀, qg_Z, m, θ and qg_S with intervals: 750 zeros in 1000 shots read 500.0 [444.5, 551.7] m-qg and
   θ = 60.0° [56.5°, 63.6°]. Nothing here is new statistics; it is the same estimator written in every qang unit.
 
+## 168. The milli-qang on real hardware: IQM Garnet (`examples/iqm_milliqang_qg.py`)
+
+Does reasoning in m-qg predict a real chip? 26 circuits on one qubit of Garnet, 4000 shots each, one job: the two
+poles (readout errors e0, e1), R_y sweeps to +707, +500, -500, -707 m-qg, ten copies of the equator and chains of
+k = 3..41 X gates. Pre-registered (sha256 a5de8db2, commit 32f36452) before the run; a free rehearsal on IQM's fake
+backends passed M1-M4 on both. A 100-shot probe cost 0.50 credits.
+
+**Predictions.** M1: from the poles alone the affine readout m_pred = (1 - e0 - e1) m + 1000 (e1 - e0) predicts the
+sweep and the equator, at least 4 of 5 within 3 sigma. M2: the scatter of the ten equator copies is binomial,
+ratio in [0.55, 1.45]. M3: a (k - 1) + b (k^2 - 1) fitted on k = 3..9 predicts k = 11..41, at least 4 of 6 within
+3 sigma. M4: the shortfall at k = 41 exceeds 2 sigma.
+
+| check | result |
+|---|---|
+| readout | e0 = 0.0055, e1 = 0.029 (fake backends about 0.05) |
+| M1 | PASS, 4 of 5; z = -1.34, -2.29, -3.91, -2.26 on the sweep, +0.25 at the equator |
+| M2 | FAIL, ratio 0.50 (sd 7.9 against 15.8 m-qg) |
+| M3 | PASS, but uninformative beyond k = 15 (extrapolation sigma 86-423 m-qg) |
+| M4 | PASS, s(41) = 63.2 +- 7.7 m-qg |
+
+* **The m-qg budget works where it was meant to.** The X gate of this qubit costs 1.64 m-qg, and a single linear
+  slope fits all ten chains (chi2/dof 0.81): the error is incoherent (relaxation during the pulses), not a coherent
+  over-rotation, which would grow as k^2. After 41 gates the cost, 63 m-qg, stands 8 sigma above zero.
+* **The m-qg scale exposes what the readout model does not cover.** The affine readout fits the poles and the
+  equator, the angles the device calibrates, but all four intermediate R_y points read 16-55 m-qg below it. The
+  rotation itself is off at angles other than 0, pi/2 and pi; M1 passed by the 4-of-5 rule, not cleanly.
+* **M2 failed in the direction shot noise cannot explain.** The equator copies scatter half as much as independent
+  binomial shots would allow; the chance of that is 0.013. One run does not decide whether it is a fluke or a
+  property of how the device or its software returns batched circuits; a replication on other qubits and another
+  day is the test.
+* **M3 was a badly designed prediction**: four noisy points and two parameters leave the extrapolation band so wide
+  that any reading at large k passes. A future version should fix the model (one slope per gate) in advance.
+* **Verdict.** In m-qg a real chip's gate cost is measurable, linear and budgetable (1.6 m-qg per X), and the scale
+  makes a 16-55 m-qg angle error visible that the usual readout model hides. Shot noise did not describe the
+  scatter of repeated circuits in this run, which is open.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

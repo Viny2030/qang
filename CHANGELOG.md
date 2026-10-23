@@ -22,6 +22,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   outline of chapters 6-11 redefined around the probability equation, chapter 8 now opens with Fisher geometry.
 - Book chapter 6 (ES/EN), polarization on the chapter 1 base (Malus's law as the probability equation, Stokes
   parameters as qg values, photon-counting polarimetry), with three figures from `tools/make_cap06_figures.py`.
+- `examples/iqm_milliqang_qg.py` (§168): the milli-qang on IQM Garnet, pre-registered; M1, M3, M4 pass, M2 fails.
+  An X gate costs 1.64 m-qg, linearly in the number of gates; intermediate R_y angles read 16-55 m-qg off.
 
 ## [0.12.0] - 2026-10-17
 
