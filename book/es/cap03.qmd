@@ -155,6 +155,20 @@ En el simulador con ruido calibrado de IonQ (3 qubits, $a=0{,}3$, 36 000 consult
 error cuadrático medio de 0,0005–0,0015 y visibilidad ajustada de 0,965–0,985 por iteración, y entre 7 y 30 veces mejor
 que un Monte Carlo realista, cuyo circuito de profundidad cero está sesgado por el ruido del dispositivo (§39).
 
+## Sin qang y con qang {#sec-comparacion03}
+
+| acción | sin qang | con qang | diferencia |
+|---|---|---|---|
+| probabilidad de transición entre dos estados | $\lvert\langle\psi\vert\phi\rangle\rvert^2$ | $(1+\mathbf r_1\cdot\mathbf r_2)/2$, con ángulo qang igual al ángulo entre los estados y lectura $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg | **ninguna en el valor**; qang lo vuelve geométrico |
+| trayectoria de Grover | $\sin^2((2k+1)\theta_0)$ | $qg_k=T_{2k+1}(qg_0)$, éxito en $-1000$ m-qg | **equivalente**; la forma de Chebyshev muestra que la resolución en m-qg mejora un factor $m$ con la profundidad |
+| leer la búsqueda con ruido | histograma de cadenas de bits | lectura qg por qubit | **en contra**: la lectura qg pierde frente al histograma |
+| estimar una amplitud con ruido | máxima verosimilitud sobre conteos | la misma, con el ruido escrito en la verosimilitud qg | **a favor** hasta una profundidad cercana a $1/p$, no más allá |
+
+: Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion03}
+
+**Balance.** Las identidades del capítulo son exactas, pero ninguna da un número que no se obtenga con la amplitud
+habitual. La única comparación con ruido real del capítulo es desfavorable para la lectura qg, y queda escrita así.
+
 ## En código {#sec-codigo03}
 
 ```python

@@ -324,6 +324,20 @@ error that the usual model does not see. But it was tested on one qubit, once, a
 scatter of repeated circuits. Replication on more qubits and on another day is pending, and the book treats this base
 as solid mathematically and promising, but not yet consolidated, experimentally.
 
+## Without qang and with qang {#sec-comparison01}
+
+| action | without qang | with qang | difference |
+|---|---|---|---|
+| describe the outcome of a qubit | the probability $p_0$ (or $\langle Z\rangle$) | $qg_Z$, the angle $\theta$, $m$ and $qg_S$, all exact functions of $p_0$ | **none in content**: the same information; qang gives it a working scale from $-1000$ to $+1000$ |
+| error bar of a reading | $\sqrt{p_0(1-p_0)/N}$, different for each state | the angle has variance $1/N$ for every pure state; in m-qg, $1000\sin\theta/\sqrt N$ | **in favour**: a single, state-independent bound for planning shots |
+| compare a gate error with shot noise | infidelity on one side, binomial deviation on the other, in different units | both in m-qg (on Garnet, 1.64 m-qg per $X$ gate against the run's shot noise) | **in favour**: one scale for the error budget |
+| improve the device | — | — | **none**: the scale measures, it does not correct; prediction M2 of §168 failed |
+
+: The chapter's actions without the qang scale and with it. {#tbl-comparison01}
+
+**Balance.** The base adds no information to $p_0$: it reorganizes it. What it gains is a uniform error bar in the
+angle and a common unit for gate errors and shot noise, which are exactly the two things the rest of the book uses.
+
 ## In code {#sec-code01}
 
 The `qang.probability` module is this chapter's analysis tool: it reads counts and returns every reading, each with

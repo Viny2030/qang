@@ -166,6 +166,20 @@ Since $r^2$ is a sum of squares, it inherits the bias of the quadratic estimator
 adds $(1-qg^2)/N$, and an entangled state looks purer than it is. The exact correction $(N\widehat{qg}^{\,2}-1)/(N-1)$ is
 applied axis by axis (`radius2_estimate`), and in a definite-weight state the $Z$ axis is enough.
 
+## Without qang and with qang {#sec-comparison05}
+
+| action | without qang | with qang | difference |
+|---|---|---|---|
+| measure local purity | tomography in three bases and $\operatorname{Tr}\rho^2$ | $r^2=qg_X^2+qg_Y^2+qg_Z^2$; at definite weight, $1-r^2=4p_0(1-p_0)$ from **a single basis** | **in favour**: one basis instead of three, thanks to the probability equation together with the definite weight |
+| measure the entanglement of a pure register | one-tangle and Meyer–Wallach by definition | the deficit $1-r^2$, averaged | **none in value**; with a mixed global state the deficit mixes entanglement and noise, like the one-tangle |
+| direction of a noisy state | $\theta=\arccos qg_Z$ | $\theta=\arccos(qg_Z/r)$ | **in favour** with depolarizing noise; **against** with pure dephasing |
+| wave–particle duality | visibility and predictability separately | $P^2+V^2=r^2$ | **reformulation**: the same relation |
+
+: The chapter's actions without the qang scale and with it. {#tbl-comparison05}
+
+**Balance.** The practical difference is reading purity at definite weight with a single measurement basis. The rest
+are known identities written on the qang scale, and the direction–radius split wins or loses depending on the noise.
+
 ## In code {#sec-code05}
 
 ```python

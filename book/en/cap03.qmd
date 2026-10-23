@@ -156,6 +156,20 @@ On IonQ's calibrated noisy simulator (3 qubits, $a=0.3$, 36 000 queries), the es
 error of 0.0005–0.0015 and a fitted visibility of 0.965–0.985 per iteration, and 7 to 30 times better than a realistic
 Monte Carlo, whose depth-zero circuit is biased by the device noise (§39).
 
+## Without qang and with qang {#sec-comparison03}
+
+| action | without qang | with qang | difference |
+|---|---|---|---|
+| transition probability between two states | $\lvert\langle\psi\vert\phi\rangle\rvert^2$ | $(1+\mathbf r_1\cdot\mathbf r_2)/2$, with qang angle equal to the angle between the states and reading $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg | **none in value**; qang makes it geometric |
+| Grover trajectory | $\sin^2((2k+1)\theta_0)$ | $qg_k=T_{2k+1}(qg_0)$, success at $-1000$ m-qg | **equivalent**; the Chebyshev form shows that the m-qg resolution improves by a factor $m$ with depth |
+| read the search with noise | bit-string histogram | per-qubit qg reading | **against**: the qg reading loses to the histogram |
+| estimate an amplitude with noise | maximum likelihood on counts | the same, with the noise written into the qg likelihood | **in favour** up to a depth near $1/p$, not beyond |
+
+: The chapter's actions without the qang scale and with it. {#tbl-comparison03}
+
+**Balance.** The chapter's identities are exact, but none gives a number that the usual amplitude does not. The only
+comparison with real noise in the chapter is unfavourable to the qg reading, and it is written down as such.
+
 ## In code {#sec-code03}
 
 ```python

@@ -329,6 +329,21 @@ error de ángulo que el modelo usual no ve. Pero se probó en un qubit, una vez,
 dispersión de circuitos repetidos. La replicación en más qubits y en otro día queda pendiente, y el libro trata
 esta base como sólida en lo matemático y prometedora, pero todavía no consolidada, en lo experimental.
 
+## Sin qang y con qang {#sec-comparacion01}
+
+| acción | sin qang | con qang | diferencia |
+|---|---|---|---|
+| describir el resultado de un qubit | la probabilidad $p_0$ (o $\langle Z\rangle$) | $qg_Z$, el ángulo $\theta$, $m$ y $qg_S$, todos funciones exactas de $p_0$ | **ninguna en contenido**: es la misma información; qang le da una escala de trabajo de $-1000$ a $+1000$ |
+| barra de error de una lectura | $\sqrt{p_0(1-p_0)/N}$, distinta en cada estado | el ángulo tiene varianza $1/N$ para todo estado puro; en m-qg, $1000\sin\theta/\sqrt N$ | **a favor**: una sola cota, independiente del estado, para planificar disparos |
+| comparar un error de compuerta con el ruido de disparo | infidelidad por un lado, desvío binomial por otro, en unidades distintas | los dos en m-qg (en Garnet, 1,64 m-qg por compuerta $X$ frente al ruido de disparo de la corrida) | **a favor**: una sola escala para el presupuesto de errores |
+| mejorar el dispositivo | — | — | **ninguna**: la escala mide, no corrige; la predicción M2 de §168 falló |
+
+: Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion01}
+
+**Balance.** La base no agrega información a $p_0$: la reorganiza. Lo que gana es una barra de error uniforme en el
+ángulo y una unidad común para errores de compuerta y ruido de disparo, que son exactamente las dos cosas que se
+usan en el resto del libro.
+
 ## En código {#sec-codigo01}
 
 El módulo `qang.probability` es la herramienta de análisis de este capítulo: lee conteos y devuelve todas las
