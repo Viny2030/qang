@@ -153,7 +153,7 @@ devices until a real run exists (Part X).
 13.3 Dual-rail encoding: detecting and discarding every photon loss — §158
 13.4 ⚠️ At 20 km, dual rail with the filter beats the noiseless single-rail optimum on Torino and Fez (2 of 3 simulated models; a post hoc finding, not pre-registered) — §158
 13.5 🔬 Passive quantum routing and switching in metropolitan multi-carrier topologies
-13.6 🆕 Quantum repeaters and chained entanglement swapping, read with qg_ZZ and the dual-rail filter
+13.6 🆕 Quantum repeaters and chained entanglement swapping, read with qg_ZZ and the dual-rail filter: in the book, exact algebra (the correlators of Bell-diagonal pairs multiply; F = (1 + w^n)/2); the dual-rail chain on devices is still open
 13.7 🆕 Gate teleportation and its readout in qg correlators
 
 ---

@@ -152,7 +152,7 @@ hasta que exista una corrida real (Parte X).
 13.3 Codificación en doble carril: detección y descarte de toda pérdida fotónica — §158
 13.4 ⚠️ A 20 km el doble carril con filtro supera al óptimo sin ruido de carril simple en Torino y Fez (2 de 3 modelos simulados; hallazgo post hoc, no pre-registrado) — §158
 13.5 🔬 Enrutamiento y conmutación cuántica pasiva en topologías metropolitanas multiportadora
-13.6 🆕 Repetidores cuánticos e intercambio de entrelazamiento (entanglement swapping) en cadena, leídos con qg_ZZ y el filtro de doble carril
+13.6 🆕 Repetidores cuánticos e intercambio de entrelazamiento (entanglement swapping) en cadena, leídos con qg_ZZ y el filtro de doble carril: en el libro, álgebra exacta (los correladores de pares diagonales en Bell se multiplican; F = (1 + w^n)/2); la cadena con doble carril en dispositivos sigue pendiente
 13.7 🆕 Teleportación de compuertas (gate teleportation) y su lectura en correladores qg
 
 ---
