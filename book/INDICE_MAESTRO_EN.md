@@ -68,7 +68,8 @@ devices until a real run exists (Part X).
 
 ## PART II. Local geometry, quantum optics and geometric phases
 
-### Chapter 5. The local Bloch radius as a measure of purity and entanglement
+### Chapter 5. The local Bloch radius as a measure of purity and entanglement ✅ written
+5.0 The probability equation with a radius: p₀ = (1 + r cos θ)/2 and r² = (m_X² + m_Y² + m_Z²)/10⁶; at definite weight, 1 − r² = 4p₀(1 − p₀) — §167; figures: deficit in m-qg, direction separated from the radius, duality P² + V² = r²
 5.1 r² = qg_X² + qg_Y² + qg_Z² = 2·Tr(ρ²) − 1 and the surface deficit D = 1 − r² — §97
 5.2 Correspondence with the Coffman–Kundu–Wootters one-tangle and the Meyer–Wallach measure — §98
 5.3 The radius under elementary gates (rotations, CNOT, CZ, iSWAP, Fredkin) — §97
@@ -77,6 +78,7 @@ devices until a real run exists (Part X).
 5.6 Wave–particle duality as the Bloch radius, and entropic uncertainty with qg_S — §127
 
 ### Chapter 6. Optical polarization and Stokes parameters in qg units
+6.0 Malus's law as a probability equation: the transmission of a polarizer is p_0=cos ²Δ, so the qang angle is 2Δ and each normalized Stokes parameter reads in m-qg (S_1/S_0=qg_Z) — §167
 6.1 The Poincaré–Bloch equivalence: qg_Z = S1/S0, qg_X = S2/S0, qg_Y = S3/S0 — §83
 6.2 Degree of polarization as the norm of the qg vector, and the purity of mixed states — §83
 6.3 Lossless Mueller matrices and the rule qg_P′ = qg{U†PU} — §83
@@ -84,13 +86,16 @@ devices until a real run exists (Part X).
 6.5 Single-photon polarimetry from counts, with credible intervals — §83
 
 ### Chapter 7. Geometric phases and Stokes' theorem on the sphere
+7.0 The geometric phase in the probability equation: a loop at constant qg_Z picks up (qg_Z-1)/2=-p_1 turns, that is, (m-1000)/2000 turns in milli-qang — §167
 7.1 The Berry connection A = i⟨ψ|∇ψ⟩ and its curvature as a monopole field — §84
 7.2 Stokes on the sphere: γ(C) = −Ω(C)/2 as a curvature flux — §84
 7.3 Loops at constant qg_Z: phase φ = (qg_Z − 1)/2 turns (mod 1) — §84
 7.4 Three independent computations (gauge-invariant overlap product, spherical fan, numerical flux) — §84
 7.5 The Pancharatnam phase and the canonical octant H → D → R → H — §84
 
-### Chapter 8. Clocks, gravity and metrology 🆕 (not in either index)
+### Chapter 8. Fisher information, clocks, gravity and metrology 🆕 (not in either index)
+8.0 From the base: the qang angle is the Fisher-flat coordinate (information 1 per shot) and qg_Z the curved one (1/(1-qg_Z²)); Chapter 1's m-qg resolution is its Cramér–Rao bound — §167
+8.0b Information geometry in qg: Fisher information, the Fubini–Study metric (g_ii=1/4 in the real R_Y+CZ ansatz) and the block of qg_Y correlators; ⚠️ natural gradient in qg coordinates equals Euclidean descent in θ: the 1.3× gain comes from the block metric (4.6× with the full one), not from the coordinate — §159
 8.1 Two clocks and gravity: the differential phase read from the ellipse (gravitational redshift over 1 m) — §126
 8.2 Ramsey sensing: where to operate — §36
 8.3 GHZ metrology: when entanglement beats N independent qubits — §58
@@ -101,6 +106,7 @@ devices until a real run exists (Part X).
 ## PART III. Neutrino physics, oscillations and quantum simulation (`qang.neutrino`)
 
 ### Chapter 9. Quantum kinematics of flavour oscillation in vacuum
+9.0 The oscillation probability P(ν_α→ν_β) as a qang probability: its angle 2arccos √P, its m-qg reading and its error bar on the scale of Chapter 1 — §167
 9.1 ν_e ↔ ν_μ ↔ ν_τ oscillation as a unitary geometric rotation on the qg sphere — §151
 9.2 Vacuum probability: qg_Z = cos²2θ + sin²2θ·cos Δ (the spherical law of cosines) and P(ν_α → ν_β) — §151
 9.3 At the oscillation maximum the mixing angle is a quarter of the qang angle: θ_mix = θ_qg/4 — §151
@@ -110,6 +116,7 @@ devices until a real run exists (Part X).
 9.7 The CP asymmetry in vacuum, and why it survives even without the filter — §151
 
 ### Chapter 10. Matter effects, solar neutrinos and collective oscillations
+10.0 Flavour probabilities in matter, in the Sun and in collective oscillations read in m-qg: matter effects as shifts measured on the same scale as shot noise — §167
 10.1 The MSW effect in the Earth as a weight-preserving Trotter circuit; matter mimics CP violation — §152
 10.2 Solar neutrinos: the adiabatic MSW conversion and why the whole Sun is one rotation (`solar_circuit`) — §156
 10.3 Collective oscillations: the conserved number is the mass number, not the flavour number (`reweight_sectors`) — §154
@@ -117,6 +124,7 @@ devices until a real run exists (Part X).
 10.5 🔬 Varying densities and comparison with the Standard Solar Model (a realistic density profile; §156 uses a simplified one today)
 
 ### Chapter 11. Majorana phases, neutrinoless double beta decay and sterile neutrinos
+11.0 Majorana phases and the sterile neutrino seen from the probability equation: what changes no probability changes no qang reading — §167
 11.1 ⚠️ Majorana phases are invisible to oscillations: they are diagonal phases that the transpiler deletes (`majorana_invisible`); not a deliberate "analytic elimination" — §163
 11.2 Majorana phases in the effective mass m_ββ of neutrinoless double beta decay — §163
 11.3 The sterile neutrino ν_s as a fourth qubit in the weight-1 sector (`sterile_circuit`) — §163

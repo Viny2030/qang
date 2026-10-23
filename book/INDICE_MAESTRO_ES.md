@@ -67,7 +67,8 @@ hasta que exista una corrida real (Parte X).
 
 ## PARTE II. Geometría local, óptica cuántica y fases geométricas
 
-### Capítulo 5. El radio local de Bloch como medida de pureza y entrelazamiento
+### Capítulo 5. El radio local de Bloch como medida de pureza y entrelazamiento ✅ escrito
+5.0 La ecuación de probabilidad con radio: p₀ = (1 + r cos θ)/2 y r² = (m_X² + m_Y² + m_Z²)/10⁶; en peso definido, 1 − r² = 4p₀(1 − p₀) — §167; figuras: déficit en m-qg, dirección separada del radio, dualidad P² + V² = r²
 5.1 r² = qg_X² + qg_Y² + qg_Z² = 2·Tr(ρ²) − 1 y el déficit superficial D = 1 − r² — §97
 5.2 Correspondencia con el one-tangle de Coffman–Kundu–Wootters y la medida de Meyer–Wallach — §98
 5.3 El radio ante compuertas elementales (rotaciones, CNOT, CZ, iSWAP, Fredkin) — §97
@@ -76,6 +77,7 @@ hasta que exista una corrida real (Parte X).
 5.6 Dualidad onda–partícula como radio de Bloch e incertidumbre entrópica con qg_S — §127
 
 ### Capítulo 6. Polarización óptica y parámetros de Stokes en unidades qg
+6.0 La ley de Malus como ecuación de probabilidad: la transmisión de un polarizador es p_0=cos ²Δ, de modo que el ángulo qang es 2Δ y cada parámetro de Stokes normalizado se lee en m-qg (S_1/S_0=qg_Z) — §167
 6.1 Equivalencia Poincaré–Bloch: qg_Z = S1/S0, qg_X = S2/S0, qg_Y = S3/S0 — §83
 6.2 Grado de polarización como norma del vector qg y pureza de estados mixtos — §83
 6.3 Matrices de Mueller sin pérdidas y la regla qg_P′ = qg{U†PU} — §83
@@ -83,13 +85,16 @@ hasta que exista una corrida real (Parte X).
 6.5 Polarimetría de fotón único a partir de conteos e intervalos de credibilidad — §83
 
 ### Capítulo 7. Fases geométricas y el teorema de Stokes en la esfera
+7.0 La fase geométrica en la ecuación de probabilidad: un bucle a qg_Z constante acumula (qg_Z-1)/2=-p_1 vueltas, es decir, (m-1000)/2000 vueltas en mili-qang — §167
 7.1 La conexión de Berry A = i⟨ψ|∇ψ⟩ y su curvatura como campo monopolar — §84
 7.2 Stokes en la esfera: γ(C) = −Ω(C)/2 como flujo de curvatura — §84
 7.3 Bucles a qg_Z constante: fase φ = (qg_Z − 1)/2 vueltas (mod 1) — §84
 7.4 Tres cálculos independientes (producto de solapamientos invariante de gauge, abanico esférico, flujo numérico) — §84
 7.5 La fase de Pancharatnam y el octante canónico H → D → R → H — §84
 
-### Capítulo 8. Relojes, gravedad y metrología 🆕 (no figuraba en los índices)
+### Capítulo 8. Información de Fisher, relojes, gravedad y metrología 🆕 (no figuraba en los índices)
+8.0 Desde la base: el ángulo qang es la coordenada plana de Fisher (información 1 por disparo) y qg_Z la curva (1/(1-qg_Z²)); la resolución en m-qg del capítulo 1 es su cota de Cramér–Rao — §167
+8.0b Geometría de la información en qg: información de Fisher, métrica de Fubini–Study (g_ii=1/4 en el ansatz real R_Y+CZ) y el bloque de correladores qg_Y; ⚠️ el gradiente natural en coordenadas qg equivale al descenso euclidiano en θ: la ganancia de 1,3× viene de la métrica de bloque (4,6× con la completa), no de la coordenada — §159
 8.1 Dos relojes y la gravedad: la fase diferencial leída de la elipse (corrimiento al rojo gravitatorio a 1 m) — §126
 8.2 Sensado Ramsey: dónde operar — §36
 8.3 Metrología GHZ: cuándo el entrelazamiento le gana a N qubits independientes — §58
@@ -100,6 +105,7 @@ hasta que exista una corrida real (Parte X).
 ## PARTE III. Física de neutrinos, oscilaciones y simulación cuántica (`qang.neutrino`)
 
 ### Capítulo 9. Cinemática cuántica de la oscilación de sabor en el vacío
+9.0 La probabilidad de oscilación P(ν_α→ν_β) como probabilidad qang: su ángulo 2arccos √P, su lectura en m-qg y su barra de error en la escala del capítulo 1 — §167
 9.1 La oscilación ν_e ↔ ν_μ ↔ ν_τ como rotación geométrica unitaria en la esfera qg — §151
 9.2 Probabilidad en el vacío: qg_Z = cos²2θ + sin²2θ·cos Δ (ley de cosenos esférica) y P(ν_α → ν_β) — §151
 9.3 El ángulo de mezcla en el máximo de oscilación es un cuarto del ángulo qang: θ_mezcla = θ_qg/4 — §151
@@ -109,6 +115,7 @@ hasta que exista una corrida real (Parte X).
 9.7 La asimetría CP en el vacío y por qué sobrevive incluso sin filtro — §151
 
 ### Capítulo 10. Efectos de materia, neutrinos solares y oscilaciones colectivas
+10.0 Las probabilidades de sabor en materia, en el Sol y en oscilaciones colectivas leídas en m-qg: los efectos de materia como corrimientos medidos en la misma escala que el ruido de disparo — §167
 10.1 Efecto MSW en la Tierra como circuito de Trotter que conserva el peso; la materia imita violación CP — §152
 10.2 Neutrinos solares: conversión MSW adiabática y por qué el Sol entero es una sola rotación (`solar_circuit`) — §156
 10.3 Oscilaciones colectivas: el número conservado es el número de masa, no el de sabor (`reweight_sectors`) — §154
@@ -116,6 +123,7 @@ hasta que exista una corrida real (Parte X).
 10.5 🔬 Densidades variables y comparación con el Modelo Solar Estándar (perfil de densidad realista; hoy §156 usa un perfil simplificado)
 
 ### Capítulo 11. Fases de Majorana, doble beta sin neutrinos y neutrinos estériles
+11.0 Las fases de Majorana y el neutrino estéril vistos desde la ecuación de probabilidad: lo que no cambia ninguna probabilidad no cambia ninguna lectura qang — §167
 11.1 ⚠️ Invisibilidad de las fases de Majorana en oscilaciones: son fases diagonales que el transpilador elimina (`majorana_invisible`); no es una "eliminación analítica" deliberada — §163
 11.2 Las fases de Majorana en la masa efectiva m_ββ de la doble beta sin neutrinos — §163
 11.3 El neutrino estéril ν_s como cuarto qubit en el sector de peso 1 (`sterile_circuit`) — §163
