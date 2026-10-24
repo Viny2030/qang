@@ -252,6 +252,7 @@ hasta que exista una corrida real (Parte X).
 22.6 Calibrar con el propio dispositivo; toda la cadena sobre modelos de ruido — §119, §120
 
 ### Capítulo 23. Geometría de la información, gradiente natural (QNG) y núcleos
+23.0 ✅ escrito sobre la base del capítulo 1: se optimiza en el ángulo qang y se lee en qg (dE/dqg = −(1/sin θ)·dE/dθ). Verificado con código: el descenso desde el polo (qg crudo salta de polo a polo; recorte y Tikhonov convergen más lento), Fisher 1 en θ y 1/(1 − qg_Z²) en qg (Monte Carlo 0,98–1,05), dos evaluaciones por parámetro como mínimo, diagonal de la métrica 1/4 y bloques qg_YY exactos (1,7·10⁻¹⁶), las 20 semillas del QNG de §159 reproducidas (103 / nunca / 79,5 / 22,5 pasos), el amortiguado (2,3–13× desde tasa 2), arccos(2K − 1) = 2φ y la varianza del gradiente (local qg 470× la global en n = 10, L = 2); núcleos en dispositivos simulados citados de §161 — figuras: Fisher, QNG y mesetas
 23.1 La singularidad dE/dqg = −(1/sin θ)·dE/dθ y sus regularizaciones (Tikhonov, recorte) — §1
 23.2 Información de Fisher cuántica en qg: F_Q = 1/(1 − qg_Z²); el ángulo qang es la coordenada plana de Fisher — §159
 23.3 ⚠️ El QNG en coordenadas qg equivale al descenso euclidiano en θ: la ganancia 1,3× viene de la métrica de bloques qg_YY (4,6× con la métrica completa), no de la coordenada — §159

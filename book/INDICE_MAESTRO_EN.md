@@ -253,6 +253,7 @@ devices until a real run exists (Part X).
 22.6 Calibrating with the device itself; the whole pipeline on noise models — §119, §120
 
 ### Chapter 23. Information geometry, the natural gradient (QNG) and kernels
+23.0 ✅ written on the chapter 1 base: optimize in the qang angle, read out in qg (dE/dqg = −(1/sin θ)·dE/dθ). Checked with code: descent from the pole (raw qg jumps pole to pole; clipping and Tikhonov converge more slowly), Fisher 1 in θ and 1/(1 − qg_Z²) in qg (Monte Carlo 0.98–1.05), two evaluations per parameter at least, metric diagonal 1/4 and exact qg_YY blocks (1.7·10⁻¹⁶), the 20 §159 QNG seeds reproduced (103 / never / 79.5 / 22.5 steps), pole damping (2.3–13× from rate 2), arccos(2K − 1) = 2φ and the gradient variance (qg local 470× the global at n = 10, L = 2); kernels on simulated devices quoted from §161 — figures: Fisher, QNG and plateaus
 23.1 The singularity dE/dqg = −(1/sin θ)·dE/dθ and its regularizations (Tikhonov, clipping) — §1
 23.2 Quantum Fisher information in qg: F_Q = 1/(1 − qg_Z²); the qang angle is the Fisher-flat coordinate — §159
 23.3 ⚠️ QNG in qg coordinates equals Euclidean descent in θ: the 1.3× gain comes from the qg_YY block metric (4.6× with the full metric), not from the coordinate — §159
