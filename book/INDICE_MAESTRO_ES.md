@@ -221,6 +221,7 @@ hasta que exista una corrida real (Parte X).
 ## PARTE VII. Aprendizaje automático cuántico (QML) y el filtro de simetría
 
 ### Capítulo 20. Redes neuronales cuánticas que conservan el peso (WeightQNN)
+20.0 ✅ escrito sobre la base del capítulo 1: en el sector de peso 1 cada qubit lee m_Z = 1000(1 − 2u_q²); bajo T1 igual el filtro qg da la lectura sin ruido exacta (≤ 10⁻¹² m-qg) a un costo K = (1 − γ)^{kd} conocido antes; sin él las lecturas corren hacia el polo norte. Verificado con código: exactitud, ley de K, rangos de lectura (qg_Z 5 de 10 en peso 2, qg_ZZ 10), gemelo cuadrático (9·10⁻¹⁶) y gradiente filtrado en PennyLane; precisiones citadas de las notas (sin scikit-learn en el entorno). Encontró un NaN de PennyLane 0.45.1 (default.mixed + backprop + SingleExcitation) — figuras: filtro y costo, escala §111 y gradiente
 20.1 Compuertas RBS (Reconfigurable Beam Splitter) como rotaciones de Givens que conservan el peso — §76
 20.2 Arquitecturas en peso 1 (modelo E) y peso 2 (modelo W) sobre 5, 6 y 8 qubits — §75, §79, §90, §111, §114
 20.3 Codificación de datos: normalización unaria, productos de pares, anillo y codificación dual — §16, §87, §101

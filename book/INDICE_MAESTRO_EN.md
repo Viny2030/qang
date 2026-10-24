@@ -222,6 +222,7 @@ devices until a real run exists (Part X).
 ## PART VII. Quantum machine learning (QML) and the symmetry filter
 
 ### Chapter 20. Weight-conserving quantum neural networks (WeightQNN)
+20.0 ✅ written on the chapter 1 base: in the weight-1 sector each qubit reads m_Z = 1000(1 − 2u_q²); under equal T1 the qg filter gives the exact noiseless readout (≤ 10⁻¹² m-qg) at a cost K = (1 − γ)^{kd} known beforehand; without it the readings drift to the north pole. Checked with code: exactness, the K law, readout ranks (qg_Z 5 of 10 at weight 2, qg_ZZ 10), the quadratic twin (9·10⁻¹⁶) and the filtered gradient in PennyLane; accuracies quoted from the notes (no scikit-learn in the environment). Found a PennyLane 0.45.1 NaN (default.mixed + backprop + SingleExcitation) — figures: filter and cost, §111 scaling and gradient
 20.1 RBS (Reconfigurable Beam Splitter) gates as weight-conserving Givens rotations — §76
 20.2 Architectures in weight 1 (model E) and weight 2 (model W) on 5, 6 and 8 qubits — §75, §79, §90, §111, §114
 20.3 Data encoding: unary normalization, pair products, ring and dual encoding — §16, §87, §101
