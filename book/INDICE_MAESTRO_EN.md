@@ -205,11 +205,12 @@ devices until a real run exists (Part X).
 17.6 BB84 on IonQ's noisy simulator — §44
 
 ### Chapter 18. Certified quantum random numbers (QRNG) and channel auditing
-18.1 Why output-bias analysis fails: 50/50 hides the loss of private randomness to decoherence — §41
+18.0 ✅ written on the chapter 1 base: the output is m_Z, privacy is the transverse radius m_⊥, and what Eve knows is one more reading, m_E = √(1000² − m_⊥²) — figures: private randomness and estimators, pole and calibration, IonQ with a leak
+18.1 Why output-bias analysis fails: 50/50 hides the loss of private randomness to decoherence (100% of runs unsafe under dephasing or thermal mixing) — §41
 18.2 A closed min-entropy bound from transverse coherence: H_min = −log₂[(1 + √(1 − qg_X² − qg_Y²))/2] — §41
-18.3 Security in 100% of the noisy runs against 0% for the usual estimators — §41
-18.4 Asymmetric readout calibration (the §31 protocol): thermal population against detector error — §31, §41
-18.5 QRNG on IonQ's calibrated simulator (Aria-1/Forte-1) with leakage and attenuation — §42
+18.3 Safety in 100% of runs with the ± pair estimator (one rotation: 7% unsafe at V = 0.2) against 0% for the bias estimator — §41
+18.4 Asymmetric readout calibration (the §31 protocol): thermal population against detector error; calibrating with the standard suite makes the certifier unsafe (100% of runs with p ≥ 0.03) — §31, §41
+18.5 QRNG on IonQ's noisy simulator (aria-1/forte-1) with a designed MS leak: qg safe in 24 of 24 cells, 81–90% of the truth — §42
 
 ### Chapter 19. Quantum batteries and networks 🆕 (not in either index)
 19.1 Qubit batteries in qg: storage, certification and locked charge (ergotropy) — §56

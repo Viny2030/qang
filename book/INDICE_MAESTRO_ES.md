@@ -204,11 +204,12 @@ hasta que exista una corrida real (Parte X).
 17.6 BB84 en el simulador ruidoso de IonQ — §44
 
 ### Capítulo 18. Números aleatorios certificados (QRNG) y auditoría de canales
-18.1 El fallo del análisis por sesgo de salida: 50/50 oculta la pérdida de aleatoriedad privada por decoherencia — §41
+18.0 ✅ escrito sobre la base del capítulo 1: la salida es m_Z, la privacidad es el radio transversal m_⊥, y lo que sabe Eve es una lectura más, m_E = √(1000² − m_⊥²) — figuras: aleatoriedad privada y estimadores, polo y calibración, IonQ con fuga
+18.1 El fallo del análisis por sesgo de salida: 50/50 oculta la pérdida de aleatoriedad privada por decoherencia (100 % de corridas inseguras con desfase o mezcla térmica) — §41
 18.2 Cota cerrada de entropía mínima por coherencia transversal: H_min = −log₂[(1 + √(1 − qg_X² − qg_Y²))/2] — §41
-18.3 Seguridad en el 100 % de las corridas con ruido frente al 0 % de los estimadores habituales — §41
-18.4 Calibración de lectura asimétrica (protocolo §31): población térmica frente a error del detector — §31, §41
-18.5 QRNG en el simulador calibrado de IonQ (Aria-1/Forte-1) con fugas y atenuación — §42
+18.3 Seguridad en el 100 % de las corridas con el estimador de pares ± (un solo giro: 7 % inseguras con V = 0,2) frente al 0 % del estimador por sesgo — §41
+18.4 Calibración de lectura asimétrica (protocolo §31): población térmica frente a error del detector; calibrar con la suite estándar vuelve inseguro al certificador (100 % de corridas con p ≥ 0,03) — §31, §41
+18.5 QRNG en el simulador ruidoso de IonQ (aria-1/forte-1) con una fuga MS diseñada: qg seguro en 24 de 24 celdas, 81–90 % de la verdad — §42
 
 ### Capítulo 19. Baterías cuánticas y redes 🆕 (no figuraba en los índices)
 19.1 Baterías de qubits en qg: almacenamiento, certificación y carga bloqueada (ergotropía) — §56
