@@ -266,6 +266,7 @@ devices until a real run exists (Part X).
 ## PART VIII. Many-body dynamics, open channels, matter and chemistry
 
 ### Chapter 24. Hamiltonian simulation, quantum walks and VarQTE
+24.0 ✅ written on the chapter 1 base: conserving N turns each shot's weight into a witness and the filter reaches every Z observable. Checked with code: the noiseless Trotter error and the walk's σ² (exact quantum 1.96, Trotter 1.94, classical 0.86), channels as r′ = M r + c (2.8·10⁻¹⁶), the fidelity of the stored VarQTE angles (0.934 at t = 2), the share of the error the filter removes on XXZ (T1: 48.5% with CNOTs, 99.5% with N-conserving gates), the noiseless Gauss and spin witnesses, the qg coherence bound in Ising (92–100%) and the RBM bounds; simulated-device results read from the stored JSON (§147, §162) or quoted (§22, §29, §60, §61, §66, §148) — figures: walk and filters
 24.1 Trotterized XY chains in the weight-1 sector — §147
 24.2 Continuous-time quantum walks: ballistic spreading recovered (exponent 1.84 against 1.94) against noise-driven diffusion (0.87) — §147
 24.3 XXZ chains with several excitations: the filter at weights k = 1, 2, 3 — §60, §61, §148
@@ -277,6 +278,7 @@ devices until a real run exists (Part X).
 24.9 RBM states: the I–η plane swept by the qg marginals — §47
 
 ### Chapter 25. Quantum spectroscopy, PCA and molecular chemistry
+25.0 ✅ written on the chapter 1 base: the register's mean readout counts the electrons (reference-free witness and filter). Checked with code: the PCA circuit leaves λ_k on qubit k (2.2·10⁻¹⁶), H2 commutes with N, N↑ and N↓ and its ansatz reaches FCI (5·10⁻¹¹ mHa), the inversion and swap tests (3–6·10⁻¹⁶) and the XY mixer 100% feasible; simulated-device results read from the stored JSON (§146, §149, §153) or quoted (§21, §28, §30, §38, §50, §52–§55, §69) — figures: PCA and checks
 25.1 Quantum PCA of data in the unary weight-1 sector — §146
 25.2 Adjacent RBS rotations to isolate eigenvalues on physical qubits — §146
 25.3 The molecular symmetry witness and occupation number: N_e = Σ(1 − qg_Z,i)/2 — §21, §52

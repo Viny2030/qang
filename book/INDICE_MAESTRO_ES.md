@@ -265,6 +265,7 @@ hasta que exista una corrida real (Parte X).
 ## PARTE VIII. Dinámica de muchos cuerpos, canales abiertos, materia y química
 
 ### Capítulo 24. Simulación hamiltoniana, caminatas cuánticas y VarQTE
+24.0 ✅ escrito sobre la base del capítulo 1: conservar N convierte el peso de cada disparo en un testigo y el filtro alcanza todos los observables en Z. Verificado con código: el error de Trotter sin ruido y σ² de la caminata (cuántica exacta 1,96, Trotter 1,94, clásica 0,86), los canales como r′ = M r + c (2,8·10⁻¹⁶), la fidelidad de los ángulos guardados de VarQTE (0,934 en t = 2), la parte del error que quita el filtro en XXZ (T1: 48,5 % con CNOT, 99,5 % con compuertas que conservan N), los testigos de Gauss y de espín sin ruido, la cota qg de coherencia en Ising (92–100 %) y las cotas de la RBM; resultados en dispositivos simulados leídos de los JSON guardados (§147, §162) o citados (§22, §29, §60, §61, §66, §148) — figuras: caminata y filtros
 24.1 Trotter de cadenas XY en el sector de peso 1 — §147
 24.2 Caminatas cuánticas continuas: propagación balística recuperada (exponente 1,84 frente a 1,94) contra difusión por ruido (0,87) — §147
 24.3 Cadenas XXZ con varias excitaciones: el filtro en pesos k = 1, 2, 3 — §60, §61, §148
@@ -276,6 +277,7 @@ hasta que exista una corrida real (Parte X).
 24.9 Estados RBM: el plano I–η barrido por los marginales qg — §47
 
 ### Capítulo 25. Espectroscopía cuántica, PCA y química molecular
+25.0 ✅ escrito sobre la base del capítulo 1: la lectura media del registro cuenta los electrones (testigo sin referencia y filtro). Verificado con código: el circuito PCA deja λ_k en el qubit k (2,2·10⁻¹⁶), H2 conmuta con N, N↑ y N↓ y su ansatz llega a FCI (5·10⁻¹¹ mHa), los tests de inversión y swap (3–6·10⁻¹⁶) y el mezclador XY 100 % factible; resultados en dispositivos simulados leídos de los JSON guardados (§146, §149, §153) o citados (§21, §28, §30, §38, §50, §52–§55, §69) — figuras: PCA y verificaciones
 25.1 PCA cuántico de datos en el sector unario de peso 1 — §146
 25.2 Rotaciones RBS adyacentes para aislar autovalores en qubits físicos — §146
 25.3 Testigo de simetría molecular y número de ocupación: N_e = Σ(1 − qg_Z,i)/2 — §21, §52
