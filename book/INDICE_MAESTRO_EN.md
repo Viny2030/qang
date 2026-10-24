@@ -196,9 +196,10 @@ devices until a real run exists (Part X).
 16.5 ⚠️ There is no `qang.crypto` module: the cryptography lives in `examples/` (bb84_*, qrng_qg_certified, ionq_sim_*) and in `manuscript/crypto*`
 
 ### Chapter 17. Quantum key distribution (QKD) and BB84 in qg space
-17.1 QBER in qg observables: QBER_Z = (1 − |qg_Z|)/2, QBER_X = (1 − |qg_X|)/2 — §40
-17.2 The asymmetry witness A_Z = qg(0) + qg(1): instrumental T1 relaxation or an eavesdropper (Eve) — §40
-17.3 Fewer false alarms under hardware degradation while keeping intrusion detection — §40, §43, §44. 🔬 The figures "48–96% → 0.6%" are not in the notes (the 0.6% in §40 says something else: the qg monitor *misses* Eve in that attack); use the real figures
+17.0 ✅ written on the chapter 1 base: the four BB84 readings give the centre and semi-axis of the image of the sphere in each basis; T1 shifts the centre and shrinks by the same amount, the eavesdropper shrinks without moving it, a Pauli channel shrinks axes — figures: ellipse and monitor, finite key, three families and IonQ
+17.1 QBER in qg observables: exactly Q = (1 − r/1000)/2 with r the semi-axis in m-qg; (1 − |qg|)/2 is the symmetric case — §40
+17.2 The asymmetry witness A_Z = qg(0) + qg(1) = 2c_Z: instrumental T1 relaxation or an eavesdropper (Eve) — §40
+17.3 Fewer false alarms under hardware degradation while keeping intrusion detection — §40, §43, §44. Real figures (N = 2000): the QBER monitor fires in 48% and 96% of windows with T1 drift to 0.04 and 0.06, the qg monitor in 0.9% and 0.6%; the T1-mimicking attack gets past the qg monitor (0.6%) by construction
 17.4 Finite blocks (the Tomamichel–Lim–Gisin–Renner bound): early drift detection without shortening the key — §43
 17.5 Combined attacks (T1 drift with active interception), partial cloning, one-basis attacks and T2 drift — §49
 17.6 BB84 on IonQ's noisy simulator — §44

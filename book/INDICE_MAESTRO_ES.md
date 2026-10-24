@@ -195,9 +195,10 @@ hasta que exista una corrida real (Parte X).
 16.5 ⚠️ No existe un módulo `qang.crypto`: la criptografía vive en `examples/` (bb84_*, qrng_qg_certified, ionq_sim_*) y en `manuscript/crypto*`
 
 ### Capítulo 17. Distribución cuántica de claves (QKD) y BB84 en espacio qg
-17.1 QBER en observables qg: QBER_Z = (1 − |qg_Z|)/2, QBER_X = (1 − |qg_X|)/2 — §40
-17.2 El testigo de asimetría A_Z = qg(0) + qg(1): relajación T1 del instrumento o espía (Eve) — §40
-17.3 Reducción de falsas alarmas ante degradación del hardware manteniendo la detección de intrusión — §40, §43, §44. 🔬 Las cifras "48–96 % → 0,6 %" no están en las notas (el 0,6 % de §40 dice otra cosa: el monitor qg *no* ve a Eve en ese ataque); tomar las cifras reales
+17.0 ✅ escrito sobre la base del capítulo 1: las cuatro lecturas de BB84 dan el centro y el semieje de la imagen de la esfera en cada base; T1 corre el centro y encoge igual, el espía encoge sin moverlo, un canal de Pauli encoge ejes — figuras: elipse y monitor, clave finita, tres familias e IonQ
+17.1 QBER en observables qg: exactamente Q = (1 − r/1000)/2 con r el semieje en m-qg; (1 − |qg|)/2 es el caso simétrico — §40
+17.2 El testigo de asimetría A_Z = qg(0) + qg(1) = 2c_Z: relajación T1 del instrumento o espía (Eve) — §40
+17.3 Reducción de falsas alarmas ante degradación del hardware manteniendo la detección de intrusión — §40, §43, §44. Cifras reales (N = 2000): el monitor QBER salta en 48 % y 96 % de las ventanas con deriva T1 a 0,04 y 0,06, el qg en 0,9 % y 0,6 %; el ataque que imita T1 pasa por el monitor qg (0,6 %) por construcción
 17.4 Bloques finitos (cota de Tomamichel–Lim–Gisin–Renner): detección temprana de deriva sin acortar la clave — §43
 17.5 Ataques combinados (deriva T1 con intercepción activa), clonación parcial, ataques en una base y deriva T2 — §49
 17.6 BB84 en el simulador ruidoso de IonQ — §44
