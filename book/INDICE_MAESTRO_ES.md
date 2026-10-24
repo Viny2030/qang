@@ -311,20 +311,22 @@ hasta que exista una corrida real (Parte X).
 ## PARTE X. Evidencia experimental, hardware real y auditoría de falsación
 
 ### Capítulo 28. Metodología: el protocolo de falsación pre-registrada
+28.0 ✅ escrito: auditoría del repositorio con código (tools/make_cap28_figures.py). 33 corridas guardan veredictos: 143 predicciones, 89 cumplidas y 54 falladas; las 54 predicciones fijadas por commit (§71–§165) son anteriores a sus resultados; de los 15 pre-registros por sha256, 7 se comprueban en git y 8 sólo tienen su propia fecha. Hardware real: IQM Garnet, neutrinos (4 de 4, 1,59×) y milli-qang (3 de 4, 1,64 m-qg por X) — figura: auditoría
 28.1 La disciplina del pre-registro: hipótesis y predicciones comprometidas (commit o sha256) antes de correr — §46, §75–§164
-28.2 ⚠️ Balance de aciertos y fallos: "123 cumplidas / 53 falladas" corresponde **solo a §75–§123** (línea QML). 🔬 Recontar sobre §1–§164
+28.2 Balance de aciertos y fallos: 89/54 en las 33 corridas con veredictos guardados; "123 / 53" es sólo la línea QML (§75–§123, README). El recuento total de §1–§168 queda a mano
 28.3 Bancos de prueba: modelos de ruido calibrados de IBM (Brisbane, Sherbrooke, Torino, Fez, flota de 21) e IonQ (Aria-1, Forte-1) — §20, §137, §144
-28.4 🔬 Ejecución en hardware real: QuTech/Quantum Inspire (Tuna-5, Tuna-9, Tuna-17) no aparece en el repo. IonQ Forte-1 (§128) fue rechazado por el proveedor antes de aceptar el trabajo. **Hoy no hay ningún dato en hardware real**
-28.5 🔬 El criterio de falsación para QPU: varianza del eco de inversión Var_θ(F_eco) sobre trayectorias continuas (no está en el repo)
+28.4 Ejecución en hardware real: IonQ Forte-1 (§128) rechazado antes de aceptar el trabajo; IQM Garnet (§165, §168) da los dos primeros datos reales. QuTech/Quantum Inspire no aparece en el repo y no se usa
+28.5 El criterio Var_θ(F_eco) no está definido en el repo: el capítulo lo deja fuera como propuesta sin escribir
 28.6 🆕 🧪 Primera corrida en hardware real: IQM Resonance (Garnet/Emerald) — ver Capítulo 31
 
 ### Capítulo 29. Las ventajas empíricas confirmadas (dónde qg aporta un beneficio medible)
-29.1 Restauración exacta bajo T1: precisión ideal recuperada en corridas pareadas — §80. 🔬 Las cifras "+2,5 puntos en peso 1, +16,5 en peso 2, 60 corridas" no están en las notas: verificar
-29.2 Reducción del error de observables polares en backends ruidosos simulados de IBM e IonQ — §85, §144. 🔬 El rango "2,7–3,6×" no está en las notas: tomar las cifras de §85 y §144
-29.3 Fugas dentro del sector mitigadas por eco: decisiones erróneas de 15 a 3 en 945 lecturas — §106–§108 (945 lecturas confirmado; verificar "15 → 3")
+29.0 ✅ escrito: factores recalculados dispositivo por dispositivo de las corridas guardadas (tools/make_cap29_figures.py): el filtro baja el error 1,6–11× en 74 casos simulados, nunca peor; 1,59× en IQM Garnet (hardware real); BB84 de la caché del capítulo 17 — figuras: factores y BB84
+29.1 Restauración exacta bajo T1: precisión ideal recuperada en corridas pareadas — §80. Cifras verificadas en §80: +2,5 puntos en peso 1 y +16,5 en peso 2, 60 corridas
+29.2 Reducción del error de observables polares en backends ruidosos simulados de IBM e IonQ — §85, §144. Cifras: 2,9–3,6× (§85) y 2,4–9,0× en la flota (§144); el "2,7–3,6×" no estaba en las notas
+29.3 Fugas dentro del sector mitigadas por eco: decisiones erróneas de 15 a 3 en 945 lecturas — §106–§108 (verificado: 15 / 7 / 3)
 29.4 Cuantización del control (ver 27.4) — §17
 29.5 Diagnóstico de T1 sin simulación clásica (ver 27.2) — §18
-29.6 ⚠️ Mitigación sin circuitos extra: 3× en neutrinos de 3 sabores y 5,5× con estériles (simulado) — §151, §163
+29.6 Mitigación sin circuitos extra: 3,4× en neutrinos de 3 sabores y 5,6× con estériles (simulado), 1,59× en IQM Garnet — §151, §163, §165
 29.7 Ciberseguridad operativa: supresión de falsas alarmas en BB84 ante derivas térmicas — §40, §43
 
 ### Capítulo 30. Límites estructurales, equivalencias y resultados negativos
@@ -383,8 +385,8 @@ Bibliografía general y registro DOI de Zenodo (10.5281/zenodo.22832150 y prepri
 
 **Por demostrar o sacar (🔬):** analogía del decibelio (1.6); U3_qang y su verificación (2.2–2.3); qudits con Gell-Mann
 (2.4); Householder, Grover como reflexión y la fórmula de transición (3.1–3.4); cifra del 33,9 % (4.5); Modelo Solar
-Estándar (10.5); fenomenología 3+1 (11.5); enrutamiento metropolitano (13.5); P-CTC no lineales (14.6); cifras de
-29.1 y 29.2; Quantum Inspire (28.4); Var_θ(F_eco) (28.5); recuento total (28.2).
+Estándar (10.5); fenomenología 3+1 (11.5); enrutamiento metropolitano (13.5); P-CTC no lineales (14.6); Quantum
+Inspire (28.4, fuera del repo); Var_θ(F_eco) (28.5, sin definir); recuento total a mano (28.2).
 
 **Propuestas nuevas (🆕):** relojes y metrología (Cap. 8); repetidores y teleportación de compuertas (13.6–13.7);
 D-CTC (14.7) y costo de la posselección (14.8); agujeros negros más grandes, curva de Page y agujeros de gusano

@@ -312,20 +312,22 @@ devices until a real run exists (Part X).
 ## PART X. Experimental evidence, real hardware and the falsification audit
 
 ### Chapter 28. Methodology: the pre-registered falsification protocol
+28.0 ✅ written: an audit of the repository in code (tools/make_cap28_figures.py). 33 runs store verdicts: 143 predictions, 89 passed and 54 failed; the 54 predictions pinned by commit (§71–§165) precede their results; of the 15 sha256 pre-registrations, 7 are checkable in git and 8 only have their own timestamp. Real hardware: IQM Garnet, neutrinos (4 of 4, 1.59×) and milli-qang (3 of 4, 1.64 m-qg per X) — figure: audit
 28.1 The discipline of pre-registration: hypotheses and predictions committed (commit or sha256) before running — §46, §75–§164
-28.2 ⚠️ Passes and failures: "123 passed / 53 failed" covers **only §75–§123** (the QML line). 🔬 Recount over §1–§164
+28.2 Passes and failures: 89/54 over the 33 runs with stored verdicts; "123 / 53" is only the QML line (§75–§123, README). The full count of §1–§168 is left to be done by hand
 28.3 Test beds: calibrated noise models of IBM (Brisbane, Sherbrooke, Torino, Fez, a fleet of 21) and IonQ (Aria-1, Forte-1) — §20, §137, §144
-28.4 🔬 Runs on real hardware: QuTech/Quantum Inspire (Tuna-5, Tuna-9, Tuna-17) does not appear in the repository. IonQ Forte-1 (§128) was refused by the provider before the job was accepted. **There is no real-hardware data today**
-28.5 🔬 The falsification criterion for QPUs: variance of the inversion echo Var_θ(F_echo) over continuous trajectories (not in the repository)
+28.4 Runs on real hardware: IonQ Forte-1 (§128) refused before the job was accepted; IQM Garnet (§165, §168) gives the first two real data points. QuTech/Quantum Inspire does not appear in the repository and is not used
+28.5 The Var_θ(F_echo) criterion is not defined in the repository: the chapter leaves it out as an unwritten proposal
 28.6 🆕 🧪 First run on real hardware: IQM Resonance (Garnet/Emerald) — see Chapter 31
 
 ### Chapter 29. The confirmed empirical advantages (where qg brings a measurable benefit)
-29.1 Exact restoration under T1: ideal accuracy recovered in paired runs — §80. 🔬 The figures "+2.5 points at weight 1, +16.5 at weight 2, 60 runs" are not in the notes: verify
-29.2 Lower error of polar observables on simulated noisy IBM and IonQ backends — §85, §144. 🔬 The range "2.7–3.6×" is not in the notes: take the figures from §85 and §144
-29.3 In-sector leakage mitigated by echo: wrong decisions from 15 to 3 in 945 readings — §106–§108 (945 readings confirmed; verify "15 → 3")
+29.0 ✅ written: factors recomputed device by device from the stored runs (tools/make_cap29_figures.py): the filter cuts the error 1.6–11× in 74 simulated cases, never worse; 1.59× on IQM Garnet (real hardware); BB84 from the Chapter 17 cache — figures: factors and BB84
+29.1 Exact restoration under T1: ideal accuracy recovered in paired runs — §80. Figures checked in §80: +2.5 points at weight 1 and +16.5 at weight 2, 60 runs
+29.2 Lower error of polar observables on simulated noisy IBM and IonQ backends — §85, §144. Figures: 2.9–3.6× (§85) and 2.4–9.0× on the fleet (§144); the "2.7–3.6×" was not in the notes
+29.3 In-sector leakage mitigated by echo: wrong decisions from 15 to 3 in 945 readings — §106–§108 (checked: 15 / 7 / 3)
 29.4 Control quantization (see 27.4) — §17
 29.5 T1 diagnosis without classical simulation (see 27.2) — §18
-29.6 ⚠️ Mitigation without extra circuits: 3× for 3-flavour neutrinos and 5.5× with sterile neutrinos (simulated) — §151, §163
+29.6 Mitigation without extra circuits: 3.4× for 3-flavour neutrinos and 5.6× with a sterile neutrino (simulated), 1.59× on IQM Garnet — §151, §163, §165
 29.7 Operational cybersecurity: fewer BB84 false alarms under thermal drift — §40, §43
 
 ### Chapter 30. Structural limits, equivalences and negative results
@@ -384,8 +386,8 @@ General bibliography and Zenodo DOI record (10.5281/zenodo.22832150 and associat
 
 **To prove or drop (🔬):** the decibel analogy (1.6); U3_qang and its verification (2.2–2.3); qudits with Gell-Mann
 (2.4); Householder, Grover as a reflection and the transition formula (3.1–3.4); the 33.9% figure (4.5); the Standard
-Solar Model (10.5); 3+1 phenomenology (11.5); metropolitan routing (13.5); non-linear P-CTCs (14.6); the figures for
-29.1 and 29.2; Quantum Inspire (28.4); Var_θ(F_echo) (28.5); the full count (28.2).
+Solar Model (10.5); 3+1 phenomenology (11.5); metropolitan routing (13.5); non-linear P-CTCs (14.6); Quantum
+Inspire (28.4, outside the repository); Var_θ(F_echo) (28.5, undefined); the full count by hand (28.2).
 
 **New proposals (🆕):** clocks and metrology (Ch. 8); repeaters and gate teleportation (13.6–13.7);
 D-CTC (14.7) and the cost of postselection (14.8); larger black holes, the Page curve and traversable wormholes
