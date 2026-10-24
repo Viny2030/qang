@@ -243,9 +243,10 @@ hasta que exista una corrida real (Parte X).
 21.8 Errores de compuerta y de lectura en el simulador de qang — §124, §129
 
 ### Capítulo 22. Calibración por eco y el sesgo de ruido (pull effect)
+22.0 ✅ escrito sobre la base del capítulo 1: un salto T1 lleva todos los qubits al polo norte (se descarta); un error dentro del sector mueve la excitación (se mide con ecos y se invierte con M^(1/2)). Verificado con código: el eco con un error de intercambio controlado (M^(1/2) quita 53–62 %, M completa corrige de más), F7 exacta (7·10⁻¹⁵) con 0–60 % de decisiones arrastradas y Spearman 0,60 con el índice de arrastre, y la lectura sin arrastre (ninguna decisión cambia); resultados en dispositivos simulados citados de las notas — figuras: eco y arrastre
 22.1 Fugas dentro del sector: errores que conservan el peso pero permutan la excitación — §105
 22.2 Matrices de transferencia por eco M (5×5, 10×10, 28×28) y desmezcla con M^(−1/2) — §105, §107, §115
-22.3 Supresión de errores de clasificación en backends simulados de IBM e IonQ — §106, §113. 🔬 La cifra "43–56 % en el valor de decisión" no está en las notas: verificar
+22.3 Supresión de errores de clasificación en backends simulados de IBM e IonQ — §106, §113. Cifra verificada: el eco reduce 43–56 % el error del valor de decisión que deja el filtro (§106)
 22.4 El sesgo por ruido (pull effect) en clasificadores multiclase: el término K·L + (1 − K)·v_c — §121
 22.5 Lecturas sin arrastre (pull-free): robustas incluso sin filtro — §123
 22.6 Calibrar con el propio dispositivo; toda la cadena sobre modelos de ruido — §119, §120
@@ -378,7 +379,7 @@ Bibliografía general y registro DOI de Zenodo (10.5281/zenodo.22832150 y prepri
 **Por demostrar o sacar (🔬):** analogía del decibelio (1.6); U3_qang y su verificación (2.2–2.3); qudits con Gell-Mann
 (2.4); Householder, Grover como reflexión y la fórmula de transición (3.1–3.4); cifra del 33,9 % (4.5); Modelo Solar
 Estándar (10.5); fenomenología 3+1 (11.5); enrutamiento metropolitano (13.5); P-CTC no lineales (14.6); cifras de
-BB84 (17.3), de clasificación (22.3), de T1 (27.2), de 29.1 y 29.2; Quantum Inspire (28.4); Var_θ(F_eco) (28.5); recuento total (28.2).
+de T1 (27.2), de 29.1 y 29.2; Quantum Inspire (28.4); Var_θ(F_eco) (28.5); recuento total (28.2).
 
 **Propuestas nuevas (🆕):** relojes y metrología (Cap. 8); repetidores y teleportación de compuertas (13.6–13.7);
 D-CTC (14.7) y costo de la posselección (14.8); agujeros negros más grandes, curva de Page y agujeros de gusano

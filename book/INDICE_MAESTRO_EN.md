@@ -244,9 +244,10 @@ devices until a real run exists (Part X).
 21.8 Gate and readout errors in qang's simulator — §124, §129
 
 ### Chapter 22. Echo calibration and the noise bias (pull effect)
+22.0 ✅ written on the chapter 1 base: a T1 jump takes every qubit to the north pole (discarded); an in-sector error moves the excitation (measured with echoes and inverted with M^(1/2)). Checked with code: the echo with a controlled swap error (M^(1/2) removes 53–62%, the full M over-corrects), F7 exact (7·10⁻¹⁵) with 0–60% of decisions pulled and Spearman 0.60 with the pull index, and the pull-free readout (no decision flips); simulated-device results quoted from the notes — figures: echo and pull
 22.1 In-sector leakage: errors that keep the weight but permute the excitation — §105
 22.2 Echo transfer matrices M (5×5, 10×10, 28×28) and unmixing with M^(−1/2) — §105, §107, §115
-22.3 Fewer classification errors on simulated IBM and IonQ backends — §106, §113. 🔬 The figure "43–56% of the decision value" is not in the notes: verify
+22.3 Fewer classification errors on simulated IBM and IonQ backends — §106, §113. Figure checked: the echo cuts the decision-value error left by the filter by 43–56% (§106)
 22.4 The noise bias (pull effect) in multiclass classifiers: the term K·L + (1 − K)·v_c — §121
 22.5 Pull-free readouts: robust even without the filter — §123
 22.6 Calibrating with the device itself; the whole pipeline on noise models — §119, §120
@@ -379,7 +380,7 @@ General bibliography and Zenodo DOI record (10.5281/zenodo.22832150 and associat
 **To prove or drop (🔬):** the decibel analogy (1.6); U3_qang and its verification (2.2–2.3); qudits with Gell-Mann
 (2.4); Householder, Grover as a reflection and the transition formula (3.1–3.4); the 33.9% figure (4.5); the Standard
 Solar Model (10.5); 3+1 phenomenology (11.5); metropolitan routing (13.5); non-linear P-CTCs (14.6); the figures for
-BB84 (17.3), classification (22.3), T1 (27.2), 29.1 and 29.2; Quantum Inspire (28.4); Var_θ(F_echo) (28.5); the full count (28.2).
+T1 (27.2), 29.1 and 29.2; Quantum Inspire (28.4); Var_θ(F_echo) (28.5); the full count (28.2).
 
 **New proposals (🆕):** clocks and metrology (Ch. 8); repeaters and gate teleportation (13.6–13.7);
 D-CTC (14.7) and the cost of postselection (14.8); larger black holes, the Page curve and traversable wormholes
