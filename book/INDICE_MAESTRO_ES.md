@@ -291,6 +291,7 @@ hasta que exista una corrida real (Parte X).
 ## PARTE IX. Corrección de errores, síndromes continuos y caracterización
 
 ### Capítulo 26. Corrección de errores y síndromes continuos
+26.0 ✅ escrito sobre la base del capítulo 1: cada síndrome es la lectura qg de una paridad. Verificado con código: las infidelidades lógicas de §27 y §32 y sus fronteras (p = γ; p = γ/4, es decir T2 = T1), la regla T2/T1 y la política con testigos qg (costo 6,4 %, 79 % de aciertos), las formas cerradas de los síndromes de Leung, el código de superficie d = 3 (pseudo-umbral 0,0753; síndromes ciegos al T1; decodificador consciente del T1 2,1–2,5×), la elección de cortes (§26, sin qiskit-addon-cutting) y RB/ZNE; resultados de circuito, qutrits, borrado y dispositivos citados (§64, §70–§74, §88–§99) — figuras: códigos y corte
 26.1 El código de 4 qubits de Leung para canales dominados por T1 y el criterio T2 > T1 — §27, §32
 26.2 El síndrome como testigo qg continuo: seguir la deriva y cambiar de código — §33, §88, §92, §93, §99
 26.3 Decodificador consciente de T1 con ruido a nivel de circuito; el código de superficie d = 3 en qg — §59, §64
@@ -299,8 +300,9 @@ hasta que exista una corrida real (Parte X).
 26.6 Benchmarking aleatorizado y ZNE en unidades qg; qg_S como señal de benchmarking — §10, §11
 
 ### Capítulo 27. Caracterización de hardware en qg
+27.0 ✅ escrito sobre la base del capítulo 1: la lectura de equilibrio es un termómetro y la lectura del aparato es afín en qg. Verificado con código: el barrido con heraldo contra la calibración estándar (e01 sin sesgo; temperatura a 1 mK; la estándar ve 0), la detección de T1 contra ruido unital (lectura media 0,88–0,91 contra XEB/HOP 0,70–0,76 con ruido fuerte; azar con ruido realista) y las grillas de control (π/2 exacto; 43 de 45 cargas mejores con qg); resultados en modelos IBM citados (§86, §145, §150) — figuras: caracterización y ruido/control
 27.1 T1, T2, temperatura efectiva y lectura en un solo barrido — §31, §86
-27.2 ⚠️ ¿Qué ruido es? qg_Z medio frente a XEB/HOP — §18. 🔬 La cifra "88–91 % con 100 disparos" no está en el repo: verificarla en §18 o sacarla 🧪
+27.2 ¿Qué ruido es? qg_Z medio frente a XEB/HOP — §18. Cifra verificada: 88 % con 100 disparos y 91 % con 1000–10 000 (ruido fuerte); con ruido realista todas las medidas quedan en el azar
 27.3 Errores coherentes de fase condicional y el crosstalk ZZ siempre activo — §145, §150
 27.4 Cuantización del control: la grilla pareja en qg baja el error en 43 de 45 distribuciones (mediana 1,56×) — §17
 
@@ -382,7 +384,7 @@ Bibliografía general y registro DOI de Zenodo (10.5281/zenodo.22832150 y prepri
 **Por demostrar o sacar (🔬):** analogía del decibelio (1.6); U3_qang y su verificación (2.2–2.3); qudits con Gell-Mann
 (2.4); Householder, Grover como reflexión y la fórmula de transición (3.1–3.4); cifra del 33,9 % (4.5); Modelo Solar
 Estándar (10.5); fenomenología 3+1 (11.5); enrutamiento metropolitano (13.5); P-CTC no lineales (14.6); cifras de
-de T1 (27.2), de 29.1 y 29.2; Quantum Inspire (28.4); Var_θ(F_eco) (28.5); recuento total (28.2).
+29.1 y 29.2; Quantum Inspire (28.4); Var_θ(F_eco) (28.5); recuento total (28.2).
 
 **Propuestas nuevas (🆕):** relojes y metrología (Cap. 8); repetidores y teleportación de compuertas (13.6–13.7);
 D-CTC (14.7) y costo de la posselección (14.8); agujeros negros más grandes, curva de Page y agujeros de gusano

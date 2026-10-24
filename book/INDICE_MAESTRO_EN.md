@@ -292,6 +292,7 @@ devices until a real run exists (Part X).
 ## PART IX. Error correction, continuous syndromes and characterization
 
 ### Chapter 26. Error correction and continuous syndromes
+26.0 ✅ written on the chapter 1 base: each syndrome is the qg readout of a parity. Checked with code: the §27 and §32 logical infidelities and their boundaries (p = γ; p = γ/4, i.e. T2 = T1), the T2/T1 rule and the qg-witness policy (6.4% cost, 79% right), the Leung syndromes' closed forms, the d = 3 surface code (pseudo-threshold 0.0753; syndromes blind to T1; T1-aware decoder 2.1–2.5×), cut selection (§26, without qiskit-addon-cutting) and RB/ZNE; circuit-level, qutrit, erasure and device results quoted (§64, §70–§74, §88–§99) — figures: codes and cutting
 26.1 Leung's 4-qubit code for T1-dominated channels and the T2 > T1 criterion — §27, §32
 26.2 The syndrome as a continuous qg witness: tracking drift and switching codes — §33, §88, §92, §93, §99
 26.3 A T1-aware decoder under circuit-level noise; the d = 3 surface code in qg — §59, §64
@@ -300,8 +301,9 @@ devices until a real run exists (Part X).
 26.6 Randomized benchmarking and ZNE in qg units; qg_S as a benchmarking signal — §10, §11
 
 ### Chapter 27. Hardware characterization in qg
+27.0 ✅ written on the chapter 1 base: the equilibrium readout is a thermometer and the instrument's readout is affine in qg. Checked with code: the heralded sweep against the standard calibration (unbiased e01; temperature to 1 mK; the standard one sees 0), T1 against unital-noise detection (mean readout 0.88–0.91 against XEB/HOP 0.70–0.76 with strong noise; chance with realistic noise) and the control grids (π/2 exact; 43 of 45 loads better with qg); IBM-model results quoted (§86, §145, §150) — figures: characterization and noise/control
 27.1 T1, T2, effective temperature and readout in a single sweep — §31, §86
-27.2 ⚠️ Which noise is it? Mean qg_Z against XEB/HOP — §18. 🔬 The figure "88–91% with 100 shots" is not in the repository: verify it in §18 or drop it 🧪
+27.2 Which noise is it? Mean qg_Z against XEB/HOP — §18. Figure checked: 88% with 100 shots and 91% with 1000–10,000 (strong noise); with realistic noise every measure is at chance
 27.3 Coherent conditional-phase errors and always-on ZZ crosstalk — §145, §150
 27.4 Control quantization: the even qg grid lowers the error in 43 of 45 distributions (median 1.56×) — §17
 
@@ -383,7 +385,7 @@ General bibliography and Zenodo DOI record (10.5281/zenodo.22832150 and associat
 **To prove or drop (🔬):** the decibel analogy (1.6); U3_qang and its verification (2.2–2.3); qudits with Gell-Mann
 (2.4); Householder, Grover as a reflection and the transition formula (3.1–3.4); the 33.9% figure (4.5); the Standard
 Solar Model (10.5); 3+1 phenomenology (11.5); metropolitan routing (13.5); non-linear P-CTCs (14.6); the figures for
-T1 (27.2), 29.1 and 29.2; Quantum Inspire (28.4); Var_θ(F_echo) (28.5); the full count (28.2).
+29.1 and 29.2; Quantum Inspire (28.4); Var_θ(F_echo) (28.5); the full count (28.2).
 
 **New proposals (🆕):** clocks and metrology (Ch. 8); repeaters and gate teleportation (13.6–13.7);
 D-CTC (14.7) and the cost of postselection (14.8); larger black holes, the Page curve and traversable wormholes
