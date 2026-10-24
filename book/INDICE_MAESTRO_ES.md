@@ -212,7 +212,9 @@ hasta que exista una corrida real (Parte X).
 18.5 QRNG en el simulador ruidoso de IonQ (aria-1/forte-1) con una fuga MS diseñada: qg seguro en 24 de 24 celdas, 81–90 % de la verdad — §42
 
 ### Capítulo 19. Baterías cuánticas y redes 🆕 (no figuraba en los índices)
-19.1 Baterías de qubits en qg: almacenamiento, certificación y carga bloqueada (ergotropía) — §56
+19.0 ✅ escrito sobre la base del capítulo 1: energía (1000 − m_Z)/2000, ergotropía (m_r − m_Z)/2000 y carga atrapada por la mezcla (1000 − m_r)/2000; para un estado puro la ergotropía es ω p₁ — figuras: reparto y almacenamiento, certificación y registro, par de Bell guardado
+19.1 Baterías de qubits en qg: almacenamiento (la inversión muere al cruzar el ecuador, t = T1 ln 2; cruce cerrado ln(4/3), ln(3/2)), certificación (la estimación directa ve carga en una batería pasiva en 99–100 % de las corridas) y carga bloqueada (Dicke D(4,2): radio local cero, suma de ergotropías locales 0) — §56
+19.2 Redes: un par de Bell guardado en dos memorias; corte BBM92 0,05–0,18 T1, una ronda DEJMPS casi lo duplica y conviene sólo después de 0,03–0,09 T1 — §57 (parte C; las partes A y B están en 12.6)
 
 ---
 

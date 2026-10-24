@@ -213,7 +213,9 @@ devices until a real run exists (Part X).
 18.5 QRNG on IonQ's noisy simulator (aria-1/forte-1) with a designed MS leak: qg safe in 24 of 24 cells, 81–90% of the truth — §42
 
 ### Chapter 19. Quantum batteries and networks 🆕 (not in either index)
-19.1 Qubit batteries in qg: storage, certification and locked charge (ergotropy) — §56
+19.0 ✅ written on the chapter 1 base: energy (1000 − m_Z)/2000, ergotropy (m_r − m_Z)/2000 and charge locked by mixing (1000 − m_r)/2000; for a pure state the ergotropy is ω p₁ — figures: split and storage, certification and register, stored Bell pair
+19.1 Qubit batteries in qg: storage (inversion dies at the equator crossing, t = T1 ln 2; closed crossover ln(4/3), ln(3/2)), certification (the plug-in estimate sees charge in a passive battery in 99–100% of runs) and locked charge (Dicke D(4,2): local radius zero, sum of local ergotropies 0) — §56
+19.2 Networks: a Bell pair stored in two memories; BBM92 cutoff 0.05–0.18 T1, one DEJMPS round almost doubles it and pays only after 0.03–0.09 T1 — §57 (part C; parts A and B are in 12.6)
 
 ---
 
