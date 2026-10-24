@@ -232,6 +232,7 @@ hasta que exista una corrida real (Parte X).
 20.8 Activaciones QSP ponderadas en una KAN de una capa; procesamiento cuántico de señales en qg — §134, §135, §136
 
 ### Capítulo 21. El filtro de simetría qg y la exactitud bajo relajación T1
+21.0 ✅ escrito sobre la base del capítulo 1: el salto lleva las lecturas al polo norte y la evolución sin salto es un escalar (1 − γ)^{k/2} sobre el sector. Verificado con código: el teorema en los sectores de peso 1 a 5 de 6 qubits (≤ 10⁻¹² m-qg), F5 (sólo cuentan los cocientes de las tasas), F6 (T1 + desfase → desfase solo), la regla del ECM de §94 contra disparos simulados (1,00–1,05) y ZNE de las lecturas filtradas (45 % lineal, 20 % Richardson); clasificación citada de las notas — figuras: teorema y regla, S* y ZNE
 21.1 Operadores de Kraus del amortiguamiento de amplitud y el decaimiento sin saltos (1 − γ)^(k/2) — §77
 21.2 Teorema: la posselección en el sector de peso k restaura exactamente el estado sin ruido bajo T1 homogéneo — §77
 21.3 Fracción de disparos conservados: K = (1 − γ)^(k·d); cómo escala con qubits, peso, profundidad y disparos — §94

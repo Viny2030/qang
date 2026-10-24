@@ -233,6 +233,7 @@ devices until a real run exists (Part X).
 20.8 Weighted-QSP activations in a one-layer KAN; quantum signal processing in qg — §134, §135, §136
 
 ### Chapter 21. The qg symmetry filter and exactness under T1 relaxation
+21.0 ✅ written on the chapter 1 base: the jump takes the readings to the north pole and the no-jump evolution is a scalar (1 − γ)^{k/2} on the sector. Checked with code: the theorem in the weight 1 to 5 sectors of 6 qubits (≤ 10⁻¹² m-qg), F5 (only the ratios of the rates count), F6 (T1 + dephasing → dephasing alone), the §94 MSE rule against simulated shots (1.00–1.05) and ZNE of the filtered readings (45% linear, 20% Richardson); classification quoted from the notes — figures: theorem and rule, S* and ZNE
 21.1 Kraus operators of amplitude damping and the no-jump decay (1 − γ)^(k/2) — §77
 21.2 Theorem: postselecting the weight-k sector exactly restores the noiseless state under homogeneous T1 — §77
 21.3 Fraction of shots kept: K = (1 − γ)^(k·d); how it scales with qubits, weight, depth and shots — §94
