@@ -372,6 +372,17 @@ devices until a real run exists (Part X).
 33.5 Quantum dots as charge and spin qubits: Rabi and charge-sensor read-out in qg; read-out fidelity in m-qg
 33.6 NV centres in nanodiamond: the ODMR contrast as qg_Z and nanoscale magnetometry in m-qg
 
+## PART XII. Cross-domain applications 🆕
+
+### Chapter 34. Angular architecture: chemistry, condensed matter, relativistic optics, thermodynamics and geometry
+⚠️ No module or research-notes section: it answers a proposal of thirteen tests; each is run in tools/make_cap34_figures.py (~25 s; exact computation and Monte Carlo, no experimental figure).
+34.0 ✅ written: the proposal's "qg cycles" are translated into readings; UCC/H₂ (FCI to 5·10⁻¹⁴, HF at +975.1 m-qg), Aharonov–Bohm (constant 1/2π√N spread), Wigner (18.92°), Brewster, Bogoliubov (θ/2 = gd r), Jarzynski, GHZ QFI (parity reaches N²) and Fubini–Study (K = 4, d = θ/2) hold; Jordan–Wigner (−1000 m-qg in a Hadamard test), Hahn (F = 1 only static) and Goos–Hänchen (a displacement, 0.64 λ) are corrected; Ising with 2–4 spins (peak at g/J = 0.33–0.65) and the braid as a protected gate fail; the OTOC with 8 spins does not allow the MSS-bound test — figures: Ising, Aharonov–Bohm and OTOC
+34.1 Quantum chemistry: Jordan–Wigner, UCC for H₂, Larmor and the Hahn echo
+34.2 Condensed matter: transverse Ising, Kitaev chain, Aharonov–Bohm
+34.3 Relativity and optics: Wigner rotation, Fresnel and Goos–Hänchen, Bogoliubov and Unruh
+34.4 Thermodynamics and metrology: Jarzynski, Fisher information of GHZ
+34.5 Geometry and chaos: Fubini–Study, OTOC
+
 ---
 
 ## Appendices

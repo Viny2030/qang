@@ -371,6 +371,17 @@ hasta que exista una corrida real (Parte X).
 33.5 Puntos cuánticos como qubits de carga y de espín: Rabi y lectura por sensor de carga en qg; fidelidad de lectura en m-qg
 33.6 Centros NV en nanodiamante: contraste de ODMR como qg_Z y magnetometría nanométrica en m-qg
 
+## PARTE XII. Aplicaciones transversales 🆕
+
+### Capítulo 34. Arquitectura angular: química, materia condensada, óptica relativista, termodinámica y geometría
+⚠️ Sin módulo ni sección de notas: responde a una propuesta de trece pruebas; cada una se corre en tools/make_cap34_figures.py (~25 s; cálculo exacto y Monte Carlo, ninguna cifra experimental).
+34.0 ✅ escrito: los "ciclos qg" de la propuesta se traducen a lecturas; se cumplen UCC/H₂ (FCI a 5·10⁻¹⁴, HF en +975,1 m-qg), Aharonov–Bohm (desvío 1/2π√N constante), Wigner (18,92°), Brewster, Bogoliubov (θ/2 = gd r), Jarzynski, QFI GHZ (la paridad alcanza N²) y Fubini–Study (K = 4, d = θ/2); se corrigen Jordan–Wigner (−1000 m-qg en un test de Hadamard), Hahn (F = 1 sólo estático) y Goos–Hänchen (desplazamiento, 0,64 λ); fallan el Ising con 2–4 espines (pico en g/J = 0,33–0,65) y el trenzado como compuerta protegida; el OTOC con 8 espines no permite el test de la cota MSS — figuras: Ising, Aharonov–Bohm y OTOC
+34.1 Química cuántica: Jordan–Wigner, UCC para H₂, Larmor y eco de Hahn
+34.2 Materia condensada: Ising transverso, cadena de Kitaev, Aharonov–Bohm
+34.3 Relatividad y óptica: rotación de Wigner, Fresnel y Goos–Hänchen, Bogoliubov y Unruh
+34.4 Termodinámica y metrología: Jarzynski, información de Fisher de GHZ
+34.5 Geometría y caos: Fubini–Study, OTOC
+
 ---
 
 ## Apéndices
