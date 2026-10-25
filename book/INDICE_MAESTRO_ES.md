@@ -390,10 +390,10 @@ hasta que exista una corrida real (Parte X).
 ---
 
 ## Apéndices
-A. Catálogo de las 15 compuertas fundamentales en representación qg
+A. Catálogo de las 15 compuertas fundamentales en representación qg ✅ (generado por tools/make_appendices.py)
 B. Fórmulas de transición, matrices de Gell-Mann 🔬 y polinomios de Chebyshev en circuitos paramétricos — §37
 C. Protocolo de calibración por eco e inversión matricial en sectores de Hamming — §105–§108
-D. Referencia rápida de la API de qang 0.12.0: core, formulation, sectors, qml, ibm, interop, pulse_area, neutrino, postselection, qpon, fisher, kernels, varqte, channels, angular, qsp, knitting, qec, statistics, polarization, geometric, clock_comparison, complementarity, proportions (⚠️ sin `crypto`; ⚠️ `iqm` no existe todavía, ver 31.2)
+D. Referencia rápida de la API de qang 0.13.0 ✅ (generada por tools/make_appendices.py)
 E. Declaración de falsación y registro pre-registrado de predicciones (recuento completo §1–§164)
 F. Fundamento de análisis funcional: Riesz–Fréchet — Apéndice A de las notas
 

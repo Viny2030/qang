@@ -1,5 +1,114 @@
-# Referencia rápida de la API de qang 0.12.0: core, formulation, sectors, qml, ibm, interop, pulse_area, neutrino, postselection, qpon, fisher, kernels, varqte, channels, angular, qsp, knitting, qec, statistics, polarization, geometric, clock_comparison, complementarity, proportions ( sin `crypto`; `iqm`)
+# Referencia rápida de la API de qang 0.13.0 {#sec-apendice-d}
 
-::: {.callout-note}
-Apéndice en preparación.
-:::
+Esta es la lista de todos los módulos del paquete `qang` en la versión 0.13.0, con sus nombres públicos: los de
+`__all__` o, si el módulo no lo define, las funciones y clases públicas que declara. La genera `tools/make_appendices.py`
+importando cada módulo, así que la lista es la del código y no una copia. La firma y la documentación de cada nombre están en
+`help(qang.<módulo>.<nombre>)`.
+
+- `import qang` sólo necesita NumPy. Los módulos de SDK (`qiskit_gate`, `cirq_gate`, `pennylane_gate`, `ibm`, `qiskit_ml`,
+  `qec`, `circuits`, `algorithms`) y los de `qang.integrations` importan su librería cuando se los usa.
+- No hay módulo `crypto`: lo criptográfico del libro está en los ejemplos (capítulos 16–18). Tampoco existe todavía `qang/iqm.py`
+  (capítulo 31): el hardware de IQM se usa a través de `qang.interop` y los ejemplos.
+- La columna "nombres" da la cantidad de nombres públicos, y la lista completa sigue a la tabla.
+
+| módulo | qué hace | nombres |
+|---|---|---|
+| `algebra` | Álgebra cerrada en qg: la compuerta universal, reflexiones y probabilidades de transición; subálgebra de Cartan (§166). | 9 |
+| `algorithms` | Algoritmos de libro de texto en Qiskit: teleportación, codificación superdensa, Grover. | 9 |
+| `angular` | Los cuatro números cuánticos de un electrón en qg (§155). | 17 |
+| `ansatze` | Ansätze variacionales reutilizables, incluidos los de capa qg. | 4 |
+| `channels` | Canales de un qubit como mapas afines del vector qg (§162). | 7 |
+| `circuits` | Constructores de circuitos (Bell, GHZ, W, grafo, Dicke) y sus lecturas. | 14 |
+| `cirq_gate` | qg como compuertas nativas de Cirq. | 5 |
+| `clock_comparison` | Fase diferencial entre dos relojes y el corrimiento gravitatorio. | 5 |
+| `complementarity` | Dualidad onda–partícula e incertidumbre entrópica en qg. | 8 |
+| `core` | La unidad qang (qg) y la clase `Qang`. | 2 |
+| `fisher` | Información de Fisher, reglas de desplazamiento y gradiente natural en qg (§159). | 14 |
+| `formulation` | Las 15 compuertas y los 14 algoritmos en lenguaje qg; el radio local (apéndice A, capítulo 5). | 48 |
+| `geometric` | Fase geométrica (Berry, Pancharatnam) en unidades qg. | 8 |
+| `gradients` | La singularidad de coordenadas en los polos y sus regularizaciones. | 17 |
+| `ibm` | Lecturas qg en IBM Runtime: pase de preservación del peso, corrección de lectura, cadenas, ZNE (§137). | 30 |
+| `integrations` | qang dentro de otras librerías: un submódulo por librería (capítulo 35). | 12 |
+| `interop` | Lecturas qg de los resultados de cualquier SDK con un solo orden de qubits (§130). | 10 |
+| `kernels` | Núcleos cuánticos con el filtro qg (§161). | 6 |
+| `knitting` | Costo de muestreo del corte de circuitos. | 4 |
+| `mixed` | La unidad qang para estados mixtos y POVMs. | 11 |
+| `multiqubit` | La unidad qang para registros de varios qubits: marginales, entropías, correlaciones. | 14 |
+| `neutrino` | Oscilaciones de sabor de neutrinos en qg (§151; capítulos 9–11). | 38 |
+| `pennylane_gate` | qg como operaciones nativas de PennyLane, diferenciables; lectura filtrada. | 6 |
+| `phase` | La unidad de fase diferida qg_Φ. | 2 |
+| `polarization` | Luz polarizada en unidades qg: Stokes, Jones, Mueller (§83; capítulo 6). | 17 |
+| `postselection` | Teleportación con posselección: bucles temporales y decodificación de agujeros negros (capítulos 14–15). | 8 |
+| `probability` | La ecuación de probabilidad qang y el mili-qang (§167; capítulo 1). | 13 |
+| `proportions` | El ángulo qang como transformación arcoseno de una proporción. | 9 |
+| `pulse_area` | Área de pulso de compuertas fraccionarias: la regla del área mínima (§160). | 6 |
+| `qec` | El código de bit-flip de 3 qubits con síndromes leídos en qg. | 6 |
+| `qiskit_gate` | qg como compuerta nativa de Qiskit. | 5 |
+| `qiskit_ml` | La QNN de peso dentro de qiskit-machine-learning (§140). | 4 |
+| `qml` | Redes neuronales cuánticas que conservan el peso, con y sin filtro (§75–§80; capítulo 20). | 4 |
+| `qpon` | Teleportación por una red óptica pasiva, variables discretas (§157; capítulos 12–13). | 17 |
+| `qsp` | Procesamiento cuántico de señales en qg (§134). | 8 |
+| `sectors` | Herramientas de sectores conservados para el filtro qg y el eco (§20, §60, §66, §68; apéndice C). | 9 |
+| `statistics` | Propagación de errores entre probabilidad y ángulo, estimadores e intervalos. | 25 |
+| `transformations` | Transformaciones cerradas entre estados parametrizados en qang. | 1 |
+| `varqte` | Evolución variacional en tiempo real (McLachlan) con ansatz que conserva el peso (§162). | 6 |
+
+: Los módulos de qang 0.13.0. {#tbl-d-modulos}
+
+## Nombres públicos por módulo {#sec-d-nombres}
+
+- **`algebra`**: `u3_qang`, `transition_matrix`, `householder_qg`, `grover_diffuser_qg`, `qg_vector`, `transition_probability`, `cartan_generators`, `cartan_values`, `populations_from_cartan`
+- **`algorithms`**: `teleportation_circuit`, `teleportation_output_fidelity`, `superdense_coding_circuit`, `decode_superdense_coding`, `grover_oracle`, `grover_diffusion`, `grover_optimal_iterations`, `grover_circuit`, `grover_success_probability`
+- **`angular`**: `m_from_weight`, `weight_from_m`, `m_distribution`, `qg_z_spin`, `qg_s_spin`, `coherent_m_distribution`, `qang_angle_of_eigenstate`, `vector_model_angle`, `transverse_spread`, `dicke_state`, `p_orbital`, `spin_operators`, `shell_quantum_numbers`, `shell_register_qubits`, `shell_l_spectrum`, `j_squared_from_swaps`, `l_from_j_squared`
+- **`ansatze`**: `single_excitation_ansatz`, `hardware_efficient_ansatz`, `qg_ry_layer`, `hardware_efficient_ansatz_qg`
+- **`channels`**: `apply_kraus`, `bloch_affine`, `qg_after`, `amplitude_damping`, `phase_damping`, `depolarizing`, `thermal_relaxation`
+- **`circuits`**: `qg_z_profile_of_circuit`, `joint_qg_s_of_circuit`, `bell_circuit`, `ghz_circuit`, `w_circuit`, `graph_state_circuit`, `linear_cluster_state_circuit`, `dicke_state_circuit`, `ghz_qg_z_profile`, `ghz_joint_qg_s`, `w_qg_z_profile`, `graph_state_qg_z_profile`, `graph_state_joint_qg_s`, `dicke_qg_z_profile`
+- **`cirq_gate`**: `rqang_gate`, `full_rqang_gate`, `signed_rqang_gate`, `rqang_symbol`, `append_qang`
+- **`clock_comparison`**: `differential_phase_from_c`, `ellipse_estimate`, `moment_estimate`, `redshift_phase`, `simulate_pairs`
+- **`complementarity`**: `predictability`, `visibility`, `duality_sum`, `von_neumann_entropy_bits`, `entropic_sum`, `entropic_bound`, `duality_from_counts`, `entropic_sum_from_counts`
+- **`core`**: `qg_s_from_qg_z`, `Qang`
+- **`fisher`**: `fisher_theta`, `fisher_qg`, `cramer_rao_qg`, `shift_gradient`, `indistinguishable_pair`, `ansatz_states`, `ansatz_state`, `tfim_hamiltonian`, `energy`, `gradient`, `full_metric`, `block_metric`, `y_basis_circuit`, `block_metric_from_counts`
+- **`formulation`**: `kron`, `pauli`, `rx`, `ry`, `rz`, `phase`, `clean`, `conjugate`, `conserves_weight`, `z_parity`, `single_qg_z`, `hadamard_n`, `phase_oracle_output`, `simon_output`, `grover_state`, `grover_qg_z_prediction`, `qft_matrix`, `local_qg`, `kickback_control`, `counting_qg_x`, `order_finding_output`, `purity_from_qg`, `walk_register_mean`, `qg_values`, `state_from_qg`, `apply_gate`, `gate_table`, `is_clifford`, `born_p0`, `deutsch_jozsa_is_constant`, `bernstein_vazirani_secret`, `simon_nonzero_parities`, `grover_marked_from_signs`, `count_from_qg_x`, `hhl_readout`, `energy_from_qg`, `maxcut_from_qg`, `product_kernel`, `radius2`, `radius_profile`, `radius_deficit`, `sphere_area`, `meyer_wallach`, `gate_radius_class`, `weight_sector_radius`, `hadamard_test_radius`, `algorithm_radii`, `direction_from_qg`
+- **`geometric`**: `state_from_bloch`, `bloch_from_state`, `pancharatnam_phase`, `solid_angle`, `berry_phase_from_solid_angle`, `cone_phase_turns`, `curvature_flux`, `geometric_phase_qg`
+- **`gradients`**: `jacobian`, `inverse_jacobian_raw`, `inverse_jacobian_clipped`, `inverse_jacobian_tikhonov`, `pole_damping_factor`, `qfi_qg`, `natural_gradient_step_qg`, `toy_vqe_energy`, `toy_vqe_grad_theta`, `GDHistory`, `run_gradient_descent`, `benchmark`, `MultiGDHistory`, `multi_param_gradient_descent`, `signed_theta`, `signed_qg_step`, `signed_natural_qg_step`
+- **`ibm`**: `WeightPreservationCheck`, `measured_physical_qubits`, `readout_errors`, `readout_inverse_distribution`, `ibm_qg`, `estimator_qg`, `predict_kept_fraction`, `linear_chains`, `best_chain`, `best_layout`, `plan_shots`, `fold_two_qubit_gates`, `zne_qg`, `qnn_template`, `qnn_parameter_values`, `run_qnn`, `unary_loader`, `unary_orthogonal`, `pca_rotation`, `unary_spectrum`, `xy_trotter`, `xy_exact_occupations`, `occupations`, `xxz_trotter`, `xxz_exact_occupations`, `unary_overlap_circuit`, `swap_test_circuit`, `overlap_fidelity`, `swap_test_fidelity`, `add_static_zz`
+- **`interop`**: `canonical_counts`, `qg_z_profile`, `weight_filter`, `filtered_qg_z_profile`, `joint_qg_s`, `joint_qg_s_se`, `sampler_qg`, `qg_z_observables`, `filtered_observables`, `estimator_filtered_qg`
+- **`kernels`**: `unary_embedding`, `exact_kernel`, `kernel_from_counts`, `normalize_gram`, `alignment`, `kernel_qang_angle`
+- **`knitting`**: `pauli_rotation_cut_gamma`, `controlled_rotation_cut_gamma`, `cut_sampling_overhead`, `total_sampling_overhead`
+- **`mixed`**: `density_from_statevector`, `mix`, `is_valid_density_matrix`, `qg_z_density`, `purity`, `von_neumann_entropy`, `standard_z_povm`, `is_valid_povm`, `povm_outcome_probabilities`, `qg_s_povm`, `trine_povm`
+- **`multiqubit`**: `product_state`, `bell_state`, `ghz_state`, `partial_trace`, `per_qubit_qg_z`, `marginal_qg_s`, `marginal_von_neumann_entropy`, `joint_qg_s`, `shannon_entropy_plugin_bits`, `shannon_entropy_miller_madow_bits`, `joint_qg_s_from_counts`, `qg_correlation`, `mean_qg_z`, `mean_qg_z_from_counts`
+- **`neutrino`**: `phase`, `two_flavour_probability`, `two_flavour_qg_z`, `two_flavour_qang_angle`, `mixing_angle_from_maximum`, `mixing_angle_std`, `two_flavour_circuit`, `pmns`, `three_flavour_probabilities`, `three_flavour_circuit`, `cp_asymmetry`, `matter_potential`, `matter_probabilities`, `matter_trotter_circuit`, `first_maximum_energy`, `occupation_profile`, `collective_mass_hamiltonian`, `collective_exact`, `mass_sector_probabilities`, `collective_trotter_circuit`, `solar_core_potential`, `solar_matter_angle`, `solar_pee_from_p2`, `solar_pee_adiabatic`, `solar_slab_edges`, `solar_slab_unitaries`, `solar_p2`, `solar_p2_exact`, `solar_circuit`, `pmns_majorana`, `majorana_invisible`, `masses`, `m_bb`, `majorana_circuit`, `sterile_angles`, `sterile_mixing`, `sterile_probabilities`, `sterile_circuit`
+- **`pennylane_gate`**: `rqang`, `full_rqang`, `append_qang`, `qg_z_from_probs`, `kept_fraction`, `filtered_qg_z`
+- **`phase`**: `QangPhi`, `anchor_value`
+- **`polarization`**: `stokes_to_qg`, `qg_to_stokes`, `degree_of_polarization`, `purity_from_stokes`, `jones_to_stokes`, `jones_to_qg`, `mueller_from_jones`, `ptm_from_mueller`, `mueller_from_ptm`, `rotator`, `linear_polarizer`, `wave_plate`, `half_wave_plate`, `quarter_wave_plate`, `depolarizer`, `malus_intensity`, `qg_from_counts`
+- **`postselection`**: `pctc_success`, `pctc_controlled_qg_z`, `pctc_circuit`, `pctc_from_counts`, `is_scrambler`, `find_scrambler`, `yk_decoder_circuit`, `yk_from_counts`
+- **`probability`**: `readings_from_p0`, `milliqang_from_p0`, `p0_from_milliqang`, `theta_from_milliqang`, `milliqang_from_theta`, `angle_per_milliqang`, `pole_angle`, `shot_noise_milliqang`, `shots_for_resolution`, `pulse_error_milliqang`, `statistical_angle`, `Reading`, `analyze`
+- **`proportions`**: `theta_from_proportion`, `proportion_from_theta`, `arcsine`, `anscombe_theta`, `theta_variance`, `proportion_interval`, `cohens_h`, `compare_proportions`, `z_value`
+- **`pulse_area`**: `minimal_area_angle`, `rx_qg_z_random_amplitude`, `rx_qg_z_systematic_amplitude`, `qg_sensitivity`, `minimal_area_circuit`, `area`
+- **`qec`**: `encode_bit_flip`, `extract_syndrome`, `syndrome_from_qg_z`, `decode_syndrome`, `apply_correction`, `decode_bit_flip`
+- **`qiskit_gate`**: `RQangGate`, `FullRQangGate`, `SignedRQangGate`, `append_qang`, `append_rqang_parameter`
+- **`qiskit_ml`**: `loader_inputs`, `qang_sampler_qnn`, `qg_features`, `QangQNNClassifier`
+- **`qml`**: `WeightQNN`, `MultiClassQNN`, `kept_fraction`, `compare_qang`
+- **`qpon`**: `fibre_transmission`, `link`, `heralding_probability`, `singlet_fraction`, `average_fidelity`, `optimal_angle`, `optimal_fidelity`, `optimal_qg_z`, `resource_angle_from_qg_z`, `teleport_circuit`, `fidelity_from_counts`, `fidelity_from_correlators`, `resource_circuit`, `correlator_from_counts`, `dual_rail_teleport_circuit`, `dual_rail_fidelity_from_counts`, `dual_rail_fidelities`
+- **`qsp`**: `signal_from_qg`, `qg_of_signal`, `wqsp_unitary`, `wqsp_poly`, `hadamard_test_p0`, `sample_hadamard_test`, `fit_phases`, `wqsp_ops`
+- **`sectors`**: `hamming_weights`, `filter_distribution`, `reweight_sectors`, `sector_exposure`, `SectorExposurePass`, `sector_states`, `echo_transfer_matrix`, `matrix_power_stochastic`, `unmix_sector`
+- **`statistics`**: `p0_from_theta`, `var_qg_z_shot_noise`, `std_qg_z_shot_noise`, `propagated_theta_variance`, `propagated_theta_std`, `confidence_interval_theta`, `BootstrapResult`, `empirical_theta_std`, `beta_cdf`, `beta_ppf`, `QgEstimate`, `bayes_qg_estimate`, `wilson_qg_estimate`, `delta_qg_estimate`, `qg_estimate`, `propagated_theta_variance_mixed`, `theta_qcrb_variance`, `qg_covariance`, `delta_method_variance`, `register_witness_variance`, `qg_s_from_qg_z_interval`, `qg_s_estimate`, `qg2_unbiased`, `radius2_estimate`, `direction_estimate`
+- **`transformations`**: `transition_probability_qang`
+- **`varqte`**: `n_params`, `ansatz`, `mclachlan_rhs`, `evolve`, `xxz_matrix`, `occupations_from_counts`
+
+## `qang.integrations` {#sec-d-integraciones}
+
+Cada submódulo importa sólo su librería (capítulo 35); el extra de `pip` va entre paréntesis.
+
+- **`integrations.mitiq`** (`qang[mitiq]`): `qg_z`, `filtered_qg_z`, `qg_executor`, `execute_with_filter_zne`, `filter_rule`
+- **`integrations.qiskit_experiments`** (`qang[experiments]`): `HeraldedReadout`, `HeraldedReadoutAnalysis`, `heralded_closed_form`, `t_eff_from_qg`
+- **`integrations.qiskit_dynamics`** (`qang[dynamics]`): `rabi_qg`, `area_error_qg`
+- **`integrations.qutip`** (`qang[qutip]`): `qg_readings`, `filtered_qg_z`, `mesolve_qg`, `t1_collapse`
+- **`integrations.stim`** (`qang[stim]`): `detector_qg`, `observable_qg`, `measurement_qg`, `decoded_logical_qg`
+- **`integrations.sklearn`** (`qang[sklearn]`): `WeightQNNClassifier`, `MultiClassQNNClassifier`
+- **`integrations.jax`** (`qang[jax]`): `qg_from_p0`, `theta_from_qg`, `milliqang`, `qg_z_from_probs`, `filtered_qg_z`, `pole_damped_update`
+- **`integrations.torch`** (`qang[torch]`): `WeightQNNTorch`, `unary_state`
+- **`integrations.qibo`** (`qang[qibo]`): `rqang`, `canonical_counts`, `qg_readout`
+- **`integrations.pytket`** (`qang[pytket]`): `rqang`, `qg_readout`, `statevector_qg`
+- **`integrations.braket`** (`qang[braket]`): `rqang`, `run_qg`
+- **`integrations.cudaq`** (`qang[cudaq]`): `rqang`, `canonical_counts`, `qg_readout`

@@ -1,5 +1,70 @@
-# Catalogue of the 15 fundamental gates in qg representation
+# Catalogue of the 15 fundamental gates in qg representation {#sec-appendix-a}
 
-::: {.callout-note}
-Appendix in preparation.
-:::
+This appendix collects the action of the gates of `qang.formulation` on the qg readings. A gate $U$ transforms each
+Pauli reading by conjugation,
+
+$$
+qg'_P = qg_{U^\dagger P U},
+$$
+
+so it is enough to say what each local reading becomes. The tables are not written by hand: `tools/make_appendices.py`
+generates them from `formulation.gate_table`, `is_clifford`, `conserves_weight` and `gate_radius_class`. If the code changes,
+they are regenerated. In Pauli strings the leftmost letter is qubit 0, which is the control of CX and CZ, both controls of
+Toffoli and the control of Fredkin.
+
+**Why fifteen.** The module defines 16 matrices: six fixed single-qubit gates, four parametric ones and six multi-qubit
+gates. $R_Z(\varphi)$ and the phase gate $P(\varphi)$ differ only by a global phase, $P(\varphi)=e^{i\varphi/2}R_Z(\varphi)$,
+so they act identically on every reading and count as one in qg.
+
+## Fixed single-qubit gates {#sec-a-fixed}
+
+| gate | $qg'_X$ | $qg'_Y$ | $qg'_Z$ | from $\lvert0\rangle$ (m-qg) | Clifford | conserves weight |
+|---|---|---|---|---|---|---|
+| $X$ | $qg_{\mathrm{X}}$ | $-qg_{\mathrm{Y}}$ | $-qg_{\mathrm{Z}}$ | -1000.0 | yes | no |
+| $Y$ | $-qg_{\mathrm{X}}$ | $qg_{\mathrm{Y}}$ | $-qg_{\mathrm{Z}}$ | -1000.0 | yes | no |
+| $Z$ | $-qg_{\mathrm{X}}$ | $-qg_{\mathrm{Y}}$ | $qg_{\mathrm{Z}}$ | +1000.0 | yes | yes |
+| $H$ | $qg_{\mathrm{Z}}$ | $-qg_{\mathrm{Y}}$ | $qg_{\mathrm{X}}$ | +0.0 | yes | no |
+| $S$ | $-qg_{\mathrm{Y}}$ | $qg_{\mathrm{X}}$ | $qg_{\mathrm{Z}}$ | +1000.0 | yes | yes |
+| $T$ | $\tfrac{1}{\sqrt2}qg_{\mathrm{X}} - \tfrac{1}{\sqrt2}qg_{\mathrm{Y}}$ | $\tfrac{1}{\sqrt2}qg_{\mathrm{X}} + \tfrac{1}{\sqrt2}qg_{\mathrm{Y}}$ | $qg_{\mathrm{Z}}$ | +1000.0 | no | yes |
+
+: Fixed single-qubit gates. {#tbl-a-fixed}
+
+Clifford gates permute the readings with signs, and $T$ mixes them. The diagonal gates ($Z$, $S$, $T$) leave $qg_Z$
+alone: they do not move populations, only the phase, which is read in $qg_X$ and $qg_Y$. Conserving the weight is what allows
+the filter of Chapters 21 and 22.
+
+## Parametric gates {#sec-a-parametric}
+
+| gate | $qg'_X$ | $qg'_Y$ | $qg'_Z$ | from $\lvert0\rangle$ |
+|---|---|---|---|---|
+| $R_X(\theta)$ | $qg_X$ | $\cos\theta\,qg_Y-\sin\theta\,qg_Z$ | $\sin\theta\,qg_Y+\cos\theta\,qg_Z$ | $m=1000\cos\theta$ |
+| $R_Y(\theta)$ | $\cos\theta\,qg_X+\sin\theta\,qg_Z$ | $qg_Y$ | $-\sin\theta\,qg_X+\cos\theta\,qg_Z$ | $m=1000\cos\theta$ |
+| $R_Z(\varphi)$, $P(\varphi)$ | $\cos\varphi\,qg_X-\sin\varphi\,qg_Y$ | $\sin\varphi\,qg_X+\cos\varphi\,qg_Y$ | $qg_Z$ | $m=+1000$ |
+
+: Parametric gates; the script checks each coefficient at $\theta=0.7$. {#tbl-a-parametric}
+
+From $|0\rangle$, $R_X(\theta)$ and $R_Y(\theta)$ are the Chapter 1 probability equation: the gate angle is the qang
+angle and the reading is $m=1000\cos\theta$. $R_Z$ and $P$ do not change the $Z$ reading. No rotation about $X$ or $Y$
+conserves the weight: it moves population between $|0\rangle$ and $|1\rangle$. That is why the layers used with the filter
+are made of Givens (RBS) rotations between pairs, not of single-qubit rotations.
+
+## Multi-qubit gates {#sec-a-multi}
+
+| gate | qubits | what happens to each local $qg_Z$ | Clifford | conserves weight | radius | maximal deficit |
+|---|---|---|---|---|---|---|
+| CX | 2 | $qg_{\mathrm{ZI}}$ → $qg_{\mathrm{ZI}}$; $qg_{\mathrm{IZ}}$ → $qg_{\mathrm{ZZ}}$ | yes | no | entangles | 1 |
+| CZ | 2 | $qg_{\mathrm{ZI}}$ → $qg_{\mathrm{ZI}}$; $qg_{\mathrm{IZ}}$ → $qg_{\mathrm{IZ}}$ | yes | yes | entangles | 1 |
+| SWAP | 2 | $qg_{\mathrm{ZI}}$ → $qg_{\mathrm{IZ}}$; $qg_{\mathrm{IZ}}$ → $qg_{\mathrm{ZI}}$ | yes | yes | permutes | 0 |
+| iSWAP | 2 | $qg_{\mathrm{ZI}}$ → $qg_{\mathrm{IZ}}$; $qg_{\mathrm{IZ}}$ → $qg_{\mathrm{ZI}}$ | yes | yes | entangles | 1 |
+| Toffoli | 3 | $qg_{\mathrm{ZII}}$ → $qg_{\mathrm{ZII}}$; $qg_{\mathrm{IZI}}$ → $qg_{\mathrm{IZI}}$; $qg_{\mathrm{IIZ}}$ → $\tfrac12qg_{\mathrm{IIZ}} + \tfrac12qg_{\mathrm{IZZ}} + \tfrac12qg_{\mathrm{ZIZ}} - \tfrac12qg_{\mathrm{ZZZ}}$ | no | no | entangles | 1 |
+| Fredkin | 3 | $qg_{\mathrm{ZII}}$ → $qg_{\mathrm{ZII}}$; $qg_{\mathrm{IZI}}$ → $\tfrac12qg_{\mathrm{IIZ}} + \tfrac12qg_{\mathrm{IZI}} - \tfrac12qg_{\mathrm{ZIZ}} + \tfrac12qg_{\mathrm{ZZI}}$; $qg_{\mathrm{IIZ}}$ → $\tfrac12qg_{\mathrm{IIZ}} + \tfrac12qg_{\mathrm{IZI}} + \tfrac12qg_{\mathrm{ZIZ}} - \tfrac12qg_{\mathrm{ZZI}}$ | no | yes | entangles | 1 |
+
+: Multi-qubit gates: how the local $Z$ readings transform (those of $X$ and $Y$ are in `gate_table`). {#tbl-a-multi}
+
+- **Radius.** "Preserves": every local radius stays 1 for pure product inputs. "Permutes": the radii are exchanged (SWAP).
+  "Entangles": some product input ends with deficit $1-r_q^2>0$. The maximal deficit, 1, takes a qubit to the centre of the
+  sphere (Chapter 5).
+- **On basis states**, none of these gates creates a deficit: they act as classical permutations.
+- **CZ, SWAP, iSWAP and Fredkin conserve the weight.** CX and Toffoli do not, because they flip the target bit. A circuit made
+  only of the former has a fixed weight sector and admits the qg filter.
+- Toffoli and Fredkin are not Clifford: a local reading becomes a mixture of four strings with coefficients $\pm\tfrac12$.

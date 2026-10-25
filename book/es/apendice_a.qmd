@@ -1,5 +1,70 @@
-# Catálogo de las 15 compuertas fundamentales en representación qg
+# Catálogo de las 15 compuertas fundamentales en representación qg {#sec-apendice-a}
 
-::: {.callout-note}
-Apéndice en preparación.
-:::
+Este apéndice reúne la acción de las compuertas de `qang.formulation` sobre las lecturas qg. Una compuerta $U$
+transforma cada lectura de Pauli por conjugación,
+
+$$
+qg'_P = qg_{U^\dagger P U},
+$$
+
+así que alcanza con decir en qué se convierte cada lectura local. Las tablas no están escritas a mano: las genera
+`tools/make_appendices.py` a partir de `formulation.gate_table`, `is_clifford`, `conserves_weight` y `gate_radius_class`.
+Si el código cambia, se regeneran. En las cadenas de Pauli, la letra de la izquierda es el qubit 0, que es el control de
+CX y de CZ, los dos controles de Toffoli y el control de Fredkin.
+
+**Por qué son 15.** El módulo define 16 matrices: seis fijas de un qubit, cuatro paramétricas y seis de varios qubits.
+$R_Z(\varphi)$ y la fase $P(\varphi)$ difieren sólo en una fase global, $P(\varphi)=e^{i\varphi/2}R_Z(\varphi)$, así que
+actúan igual sobre todas las lecturas y en qg cuentan como una.
+
+## Compuertas fijas de un qubit {#sec-a-fijas}
+
+| compuerta | $qg'_X$ | $qg'_Y$ | $qg'_Z$ | desde $\lvert0\rangle$ (m-qg) | Clifford | conserva el peso |
+|---|---|---|---|---|---|---|
+| $X$ | $qg_{\mathrm{X}}$ | $-qg_{\mathrm{Y}}$ | $-qg_{\mathrm{Z}}$ | -1000,0 | sí | no |
+| $Y$ | $-qg_{\mathrm{X}}$ | $qg_{\mathrm{Y}}$ | $-qg_{\mathrm{Z}}$ | -1000,0 | sí | no |
+| $Z$ | $-qg_{\mathrm{X}}$ | $-qg_{\mathrm{Y}}$ | $qg_{\mathrm{Z}}$ | +1000,0 | sí | sí |
+| $H$ | $qg_{\mathrm{Z}}$ | $-qg_{\mathrm{Y}}$ | $qg_{\mathrm{X}}$ | +0,0 | sí | no |
+| $S$ | $-qg_{\mathrm{Y}}$ | $qg_{\mathrm{X}}$ | $qg_{\mathrm{Z}}$ | +1000,0 | sí | sí |
+| $T$ | $\tfrac{1}{\sqrt2}qg_{\mathrm{X}} - \tfrac{1}{\sqrt2}qg_{\mathrm{Y}}$ | $\tfrac{1}{\sqrt2}qg_{\mathrm{X}} + \tfrac{1}{\sqrt2}qg_{\mathrm{Y}}$ | $qg_{\mathrm{Z}}$ | +1000,0 | no | sí |
+
+: Compuertas fijas de un qubit. {#tbl-a-fijas}
+
+Las compuertas de Clifford permutan las lecturas con signo, y $T$ las mezcla. Las diagonales ($Z$, $S$, $T$) dejan
+quieta $qg_Z$: no mueven poblaciones, sólo la fase, que se lee en $qg_X$ y $qg_Y$. Conservar el peso es lo que permite usar el
+filtro de los capítulos 21 y 22.
+
+## Compuertas paramétricas {#sec-a-parametricas}
+
+| compuerta | $qg'_X$ | $qg'_Y$ | $qg'_Z$ | desde $\lvert0\rangle$ |
+|---|---|---|---|---|
+| $R_X(\theta)$ | $qg_X$ | $\cos\theta\,qg_Y-\sin\theta\,qg_Z$ | $\sin\theta\,qg_Y+\cos\theta\,qg_Z$ | $m=1000\cos\theta$ |
+| $R_Y(\theta)$ | $\cos\theta\,qg_X+\sin\theta\,qg_Z$ | $qg_Y$ | $-\sin\theta\,qg_X+\cos\theta\,qg_Z$ | $m=1000\cos\theta$ |
+| $R_Z(\varphi)$, $P(\varphi)$ | $\cos\varphi\,qg_X-\sin\varphi\,qg_Y$ | $\sin\varphi\,qg_X+\cos\varphi\,qg_Y$ | $qg_Z$ | $m=+1000$ |
+
+: Compuertas paramétricas; el script comprueba cada coeficiente con $\theta=0{,}7$. {#tbl-a-parametricas}
+
+Desde $|0\rangle$, $R_X(\theta)$ y $R_Y(\theta)$ son la ecuación de probabilidad del capítulo 1: el ángulo de la
+compuerta es el ángulo qang y la lectura es $m=1000\cos\theta$. $R_Z$ y $P$ no cambian la lectura en $Z$. Ninguna rotación
+alrededor de $X$ o de $Y$ conserva el peso: mueve poblaciones entre $|0\rangle$ y $|1\rangle$. Por eso las capas que se usan
+con el filtro son de rotaciones de Givens (RBS) entre pares, no de rotaciones de un qubit.
+
+## Compuertas de varios qubits {#sec-a-multi}
+
+| compuerta | qubits | qué pasa con cada $qg_Z$ local | Clifford | conserva el peso | radio | déficit máximo |
+|---|---|---|---|---|---|---|
+| CX | 2 | $qg_{\mathrm{ZI}}$ → $qg_{\mathrm{ZI}}$; $qg_{\mathrm{IZ}}$ → $qg_{\mathrm{ZZ}}$ | sí | no | entrelaza | 1 |
+| CZ | 2 | $qg_{\mathrm{ZI}}$ → $qg_{\mathrm{ZI}}$; $qg_{\mathrm{IZ}}$ → $qg_{\mathrm{IZ}}$ | sí | sí | entrelaza | 1 |
+| SWAP | 2 | $qg_{\mathrm{ZI}}$ → $qg_{\mathrm{IZ}}$; $qg_{\mathrm{IZ}}$ → $qg_{\mathrm{ZI}}$ | sí | sí | permuta | 0 |
+| iSWAP | 2 | $qg_{\mathrm{ZI}}$ → $qg_{\mathrm{IZ}}$; $qg_{\mathrm{IZ}}$ → $qg_{\mathrm{ZI}}$ | sí | sí | entrelaza | 1 |
+| Toffoli | 3 | $qg_{\mathrm{ZII}}$ → $qg_{\mathrm{ZII}}$; $qg_{\mathrm{IZI}}$ → $qg_{\mathrm{IZI}}$; $qg_{\mathrm{IIZ}}$ → $\tfrac12qg_{\mathrm{IIZ}} + \tfrac12qg_{\mathrm{IZZ}} + \tfrac12qg_{\mathrm{ZIZ}} - \tfrac12qg_{\mathrm{ZZZ}}$ | no | no | entrelaza | 1 |
+| Fredkin | 3 | $qg_{\mathrm{ZII}}$ → $qg_{\mathrm{ZII}}$; $qg_{\mathrm{IZI}}$ → $\tfrac12qg_{\mathrm{IIZ}} + \tfrac12qg_{\mathrm{IZI}} - \tfrac12qg_{\mathrm{ZIZ}} + \tfrac12qg_{\mathrm{ZZI}}$; $qg_{\mathrm{IIZ}}$ → $\tfrac12qg_{\mathrm{IIZ}} + \tfrac12qg_{\mathrm{IZI}} + \tfrac12qg_{\mathrm{ZIZ}} - \tfrac12qg_{\mathrm{ZZI}}$ | no | sí | entrelaza | 1 |
+
+: Compuertas de varios qubits: la transformación de las lecturas $Z$ locales (las de $X$ e $Y$ están en `gate_table`). {#tbl-a-multi}
+
+- **Radio.** "Conserva": todo radio local queda en 1 con entradas producto puras. "Permuta": los radios se intercambian
+  (SWAP). "Entrelaza": alguna entrada producto termina con déficit $1-r_q^2>0$. El déficit máximo, 1, lleva un qubit al centro
+  de la esfera (capítulo 5).
+- **Sobre estados de la base**, ninguna de estas compuertas crea déficit: actúan como permutaciones clásicas.
+- **Conservan el peso** CZ, SWAP, iSWAP y Fredkin. CX y Toffoli no, porque cambian el bit objetivo. Un circuito armado sólo con
+  las primeras tiene un sector de peso fijo y admite el filtro qg.
+- Toffoli y Fredkin no son de Clifford: una lectura local pasa a ser una mezcla de cuatro cadenas con coeficientes $\pm\tfrac12$.
