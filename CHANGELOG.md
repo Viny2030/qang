@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `qang.iqm` (book, chapter 31): what `qang.ibm` does, for IQM devices. `readout_errors` from a fake backend's
+  error profile, `pole_circuits` / `readout_from_poles` for a real device, `iqm_qg` (raw, readout-corrected,
+  filtered and filtered-after-correction qg_Z from `IQMBackend.run` counts), `predict_kept_fraction`, `best_chain`
+  and `check_weight` (the weight pass on the logical circuit). Extra `qang[iqm]` (its own environment).
+  Free rehearsal in `examples/iqm_readout_chain_qg.py`; tests in `tests/test_iqm.py`.
+
 ## [0.13.0] - 2026-10-25
 
 ### Added

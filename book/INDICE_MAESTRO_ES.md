@@ -341,9 +341,9 @@ hasta que exista una corrida real (Parte X).
 30.8 Lista consolidada de limitaciones conocidas — §14
 
 ### Capítulo 31. 🆕 🧪 Primer experimento en hardware real: IQM Resonance
-31.0 ✅ escrito (tools/make_cap31_figures.py): corrida de §165 recalculada del archivo guardado (1,59×, máximo en 2,6 GeV contra 0,8 crudo); 12 contra 18 compuertas de dos qubits es del nivel de optimización (1 contra 3), no de IQM; créditos 30 → 12,50 (pruebas 3,3 %, corridas 55 %); el módulo `qang/iqm.py` no existe — figuras: neutrinos en Garnet y créditos
+31.0 ✅ escrito (tools/make_cap31_figures.py): corrida de §165 recalculada del archivo guardado (1,59×, máximo en 2,6 GeV contra 0,8 crudo); 12 contra 18 compuertas de dos qubits es del nivel de optimización (1 contra 3), no de IQM; créditos 30 → 12,50 (pruebas 3,3 %, corridas 55 %); el módulo `qang.iqm` se escribió el 2026-10-25, después de las corridas — figuras: neutrinos en Garnet y créditos
 31.1 Por qué IQM: compuertas nativas PRX y CZ, red cuadrada; cómo se compilan RBS y XX+YY
-31.2 ⚠️ Módulo `qang/iqm.py` (análogo a `qang/ibm.py`, **no existe todavía**; se usaron `examples/iqm_*.py` con `qang.interop`): errores de lectura de la calibración, elección de cadena de qubits, filtro qg
+31.2 ✅ Módulo `qang.iqm` (análogo a `qang.ibm`; escrito 2026-10-25, después de las corridas, que usaron `examples/iqm_*.py` con `qang.interop`): errores de lectura del perfil o de los polos, elección de cadena, filtro qg; ensayo en `examples/iqm_readout_chain_qg.py`
 31.3 Ensayo gratis con los backends simulados de IQM antes de gastar créditos
 31.4 Presupuesto: trabajo de prueba mínimo (≈10 %), experimento principal (≈60 %), reserva (≈30 %); el token solo en variable de entorno
 31.5 Experimento principal pre-registrado: neutrinos de 3 sabores (§151) — 3 qubits, 12 CZ (18 con el nivel de optimización 1, en cualquier juego nativo)

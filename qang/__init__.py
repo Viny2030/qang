@@ -36,6 +36,8 @@ This package covers, in order:
                        uncertainty with qg_S (§127).
   - qang.ibm          IBM devices: transpiler pass, readout correction, Runtime
                        read-outs, qubit selection, the QNN in one job.
+  - qang.iqm          IQM devices: readout from the poles or the error profile,
+                       qg read-outs of IQMBackend counts, chain choice.
   - qang.qiskit_ml    qang's QNN as a qiskit-machine-learning SamplerQNN.
   - qang.qsp          quantum signal processing and weighted QSP in qg terms
   - qang.interop      qg read-outs (profile, filter, entropy) from Qiskit,

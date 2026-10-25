@@ -34,22 +34,30 @@ was compiled at optimization level 3 and the IBM runs of §151 at level 1. At th
 circuit's six XX+YY gates cost two two-qubit gates each. IQM was chosen for the available credits, not for a cheaper
 compilation.
 
-## The module that does not exist yet {#sec-iqm-module}
+## The `qang.iqm` module {#sec-iqm-module}
 
-The index announced a module `qang/iqm.py`, the analogue of `qang/ibm.py`. **It does not exist.** Everything used on IQM is in
-the scripts `examples/iqm_neutrino_qg.py` and `examples/iqm_milliqang_qg.py`, which read the counts with `qang.interop`:
+The index announced a module `qang/iqm.py`, the analogue of `qang/ibm.py`. The two runs of this chapter were done without it:
+the scripts `examples/iqm_neutrino_qg.py` and `examples/iqm_milliqang_qg.py` read the counts with `qang.interop`
+(`canonical_counts`, `qg_z_profile`, `filtered_qg_z_profile`, `weight_filter`). The module was written afterwards, with what
+those runs left pending:
 
-- `canonical_counts` puts the bits in qang's order;
-- `qg_z_profile` gives each qubit's $qg_Z$, and `filtered_qg_z_profile` the same value over the shots in the sector;
-- `weight_filter` gives the kept fraction.
+- **Readout correction.** §165 had none: IQM's simulated models do not publish their readout errors in the Qiskit `target`,
+  where `qang.ibm` looks for them, but in an error profile of their own. `qang.iqm.readout_errors` reads them there. For a
+  real device, `pole_circuits` and `readout_from_poles` measure them with two circuits, every qubit in $|0
+angle$ and every
+  qubit in $|1
+angle$, as §168 did. On the stored counts of §168 it gives $e_0=0.0055$ and $e_1=0.029$. `iqm_qg` applies the
+  inversion of `qang.ibm` and gives the four readings: raw, corrected, filtered, and filtered after correction.
+- **Chain choice.** `best_chain` compares the default layout with chains of the square lattice and keeps the one with the
+  highest predicted kept fraction (`predict_kept_fraction`, with IQM's gates and units).
+- **The weight-preservation pass.** IQM's native single-qubit gate does not conserve the weight gate by gate, so
+  `check_weight` checks the circuit before compiling.
 
-What `qang.ibm` has and IQM lacks:
-
-- **readout correction from the calibration.** §165 had none: IQM's simulated models do not give the readout errors in the form
-  `qang.ibm` uses. In §168 they were measured directly with the two poles: $e_0 = 0.0055$ and $e_1 = 0.029$;
-- **choice of the qubit chain** (`best_chain` on IBM). On IQM the default layout was used.
-
-It stays as a proposal for the library's next version.
+The free rehearsal on the Garnet model (`examples/iqm_readout_chain_qg.py`, the eight circuits of §165, 4000 shots) gives a raw
+error of 0.124, filtered 0.055 and **filtered after readout correction 0.047**: the correction §165 lacked removes another 15%.
+The simulated kept fraction is 0.689 and the prediction brackets it between 0.640 and 0.775, less tightly than on IBM. The chain
+choice barely tells chains apart (0.777 against 0.775), because the model's qubits are nearly identical. None of this has been
+tried on the real chip yet.
 
 ## A free rehearsal before spending {#sec-iqm-rehearsal}
 
@@ -155,9 +163,9 @@ one day, 300 shots per circuit: no claim about stability.
 : The Garnet run, with and without the scale. {#tbl-comparison31}
 
 **Balance.** The first real-hardware data point confirms what simulation said, with a smaller effect: 1.59 times against 2.2
-on IQM's model and 3 to 3.8 on IBM's. The filter costs no extra shots and puts the oscillation at the right energy. Two things
-from the original plan did not hold: the `qang/iqm.py` module was not written, and IQM's compilation advantage was an artefact
-of the optimization level.
+on IQM's model and 3 to 3.8 on IBM's. The filter costs no extra shots and puts the oscillation at the right energy. From the
+original plan, IQM's compilation advantage was an artefact of the optimization level, and the `qang.iqm` module was written
+after the runs, which did not use it.
 
 ## In code {#sec-code31}
 
@@ -178,7 +186,8 @@ d["energies"][int(np.argmin(fil[:, 1]))]           # 2.6 GeV: the oscillation ma
 - The chip did better than its simulated model, and the filter gained less (1.59 times against 2.16).
 - IQM's compilation advantage (12 against 18) came from the optimization level: at the same level IBM also gives 12.
 - 17.50 of 30 credits were spent, at about 0.15 per 1000 shots with a floor of 0.50 per job.
-- The `qang/iqm.py` module does not exist yet: readout correction and qubit choice for IQM are pending.
+- `qang.iqm`, written after the runs, adds readout correction and chain choice. On the Garnet model the correction removes
+  another 15% of the filtered error; it has not been tried on the real chip.
 
 ## Bibliographic notes {.unnumbered}
 

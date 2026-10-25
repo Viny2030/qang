@@ -251,6 +251,8 @@ DESC = {
     "gradients": ("La singularidad de coordenadas en los polos y sus regularizaciones.", "The coordinate singularity at the poles and its regularizations."),
     "ibm": ("Lecturas qg en IBM Runtime: pase de preservación del peso, corrección de lectura, cadenas, ZNE (§137).",
             "qg readings on IBM Runtime: weight-preservation pass, readout correction, chains, ZNE (§137)."),
+    "iqm": ("Lecturas qg en IQM: lectura desde los polos o el perfil de errores, filtro, elección de cadena (capítulo 31).",
+            "qg readings on IQM: readout from the poles or the error profile, filter, chain choice (Chapter 31)."),
     "integrations": ("qang dentro de otras librerías: un submódulo por librería (capítulo 35).",
                      "qang inside other libraries: one submodule per library (Chapter 35)."),
     "interop": ("Lecturas qg de los resultados de cualquier SDK con un solo orden de qubits (§130).",
@@ -302,8 +304,8 @@ importando cada módulo, así que la lista es la del código y no una copia. La 
 
 - `import qang` sólo necesita NumPy. Los módulos de SDK (`qiskit_gate`, `cirq_gate`, `pennylane_gate`, `ibm`, `qiskit_ml`,
   `qec`, `circuits`, `algorithms`) y los de `qang.integrations` importan su librería cuando se los usa.
-- No hay módulo `crypto`: lo criptográfico del libro está en los ejemplos (capítulos 16–18). Tampoco existe todavía `qang/iqm.py`
-  (capítulo 31): el hardware de IQM se usa a través de `qang.interop` y los ejemplos.
+- No hay módulo `crypto`: lo criptográfico del libro está en los ejemplos (capítulos 16–18).
+  `qang.iqm` necesita `iqm-client`, que fija su propia versión de Qiskit: va en un entorno aparte (`qang[iqm]`).
 - La columna "nombres" da la cantidad de nombres públicos, y la lista completa sigue a la tabla.""",
         head="| módulo | qué hace | nombres |", cap=": Los módulos de qang %s. {#tbl-d-modulos}",
         h_full="## Nombres públicos por módulo {#sec-d-nombres}",
@@ -321,8 +323,8 @@ importing each module, so the list is the code's own and not a copy. The signatu
 
 - `import qang` needs only NumPy. The SDK modules (`qiskit_gate`, `cirq_gate`, `pennylane_gate`, `ibm`, `qiskit_ml`, `qec`,
   `circuits`, `algorithms`) and those of `qang.integrations` import their library when used.
-- There is no `crypto` module: the book's cryptography is in the examples (Chapters 16–18). Nor does `qang/iqm.py` exist yet
-  (Chapter 31): IQM hardware is used through `qang.interop` and the examples.
+- There is no `crypto` module: the book's cryptography is in the examples (Chapters 16–18).
+  `qang.iqm` needs `iqm-client`, which pins its own Qiskit: it goes in a separate environment (`qang[iqm]`).
 - The "names" column gives the number of public names, and the full list follows the table.""",
         head="| module | what it does | names |", cap=": The modules of qang %s. {#tbl-d-modules}",
         h_full="## Public names by module {#sec-d-names}",

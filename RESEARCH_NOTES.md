@@ -7045,6 +7045,23 @@ ratio in [0.55, 1.45]. M3: a (k - 1) + b (k^2 - 1) fitted on k = 3..9 predicts k
   makes a 16-55 m-qg angle error visible that the usual readout model hides. Shot noise did not describe the
   scatter of repeated circuits in this run, which is open.
 
+## 169. `qang.iqm`: readout correction and chain choice for IQM (`qang/iqm.py`, `examples/iqm_readout_chain_qg.py`)
+
+What §165 and §168 did by hand, as a module (book chapter 31). Written after both runs; free, nothing sent to IQM.
+
+* **Readout.** IQM's fake backends keep their readout errors in an error profile, not in the Qiskit target where
+  `qang.ibm` looks, which is why §165 had no readout correction. `readout_errors` reads the profile; for a real
+  device `pole_circuits` / `readout_from_poles` measure the errors with two circuits (all |0>, all |1>). On the
+  stored §168 counts they give e0 = 0.0055, e1 = 0.029, the published values.
+* **Rehearsal on IQMFakeApollo** (the §165 circuits, 8 energies, 4000 shots): mean |P_hat - P| raw 0.124, filtered
+  0.055, filtered after readout correction 0.047. The correction removes a further 15% of what the filter leaves.
+* **Kept fraction.** Simulated 0.689; `predict_kept_fraction` gives 0.640 (product of survivals) and 0.775 (with the
+  mixed floor). It brackets the value, less tightly than on IBM's models (§138).
+* **Chain choice.** `best_chain` scores the default layout and 60 chains in 3 s, but the prediction barely separates
+  them (0.777 against 0.775): the fake's qubits are nearly uniform. Whether it matters on Garnet needs the real
+  calibration, which this module does not read.
+* **Verdict.** The module closes the two gaps of chapter 31 in simulation. Nothing in it has run on the chip.
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7

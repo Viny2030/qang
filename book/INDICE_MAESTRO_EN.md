@@ -342,9 +342,9 @@ devices until a real run exists (Part X).
 30.8 The consolidated list of known limitations — §14
 
 ### Chapter 31. 🆕 🧪 First experiment on real hardware: IQM Resonance
-31.0 ✅ written (tools/make_cap31_figures.py): the §165 run rescored from its stored file (1.59×, maximum at 2.6 GeV against 0.8 raw); 12 against 18 two-qubit gates comes from the optimization level (3 against 1), not from IQM; credits 30 → 12.50 (probes 3.3 %, runs 55 %); the `qang/iqm.py` module does not exist — figures: neutrinos on Garnet and credits
+31.0 ✅ written (tools/make_cap31_figures.py): the §165 run rescored from its stored file (1.59×, maximum at 2.6 GeV against 0.8 raw); 12 against 18 two-qubit gates comes from the optimization level (3 against 1), not from IQM; credits 30 → 12.50 (probes 3.3 %, runs 55 %); the `qang.iqm` module was written on 2026-10-25, after the runs — figures: neutrinos on Garnet and credits
 31.1 Why IQM: native PRX and CZ gates, a square lattice; how RBS and XX+YY gates compile
-31.2 ⚠️ The `qang/iqm.py` module (analogous to `qang/ibm.py`, **not written yet**; `examples/iqm_*.py` with `qang.interop` were used): readout errors from calibration, choice of qubit chain, the qg filter
+31.2 ✅ The `qang.iqm` module (analogous to `qang.ibm`; written 2026-10-25, after the runs, which used `examples/iqm_*.py` with `qang.interop`): readout errors from the profile or the poles, chain choice, the qg filter; rehearsal in `examples/iqm_readout_chain_qg.py`
 31.3 A free rehearsal on IQM's simulated backends before spending credits
 31.4 Budget: a minimal probe job (≈10%), the main experiment (≈60%), a reserve (≈30%); the token only in an environment variable
 31.5 The pre-registered main experiment: 3-flavour neutrinos (§151) — 3 qubits, 12 CZ (18 at optimization level 1, on any native set)

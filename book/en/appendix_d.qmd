@@ -7,8 +7,8 @@ importing each module, so the list is the code's own and not a copy. The signatu
 
 - `import qang` needs only NumPy. The SDK modules (`qiskit_gate`, `cirq_gate`, `pennylane_gate`, `ibm`, `qiskit_ml`, `qec`,
   `circuits`, `algorithms`) and those of `qang.integrations` import their library when used.
-- There is no `crypto` module: the book's cryptography is in the examples (Chapters 16–18). Nor does `qang/iqm.py` exist yet
-  (Chapter 31): IQM hardware is used through `qang.interop` and the examples.
+- There is no `crypto` module: the book's cryptography is in the examples (Chapters 16–18).
+  `qang.iqm` needs `iqm-client`, which pins its own Qiskit: it goes in a separate environment (`qang[iqm]`).
 - The "names" column gives the number of public names, and the full list follows the table.
 
 | module | what it does | names |
@@ -30,6 +30,7 @@ importing each module, so the list is the code's own and not a copy. The signatu
 | `ibm` | qg readings on IBM Runtime: weight-preservation pass, readout correction, chains, ZNE (§137). | 30 |
 | `integrations` | qang inside other libraries: one submodule per library (Chapter 35). | 12 |
 | `interop` | qg readings from any SDK's results with one qubit order (§130). | 10 |
+| `iqm` | qg readings on IQM: readout from the poles or the error profile, filter, chain choice (Chapter 31). | 7 |
 | `kernels` | Quantum kernels with the qg filter (§161). | 6 |
 | `knitting` | Sampling cost of circuit cutting. | 4 |
 | `mixed` | The qang unit for mixed states and POVMs. | 11 |
@@ -73,6 +74,7 @@ importing each module, so the list is the code's own and not a copy. The signatu
 - **`gradients`**: `jacobian`, `inverse_jacobian_raw`, `inverse_jacobian_clipped`, `inverse_jacobian_tikhonov`, `pole_damping_factor`, `qfi_qg`, `natural_gradient_step_qg`, `toy_vqe_energy`, `toy_vqe_grad_theta`, `GDHistory`, `run_gradient_descent`, `benchmark`, `MultiGDHistory`, `multi_param_gradient_descent`, `signed_theta`, `signed_qg_step`, `signed_natural_qg_step`
 - **`ibm`**: `WeightPreservationCheck`, `measured_physical_qubits`, `readout_errors`, `readout_inverse_distribution`, `ibm_qg`, `estimator_qg`, `predict_kept_fraction`, `linear_chains`, `best_chain`, `best_layout`, `plan_shots`, `fold_two_qubit_gates`, `zne_qg`, `qnn_template`, `qnn_parameter_values`, `run_qnn`, `unary_loader`, `unary_orthogonal`, `pca_rotation`, `unary_spectrum`, `xy_trotter`, `xy_exact_occupations`, `occupations`, `xxz_trotter`, `xxz_exact_occupations`, `unary_overlap_circuit`, `swap_test_circuit`, `overlap_fidelity`, `swap_test_fidelity`, `add_static_zz`
 - **`interop`**: `canonical_counts`, `qg_z_profile`, `weight_filter`, `filtered_qg_z_profile`, `joint_qg_s`, `joint_qg_s_se`, `sampler_qg`, `qg_z_observables`, `filtered_observables`, `estimator_filtered_qg`
+- **`iqm`**: `check_weight`, `readout_errors`, `pole_circuits`, `readout_from_poles`, `iqm_qg`, `predict_kept_fraction`, `best_chain`
 - **`kernels`**: `unary_embedding`, `exact_kernel`, `kernel_from_counts`, `normalize_gram`, `alignment`, `kernel_qang_angle`
 - **`knitting`**: `pauli_rotation_cut_gamma`, `controlled_rotation_cut_gamma`, `cut_sampling_overhead`, `total_sampling_overhead`
 - **`mixed`**: `density_from_statevector`, `mix`, `is_valid_density_matrix`, `qg_z_density`, `purity`, `von_neumann_entropy`, `standard_z_povm`, `is_valid_povm`, `povm_outcome_probabilities`, `qg_s_povm`, `trine_povm`
