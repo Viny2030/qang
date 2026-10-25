@@ -210,7 +210,7 @@ ejecución en dispositivos), y falta probar la lectura filtrada con JAX.
 **Balance.** La contribución de qang en este capítulo no es la precisión sino la robustez: el filtro qg hace que el
 entrenamiento sin ruido siga valiendo bajo T1, exactamente, y dice de antemano cuántos disparos cuesta. Esa ganancia es
 del filtro de sector, y la base del capítulo 1 la explica: los disparos que decaen corren las lecturas hacia el polo
-norte. Las redes son conocidas (Landman et al. 2022), son simulables, y con ruido calibrado un entrenamiento consciente
+norte. Las redes son conocidas [@landman2022], son simulables, y con ruido calibrado un entrenamiento consciente
 del ruido llega al mismo lugar sin qang.
 
 ## En código {#sec-codigo20}
@@ -240,3 +240,11 @@ QML.kept_fraction(0.08, m.weight, m.depth)        # 0.2229 = 0.92**18: el costo,
 - La red es un clasificador cuadrático simulable: robustez en hardware ruidoso, no ventaja cuántica.
 - En PennyLane el gradiente filtrado bajo T1 es el sin ruido; la verificación dejó dos problemas de librerías (PennyLane y
   qiskit-machine-learning) y un camino hacia JAX, que se proponen al final del libro.
+
+## Notas bibliográficas {.unnumbered}
+
+Las redes ortogonales con compuertas RBS son @landman2022. Los núcleos y espacios de características cuánticos son
+@havlicek2019 y @schuld2019; la relación entre ausencia de mesetas y simulabilidad clásica, @cerezo2023. El
+procesamiento cuántico de señales es @low2017 y @martyn2021. El ecosistema es Qiskit [@javadiabhari2024], PennyLane
+[@bergholm2018] y JAX [@jax2018]. Las notas de investigación numeradas (§) que cita el capítulo y los scripts que lo
+verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en @monteverde2026.

@@ -75,7 +75,7 @@ used and the pole is added.
 
 ## The natural gradient and the qg_YY metric {#sec-geo-qng}
 
-The natural gradient (QNG, Stokes et al., 2020) corrects the step with the metric: $\Delta\theta=-\eta\,g^{-1}\nabla E$. For
+The natural gradient (QNG) [@stokes2020] corrects the step with the metric: $\Delta\theta=-\eta\,g^{-1}\nabla E$. For
 one qubit, the natural step in qg is exactly plain descent in $\theta$ (notes §15.1): invariance under the change of
 coordinates means that writing it in qg adds nothing.
 
@@ -169,13 +169,13 @@ precomputed kernel, 2000 shots and three IBM device noise models.
 
 ## Barren plateaus: global cost against the qg local cost {#sec-geo-plateaus}
 
-With many qubits, the gradient of a random circuit becomes exponentially small (McClean et al., 2018). The notes looked at
+With many qubits, the gradient of a random circuit becomes exponentially small [@mcclean2018]. The notes looked at
 it in qg twice. In §12, converting the gradient to qg changes nothing: the plateau stays exponential, regularization only
 rescales it, and at the poles the singularity is added on top. **The two are independent and compound.**
 
 In §23 the coordinate does matter, by another route: the cost. An ansatz is trained to reach a product state, and two costs
-that vanish only at the target are compared: the global one, $C_G=1-P(0\dots0)$, and the local one of Cerezo et al.
-(2021), which on the Chapter 1 scale is the register's mean readout, $C_L=(1-\overline{qg_Z})/2$. The script recomputes the
+that vanish only at the target are compared: the global one, $C_G=1-P(0\dots0)$, and the local one of
+@cerezo2021, which on the Chapter 1 scale is the register's mean readout, $C_L=(1-\overline{qg_Z})/2$. The script recomputes the
 variance of the derivative with respect to the first parameter over 200 random initialisations:
 
 | | $n=2$ | $n=4$ | $n=6$ | $n=8$ | $n=10$ |
@@ -260,3 +260,10 @@ np.abs(B[:4, :4] - G[:4, :4]).max()                   # ~1e-16 within the layer
 - The qg filter repairs the Gram matrix of a fixed-weight kernel better than the normalization and without its circuits;
   accuracy barely changes.
 - The qg local cost escapes the plateau only with short circuits, and there it is also classically simulable.
+
+## Bibliographic notes {.unnumbered}
+
+Fisher geometry is @braunstein1994, and the natural gradient, @amari1998 and, for quantum circuits, @stokes2020. Damped
+descent is that of @levenberg1944 and @marquardt1963. Quantum kernels are @havlicek2019 and @schuld2019; barren
+plateaus, @mcclean2018 and @cerezo2021. The numbered research notes (§) cited in this chapter and the scripts that check
+it are in the repository [@qangrepo]; the definition of the qang unit is in @monteverde2026.

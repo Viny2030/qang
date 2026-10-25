@@ -18,14 +18,14 @@ $-500$; con scrambling, $F=1$, y lee $1000$. Decodificar es cruzar el ecuador.
 
 ## La paradoja de la información y la complementariedad {#sec-hawking}
 
-Hawking (1976) mostró que un agujero negro radia con espectro térmico, y que la radiación no parece depender de lo que
+@hawking1976 mostró que un agujero negro radia con espectro térmico, y que la radiación no parece depender de lo que
 cayó adentro. Si el agujero se evapora por completo, un estado puro terminaría en uno mixto: la evolución no sería
-unitaria. La complementariedad (Susskind, Thorlacius y Uglum, 1993) y, sobre todo, el argumento de Page (1993) llevaron
+unitaria. La complementariedad [@susskind1993] y, sobre todo, el argumento de @page1993 llevaron
 a la posición contraria, hoy mayoritaria: la información sale en la radiación, codificada en correlaciones finas.
 
-Hayden y Preskill (2007) preguntaron cuándo sale. Su respuesta, para un agujero negro que ya pasó la mitad de su vida y
+@hayden2007 preguntaron cuándo sale. Su respuesta, para un agujero negro que ya pasó la mitad de su vida y
 cuya dinámica esparce la información rápido, es "casi enseguida": un mensaje de pocos qubits arrojado al agujero puede
-reconstruirse con apenas unos qubits más de radiación, si se tiene la radiación temprana. Yoshida y Kitaev (2017)
+reconstruirse con apenas unos qubits más de radiación, si se tiene la radiación temprana. @yoshida2017
 dieron un decodificador explícito, y es el que se corre en este capítulo.
 
 ## Scrambling: un micro-agujero negro de 3 qubits {#sec-scrambling}
@@ -138,7 +138,7 @@ cosas en un número. Con ruido, la ley se rompe ahora por el otro lado: en 3 qub
 
 ## La curva de Page en juguete {#sec-page}
 
-Page (1993) predijo cómo crece el entrelazamiento de la radiación de un agujero negro que se evapora unitariamente: sube
+@page1993 predijo cómo crece el entrelazamiento de la radiación de un agujero negro que se evapora unitariamente: sube
 mientras la radiación es la parte menor, llega a su máximo cuando se radió la mitad, y baja a cero al final, porque el
 estado total es puro. Un juguete exacto: un estado de Haar de 8 qubits, con los primeros $k$ como radiación.
 
@@ -164,9 +164,9 @@ la calcula desde los correladores hasta $k=4$; más allá usa $\operatorname{Tr}
 ## Agujeros de gusano atravesables {#sec-gusano}
 
 El decodificador de Yoshida–Kitaev es, en circuito, el mismo protocolo que en la literatura holográfica se llama
-teleportación por un agujero de gusano atravesable (Gao, Jafferis y Wall, 2017; Maldacena, Stanford y Yang, 2017): dos
+teleportación por un agujero de gusano atravesable [@gao2017; @maldacena2017]: dos
 sistemas entrelazados, una dinámica de scrambling en cada uno (la de un lado conjugada) y un acoplamiento entre ellos
-que deja pasar un qubit. La conjetura ER = EPR (Maldacena y Susskind, 2013) propone que esos pares entrelazados son,
+que deja pasar un qubit. La conjetura ER = EPR [@maldacena2013] propone que esos pares entrelazados son,
 en una teoría gravitatoria dual, un puente de Einstein–Rosen. El circuito no decide nada de eso; sí permite leer el
 resultado con las herramientas de este libro.
 
@@ -177,8 +177,8 @@ F=\frac{1+qg_{XX}-qg_{YY}+qg_{ZZ}}{4}.
 $$
 
 En estado exacto, con scrambler, $(qg_{XX},qg_{YY},qg_{ZZ})=(1,-1,1)$ y $F=1$; sin scrambling, $(0,0,0)$ y $F=1/4$.
-El experimento de Jafferis y colaboradores (2022) en un procesador de Google usó un modelo de 7 qubits aprendido para
-imitar esta física, y su interpretación como agujero de gusano fue discutida (Kobrin y colaboradores, 2023). Este libro
+El experimento de @jafferis2022 en un procesador de Google usó un modelo de 7 qubits aprendido para
+imitar esta física, y su interpretación como agujero de gusano fue discutida [@kobrin2023]. Este libro
 no corre ese experimento; la lectura en correladores queda como herramienta, no como evidencia.
 
 ## Lo que queda pendiente {#sec-pendiente15}
@@ -233,3 +233,11 @@ ps.yk_from_counts({k: round(1e6 * v) for k, v in probs.items()})
 - Un scrambler Clifford cuesta 35, 126 y 252 compuertas de dos qubits en 3, 5 y 7 qubits; con 7, la fidelidad en FakeFez
   sigue en 0,88 pero el éxito cae a 0,105 y $4PF$ a 0,37: el filtro conserva la calidad y cobra en tasa.
 - $qg_S$ no ve la curva de Page; la Rényi-2 desde los correladores qg sí, al costo de $4^k-1$ lecturas.
+
+## Notas bibliográficas {.unnumbered}
+
+La paradoja de la información parte de @hawking1976; la complementariedad es @susskind1993, y la curva de Page,
+@page1993. El protocolo de recuperación es @hayden2007, y su decodificador, @yoshida2017. Los agujeros de gusano
+atravesables son @gao2017 y @maldacena2017, y ER = EPR, @maldacena2013; el experimento es @jafferis2022, y la discusión
+de su interpretación, @kobrin2023. Las notas de investigación numeradas (§) que cita el capítulo y los scripts que lo
+verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en @monteverde2026.

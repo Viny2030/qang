@@ -18,14 +18,14 @@ $-500$; with scrambling, $F=1$, and it reads $1000$. Decoding is crossing the eq
 
 ## The information paradox and complementarity {#sec-hawking}
 
-Hawking (1976) showed that a black hole radiates with a thermal spectrum, and that the radiation does not seem to depend
+@hawking1976 showed that a black hole radiates with a thermal spectrum, and that the radiation does not seem to depend
 on what fell in. If the hole evaporates completely, a pure state would end as a mixed one: evolution would not be
-unitary. Complementarity (Susskind, Thorlacius and Uglum, 1993) and, above all, Page's argument (1993) led to the opposite
+unitary. Complementarity [@susskind1993] and, above all, Page's argument [-@page1993] led to the opposite
 position, the majority one today: the information comes out in the radiation, encoded in fine correlations.
 
-Hayden and Preskill (2007) asked when it comes out. Their answer, for a black hole past the middle of its life whose
+@hayden2007 asked when it comes out. Their answer, for a black hole past the middle of its life whose
 dynamics scrambles information fast, is "almost at once": a message of a few qubits thrown into the hole can be
-rebuilt from just a few more qubits of radiation, given the early radiation. Yoshida and Kitaev (2017) gave an explicit
+rebuilt from just a few more qubits of radiation, given the early radiation. @yoshida2017 gave an explicit
 decoder, and it is the one run in this chapter.
 
 ## Scrambling: a 3-qubit micro black hole {#sec-scrambling}
@@ -136,7 +136,7 @@ success does.
 
 ## A toy Page curve {#sec-page}
 
-Page (1993) predicted how the entanglement of the radiation of a unitarily evaporating black hole grows: it rises while
+@page1993 predicted how the entanglement of the radiation of a unitarily evaporating black hole grows: it rises while
 the radiation is the smaller part, peaks when half has been radiated, and falls to zero at the end, because the total
 state is pure. An exact toy: a Haar state of 8 qubits, with the first $k$ as the radiation.
 
@@ -162,9 +162,9 @@ computes it from the correlators up to $k=4$; beyond that it uses $\operatorname
 ## Traversable wormholes {#sec-wormhole}
 
 The Yoshida–Kitaev decoder is, as a circuit, the same protocol that the holographic literature calls teleportation
-through a traversable wormhole (Gao, Jafferis and Wall, 2017; Maldacena, Stanford and Yang, 2017): two entangled systems,
+through a traversable wormhole [@gao2017; @maldacena2017]: two entangled systems,
 a scrambling dynamics on each (one side conjugated) and a coupling between them that lets a qubit through. The ER = EPR
-conjecture (Maldacena and Susskind, 2013) proposes that such entangled pairs are, in a dual gravitational theory, an
+conjecture [@maldacena2013] proposes that such entangled pairs are, in a dual gravitational theory, an
 Einstein–Rosen bridge. The circuit decides none of that; it does let the result be read with the tools of this book.
 
 The fidelity of the recovered pair is linear in three qg correlators, as in chapter 13:
@@ -174,8 +174,8 @@ F=\frac{1+qg_{XX}-qg_{YY}+qg_{ZZ}}{4}.
 $$
 
 On the exact state, with the scrambler, $(qg_{XX},qg_{YY},qg_{ZZ})=(1,-1,1)$ and $F=1$; without scrambling, $(0,0,0)$ and
-$F=1/4$. The experiment of Jafferis and collaborators (2022) on a Google processor used a learned 7-qubit model to mimic
-this physics, and its reading as a wormhole was disputed (Kobrin and collaborators, 2023). This book does not run that
+$F=1/4$. The experiment of @jafferis2022 on a Google processor used a learned 7-qubit model to mimic
+this physics, and its reading as a wormhole was disputed [@kobrin2023]. This book does not run that
 experiment; the correlator reading stays a tool, not evidence.
 
 ## What remains open {#sec-open15}
@@ -229,3 +229,11 @@ ps.yk_from_counts({k: round(1e6 * v) for k, v in probs.items()})
 - A Clifford scrambler costs 35, 126 and 252 two-qubit gates on 3, 5 and 7 qubits; with 7, the fidelity on FakeFez
   stays at 0.88 but the success falls to 0.105 and $4PF$ to 0.37: the filter keeps the quality and charges in rate.
 - $qg_S$ does not see the Page curve; the Rényi-2 entropy from the qg correlators does, at the cost of $4^k-1$ readings.
+
+## Bibliographic notes {.unnumbered}
+
+The information paradox starts from @hawking1976; complementarity is @susskind1993, and the Page curve, @page1993. The
+recovery protocol is @hayden2007, and its decoder, @yoshida2017. Traversable wormholes are @gao2017 and @maldacena2017,
+and ER = EPR, @maldacena2013; the experiment is @jafferis2022, and the discussion of its interpretation, @kobrin2023.
+The numbered research notes (§) cited in this chapter and the scripts that check it are in the repository [@qangrepo];
+the definition of the qang unit is in @monteverde2026.

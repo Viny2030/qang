@@ -204,7 +204,7 @@ and so is a test of the filtered readout with JAX.
 **Balance.** qang's contribution in this chapter is not accuracy but robustness: the qg filter makes noiseless training
 remain valid under T1, exactly, and says in advance how many shots it costs. That gain belongs to the sector filter, and
 the base of Chapter 1 explains it: the shots that decay drift the readings towards the north pole. The networks are
-known (Landman et al. 2022), they are simulable, and with calibrated noise a noise-aware training reaches the same place
+known [@landman2022], they are simulable, and with calibrated noise a noise-aware training reaches the same place
 without qang.
 
 ## In code {#sec-code20}
@@ -234,3 +234,11 @@ QML.kept_fraction(0.08, m.weight, m.depth)        # 0.2229 = 0.92**18: the cost,
 - The network is a simulable quadratic classifier: robustness on noisy hardware, not quantum advantage.
 - In PennyLane the filtered gradient under T1 is the noiseless one; the check turned up two library problems (PennyLane
   and qiskit-machine-learning) and a path to JAX, which are proposed at the end of the book.
+
+## Bibliographic notes {.unnumbered}
+
+Orthogonal networks with RBS gates are @landman2022. Quantum kernels and feature spaces are @havlicek2019 and
+@schuld2019; the relation between absence of barren plateaus and classical simulability, @cerezo2023. Quantum signal
+processing is @low2017 and @martyn2021. The ecosystem is Qiskit [@javadiabhari2024], PennyLane [@bergholm2018] and JAX
+[@jax2018]. The numbered research notes (§) cited in this chapter and the scripts that check it are in the repository
+[@qangrepo]; the definition of the qang unit is in @monteverde2026.

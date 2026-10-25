@@ -76,7 +76,7 @@ usan los mismos dos números y se agrega el polo.
 
 ## El gradiente natural y la métrica qg_YY {#sec-geo-qng}
 
-El gradiente natural (QNG, Stokes y otros, 2020) corrige el paso con la métrica: $\Delta\theta=-\eta\,g^{-1}\nabla E$. Para
+El gradiente natural (QNG) [@stokes2020] corrige el paso con la métrica: $\Delta\theta=-\eta\,g^{-1}\nabla E$. Para
 un qubit, el paso natural en qg es exactamente el descenso común en $\theta$ (notas §15.1): la invariancia ante el cambio de
 coordenadas hace que escribirlo en qg no agregue nada.
 
@@ -172,14 +172,14 @@ SVM con núcleo precalculado, 2000 disparos y tres modelos de ruido de dispositi
 
 ## Mesetas estériles: costo global contra costo local qg {#sec-geo-mesetas}
 
-Con muchos qubits, el gradiente de un circuito al azar se vuelve exponencialmente chico (McClean y otros, 2018). Las notas
+Con muchos qubits, el gradiente de un circuito al azar se vuelve exponencialmente chico [@mcclean2018]. Las notas
 lo miraron en qg dos veces. En §12, pasar el gradiente a qg no cambia nada: la meseta sigue siendo exponencial, la
 regularización sólo la reescala, y en los polos se le suma la singularidad. **Las dos cosas son independientes y se
 acumulan.**
 
 En §23, la coordenada sí importa por otro camino: el costo. Se entrena un ansatz para llegar a un estado producto y se
-comparan dos costos que valen cero sólo en el objetivo: el global, $C_G=1-P(0\dots0)$, y el local de Cerezo y otros
-(2021), que en la escala del capítulo 1 es la lectura media del registro, $C_L=(1-\overline{qg_Z})/2$. El script recalcula
+comparan dos costos que valen cero sólo en el objetivo: el global, $C_G=1-P(0\dots0)$, y el local de
+@cerezo2021, que en la escala del capítulo 1 es la lectura media del registro, $C_L=(1-\overline{qg_Z})/2$. El script recalcula
 la varianza de la derivada respecto del primer parámetro con 200 inicializaciones al azar:
 
 | | $n=2$ | $n=4$ | $n=6$ | $n=8$ | $n=10$ |
@@ -264,3 +264,10 @@ np.abs(B[:4, :4] - G[:4, :4]).max()                   # ~1e-16 dentro de la capa
 - El filtro qg repara la matriz de Gram de un núcleo de peso fijo mejor que la normalización y sin sus circuitos; la
   precisión casi no cambia.
 - El costo local qg escapa a la meseta sólo con circuitos cortos, y ahí también es simulable clásicamente.
+
+## Notas bibliográficas {.unnumbered}
+
+La geometría de Fisher es @braunstein1994, y el gradiente natural, @amari1998 y, en circuitos cuánticos, @stokes2020. El
+descenso amortiguado es el de @levenberg1944 y @marquardt1963. Los núcleos cuánticos son @havlicek2019 y @schuld2019;
+las mesetas estériles, @mcclean2018 y @cerezo2021. Las notas de investigación numeradas (§) que cita el capítulo y los
+scripts que lo verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en @monteverde2026.
