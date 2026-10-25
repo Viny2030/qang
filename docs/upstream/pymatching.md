@@ -17,6 +17,8 @@ by its final readout (lower weight where the readout makes a decay plausible), t
 
 **Question.** Is per-shot edge reweighting from final readouts something PyMatching users already do with the existing API
 (for example by building a `Matching` per syndrome class), or would a documented pattern or example be welcome? We are not
-proposing a code change unless you see a natural place for it.
+proposing a code change unless you see a natural place for it. If issue #172 (per-shot `edge_reweights` in the decode
+methods) goes ahead, this would be a concrete use case for it: the reweighting changes only the decay edges of each data
+qubit, shot by shot.
 
 Details and code: chapter 26 of https://github.com/Viny2030/qang (book) and `qang.integrations.stim` for the Stim side.

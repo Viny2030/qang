@@ -4,10 +4,13 @@
 
 ### Issue description
 
-`mitiq.rem.post_select` already supports Hamming-weight post-selection (its docstring uses that example). This proposal
-is about two things on top of it that we found useful for number-conserving circuits:
+`mitiq.rem.post_select` already supports Hamming-weight post-selection (its docstring uses that example), and the
+example "Composing techniques: [[4,2,2]] Error Detection and Zero Noise Extrapolation" (`combine_422_zne`) already
+composes post-selection with ZNE, using stabilizer ancillas. This proposal is about two things that example does not
+cover, which we found useful for number-conserving circuits:
 
-1. **Post-selection followed by ZNE** as one documented recipe (or a small helper). Under amplitude damping (T1),
+1. **The ancilla-free variant: post-selecting on the circuit's own conserved Hamming weight, then ZNE.** It needs no
+   encoding and no extra qubits, only a circuit that conserves excitation number. Under amplitude damping (T1),
    post-selecting on the circuit's Hamming-weight sector is exact when T1 is equal across qubits, and it turns T1 plus
    dephasing into dephasing alone, which folding-based ZNE extrapolates well. ZNE on the raw counts does not, because T1
    leakage out of the sector does not scale cleanly under folding.
@@ -50,5 +53,7 @@ zne.execute_with_zne(circuit, executor,
 ```
 
 A tested implementation (`qg_executor`, `execute_with_filter_zne`, `filter_rule`) is in `qang.integrations.mitiq`
-(https://github.com/Viny2030/qang, MIT license). If this fits Mitiq, it could be a short user-guide example combining
-`post_select` with ZNE, plus the decision rule as a utility; I can open a PR for whichever form you prefer.
+(https://github.com/Viny2030/qang, MIT license). If this fits Mitiq, it could be a short example next to
+`combine_422_zne` (weight post-selection instead of a code), plus the decision rule as a utility; I can open a PR for
+whichever form you prefer. (The earlier symmetry-verification RFC, #1901, was closed as error detection rather than
+mitigation; the decision rule above is what makes post-selection a mitigation choice with a measurable cost.)
