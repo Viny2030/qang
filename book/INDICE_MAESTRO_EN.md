@@ -364,6 +364,7 @@ devices until a real run exists (Part X).
 
 ### Chapter 33. Nanoquantum: transmission, partition noise and qubits at the nanoscale
 ⚠️ No module or research-notes section yet: each item starts from the probability equation of chapter 1 and needs its own development and verification.
+33.0 ✅ written (tools/make_cap33_figures.py, ~7 s; calculation and Monte Carlo only, no experimental figure): cos(θ_T/2) = |t| to 10⁻¹⁶; G/G0 = N/2 + Σqg/2 and two channels recovered from conductance and noise; the angle stabilizes partition noise (√N·σ between 0.985 and 1.009); Coulomb thermometry: the artanh line is biased +2.9 %, the Fermi fit is not (qang loses); spin readout and NV budget in m-qg (444,000 photons for 10 m-qg at C = 0.3); ODMR at the Cramér–Rao bound — figures: QPC, noise and Coulomb
 33.1 The tunnelling transmission probability T as a qang probability: θ_T = 2 arccos √T and its reading in m-qg
 33.2 The Landauer formula G = (2e²/h) Σ T_n: each channel of a quantum point contact is a qang reading
 33.3 Partition noise S = 2eI(1 − T) and the Fano factor F = 1 − T: the binomial variance T(1 − T), stabilized by the qang angle

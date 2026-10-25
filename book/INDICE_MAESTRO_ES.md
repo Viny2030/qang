@@ -363,6 +363,7 @@ hasta que exista una corrida real (Parte X).
 
 ### Capítulo 33. Nanocuántica: transmisión, ruido de partición y qubits a escala nanométrica
 ⚠️ Sin módulo ni sección de las notas todavía: cada punto parte de la ecuación de probabilidad del capítulo 1 y requiere desarrollo y verificación propios.
+33.0 ✅ escrito (tools/make_cap33_figures.py, ~7 s; sólo cálculo y Monte Carlo, ninguna cifra experimental): cos(θ_T/2) = |t| a 10⁻¹⁶; G/G0 = N/2 + Σqg/2 y dos canales recuperados de conductancia y ruido; el ángulo estabiliza el ruido de partición (√N·σ entre 0,985 y 1,009); termometría de Coulomb: la recta en artanh tiene +2,9 % de sesgo, el ajuste de Fermi no (qang pierde); lectura de espín y presupuesto NV en m-qg (444 000 fotones para 10 m-qg con C = 0,3); ODMR en la cota de Cramér–Rao — figuras: QPC, ruido y Coulomb
 33.1 La probabilidad de transmisión por túnel T como probabilidad qang: θ_T = 2 arccos √T y su lectura en m-qg
 33.2 La fórmula de Landauer G = (2e²/h) Σ T_n: cada canal de un contacto puntual cuántico es una lectura qang
 33.3 Ruido de partición S = 2eI(1 − T) y factor de Fano F = 1 − T: la varianza binomial T(1 − T), estabilizada por el ángulo qang
