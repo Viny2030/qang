@@ -44,20 +44,23 @@ Revisado el 2026-10-25 sobre `book/es/cap02.qmd` y `book/en/cap02.qmd` (qang 0.1
 | tabla de exposición (§68): 0,42; 0,16–0,24; 0,0006–0,047; 0; fugas 16–52, 20–78, 0,4–17, 0,0–2,0 %; ρ = 0,80; ≥ 98 % | §68 | tabla | igual a §68 | coincide con las notas (no se re-corrió) |
 | estado W en tres kits: 0,316–0,343 | §130 | igual | igual | coincide con las notas (no se re-corrió) |
 
-**Lo que no coincide o merece una pregunta al autor** (no se corrigió el texto):
+**Lo que no coincidía o merecía una pregunta al autor.** El 2026-10-25 el autor pidió aplicar 1 y 2 en los dos
+idiomas (commit 423a9172) y dejar 3 como está:
 
 1. **3,5·10⁻¹⁴ contra Qiskit.** Con Qiskit 2.6.1 y 2000 compuertas al azar la diferencia máxima es 1,8·10⁻¹⁶, no
    3,5·10⁻¹⁴. Probablemente el valor venga de otra versión o de otro muestreo; no es un error de fondo (la cota del
-   libro es más holgada), pero no se reproduce. ¿Se actualiza a "≈ 2·10⁻¹⁶ (Qiskit 2.6)" o se deja como cota?
+   libro es más holgada), pero no se reproduce. **Aplicado:** el texto dice ahora 1,8·10⁻¹⁶ con Qiskit 2.6, y
+   lo mismo contra Cirq, PennyLane y QuTiP. §166 en `RESEARCH_NOTES.md` sigue diciendo 3,5·10⁻¹⁴.
 2. **1,14× mezcla estadísticos.** El 4,4× y el 4,1× son cocientes de medianas (101,34/23,10 y 0,1337/0,0329); el
    1,14× es la mediana de los cocientes por instancia, que es el estadístico de la predicción P4. Con el mismo
    estadístico que los otros dos, el período π baja el error 1,37× (0,0329/0,0240) y el área 1,18× (§160 dice 1,17;
-   23,104/19,660 = 1,175). El texto dice "lo bajó 1,14× más" como si fuera comparable con el 4,1×. ¿Se aclara que
-   es la mediana de los cocientes?
+   23,104/19,660 = 1,175). El texto dice "lo bajó 1,14× más" como si fuera comparable con el 4,1×. **Aplicado:** el
+   texto da 1,37× como cociente de medianas y aclara que la predicción registrada (P4) era sobre la mediana de los
+   cocientes, 1,14× frente a 1,5×, y que falló.
 3. **La X comparada con la resolución del ecuador.** "El corrimiento de una X (12,3 m-qg) es del orden de la
    resolución de 10⁴ disparos en el ecuador (10 m-qg)" compara dos puntos distintos. En la lectura real de la X
    (−987,7 m-qg) la resolución de 10⁴ disparos es 1000·|sin θ|/√N = 1,6 m-qg, así que el corrimiento está a ~8σ:
-   es mucho más visible de lo que sugiere la frase. ¿Se agrega el valor en la lectura real?
+   es mucho más visible de lo que sugiere la frase. Sin cambios, por decisión del autor.
 
 ### Teoría qang, m-qg y probabilidad
 
