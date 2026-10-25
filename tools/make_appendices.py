@@ -296,7 +296,7 @@ DESC = {
 TXT_D = {
     "es": dict(
         file=os.path.join(ROOT, "book", "es", "apendice_d.qmd"),
-        title="# Referencia rápida de la API de qang 0.13.0 {#sec-apendice-d}",
+        title="# Referencia rápida de la API de qang %s {#sec-apendice-d}",
         intro="""Esta es la lista de todos los módulos del paquete `qang` en la versión %s, con sus nombres públicos: los de
 `__all__` o, si el módulo no lo define, las funciones y clases públicas que declara. La genera `tools/make_appendices.py`
 importando cada módulo, así que la lista es la del código y no una copia. La firma y la documentación de cada nombre están en
@@ -315,7 +315,7 @@ importando cada módulo, así que la lista es la del código y no una copia. La 
     ),
     "en": dict(
         file=os.path.join(ROOT, "book", "en", "appendix_d.qmd"),
-        title="# Quick reference of the qang 0.13.0 API {#sec-appendix-d}",
+        title="# Quick reference of the qang %s API {#sec-appendix-d}",
         intro="""This is the list of every module of the `qang` package at version %s, with its public names: those in `__all__`
 or, if the module does not define it, the public functions and classes it declares. `tools/make_appendices.py` generates it by
 importing each module, so the list is the code's own and not a copy. The signature and documentation of each name are in
@@ -372,7 +372,7 @@ def write_d():
     sub_names = {s: module_names("qang.integrations." + s) for s in subs}
     for lang, tx in TXT_D.items():
         k = 0 if lang == "es" else 1
-        lines = [tx["title"], "", tx["intro"] % qang.__version__, "", tx["head"], "|---|---|---|"]
+        lines = [tx["title"] % qang.__version__, "", tx["intro"] % qang.__version__, "", tx["head"], "|---|---|---|"]
         for m in mods:
             n = len(info.get(m, []))
             lines.append("| `%s` | %s | %s |" % (m, DESC[m][k], n if m in info else "—"))
@@ -813,7 +813,8 @@ has the same error as the way out. In §105 the full $M$ did better on Forte-1, 
               t("| lectura | error medio de $qg_Z$ (m-qg) |", "| readout | mean $qg_Z$ error (m-qg) |"), "|---|---|",
               t("| sin qang | %s |", "| without qang | %s |") % nf(ex["exact"]["raw"], ".1f", lang),
               t("| filtro qg | %s |", "| qg filter | %s |") % nf(ex["exact"]["filter"], ".1f", lang),
-              t("| filtro y eco, $M^{1/2}$ | %s |", "| filter and echo, $M^{1/2}$ | %s |") % sci(ex["exact"]["half"], lang),
+              t("| filtro y eco, $M^{1/2}$ | %s |", "| filter and echo, $M^{1/2}$ | %s |")
+              % ("$<10^{-12}$" if ex["exact"]["half"] < 1e-12 else sci(ex["exact"]["half"], lang)),  # BLAS-order noise
               t("| filtro y eco, $M$ | %s |", "| filter and echo, $M$ | %s |") % nf(ex["exact"]["full"], ".1f", lang), "",
               t(": Sin ruido de disparos. El filtro quita la pérdida; $M^{1/2}$ deshace $K$; $M$ entero corrige de más y queda cerca del filtro solo. {#tbl-c-ejemplo}",
                 ": No shot noise. The filter removes the loss; $M^{1/2}$ undoes $K$; the full $M$ over-corrects and ends near the "
