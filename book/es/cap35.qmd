@@ -1,0 +1,244 @@
+# qang como módulo: modificaciones a las librerías cuánticas y de aprendizaje {#sec-cap35}
+
+Cada capítulo de este libro fue dejando anotado qué le pediría a una librería existente. Este capítulo cumple esa lista.
+qang 0.13.0 trae un subpaquete nuevo, `qang.integrations`, con un módulo por librería: mitiq, qiskit-experiments, Qiskit
+Dynamics, QuTiP, Stim, scikit-learn, JAX, PyTorch, Qibo, pytket, Amazon Braket y CUDA-Q de NVIDIA. Cada módulo pone las tres
+cosas de qang (las lecturas, el filtro y las reglas cerradas) en los términos de esa librería y tiene su test en
+`tests/test_integrations.py`. Las cifras de este capítulo salen de `tools/make_cap35_numbers.py`, que corre en tres
+entornos, porque no todas las librerías caben en uno. Ninguna cifra viene de hardware real. El capítulo separa lo que está
+hecho y probado dentro de qang de lo que todavía habría que proponerle a cada proyecto.
+
+## Desde la base: qué lleva cada librería {#sec-base35}
+
+La base del capítulo 1 es una probabilidad $p_0$ y sus lecturas, $qg_Z=2p_0-1$, $m=1000\,qg_Z$ y $\theta=\arccos qg_Z$. Lo que
+qang le agrega a otra librería es siempre una de tres cosas:
+
+- **una lectura**: convertir lo que la librería ya mide (conteos, poblaciones, detectores, probabilidades) en $qg_Z$ y m-qg,
+  con un solo orden de qubits (capítulo 32);
+- **el filtro**: quedarse con los disparos del sector de peso de Hamming del circuito, con su fracción conservada $K$
+  (capítulos 21 y 22);
+- **una regla cerrada**: la regla de costo del filtro (capítulo 21), la forma cerrada de la calibración con anuncio (§31) o el
+  área de pulso mínima (§160).
+
+## Cómo está hecho {#sec-diseno35}
+
+- **Nada se importa de más.** `import qang` sigue necesitando sólo NumPy. Cada submódulo importa su librería cuando se lo pide,
+  y si falta, el error dice qué instalar: `pip install "qang[mitiq]"`, `qang[stim]`, etcétera.
+- **Un extra por librería** en `pyproject.toml`, más uno, `integrations`, con todas las que conviven en un mismo entorno.
+- **Cada test se salta solo** si su librería no está instalada. Por eso el CI del repositorio, que instala `qang[all]`, corre
+  los de scikit-learn y salta los demás.
+
+| librería | módulo | versión probada | entorno | test |
+|---|---|---|---|---|
+| mitiq | `integrations.mitiq` | 1.1.0 | `.venv-int` | pasa |
+| qiskit-experiments | `integrations.qiskit_experiments` | 0.14.2 (Qiskit 2.6.1) | `.venv-int` | pasa |
+| Qiskit Dynamics | `integrations.qiskit_dynamics` | 0.6.0 (Qiskit 1.3.0) | `.venv-dyn` | pasa |
+| QuTiP | `integrations.qutip` | 5.3.1 | `.venv-int` | pasa |
+| Stim + PyMatching | `integrations.stim` | 1.16.0 + 2.4.0 | `.venv-int` | pasa |
+| scikit-learn | `integrations.sklearn` | 1.9.1 | `.venv-int` y CI | pasa |
+| JAX (+ PennyLane) | `integrations.jax` | 0.8.3 (PennyLane 0.45.1) | `.venv-int` | pasa |
+| PyTorch (+ PennyLane) | `integrations.torch` | 2.14.1 (CPU) | `.venv-int` | pasa |
+| Qibo | `integrations.qibo` | 0.3.6 | `.venv-int` | pasa |
+| pytket | `integrations.pytket` | 2.18.5 | `.venv-int` | pasa |
+| Amazon Braket | `integrations.braket` | 1.127.5 | `.venv-int` | pasa |
+| CUDA-Q | `integrations.cudaq` | 0.16.0 | WSL (Ubuntu) | pasa (CPU) |
+
+: Las integraciones de qang 0.13.0. {#tbl-integraciones35}
+
+## Mitigación: mitiq {#sec-mitiq35}
+
+mitiq ya sabe posseleccionar por peso de Hamming: su `post_select` trae ese mismo ejemplo. No hacía falta escribirlo de nuevo.
+Lo que qang agrega encima es:
+
+- `qg_z` y `filtered_qg_z`, para leer un `MeasurementResult` en qg;
+- `qg_executor`, que convierte un muestreador en el ejecutor de valor real que usan las técnicas de mitiq;
+- `execute_with_filter_zne`, que combina el filtro con la extrapolación a ruido cero;
+- `filter_rule`, la regla del capítulo 21.
+
+El script corre un circuito de peso 1 de tres qubits (rotaciones de Givens en Cirq), con amortiguamiento de amplitud de 0,05 y
+desfase de 0,03 por momento, y lee el qubit 1. El valor exacto es $-257{,}3$ m-qg:
+
+| ruido | crudo | filtrado | crudo + ZNE | filtrado + ZNE |
+|---|---|---|---|---|
+| T1 | 233,2 | **0,0** | 49,4 | **0,0** |
+| T1 + desfase | 257,9 | 30,3 | 55,9 | **1,1** |
+
+: Error en m-qg de la lectura del qubit 1, ZNE de Richardson con factores 1, 3 y 5 y plegado global. {#tbl-mitiq35}
+
+Con sólo T1, el filtro es exacto (capítulo 21, F1) y la ZNE no tiene nada que corregir. Con T1 y desfase, el filtro deja sólo
+el desfase y la ZNE lo saca (F6): el error baja de 30,3 a 1,1 m-qg. La ZNE sobre la lectura cruda queda en 55,9 m-qg, porque
+el T1 no escala bien con el plegado. **La propuesta para mitiq** es la combinación: posselección, después ZNE, con la regla de
+costo para decidir si filtrar. Las piezas sueltas ya existían.
+
+## Calibración: qiskit-experiments {#sec-experiments35}
+
+`HeraldedReadout` es un experimento del framework con dos circuitos (anuncio, I o X, medición) y un análisis con la forma
+cerrada de §31. Corre en el simulador Aer con error de lectura $e_{01}=0{,}015$, $e_{10}=0{,}04$, y con una población térmica
+$p$ preparada por purificación:
+
+| $p$ | $e_{01}$ estándar | $e_{01}$ qg | $e_{10}$ estándar | $e_{10}$ qg | $p$ qg | $T_{\text{ef}}$ (5 GHz) |
+|---|---|---|---|---|---|---|
+| 0 | 0,0148 | 0,0151 | 0,0401 | 0,0396 | 0,0000 | 0 mK |
+| 0,01 | 0,0244 | 0,0151 | 0,0494 | 0,0397 | 0,0099 | 52,1 mK |
+| 0,03 | 0,0431 | 0,0151 | 0,0683 | 0,0396 | 0,0297 | 68,8 mK |
+| 0,08 | 0,0900 | 0,0150 | 0,1152 | 0,0401 | 0,0794 | 97,9 mK |
+
+: Calibración estándar contra la calibración con anuncio, 200 000 disparos por circuito. {#tbl-experiments35}
+
+La calibración estándar suma la temperatura al error de lectura, $e_{01}+p\,b$, y ve el qubit frío. La forma cerrada separa
+las dos cosas. Es el resultado de §31 y del capítulo 27, ahora dentro de un `BaseExperiment` que se corre con
+`exp.run(backend)`. **Es la propuesta más concreta del capítulo** para qiskit-experiments, porque el capítulo 18 mostró que la
+calibración estándar puede dejar inseguro a un certificador de números aleatorios.
+
+## Sistemas abiertos: QuTiP {#sec-qutip35}
+
+`qg_readings` lee $(qg_X,qg_Y,qg_Z)$ de cada qubit de un `Qobj`, `mesolve_qg` lee la evolución de `mesolve`, y `t1_collapse` arma
+los operadores de colapso de T1 parejo. Con un estado W de tres qubits y $t/T_1=0{,}6$, la lectura cruda de cada qubit es
+$+634{,}1$ m-qg y la filtrada es $+333{,}333$, el valor sin ruido. La fracción conservada es $0{,}5488=e^{-0{,}6}$, como predice
+el capítulo 21. Es la misma comprobación que los capítulos 19 y 21 hacían integrando Lindblad a mano, ahora con el integrador
+de QuTiP.
+
+## Corrección de errores: Stim {#sec-stim35}
+
+Un detector que dispara con probabilidad $p$ lee $qg=1-2p$. Con el código de repetición de distancia 5, 5 rondas y 200 000
+muestras:
+
+| ruido $p$ | detectores (m-qg) | lógico crudo | lógico decodificado |
+|---|---|---|---|
+| 0,01 | 972,4 a 1000,0 | 933,7 | 1000,0 |
+| 0,03 | 919,0 a 1000,0 | 815,2 | 999,1 |
+| 0,06 | 841,8 a 1000,0 | 660,1 | 993,7 |
+
+: Lecturas qg de un código de repetición en Stim; decodificación con PyMatching. {#tbl-stim35}
+
+Decodificar es llevar el lógico al polo. Los detectores de la última ronda quedan en $+1000$ porque el ruido entra antes de cada
+ronda. `measurement_qg` también aplica el filtro a los registros de medición. **La propuesta para Stim/PyMatching** sigue siendo
+la del capítulo 26, la reponderación consciente del T1 (2,1 a 2,5 veces), que este módulo todavía no implementa.
+
+## Aprendizaje: scikit-learn, JAX y PyTorch {#sec-ml35}
+
+- **scikit-learn.** `WeightQNNClassifier` y `MultiClassQNNClassifier` tienen `fit`, `predict`, `decision_function` y `score`,
+  aceptan cualquier etiqueta y funcionan en `Pipeline`, `cross_val_score` y `GridSearchCV`. En el conjunto de las dos lunas (120
+  puntos), con T1 de 0,15 y validación cruzada de 5 pliegues, el modelo con filtro acierta 0,833 ± 0,083 y el crudo 0,842 ±
+  0,081. **No hay diferencia**, como en el capítulo 20: entrenado con el ruido calibrado, el modelo sin filtro lo alcanza.
+  `GridSearchCV` puede decidir `qang=True/False` como un hiperparámetro más.
+- **JAX.** Las lecturas y el filtro escritos con `jax.numpy` se pueden pasar por `jit`, `grad` y `vmap`. El gradiente de una
+  pérdida filtrada a través de un QNode de PennyLane con `interface="jax"` coincide con diferencias finitas a $2\cdot10^{-10}$.
+  Era lo que el capítulo 20 dejaba sin probar. Para lograrlo apareció un conflicto: PennyLane 0.45 usa `jax.core.is_concrete`,
+  que JAX 0.12 eliminó, y funciona sólo con JAX < 0.9.
+- **PyTorch.** `WeightQNNTorch` es un `nn.Module`: una `TorchLayer` de PennyLane con rotaciones `SingleExcitation`, que
+  conservan el peso, la lectura filtrada y una capa lineal. Con T1 de 0,1 por capa, la lectura filtrada difiere de la limpia en
+  $1{,}2\cdot10^{-16}$ y la cruda en 262,5 m-qg. El gradiente pasa por `backward()`.
+
+## Pulsos: Qiskit Dynamics {#sec-dynamics35}
+
+`rabi_qg` resuelve un qubit excitado en resonancia y devuelve $qg_Z$. Contra $\cos A$, con $A$ el área del pulso, el error es de
+$1{,}1\cdot10^{-7}$ a $5\cdot10^{-7}$ con pulso cuadrado y de $5\cdot10^{-7}$ a $1{,}9\cdot10^{-6}$ con pulso gaussiano, para $A$
+igual a $\pi/2$, $\pi$ y 2,2. Es la base de la regla del área mínima de §160. **El conflicto**: Qiskit Dynamics 0.6 exige
+`qiskit<=1.3`, así que no convive con Qiskit 2.x y necesita su propio entorno.
+
+## SDKs: Qibo, pytket, Braket y CUDA-Q {#sec-sdks35}
+
+Cada uno recibe la rotación qang ($R_Y(\arccos qg)$) y la lectura canónica con el filtro:
+
+- **Qibo**: la lectura de $qg=0{,}6$ con 100 000 disparos da 0,5978;
+- **pytket**: da el valor exacto, $-0{,}25$, desde el vector de estado. pytket mide los ángulos en medias vueltas, no en
+  radianes, y `rqang` hace la conversión. Es el tipo de error de unidades que esta escala busca evitar;
+- **Braket**: corre en el `LocalSimulator`, que deja de ser sólo un formato de resultados (capítulo 32); la lectura de 0,2 da
+  0,201;
+- **CUDA-Q**: corre en WSL con CUDA-Q 0.16.0. En el simulador de CPU (`qpp-cpu`), la lectura de $-0{,}5$ da $-0{,}5018$ y el
+  filtro conserva 0,7509, contra 0,75 esperado. El simulador de GPU (`nvidia`, cuStateVec) no arrancó, porque el controlador de
+  CUDA que ve WSL es más viejo que el runtime de CUDA-Q. Hay que actualizar el controlador de NVIDIA de Windows; el código no
+  cambia, sólo `cudaq.set_target("nvidia")`.
+
+## Lo que se propone a cada proyecto {#sec-propuestas35}
+
+Lo que está en `qang.integrations` ya funciona. Lo que sigue es lo que valdría la pena llevar a cada proyecto, ordenado por el
+respaldo que tiene en el libro:
+
+| proyecto | propuesta | respaldo | fuerza |
+|---|---|---|---|
+| qiskit-experiments | calibración con anuncio: separa temperatura y lectura | §31, capítulos 18 y 27, @tbl-experiments35 | **fuerte** |
+| mitiq | posselección + ZNE con la regla de costo | capítulo 21, @tbl-mitiq35 | **fuerte** |
+| scikit-learn (vía qang) | QNN de peso como estimador | capítulo 20 | útil, sin ventaja de exactitud |
+| PennyLane | arreglar la compatibilidad con JAX ≥ 0.9 (`is_concrete`) | este capítulo | un error real del ecosistema |
+| Qiskit Dynamics | soporte de Qiskit 2.x | este capítulo | un error real del ecosistema |
+| PyMatching / Stim | reponderación consciente del T1 | capítulo 26 | moderada (pierde un 15 % con despolarizante) |
+| transpilador de Qiskit | conservar compuertas que conservan N | capítulo 24 | moderada |
+| qiskit-machine-learning | filtro como reparación de la matriz de Gram | capítulo 23 | débil (un solo núcleo) |
+
+: Propuestas para cada proyecto, con su respaldo. {#tbl-propuestas35}
+
+## Conflictos de entorno {#sec-conflictos35}
+
+Poner todo en un entorno no se pudo, y los conflictos son información:
+
+- Qiskit Dynamics 0.6 exige `qiskit<=1.3`;
+- PennyLane 0.45 no funciona con JAX ≥ 0.9;
+- amazon-braket-sdk fija `cloudpickle==2.2.1`, y el joblib reciente (que usa scikit-learn) pide ≥ 3.0. Las dos funcionaron con
+  cloudpickle 3.1.2, pero pip avisa del conflicto;
+- mitiq 1.1 bajó NumPy a 2.2.6;
+- CUDA-Q no tiene ruedas para Windows y se probó en WSL; su simulador de GPU necesita un controlador de NVIDIA más nuevo.
+
+Por eso hay tres entornos: `.venv-int` con casi todo, `.venv-dyn` para Qiskit Dynamics y WSL para CUDA-Q. El `.venv` del libro
+quedó intacto.
+
+## Sin qang y con qang {#sec-comparacion35}
+
+| librería | sin qang | con qang | diferencia |
+|---|---|---|---|
+| mitiq | `post_select` y ZNE por separado | ZNE de la lectura filtrada + regla | 55,9 → 1,1 m-qg con T1 y desfase |
+| qiskit-experiments | $e_{01}$ inflado por $p\,b$, qubit "frío" | $e_{01}$, $p$ y $T_{\text{ef}}$ insesgados | separa dos errores que el estándar confunde |
+| QuTiP | expectativas de operadores | lecturas en m-qg y filtro | filtro exacto bajo T1 a $10^{-6}$ |
+| Stim | tasas de detección | detectores y lógicos en m-qg | sólo unidad |
+| scikit-learn | sin estimador para la QNN | `fit`/`predict`, CV, búsqueda | API; exactitud igual (0,833 contra 0,842) |
+| JAX | lectura filtrada sin probar | `jit`/`grad`, $2\cdot10^{-10}$ | probado, con JAX < 0.9 |
+| PyTorch | sin capa de peso | `WeightQNNTorch` | filtro exacto bajo T1 dentro de torch |
+| Dynamics | poblaciones | $qg_Z=\cos A$ a $10^{-6}$ | sólo unidad |
+| SDKs | órdenes de bits y unidades distintos | una lectura canónica | evita errores de orden y de medias vueltas |
+
+: Las integraciones, con y sin la escala. {#tbl-comparacion35}
+
+**Balance.** Dos integraciones aportan algo que la librería no tiene: la calibración con anuncio, que separa temperatura y
+lectura, y la ZNE de la lectura filtrada con la regla de costo. Las de aprendizaje abren el uso sin mejorar la exactitud, que es
+lo que el capítulo 20 ya había medido. Las demás son traducción: lecturas en m-qg y un solo orden de qubits, que es poco pero
+evita errores reales, como el de las medias vueltas de pytket. Ninguna cifra viene de hardware. Las propuestas para cada
+proyecto todavía no se enviaron.
+
+## En código {#sec-codigo35}
+
+```python
+# pip install "qang[mitiq]"   (o qang[experiments], qang[sklearn], qang[integrations], ...)
+from qang.integrations import mitiq as qm
+
+ejecutor = qm.qg_executor(muestreador, weight=1)          # circuito -> qg_Z medio filtrado
+valor = qm.execute_with_filter_zne(circuito, muestreador, weight=1, scale_factors=(1, 3, 5))
+
+from qang.integrations.qiskit_experiments import HeraldedReadout
+exp = HeraldedReadout([0], backend=backend, frequency=5e9)
+resultados = exp.run().block_for_results()               # e01, e10, p_excited, m_eq, T_eff
+
+from qang.integrations.sklearn import WeightQNNClassifier
+from sklearn.model_selection import GridSearchCV
+GridSearchCV(WeightQNNClassifier(gamma=0.15), {"qang": [True, False]}, cv=3).fit(X, y)
+```
+
+## Resumen {#sec-resumen35}
+
+- qang 0.13.0 tiene `qang.integrations`, con doce librerías, un extra por cada una y tests que se saltan solos.
+- mitiq: el filtro con la ZNE baja el error de 55,9 a 1,1 m-qg con T1 y desfase; la posselección ya existía.
+- qiskit-experiments: la calibración con anuncio da $e_{01}$, $p$ y $T_{\text{ef}}$ sin sesgo, donde la estándar ve el qubit
+  frío.
+- QuTiP, Stim, Qiskit Dynamics y los SDKs reciben lecturas en m-qg y el filtro, y los cuatro SDKs comparten el mismo orden de
+  qubits.
+- scikit-learn, JAX y PyTorch hacen que las redes de peso se entrenen como cualquier modelo, sin ventaja de exactitud.
+- Tres conflictos de entorno quedan documentados: Qiskit Dynamics con Qiskit 2, PennyLane con JAX ≥ 0.9 y Braket con cloudpickle.
+
+## Notas bibliográficas {.unnumbered}
+
+mitiq es @larose2022; QuTiP, @johansson2012; Stim, @gidney2021, y PyMatching, @higgott2022. qiskit-experiments es
+@kanazawa2023, y Qiskit Dynamics, @puzzuoli2023, sobre Qiskit [@javadiabhari2024]. scikit-learn es @pedregosa2011; JAX,
+@jax2018; PyTorch, @paszke2019, y PennyLane, @bergholm2018. Qibo es @efthymiou2021; pytket, @sivarajah2020; Amazon Braket,
+@braket; Cirq, @cirq, y CUDA-Q, @kim2023. La verificación de simetría que mitiq ya hace es la de @bonetmonroig2018 y
+@mcardle2019, y la extrapolación a ruido cero, @temme2017. El código está en el repositorio [@qangrepo]; la definición de la
+unidad qang, en @monteverde2026.

@@ -199,6 +199,17 @@ DOIS = {
     "maldacena2016syk": "10.1103/PhysRevD.94.106002",
     "oganesyan2007": "10.1103/PhysRevB.75.155111",
     "atas2013": "10.1103/PhysRevLett.110.084101",
+    # libraries, chapter 35
+    "larose2022": "10.22331/q-2022-08-11-774",
+    "johansson2012": "10.1016/j.cpc.2012.02.021",
+    "gidney2021": "10.22331/q-2021-07-06-497",
+    "higgott2022": "10.1145/3505637",
+    "paszke2019": "10.48550/arXiv.1912.01703",
+    "efthymiou2021": "10.1088/2058-9565/ac39f5",
+    "sivarajah2020": "10.1088/2058-9565/ab8e92",
+    "kim2023": "10.1109/DAC56929.2023.10247886",
+    "kanazawa2023": "10.21105/joss.05329",
+    "puzzuoli2023": "10.21105/joss.05853",
     "monteverde2026": "10.5281/zenodo.22832150",
 }
 
@@ -303,6 +314,15 @@ HAND = r"""
   howpublished = {\url{https://resonance.meetiqm.com}},
   note = {Accessed 2026-10},
   year = {2026}
+}
+
+@article{pedregosa2011,
+  title = {Scikit-learn: Machine Learning in {Python}},
+  author = {Pedregosa, Fabian and Varoquaux, Ga{\"e}l and Gramfort, Alexandre and Michel, Vincent and Thirion, Bertrand and Grisel, Olivier and Blondel, Mathieu and Prettenhofer, Peter and Weiss, Ron and Dubourg, Vincent and Vanderplas, Jake and Passos, Alexandre and Cournapeau, David and Brucher, Matthieu and Perrot, Matthieu and Duchesnay, {\'E}douard},
+  journal = {Journal of Machine Learning Research},
+  volume = {12},
+  pages = {2825--2830},
+  year = {2011}
 }
 
 @misc{braket,

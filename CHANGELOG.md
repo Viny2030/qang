@@ -5,6 +5,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-25
+
+### Added
+- `qang.integrations` (book, chapter 35): qang as a module inside other libraries, one submodule per library, each
+  imported only on demand and tested (`tests/test_integrations.py`, skipped when the library is absent):
+  `mitiq` (qg readings of `MeasurementResult`, weight post-selection as a float executor, ZNE of filtered readings,
+  the chapter 21 filter rule), `qiskit_experiments` (`HeraldedReadout`, the §31 closed form that separates thermal
+  population from readout error), `qiskit_dynamics` (pulse-level qg readings and the pulse-area reading),
+  `qutip` (qg readings of `Qobj` and `mesolve` results, the filter on density matrices, equal-T1 collapse
+  operators), `stim` (detector, observable, measurement and decoded logical readings in qg), `sklearn`
+  (`WeightQNNClassifier`, `MultiClassQNNClassifier`), `jax` (jit/grad-able readings and filtered readout),
+  `torch` (`WeightQNNTorch`, a PennyLane `TorchLayer` with the filtered readout), and `qibo`, `pytket`, `braket`,
+  `cudaq` (the qang rotation and the canonical, filtered readout on each SDK).
+- Extras `mitiq`, `experiments`, `dynamics`, `qutip`, `stim`, `sklearn`, `jax`, `torch`, `qibo`, `pytket`, `braket`,
+  `cudaq` and `integrations`. Known constraints: qiskit-dynamics 0.6 requires `qiskit<=1.3`; PennyLane 0.45 needs
+  `jax<0.9`; amazon-braket-sdk pins `cloudpickle==2.2.1` while recent joblib needs `>=3.0`.
+
 ### Added
 - `qang.algebra` (§166): the universal single-qubit gate as an algebraic function of qg_Z (`u3_qang`), its
   phase-free transition matrix, the Householder reflector and Grover diffuser in qg, the transition probability between

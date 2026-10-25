@@ -382,6 +382,11 @@ hasta que exista una corrida real (Parte X).
 34.4 Termodinámica y metrología: Jarzynski, información de Fisher de GHZ
 34.5 Geometría y caos: Fubini–Study, OTOC
 
+## PARTE XIII. Ecosistema: qang dentro de otras librerías 🆕
+
+### Capítulo 35. qang como módulo: modificaciones a las librerías cuánticas y de aprendizaje
+35.0 ✅ escrito (qang 0.13.0, `qang.integrations`; tests/test_integrations.py; cifras de tools/make_cap35_numbers.py en tres entornos: .venv-int, .venv-dyn para Qiskit Dynamics y WSL para CUDA-Q): mitiq (filtro + ZNE: 55,9 → 1,1 m-qg con T1 y desfase; post_select ya existía), qiskit-experiments (HeraldedReadout: e01, p y T_eff sin sesgo, la estándar ve el qubit frío), QuTiP, Stim, scikit-learn (API completa, exactitud igual 0,833 vs 0,842), JAX (grad a 2·10⁻¹⁰; PennyLane 0.45 pide JAX < 0.9), PyTorch, Qiskit Dynamics (pide qiskit ≤ 1.3), Qibo, pytket (medias vueltas), Braket y CUDA-Q 0.16 (CPU; la GPU pide un controlador de NVIDIA más nuevo); tabla de propuestas para cada proyecto
+
 ---
 
 ## Apéndices

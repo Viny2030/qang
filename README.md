@@ -19,6 +19,21 @@ Reference implementation and computational toolkit for:
 - qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
 - **IBM Quantum** through IBM Runtime (transpiler pass, calibrated readout correction, qubit selection) and **qiskit-machine-learning** integration.
 
+### What's new in 0.13 — qang inside other libraries (`qang.integrations`, book chapter 35)
+
+- One module per library, imported only on demand, each with its test (`tests/test_integrations.py`):
+  **mitiq** (qg readings of `MeasurementResult`, weight post-selection as an executor, ZNE of filtered readings and the
+  chapter 21 cost rule), **qiskit-experiments** (`HeraldedReadout`: the §31 closed form that separates thermal population
+  from readout error), **Qiskit Dynamics** (pulse-level qg_Z = cos A), **QuTiP** (readings of `Qobj`/`mesolve`, the filter
+  on density matrices), **Stim** (detectors, observables and decoded logicals in qg), **scikit-learn**
+  (`WeightQNNClassifier`, `MultiClassQNNClassifier`), **JAX** (jit/grad-able filtered readout), **PyTorch**
+  (`WeightQNNTorch`), and **Qibo**, **pytket**, **Amazon Braket** and **NVIDIA CUDA-Q** (the qang rotation and the
+  canonical, filtered readout).
+- Under T1 plus dephasing, ZNE of the filtered reading leaves 1.1 m-qg of error where ZNE of the raw reading leaves 55.9;
+  heralded calibration recovers e01, the thermal population and T_eff where the standard calibration reads the qubit as cold.
+- Known environment constraints: qiskit-dynamics 0.6 needs `qiskit<=1.3`; PennyLane 0.45 needs `jax<0.9`; CUDA-Q has no
+  native Windows wheels (use WSL).
+
 ### What's new in 0.12 — compiling, kernels, dynamics, postselection and what neutrino circuits cannot see
 
 - **Minimal pulse area** (`qang.pulse_area`, §160): every fractional gate moved to its shortest equivalent (RX period 2π,
@@ -154,6 +169,8 @@ pip install ".[ionq]"     # IonQ simulator / hardware scripts (qiskit-ionq)
 pip install ".[qec]"      # Surface-code decoding examples (pymatching)
 pip install ".[ml]"       # qiskit-machine-learning integration (qang.qiskit_ml)
 pip install ".[chemistry]" # PySCF/OpenFermion molecules (Linux/macOS or WSL)
+pip install ".[mitiq]"    # qang.integrations: also experiments, dynamics, qutip, stim, sklearn, jax, torch,
+                          # qibo, pytket, braket, cudaq, or ".[integrations]" for all that share one environment
 pip install ".[all]"      # Everything except chemistry (Qiskit, IBM Runtime, IonQ, pymatching, Cirq, PennyLane, SciPy, Pytest, Matplotlib)
 pip install -r requirements.txt  # same as .[all], without installing qang itself
 ```
