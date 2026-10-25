@@ -1,5 +1,69 @@
-# Fundamento de análisis funcional: Riesz–Fréchet — Apéndice A de las notas
+# Fundamento de análisis funcional: Riesz–Fréchet {#sec-apendice-f}
 
-::: {.callout-note}
-Apéndice en preparación.
-:::
+Este apéndice es conceptual y no agrega resultados. Es el apéndice A de las notas de investigación, que el capítulo 4
+cita: explica por qué $qg_Z$ es la lectura lineal canónica de un estado y por qué $qg_S$ no puede serlo. Las tres
+comprobaciones numéricas las hace `tools/make_appendices.py`.
+
+## El marco {#sec-f-marco}
+
+Para $n$ qubits, los operadores sobre $\mathbb{C}^{2^n}$ forman un espacio de Hilbert de dimensión finita con el
+producto de Hilbert–Schmidt
+
+$$
+\langle A,B\rangle=\mathrm{Tr}(A^\dagger B),
+$$
+
+y las matrices densidad viven en él.
+
+## El teorema {#sec-f-teorema}
+
+**Representación de Riesz–Fréchet** [@riesz1907; @frechet1907]. Todo funcional lineal continuo $f$ sobre un
+espacio de Hilbert $H$ es de la forma $f(x)=\langle y_f,x\rangle$ para un único $y_f\in H$. En dimensión finita la
+continuidad es automática y el teorema se reduce a álgebra lineal: con una base ortonormal $\{E_i\}$,
+$y_f=\sum_i\overline{f(E_i)}\,E_i$. Por eso es un fundamento y no un resultado.
+
+## Aplicación: $qg_Z$ tiene representante {#sec-f-qgz}
+
+La lectura $\rho\mapsto qg_Z(\rho)=\mathrm{Tr}(\rho\,\sigma_z)$ es lineal en $\rho$, así que tiene un único
+representante de Hilbert–Schmidt: $\sigma_z$ en un qubit, y $\sigma_z^{(i)}\otimes I$ en el qubit $i$ de un registro. Toda
+lectura lineal de un estado, sea un valor esperado, una población o un promedio por disparo como el XEB lineal, tiene esta
+forma. $qg_Z$ es aquella cuyo representante es el observable $Z$.
+
+El script lo comprueba en dos qubits con la base de Pauli normalizada, $E_P=P/2$. Reconstruye el representante de
+$\rho\mapsto\mathrm{Tr}(\rho\,Z\otimes I)$ y obtiene $Z\otimes I$ con error 0. Para una lectura de poblaciones con pesos
+al azar, $\rho\mapsto\sum_x w_x\langle x|\rho|x\rangle$, obtiene $\mathrm{diag}(w)$ con error $8{,}7\cdot10^{-18}$.
+
+## Lo que no tiene representante: $qg_S$ {#sec-f-qgs}
+
+$qg_S(\rho)=H(\langle0|\rho|0\rangle)$ es estrictamente cóncava en $\rho$, no lineal, así que ningún operador la
+representa. El ejemplo más corto: $|0\rangle\langle0|$ y $|1\rangle\langle1|$ tienen $qg_S=0$ los dos, y su mezcla por mitades
+tiene $qg_S=1$ bit; una lectura lineal daría el promedio, 0. Con $qg_Z$ el promedio sí se cumple: $(+1-1)/2=0$.
+
+El mismo hecho estructural está detrás de dos resultados de las notas:
+
+- **§10.3 B:** las lecturas lineales tienen estimadores insesgados por promedio de disparos, y la entropía no (desigualdad de
+  Jensen). La tabla da el sesgo exacto, por suma binomial, de los dos estimadores directos.
+- **§7.1:** la identidad $qg_S=H\big((1+qg_Z)/2\big)$ escribe la métrica no lineal como una función escalar fija de la lineal.
+  $qg_S$ no lleva información del estado más allá de la que ya extrae el representante de $qg_Z$.
+
+| $p_0$ | disparos $N$ | sesgo del promedio de $qg_Z$ | sesgo de $H(k/N)$ (bits) |
+|---|---|---|---|
+| 0,5 | 10 | 0 | -0,07650 |
+| 0,5 | 100 | 0 | -0,00725 |
+| 0,5 | 1000 | 0 | -0,00072 |
+| 0,9 | 10 | 0 | -0,08440 |
+| 0,9 | 100 | 0 | -0,00735 |
+| 0,9 | 1000 | 0 | -0,00072 |
+
+: El promedio de $qg_Z$ es insesgado a precisión de máquina; la entropía de la frecuencia subestima siempre. {#tbl-f-sesgo}
+
+## Sobre el lema de Riesz (1918) {#sec-f-lema}
+
+El lema del vector casi ortogonal sirve para mostrar que la bola unidad cerrada de un espacio normado de dimensión
+infinita no es compacta. En las dimensiones finitas de este libro es trivial, porque siempre existe un vector exactamente
+ortogonal. No cumple ningún papel en qang y no debería citarse como si lo cumpliera.
+
+## Notas bibliográficas {.unnumbered}
+
+El teorema de representación es @riesz1907 y @frechet1907. La entropía binaria es la de @shannon1948. Las notas
+numeradas (§) y el script están en el repositorio [@qangrepo].

@@ -1,5 +1,83 @@
-# Protocolo de calibración por eco e inversión matricial en sectores de Hamming — §105–§108
+# Protocolo de calibración por eco e inversión en sectores de Hamming (§105–§108) {#sec-apendice-c}
 
-::: {.callout-note}
-Apéndice en preparación.
-:::
+El capítulo 22 explica por qué hace falta el eco: el filtro qg descarta los disparos que salieron del sector, pero
+no ve los errores que mueven una excitación de un qubit a otro sin cambiar el peso. Este apéndice da el protocolo paso a
+paso, lo que cuesta, un ejemplo exacto generado por `tools/make_appendices.py` con las funciones de `qang.sectors`, y el
+registro de las cuatro corridas pre-registradas de las notas.
+
+## El protocolo {#sec-c-protocolo}
+
+1. **Sector.** $n$ qubits y peso $w$: el sector tiene $D=\binom{n}{w}$ estados de la base, $|e_1\rangle,\dots,|e_D\rangle$
+   (`sector_states`).
+2. **Ecos.** Para cada $j$: preparar $|e_j\rangle$ con compuertas $X$, aplicar la red $W$ y después $W^\dagger$, y medir en
+   $Z$. Sin errores el circuito vuelve a $|e_j\rangle$. Las notas usan 4000 disparos por eco.
+3. **Matriz.** Filtrar cada eco al sector (`filter_distribution`). Su distribución sobre los $D$ estados es la columna $j$ de
+   $M$, con $M_{ij}=P(\text{se mide }e_i\mid\text{se preparó }e_j)$ (`echo_transfer_matrix`).
+4. **Raíz.** El circuito que se quiere leer tiene la mitad de las compuertas del eco, así que se corrige con $A=M^{1/2}$: la
+   raíz principal, real, no negativa y normalizada por columnas (`matrix_power_stochastic`).
+5. **Desmezcla.** Filtrar la distribución del circuito, $f$, y resolver $Ax=f$ con $x\ge0$ por mínimos cuadrados no
+   negativos; normalizar $x$ (`unmix_sector`).
+6. **Lectura.** Cada qubit lee $m_Z(q)=1000\,(1-2p_q)$ con las poblaciones de $x$.
+7. **Antes de usarlo.** Simular sin ruido con los mismos disparos para conocer el error de muestreo. El eco ayuda cuando el
+   error filtrado está bien por encima de ese nivel, y no cuando ya es casi todo ruido de disparos (§108).
+
+## Costo {#sec-c-costo}
+
+| qubits | peso | estados del sector $D$ | circuitos de eco | disparos de eco (4000 c/u) | usado en |
+|---|---|---|---|---|---|
+| 5 | 1 | 5 | 5 | 20.000 | §105, §106, §108 |
+| 5 | 2 | 10 | 10 | 40.000 | §107 |
+| 8 | 1 | 8 | 8 | 32.000 | — |
+| 8 | 2 | 28 | 28 | 112.000 | §115 |
+
+: Un eco por estado del sector; la matriz se mide una vez por red, no por entrada. {#tbl-c-costo}
+
+El costo crece como $\binom{n}{w}$, no como $2^n$: es lo que hace practicable la inversión. En peso 2 con 8 qubits
+son 28 circuitos; una matriz de confusión de lectura completa en 8 qubits necesitaría 256.
+
+## Un ejemplo exacto {#sec-c-ejemplo}
+
+El script arma un canal dentro del sector $K$ en 5 qubits y peso 1, con 0,90 de probabilidad de quedarse en el qubit
+correcto, y una pérdida T1 de 15 % de los disparos hacia $|00000\rangle$, que lee $+1000$ m-qg en todos los qubits. El eco
+aplica $K$ dos veces, así que $M=K^2$ (diagonal media 0,81), y la raíz principal recupera $K$ exactamente. Es la suposición detrás de $M^{1/2}$:
+que la vuelta tenga el mismo error que la ida. En §105 el $M$ completo fue mejor en Forte-1, así que no siempre se cumple.
+
+| lectura | error medio de $qg_Z$ (m-qg) |
+|---|---|
+| sin qang | 71,9 |
+| filtro qg | 37,5 |
+| filtro y eco, $M^{1/2}$ | $3{,}9\cdot10^{-13}$ |
+| filtro y eco, $M$ | 36,7 |
+
+: Sin ruido de disparos. El filtro quita la pérdida; $M^{1/2}$ deshace $K$; $M$ entero corrige de más y queda cerca del filtro solo. {#tbl-c-ejemplo}
+
+**Por qué mínimos cuadrados no negativos y no la inversa.** Con 1000 disparos por corrida, en 37 de 300 corridas la
+inversa directa $A^{-1}f$ da alguna población negativa, que no es una probabilidad. La solución no negativa nunca lo hace.
+El error medio de $qg_Z$ es casi el mismo: 21,6 m-qg con la inversa y 21,5 m-qg con la solución no negativa. Lo que se gana es
+que el resultado siempre es una distribución, no exactitud; por eso la mitigación de lectura usual también restringe la
+solución al símplex.
+
+## Las cuatro corridas pre-registradas {#sec-c-registro}
+
+| § | predicciones (commit) | cumplidas | resultado |
+|---|---|---|---|
+| §105 | C1–C4 (`052752d`) | 4 de 4 | peso 1, 5 qubits, cinco dispositivos simulados: el eco quita 38–47 % del error que deja el filtro; filtro y eco, 6–7 veces más exactos que la lectura cruda |
+| §106 | L1–L4 (`fa8eda6`) | 4 de 4 | el clasificador de peso 1, 189 entradas: el error del valor de decisión baja 43–56 %; decisiones distintas del modelo sin ruido, 15 → 7 → 3 |
+| §107 | W1–W4 (`4d83029`) | 4 de 4 | peso 2, matriz de 10 × 10: el eco quita 37–43 % del error de $qg_Z$ y 39–48 % del de $qg_{ZZ}$ |
+| §108 | M1–M4 (`4ae2674`) | 0 de 4 | entradas de margen estrecho: el filtro baja las decisiones invertidas de 47 a 17 y el eco no agrega nada (19) |
+
+: Las corridas de las notas, en modelos de ruido de tres dispositivos de IBM y dos de IonQ. {#tbl-c-registro}
+
+En total, 12 de 16 predicciones cumplidas. El script comprueba que cada commit citado existe y que en él las notas
+todavía no tenían la sección: las cuatro anterioridades son consistentes (apéndice E). Los números de la tabla vienen de las
+notas; los scripts de `examples/` que nombra cada sección los reproducen, pero tardan horas y este apéndice no los corre.
+
+La falla de §108 es la regla del paso 7. En ese modelo el valor de decisión se dispersa unos 0,22 por los disparos solos, y
+con el filtro el error ya era 0,26–0,35: quedaba poco sesgo dentro del sector, e invertir la matriz sólo agregó varianza. En
+§106 el error filtrado era 0,47–0,87, casi todo sesgo, y el eco lo redujo a la mitad.
+
+## Notas bibliográficas {.unnumbered}
+
+El eco es el de @hahn1950; la mitigación de errores de lectura por inversión de una matriz de confusión, @bravyi2021.
+El filtro de sector es la verificación de simetría de @bonetmonroig2018. Las notas numeradas (§) y los scripts están en el
+repositorio [@qangrepo].

@@ -1,5 +1,69 @@
-# Functional-analysis foundation: Riesz–Fréchet — Appendix A of the notes
+# Functional-analysis foundation: Riesz–Fréchet {#sec-appendix-f}
 
-::: {.callout-note}
-Appendix in preparation.
-:::
+This appendix is conceptual and adds no results. It is Appendix A of the research notes, which Chapter 4 cites: it
+explains why $qg_Z$ is the canonical linear readout of a state and why $qg_S$ cannot be one. The three numerical checks are
+done by `tools/make_appendices.py`.
+
+## The setting {#sec-f-setting}
+
+For $n$ qubits, the operators on $\mathbb{C}^{2^n}$ form a finite-dimensional Hilbert space with the Hilbert–Schmidt
+inner product
+
+$$
+\langle A,B\rangle=\mathrm{Tr}(A^\dagger B),
+$$
+
+and density matrices live in it.
+
+## The theorem {#sec-f-theorem}
+
+**Riesz–Fréchet representation** [@riesz1907; @frechet1907]. Every continuous linear functional $f$ on a Hilbert
+space $H$ has the form $f(x)=\langle y_f,x\rangle$ for a unique $y_f\in H$. In finite dimension continuity is automatic and
+the theorem reduces to linear algebra: with an orthonormal basis $\{E_i\}$, $y_f=\sum_i\overline{f(E_i)}\,E_i$. That is why
+it is a foundation and not a result.
+
+## Application: $qg_Z$ has a representative {#sec-f-qgz}
+
+The readout $\rho\mapsto qg_Z(\rho)=\mathrm{Tr}(\rho\,\sigma_z)$ is linear in $\rho$, so it has a unique
+Hilbert–Schmidt representative: $\sigma_z$ on one qubit, and $\sigma_z^{(i)}\otimes I$ on qubit $i$ of a register. Every
+linear readout of a state, be it an expectation value, a population or a per-shot average such as linear XEB, has this form.
+$qg_Z$ is the one whose representative is the $Z$ observable.
+
+The script checks it on two qubits with the normalized Pauli basis, $E_P=P/2$. It rebuilds the representative of
+$\rho\mapsto\mathrm{Tr}(\rho\,Z\otimes I)$ and gets $Z\otimes I$ with error 0. For a population readout with random
+weights, $\rho\mapsto\sum_x w_x\langle x|\rho|x\rangle$, it gets $\mathrm{diag}(w)$ with error $8.7\cdot10^{-18}$.
+
+## What has no representative: $qg_S$ {#sec-f-qgs}
+
+$qg_S(\rho)=H(\langle0|\rho|0\rangle)$ is strictly concave in $\rho$, not linear, so no operator represents it. The
+shortest example: $|0\rangle\langle0|$ and $|1\rangle\langle1|$ both have $qg_S=0$, and their equal mixture has $qg_S=1$ bit;
+a linear readout would give the average, 0. With $qg_Z$ the average does hold: $(+1-1)/2=0$.
+
+The same structural fact is behind two results of the notes:
+
+- **§10.3 B:** linear readouts have unbiased shot-average estimators, and entropy does not (Jensen's inequality). The table
+  gives the exact bias, by binomial sum, of the two direct estimators.
+- **§7.1:** the identity $qg_S=H\big((1+qg_Z)/2\big)$ writes the non-linear metric as a fixed scalar function of the linear
+  one. $qg_S$ carries no information about the state beyond what the representative of $qg_Z$ already extracts.
+
+| $p_0$ | shots $N$ | bias of the $qg_Z$ average | bias of $H(k/N)$ (bits) |
+|---|---|---|---|
+| 0.5 | 10 | 0 | -0.07650 |
+| 0.5 | 100 | 0 | -0.00725 |
+| 0.5 | 1000 | 0 | -0.00072 |
+| 0.9 | 10 | 0 | -0.08440 |
+| 0.9 | 100 | 0 | -0.00735 |
+| 0.9 | 1000 | 0 | -0.00072 |
+
+: The $qg_Z$ average is unbiased to machine precision; the entropy of the frequency always underestimates. {#tbl-f-bias}
+
+## On Riesz's lemma (1918) {#sec-f-lemma}
+
+The almost-orthogonal-vector lemma is used to show that the closed unit ball of an infinite-dimensional normed
+space is not compact. In the finite dimensions of this book it is trivial, because an exactly orthogonal vector always
+exists. It plays no role in qang and should not be cited as if it did.
+
+## Bibliographic notes {.unnumbered}
+
+The representation theorem is @riesz1907 and @frechet1907. The binary entropy is that of @shannon1948. The
+numbered notes (§) and the script are in the repository [@qangrepo].

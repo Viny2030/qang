@@ -1,5 +1,167 @@
-# Declaración de falsación y registro pre-registrado de predicciones (recuento completo §1–§164)
+# Registro de falsación: las predicciones que el repositorio permite comprobar {#sec-apendice-e}
 
-::: {.callout-note}
-Apéndice en preparación.
-:::
+El plan del libro anunciaba aquí un recuento completo de §1–§164. El capítulo 28 explica por qué no se hizo: las
+secciones anteriores a §71 casi no usan pre-registro, y muchas posteriores dejan sus veredictos sólo en prosa, con redacciones
+distintas. Este apéndice lista lo que se puede comprobar con código. Lo genera `tools/make_appendices.py` con las mismas
+funciones que la figura del capítulo 28 (`tools/make_cap28_figures.py`), así que sus totales son los del capítulo.
+
+## Declaración de falsación {#sec-e-declaracion}
+
+- **Las definiciones y las identidades no se falsan con experimentos.** La unidad qg, el mili-qang, la ecuación de
+  probabilidad y las fórmulas de los apéndices A y B se demuestran o se comprueban a precisión de máquina en `tests/`. Si una
+  falla, es un error de código, no un resultado.
+- **Las afirmaciones empíricas sí.** Cada una dice que una lectura con qang es más exacta, más barata o más estable que sin
+  qang, y se fija con un umbral antes de correr. Una predicción fallada se publica con su número y no se reescribe.
+- **Qué falsaría el programa entero.** Que las ventajas del capítulo 29 no se repitieran en hardware real con umbrales fijados
+  antes. Hoy esa prueba tiene dos corridas en IQM Garnet (§165 y §168) con 7 de 8 predicciones cumplidas. Es poco para
+  decidir.
+
+## Veredictos guardados por el código {#sec-e-veredictos}
+
+Cada archivo de `examples/data/` con un diccionario `verdict` es una corrida cuyas predicciones juzgó el propio
+script. La columna § es la sección de las notas que nombra al script.
+
+| corrida | § | cumplidas | falladas | cuáles fallaron |
+|---|---|---|---|---|
+| `fisher_natural_gradient_qg` | §159 | 4 | 1 | G2 |
+| `ibm_coherent_zz_qg` | §145 | 0 | 3 | X1, X2, X3 |
+| `ibm_fleet_qg` | §144 | 0 | 3 | F1, F2, F3 |
+| `ibm_layout_qg` | §138 | 2 | 1 | L1 |
+| `ibm_pca_spectrum_qg` | §146 | 4 | 0 | — |
+| `ibm_qnn_layout_qg` | §141 | 2 | 1 | R3 |
+| `ibm_qnn_qg` | §139 | 2 | 1 | Q2 |
+| `ibm_runtime_qg` | §137 | 3 | 0 | — |
+| `ibm_shot_plan_qg` | §143 | 1 | 1 | P2 |
+| `ibm_static_zz_qg` | §150 | 2 | 2 | Z2, Z3 |
+| `ibm_swap_test_qg` | §149 | 5 | 0 | — |
+| `ibm_trotter_walk_qg` | §147 | 5 | 1 | W1 |
+| `ibm_xxz_many_body_qg` | §148 | 3 | 1 | K1 |
+| `ibm_zne_qg` | §142 | 1 | 2 | Z1, Z3 |
+| `iqm_milliqang_qg_analysis` | §168 | 3 | 1 | M2 |
+| `lih_lambda_filter_qg` | §153 | 5 | 1 | L4 |
+| `neutrino_collective_qg` | §154 | 0 | 7 | C1, C2, C3, C4, C5, C6, C7 |
+| `neutrino_matter_qg` | §152 | 4 | 1 | M1 |
+| `neutrino_ordering_majorana_sterile_qg` | §163 | 5 | 1 | O3 |
+| `neutrino_oscillation_qg` | §151 | 4 | 0 | — |
+| `neutrino_solar_qg` | §156 | 6 | 0 | — |
+| `postselection_ctc_blackhole_qg` | §164 | 2 | 4 | C1, C2, C3, H1 |
+| `pulse_area_qg` | §160 | 3 | 1 | P4 |
+| `qiskit_ml_qnn_qg` | §140 | 3 | 0 | — |
+| `qnn_ingate_dephasing` | §133 | 2 | 2 | D2, D3 |
+| `qnn_torino_residual` | §132 | 2 | 2 | T2, T3 |
+| `qpon_teleport_dual_rail_qg` | §158 | 1 | 7 | A1, A2, A3, B1, B2, B3, B5 |
+| `qpon_teleport_qg` | §157 | 5 | 1 | Q5 |
+| `qsp_arcsine_fit` | §134 | 2 | 2 | Q2, Q4 |
+| `quantum_kernel_qg` | §161 | 2 | 3 | K2, K3, K4 |
+| `varqte_kraus_qg` | §162 | 4 | 1 | V1 |
+| `wqsp_kan` | §135 | 1 | 2 | K1, K2 |
+| `wqsp_kan_parity` | §136 | 1 | 1 | P2 |
+| **total** | | **89** | **54** | |
+
+: 33 corridas, 143 predicciones: 89 cumplidas (62 %) y 54 falladas. {#tbl-e-veredictos}
+
+## Pre-registros por sha256 {#sec-e-sha256}
+
+Cada `examples/data/*.prereg` guarda el sha256 de un script congelado. La anterioridad está comprobada si el hash
+coincide con el script en el commit que agregó el `.prereg` y ese commit es anterior al de los resultados.
+
+| pre-registro | § | coincide hoy | coincide en su commit | antes de los resultados | anterioridad |
+|---|---|---|---|---|---|
+| `fisher_natural_gradient_qg` | §159 | no | sí | sí | comprobada |
+| `iqm_milliqang_qg` | §168 | no | sí | sí | comprobada |
+| `iqm_neutrino_qg` | §165 | no | sí | sí | comprobada |
+| `lih_lambda_filter_qg` | §153 | no | sí | sí | comprobada |
+| `neutrino_collective_qg` | §154 | no | sí | sí | comprobada |
+| `neutrino_matter_qg` | §152 | no | no | no | sólo fecha propia |
+| `neutrino_ordering_majorana_sterile_qg` | §163 | no | no | no | sólo fecha propia |
+| `neutrino_oscillation_qg` | §151 | no | no | no | sólo fecha propia |
+| `neutrino_solar_qg` | §156 | no | no | no | sólo fecha propia |
+| `postselection_ctc_blackhole_qg` | §164 | no | no | no | sólo fecha propia |
+| `pulse_area_qg` | §160 | no | no | no | sólo fecha propia |
+| `qpon_teleport_dual_rail_qg` | §158 | no | sí | sí | comprobada |
+| `qpon_teleport_qg` | §157 | no | sí | sí | comprobada |
+| `quantum_kernel_qg` | §161 | no | no | no | sólo fecha propia |
+| `varqte_kraus_qg` | §162 | no | no | no | sólo fecha propia |
+
+: 15 pre-registros: 7 comprobados en git, 8 sólo con la fecha del propio archivo. {#tbl-e-sha256}
+
+Que ninguno coincida hoy es lo esperable: después de la corrida se agregan los hallazgos al comentario inicial del
+script. En los que tienen sólo fecha propia, el `.prereg` y los resultados entraron en el mismo commit.
+
+## Pre-registros por commit {#sec-e-commit}
+
+Cada "committed … (abcdef1)" de las notas: el commit existe y en él las notas todavía no tienen la sección.
+
+| § | commits | consistentes |
+|---|---|---|
+| §71 | `daf0b6f` | 1 de 1 |
+| §72 | `092580f` | 1 de 1 |
+| §73 | `e877a72` | 1 de 1 |
+| §74 | `68d8d00` | 1 de 1 |
+| §75 | `1a516b4` | 1 de 1 |
+| §76 | `8d32f92` | 1 de 1 |
+| §77 | `1450374` | 1 de 1 |
+| §78 | `e999d7f` | 1 de 1 |
+| §79 | `00520dc` | 1 de 1 |
+| §80 | `77700bd` | 1 de 1 |
+| §81 | `1f2da5c` | 1 de 1 |
+| §82 | `1f4f8ac` | 1 de 1 |
+| §85 | `d0191cb` | 1 de 1 |
+| §86 | `5239ad3` | 1 de 1 |
+| §87 | `1f33029` | 1 de 1 |
+| §88 | `0b266fe` | 1 de 1 |
+| §90 | `14fab61` | 1 de 1 |
+| §91 | `d292c7e` | 1 de 1 |
+| §92 | `7a3bdad` | 1 de 1 |
+| §93 | `52d5cb1` | 1 de 1 |
+| §94 | `ebd795b` | 1 de 1 |
+| §95 | `505943d` | 1 de 1 |
+| §96 | `5648765` | 1 de 1 |
+| §98 | `4c11ff3` | 1 de 1 |
+| §100 | `517902b` | 1 de 1 |
+| §101 | `d4fcbaa` | 1 de 1 |
+| §102 | `6c0a1d7` | 1 de 1 |
+| §103 | `1b408dd` | 1 de 1 |
+| §104 | `22554eb` | 1 de 1 |
+| §105 | `052752d` | 1 de 1 |
+| §106 | `fa8eda6` | 1 de 1 |
+| §107 | `4d83029` | 1 de 1 |
+| §108 | `4ae2674` | 1 de 1 |
+| §109 | `9c06b36` | 1 de 1 |
+| §110 | `59f855a` | 1 de 1 |
+| §111 | `34760c3` | 1 de 1 |
+| §112 | `ea3fd3a` | 1 de 1 |
+| §113 | `d2dcd56` | 1 de 1 |
+| §114 | `d6e4f50` | 1 de 1 |
+| §115 | `12d12f0` | 1 de 1 |
+| §117 | `3c0fca9` | 1 de 1 |
+| §118 | `637e800` | 1 de 1 |
+| §119 | `d5d31e7` | 1 de 1 |
+| §120 | `fcfdf3b` | 1 de 1 |
+| §121 | `efba91a` | 1 de 1 |
+| §122 | `1bca045` | 1 de 1 |
+| §123 | `fc1e0ea` | 1 de 1 |
+| §124 | `b37b344` | 1 de 1 |
+| §125 | `b42cde2` | 1 de 1 |
+| §126 | `b2e92c4` | 1 de 1 |
+| §127 | `b2e92c4` | 1 de 1 |
+| §128 | `8a16974` | 1 de 1 |
+| §129 | `1a5507f` | 1 de 1 |
+| §165 | `a74c07c` | 1 de 1 |
+
+: 54 citas en 54 secciones, §71–§165: 54 consistentes. {#tbl-e-commit}
+
+## Lo que este registro no incluye {#sec-e-fuera}
+
+- **La línea de QML (§75–§123)** lleva su propia cuenta en el README: 176 predicciones juzgadas, 123 cumplidas y 53
+  falladas, con 4 más esperando la corrida en hardware de IonQ (§116). Se superpone en parte con las tablas de arriba y no
+  debe sumarse.
+- **Los veredictos en prosa** ("Four passed; V1 failed") de las secciones que no guardan un diccionario. Están en las notas,
+  sección por sección, pero contarlos exige leerlos uno a uno.
+- **Las secciones anteriores a §71**, que casi no usan pre-registro: sus números son reproducibles, pero no tienen un umbral
+  fijado antes.
+
+## Notas bibliográficas {.unnumbered}
+
+El criterio de falsación es el de @popper1959, y el pre-registro como práctica, @nosek2018. Las notas numeradas (§),
+los archivos de `examples/data/` y los scripts están en el repositorio [@qangrepo].

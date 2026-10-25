@@ -1,5 +1,166 @@
-# Falsification statement and the register of pre-registered predictions (full count §1–§164)
+# Falsification register: the predictions the repository allows one to check {#sec-appendix-e}
 
-::: {.callout-note}
-Appendix in preparation.
-:::
+The book's plan announced a full count of §1–§164 here. Chapter 28 explains why it was not done: the sections before
+§71 hardly use pre-registration, and many later ones leave their verdicts only in prose, worded differently. This appendix
+lists what can be checked with code. `tools/make_appendices.py` generates it with the same functions as the Chapter 28
+figure (`tools/make_cap28_figures.py`), so its totals are the chapter's.
+
+## Falsification statement {#sec-e-statement}
+
+- **Definitions and identities are not falsified by experiments.** The qg unit, the milli-qang, the probability
+  equation and the formulas of Appendices A and B are proven or checked to machine precision in `tests/`. If one fails, it
+  is a code bug, not a result.
+- **Empirical claims are.** Each says that a reading with qang is more accurate, cheaper or more stable than without qang,
+  and it is fixed with a threshold before running. A failed prediction is published with its number and not rewritten.
+- **What would falsify the programme as a whole.** That the advantages of Chapter 29 did not repeat on real hardware with
+  thresholds fixed in advance. Today that test has two runs on IQM Garnet (§165 and §168), with 7 of 8 predictions passed.
+  That is too little to decide.
+
+## Verdicts stored by the code {#sec-e-verdicts}
+
+Each file of `examples/data/` with a `verdict` dictionary is a run whose predictions the script itself scored. The §
+column is the notes section that names the script.
+
+| run | § | passed | failed | which failed |
+|---|---|---|---|---|
+| `fisher_natural_gradient_qg` | §159 | 4 | 1 | G2 |
+| `ibm_coherent_zz_qg` | §145 | 0 | 3 | X1, X2, X3 |
+| `ibm_fleet_qg` | §144 | 0 | 3 | F1, F2, F3 |
+| `ibm_layout_qg` | §138 | 2 | 1 | L1 |
+| `ibm_pca_spectrum_qg` | §146 | 4 | 0 | — |
+| `ibm_qnn_layout_qg` | §141 | 2 | 1 | R3 |
+| `ibm_qnn_qg` | §139 | 2 | 1 | Q2 |
+| `ibm_runtime_qg` | §137 | 3 | 0 | — |
+| `ibm_shot_plan_qg` | §143 | 1 | 1 | P2 |
+| `ibm_static_zz_qg` | §150 | 2 | 2 | Z2, Z3 |
+| `ibm_swap_test_qg` | §149 | 5 | 0 | — |
+| `ibm_trotter_walk_qg` | §147 | 5 | 1 | W1 |
+| `ibm_xxz_many_body_qg` | §148 | 3 | 1 | K1 |
+| `ibm_zne_qg` | §142 | 1 | 2 | Z1, Z3 |
+| `iqm_milliqang_qg_analysis` | §168 | 3 | 1 | M2 |
+| `lih_lambda_filter_qg` | §153 | 5 | 1 | L4 |
+| `neutrino_collective_qg` | §154 | 0 | 7 | C1, C2, C3, C4, C5, C6, C7 |
+| `neutrino_matter_qg` | §152 | 4 | 1 | M1 |
+| `neutrino_ordering_majorana_sterile_qg` | §163 | 5 | 1 | O3 |
+| `neutrino_oscillation_qg` | §151 | 4 | 0 | — |
+| `neutrino_solar_qg` | §156 | 6 | 0 | — |
+| `postselection_ctc_blackhole_qg` | §164 | 2 | 4 | C1, C2, C3, H1 |
+| `pulse_area_qg` | §160 | 3 | 1 | P4 |
+| `qiskit_ml_qnn_qg` | §140 | 3 | 0 | — |
+| `qnn_ingate_dephasing` | §133 | 2 | 2 | D2, D3 |
+| `qnn_torino_residual` | §132 | 2 | 2 | T2, T3 |
+| `qpon_teleport_dual_rail_qg` | §158 | 1 | 7 | A1, A2, A3, B1, B2, B3, B5 |
+| `qpon_teleport_qg` | §157 | 5 | 1 | Q5 |
+| `qsp_arcsine_fit` | §134 | 2 | 2 | Q2, Q4 |
+| `quantum_kernel_qg` | §161 | 2 | 3 | K2, K3, K4 |
+| `varqte_kraus_qg` | §162 | 4 | 1 | V1 |
+| `wqsp_kan` | §135 | 1 | 2 | K1, K2 |
+| `wqsp_kan_parity` | §136 | 1 | 1 | P2 |
+| **total** | | **89** | **54** | |
+
+: 33 runs, 143 predictions: 89 passed (62%) and 54 failed. {#tbl-e-verdicts}
+
+## Pre-registrations by sha256 {#sec-e-sha256}
+
+Each `examples/data/*.prereg` holds the sha256 of a frozen script. The 'before' is checked if the hash matches the
+script at the commit that added the `.prereg` and that commit is earlier than the one of the results.
+
+| pre-registration | § | matches today | matches at its commit | before the results | 'before' |
+|---|---|---|---|---|---|
+| `fisher_natural_gradient_qg` | §159 | no | yes | yes | checked |
+| `iqm_milliqang_qg` | §168 | no | yes | yes | checked |
+| `iqm_neutrino_qg` | §165 | no | yes | yes | checked |
+| `lih_lambda_filter_qg` | §153 | no | yes | yes | checked |
+| `neutrino_collective_qg` | §154 | no | yes | yes | checked |
+| `neutrino_matter_qg` | §152 | no | no | no | own timestamp only |
+| `neutrino_ordering_majorana_sterile_qg` | §163 | no | no | no | own timestamp only |
+| `neutrino_oscillation_qg` | §151 | no | no | no | own timestamp only |
+| `neutrino_solar_qg` | §156 | no | no | no | own timestamp only |
+| `postselection_ctc_blackhole_qg` | §164 | no | no | no | own timestamp only |
+| `pulse_area_qg` | §160 | no | no | no | own timestamp only |
+| `qpon_teleport_dual_rail_qg` | §158 | no | yes | yes | checked |
+| `qpon_teleport_qg` | §157 | no | yes | yes | checked |
+| `quantum_kernel_qg` | §161 | no | no | no | own timestamp only |
+| `varqte_kraus_qg` | §162 | no | no | no | own timestamp only |
+
+: 15 pre-registrations: 7 checked in git, 8 with the file's own timestamp only. {#tbl-e-sha256}
+
+That none matches today is expected: after the run the findings are added to the script's opening comment. In those
+with their own timestamp only, the `.prereg` and the results entered in the same commit.
+
+## Pre-registrations by commit {#sec-e-commit}
+
+Each "committed … (abcdef1)" in the notes: the commit exists and in it the notes do not yet have the section.
+
+| § | commits | consistent |
+|---|---|---|
+| §71 | `daf0b6f` | 1 of 1 |
+| §72 | `092580f` | 1 of 1 |
+| §73 | `e877a72` | 1 of 1 |
+| §74 | `68d8d00` | 1 of 1 |
+| §75 | `1a516b4` | 1 of 1 |
+| §76 | `8d32f92` | 1 of 1 |
+| §77 | `1450374` | 1 of 1 |
+| §78 | `e999d7f` | 1 of 1 |
+| §79 | `00520dc` | 1 of 1 |
+| §80 | `77700bd` | 1 of 1 |
+| §81 | `1f2da5c` | 1 of 1 |
+| §82 | `1f4f8ac` | 1 of 1 |
+| §85 | `d0191cb` | 1 of 1 |
+| §86 | `5239ad3` | 1 of 1 |
+| §87 | `1f33029` | 1 of 1 |
+| §88 | `0b266fe` | 1 of 1 |
+| §90 | `14fab61` | 1 of 1 |
+| §91 | `d292c7e` | 1 of 1 |
+| §92 | `7a3bdad` | 1 of 1 |
+| §93 | `52d5cb1` | 1 of 1 |
+| §94 | `ebd795b` | 1 of 1 |
+| §95 | `505943d` | 1 of 1 |
+| §96 | `5648765` | 1 of 1 |
+| §98 | `4c11ff3` | 1 of 1 |
+| §100 | `517902b` | 1 of 1 |
+| §101 | `d4fcbaa` | 1 of 1 |
+| §102 | `6c0a1d7` | 1 of 1 |
+| §103 | `1b408dd` | 1 of 1 |
+| §104 | `22554eb` | 1 of 1 |
+| §105 | `052752d` | 1 of 1 |
+| §106 | `fa8eda6` | 1 of 1 |
+| §107 | `4d83029` | 1 of 1 |
+| §108 | `4ae2674` | 1 of 1 |
+| §109 | `9c06b36` | 1 of 1 |
+| §110 | `59f855a` | 1 of 1 |
+| §111 | `34760c3` | 1 of 1 |
+| §112 | `ea3fd3a` | 1 of 1 |
+| §113 | `d2dcd56` | 1 of 1 |
+| §114 | `d6e4f50` | 1 of 1 |
+| §115 | `12d12f0` | 1 of 1 |
+| §117 | `3c0fca9` | 1 of 1 |
+| §118 | `637e800` | 1 of 1 |
+| §119 | `d5d31e7` | 1 of 1 |
+| §120 | `fcfdf3b` | 1 of 1 |
+| §121 | `efba91a` | 1 of 1 |
+| §122 | `1bca045` | 1 of 1 |
+| §123 | `fc1e0ea` | 1 of 1 |
+| §124 | `b37b344` | 1 of 1 |
+| §125 | `b42cde2` | 1 of 1 |
+| §126 | `b2e92c4` | 1 of 1 |
+| §127 | `b2e92c4` | 1 of 1 |
+| §128 | `8a16974` | 1 of 1 |
+| §129 | `1a5507f` | 1 of 1 |
+| §165 | `a74c07c` | 1 of 1 |
+
+: 54 citations in 54 sections, §71–§165: 54 consistent. {#tbl-e-commit}
+
+## What this register leaves out {#sec-e-outside}
+
+- **The QML line (§75–§123)** keeps its own count in the README: 176 predictions judged, 123 passed and 53 failed,
+  with 4 more waiting for the IonQ hardware run (§116). It partly overlaps the tables above and must not be added to them.
+- **The verdicts in prose** ("Four passed; V1 failed") of the sections that store no dictionary. They are in the notes,
+  section by section, but counting them requires reading them one by one.
+- **The sections before §71**, which hardly use pre-registration: their numbers are reproducible, but they have no threshold
+  fixed in advance.
+
+## Bibliographic notes {.unnumbered}
+
+The falsification criterion is that of @popper1959, and pre-registration as a practice, @nosek2018. The numbered
+notes (§), the files of `examples/data/` and the scripts are in the repository [@qangrepo].

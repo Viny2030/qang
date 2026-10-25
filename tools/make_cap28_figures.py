@@ -104,19 +104,26 @@ def sha_audit():
     return out
 
 
-def commit_audit():
+def commit_pairs():
+    """Every (section, commit, consistent) cited in the notes: the commit exists and does not yet hold the section."""
     txt = open(os.path.join(ROOT, "RESEARCH_NOTES.md"), encoding="utf-8").read()
     pairs = []
     for s in re.split(r"\n(?=## )", txt):
         m = re.match(r"## (\S+)\.", s)
         if m:
             pairs += [(m.group(1), c) for c in re.findall(r"(?:committed|commit)[^\n]{0,60}?\(([0-9a-f]{7,8})\)", s)]
-    ok = 0
+    out = []
     for sec, c in pairs:
         exists = subprocess.run(["git", "cat-file", "-e", c + "^{commit}"], cwd=ROOT).returncode == 0
         earlier = not re.search(rf"\n## {re.escape(sec)}\. ", git("show", f"{c}:RESEARCH_NOTES.md")) if exists else False
-        ok += exists and earlier
-    return len(pairs), ok, sorted({s for s, _ in pairs}, key=lambda x: float(re.sub(r"[^0-9.]", "", x)))
+        out.append((sec, c, exists and earlier))
+    return out
+
+
+def commit_audit():
+    pairs = commit_pairs()
+    ok = sum(c for _, _, c in pairs)
+    return len(pairs), ok, sorted({s for s, _, _ in pairs}, key=lambda x: float(re.sub(r"[^0-9.]", "", x)))
 
 
 def iqm_runs():
