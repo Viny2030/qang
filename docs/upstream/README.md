@@ -28,5 +28,11 @@ discussions searched in each repository, open and closed; main branches read whe
 | `qiskit-experiments.md` | **post as is** | No issue on thermal population, heralded readout or excited population. Repository active (last commit 2026-09-09). |
 | `pymatching.md` | **post, revised** | No discussion on the topic (discussions are enabled). Revised to cite #172 (per-shot edge reweighting, open) as the API this would use. |
 
+## Posted, 2026-10-25 (by the author, from the browser)
+
+- qiskit-experiments: https://github.com/qiskit-community/qiskit-experiments/issues/1662
+- Mitiq: https://github.com/unitaryfoundation/mitiq/issues/3173
+- PyMatching (discussion): https://github.com/oscarhiggott/PyMatching/discussions/190
+
 Not drafted: CUDA-Q (its GPU target failed because the CUDA driver visible in WSL is older than CUDA-Q's runtime, which
 is a local driver issue, not a CUDA-Q bug), and the weaker items of chapter 35 (Qiskit transpiler, qiskit-machine-learning).
