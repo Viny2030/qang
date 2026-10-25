@@ -331,6 +331,7 @@ devices until a real run exists (Part X).
 29.7 Operational cybersecurity: fewer BB84 false alarms under thermal drift — §40, §43
 
 ### Chapter 30. Structural limits, equivalences and negative results
+30.0 ✅ written (tools/make_cap30_figures.py): a 6-qubit graph state identical in Z to |+⟩^6 (difference 0); qg_S non-monotonic under T1 in 24 of 24 quantum-volume circuits, mean qg_Z monotone in 21 of 24 (the notes: 23 of 24 with their model); the weight-1 network is a quadratic form (7.8·10⁻¹⁶); qang's pass rejects QFT, QPE, GHZ and QV; §157–§164: 26 of 45 predictions passed — figures: T1 and failures
 30.1 Blindness to relative phases and multipartite entanglement in the Z basis: graph states — §8
 30.2 The non-monotonicity of qg_S under pure amplitude damping, and the fix with the pair (qg_S, mean qg_Z) — §10, §14
 30.3 The QNG equivalence: no intrinsic speed-up from a change of coordinate — §159
@@ -341,15 +342,17 @@ devices until a real run exists (Part X).
 30.8 The consolidated list of known limitations — §14
 
 ### Chapter 31. 🆕 🧪 First experiment on real hardware: IQM Resonance
+31.0 ✅ written (tools/make_cap31_figures.py): the §165 run rescored from its stored file (1.59×, maximum at 2.6 GeV against 0.8 raw); 12 against 18 two-qubit gates comes from the optimization level (3 against 1), not from IQM; credits 30 → 12.50 (probes 3.3 %, runs 55 %); the `qang/iqm.py` module does not exist — figures: neutrinos on Garnet and credits
 31.1 Why IQM: native PRX and CZ gates, a square lattice; how RBS and XX+YY gates compile
-31.2 The `qang/iqm.py` module (analogous to `qang/ibm.py`): readout errors from calibration, choice of qubit chain, the qg filter
+31.2 ⚠️ The `qang/iqm.py` module (analogous to `qang/ibm.py`, **not written yet**; `examples/iqm_*.py` with `qang.interop` were used): readout errors from calibration, choice of qubit chain, the qg filter
 31.3 A free rehearsal on IQM's simulated backends before spending credits
 31.4 Budget: a minimal probe job (≈10%), the main experiment (≈60%), a reserve (≈30%); the token only in an environment variable
-31.5 The pre-registered main experiment: 3-flavour neutrinos (§151) — 3 qubits, ~18 two-qubit gates
+31.5 The pre-registered main experiment: 3-flavour neutrinos (§151) — 3 qubits, 12 CZ (18 at optimization level 1, on any native set)
 31.6 Next candidates: single-qubit P-CTC (§164), the Yoshida–Kitaev decoder (§164), H2 (§20/§128)
 31.7 Result, passes and failures, and comparison with the simulated models
 
 ### Chapter 32. Software architecture, the multi-SDK ecosystem and physical execution
+32.0 ✅ written (tools/make_cap32_figures.py): Qiskit and PennyLane bit order checked; filtered observables exact (3.3·10⁻¹⁶, 2^(n−1) Z strings); §137, §138, §141, §142, §143 and §150 rescored from their stored files; static ZZ: the filter removes 32–60 % of what is added, 3.6–5.1× below raw (the notes: 4–5×) — figures: methods and ZZ
 32.1 The unified `qang.interop` order (Qiskit, Cirq, PennyLane, Braket, pytket) — §130
 32.2 Qiskit V2 primitives (SamplerV2, EstimatorV2) with filtered observables — §131
 32.3 Sector-aware compilation on IBM Runtime and chain selection (`best_chain`); predicting the kept fraction from calibration — §137, §138, §141
@@ -374,7 +377,7 @@ devices until a real run exists (Part X).
 A. Catalogue of the 15 fundamental gates in qg representation
 B. Transition formulas, Gell-Mann matrices 🔬 and Chebyshev polynomials in parametric circuits — §37
 C. The echo-calibration protocol and matrix inversion in Hamming sectors — §105–§108
-D. Quick reference to the qang 0.12.0 API: core, formulation, sectors, qml, ibm, interop, pulse_area, neutrino, postselection, qpon, fisher, kernels, varqte, channels, angular, qsp, knitting, qec, statistics, polarization, geometric, clock_comparison, complementarity, proportions (⚠️ no `crypto`; 🆕 `iqm`)
+D. Quick reference to the qang 0.12.0 API: core, formulation, sectors, qml, ibm, interop, pulse_area, neutrino, postselection, qpon, fisher, kernels, varqte, channels, angular, qsp, knitting, qec, statistics, polarization, geometric, clock_comparison, complementarity, proportions (⚠️ no `crypto`; ⚠️ `iqm` not written yet, see 31.2)
 E. Falsification statement and the register of pre-registered predictions (full count §1–§164)
 F. Functional-analysis foundation: Riesz–Fréchet — Appendix A of the notes
 
@@ -391,4 +394,4 @@ Inspire (28.4, outside the repository); Var_θ(F_echo) (28.5, undefined); the fu
 
 **New proposals (🆕):** clocks and metrology (Ch. 8); repeaters and gate teleportation (13.6–13.7);
 D-CTC (14.7) and the cost of postselection (14.8); larger black holes, the Page curve and traversable wormholes
-(15.6–15.8); batteries (Ch. 19); the IQM experiment (Ch. 31).
+(15.6–15.8); batteries (Ch. 19).

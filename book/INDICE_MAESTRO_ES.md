@@ -330,6 +330,7 @@ hasta que exista una corrida real (Parte X).
 29.7 Ciberseguridad operativa: supresión de falsas alarmas en BB84 ante derivas térmicas — §40, §43
 
 ### Capítulo 30. Límites estructurales, equivalencias y resultados negativos
+30.0 ✅ escrito (tools/make_cap30_figures.py): estado de grafo de 6 qubits idéntico en Z a |+⟩^6 (diferencia 0); qg_S no monótona bajo T1 en 24 de 24 circuitos de volumen cuántico, qg_Z medio monótono en 21 de 24 (las notas: 23 de 24 con su modelo); la red de peso 1 es una forma cuadrática (7,8·10⁻¹⁶); el analizador de qang rechaza QFT, QPE, GHZ y QV; §157–§164: 26 de 45 predicciones cumplidas — figuras: T1 y fallos
 30.1 Ceguera a fases relativas y entrelazamiento multipartito en base Z: los estados de grafo — §8
 30.2 La no monotonía de qg_S bajo amortiguamiento puro y la solución con el par (qg_S, qg_Z medio) — §10, §14
 30.3 La equivalencia del QNG: no hay aceleración intrínseca por cambiar de coordenada — §159
@@ -340,15 +341,17 @@ hasta que exista una corrida real (Parte X).
 30.8 Lista consolidada de limitaciones conocidas — §14
 
 ### Capítulo 31. 🆕 🧪 Primer experimento en hardware real: IQM Resonance
+31.0 ✅ escrito (tools/make_cap31_figures.py): corrida de §165 recalculada del archivo guardado (1,59×, máximo en 2,6 GeV contra 0,8 crudo); 12 contra 18 compuertas de dos qubits es del nivel de optimización (1 contra 3), no de IQM; créditos 30 → 12,50 (pruebas 3,3 %, corridas 55 %); el módulo `qang/iqm.py` no existe — figuras: neutrinos en Garnet y créditos
 31.1 Por qué IQM: compuertas nativas PRX y CZ, red cuadrada; cómo se compilan RBS y XX+YY
-31.2 Módulo `qang/iqm.py` (análogo a `qang/ibm.py`): errores de lectura de la calibración, elección de cadena de qubits, filtro qg
+31.2 ⚠️ Módulo `qang/iqm.py` (análogo a `qang/ibm.py`, **no existe todavía**; se usaron `examples/iqm_*.py` con `qang.interop`): errores de lectura de la calibración, elección de cadena de qubits, filtro qg
 31.3 Ensayo gratis con los backends simulados de IQM antes de gastar créditos
 31.4 Presupuesto: trabajo de prueba mínimo (≈10 %), experimento principal (≈60 %), reserva (≈30 %); el token solo en variable de entorno
-31.5 Experimento principal pre-registrado: neutrinos de 3 sabores (§151) — 3 qubits, ~18 compuertas de dos qubits
+31.5 Experimento principal pre-registrado: neutrinos de 3 sabores (§151) — 3 qubits, 12 CZ (18 con el nivel de optimización 1, en cualquier juego nativo)
 31.6 Candidatos siguientes: P-CTC con un qubit (§164), decodificador de Yoshida–Kitaev (§164), H2 (§20/§128)
 31.7 Resultado, aciertos y fallos, comparación con los modelos simulados
 
 ### Capítulo 32. Arquitectura de software, ecosistema multi-SDK y ejecución física
+32.0 ✅ escrito (tools/make_cap32_figures.py): orden de bits de Qiskit y PennyLane comprobado; observables filtrados exactos (3,3·10⁻¹⁶, 2^(n−1) cadenas Z); §137, §138, §141, §142, §143 y §150 recalculados de los archivos guardados; ZZ estático: el filtro quita 32–60 % de lo agregado, 3,6–5,1× bajo el crudo (las notas: 4–5×) — figuras: métodos y ZZ
 32.1 El orden unificado `qang.interop` (Qiskit, Cirq, PennyLane, Braket, pytket) — §130
 32.2 Primitivas V2 de Qiskit (SamplerV2, EstimatorV2) con observables filtrados — §131
 32.3 Compilación consciente de sectores en IBM Runtime y elección de cadenas (`best_chain`); predecir la fracción conservada desde la calibración — §137, §138, §141
@@ -373,7 +376,7 @@ hasta que exista una corrida real (Parte X).
 A. Catálogo de las 15 compuertas fundamentales en representación qg
 B. Fórmulas de transición, matrices de Gell-Mann 🔬 y polinomios de Chebyshev en circuitos paramétricos — §37
 C. Protocolo de calibración por eco e inversión matricial en sectores de Hamming — §105–§108
-D. Referencia rápida de la API de qang 0.12.0: core, formulation, sectors, qml, ibm, interop, pulse_area, neutrino, postselection, qpon, fisher, kernels, varqte, channels, angular, qsp, knitting, qec, statistics, polarization, geometric, clock_comparison, complementarity, proportions (⚠️ sin `crypto`; 🆕 `iqm`)
+D. Referencia rápida de la API de qang 0.12.0: core, formulation, sectors, qml, ibm, interop, pulse_area, neutrino, postselection, qpon, fisher, kernels, varqte, channels, angular, qsp, knitting, qec, statistics, polarization, geometric, clock_comparison, complementarity, proportions (⚠️ sin `crypto`; ⚠️ `iqm` no existe todavía, ver 31.2)
 E. Declaración de falsación y registro pre-registrado de predicciones (recuento completo §1–§164)
 F. Fundamento de análisis funcional: Riesz–Fréchet — Apéndice A de las notas
 
@@ -390,6 +393,6 @@ Inspire (28.4, fuera del repo); Var_θ(F_eco) (28.5, sin definir); recuento tota
 
 **Propuestas nuevas (🆕):** relojes y metrología (Cap. 8); repetidores y teleportación de compuertas (13.6–13.7);
 D-CTC (14.7) y costo de la posselección (14.8); agujeros negros más grandes, curva de Page y agujeros de gusano
-atravesables (15.6–15.8); baterías (Cap. 19); el experimento IQM (Cap. 31).
+atravesables (15.6–15.8); baterías (Cap. 19).
 
 **Libro en inglés:** `book/INDICE_MAESTRO_EN.md`, con la misma numeración punto por punto.
