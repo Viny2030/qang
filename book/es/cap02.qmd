@@ -83,8 +83,8 @@ de la base computacional a sí misma.
 
 ## Verificación contra las bibliotecas estándar {#sec-verificacion}
 
-La fórmula se comprobó contra la compuerta `U` de Qiskit en 2000 compuertas aleatorias, con una diferencia máxima
-de $3{,}5\times10^{-14}$ (§166). Las compuertas habituales aparecen en valores simples:
+La fórmula se comprobó contra la compuerta `U` de Qiskit 2.6 en 2000 compuertas aleatorias, con una diferencia
+máxima de $1{,}8\times10^{-16}$, y lo mismo contra Cirq, PennyLane y QuTiP (§166, `tools/verify_cap02.py`). Las compuertas habituales aparecen en valores simples:
 
 | compuerta | $q$ | m-qg | $\varphi$ | $\lambda$ |
 |---|---|---|---|---|
@@ -154,7 +154,8 @@ unitario exactamente, fase global incluida.
 
 En un modelo de QAOA de 4 qubits con errores proporcionales al área (150 instancias), reducir los ángulos módulo
 $2\pi$ bajó el área total 4,4× y el error (distancia de variación total) 4,1×; usar además el período $\pi$ de $R_{ZZ}$
-lo bajó 1,14× más. La predicción registrada era 1,5× y falló: la mitad del área, la de las rotaciones $R_X$, ya era
+lo bajó 1,37× más en el mismo cociente de medianas. La predicción registrada se refería a la mediana de los
+cocientes por instancia, que fue 1,14× frente a 1,5×, y falló: la mitad del área, la de las rotaciones $R_X$, ya era
 mínima tras la primera reducción. El resultado general se mantiene: **el error sigue al área**. Dos precisiones de
 alcance: en los procesadores IBM las rotaciones comunes de un qubit son $R_Z$ virtuales más pulsos $\sqrt X$ fijos, de
 duración independiente del ángulo, de modo que la regla aplica a las compuertas fraccionarias; y el beneficio depende

@@ -81,8 +81,8 @@ computational basis to itself.
 
 ## Verification against standard libraries {#sec-verification}
 
-The formula was checked against Qiskit's `U` gate on 2000 random gates, with a largest difference of
-$3.5\times10^{-14}$ (§166). The usual gates appear at simple values:
+The formula was checked against Qiskit 2.6's `U` gate on 2000 random gates, with a largest difference of
+$1.8\times10^{-16}$, and likewise against Cirq, PennyLane and QuTiP (§166, `tools/verify_cap02.py`). The usual gates appear at simple values:
 
 | gate | $q$ | m-qg | $\varphi$ | $\lambda$ |
 |---|---|---|---|---|
@@ -151,7 +151,8 @@ included.
 
 On a 4-qubit QAOA model with errors proportional to the area (150 instances), reducing the angles modulo $2\pi$ cut
 the total area 4.4× and the error (total variation distance) 4.1×; using the period $\pi$ of $R_{ZZ}$ as well cut it
-another 1.14×. The recorded prediction was 1.5× and it failed: half of the area, that of the $R_X$ rotations, was
+another 1.37× in the same ratio of medians. The recorded prediction was about the median of the per-instance
+ratios, which was 1.14× against 1.5×, and it failed: half of the area, that of the $R_X$ rotations, was
 already minimal after the first reduction. The general result stands: **the error follows the area**. Two scope
 notes: on IBM processors ordinary single-qubit rotations are virtual $R_Z$ plus fixed $\sqrt X$ pulses, of duration
 independent of the angle, so the rule applies to fractional gates; and the benefit depends on how strongly the error
