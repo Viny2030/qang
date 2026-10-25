@@ -412,7 +412,7 @@ def table_safe(line):
     if not line.startswith("|"):
         return line
     parts = line.split("$")
-    return "$".join(p.replace("|", "\\vert ") if i % 2 else p for i, p in enumerate(parts))
+    return "$".join(p.replace("|", "\\vert{}") if i % 2 else p for i, p in enumerate(parts))  # no space before a closing $
 
 
 def write(key, lang, lines):
