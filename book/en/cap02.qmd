@@ -54,7 +54,7 @@ T(q)=\begin{pmatrix}\tfrac{1+q}{2}&\tfrac{1-q}{2}\\[0.5ex]\tfrac{1-q}{2}&\tfrac{
 $$
 
 doubly stochastic, rational in $q$ and independent of the phases. Seen from a measurement in the computational basis,
-every single-qubit gate is a binary symmetric channel with parameter $(1-q)/2$.
+and for inputs without coherences, every single-qubit gate is a binary symmetric channel with parameter $(1-q)/2$.
 
 ## The gate as a probability equation {#sec-gate-probability}
 
@@ -64,10 +64,13 @@ $$
 T=\begin{pmatrix}p_0&1-p_0\\1-p_0&p_0\end{pmatrix},\qquad p_0=\frac{1000+m}{2000}:
 $$
 
-the action of any single-qubit gate on the populations is fixed by **a single number**, its reading in m-qg. The
+on an input without coherences ($|0\rangle$, $|1\rangle$ or a classical mixture of them), the action of any
+single-qubit gate on the populations is fixed by **a single number**, its reading in m-qg. The
 identity and $Z$ sit at $+1000$ m-qg (they do not move populations), $X$ at $-1000$ (it swaps them) and the Hadamard at
 $0$ (it equalizes them). The phases $\varphi$ and $\lambda$ do not appear: they are invisible to a $Z$ measurement and
-only show up when gates are composed, as Chapter 3 shows.
+only show up when gates are composed, as Chapter 3 shows. On an input with coherences the full formula is
+$p_0'=T(q)\,p-\sqrt{1-q^2}\,\operatorname{Re}(e^{-i\lambda}\rho_{01})$: the Hadamard on $|+\rangle$ gives $p_0=1$, not
+the $0.5$ that $T(0)$ would give.
 
 The entropic reading has its version for operations too. The capacity of the binary symmetric channel with parameter
 $(1-q)/2$ is $1-H\big((1-q)/2\big)$, and since $H$ is symmetric, $H\big((1-q)/2\big)=H(p_0)=qg_S$:
@@ -133,16 +136,18 @@ qg_Z=\cos\theta\;e^{-\theta^2\sigma^2/2},
 $$
 
 and a fixed one $\varepsilon$ gives $\cos(\theta(1+\varepsilon))$, with first-order error
-$1000\,\varepsilon\,\theta\sin\theta$ m-qg. The sensitivity $d\,qg_Z/d\theta=-\sin\theta$ is largest at $\pi/2$ and
-vanishes to first order at $0$ and $\pi$ (§160). This is Chapter 1's milli-qang error budget (@fig-pulse), and the
+$-1000\,\varepsilon\,\theta\sin\theta$ m-qg. The sensitivity to an absolute angle error, $d\,qg_Z/d\theta=-\sin\theta$,
+is largest at $\pi/2$ and vanishes at $0$ and $\pi$; the fixed error is relative ($\varepsilon\theta$) and weighs most
+near $116^\circ$ (§160). This is Chapter 1's milli-qang error budget (@fig-pulse), and the
 scale makes the gate error comparable with the shot noise of the read-out: with $\sigma=0.05$, the shift of an $X$
-(12.3 m-qg) is of the order of the resolution of $10^4$ shots on the equator (10 m-qg).
+(12.3 m-qg) is about eight times the resolution of $10^4$ shots at its reading, $-987.7$ m-qg, where
+$\sigma_m=1000\sin\theta/\sqrt N=1.6$ m-qg (on the equator it would be 10 m-qg).
 
 Every gate has shorter representatives. $R_X(\theta)=-R_X(\theta-2\pi)$ has period $2\pi$ up to a global phase, and
 @fig-area shows what is gained: asking for $R_X(324^\circ)$ as is shifts the reading by $-31.7$ m-qg, while its
 representative $R_X(-36^\circ)$, the same gate, shifts it by $-0.4$ m-qg.
 
-![Milli-qang error of $R_x(\theta)$ under a random amplitude error $\sigma=0.05$: the angle as requested against the minimal-area representative. Below $180^\circ$ they coincide; above it, the short representative avoids the error that grows with the square of the angle.](figures/cap02_area.png){#fig-area width=90%}
+![Milli-qang error of $R_x(\theta)$ under a random amplitude error $\sigma=0.05$: the angle as requested against the minimal-area representative. Below $180^\circ$ they coincide; above it, the short representative avoids the error that, at multiples of $\pi$, grows with the square of the angle.](figures/cap02_area.png){#fig-area width=90%}
 
 More interesting: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, and $Z\otimes Z$ is two virtual $R_Z(\pi)$ rotations, free
 on superconducting processors. So $R_{ZZ}$ has period $\pi$ and its area never needs to exceed $\pi/2$. The function
@@ -195,7 +200,7 @@ m-qg, so the largest deviation ($-17$ m-qg) sits at about 2.6σ: it is shot nois
 | action | without qang | with qang | difference |
 |---|---|---|---|
 | prepare a state with a given probability | compute $\theta=2\arccos\sqrt{p_0}$ and apply $R_Y(\theta)$ | the $R_{qg}$ gate takes the target reading directly, in qg or m-qg | **convenience**: the physical gate is the same |
-| describe a gate's action on populations | the full unitary, with phases | a doubly stochastic transition matrix set by one number in m-qg, with capacity $1-qg_S$ | **in favour** for populations; **against** for phases, which the description loses (Chapter 3) |
+| describe a gate's action on populations | the full unitary, with phases | a doubly stochastic transition matrix set by one number in m-qg, with capacity $1-qg_S$ | **convenience** for populations, with inputs without coherences; **against** for phases, which the description loses (Chapter 3) |
 | budget the error of a fractional gate | process fidelity | error in m-qg: from $-31.7$ to $-0.4$ m-qg for $R_X(324^\circ)$ with the minimum-area representative | the improvement is the **minimum-area principle**'s; m-qg makes it comparable with shot noise |
 | generalize to qudits | Gell-Mann matrices | the Cartan subalgebra as a qg identity | **none shown**: no advantage of reading more levels was found |
 
@@ -225,7 +230,7 @@ probability.pulse_error_milliqang(math.pi, 0.05)     # 12.3 m-qg of error on an 
 - Preparation by polar bias is native in Qiskit, Cirq and PennyLane, with the same convention and a signed variant.
 - Every single-qubit gate is an algebraic function of $q=qg_Z$ and two phases; its transition matrix is doubly
   stochastic, does not depend on the phases and is the probability equation of Chapter 1: a single m-qg number fixes
-  its action on the populations, and the channel capacity is $1-qg_S$.
+  its action on the populations of an input without coherences, and the channel capacity is $1-qg_S$.
 - The Cartan subalgebra of $\mathfrak{su}(d)$ generalizes $qg_Z$ to qudits as an identity; no advantage of a
   multi-level readout was shown.
 - In fractional gates the error follows the pulse area; choosing the shortest representative reduces it (from

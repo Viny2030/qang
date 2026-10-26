@@ -112,7 +112,9 @@ Parte 7 de `tools/verify_cap01.py` (sympy 1.14, Qiskit, Cirq, QuTiP, scipy). Res
 **Criterios.** T1 cumple (todos los tríos; salvo el ejemplo de 501,8). T3, T5 y T9 cumplen. T2, T4, T6, T7 y T8
 tienen los hallazgos de abajo.
 
-**Hallazgos (pendientes de decisión del autor; no se tocó el texto).**
+**Hallazgos.** El 2026-10-26 el autor pidió aplicar los seis en ES y EN con las redacciones propuestas; aplicados
+(el 501,8 se resolvió con $qg_Z=0{,}5018$, y el resumen también pasó a "corrimientos de lectura de 16–55 m-qg
+(sobre-rotaciones de 1,3°–3,9°)"). Con eso `tools/verify_cap01.py` da 93/93.
 
 1. **T4 — el ángulo de los estados mixtos** (ES 283–285 y 384, EN 280–282 y 378; tabla ES 337). El capítulo define
    el ángulo qang como $\theta=\arccos qg_Z$, función exacta de $p_0$. Con esa definición, $\operatorname{Var}(\hat\theta)=1/N$
@@ -141,4 +143,4 @@ tienen los hallazgos de abajo.
    base computacional; la de von Neumann del registro es 0. Unas líneas antes el texto usa la de von Neumann para la
    mezcla 0,2/0,8, así que el lector puede leer las dos como la misma. Propuesta: "la entropía de Shannon conjunta
    de los resultados, normalizada, es 0,5".
-6. **T1 — 501,8 m-qg** (ES/EN 74): sin cambios desde la primera revisión; sigue pendiente.
+6. **T1 — 501,8 m-qg** (ES/EN 74): aplicado como $qg_Z=0{,}5018$.

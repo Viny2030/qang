@@ -55,7 +55,8 @@ T(q)=\begin{pmatrix}\tfrac{1+q}{2}&\tfrac{1-q}{2}\\[0.5ex]\tfrac{1-q}{2}&\tfrac{
 $$
 
 doblemente estocástica, racional en $q$ e independiente de las fases. Desde el punto de vista de la medición en la
-base computacional, toda compuerta de un qubit es un canal binario simétrico de parámetro $(1-q)/2$.
+base computacional y para entradas sin coherencias, toda compuerta de un qubit es un canal binario simétrico de
+parámetro $(1-q)/2$.
 
 ## La compuerta como ecuación de probabilidad {#sec-compuerta-probabilidad}
 
@@ -66,10 +67,12 @@ $$
 T=\begin{pmatrix}p_0&1-p_0\\1-p_0&p_0\end{pmatrix},\qquad p_0=\frac{1000+m}{2000}:
 $$
 
-la acción de cualquier compuerta de un qubit sobre las poblaciones queda fijada por **un solo número**, su lectura
-en m-qg. La identidad y $Z$ están en $+1000$ m-qg (no mueven poblaciones), $X$ en $-1000$ (las intercambia) y la
+sobre una entrada sin coherencias ($|0\rangle$, $|1\rangle$ o una mezcla clásica de ellos), la acción de cualquier
+compuerta de un qubit sobre las poblaciones queda fijada por **un solo número**, su lectura en m-qg. La identidad y $Z$ están en $+1000$ m-qg (no mueven poblaciones), $X$ en $-1000$ (las intercambia) y la
 Hadamard en $0$ (las iguala). Las fases $\varphi$ y $\lambda$ no aparecen: son invisibles para una medición en $Z$ y
-solo se revelan al componer compuertas, como muestra el capítulo 3.
+solo se revelan al componer compuertas, como muestra el capítulo 3. Sobre una entrada con coherencias, la
+fórmula completa es $p_0'=T(q)\,p-\sqrt{1-q^2}\,\operatorname{Re}(e^{-i\lambda}\rho_{01})$: la Hadamard sobre
+$|+\rangle$ da $p_0=1$, no el $0{,}5$ que daría $T(0)$.
 
 La lectura entrópica también tiene su versión para operaciones. La capacidad del canal binario simétrico de
 parámetro $(1-q)/2$ es $1-H\big((1-q)/2\big)$, y como $H$ es simétrica, $H\big((1-q)/2\big)=H(p_0)=qg_S$:
@@ -135,17 +138,18 @@ $$
 qg_Z=\cos\theta\;e^{-\theta^2\sigma^2/2},
 $$
 
-y uno fijo $\varepsilon$ da $\cos(\theta(1+\varepsilon))$, con error de primer orden $1000\,\varepsilon\,\theta\sin\theta$
-m-qg. La sensibilidad $d\,qg_Z/d\theta=-\sin\theta$ es máxima en $\pi/2$ y se anula a primer orden en $0$ y $\pi$
-(§160). Es el presupuesto de error en mili-qang del capítulo 1 (@fig-pulso), y la escala hace comparables el error
+y uno fijo $\varepsilon$ da $\cos(\theta(1+\varepsilon))$, con error de primer orden $-1000\,\varepsilon\,\theta\sin\theta$
+m-qg. La sensibilidad a un error absoluto de ángulo, $d\,qg_Z/d\theta=-\sin\theta$, es máxima en $\pi/2$ y se anula
+en $0$ y $\pi$; el error fijo es relativo ($\varepsilon\theta$) y pesa más cerca de $116^\circ$ (§160). Es el presupuesto de error en mili-qang del capítulo 1 (@fig-pulso), y la escala hace comparables el error
 de la compuerta y el ruido de disparo de la lectura: con $\sigma=0{,}05$, el corrimiento de una $X$ (12,3 m-qg) es
-del orden de la resolución de $10^4$ disparos en el ecuador (10 m-qg).
+unas ocho veces la resolución de $10^4$ disparos en su lectura, $-987{,}7$ m-qg, donde
+$\sigma_m=1000\sin\theta/\sqrt N=1{,}6$ m-qg (en el ecuador serían 10 m-qg).
 
 Cada compuerta tiene representantes más cortos. $R_X(\theta)=-R_X(\theta-2\pi)$ tiene período $2\pi$ salvo una fase
 global, y la @fig-area muestra lo que se gana: pedir $R_X(324^\circ)$ tal cual corre la lectura $-31{,}7$ m-qg, mientras
 que su representante $R_X(-36^\circ)$, la misma compuerta, la corre $-0{,}4$ m-qg.
 
-![Error en mili-qang de $R_x(\theta)$ con un error de amplitud aleatorio $\sigma=0{,}05$: el ángulo tal como se pide frente al representante de área mínima. Por debajo de $180^\circ$ coinciden; por encima, el representante corto evita el error que crece con el cuadrado del ángulo.](figuras/cap02_area.png){#fig-area width=90%}
+![Error en mili-qang de $R_x(\theta)$ con un error de amplitud aleatorio $\sigma=0{,}05$: el ángulo tal como se pide frente al representante de área mínima. Por debajo de $180^\circ$ coinciden; por encima, el representante corto evita el error que, en los múltiplos de $\pi$, crece con el cuadrado del ángulo.](figuras/cap02_area.png){#fig-area width=90%}
 
 Más interesante: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, y $Z\otimes Z$ son dos rotaciones $R_Z(\pi)$
 virtuales, sin costo en los procesadores superconductores. Así $R_{ZZ}$ tiene período $\pi$ y su área nunca necesita
@@ -200,7 +204,7 @@ $\log_2 3/3$), igual en los tres. En mili-qang, las lecturas van de 316 a 343 m-
 | acción | sin qang | con qang | diferencia |
 |---|---|---|---|
 | preparar un estado con una probabilidad dada | calcular $\theta=2\arccos\sqrt{p_0}$ y aplicar $R_Y(\theta)$ | la compuerta $R_{qg}$ recibe directamente la lectura objetivo, en qg o en m-qg | **conveniencia**: la compuerta física es la misma |
-| describir la acción de una compuerta sobre las poblaciones | la matriz unitaria completa, con fases | una matriz de transición doblemente estocástica fijada por un número en m-qg, con capacidad $1-qg_S$ | **a favor** para poblaciones; **en contra** para fases, que la descripción pierde (capítulo 3) |
+| describir la acción de una compuerta sobre las poblaciones | la matriz unitaria completa, con fases | una matriz de transición doblemente estocástica fijada por un número en m-qg, con capacidad $1-qg_S$ | **conveniencia** para poblaciones, con entradas sin coherencias; **en contra** para fases, que la descripción pierde (capítulo 3) |
 | presupuestar el error de una compuerta fraccionaria | fidelidad de proceso | error en m-qg: de $-31{,}7$ a $-0{,}4$ m-qg para $R_X(324^\circ)$ con el representante de área mínima | la mejora es del **principio de área mínima**; el m-qg la vuelve comparable con el ruido de disparo |
 | generalizar a qudits | matrices de Gell-Mann | la subálgebra de Cartan como identidad qg | **ninguna demostrada**: no se encontró ventaja en leer más niveles |
 
@@ -231,7 +235,7 @@ probability.pulse_error_milliqang(math.pi, 0.05)     # 12.3 m-qg de error en una
   signo.
 - Toda compuerta de un qubit es una función algebraica de $q=qg_Z$ y dos fases; su matriz de transición es
   doblemente estocástica, no depende de las fases y es la ecuación de probabilidad del capítulo 1: un solo número en
-  m-qg fija su acción sobre las poblaciones, y la capacidad del canal es $1-qg_S$.
+  m-qg fija su acción sobre las poblaciones de una entrada sin coherencias, y la capacidad del canal es $1-qg_S$.
 - La subálgebra de Cartan de $\mathfrak{su}(d)$ generaliza $qg_Z$ a qudits como identidad; no se demostró una ventaja
   de la lectura de más niveles.
 - En compuertas fraccionarias el error sigue al área de pulso; elegir el representante más corto lo reduce (de

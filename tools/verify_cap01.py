@@ -170,9 +170,9 @@ def part_shots():
     check("1 m-qg = 1 mrad en el ecuador, 2 mrad a 30°; Δp0 = 0,0005",
           abs(1 / (1000 * math.sin(math.pi / 2)) - 1e-3) < 1e-15 and abs(1 / (1000 * math.sin(math.pi / 6)) - 2e-3) < 1e-15
           and abs(1 / 2000 - 0.0005) < 1e-15)
-    m502 = 1000 * 0.502
-    check("qg_Z = 0,502 está a 501,8 m-qg, 1,8 m-qg del ideal 0,5", abs(m502 - 501.8) < 1e-9 and abs(m502 - 500 - 1.8) < 1e-9,
-          f"m = 1000·0,502 = {m502:.1f} m-qg, diferencia {m502 - 500:.1f} m-qg")
+    m502 = 1000 * 0.5018
+    check("qg_Z = 0,5018 está a 501,8 m-qg, 1,8 m-qg del ideal 0,5", abs(m502 - 501.8) < 1e-9 and abs(m502 - 500 - 1.8) < 1e-9,
+          f"m = 1000·0,5018 = {m502:.1f} m-qg, diferencia {m502 - 500:.1f} m-qg")
 
 
 def part_analyze():

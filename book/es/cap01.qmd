@@ -71,7 +71,7 @@ $$
 $$
 
 La escala va de $-1000$ m-qg en el polo $|1\rangle$ a $+1000$ m-qg en el polo $|0\rangle$, con el cero en el
-ecuador. Un estado con $qg_Z=0{,}502$ está a $501{,}8$ m-qg; su diferencia con el ideal $0{,}5$ es de $1{,}8$ m-qg.
+ecuador. Un estado con $qg_Z=0{,}5018$ está a $501{,}8$ m-qg; su diferencia con el ideal $0{,}5$ es de $1{,}8$ m-qg.
 La misma definición vale para los otros ejes, $qg_X$ y $qg_Y$, con lo que todo el vector de Bloch se expresa en
 m-qg.
 
@@ -132,8 +132,8 @@ $$
 $$
 
 (§160). El error acerca la lectura al ecuador: con $\sigma=0{,}05$, una compuerta $X$ ($\theta=\pi$) entrega
-$qg_Z=-0{,}988$ en lugar de $-1$, un corrimiento de $12{,}3$ m-qg, y crece con el cuadrado del ángulo
-(@fig-pulso). Una rotación de $\pi/2$ no se corre en absoluto, porque ya está en el ecuador. El capítulo 2 usa esta
+$qg_Z=-0{,}988$ en lugar de $-1$, un corrimiento de $12{,}3$ m-qg. En los múltiplos de $\pi$ el corrimiento crece con el cuadrado del ángulo, y
+siempre hacia el ecuador; en general va como $\theta^2\cos\theta$ (@fig-pulso). Una rotación de $\pi/2$ no se corre en absoluto, porque ya está en el ecuador. El capítulo 2 usa esta
 fórmula para elegir, entre representaciones equivalentes de una misma compuerta, la de menor área de pulso.
 
 ![Presupuesto de error en mili-qang: corrimiento del sesgo polar tras $R_x(\theta)$ para distintos errores relativos de amplitud $\sigma$.](figuras/cap01_pulso.png){#fig-pulso width=90%}
@@ -279,13 +279,16 @@ Las definiciones se extienden sin cambios a estados mixtos y a registros:
 
 - **Estados mixtos.** $qg_Z=\operatorname{Tr}(\rho\sigma_z)$ ya no determina el estado. La mezcla clásica de
   $|0\rangle$ con peso 0,2 y $|1\rangle$ con peso 0,8 tiene $qg_Z=-0{,}6$ y entropía de von Neumann 0,72, una
-  combinación que ningún estado puro reproduce (§3). Para un qubit de longitud de Bloch $r<1$, la cancelación
-  de la sección anterior deja de ser exacta:
-  $\operatorname{Var}(\hat\theta)=\big[1+\tfrac{1-r^2}{r^2\sin^2\theta}\big]/N$, igual a la cota cuántica de
-  Cramér–Rao $1/(Nr^2)$ en el ecuador (§45).
+  combinación que ningún estado puro reproduce (§3). El ángulo qang $\theta=\arccos qg_Z$
+  sigue siendo función de $p_0$, así que conserva $\operatorname{Var}(\hat\theta)=1/N$ también aquí: la probabilidad
+  no sabe si el estado es puro. Lo que pierde la estabilización es la estimación del ángulo polar de Bloch,
+  $\arccos(qg_Z/r)$, de un qubit de longitud $r<1$:
+  $\operatorname{Var}=\big[1+\tfrac{1-r^2}{r^2\sin^2\theta}\big]/N$, igual a la cota cuántica de Cramér–Rao
+  $1/(Nr^2)$ en el ecuador (§45).
 - **Registros.** Cada qubit tiene su perfil local, obtenido por traza parcial, y el registro tiene una entropía
   conjunta normalizada por el número de qubits (§4). El estado de Bell lo ilustra: cada qubit tiene $qg_Z=0$ y
-  entropía local de 1 bit, pero la entropía conjunta normalizada es 0,5. El registro es globalmente puro y
+  entropía local de 1 bit, pero la entropía de Shannon conjunta de los resultados, normalizada, es 0,5 (la de von Neumann del
+  registro es 0). El registro es globalmente puro y
   localmente mezclado; los perfiles locales no bastan para describirlo, y el capítulo 5 vuelve sobre este punto con
   el radio de Bloch.
 
@@ -313,8 +316,8 @@ resultado fue mixto, y se informa completo:
   cuadrático indica error incoherente, relajación durante los pulsos, y no una sobre-rotación coherente.
 - **La escala hace visible un error que el modelo de lectura oculta.** La lectura afín predicha desde los polos
   encaja en el ecuador, pero los cuatro ángulos intermedios leen entre 16 y 55 m-qg por debajo (@fig-hardware,
-  derecha). El procesador calibra bien los ángulos $0$, $\pi/2$ y $\pi$; los demás tienen un error de rotación de
-  decenas de m-qg. La predicción pasó por la regla de 4 de 5, no limpiamente.
+  derecha). El procesador calibra bien los ángulos $0$, $\pi/2$ y $\pi$; los demás están sobre-rotados entre
+  $1{,}3^\circ$ y $3{,}9^\circ$. La predicción pasó por la regla de 4 de 5, no limpiamente.
 - **Una predicción falló.** Las diez copias del circuito del ecuador variaron la mitad de lo que permite el ruido de
   disparo binomial, algo que disparos independientes no pueden producir y que por azar ocurre con probabilidad
   0,013. Una sola corrida no decide si fue casualidad o una propiedad de cómo el dispositivo devuelve circuitos en
@@ -334,7 +337,7 @@ esta base como sólida en lo matemático y prometedora, pero todavía no consoli
 | acción | sin qang | con qang | diferencia |
 |---|---|---|---|
 | describir el resultado de un qubit | la probabilidad $p_0$ (o $\langle Z\rangle$) | $qg_Z$, el ángulo $\theta$, $m$ y $qg_S$, todos funciones exactas de $p_0$ | **ninguna en contenido**: es la misma información; qang le da una escala de trabajo de $-1000$ a $+1000$ |
-| barra de error de una lectura | $\sqrt{p_0(1-p_0)/N}$, distinta en cada estado | el ángulo tiene varianza $1/N$ para todo estado puro; en m-qg, $1000\sin\theta/\sqrt N$ | **a favor**: una sola cota, independiente del estado, para planificar disparos |
+| barra de error de una lectura | $\sqrt{p_0(1-p_0)/N}$, distinta en cada estado | el ángulo tiene varianza $1/N$ para todo estado; en m-qg, $1000\sin\theta/\sqrt N$ | **conveniencia**: la coordenada estabilizada de la estadística clásica (el arcoseno) coincide con el parámetro de la compuerta |
 | comparar un error de compuerta con el ruido de disparo | infidelidad por un lado, desvío binomial por otro, en unidades distintas | los dos en m-qg (en Garnet, 1,64 m-qg por compuerta $X$ frente al ruido de disparo de la corrida) | **a favor**: una sola escala para el presupuesto de errores |
 | mejorar el dispositivo | — | — | **ninguna**: la escala mide, no corrige; la predicción M2 de §168 falló |
 
@@ -381,9 +384,9 @@ Las figuras de este capítulo se generan con `tools/make_cap01_figures.py`, que 
 - **Ecuación de probabilidad.** $\theta$, $qg_Z$, $qg_S$ y $m$ son funciones exactas de una sola probabilidad
   $p_0$; con varios resultados, el ángulo qang se generaliza a la distancia estadística de Wootters.
 - **Estadística.** El ángulo qang es la transformación arcoseno de una proporción: su varianza es $1/N$ para todo
-  estado puro, con una corrección conocida para estados mixtos.
+  estado, puro o mixto; lo que se corrige en un estado mixto es la estimación del ángulo de Bloch.
 - **Alcance.** La unidad no es física nueva sino una escala de trabajo. En hardware real (§168) midió un costo de
-  1,64 m-qg por compuerta $X$, lineal en el número de compuertas, y expuso errores de ángulo de 16–55 m-qg; una
+  1,64 m-qg por compuerta $X$, lineal en el número de compuertas, y expuso corrimientos de lectura de 16–55 m-qg (sobre-rotaciones de $1{,}3^\circ$–$3{,}9^\circ$); una
   predicción sobre el ruido de disparo falló y la replicación queda pendiente.
 
 ## Notas bibliográficas {.unnumbered}

@@ -101,7 +101,9 @@ PennyLane, QuTiP). Resultado del script completo: **34/34 PASA** (las 28 anterio
 
 **Criterios.** T1, T3 (cálculo), T5 y T9 cumplen. Hallazgos en T6, T7 y T8; T3 conserva la pregunta 3 ya decidida.
 
-**Hallazgos (pendientes de decisión del autor; no se tocó el texto).**
+**Hallazgos.** El 2026-10-26 el autor pidió aplicar los cinco en ES y EN con las redacciones propuestas; aplicados,
+incluida la pregunta 3: el texto compara ahora el corrimiento de la X con la resolución en su lectura (1,6 m-qg, unas
+ocho veces), y menciona la del ecuador entre paréntesis.
 
 1. **T7 — la matriz de transición no fija la acción sobre las poblaciones de cualquier estado** (ES 57–58 y 69–71,
    EN 57 y 67; resumen ES 232–234; tabla ES 203). $T(q)$ es exacta sólo si la entrada no tiene coherencias en la base
@@ -124,5 +126,5 @@ PennyLane, QuTiP). Resultado del script completo: **34/34 PASA** (las 28 anterio
 4. **T6 — pie de la @fig-area** (ES 148, EN 145): "el error que crece con el cuadrado del ángulo". Mismo hallazgo 2
    del capítulo 1: el corrimiento es $\propto\theta^2\cos\theta$, cero en 270° y de signo alterno; lo que crece con
    θ² es la dispersión. Propuesta: "el error que, en los múltiplos de π, crece con el cuadrado del ángulo".
-5. **T3 — pregunta 3 de la primera revisión** (X frente a la resolución del ecuador): el autor decidió dejarla. Se
-   anota que bajo T3 la resolución a comparar es la del punto de la lectura (1,6 m-qg en −987,7), no la del ecuador.
+5. **T3 — pregunta 3 de la primera revisión** (X frente a la resolución del ecuador): primero el autor decidió
+   dejarla; el 2026-10-26 pidió aplicarla. Se anota que bajo T3 la resolución a comparar es la del punto de la lectura (1,6 m-qg en −987,7), no la del ecuador.

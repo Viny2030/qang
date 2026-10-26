@@ -71,7 +71,7 @@ $$
 $$
 
 The scale runs from $-1000$ m-qg at the pole $|1\rangle$ to $+1000$ m-qg at the pole $|0\rangle$, with zero on the
-equator. A state with $qg_Z=0.502$ sits at $501.8$ m-qg; its difference from the ideal $0.5$ is $1.8$ m-qg. The same
+equator. A state with $qg_Z=0.5018$ sits at $501.8$ m-qg; its difference from the ideal $0.5$ is $1.8$ m-qg. The same
 definition holds for the other axes, $qg_X$ and $qg_Y$, so the whole Bloch vector can be expressed in m-qg.
 
 ### Linear in probability, not linear in angle
@@ -130,7 +130,8 @@ $$
 $$
 
 (§160). The error pulls the reading towards the equator: with $\sigma=0.05$, an $X$ gate ($\theta=\pi$) delivers
-$qg_Z=-0.988$ instead of $-1$, a shift of $12.3$ m-qg, and it grows with the square of the angle (@fig-pulse). A
+$qg_Z=-0.988$ instead of $-1$, a shift of $12.3$ m-qg. At multiples of $\pi$ the shift grows with the square of the angle, always towards the
+equator; in general it goes as $\theta^2\cos\theta$ (@fig-pulse). A
 $\pi/2$ rotation does not shift at all, because it already sits on the equator. Chapter 2 uses this formula to
 choose, among equivalent representations of the same gate, the one with the smallest pulse area.
 
@@ -276,12 +277,15 @@ The definitions extend unchanged to mixed states and to registers:
 
 - **Mixed states.** $qg_Z=\operatorname{Tr}(\rho\sigma_z)$ no longer determines the state. The classical mixture of
   $|0\rangle$ with weight 0.2 and $|1\rangle$ with weight 0.8 has $qg_Z=-0.6$ and von Neumann entropy 0.72, a
-  combination no pure state reproduces (§3). For a qubit of Bloch length $r<1$, the cancellation of the previous
-  section is no longer exact: $\operatorname{Var}(\hat\theta)=\big[1+\tfrac{1-r^2}{r^2\sin^2\theta}\big]/N$, equal to
-  the quantum Cramér–Rao bound $1/(Nr^2)$ on the equator (§45).
+  combination no pure state reproduces (§3). The qang angle $\theta=\arccos qg_Z$ is still a
+  function of $p_0$, so it keeps $\operatorname{Var}(\hat\theta)=1/N$ here too: the probability does not know whether
+  the state is pure. What loses the stabilization is the estimate of the Bloch polar angle, $\arccos(qg_Z/r)$, of a
+  qubit of length $r<1$: $\operatorname{Var}=\big[1+\tfrac{1-r^2}{r^2\sin^2\theta}\big]/N$, equal to the quantum
+  Cramér–Rao bound $1/(Nr^2)$ on the equator (§45).
 - **Registers.** Each qubit has its local profile, obtained by partial trace, and the register has a joint entropy
   normalized by the number of qubits (§4). The Bell state illustrates it: each qubit has $qg_Z=0$ and a local
-  entropy of 1 bit, but the normalized joint entropy is 0.5. The register is globally pure and locally mixed; the
+  entropy of 1 bit, but the normalized joint Shannon entropy of the outcomes is 0.5 (the von Neumann entropy of the
+  register is 0). The register is globally pure and locally mixed; the
   local profiles are not enough to describe it, and chapter 5 returns to this point with the Bloch radius.
 
 ## Scope and limits of the base {#sec-scope}
@@ -309,7 +313,7 @@ was mixed, and it is reported in full:
   pulses, and not to a coherent over-rotation.
 - **The scale makes visible an error that the readout model hides.** The affine readout predicted from the poles
   fits at the equator, but the four intermediate angles read between 16 and 55 m-qg low (@fig-hardware, right). The
-  processor calibrates the angles $0$, $\pi/2$ and $\pi$ well; the others carry a rotation error of tens of m-qg.
+  processor calibrates the angles $0$, $\pi/2$ and $\pi$ well; the others are over-rotated by $1.3^\circ$ to $3.9^\circ$.
   The prediction passed by the 4-of-5 rule, not cleanly.
 - **One prediction failed.** The ten copies of the equator circuit scattered half as much as binomial shot noise
   allows, something independent shots cannot produce and which happens by chance with probability 0.013. A single
@@ -329,7 +333,7 @@ as solid mathematically and promising, but not yet consolidated, experimentally.
 | action | without qang | with qang | difference |
 |---|---|---|---|
 | describe the outcome of a qubit | the probability $p_0$ (or $\langle Z\rangle$) | $qg_Z$, the angle $\theta$, $m$ and $qg_S$, all exact functions of $p_0$ | **none in content**: the same information; qang gives it a working scale from $-1000$ to $+1000$ |
-| error bar of a reading | $\sqrt{p_0(1-p_0)/N}$, different for each state | the angle has variance $1/N$ for every pure state; in m-qg, $1000\sin\theta/\sqrt N$ | **in favour**: a single, state-independent bound for planning shots |
+| error bar of a reading | $\sqrt{p_0(1-p_0)/N}$, different for each state | the angle has variance $1/N$ for every state; in m-qg, $1000\sin\theta/\sqrt N$ | **convenience**: the variance-stabilized coordinate of classical statistics (the arcsine) is the gate parameter |
 | compare a gate error with shot noise | infidelity on one side, binomial deviation on the other, in different units | both in m-qg (on Garnet, 1.64 m-qg per $X$ gate against the run's shot noise) | **in favour**: one scale for the error budget |
 | improve the device | — | — | **none**: the scale measures, it does not correct; prediction M2 of §168 failed |
 
@@ -374,10 +378,10 @@ The figures of this chapter are generated by `tools/make_cap01_figures.py`, whic
   $(1000\sin\theta/\delta)^2$ shots, and gate errors are budgeted in the same units.
 - **Probability equation.** $\theta$, $qg_Z$, $qg_S$ and $m$ are exact functions of a single probability $p_0$; with
   several outcomes, the qang angle generalizes to Wootters' statistical distance.
-- **Statistics.** The qang angle is the arcsine transformation of a proportion: its variance is $1/N$ for every pure
-  state, with a known correction for mixed states.
+- **Statistics.** The qang angle is the arcsine transformation of a proportion: its variance is $1/N$ for every
+  state, pure or mixed; what needs a correction in a mixed state is the estimate of the Bloch angle.
 - **Scope.** The unit is not new physics but a working scale. On real hardware (§168) it measured a cost of 1.64 m-qg
-  per $X$ gate, linear in the number of gates, and exposed angle errors of 16–55 m-qg; a prediction about shot noise
+  per $X$ gate, linear in the number of gates, and exposed reading shifts of 16–55 m-qg (over-rotations of $1.3^\circ$–$3.9^\circ$); a prediction about shot noise
   failed and replication is pending.
 
 ## Bibliographic notes {.unnumbered}
