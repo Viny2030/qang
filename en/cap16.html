@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>16&nbsp; Demarcation: quantum cryptography against post-quantum cryptography (PQC) – Quantum Computing, Information and Physics in qang Space</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap17.html" rel="next">
+<link href="./cap15.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-e3a0307bf87dea633ae254d873c6233f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap16.html">VI. Quantum cybersecurity, random-number generation and post-quantum frontiers</a></li><li class="breadcrumb-item"><a href="./cap16.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Demarcation: quantum cryptography against post-quantum cryptography (PQC)</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Quantum Computing, Information and Physics in qang Space</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="./../es/" title="Edición en español" class="quarto-navigation-tool px-1" aria-label="Edición en español"><i class="bi bi-"></i></a>
+    <a href="https://github.com/Viny2030/qang/tree/main/book/en/" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Download" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Download"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-book-en.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Download PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-book-en.docx">
+              <i class="bi bi-file-word pe-1"></i>
+            Download Docx
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">I. Foundations: the angular–probabilistic metric (the qang unit)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The qang unit: definition, milli-qang and the probability equation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Native gates, closed algebra and the universal operator</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Reflections, Householder and Grover dynamics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Sampling statistics, Bayesian inference and the Haar distribution</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">II. Local geometry, quantum optics and geometric phases</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">The local Bloch radius as a measure of purity and entanglement</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Optical polarization and Stokes parameters in qg units</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Geometric phases and Stokes’ theorem on the sphere</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fisher information, clocks, gravity and metrology</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">III. Neutrino physics, oscillations and quantum simulation (<code>qang.neutrino</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Quantum kinematics of flavour oscillation in vacuum</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Matter effects, solar neutrinos and collective oscillations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Majorana phases, neutrinoless double beta decay and sterile neutrinos</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">IV. Quantum teleportation in optical networks and entanglement distribution (<code>qang.qpon</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap12.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Optical teleportation and the Bell-pair limit</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap13.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Dual rail, the sector filter and long-distance fidelity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">V. Relativity, time loops and black-hole evaporation (<code>qang.postselection</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap14.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Postselected closed timelike curves (P-CTC) and the resolution of paradoxes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap15.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Black-hole thermodynamics, quantum chaos and the Yoshida–Kitaev decoder</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">VI. Quantum cybersecurity, random-number generation and post-quantum frontiers</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap16.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Demarcation: quantum cryptography against post-quantum cryptography (PQC)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap17.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Quantum key distribution (QKD) and BB84 in qg space</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap18.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Certified quantum random numbers (QRNG) and channel auditing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap19.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Quantum batteries and networks</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">VII. Quantum machine learning (QML) and the symmetry filter</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap20.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Weight-conserving quantum neural networks (WeightQNN)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap21.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">The qg symmetry filter and exactness under T1 relaxation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap22.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Echo calibration and the noise bias (pull effect)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap23.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Information geometry, the natural gradient (QNG) and kernels</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">VIII. Many-body dynamics, open channels, matter and chemistry</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap24.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Hamiltonian simulation, quantum walks and VarQTE</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap25.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Quantum spectroscopy, PCA and molecular chemistry</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">IX. Error correction, continuous syndromes and characterization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap26.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Error correction and continuous syndromes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap27.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Hardware characterization in qg</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
+ <span class="menu-text">X. Experimental evidence, real hardware and the falsification audit</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap28.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Methodology: the pre-registered falsification protocol</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap29.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">The confirmed empirical advantages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap30.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Structural limits, equivalences and negative results</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap31.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">First real-hardware experiment: IQM Resonance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap32.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Software architecture, the multi-SDK ecosystem and physical execution</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true">
+ <span class="menu-text">XI. Nanoquantum</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap33.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Nanoquantum: transmission, partition noise and nanoscale qubits</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true">
+ <span class="menu-text">XII. Cross-domain applications</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap34.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Angular architecture: chemistry, condensed matter, relativistic optics, thermodynamics and geometry</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true">
+ <span class="menu-text">XIII. Ecosystem: qang inside other libraries</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap35.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">qang as a module: changes to quantum and machine-learning libraries</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Catalogue of the 15 fundamental gates in qg representation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Transition formulas, Gell-Mann matrices and Chebyshev polynomials</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_c.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">The echo-calibration protocol and inversion in Hamming sectors (§105–§108)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Quick reference of the qang 0.13.1 API</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_e.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Falsification register: the predictions the repository allows one to check</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_f.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Functional-analysis foundation: Riesz–Fréchet</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-pqc-base" id="toc-sec-pqc-base" class="nav-link active" data-scroll-target="#sec-pqc-base"><span class="header-section-number">16.1</span> From the base: which probabilities exist on each side</a></li>
+  <li><a href="#sec-pqc-nature" id="toc-sec-pqc-nature" class="nav-link" data-scroll-target="#sec-pqc-nature"><span class="header-section-number">16.2</span> The nature of PQC</a></li>
+  <li><a href="#sec-pqc-failure" id="toc-sec-pqc-failure" class="nav-link" data-scroll-target="#sec-pqc-failure"><span class="header-section-number">16.3</span> Decryption failure is counted, not measured on a qubit</a></li>
+  <li><a href="#sec-pqc-grover" id="toc-sec-pqc-grover" class="nav-link" data-scroll-target="#sec-pqc-grover"><span class="header-section-number">16.4</span> The quantum attack vector: Grover</a></li>
+  <li><a href="#sec-pqc-shor" id="toc-sec-pqc-shor" class="nav-link" data-scroll-target="#sec-pqc-shor"><span class="header-section-number">16.5</span> The quantum attack vector: Shor and phase estimation</a></li>
+  <li><a href="#sec-pqc-demarcation" id="toc-sec-pqc-demarcation" class="nav-link" data-scroll-target="#sec-pqc-demarcation"><span class="header-section-number">16.6</span> The demarcation</a></li>
+  <li><a href="#sec-open16" id="toc-sec-open16" class="nav-link" data-scroll-target="#sec-open16"><span class="header-section-number">16.7</span> What remains open</a></li>
+  <li><a href="#sec-comparison16" id="toc-sec-comparison16" class="nav-link" data-scroll-target="#sec-comparison16"><span class="header-section-number">16.8</span> Without qang and with qang</a></li>
+  <li><a href="#sec-code16" id="toc-sec-code16" class="nav-link" data-scroll-target="#sec-code16"><span class="header-section-number">16.9</span> In code</a></li>
+  <li><a href="#sec-summary16" id="toc-sec-summary16" class="nav-link" data-scroll-target="#sec-summary16"><span class="header-section-number">16.10</span> Summary</a></li>
+  <li><a href="#bibliographic-notes" id="toc-bibliographic-notes" class="nav-link" data-scroll-target="#bibliographic-notes">Bibliographic notes</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap16.html">VI. Quantum cybersecurity, random-number generation and post-quantum frontiers</a></li><li class="breadcrumb-item"><a href="./cap16.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Demarcation: quantum cryptography against post-quantum cryptography (PQC)</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-ch16" class="quarto-section-identifier"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Demarcation: quantum cryptography against post-quantum cryptography (PQC)</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Part VI is about security. Before reading quantum key distribution (Chapter 17) and certified random numbers (Chapter 18) in qg, it is worth drawing the border. There are two answers to the quantum computer that share the word “quantum” and little else. <strong>Quantum cryptography</strong> (QKD, QRNG) uses qubits: its security rests on a physical measurement, and so it enters the probability equation of Chapter 1. <strong>Post-quantum cryptography</strong> (PQC) is classical software that runs on ordinary computers: its security rests on the hardness of a mathematical problem, and there is no qubit to read. This chapter says where the line runs, with numbers, and what qang reads on each side.</p>
+<section id="sec-pqc-base" class="level2" data-number="16.1">
+<h2 data-number="16.1" class="anchored" data-anchor-id="sec-pqc-base"><span class="header-section-number">16.1</span> From the base: which probabilities exist on each side</h2>
+<p>Any probability <span class="math inline">\(p_0\)</span> enters the equation of Chapter 1: it has qang angle <span class="math inline">\(\theta=2\arccos\sqrt{p_0}\)</span> and reading <span class="math inline">\(m=1000(1-2p_1)\)</span> m-qg. The question is not whether it can be written down, but whether the reading says anything.</p>
+<ul>
+<li><strong>In QKD</strong>, the probability that decides security is the quantum bit error rate (QBER) of a measurement in one basis. It is the probability of a qubit, and its reading is the one of Chapter 17: <span class="math inline">\(Q=(1-|qg|)/2\)</span>, that is, <span class="math inline">\(m=1000\,|qg|=1000(1-2Q)\)</span>.</li>
+<li><strong>In PQC</strong>, the only probability in the scheme is that decryption fails, <span class="math inline">\(\delta\)</span>. For ML-KEM, the FIPS 203 standard bounds it by <span class="math inline">\(2^{-138.8}\)</span>, <span class="math inline">\(2^{-164.8}\)</span> and <span class="math inline">\(2^{-174.8}\)</span> for the three levels. Written in m-qg it is <span class="math inline">\(m=1000-3.3\times10^{-39}\)</span> at best: it sits against the pole, and there is no Hermitian operator, measurement basis or Bloch sphere behind that number.</li>
+</ul>
+<p>The security of PQC, moreover, is not that probability: it is the hardness of a lattice problem (module learning with errors, MLWE), which is not the frequency of anything. That is the demarcation in one line: <strong>qang reads probabilities of measurements; PQC has no measurements</strong>.</p>
+</section>
+<section id="sec-pqc-nature" class="level2" data-number="16.2">
+<h2 data-number="16.2" class="anchored" data-anchor-id="sec-pqc-nature"><span class="header-section-number">16.2</span> The nature of PQC</h2>
+<p>NIST’s standards of August 2024 are three: ML-KEM (FIPS 203, formerly Kyber), a lattice key-encapsulation mechanism; ML-DSA (FIPS 204, formerly Dilithium), lattice signatures; and SLH-DSA (FIPS 205, formerly SPHINCS+), signatures built only on hash functions. In 2025 HQC, based on error-correcting codes, was also chosen as a second key mechanism. All of them are integer arithmetic: polynomials modulo <span class="math inline">\(q=3329\)</span> in ML-KEM, hash trees in SLH-DSA. None of them prepares a state, applies a gate or measures.</p>
+<p>In ML-KEM, decrypting is subtracting and rounding: the message survives if an accumulated noise (the sum of many products of small coefficients) stays within <span class="math inline">\(\pm q/4\)</span>. If not, decryption fails. That is the <span class="math inline">\(\delta\)</span> above.</p>
+</section>
+<section id="sec-pqc-failure" class="level2" data-number="16.3">
+<h2 data-number="16.3" class="anchored" data-anchor-id="sec-pqc-failure"><span class="header-section-number">16.3</span> Decryption failure is counted, not measured on a qubit</h2>
+<p>To see what qang would do with <span class="math inline">\(\delta\)</span>, the figure script builds a toy scheme with the same mechanism: noise <span class="math inline">\(e=\sum_{i&lt;2n}a_ib_i+c\)</span> with <span class="math inline">\(a_i,b_i,c\)</span> from ML-KEM’s centred binomial distribution, <span class="math inline">\(n=256\)</span>, <span class="math inline">\(q=3329\)</span>, without the standard’s compression (which in ML-KEM accounts for most of the failure), and with the width <span class="math inline">\(\eta\)</span> as the knob. The failure probability is computed exactly (a convolution modulo <span class="math inline">\(q\)</span>) and counted over 200,000 simulated encryptions.</p>
+<div id="tbl-pqc-failure" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pqc-failure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;16.1: Decryption failure of the toy scheme, exact and counted.
+</figcaption>
+<div aria-describedby="tbl-pqc-failure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><span class="math inline">\(\eta\)</span></th>
+<th><span class="math inline">\(\sigma/q\)</span></th>
+<th>exact failure</th>
+<th>counted</th>
+<th>reading (m-qg, 95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>16</td>
+<td>0.054</td>
+<td><span class="math inline">\(5.1\times10^{-6}\)</span></td>
+<td>1 of 200,000</td>
+<td>1000.0 [999.9, 1000.0]</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td>0.068</td>
+<td><span class="math inline">\(2.5\times10^{-4}\)</span></td>
+<td>60</td>
+<td>999.4 [999.2, 999.5]</td>
+</tr>
+<tr class="odd">
+<td>24</td>
+<td>0.082</td>
+<td><span class="math inline">\(2.2\times10^{-3}\)</span></td>
+<td>437</td>
+<td>995.6 [995.2, 996.0]</td>
+</tr>
+<tr class="even">
+<td>32</td>
+<td>0.109</td>
+<td><span class="math inline">\(2.2\times10^{-2}\)</span></td>
+<td>4360</td>
+<td>956.4 [955.1, 957.7]</td>
+</tr>
+<tr class="odd">
+<td>40</td>
+<td>0.136</td>
+<td><span class="math inline">\(6.6\times10^{-2}\)</span></td>
+<td>13,072</td>
+<td>869.3 [867.1, 871.4]</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The count agrees with the exact sum, and <code>qang.probability.analyze</code> reads it in m-qg with its interval. But that reading is the Wilson proportion in another unit: there is no angle of a state behind it. And no count reaches where real PQC lives (<a href="#fig-frontier16" class="quarto-xref">Figure&nbsp;<span>16.1</span></a>, right). Seeing a single ML-KEM-512 failure takes on the order of <span class="math inline">\(1/\delta\approx6\times10^{41}\)</span> decryptions; with <span class="math inline">\(10^{12}\)</span> trials, about the most one can count, the floor sits 30 orders of magnitude above. The shot rule of Chapter 1 says the same in m-qg: next to the pole, <span class="math inline">\(\sigma_m\approx2000\sqrt{\delta/N}\)</span>, and to bring it below the offset <span class="math inline">\(2000\,\delta\)</span> one needs <span class="math inline">\(N&gt;1/\delta\)</span>. <strong>PQC’s <span class="math inline">\(\delta\)</span> is proved, not measured.</strong></p>
+<div id="fig-frontier16" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-frontier16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/cap16_frontier.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-frontier16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.1: Left: the security frontier of BB84 is a line in m-qg; the Shor–Preskill asymptotic key rate vanishes at 780 m-qg (Q = 11%), and with 2000 shots the reading has ±2σ of 14–24 m-qg. Right: the decryption failure of a toy ML-KEM-like scheme (n = 256, no compression), exact, Gaussian and counted; the orange lines are the FIPS 203 bounds, 30 to 41 orders of magnitude below what can be counted.
+</figcaption>
+</figure>
+</div>
+<p>On the other side of the line (<a href="#fig-frontier16" class="quarto-xref">Figure&nbsp;<span>16.1</span></a>, left), the quantity that decides BB84’s security sits in the middle of the scale. The Shor–Preskill asymptotic rate, <span class="math inline">\(1-2h(Q)\)</span>, vanishes at <span class="math inline">\(Q=11.0\%\)</span>, which is <span class="math inline">\(m=780\)</span> m-qg; intercept-resend gives <span class="math inline">\(Q=25\%\)</span>, <span class="math inline">\(m=500\)</span>. With 2000 shots, <span class="math inline">\(\sigma_m\)</span> is 11.8, 9.7 and 7.0 m-qg at 850, 900 and 950 m-qg: the margin to the threshold is resolved comfortably. It is the probability of a qubit, readable and with an error bar; Chapter 17 uses it to separate the eavesdropper from the noise.</p>
+</section>
+<section id="sec-pqc-grover" class="level2" data-number="16.4">
+<h2 data-number="16.4" class="anchored" data-anchor-id="sec-pqc-grover"><span class="header-section-number">16.4</span> The quantum attack vector: Grover</h2>
+<p>The quantum computer is quantum, and its attacks do enter the base. Grover’s attack on an <span class="math inline">\(n\)</span>-bit key has, after <span class="math inline">\(k\)</span> iterations, failure probability</p>
+<p><span class="math display">\[
+p_{\text{fail}}=\cos^2\!\big((2k+1)\,\beta\big),\qquad \beta=\arcsin 2^{-n/2},
+\]</span></p>
+<p>which is the probability equation with qang angle <span class="math inline">\(2(2k+1)\beta\)</span>: <strong>each iteration advances the qang angle by <span class="math inline">\(4\beta\)</span>, in a straight line</strong>. This was checked with the circuits of <code>qang.algorithms</code> for <span class="math inline">\(n=4\)</span>, 6, 8 and 10: the angle of the exact probability matches the law to <span class="math inline">\(10^{-10}\)</span> rad (<a href="#fig-grover16" class="quarto-xref">Figure&nbsp;<span>16.2</span></a>). In m-qg, the failure goes from +1000 to −1000 along a cosine and crosses the equator (success 1/2) halfway.</p>
+<div id="fig-grover16" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-grover16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/cap16_grover.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-grover16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.2: Left: the qang angle of the probability that Grover fails grows linearly with the iterations, <span class="math inline">\(4\arcsin 2^{-n/2}\)</span> per step (dots: exact circuits; lines: the law). Right: the same probability in m-qg against the fraction of the optimal iterations.
+</figcaption>
+</figure>
+</div>
+<p>For AES-128 the step is <span class="math inline">\(4\arcsin2^{-64}=2.2\times10^{-19}\)</span> rad per iteration, and reaching the pole takes <span class="math inline">\(1.4\times10^{19}\)</span> serial iterations, each a full AES circuit; for AES-256, <span class="math inline">\(2.7\times10^{38}\)</span>. PQC’s answer to this attack is to double the symmetric key length, and the geometry explains it: the angle advances as <span class="math inline">\(2^{-n/2}\)</span>, so Grover halves the security bits and nothing more.</p>
+</section>
+<section id="sec-pqc-shor" class="level2" data-number="16.5">
+<h2 data-number="16.5" class="anchored" data-anchor-id="sec-pqc-shor"><span class="header-section-number">16.5</span> The quantum attack vector: Shor and phase estimation</h2>
+<p>The attack that breaks RSA and elliptic curves, and that PQC sidesteps, is Shor’s algorithm: phase estimation (QPE) on modular multiplication. The notes (§13) show that QPE recovers exact phases, and the book’s index said that “the eigenstate register projects onto <span class="math inline">\(qg_Z=-1\)</span> without resolving the phase”. That holds for the QPE of an eigenstate, and the exact computation of this chapter says how far a qg reading goes in Shor’s case (<a href="#fig-shor16" class="quarto-xref">Figure&nbsp;<span>16.3</span></a>).</p>
+<p><strong>QPE of an eigenstate.</strong> With the <span class="math inline">\(T\)</span> gate on <span class="math inline">\(|1\rangle\)</span> (<span class="math inline">\(\varphi=1/8\)</span>), the target register stays at <span class="math inline">\(m_Z=-1000\)</span> and carries no information: the phase lives in the counting register. There, before the inverse QFT, qubit <span class="math inline">\(k\)</span> has <span class="math inline">\(m_X=1000\cos(2\pi2^k\varphi)\)</span>: 707, 0 and −1000 m-qg. Each qubit carries one bit of the phase in its qang angle, which is Kitaev’s iterative phase estimation.</p>
+<p><strong>Shor for <span class="math inline">\(N=15\)</span>.</strong> The work register is not in an eigenstate but in a superposition of the <span class="math inline">\(r\)</span> eigenstates, and the counting qubits end up entangled with it. With four counting qubits:</p>
+<div id="tbl-shor16" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-shor16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;16.2: Single-qubit readings of the counting register in Shor’s algorithm (exact state).
+</figcaption>
+<div aria-describedby="tbl-shor16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>case</th>
+<th>local radius of each counting qubit, before (m-qg)</th>
+<th><span class="math inline">\(m_Z\)</span> of each qubit, after</th>
+<th>outcomes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(a=7\)</span> (<span class="math inline">\(r=4\)</span>)</td>
+<td>0, 0, 1000, 1000</td>
+<td>1000, 1000, 0, 0</td>
+<td>0, 4, 8, 12</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(a=11\)</span> (<span class="math inline">\(r=2\)</span>)</td>
+<td>0, 1000, 1000, 1000</td>
+<td>1000, 1000, 1000, 0</td>
+<td>0, 8</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(N=21\)</span>, <span class="math inline">\(a=2\)</span> (<span class="math inline">\(r=6\)</span>), six qubits</td>
+<td>0, 0, 0, 0, 0, 0</td>
+<td>0, 250, 312, 328, 332, 0</td>
+<td>peaks at 0, 11, 21, 32, 43, 53</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>For <span class="math inline">\(N=15\)</span> the order can be read qubit by qubit: the number of qubits with zero radius before the QFT, or with <span class="math inline">\(m_Z=0\)</span> after it, is <span class="math inline">\(\log_2 r\)</span>. But that is an accident of <span class="math inline">\(N=15\)</span>, where <span class="math inline">\(r\)</span> is a power of 2. With <span class="math inline">\(N=21\)</span> and <span class="math inline">\(r=6\)</span>, every local radius is zero and the <span class="math inline">\(m_Z\)</span> after do not say 6: the order is in the joint distribution, and is extracted with continued fractions. The work register does not help either: for <span class="math inline">\(a=7\)</span> its qubits read <span class="math inline">\(m_Z=\pm500\)</span>, the mixture of 1, 7, 4 and 13.</p>
+<div id="fig-shor16" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-shor16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/cap16_shor.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-shor16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.3: Single-qubit readings of the counting register. Grey: local radius before the inverse QFT; blue: <span class="math inline">\(m_Z\)</span> after. For N = 15 the number of zeros is <span class="math inline">\(\log_2 r\)</span>; for the QPE of <span class="math inline">\(T\)</span>, each qubit carries one bit of the phase in <span class="math inline">\(m_X\)</span>.
+</figcaption>
+</figure>
+</div>
+<p>The conclusion holds for the whole chapter: single-qubit readings see the phase when there is an eigenstate, and lose it when the information is in the correlations. It is limitation 3 of the notes (§14) in another form.</p>
+</section>
+<section id="sec-pqc-demarcation" class="level2" data-number="16.6">
+<h2 data-number="16.6" class="anchored" data-anchor-id="sec-pqc-demarcation"><span class="header-section-number">16.6</span> The demarcation</h2>
+<div id="tbl-demarcation16" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-demarcation16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;16.3: Where the line runs.
+</figcaption>
+<div aria-describedby="tbl-demarcation16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>quantum cryptography (QKD, QRNG)</th>
+<th>post-quantum cryptography (PQC)</th>
+<th>quantum attack (Grover, Shor)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>substrate</td>
+<td>qubits, photons</td>
+<td>integers, polynomials, hashes</td>
+<td>qubits</td>
+</tr>
+<tr class="even">
+<td>security rests on</td>
+<td>a physical measurement</td>
+<td>the hardness of MLWE, of codes or of the hash</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>the key probability</td>
+<td>QBER, in the middle of the scale (780 m-qg)</td>
+<td><span class="math inline">\(\delta\le2^{-138.8}\)</span>, against the pole</td>
+<td>Grover’s failure, Shor’s success</td>
+</tr>
+<tr class="even">
+<td>does qang read it?</td>
+<td><strong>yes</strong>: Chapters 17 and 18</td>
+<td><strong>no</strong>: there is no qubit; <span class="math inline">\(\delta\)</span> can only be counted, and cannot be</td>
+<td><strong>partly</strong>: Grover yes; Shor per qubit only with an eigenstate</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>qang is a physical-layer tool: it reads what comes out of a measurement on a qubit. It says nothing about the hardness of a lattice, and a module claiming to “measure in qg” the security of ML-KEM would be a category error.</p>
+</section>
+<section id="sec-open16" class="level2" data-number="16.7">
+<h2 data-number="16.7" class="anchored" data-anchor-id="sec-open16"><span class="header-section-number">16.7</span> What remains open</h2>
+<p>There is no <code>qang.crypto</code> module, and this chapter does not propose one. The project’s cryptography lives in <code>examples/</code> (<code>bb84_qg_eve_vs_noise.py</code>, <code>bb84_finite_key_qg.py</code>, <code>bb84_attacks_beyond_ir_qg.py</code>, <code>qrng_qg_certified.py</code>, <code>ionq_sim_bb84.py</code>, <code>ionq_sim_qrng.py</code>) and in <code>manuscript/crypto</code>. Two questions remain open: whether the per-qubit reading of iterative QPE (one recycled counting qubit) saves shots against QPE with a QFT when there is noise, and a run of Shor for <span class="math inline">\(N=15\)</span> on a device, read per qubit; neither has a circuit or a written prediction yet.</p>
+</section>
+<section id="sec-comparison16" class="level2" data-number="16.8">
+<h2 data-number="16.8" class="anchored" data-anchor-id="sec-comparison16"><span class="header-section-number">16.8</span> Without qang and with qang</h2>
+<div id="tbl-comparison16" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-comparison16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;16.4: The chapter’s actions without the qang scale and with it.
+</figcaption>
+<div aria-describedby="tbl-comparison16-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>action</th>
+<th>without qang</th>
+<th>with qang</th>
+<th>difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>read BB84’s security</td>
+<td>QBER and <span class="math inline">\(1-2h(Q)\)</span></td>
+<td>threshold at 780 m-qg, <span class="math inline">\(\sigma_m\)</span> 7–12 m-qg with 2000 shots</td>
+<td><strong>unit</strong>; the detail is in Chapter 17</td>
+</tr>
+<tr class="even">
+<td>estimate PQC’s decryption failure</td>
+<td>counting with a Wilson interval</td>
+<td>the same proportion in m-qg</td>
+<td><strong>none</strong>: it is the same statistic, and there is no state behind it</td>
+</tr>
+<tr class="odd">
+<td>ML-KEM’s failure</td>
+<td>mathematical proof (<span class="math inline">\(\le2^{-138.8}\)</span>)</td>
+<td><span class="math inline">\(1000-3\times10^{-39}\)</span> m-qg, with no possible resolution</td>
+<td><strong>none</strong>; qang does not apply</td>
+</tr>
+<tr class="even">
+<td>describe Grover’s attack</td>
+<td><span class="math inline">\(\sin^2((2k+1)\beta)\)</span></td>
+<td>the qang angle advances <span class="math inline">\(4\beta\)</span> per iteration, in a straight line</td>
+<td><strong>equivalent</strong>: it is the standard Grover geometry under another name, though it reads at a glance</td>
+</tr>
+<tr class="odd">
+<td>read the phase in the QPE of an eigenstate</td>
+<td>histogram of the register after the QFT</td>
+<td><span class="math inline">\(m_X\)</span> of each counting qubit: one bit per qubit</td>
+<td><strong>in favour</strong>, modestly: iterative QPE read on the Chapter 1 scale</td>
+</tr>
+<tr class="even">
+<td>read the order in Shor</td>
+<td>continued fractions on the histogram</td>
+<td>local radii and <span class="math inline">\(m_Z\)</span> per qubit</td>
+<td><strong>against</strong> except for <span class="math inline">\(r\)</span> a power of 2: with <span class="math inline">\(N=21\)</span> everything reads zero</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><strong>Balance.</strong> This is the chapter where qang contributes least, and its value lies in saying so. On the PQC side there is nothing to read; on the attack side, Grover is a probability equation and reads cleanly, and Shor shows the known limit of single-qubit readings. On the quantum side, the QBER is a qang reading, and the next two chapters use it.</p>
+</section>
+<section id="sec-code16" class="level2" data-number="16.9">
+<h2 data-number="16.9" class="anchored" data-anchor-id="sec-code16"><span class="header-section-number">16.9</span> In code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qang <span class="im">import</span> algorithms <span class="im">as</span> al</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qang <span class="im">import</span> probability <span class="im">as</span> pb</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>pb.milliqang_from_p0(<span class="dv">1</span> <span class="op">-</span> <span class="fl">0.11</span>)                   <span class="co"># 780: the BB84 threshold in m-qg</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>pb.analyze(<span class="dv">200_000</span> <span class="op">-</span> <span class="dv">437</span>, <span class="dv">200_000</span>).milliqang     <span class="co"># (995.6, 995.2, 996.0): a counted failure, in m-qg</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> al.grover_success_probability(<span class="dv">8</span>, <span class="dv">1</span>, <span class="dv">5</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>math.acos(<span class="dv">2</span> <span class="op">*</span> p <span class="op">-</span> <span class="dv">1</span>)                             <span class="co"># 2(2*5+1) asin(2**-4) = 1.376: Grover's angle</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="sec-summary16" class="level2" data-number="16.10">
+<h2 data-number="16.10" class="anchored" data-anchor-id="sec-summary16"><span class="header-section-number">16.10</span> Summary</h2>
+<ul>
+<li>Quantum cryptography has measurements and enters the probability equation; PQC is classical arithmetic and does not.</li>
+<li>BB84’s security is a line in m-qg: the key rate vanishes at 780 m-qg, in the middle of the scale.</li>
+<li>ML-KEM’s only probability, the decryption failure, is <span class="math inline">\(3\times10^{-39}\)</span> m-qg from the pole: it is proved, not measured; counting it is impossible, and reading it in m-qg is the same proportion in another unit.</li>
+<li>Grover’s attack advances the qang angle by <span class="math inline">\(4\arcsin2^{-n/2}\)</span> per iteration, in a straight line; hence doubling the key is enough.</li>
+<li>In the QPE of an eigenstate each counting qubit carries one bit of the phase in <span class="math inline">\(m_X\)</span>; in Shor the information is in the correlations, and single-qubit readings see the order only when it is a power of 2.</li>
+</ul>
+</section>
+<section id="bibliographic-notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="bibliographic-notes">Bibliographic notes</h2>
+<p>The post-quantum standards are FIPS 203, 204 and 205 <span class="citation" data-cites="fips203 fips204 fips205">(<a href="references.html#ref-fips203" role="doc-biblioref">National Institute of Standards and Technology 2024b</a>, <a href="references.html#ref-fips204" role="doc-biblioref">2024a</a>, <a href="references.html#ref-fips205" role="doc-biblioref">2024c</a>)</span>, and the selection of HQC is in <span class="citation" data-cites="nistir8545">Alagic et al. (<a href="references.html#ref-nistir8545" role="doc-biblioref">2025</a>)</span>. The quantum attack vectors are Grover <span class="citation" data-cites="grover1996">(<a href="references.html#ref-grover1996" role="doc-biblioref">Grover 1996</a>)</span> and Shor <span class="citation" data-cites="shor1997">(<a href="references.html#ref-shor1997" role="doc-biblioref">Shor 1997</a>)</span>, the latter built on the phase estimation of <span class="citation" data-cites="kitaev1995">Kitaev (<a href="references.html#ref-kitaev1995" role="doc-biblioref">1995</a>)</span>. BB84 is <span class="citation" data-cites="bennett2014">Bennett and Brassard (<a href="references.html#ref-bennett2014" role="doc-biblioref">2014</a>)</span> (reprint of the 1984 original). The numbered research notes (§) cited in this chapter and the scripts that check it are in the repository <span class="citation" data-cites="qangrepo">(<a href="references.html#ref-qangrepo" role="doc-biblioref">Monteverde 2026a</a>)</span>; the definition of the qang unit is in <span class="citation" data-cites="monteverde2026">Monteverde (<a href="references.html#ref-monteverde2026" role="doc-biblioref">2026b</a>)</span>.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-nistir8545" class="csl-entry" role="listitem">
+Alagic, Gorjan, Maxime Bros, Pierre Ciadoux, et al. 2025. <em>Status Report on the Fourth Round of the NIST Post-Quantum Cryptography Standardization Process</em>. National Institute of Standards; Technology (U.S.). <a href="https://doi.org/10.6028/nist.ir.8545">https://doi.org/10.6028/nist.ir.8545</a>.
+</div>
+<div id="ref-bennett2014" class="csl-entry" role="listitem">
+Bennett, Charles H., and Gilles Brassard. 2014. <span>“Quantum Cryptography: Public Key Distribution and Coin Tossing.”</span> <em>Theoretical Computer Science</em> 560: 7–11. <a href="https://doi.org/10.1016/j.tcs.2014.05.025">https://doi.org/10.1016/j.tcs.2014.05.025</a>.
+</div>
+<div id="ref-grover1996" class="csl-entry" role="listitem">
+Grover, Lov K. 1996. <span>“A Fast Quantum Mechanical Algorithm for Database Search.”</span> <em>Proceedings of the Twenty-Eighth Annual ACM Symposium on Theory of Computing - STOC ’96</em>, 212–19. <a href="https://doi.org/10.1145/237814.237866">https://doi.org/10.1145/237814.237866</a>.
+</div>
+<div id="ref-kitaev1995" class="csl-entry" role="listitem">
+Kitaev, A. Yu. 1995. <em>Quantum Measurements and the Abelian Stabilizer Problem</em>. arXiv. <a href="https://doi.org/10.48550/ARXIV.QUANT-PH/9511026">https://doi.org/10.48550/ARXIV.QUANT-PH/9511026</a>.
+</div>
+<div id="ref-qangrepo" class="csl-entry" role="listitem">
+Monteverde, Vicente Humberto. 2026a. <em>Qang: The Qang (Qg) Unit, the Symmetry Filter and Their Applications. Source Code and Research Notes</em>. <a href="https://github.com/Viny2030/qang" class="uri">Https://github.com/Viny2030/qang</a>.
+</div>
+<div id="ref-monteverde2026" class="csl-entry" role="listitem">
+Monteverde, Vicente Humberto. 2026b. <em>The Qang (Qg): A Unified Angular-Probability Unit and Metric for Parametric Quantum Circuit Design</em>. <a href="https://doi.org/10.5281/ZENODO.22832150">https://doi.org/10.5281/ZENODO.22832150</a>.
+</div>
+<div id="ref-fips204" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2024a. <em>Module-Lattice-Based Digital Signature Standard</em>. Federal Information Processing Standards Publication FIPS 204. National Institute of Standards; Technology (U.S.). <a href="https://doi.org/10.6028/nist.fips.204">https://doi.org/10.6028/nist.fips.204</a>.
+</div>
+<div id="ref-fips203" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2024b. <em>Module-Lattice-Based Key-Encapsulation Mechanism Standard</em>. Federal Information Processing Standards Publication FIPS 203. National Institute of Standards; Technology (U.S.). <a href="https://doi.org/10.6028/nist.fips.203">https://doi.org/10.6028/nist.fips.203</a>.
+</div>
+<div id="ref-fips205" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2024c. <em>Stateless Hash-Based Digital Signature Standard</em>. Federal Information Processing Standards Publication FIPS 205. National Institute of Standards; Technology (U.S.). <a href="https://doi.org/10.6028/nist.fips.205">https://doi.org/10.6028/nist.fips.205</a>.
+</div>
+<div id="ref-shor1997" class="csl-entry" role="listitem">
+Shor, Peter W. 1997. <span>“Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer.”</span> <em>SIAM Journal on Computing</em> 26 (5): 1484–509. <a href="https://doi.org/10.1137/s0097539795293172">https://doi.org/10.1137/s0097539795293172</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./cap15.html" class="pagination-link" aria-label="Black-hole thermodynamics, quantum chaos and the Yoshida–Kitaev decoder">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Black-hole thermodynamics, quantum chaos and the Yoshida–Kitaev decoder</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cap17.html" class="pagination-link" aria-label="Quantum key distribution (QKD) and BB84 in qg space">
+        <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Quantum key distribution (QKD) and BB84 in qg space</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>6&nbsp; Polarización óptica y parámetros de Stokes en unidades qg – Computación, información y física cuántica en el espacio qang</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap07.html" rel="next">
+<link href="./cap05.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-e3a0307bf87dea633ae254d873c6233f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap05.html">II. Geometría local, óptica cuántica y fases geométricas</a></li><li class="breadcrumb-item"><a href="./cap06.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Polarización óptica y parámetros de Stokes en unidades qg</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Computación, información y física cuántica en el espacio qang</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="./../en/" title="English edition" class="quarto-navigation-tool px-1" aria-label="English edition"><i class="bi bi-"></i></a>
+    <a href="https://github.com/Viny2030/qang/tree/main/book/es/" title="Ejecutar el código" class="quarto-navigation-tool px-1" aria-label="Ejecutar el código"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Descargar" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Descargar"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-libro-es.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Descargar PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-libro-es.docx">
+              <i class="bi bi-file-word pe-1"></i>
+            Descargar Docx
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefacio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">I. Fundamentos: la métrica angular-probabilística (la unidad qang)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">La unidad qang: definición, mili-qang y la ecuación de probabilidad</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Compuertas nativas, álgebra cerrada y el operador universal</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Reflexiones, Householder y la dinámica de Grover</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Estadística de muestreo, inferencia bayesiana y la distribución de Haar</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">II. Geometría local, óptica cuántica y fases geométricas</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">El radio local de Bloch como medida de pureza y entrelazamiento</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Polarización óptica y parámetros de Stokes en unidades qg</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Fases geométricas y el teorema de Stokes en la esfera</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Información de Fisher, relojes, gravedad y metrología</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">III. Física de neutrinos, oscilaciones y simulación cuántica (<code>qang.neutrino</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Cinemática cuántica de la oscilación de sabor en el vacío</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Efectos de materia, neutrinos solares y oscilaciones colectivas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fases de Majorana, doble beta sin neutrinos y neutrinos estériles</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">IV. Teleportación cuántica en redes ópticas y distribución de entrelazamiento (<code>qang.qpon</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap12.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Teleportación óptica y el límite del par de Bell</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap13.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Doble carril, filtro de sector y fidelidad a larga distancia</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">V. Relatividad, bucles temporales y evaporación de agujeros negros (<code>qang.postselection</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap14.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Curvas temporales cerradas posseleccionadas (P-CTC) y resolución de paradojas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap15.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Termodinámica de agujeros negros, caos cuántico y el decodificador de Yoshida–Kitaev</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">VI. Ciberseguridad cuántica, generación aleatoria y fronteras post-cuánticas</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap16.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Demarcación: criptografía cuántica frente a criptografía post-cuántica (PQC)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap17.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Distribución cuántica de claves (QKD) y BB84 en espacio qg</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap18.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Números aleatorios certificados (QRNG) y auditoría de canales</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap19.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Baterías cuánticas y redes</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">VII. Aprendizaje automático cuántico (QML) y el filtro de simetría</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap20.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Redes neuronales cuánticas que conservan el peso (WeightQNN)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap21.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">El filtro de simetría qg y la exactitud bajo relajación T1</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap22.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Calibración por eco y el sesgo de ruido (pull effect)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap23.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Geometría de la información, gradiente natural (QNG) y núcleos</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">VIII. Dinámica de muchos cuerpos, canales abiertos, materia y química</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap24.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Simulación hamiltoniana, caminatas cuánticas y VarQTE</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap25.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Espectroscopía cuántica, PCA y química molecular</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">IX. Corrección de errores, síndromes continuos y caracterización</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap26.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Corrección de errores y síndromes continuos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap27.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Caracterización de hardware en qg</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
+ <span class="menu-text">X. Evidencia experimental, hardware real y auditoría de falsación</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap28.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Metodología: el protocolo de falsación pre-registrada</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap29.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Las ventajas empíricas confirmadas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap30.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Límites estructurales, equivalencias y resultados negativos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap31.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Primer experimento en hardware real: IQM Resonance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap32.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Arquitectura de software, ecosistema multi-SDK y ejecución física</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true">
+ <span class="menu-text">XI. Nanocuántica</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap33.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Nanocuántica: transmisión, ruido de partición y qubits a escala nanométrica</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true">
+ <span class="menu-text">XII. Aplicaciones transversales</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap34.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Arquitectura angular: química, materia condensada, óptica relativista, termodinámica y geometría</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true">
+ <span class="menu-text">XIII. Ecosistema: qang dentro de otras librerías</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap35.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">qang como módulo: modificaciones a las librerías cuánticas y de aprendizaje</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bibliografia.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bibliografía</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true">
+ <span class="menu-text">Apéndices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Catálogo de las 15 compuertas fundamentales en representación qg</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Fórmulas de transición, matrices de Gell-Mann y polinomios de Chebyshev</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_c.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Protocolo de calibración por eco e inversión en sectores de Hamming (§105–§108)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Referencia rápida de la API de qang 0.13.1</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_e.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Registro de falsación: las predicciones que el repositorio permite comprobar</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_f.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Fundamento de análisis funcional: Riesz–Fréchet</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#sec-malus" id="toc-sec-malus" class="nav-link active" data-scroll-target="#sec-malus"><span class="header-section-number">6.1</span> La ley de Malus como ecuación de probabilidad</a></li>
+  <li><a href="#sec-stokes" id="toc-sec-stokes" class="nav-link" data-scroll-target="#sec-stokes"><span class="header-section-number">6.2</span> Los parámetros de Stokes son valores qg</a></li>
+  <li><a href="#sec-grado" id="toc-sec-grado" class="nav-link" data-scroll-target="#sec-grado"><span class="header-section-number">6.3</span> Grado de polarización y pureza</a></li>
+  <li><a href="#sec-mueller" id="toc-sec-mueller" class="nav-link" data-scroll-target="#sec-mueller"><span class="header-section-number">6.4</span> Elementos sin pérdidas: la matriz de Mueller es la regla de compuertas</a></li>
+  <li><a href="#sec-polarimetria" id="toc-sec-polarimetria" class="nav-link" data-scroll-target="#sec-polarimetria"><span class="header-section-number">6.5</span> Polarimetría por conteo de fotones</a></li>
+  <li><a href="#sec-comparacion06" id="toc-sec-comparacion06" class="nav-link" data-scroll-target="#sec-comparacion06"><span class="header-section-number">6.6</span> Sin qang y con qang</a></li>
+  <li><a href="#sec-codigo06" id="toc-sec-codigo06" class="nav-link" data-scroll-target="#sec-codigo06"><span class="header-section-number">6.7</span> En código</a></li>
+  <li><a href="#sec-resumen06" id="toc-sec-resumen06" class="nav-link" data-scroll-target="#sec-resumen06"><span class="header-section-number">6.8</span> Resumen</a></li>
+  <li><a href="#notas-bibliográficas" id="toc-notas-bibliográficas" class="nav-link" data-scroll-target="#notas-bibliográficas">Notas bibliográficas</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Informar sobre problema</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap05.html">II. Geometría local, óptica cuántica y fases geométricas</a></li><li class="breadcrumb-item"><a href="./cap06.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Polarización óptica y parámetros de Stokes en unidades qg</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-cap06" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Polarización óptica y parámetros de Stokes en unidades qg</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>La polarización de un fotón es un qubit, y la óptica clásica de la polarización es, sin cambios, la física de un qubit escrita con otros nombres. Este capítulo lee esa óptica con la base del capítulo 1. La pieza central es que un polarizador es una medición de dos resultados, pasa o no pasa, y su transmisión es exactamente la probabilidad <span class="math inline">\(p_0\)</span> de la ecuación qang. De ahí salen la ley de Malus, los parámetros de Stokes, el grado de polarización y la polarimetría por conteo de fotones, todo en qg y en mili-qang (§83).</p>
+<section id="sec-malus" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="sec-malus"><span class="header-section-number">6.1</span> La ley de Malus como ecuación de probabilidad</h2>
+<p>Luz polarizada linealmente a un ángulo <span class="math inline">\(\alpha\)</span> atraviesa un polarizador orientado a <span class="math inline">\(\vartheta\)</span>. Con <span class="math inline">\(\Delta=\vartheta-\alpha\)</span>, la fracción transmitida es la ley de Malus, que para un fotón individual es una probabilidad:</p>
+<p><span class="math display">\[
+p_0=\cos^2\Delta .
+\]</span></p>
+<p>La comparación con la regla de Born del capítulo 1, <span class="math inline">\(p_0=\cos^2(\theta/2)\)</span>, es inmediata: <strong>el ángulo qang es el doble del ángulo físico</strong>, <span class="math inline">\(\theta=2\Delta\)</span>, y la lectura en mili-qang es <span class="math inline">\(m=1000\cos2\Delta\)</span>. Por eso dos polarizaciones ortogonales, H y V, separadas <span class="math inline">\(90^\circ\)</span> en el laboratorio, son puntos opuestos de la esfera, separados <span class="math inline">\(180^\circ\)</span> (<a href="#fig-angulos" class="quarto-xref">Figura&nbsp;<span>6.1</span></a>). Un analizador girado <span class="math inline">\(30^\circ\)</span> respecto de la luz transmite <span class="math inline">\(p_0=0{,}75\)</span>: es el estado de <span class="math inline">\(\theta=60^\circ\)</span> y <span class="math inline">\(+500\)</span> m-qg del círculo qang del capítulo 1 (<a href="cap01.html#fig-circulo" class="quarto-xref">Figura&nbsp;<span>1.1</span></a>).</p>
+<div id="fig-angulos" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-angulos-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figuras/cap06_angulos.png" class="img-fluid figure-img" style="width:62.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-angulos-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;6.1: La duplicación de ángulos. Cada trazo naranja es la dirección física de la polarización lineal a <span class="math inline">\(\alpha\)</span>; su punto en el ecuador de la esfera está a <span class="math inline">\(2\alpha\)</span>. H y V, perpendiculares en el laboratorio, quedan en polos opuestos del eje <span class="math inline">\(qg_Z\)</span>.
+</figcaption>
+</figure>
+</div>
+<p>Para luz con cualquier polarización, pura o parcial, la transmisión por un polarizador lineal a <span class="math inline">\(\vartheta\)</span> es</p>
+<p><span class="math display">\[
+p_0=\frac{1+qg_Z\cos2\vartheta+qg_X\sin2\vartheta}{2}=\frac{1+\mathbf r\cdot\mathbf a}{2},
+\qquad \mathbf a=(\sin2\vartheta,\,0,\,\cos2\vartheta),
+\]</span></p>
+<p>con <span class="math inline">\(\mathbf r=(qg_X,qg_Y,qg_Z)\)</span> el vector qg de la luz y <span class="math inline">\(\mathbf a\)</span> el del estado que el analizador deja pasar. Es la probabilidad de transición del capítulo 3 entre dos vectores qg (<a href="cap03.html#sec-ptransicion" class="quarto-xref"><span>Sección 3.4</span></a>), y su lectura en mili-qang es <span class="math inline">\(m=1000\,\mathbf r\cdot\mathbf a\)</span>. La <a href="#fig-malus" class="quarto-xref">Figura&nbsp;<span>6.2</span></a> muestra cuatro casos: luz H (<span class="math inline">\(\cos^2\vartheta\)</span>), luz D (la misma curva corrida <span class="math inline">\(45^\circ\)</span>), luz no polarizada (siempre <span class="math inline">\(\tfrac12\)</span>, es decir, 0 m-qg) y luz parcialmente polarizada con <span class="math inline">\(qg_Z=0{,}6\)</span> y <span class="math inline">\(qg_X=0{,}3\)</span>. Esta última transmite 0,80 a <span class="math inline">\(0^\circ\)</span>, un máximo de 0,835 a <span class="math inline">\(13{,}3^\circ\)</span> y un mínimo de 0,165 a <span class="math inline">\(103{,}3^\circ\)</span>; la diferencia entre máximo y mínimo, 0,671, es su grado de polarización.</p>
+<div id="fig-malus" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-malus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figuras/cap06_malus.png" class="img-fluid figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-malus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;6.2: La ley de Malus como ecuación de probabilidad: transmisión de un polarizador lineal en función de su ángulo, con su lectura en mili-qang a la derecha.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="sec-stokes" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="sec-stokes"><span class="header-section-number">6.2</span> Los parámetros de Stokes son valores qg</h2>
+<p>La esfera de Poincaré es la esfera de Bloch. Con <span class="math inline">\(|H\rangle=|0\rangle\)</span> y <span class="math inline">\(|V\rangle=|1\rangle\)</span>, los parámetros de Stokes normalizados son los tres valores qg, cada uno la diferencia de las dos probabilidades de un analizador:</p>
+<div id="tbl-stokes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-stokes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabla&nbsp;6.1: Los parámetros de Stokes normalizados como valores qg (§83).
+</figcaption>
+<div aria-describedby="tbl-stokes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>valor qg</th>
+<th>Stokes</th>
+<th>analizador</th>
+<th>lectura</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(qg_Z\)</span></td>
+<td><span class="math inline">\(S_1/S_0\)</span></td>
+<td>H / V</td>
+<td><span class="math inline">\(p_H-p_V\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(qg_X\)</span></td>
+<td><span class="math inline">\(S_2/S_0\)</span></td>
+<td>D / A, a <span class="math inline">\(\pm45^\circ\)</span></td>
+<td><span class="math inline">\(p_D-p_A\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(qg_Y\)</span></td>
+<td><span class="math inline">\(S_3/S_0\)</span></td>
+<td>R / L, circular</td>
+<td><span class="math inline">\(p_R-p_L\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>La convención de la circular derecha cambia de un texto a otro; aquí <span class="math inline">\(R=(|H\rangle+i|V\rangle)/\sqrt2\)</span>, de modo que <span class="math inline">\(S_3&gt;0\)</span> significa <span class="math inline">\(qg_Y&gt;0\)</span> (la biblioteca acepta la convención opuesta con <code>circular_sign=-1</code>). Como cada parámetro es <span class="math inline">\(2p_0-1\)</span> en su propia base, cada uno se expresa en mili-qang con la ecuación del capítulo 1.</p>
+<p>La elipse de polarización se lee con los ángulos del vector qg, divididos por dos: su orientación es <span class="math inline">\(\psi=\tfrac12\operatorname{atan2}(qg_X,qg_Z)\)</span> y su elipticidad <span class="math inline">\(\chi=\tfrac12\arcsin(qg_Y/P)\)</span>. Para la luz parcial del ejemplo, <span class="math inline">\(\psi=13{,}3^\circ\)</span>: el ángulo donde la <a href="#fig-malus" class="quarto-xref">Figura&nbsp;<span>6.2</span></a> tiene su máximo.</p>
+</section>
+<section id="sec-grado" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="sec-grado"><span class="header-section-number">6.3</span> Grado de polarización y pureza</h2>
+<p>La luz parcialmente polarizada es un estado mixto. Su grado de polarización es la longitud del vector qg, el radio del capítulo 5 (<a href="cap05.html#sec-radio-ecuacion" class="quarto-xref"><span>Sección 5.1</span></a>):</p>
+<p><span class="math display">\[
+P=\sqrt{qg_X^2+qg_Y^2+qg_Z^2}=r,\qquad \operatorname{Tr}\rho^2=\frac{1+P^2}{2}.
+\]</span></p>
+<p>La luz no polarizada está en el centro de la esfera. Un despolarizador ideal tiene matriz de Mueller <span class="math inline">\(\operatorname{diag}(1,d,d,d)\)</span>: acorta el vector en un factor <span class="math inline">\(d\)</span> y no cambia su dirección. Es el caso en que el capítulo 5 separa dirección y radio (<a href="cap05.html#sec-direccion" class="quarto-xref"><span>Sección 5.5</span></a>): con <span class="math inline">\(d=0{,}7\)</span>, la luz del ejemplo pasa de <span class="math inline">\(P=0{,}671\)</span> a <span class="math inline">\(P=0{,}470\)</span>, y la orientación de su elipse sigue en <span class="math inline">\(13{,}3^\circ\)</span>.</p>
+</section>
+<section id="sec-mueller" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="sec-mueller"><span class="header-section-number">6.4</span> Elementos sin pérdidas: la matriz de Mueller es la regla de compuertas</h2>
+<p>Una matriz de Mueller actúa sobre <span class="math inline">\((S_0,S_1,S_2,S_3)\)</span>; en el orden <span class="math inline">\((I,Z,X,Y)\)</span> es la matriz de transferencia de Pauli. Para un elemento sin pérdidas, con matriz de Jones unitaria <span class="math inline">\(U\)</span>, es exactamente la regla de compuertas qang:</p>
+<p><span class="math display">\[
+qg'_P=qg_{U^\dagger P U}.
+\]</span></p>
+<p>Las láminas de onda son compuertas de un qubit, y el capítulo 2 se aplica tal cual (<a href="cap02.html#sec-compuerta-probabilidad" class="quarto-xref"><span>Sección 2.3</span></a>): una lámina de media onda con el eje a <span class="math inline">\(22{,}5^\circ\)</span> lleva H a D (<span class="math inline">\(qg_X=1\)</span>), porque gira la polarización física <span class="math inline">\(45^\circ\)</span> y el punto de la esfera <span class="math inline">\(90^\circ\)</span>; una lámina de cuarto de onda a <span class="math inline">\(45^\circ\)</span> lleva H a una polarización circular (<span class="math inline">\(qg_Y=-1\)</span> con la convención de arriba). El polarizador, en cambio, no es unitario: es la medición. Todas estas identidades se verifican numéricamente en <code>tests/test_polarization.py</code>.</p>
+</section>
+<section id="sec-polarimetria" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="sec-polarimetria"><span class="header-section-number">6.5</span> Polarimetría por conteo de fotones</h2>
+<p>Con fuentes débiles o de un solo fotón, los parámetros de Stokes se estiman contando: <span class="math inline">\(n_H,n_V\)</span> en la base H/V, <span class="math inline">\(n_D,n_A\)</span> en la diagonal y <span class="math inline">\(n_R,n_L\)</span> en la circular. Cada par da un valor qg con su intervalo, igual que una medición de un qubit (capítulo 4). Con 1000 fotones por base y conteos <span class="math inline">\((800,200)\)</span>, <span class="math inline">\((650,350)\)</span> y <span class="math inline">\((500,500)\)</span>:</p>
+<p><span class="math display">\[
+qg_Z=0{,}599\ [0{,}548;\,0{,}647],\quad qg_X=0{,}299\ [0{,}240;\,0{,}358],\quad qg_Y=0{,}000\ [-0{,}062;\,0{,}062],
+\]</span></p>
+<p>intervalos de Bayes–Haar del 95 %. En mili-qang, <span class="math inline">\(qg_Z\)</span> es <span class="math inline">\(+599\)</span> m-qg con una resolución de <span class="math inline">\(\sigma_m=1000\sin\theta/\sqrt N=25\)</span> m-qg.</p>
+<p>El grado de polarización necesita más cuidado. <span class="math inline">\(P\)</span> es la raíz de una suma de cuadrados, y cada cuadrado hereda el sesgo <span class="math inline">\((1-qg^2)/N\)</span> del capítulo 4 (<a href="cap04.html#sec-qg2" class="quarto-xref"><span>Sección 4.4</span></a>): con pocos fotones, la luz no polarizada parece polarizada. La <a href="#fig-grado" class="quarto-xref">Figura&nbsp;<span>6.3</span></a> lo cuantifica con una simulación de este capítulo (4000 repeticiones por punto). Con luz no polarizada, el estimador directo da en promedio <span class="math inline">\(\hat P\approx0{,}50\)</span> con 10 fotones por base, <span class="math inline">\(0{,}16\)</span> con 100 y <span class="math inline">\(0{,}05\)</span> con 1000. Usar los cuadrados insesgados lo baja unas tres veces (<span class="math inline">\(\approx0{,}18\)</span>, <span class="math inline">\(0{,}055\)</span> y <span class="math inline">\(0{,}017\)</span>), pero no lo anula: la raíz y el recorte en cero dejan un sesgo residual. Con luz de <span class="math inline">\(P=0{,}5\)</span>, el estimador directo sobreestima con pocos fotones y el insesgado subestima levemente; desde unos 200 fotones por base los dos coinciden con el valor verdadero.</p>
+<div id="fig-grado" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-grado-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figuras/cap06_grado.png" class="img-fluid figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-grado-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;6.3: Sesgo del grado de polarización estimado por conteo, en función de los fotones por base. Líneas llenas: estimador directo; punteadas: con los cuadrados insesgados del capítulo 4. Las líneas de puntos horizontales marcan el valor verdadero.
+</figcaption>
+</figure>
+</div>
+<p>La consecuencia práctica: para afirmar que una fuente está polarizada con pocos fotones, hace falta un intervalo para <span class="math inline">\(P\)</span> o un umbral calibrado con luz no polarizada, no el valor puntual.</p>
+</section>
+<section id="sec-comparacion06" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="sec-comparacion06"><span class="header-section-number">6.6</span> Sin qang y con qang</h2>
+<div id="tbl-comparacion06" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-comparacion06-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabla&nbsp;6.2: Las acciones del capítulo sin la escala qang y con ella.
+</figcaption>
+<div aria-describedby="tbl-comparacion06-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>acción</th>
+<th>sin qang</th>
+<th>con qang</th>
+<th>diferencia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>transmisión de un polarizador</td>
+<td>ley de Malus, <span class="math inline">\(I=I_0\cos^2\Delta\)</span></td>
+<td><span class="math inline">\(p_0=\cos^2\Delta\)</span> con <span class="math inline">\(\theta=2\Delta\)</span>; lectura <span class="math inline">\(1000\,\mathbf r\cdot\mathbf a\)</span> m-qg</td>
+<td><strong>ninguna en el valor</strong>; qang la une a la probabilidad de transición del capítulo 3</td>
+</tr>
+<tr class="even">
+<td>describir la polarización</td>
+<td>parámetros de Stokes <span class="math inline">\(S_1,S_2,S_3\)</span> normalizados</td>
+<td>son <span class="math inline">\(qg_Z\)</span>, <span class="math inline">\(qg_X\)</span>, <span class="math inline">\(qg_Y\)</span></td>
+<td><strong>identidad</strong>: mismos números con otro nombre</td>
+</tr>
+<tr class="odd">
+<td>grado de polarización con pocos fotones</td>
+<td><span class="math inline">\(\sqrt{S_1^2+S_2^2+S_3^2}\)</span>: sesgado hacia arriba</td>
+<td>cuadrados insesgados del capítulo 4</td>
+<td><strong>a favor</strong>: el sesgo baja unas tres veces, sin desaparecer</td>
+</tr>
+<tr class="even">
+<td>láminas de onda</td>
+<td>matrices de Mueller</td>
+<td>la regla de compuertas <span class="math inline">\(qg'_P=qg_{U^\dagger PU}\)</span></td>
+<td><strong>reformulación</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><strong>Balance.</strong> La óptica de polarización ya trabaja con valores qg bajo otro nombre (Stokes). La diferencia medible es estadística: la corrección de los cuadrados reduce el sesgo del grado de polarización con pocos fotones.</p>
+</section>
+<section id="sec-codigo06" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="sec-codigo06"><span class="header-section-number">6.7</span> En código</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qang <span class="im">import</span> polarization <span class="im">as</span> pz</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>luz <span class="op">=</span> {<span class="st">"Z"</span>: <span class="fl">0.6</span>, <span class="st">"X"</span>: <span class="fl">0.3</span>, <span class="st">"Y"</span>: <span class="fl">0.0</span>}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>pz.malus_intensity(luz, <span class="fl">0.0</span>)                      <span class="co"># 0.80: transmisión a 0°</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>pz.malus_intensity(luz, math.radians(<span class="fl">13.28</span>))      <span class="co"># 0.835: el máximo, en la orientación de la elipse</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">0</span>])</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>pz.jones_to_qg(pz.half_wave_plate(math.radians(<span class="fl">22.5</span>)) <span class="op">@</span> H)   <span class="co"># {'X': 1.0, ...}: H → D</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>pz.jones_to_qg(pz.quarter_wave_plate(math.radians(<span class="dv">45</span>)) <span class="op">@</span> H)  <span class="co"># {'Y': -1.0, ...}: H → circular</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> pz.qg_from_counts(<span class="dv">800</span>, <span class="dv">200</span>, <span class="dv">650</span>, <span class="dv">350</span>, <span class="dv">500</span>, <span class="dv">500</span>, method<span class="op">=</span><span class="st">"bayes"</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>c[<span class="st">"Z"</span>], c[<span class="st">"X"</span>], c[<span class="st">"P"</span>]                            <span class="co"># 0.6, 0.3, 0.671 y los intervalos en c["intervals"]</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Las figuras se generan con <code>tools/make_cap06_figures.py</code>.</p>
+</section>
+<section id="sec-resumen06" class="level2" data-number="6.8">
+<h2 data-number="6.8" class="anchored" data-anchor-id="sec-resumen06"><span class="header-section-number">6.8</span> Resumen</h2>
+<ul>
+<li>Un polarizador es una medición de dos resultados: su transmisión es <span class="math inline">\(p_0=\cos^2\Delta\)</span>, la ecuación de probabilidad del capítulo 1 con el ángulo qang igual al doble del físico, <span class="math inline">\(\theta=2\Delta\)</span>.</li>
+<li>Para cualquier luz, la ley de Malus es la probabilidad de transición <span class="math inline">\((1+\mathbf r\cdot\mathbf a)/2\)</span> entre la luz y el analizador; su lectura es <span class="math inline">\(1000\,\mathbf r\cdot\mathbf a\)</span> m-qg.</li>
+<li>Los parámetros de Stokes normalizados son <span class="math inline">\(qg_Z\)</span>, <span class="math inline">\(qg_X\)</span> y <span class="math inline">\(qg_Y\)</span>; la elipse se lee con la mitad de los ángulos del vector qg.</li>
+<li>El grado de polarización es el radio del capítulo 5; un despolarizador lo acorta sin girar la elipse.</li>
+<li>Las láminas de onda son compuertas: la matriz de Mueller sin pérdidas es la regla <span class="math inline">\(qg'_P=qg_{U^\dagger PU}\)</span>.</li>
+<li>Por conteo de fotones, cada parámetro tiene su intervalo; el grado de polarización está sesgado hacia arriba con pocos fotones, y los cuadrados insesgados reducen ese sesgo unas tres veces sin eliminarlo.</li>
+</ul>
+</section>
+<section id="notas-bibliográficas" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notas-bibliográficas">Notas bibliográficas</h2>
+<p>Los parámetros de polarización son los de <span class="citation" data-cites="stokes1852">Stokes (<a href="bibliografia.html#ref-stokes1852" role="doc-biblioref">1852</a>)</span>. La ley de Malus, la esfera de Poincaré y el cálculo de Mueller siguen el tratamiento clásico de <span class="citation" data-cites="bornwolf1999">Born et&nbsp;al. (<a href="bibliografia.html#ref-bornwolf1999" role="doc-biblioref">1999</a>)</span>. Las notas de investigación numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio <span class="citation" data-cites="qangrepo">(<a href="bibliografia.html#ref-qangrepo" role="doc-biblioref">Monteverde 2026a</a>)</span>; la definición de la unidad qang, en <span class="citation" data-cites="monteverde2026">Monteverde (<a href="bibliografia.html#ref-monteverde2026" role="doc-biblioref">2026b</a>)</span>.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-bornwolf1999" class="csl-entry" role="listitem">
+Born, Max, Emil Wolf, A. B. Bhatia, et&nbsp;al. 1999. <em>Principles of Optics: Electromagnetic Theory of Propagation, Interference and Diffraction of Light</em>. Cambridge University Press. <a href="https://doi.org/10.1017/cbo9781139644181">https://doi.org/10.1017/cbo9781139644181</a>.
+</div>
+<div id="ref-qangrepo" class="csl-entry" role="listitem">
+Monteverde, Vicente Humberto. 2026a. <em>qang: the qang (qg) unit, the symmetry filter and their applications. Source code and research notes</em>. <a href="https://github.com/Viny2030/qang" class="uri">Https://github.com/Viny2030/qang</a>.
+</div>
+<div id="ref-monteverde2026" class="csl-entry" role="listitem">
+Monteverde, Vicente Humberto. 2026b. <em>The Qang (qg): A Unified Angular-Probability Unit and Metric for Parametric Quantum Circuit Design</em>. <a href="https://doi.org/10.5281/ZENODO.22832150">https://doi.org/10.5281/ZENODO.22832150</a>.
+</div>
+<div id="ref-stokes1852" class="csl-entry" role="listitem">
+Stokes, George Gabriel. 1852. <span>«On the composition and resolution of streams of polarized light from different sources»</span>. <em>Transactions of the Cambridge Philosophical Society</em> 9: 399-416.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./cap05.html" class="pagination-link" aria-label="El radio local de Bloch como medida de pureza y entrelazamiento">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">El radio local de Bloch como medida de pureza y entrelazamiento</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cap07.html" class="pagination-link" aria-label="Fases geométricas y el teorema de Stokes en la esfera">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Fases geométricas y el teorema de Stokes en la esfera</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Informar sobre problema</a></li></ul></div></div></div></footer></body></html>

@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>21&nbsp; The qg symmetry filter and exactness under T1 relaxation – Quantum Computing, Information and Physics in qang Space</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap22.html" rel="next">
+<link href="./cap20.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-e3a0307bf87dea633ae254d873c6233f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap20.html">VII. Quantum machine learning (QML) and the symmetry filter</a></li><li class="breadcrumb-item"><a href="./cap21.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">The qg symmetry filter and exactness under T1 relaxation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Quantum Computing, Information and Physics in qang Space</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="./../es/" title="Edición en español" class="quarto-navigation-tool px-1" aria-label="Edición en español"><i class="bi bi-"></i></a>
+    <a href="https://github.com/Viny2030/qang/tree/main/book/en/" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Download" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Download"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-book-en.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Download PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-book-en.docx">
+              <i class="bi bi-file-word pe-1"></i>
+            Download Docx
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">I. Foundations: the angular–probabilistic metric (the qang unit)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The qang unit: definition, milli-qang and the probability equation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Native gates, closed algebra and the universal operator</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Reflections, Householder and Grover dynamics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Sampling statistics, Bayesian inference and the Haar distribution</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">II. Local geometry, quantum optics and geometric phases</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">The local Bloch radius as a measure of purity and entanglement</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Optical polarization and Stokes parameters in qg units</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Geometric phases and Stokes’ theorem on the sphere</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fisher information, clocks, gravity and metrology</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">III. Neutrino physics, oscillations and quantum simulation (<code>qang.neutrino</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Quantum kinematics of flavour oscillation in vacuum</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Matter effects, solar neutrinos and collective oscillations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Majorana phases, neutrinoless double beta decay and sterile neutrinos</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">IV. Quantum teleportation in optical networks and entanglement distribution (<code>qang.qpon</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap12.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Optical teleportation and the Bell-pair limit</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap13.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Dual rail, the sector filter and long-distance fidelity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">V. Relativity, time loops and black-hole evaporation (<code>qang.postselection</code>)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap14.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Postselected closed timelike curves (P-CTC) and the resolution of paradoxes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap15.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Black-hole thermodynamics, quantum chaos and the Yoshida–Kitaev decoder</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">VI. Quantum cybersecurity, random-number generation and post-quantum frontiers</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap16.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Demarcation: quantum cryptography against post-quantum cryptography (PQC)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap17.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Quantum key distribution (QKD) and BB84 in qg space</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap18.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Certified quantum random numbers (QRNG) and channel auditing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap19.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Quantum batteries and networks</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">VII. Quantum machine learning (QML) and the symmetry filter</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap20.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Weight-conserving quantum neural networks (WeightQNN)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap21.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">The qg symmetry filter and exactness under T1 relaxation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap22.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Echo calibration and the noise bias (pull effect)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap23.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Information geometry, the natural gradient (QNG) and kernels</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">VIII. Many-body dynamics, open channels, matter and chemistry</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap24.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Hamiltonian simulation, quantum walks and VarQTE</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap25.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Quantum spectroscopy, PCA and molecular chemistry</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">IX. Error correction, continuous syndromes and characterization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap26.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Error correction and continuous syndromes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap27.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Hardware characterization in qg</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
+ <span class="menu-text">X. Experimental evidence, real hardware and the falsification audit</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap28.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Methodology: the pre-registered falsification protocol</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap29.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">The confirmed empirical advantages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap30.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Structural limits, equivalences and negative results</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap31.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">First real-hardware experiment: IQM Resonance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap32.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Software architecture, the multi-SDK ecosystem and physical execution</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true">
+ <span class="menu-text">XI. Nanoquantum</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap33.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Nanoquantum: transmission, partition noise and nanoscale qubits</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true">
+ <span class="menu-text">XII. Cross-domain applications</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap34.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Angular architecture: chemistry, condensed matter, relativistic optics, thermodynamics and geometry</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true">
+ <span class="menu-text">XIII. Ecosystem: qang inside other libraries</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap35.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">qang as a module: changes to quantum and machine-learning libraries</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Catalogue of the 15 fundamental gates in qg representation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Transition formulas, Gell-Mann matrices and Chebyshev polynomials</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_c.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">The echo-calibration protocol and inversion in Hamming sectors (§105–§108)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Quick reference of the qang 0.13.1 API</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_e.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Falsification register: the predictions the repository allows one to check</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_f.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Functional-analysis foundation: Riesz–Fréchet</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-filter-base" id="toc-sec-filter-base" class="nav-link active" data-scroll-target="#sec-filter-base"><span class="header-section-number">21.1</span> From the base: decay pushes the readings to the north pole</a></li>
+  <li><a href="#sec-filter-cost" id="toc-sec-filter-cost" class="nav-link" data-scroll-target="#sec-filter-cost"><span class="header-section-number">21.2</span> What it costs: the mean-squared-error rule</a></li>
+  <li><a href="#sec-filter-training" id="toc-sec-filter-training" class="nav-link" data-scroll-target="#sec-filter-training"><span class="header-section-number">21.3</span> Training through the filter</a></li>
+  <li><a href="#sec-filter-f5" id="toc-sec-filter-f5" class="nav-link" data-scroll-target="#sec-filter-f5"><span class="header-section-number">21.4</span> F5: unequal T1 depends only on the ratios</a></li>
+  <li><a href="#sec-filter-f6" id="toc-sec-filter-f6" class="nav-link" data-scroll-target="#sec-filter-f6"><span class="header-section-number">21.5</span> F6: dephasing, with the filter and extrapolation</a></li>
+  <li><a href="#sec-filter-gates" id="toc-sec-filter-gates" class="nav-link" data-scroll-target="#sec-filter-gates"><span class="header-section-number">21.6</span> Gate and readout errors</a></li>
+  <li><a href="#sec-open21" id="toc-sec-open21" class="nav-link" data-scroll-target="#sec-open21"><span class="header-section-number">21.7</span> What remains open</a></li>
+  <li><a href="#sec-comparison21" id="toc-sec-comparison21" class="nav-link" data-scroll-target="#sec-comparison21"><span class="header-section-number">21.8</span> Without qang and with qang</a></li>
+  <li><a href="#sec-code21" id="toc-sec-code21" class="nav-link" data-scroll-target="#sec-code21"><span class="header-section-number">21.9</span> In code</a></li>
+  <li><a href="#sec-summary21" id="toc-sec-summary21" class="nav-link" data-scroll-target="#sec-summary21"><span class="header-section-number">21.10</span> Summary</a></li>
+  <li><a href="#bibliographic-notes" id="toc-bibliographic-notes" class="nav-link" data-scroll-target="#bibliographic-notes">Bibliographic notes</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap20.html">VII. Quantum machine learning (QML) and the symmetry filter</a></li><li class="breadcrumb-item"><a href="./cap21.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">The qg symmetry filter and exactness under T1 relaxation</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-ch21" class="quarto-section-identifier"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">The qg symmetry filter and exactness under T1 relaxation</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Chapter 20 used the qg filter as a tool: discarding the shots that left the Hamming-weight sector returns the noiseless readout under T1. This chapter treats it as an object. First the theorem and why it holds, on the scale of Chapter 1. Then what it costs, with a closed rule that predicts before running when it pays, and what it does not correct: unequal T1 across qubits, dephasing, and gate and readout errors. For each limit there is an exact property (F5 and F6 in the notes) that says how to go on. The structural facts are checked with code on random states; the classification results are those of the notes, with predictions committed before running.</p>
+<section id="sec-filter-base" class="level2" data-number="21.1">
+<h2 data-number="21.1" class="anchored" data-anchor-id="sec-filter-base"><span class="header-section-number">21.1</span> From the base: decay pushes the readings to the north pole</h2>
+<p>Amplitude damping of one qubit has two Kraus operators:</p>
+<p><span class="math display">\[
+K_0=\begin{pmatrix}1&amp;0\\0&amp;\sqrt{1-\gamma}\end{pmatrix},\qquad K_1=\sqrt\gamma\,|0\rangle\langle1|.
+\]</span></p>
+<p><span class="math inline">\(K_1\)</span> is the jump: the qubit falls to <span class="math inline">\(|0\rangle\)</span>, and its reading goes to <span class="math inline">\(+1000\)</span> m-qg, the north pole. <span class="math inline">\(K_0\)</span> is the no-jump evolution: it leaves <span class="math inline">\(|0\rangle\)</span> alone and multiplies the amplitude of <span class="math inline">\(|1\rangle\)</span> by <span class="math inline">\(\sqrt{1-\gamma}\)</span>. In a register, the product of the <span class="math inline">\(K_0\)</span> multiplies every basis state with <span class="math inline">\(k\)</span> ones by <span class="math inline">\((1-\gamma)^{k/2}\)</span>, the same factor for every state of the weight-<span class="math inline">\(k\)</span> sector. And any jump lowers the weight by one.</p>
+<p>Hence the theorem (notes, §77 and §78 F4): <strong>with the same T1 on every qubit, keeping the weight-<span class="math inline">\(k\)</span> shots returns the noiseless state.</strong> The no-jump factor is a scalar on the sector, and it disappears on normalising; everything that jumped is in another sector. It holds between layers of weight-conserving gates, for any strength and any depth. The fraction of shots that survives is <span class="math inline">\(K=(1-\gamma)^{k\,d}\)</span>, with <span class="math inline">\(d\)</span> the number of damping steps.</p>
+<div id="tbl-theorem21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-theorem21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.1: The theorem in every sector of 6 qubits: 20 random states, 2 RBS layers (6 sublayers), <span class="math inline">\(\gamma=0.08\)</span>.
+</figcaption>
+<div aria-describedby="tbl-theorem21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>sector (6 qubits)</th>
+<th>dimension</th>
+<th>max <span class="math inline">\(\lvert\)</span>filtered − noiseless<span class="math inline">\(\rvert\)</span> (m-qg)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>weight 1</td>
+<td>6</td>
+<td><span class="math inline">\(4\cdot10^{-13}\)</span></td>
+</tr>
+<tr class="even">
+<td>weight 2</td>
+<td>15</td>
+<td><span class="math inline">\(7\cdot10^{-13}\)</span></td>
+</tr>
+<tr class="odd">
+<td>weight 3</td>
+<td>20</td>
+<td><span class="math inline">\(6\cdot10^{-13}\)</span></td>
+</tr>
+<tr class="even">
+<td>weight 4</td>
+<td>15</td>
+<td><span class="math inline">\(7\cdot10^{-13}\)</span></td>
+</tr>
+<tr class="odd">
+<td>weight 5</td>
+<td>6</td>
+<td><span class="math inline">\(9\cdot10^{-13}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>For a weight-2 state with three damping steps, the fraction left in the sector is 0.606355, exactly <span class="math inline">\(0.92^6\)</span>. The filter is a postselection, and what it returns is a conditional probability: the equation of Chapter 1 applied inside the sector.</p>
+</section>
+<section id="sec-filter-cost" class="level2" data-number="21.2">
+<h2 data-number="21.2" class="anchored" data-anchor-id="sec-filter-cost"><span class="header-section-number">21.2</span> What it costs: the mean-squared-error rule</h2>
+<p>The filter removes the bias and pays in shots: of <span class="math inline">\(S\)</span> shots only <span class="math inline">\(KS\)</span> remain. The notes (§94) wrote down before running a closed rule for the mean squared error of the qubits’ readings <span class="math inline">\(m\)</span>:</p>
+<p><span class="math display">\[
+\text{MSE}_{\text{qang}}\approx\frac{1000^2-m^2}{KS},\qquad
+\text{MSE}_{\text{raw}}=\text{bias}^2+\frac{1000^2-m_{\text{raw}}^2}{S}.
+\]</span></p>
+<p>The first is the shot noise of Chapter 1 with <span class="math inline">\(KS\)</span> shots; the second adds the bias towards the north pole, which does not shrink with more shots. The chapter’s script checks it with 10 random circuits of 6 qubits, weight 2, 12 sublayers and <span class="math inline">\(\gamma=0.02\)</span> (<span class="math inline">\(K=0.616\)</span>), 200 repetitions per point:</p>
+<div id="tbl-rule21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-rule21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.2: The rule of §94 against simulation (<a href="#fig-theorem21" class="quarto-xref">Figure&nbsp;<span>21.1</span></a>, right).
+</figcaption>
+<div aria-describedby="tbl-rule21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>shots <span class="math inline">\(S\)</span></th>
+<th>30</th>
+<th>100</th>
+<th>300</th>
+<th>1000</th>
+<th>3000</th>
+<th>10,000</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MSE with qang, simulated / rule</td>
+<td>1.05</td>
+<td>1.01</td>
+<td>1.02</td>
+<td>1.00</td>
+<td>1.01</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td>MSE without qang / MSE with qang</td>
+<td>1.3</td>
+<td>3.0</td>
+<td>7.9</td>
+<td>25</td>
+<td>74</td>
+<td>249</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The raw error stalls at about 31,000 m-qg² (a bias of about 175 m-qg), while the filtered one keeps falling as <span class="math inline">\(1/S\)</span>. Setting the two expressions equal gives the break-even number of shots <span class="math inline">\(S^*\)</span>: above it, the filter wins. For the circuits of this chapter <span class="math inline">\(S^*\)</span> runs from 9 to 61 shots (<a href="#fig-rule21" class="quarto-xref">Figure&nbsp;<span>21.2</span></a>, left); on the notes’ grid, from 3 to 110 (108 configurations up to 8 qubits, weight 4 and depth 24, with up to 1000 times less error with the filter).</p>
+<p><strong>With very few shots kept</strong> (§96, 405 configurations with <span class="math inline">\(K\)</span> down to <span class="math inline">\(2.6\cdot10^{-7}\)</span>) the generalised rule, which includes the bias left in the filtered readout, picks the winner in 342 of 342 cases with <span class="math inline">\(KS\ge5\)</span>, also with unequal T1 and dephasing. When less than one shot survives, the filter returns 0 for lack of data, and even so it beats the raw readout in 51 of 57 cases, because the raw one collapsed towards <span class="math inline">\(|0\dots0\rangle\)</span>, the north pole, which is a worse guess than the equator. <strong>No regime was found where the shot cost decides against the filter.</strong></p>
+<div id="fig-theorem21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-theorem21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/cap21_theorem.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-theorem21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;21.1: Left: maximum deviation of the filtered readout from its reference, by sector weight (6 qubits), on a log scale. With equal T1, with rescaled unequal T1 (F5) and with T1 plus dephasing against dephasing alone (F6) the deviation is rounding; with unequal T1 or with dephasing, against the noiseless readout, a bias of 100 to 360 m-qg remains. Right: mean squared error of the readings with and without the filter against shots, simulated (points) and from the rule of §94 (lines).
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="sec-filter-training" class="level2" data-number="21.3">
+<h2 data-number="21.3" class="anchored" data-anchor-id="sec-filter-training"><span class="header-section-number">21.3</span> Training through the filter</h2>
+<p>Since the filtered readout under equal T1 is the noiseless one for every parameter, so are the loss and its gradients, and training with filtered noise is training without noise (§77; Chapter 20 checked it in PennyLane to <span class="math inline">\(10^{-16}\)</span>). The notes repeated it training from shots (§109), with 100 or 1000 fresh shots per evaluation and SPSA gradients:</p>
+<div id="tbl-shots21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-shots21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.3: Network E under equal T1 (<span class="math inline">\(\gamma=0.08\)</span>, <span class="math inline">\(K=0.47\)</span>), trained from shots (notes §109).
+</figcaption>
+<div aria-describedby="tbl-shots21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>training</th>
+<th>with qang</th>
+<th>without qang</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>exact noiseless probabilities</td>
+<td>0.945</td>
+<td>–</td>
+</tr>
+<tr class="even">
+<td>shots, <span class="math inline">\(S=1000\)</span></td>
+<td>0.939</td>
+<td>0.929</td>
+</tr>
+<tr class="odd">
+<td>shots, <span class="math inline">\(S=100\)</span></td>
+<td>0.930</td>
+<td>0.915</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The prediction was that at 100 shots the filter’s cost would show. It did not: the network trained with qang ended 1.5 points ahead (CI [−1.6, 4.6]). The gradient flattens with the size of the sector, with or without the filter (§112).</p>
+</section>
+<section id="sec-filter-f5" class="level2" data-number="21.4">
+<h2 data-number="21.4" class="anchored" data-anchor-id="sec-filter-f5"><span class="header-section-number">21.4</span> F5: unequal T1 depends only on the ratios</h2>
+<p>With a different T1 on each qubit, the no-jump factor is no longer a scalar on the sector: it is the product of the <span class="math inline">\(\sqrt{1-\gamma_q}\)</span> of the excited qubits, different for each state. The filter then leaves a bias: 100 to 160 m-qg with a ±50% spread of the <span class="math inline">\(\gamma_q\)</span> (<a href="#fig-theorem21" class="quarto-xref">Figure&nbsp;<span>21.1</span></a>). But the notes found an exact property (§117 F5): <strong>a common factor in all the <span class="math inline">\((1-\gamma_q)\)</span> cancels on normalising</strong>, so the filtered readout depends only on the ratios <span class="math inline">\((1-\gamma_q)/(1-\gamma_r)\)</span>. The script checks it by multiplying all the <span class="math inline">\((1-\gamma_q)\)</span> by 0.85: the filtered readout moves by no more than <span class="math inline">\(10^{-12}\)</span> m-qg in any sector, and the raw one moves by 640 to 850 m-qg.</p>
+<p>The practical consequence is a recipe. Training with the filter under the calibrated rates needs only the relative T1s, tolerates calibration errors and survives a common drift of all the T1s:</p>
+<div id="tbl-f521" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-f521-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.4: Unequal T1, spread 1 (<span class="math inline">\(\gamma_q\)</span> from 0 to 0.16), notes §117. A: trained noiseless, with the filter; B: trained noiseless, raw; C: trained with the filter under the calibrated rates (10% error); C*: under the exact rates; D: trained raw under the calibrated rates. Drift: all T1s 1.5 times shorter.
+</figcaption>
+<div aria-describedby="tbl-f521-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>weight</th>
+<th>noiseless</th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>C*</th>
+<th>D</th>
+<th>drift: A / B / C / D</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0.950</td>
+<td>0.931</td>
+<td>0.873</td>
+<td>0.951</td>
+<td>0.945</td>
+<td>0.952</td>
+<td>0.913 / 0.770 / 0.942 / 0.950</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>0.945</td>
+<td>0.918</td>
+<td>0.797</td>
+<td>0.940</td>
+<td>0.941</td>
+<td>0.941</td>
+<td>0.903 / 0.663 / 0.932 / 0.841</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>With recipe C the network lands within 0.5 points of its noiseless accuracy. Under drift, at weight 2 the raw network trained under noise loses 10.0 points and the filtered one 0.7: the raw one learned the absolute rates, the filtered one only their ratios. If one does not want to train under noise, the rule of §82 says how much is tolerated: with the filter alone the loss stays below one point as long as the qubits’ <span class="math inline">\(1/T_1\)</span> differ by up to ±80% from their mean.</p>
+</section>
+<section id="sec-filter-f6" class="level2" data-number="21.5">
+<h2 data-number="21.5" class="anchored" data-anchor-id="sec-filter-f6"><span class="header-section-number">21.5</span> F6: dephasing, with the filter and extrapolation</h2>
+<p>Dephasing does not change the weight, so the filter does not see it. But the notes proved another exact property (§118 F6): <strong>with equal T1 and dephasing, the filtered readout is the readout with dephasing alone.</strong> The no-jump factor is a scalar on the sector and commutes with the dephasing channel, which is diagonal. The script checks it in every sector of 6 qubits, to <span class="math inline">\(7\cdot10^{-13}\)</span> m-qg (<a href="#fig-theorem21" class="quarto-xref">Figure&nbsp;<span>21.1</span></a>). The filter turns two noises into one, and that one can be extrapolated to zero (ZNE):</p>
+<div id="tbl-zne21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-zne21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.5: ZNE of the filtered readings over 40 random states, exact probabilities (<a href="#fig-rule21" class="quarto-xref">Figure&nbsp;<span>21.2</span></a>, right).
+</figcaption>
+<div aria-describedby="tbl-zne21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>readout (5 qubits, weight 2, T1 0.08 + dephasing 0.03)</th>
+<th>mean error (m-qg)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>raw</td>
+<td>442</td>
+</tr>
+<tr class="even">
+<td>filtered</td>
+<td>152</td>
+</tr>
+<tr class="odd">
+<td>filtered, linear extrapolation (scales 1 and 2)</td>
+<td>69 (45%)</td>
+</tr>
+<tr class="even">
+<td>filtered, Richardson (scales 1, 2 and 3)</td>
+<td>31 (20%)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>In the notes’ classifiers (§118, §122, at 5 and 8 qubits) linear extrapolation leaves 50–58% of the error of the filtered readings and Richardson 26–35%; without the filter, ZNE must extrapolate T1 and dephasing together and ends 3 to 10 points behind. With 1000 shots per scale, at weight 2, ZNE loses to the filter alone, because its shot cost eats the gain. What corrects dephasing best in a classifier is something else: training with the filter under the calibrated noise, which recovers the noiseless accuracy (0.951–0.963).</p>
+<p>One subtlety (§132–§133): dephasing between RBS gates commutes with the weight and the filter does not see it, but dephasing <strong>inside</strong> the decomposition of an RBS into native gates turns a phase error into a change of weight. To predict the kept fraction on a device, the simulator has to place that error inside each RBS.</p>
+<div id="fig-rule21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rule21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/cap21_rule.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rule21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;21.2: Left: break-even shots <span class="math inline">\(S^*\)</span> from the rule of §94 against depth, for weights 1, 2 and 3 on 6 qubits (<span class="math inline">\(\gamma=0.02\)</span>); above <span class="math inline">\(S^*\)</span> the filter has less error. Right: mean error of the filtered readout with equal T1 and dephasing 0.03 at dephasing scales 1, 2 and 3, and its linear and Richardson extrapolation to zero.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="sec-filter-gates" class="level2" data-number="21.6">
+<h2 data-number="21.6" class="anchored" data-anchor-id="sec-filter-gates"><span class="header-section-number">21.6</span> Gate and readout errors</h2>
+<p>In IBM device noise models gate errors dominate, and they are not T1. The notes added them to qang’s simulator (§124: a two-qubit depolarising channel after each RBS, with the published error of the native gate) and then each qubit’s asymmetric readout error (§129). Their interest here is one: predicting the kept fraction before running.</p>
+<div id="tbl-device21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-device21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.6: Kept fraction of a weight-1 network on three IBM noise models (notes §124, §129).
+</figcaption>
+<div aria-describedby="tbl-device21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>simulated device</th>
+<th>device <span class="math inline">\(K\)</span></th>
+<th>predicted with T1, T2 and gates</th>
+<th>+ readout error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>fake brisbane</td>
+<td>0.671</td>
+<td>0.703</td>
+<td>0.665</td>
+</tr>
+<tr class="even">
+<td>fake sherbrooke</td>
+<td>0.697</td>
+<td>0.774</td>
+<td>0.694</td>
+</tr>
+<tr class="odd">
+<td>fake torino</td>
+<td>0.724</td>
+<td>0.845</td>
+<td>0.783</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>With readout error, the prediction comes within 0.006 of the device on the two devices with ECR gates. On torino (CZ gates) a gap of 0.059 remains, which §132–§133 attribute to dephasing inside the gates. In accuracy, the simplest recipe was the best on those models: train noiseless and run with the filter (182–185 of 189 correct, against 185 noiseless); training with the gate errors helped the raw readout (+1.2 points) but not the filtered one.</p>
+</section>
+<section id="sec-open21" class="level2" data-number="21.7">
+<h2 data-number="21.7" class="anchored" data-anchor-id="sec-open21"><span class="header-section-number">21.7</span> What remains open</h2>
+<p>The filter’s properties (the theorem, the law of <span class="math inline">\(K\)</span>, F5, F6 and the error rule) are checked with code; the classification accuracies are those of the notes. A run on real hardware is missing, where unequal T1, dephasing inside the gates and readout error act together. And a tool is missing from the libraries: weight postselection with its cost rule is proposed at the end of the book, together with the new version of qang.</p>
+</section>
+<section id="sec-comparison21" class="level2" data-number="21.8">
+<h2 data-number="21.8" class="anchored" data-anchor-id="sec-comparison21"><span class="header-section-number">21.8</span> Without qang and with qang</h2>
+<div id="tbl-comparison21" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-comparison21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.7: The chapter’s actions without the qang scale and with it.
+</figcaption>
+<div aria-describedby="tbl-comparison21-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>action</th>
+<th>without qang</th>
+<th>with qang</th>
+<th>difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>read under equal T1</td>
+<td>bias towards the north pole, which does not shrink with shots</td>
+<td>exact readout (<span class="math inline">\(\le10^{-12}\)</span> m-qg) in every sector</td>
+<td><strong>in favour</strong>: exactness by a theorem</td>
+</tr>
+<tr class="even">
+<td>decide whether filtering pays</td>
+<td>try both readouts</td>
+<td>closed rule; the winner is predicted in 99–100% of cases</td>
+<td><strong>in favour</strong>: the decision is taken before running</td>
+</tr>
+<tr class="odd">
+<td>shot cost</td>
+<td>—</td>
+<td>exact <span class="math inline">\(K=(1-\gamma)^{kd}\)</span>; break-even at 3–110 shots</td>
+<td><strong>in favour</strong>: the cost never decided against it on the notes’ grids</td>
+</tr>
+<tr class="even">
+<td>unequal T1</td>
+<td>the raw network learns the absolute rates; under drift it loses 10 points (weight 2)</td>
+<td>depends only on the ratios (F5); training with the filter lands within 0.5 points; drift: 0.7</td>
+<td><strong>in favour</strong> with the recipe; <strong>against</strong> if the filter is used alone with a large spread (up to 2 points)</td>
+</tr>
+<tr class="odd">
+<td>dephasing</td>
+<td>ZNE of T1 and dephasing together</td>
+<td>the filter leaves dephasing only (F6); ZNE takes it to 20–58%</td>
+<td><strong>in favour</strong> in readout error; with few shots ZNE does not pay</td>
+</tr>
+<tr class="even">
+<td>gate and readout errors</td>
+<td>—</td>
+<td>the simulator predicts <span class="math inline">\(K\)</span> within 0.006 (ECR)</td>
+<td><strong>in favour</strong> as a prediction; the filter does not correct them</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><strong>Balance.</strong> The filter is symmetry postselection, a known mitigation technique. What the notes add are the exact properties (the theorem in every sector, F5 and F6), the closed cost rule, and the recipe for each noise the filter does not correct. The base of Chapter 1 gives the picture: the jump takes the readings to the north pole, and the filter returns the conditional probability on the sector. When the noise is not equal T1, the filter alone is no longer enough, and the answer is to train with it under the calibrated noise.</p>
+</section>
+<section id="sec-code21" class="level2" data-number="21.9">
+<h2 data-number="21.9" class="anchored" data-anchor-id="sec-code21"><span class="header-section-number">21.9</span> In code</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qang <span class="im">import</span> qml <span class="im">as</span> QML</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> QML.WeightQNN(n_qubits<span class="op">=</span><span class="dv">6</span>, weight<span class="op">=</span><span class="dv">3</span>, layers<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>psi <span class="op">=</span> np.zeros((<span class="dv">1</span>, m.dim))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>psi[<span class="dv">0</span>, m.idx[<span class="dv">3</span>]] <span class="op">=</span> rng.normal(size<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>psi <span class="op">/=</span> np.linalg.norm(psi)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>theta <span class="op">=</span> rng.uniform(<span class="op">-</span>np.pi, np.pi, size<span class="op">=</span>m.n_theta)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> <span class="fl">0.08</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> np.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">6</span>))          <span class="co"># unequal T1</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> gam: m.qg_z(m.probs(theta, psi, gamma<span class="op">=</span>gam), qang<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>np.<span class="bu">abs</span>(f(<span class="dv">1</span> <span class="op">-</span> <span class="fl">0.85</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> g)) <span class="op">-</span> f(g)).<span class="bu">max</span>()             <span class="co"># ~1e-15: F5, only the ratios count</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="sec-summary21" class="level2" data-number="21.10">
+<h2 data-number="21.10" class="anchored" data-anchor-id="sec-summary21"><span class="header-section-number">21.10</span> Summary</h2>
+<ul>
+<li>The jump takes the readings to the north pole and lowers the weight; the no-jump evolution multiplies every weight-<span class="math inline">\(k\)</span> state by <span class="math inline">\((1-\gamma)^{k/2}\)</span>. With equal T1, the filter returns the noiseless state in every sector, with <span class="math inline">\(K=(1-\gamma)^{kd}\)</span>.</li>
+<li>The rule <span class="math inline">\(\text{MSE}\approx(1000^2-m^2)/(KS)\)</span> against bias<span class="math inline">\(^2+(1000^2-m^2)/S\)</span> predicts before running when filtering pays; the break-even is at a few tens of shots, and the cost never decided against it.</li>
+<li>With unequal T1 the filtered readout depends only on the ratios of the rates (F5): training with the filter under the calibrated rates recovers the accuracy and withstands a common drift.</li>
+<li>With T1 plus dephasing the filter leaves dephasing only (F6), which is extrapolated to zero or, in a classifier, corrected by training with the filter under the noise.</li>
+<li>With gate and readout errors, qang’s simulator predicts a device’s kept fraction; the filter does not correct them.</li>
+</ul>
+</section>
+<section id="bibliographic-notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="bibliographic-notes">Bibliographic notes</h2>
+<p>The qg filter is a symmetry verification <span class="citation" data-cites="bonetmonroig2018 mcardle2019">(<a href="references.html#ref-bonetmonroig2018" role="doc-biblioref">Bonet-Monroig et al. 2018</a>; <a href="references.html#ref-mcardle2019" role="doc-biblioref">McArdle et al. 2019</a>)</span>; zero-noise extrapolation is <span class="citation" data-cites="temme2017">Temme et al. (<a href="references.html#ref-temme2017" role="doc-biblioref">2017</a>)</span>. The relaxation and dephasing channels are those of <span class="citation" data-cites="nielsen2010">Nielsen and Chuang (<a href="references.html#ref-nielsen2010" role="doc-biblioref">2010</a>)</span>. The numbered research notes (§) cited in this chapter and the scripts that check it are in the repository <span class="citation" data-cites="qangrepo">(<a href="references.html#ref-qangrepo" role="doc-biblioref">Monteverde 2026a</a>)</span>; the definition of the qang unit is in <span class="citation" data-cites="monteverde2026">Monteverde (<a href="references.html#ref-monteverde2026" role="doc-biblioref">2026b</a>)</span>.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-bonetmonroig2018" class="csl-entry" role="listitem">
+Bonet-Monroig, X., R. Sagastizabal, M. Singh, and T. E. O’Brien. 2018. <span>“Low-Cost Error Mitigation by Symmetry Verification.”</span> <em>Physical Review A</em> 98 (6). <a href="https://doi.org/10.1103/physreva.98.062339">https://doi.org/10.1103/physreva.98.062339</a>.
+</div>
+<div id="ref-mcardle2019" class="csl-entry" role="listitem">
+McArdle, Sam, Xiao Yuan, and Simon Benjamin. 2019. <span>“Error-Mitigated Digital Quantum Simulation.”</span> <em>Physical Review Letters</em> 122 (18). <a href="https://doi.org/10.1103/physrevlett.122.180501">https://doi.org/10.1103/physrevlett.122.180501</a>.
+</div>
+<div id="ref-qangrepo" class="csl-entry" role="listitem">
+Monteverde, Vicente Humberto. 2026a. <em>Qang: The Qang (Qg) Unit, the Symmetry Filter and Their Applications. Source Code and Research Notes</em>. <a href="https://github.com/Viny2030/qang" class="uri">Https://github.com/Viny2030/qang</a>.
+</div>
+<div id="ref-monteverde2026" class="csl-entry" role="listitem">
+Monteverde, Vicente Humberto. 2026b. <em>The Qang (Qg): A Unified Angular-Probability Unit and Metric for Parametric Quantum Circuit Design</em>. <a href="https://doi.org/10.5281/ZENODO.22832150">https://doi.org/10.5281/ZENODO.22832150</a>.
+</div>
+<div id="ref-nielsen2010" class="csl-entry" role="listitem">
+Nielsen, Michael A., and Isaac L. Chuang. 2010. <em>Quantum Computation and Quantum Information</em>. 10th anniversary. Cambridge University Press. <a href="https://doi.org/10.1017/cbo9780511976667">https://doi.org/10.1017/cbo9780511976667</a>.
+</div>
+<div id="ref-temme2017" class="csl-entry" role="listitem">
+Temme, Kristan, Sergey Bravyi, and Jay M. Gambetta. 2017. <span>“Error Mitigation for Short-Depth Quantum Circuits.”</span> <em>Physical Review Letters</em> 119 (18). <a href="https://doi.org/10.1103/physrevlett.119.180509">https://doi.org/10.1103/physrevlett.119.180509</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./cap20.html" class="pagination-link" aria-label="Weight-conserving quantum neural networks (WeightQNN)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Weight-conserving quantum neural networks (WeightQNN)</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cap22.html" class="pagination-link" aria-label="Echo calibration and the noise bias (pull effect)">
+        <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Echo calibration and the noise bias (pull effect)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
