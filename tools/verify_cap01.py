@@ -275,12 +275,219 @@ def part_hardware():
           f"razón {ratio:.3f}, P(χ²_{dof} ≤ {dof * ratio ** 2:.2f}) = {p_low:.4f}")
 
 
+def part_criteria():
+    print("\n6. Criterios de teoría qang (book/REVISION.md) sobre los datos de §168")
+    with open(os.path.join(ROOT, "examples", "data", "iqm_milliqang_qg_analysis.json"), encoding="utf-8") as fh:
+        r = json.load(fh)
+    e0, e1, shots = r["e0"], r["e1"], 4000
+    c = 1 - e0 - e1
+    # criterion 1: the affine readout m_pred = (1 - e0 - e1) m + 1000 (e1 - e0)
+    err = max(abs(c * row["target"] + 1000 * (e1 - e0) - row["predicted"]) for row in r["M1"])
+    check("lectura afín m_pred = (1 − e0 − e1) m + 1000 (e1 − e0) en los 5 puntos", err < 1e-6, f"error máx {err:.1e} m-qg")
+
+    # criterion 3: shot errors in m-qg are binomial, divided by the contrast when the reading is readout-corrected
+    def sigma_corrected(m_corr):
+        raw = c * m_corr + 1000 * (e1 - e0)
+        p = (1000 + raw) / 2000
+        return 2000 * math.sqrt(p * (1 - p) / shots) / c
+    err = max(abs(sigma_corrected(-1000 + v["s"] if int(k) % 2 else 1000 - v["s"]) - v["sigma"])
+              for k, v in r["chains"].items())
+    check("σ de las cadenas = binomial de 4000 disparos / contraste", err < 1e-6, f"error máx {err:.1e} m-qg")
+    s_eq = 1000 / math.sqrt(shots)
+    check("M2: σ binomial de una copia del ecuador = 15,8 m-qg; la dispersión medida 7,9", round(s_eq, 1) == 15.8
+          and round(float(np.std(r["equator_m"], ddof=1)), 1) == 7.9,
+          f"{s_eq:.2f} y {np.std(r['equator_m'], ddof=1):.2f} m-qg")
+    eq = next(row for row in r["M1"] if row["target"] == 0.0)
+    s_cal = 1000 * math.hypot(math.sqrt(e0 * (1 - e0) / shots), math.sqrt(e1 * (1 - e1) / shots))
+    s_tot = math.hypot(s_eq / math.sqrt(len(r["equator_m"])), s_cal)
+    check("σ del ecuador en M1 = media de 10 copias ⊕ calibración de los polos", abs(s_tot - eq["sigma"]) < 0.01,
+          f"{s_tot:.3f} frente a {eq['sigma']:.3f} m-qg")
+
+    # criteria 2 and 6: the 16-55 m-qg residuals as angles, and their sign
+    angles = []
+    for row in r["M1"]:
+        if row["target"] in (0.0,):
+            continue
+        th_t = math.acos(row["target"] / 1000)
+        th_m = math.acos((row["measured"] - 1000 * (e1 - e0)) / c / 1000)
+        angles.append(math.degrees(th_m - th_t))
+    check("los cuatro ángulos intermedios están sobre-rotados (θ medido > θ pedido)", all(a > 0 for a in angles),
+          f"Δθ = {', '.join(f'{a:+.2f}°' for a in angles)}")
+
+
+def part_theory():
+    print("\n7. Teoría (revisión reiniciada): identidades simbólicas, estados mixtos, sumas binomiales exactas, ruido")
+    import sympy as sp
+    from scipy.stats import binom, norm
+
+    # T9: every identity of the chapter, symbolically
+    t, p, q = sp.symbols("theta p q", positive=True)
+    p0 = sp.cos(t / 2) ** 2
+    ids = {
+        "qg_Z = 2 p0 − 1 = cos θ": sp.simplify(2 * p0 - 1 - sp.cos(t)),
+        "θ = 2 arccos √p0 en [0, π]": sp.simplify(2 * sp.acos(sp.sqrt(p0)) - t).subs(t, sp.Rational(7, 5)),
+        "p0 = (1000 + m)/2000 con m = 1000 cos θ": sp.simplify((1000 + 1000 * sp.cos(t)) / 2000 - p0),
+        "dm/dθ = −1000 sin θ": sp.simplify(sp.diff(1000 * sp.cos(t), t) + 1000 * sp.sin(t)),
+        "dE/dq = −(1/sin θ) dE/dθ": sp.simplify(sp.diff(sp.acos(q), q) + 1 / sp.sqrt(1 - q ** 2)),
+        "d qg_S/d qg_Z = ½ log₂((1 − q)/(1 + q))": sp.simplify(
+            sp.diff(-((1 + q) / 2) * sp.log((1 + q) / 2, 2) - ((1 - q) / 2) * sp.log((1 - q) / 2, 2), q)
+            - sp.log((1 - q) / (1 + q), 2) / 2),
+        "Var(θ̂) = Var(qg_Z) (dθ/dqg_Z)² = 1/N, θ = arccos qg_Z": sp.simplify((1 - q ** 2) * sp.diff(sp.acos(q), q) ** 2 - 1),
+        "Var(φ̂) = 1/N para φ = 2 arcsin √p": sp.simplify(p * (1 - p) * sp.diff(2 * sp.asin(sp.sqrt(p)), p) ** 2 - 1),
+        "d(p, polo) = arccos √p0 = θ/2": sp.simplify(sp.acos(sp.sqrt(p0)) - t / 2).subs(t, sp.Rational(9, 7)),
+    }
+    for name, expr in ids.items():
+        check(f"sympy: {name}", abs(float(sp.N(expr))) < 1e-12 if expr.free_symbols == set() else expr == 0, str(expr))
+
+    # T4: qang angle arccos(qg_Z) vs Bloch polar angle arccos(qg_Z / r) for a mixed qubit (§45)
+    import qutip as qt
+    from qiskit.quantum_info import DensityMatrix
+    n, reps, rng = 10_000, 4000, np.random.default_rng(7)
+    for th, r, book in ((math.pi / 2, 0.8, 1.56), (math.pi / 8, 0.8, 4.84)):
+        rho = 0.5 * (qt.qeye(2) + r * (math.sin(th) * qt.sigmax() + math.cos(th) * qt.sigmaz()))
+        pz = float(np.real(rho.full()[0, 0]))
+        dm = DensityMatrix(rho.full())
+        dm.seed(int(rng.integers(1 << 31)))
+        k0 = np.array([dm.sample_counts(n).get("0", 0) for _ in range(reps // 10)] +
+                      list(rng.binomial(n, pz, reps - reps // 10)))
+        qz = 2 * k0 / n - 1
+        v_qang = n * np.var(np.arccos(np.clip(qz, -1, 1)), ddof=1)
+        v_bloch = n * np.var(np.arccos(np.clip(qz / r, -1, 1)), ddof=1)
+        formula = 1 + (1 - r ** 2) / (r ** 2 * math.sin(th) ** 2)
+        check(f"Qiskit/QuTiP r = {r}, θ = {th / math.pi:.3g}π: N·Var(arccos qg_Z) = 1 (ángulo qang, cualquier estado)",
+              abs(v_qang - 1) < 0.1, f"{v_qang:.3f}")
+        check(f"  ídem: N·Var(arccos(qg_Z/r)) = {book} (ángulo de Bloch, §45)", abs(v_bloch - formula) / formula < 0.08,
+              f"{v_bloch:.3f}, fórmula {formula:.3f}")
+
+    # §125 S1, S2: exact binomial sums on p ∈ {0.1, …, 0.9}, Anscombe angle, interval θ ± z/√(n + 1/2)
+    z = norm.ppf(0.975)
+    grid = np.round(np.arange(0.1, 0.95, 0.1), 2)
+
+    def ang(k, nn):
+        return 2 * np.arccos(np.sqrt((k + 3 / 8) / (nn + 3 / 4)))
+
+    s1 = []
+    for pp in grid:
+        k = np.arange(101)
+        w = binom.pmf(k, 100, pp)
+        a = ang(k, 100)
+        s1.append(100.5 * (w @ a ** 2 - (w @ a) ** 2))
+    check("§125 S1 exacto: (n + ½) Var(θ̂) con n = 100 entre 1,000 y 1,001", 0.9995 <= min(s1) and max(s1) < 1.0015,
+          f"{min(s1):.4f}–{max(s1):.4f}")
+    cov = []
+    for nn in (30, 100, 1000):
+        k = np.arange(nn + 1)
+        a = ang(k, nn)
+        for pp in grid:
+            th = 2 * math.acos(math.sqrt(pp))
+            cov.append(binom.pmf(k, nn, pp)[np.abs(a - th) <= z / math.sqrt(nn + 0.5)].sum())
+    check("§125 S2 exacto: cobertura de θ̂ ± z/√(n + ½) entre 0,930 y 0,962", round(min(cov), 3) >= 0.930
+          and round(max(cov), 3) <= 0.962, f"{min(cov):.3f}–{max(cov):.3f}")
+
+    # §51: Wilson interval for qg_Z mapped through H, exact binomial coverage
+    def wilson(k, nn):
+        ph = k / nn
+        c = (ph + z * z / (2 * nn)) / (1 + z * z / nn)
+        h = z * np.sqrt(ph * (1 - ph) / nn + z * z / (4 * nn * nn)) / (1 + z * z / nn)
+        return c - h, c + h
+
+    def hv(x):
+        x = np.clip(x, 1e-300, 1 - 1e-16)
+        return -x * np.log2(x) - (1 - x) * np.log2(1 - x)
+
+    covs = []
+    for qz in (0.0, 0.3, 0.9, 0.99):
+        pp = (1 + qz) / 2
+        hs = H(pp)
+        for nn in (20, 100, 1000):
+            k = np.arange(nn + 1)
+            lo, hi = wilson(k, nn)
+            h_lo = np.minimum(hv(lo), hv(hi))
+            h_hi = np.where((lo <= 0.5) & (hi >= 0.5), 1.0, np.maximum(hv(lo), hv(hi)))
+            covs.append(binom.pmf(k, nn, pp)[(h_lo <= hs + 1e-12) & (hs <= h_hi + 1e-12)].sum())
+    check("§51 exacto: cobertura de Wilson mapeado a qg_S en 0,90–0,99 (12 casos)", round(min(covs), 2) >= 0.90
+          and round(max(covs), 2) <= 0.99, f"{min(covs):.3f}–{max(covs):.3f}")
+
+    # pulse budget: ε_m ∝ θ² cos θ, not θ² — zero at odd multiples of π/2, sign alternating at multiples of π
+    from qang import probability as pb
+    e = [pb.pulse_error_milliqang(k * math.pi, 0.05) for k in (1, 2, 3)]
+    check("ε_m(kπ) ≈ k² ε_m(π) en módulo, con signo alterno (hacia el ecuador)", abs(abs(e[1] / e[0]) - 4) < 0.2
+          and abs(abs(e[2] / e[0]) - 9) < 1 and e[0] > 0 > e[1], f"{e[0]:+.2f}, {e[1]:+.2f}, {e[2]:+.2f} m-qg")
+    check("ε_m(3π/2) = 0 aunque θ² sea 2,25 veces mayor que en π", abs(pb.pulse_error_milliqang(1.5 * math.pi, 0.05)) < 1e-9)
+
+    # §168 reasoning: T1 relaxation per gate gives a deficit affine in k, a coherent over-rotation one ∝ k²
+    # (Cirq, QuTiP); fitted as a + b k + c k², the share of the k² term at k = 41 tells them apart
+    import cirq
+    ks = np.arange(3, 42, 2)
+    qb = cirq.LineQubit(0)
+    sim = cirq.DensityMatrixSimulator(dtype=np.complex128)
+    lin = []
+    for k in ks:
+        c = cirq.Circuit([cirq.X(qb), cirq.amplitude_damp(0.0016)(qb)] * int(k))
+        lin.append(1000 + 1000 * float(np.real(np.trace(sim.simulate(c).final_density_matrix @ np.diag([1, -1])))))
+    coh = []
+    for k in ks:
+        psi = (-1j * k * math.pi * 1.003 / 2 * qt.sigmax()).expm() * qt.basis(2, 0)
+        coh.append(1000 + 1000 * float(qt.expect(qt.sigmaz(), psi)))
+
+    def quad_share(y):
+        c2, c1, _ = np.polyfit(ks, y, 2)
+        return abs(c2) * 41 ** 2 / (abs(c2) * 41 ** 2 + abs(c1) * 41)
+
+    s_lin, s_coh = quad_share(lin), quad_share(coh)
+    check("Cirq: amortiguamiento por compuerta → faltante afín en k (término k² < 5 % a k = 41)", s_lin < 0.05,
+          f"{s_lin:.3f}; {lin[-1]:.1f} m-qg a k = 41")
+    check("QuTiP: sobre-rotación coherente → faltante cuadrático en k (término k² > 95 %)", s_coh > 0.95,
+          f"{s_coh:.3f}; {coh[-1]:.1f} m-qg a k = 41")
+
+    # the same test on the §168 chains: a pure k² model is rejected, a single slope is not
+    from scipy.stats import chi2
+    with open(os.path.join(ROOT, "examples", "data", "iqm_milliqang_qg_analysis.json"), encoding="utf-8") as fh:
+        chains = json.load(fh)["chains"]
+    kk = np.array([int(x) for x in chains], dtype=float)
+    ss = np.array([v["s"] for v in chains.values()])
+    ww = 1 / np.array([v["sigma"] for v in chains.values()]) ** 2
+
+    def chi2_of(x):
+        b = (ww * x * ss).sum() / (ww * x * x).sum()
+        return float((ww * (ss - b * x) ** 2).sum())
+
+    c_lin, c_quad = chi2_of(kk), chi2_of(kk ** 2)
+    dof = len(kk) - 1
+    check("§168: el modelo c·k² queda rechazado (p < 0,001) y el lineal b·k no", chi2.sf(c_quad, dof) < 1e-3 < chi2.sf(c_lin, dof),
+          f"χ²/gl {c_quad / dof:.2f} (p = {chi2.sf(c_quad, dof):.1e}) frente a {c_lin / dof:.2f}")
+
+    # Bell: the 0.5 is the Shannon entropy of the joint outcomes; the von Neumann entropy of the register is 0
+    from qiskit import QuantumCircuit
+    from qiskit.quantum_info import Statevector, entropy, partial_trace
+    qc = QuantumCircuit(2)
+    qc.h(0)
+    qc.cx(0, 1)
+    bell = Statevector(qc)
+    pr = bell.probabilities()
+    sh = -sum(x * math.log2(x) for x in pr if x > 0) / 2
+    check("Qiskit Bell: Shannon conjunta normalizada 0,5; von Neumann conjunta 0; local 1",
+          abs(sh - 0.5) < 1e-12 and abs(entropy(bell)) < 1e-12 and abs(entropy(partial_trace(bell, [1])) - 1) < 1e-12,
+          f"{sh:.3f}, {entropy(bell):.1e}, {entropy(partial_trace(bell, [1])):.3f}")
+
+    # §65: (qg_Z, sign qg_X) is one-to-one on the whole xz circle (Cirq)
+    errs = []
+    for th in np.linspace(-math.pi + 0.01, math.pi, 37):
+        psi = cirq.Simulator(dtype=np.complex128).simulate(cirq.Circuit(cirq.ry(th)(qb))).final_state_vector
+        zz = float(np.real(cirq.Z(qb).expectation_from_state_vector(psi, {qb: 0})))
+        xx = float(np.real(cirq.X(qb).expectation_from_state_vector(psi, {qb: 0})))
+        errs.append(abs(math.copysign(math.acos(max(-1, min(1, zz))), xx if abs(xx) > 1e-12 else 1) - th))
+    check("Cirq: θ = sign(qg_X)·arccos(qg_Z) recupera θ en (−π, π]", max(errs) < 1e-6, f"error máx {max(errs):.1e}")
+
+
 def main():
     part_equation()
     part_shots()
     part_analyze()
     part_other()
     part_hardware()
+    part_criteria()
+    part_theory()
     n_ok = sum(RESULTS)
     print(f"\n{n_ok} de {len(RESULTS)} afirmaciones PASAN")
     return 0 if n_ok == len(RESULTS) else 1

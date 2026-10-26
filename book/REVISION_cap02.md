@@ -84,3 +84,45 @@ idiomas (commit 423a9172) y dejar 3 como está:
 6. **Signos y polos.** +1000 m-qg es \|0⟩ (I y Z no mueven poblaciones), −1000 es \|1⟩ (X las intercambia). El
    corrimiento de pulso es siempre hacia el ecuador: +12,3 para la X (lectura negativa) y −31,7 para R_X(324°)
    (lectura positiva); el texto da los dos signos bien, aunque no dice explícitamente "hacia el ecuador". **Cumple.**
+
+### Revisión de teoría (reiniciada, 2026-10-26)
+
+Con el protocolo T1–T9 de `book/REVISION.md`. Sección "Teoría" de `tools/verify_cap02.py` (sympy, Qiskit,
+PennyLane, QuTiP). Resultado del script completo: **34/34 PASA** (las 28 anteriores y 6 nuevas).
+
+| afirmación | herramienta | resultado |
+|---|---|---|
+| p₀ de salida de $U_3^{qg}$ sobre un ρ cualquiera | sympy, identidad polinómica exacta | $p_0'=T(q)\,p-\sqrt{1-q^2}\,\operatorname{Re}(e^{-i\lambda}\rho_{01})$ |
+| contraejemplo: H sobre $\vert+\rangle$ | Qiskit, PennyLane | p₀ = 1; $T(0)$ sobre (½, ½) da 0,5 |
+| entrada diagonal: $p'=T(q)\,p$ | Qiskit `DensityMatrix`, 200 casos | exacto (2·10⁻¹⁶) |
+| signo del error fijo de amplitud | qang y derivada | $-1000\,\varepsilon\,\theta\sin\theta$: ε > 0 baja la lectura en (0, π) |
+| dónde pesa más el error fijo relativo | scipy | máximo de $\theta\sin\theta$ en 116,2°, no en 90° |
+| error de $R_X$ tal cual por encima de 180° | QuTiP | +14,2 (200°), 0 (270°), −31,7 (324°), −48,2 (360°) m-qg: no monótono |
+
+**Criterios.** T1, T3 (cálculo), T5 y T9 cumplen. Hallazgos en T6, T7 y T8; T3 conserva la pregunta 3 ya decidida.
+
+**Hallazgos (pendientes de decisión del autor; no se tocó el texto).**
+
+1. **T7 — la matriz de transición no fija la acción sobre las poblaciones de cualquier estado** (ES 57–58 y 69–71,
+   EN 57 y 67; resumen ES 232–234; tabla ES 203). $T(q)$ es exacta sólo si la entrada no tiene coherencias en la base
+   computacional (una entrada clásica, $\vert0\rangle$ o $\vert1\rangle$ o una mezcla de ellos). En general
+   $p_0'=T(q)\,p-\sqrt{1-q^2}\,\operatorname{Re}(e^{-i\lambda}\rho_{01})$: la fase λ de la compuerta y la coherencia
+   del estado sí cambian las poblaciones. Contraejemplo: la Hadamard ($q=0$) sobre $\vert+\rangle$ da $\vert0\rangle$
+   (p₀ = 1), mientras $T(0)$ predice 0,5. El texto dice que las fases "solo se revelan al componer compuertas", que
+   es la misma cosa vista desde el circuito, pero la frase "la acción de cualquier compuerta ... queda fijada por un
+   solo número" es falsa sin la condición. Propuesta: "sobre una entrada sin coherencias (|0⟩, |1⟩ o una mezcla
+   clásica), la acción ... queda fijada por un solo número". La capacidad $C=1-qg_S$ sí es correcta tal como está,
+   porque se define con entradas clásicas.
+2. **T8 — fila "a favor para poblaciones"** (tabla ES 203, EN 198). Con el hallazgo 1, el "a favor" no sólo da como
+   ventaja algo que cualquier kit da ($\vert U_{00}\vert^2$, matiz de la primera revisión), sino que vale sólo para
+   entradas clásicas. Propuesta: "conveniencia, para entradas sin coherencias".
+3. **T6 — signo del error fijo** (ES 138–139, EN 135–136). El texto da $1000\,\varepsilon\,\theta\sin\theta$; el
+   desarrollo de $\cos(\theta(1+\varepsilon))$ da $-1000\,\varepsilon\,\theta\sin\theta$ (una sobre-rotación baja la
+   lectura en (0, π)). La primera revisión lo registró como "coincide en módulo"; con T6 es un signo a corregir.
+   Además, "la sensibilidad ... es máxima en π/2" es cierto para un error absoluto de ángulo, pero el error fijo es
+   relativo (ε·θ) y pesa más en 116°. Propuesta: "−1000 ε θ sin θ m-qg, máximo cerca de 116°".
+4. **T6 — pie de la @fig-area** (ES 148, EN 145): "el error que crece con el cuadrado del ángulo". Mismo hallazgo 2
+   del capítulo 1: el corrimiento es $\propto\theta^2\cos\theta$, cero en 270° y de signo alterno; lo que crece con
+   θ² es la dispersión. Propuesta: "el error que, en los múltiplos de π, crece con el cuadrado del ángulo".
+5. **T3 — pregunta 3 de la primera revisión** (X frente a la resolución del ecuador): el autor decidió dejarla. Se
+   anota que bajo T3 la resolución a comparar es la del punto de la lectura (1,6 m-qg en −987,7), no la del ecuador.

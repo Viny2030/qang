@@ -258,5 +258,67 @@ sm = probability.shot_noise_milliqang(math.acos(1 / 3), 20_000)
 check("σ_m = 1000 sin θ/√N = 6,7 m-qg con 20 000 disparos; 316 m-qg queda a 2,6σ",
       round(sm, 1) == 6.7 and round((1000 / 3 - 316) / sm, 1) == 2.6, f"σ_m = {sm:.3f}, z = {(1000/3-316)/sm:.2f}")
 
+# ---------------------------------------------------------------- theory (review restarted 2026-10-26, book/REVISION.md)
+
+print("\nTeoría: la matriz de transición, el signo del error fijo y la forma del presupuesto de pulso")
+import sympy as sp  # noqa: E402
+from qiskit import QuantumCircuit  # noqa: E402
+from qiskit.quantum_info import DensityMatrix, Operator, Statevector  # noqa: E402
+
+# populations after U3_qg on an arbitrary input ρ: T(q) p plus a coherence term that T does not see
+# (s, c) = (√((1+q)/2), √((1−q)/2)), so s² = (1+q)/2, c² = (1−q)/2 and 2sc = √(1−q²): a polynomial identity
+s_, c_, ph, la = sp.symbols("s c phi lambda", positive=True)
+a, cr, ci = sp.symbols("a c_r c_i", real=True)
+U = sp.Matrix([[s_, -sp.exp(sp.I * la) * c_], [sp.exp(sp.I * ph) * c_, sp.exp(sp.I * (ph + la)) * s_]])
+rho_s = sp.Matrix([[a, cr + sp.I * ci], [cr - sp.I * ci, 1 - a]])
+p0_out = sp.expand(sp.expand_complex((U * rho_s * U.H)[0, 0]))
+coh = sp.expand(p0_out - (s_ ** 2 * a + c_ ** 2 * (1 - a)))
+expected = sp.expand(-2 * s_ * c_ * (cr * sp.cos(la) + ci * sp.sin(la)))
+check("sympy: p₀ de salida = T(q)·p + término de coherencia −√(1−q²) Re(e^{−iλ}ρ₀₁)",
+      sp.simplify(coh - expected) == 0, f"término = {expected}, con 2sc = √(1−q²)")
+
+# the counterexample: H on |+> gives p0 = 1, T(0) on (1/2, 1/2) gives 1/2 (Qiskit and PennyLane)
+qc = QuantumCircuit(1)
+qc.h(0)
+qc.h(0)
+p_qiskit = float(Statevector(qc).probabilities()[0])
+dev = qml.device("default.qubit", wires=1)
+
+
+@qml.qnode(dev)
+def h_on_plus():
+    qml.Hadamard(0)
+    qml.Hadamard(0)
+    return qml.probs(wires=0)
+
+
+p_pl = float(h_on_plus()[0])
+p_T = float(algebra.transition_matrix(0.0)[0] @ np.array([0.5, 0.5]))
+check("Qiskit, PennyLane: H sobre |+⟩ da p₀ = 1; T(0) sobre las mismas poblaciones da 0,5 (T no basta)",
+      abs(p_qiskit - 1) < 1e-12 and abs(p_pl - 1) < 1e-12 and abs(p_T - 0.5) < 1e-12,
+      f"{p_qiskit:.3f}, {p_pl:.3f} frente a {p_T:.3f}")
+
+# ... and T is exact for every incoherent input (diagonal ρ), the classical channel of the text
+rng = np.random.default_rng(3)
+err = 0.0
+for _ in range(200):
+    q, f, lm, x = rng.uniform(-1, 1), rng.uniform(0, 2 * math.pi), rng.uniform(0, 2 * math.pi), rng.uniform()
+    out = DensityMatrix(np.diag([x, 1 - x])).evolve(Operator(algebra.u3_qang(q, f, lm))).probabilities()
+    err = max(err, abs(out[0] - algebra.transition_matrix(q)[0] @ np.array([x, 1 - x])))
+check("Qiskit: con entrada diagonal, p de salida = T(q) p exactamente (200 casos)", err < 1e-12, f"error máx {err:.1e}")
+
+# sign of the fixed-amplitude error and where it peaks: −1000 ε θ sin θ, |θ sin θ| maximal at θ ≈ 116°, not 90°
+from scipy.optimize import minimize_scalar  # noqa: E402
+peak = minimize_scalar(lambda t: -t * math.sin(t), bounds=(0.1, 3.0), method="bounded").x
+check("error fijo ε > 0 baja la lectura para θ en (0, π): signo −", num < 0, f"{num:.4f} m-qg a θ = 2, ε = 1e-4")
+check("el error fijo relativo es máximo en θ ≈ 116°, no en 90° (máximo de θ sin θ)", abs(math.degrees(peak) - 116.2) < 0.5,
+      f"{math.degrees(peak):.1f}°")
+
+# caption of fig-area: above 180° the error of the angle as requested is not monotone in θ (QuTiP)
+eps = [1000 * (qgz_rx_qutip(math.radians(d), 0.05) - math.cos(math.radians(d))) for d in (200, 270, 324, 360)]
+check("QuTiP: por encima de 180° el error de R_X tal cual no crece con θ² (cero en 270°)",
+      abs(eps[1]) < 1e-9 and abs(eps[0]) > abs(eps[1]) < abs(eps[2]),
+      ", ".join(f"{d}°: {e:+.1f}" for d, e in zip((200, 270, 324, 360), eps)))
+
 print(f"\n{sum(RESULTS)}/{len(RESULTS)} afirmaciones PASAN")
 sys.exit(0 if all(RESULTS) else 1)
