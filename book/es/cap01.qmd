@@ -99,7 +99,7 @@ consecuencia: sobre la regla del mili-qang, las marcas de probabilidad están eq
 amontonan en los polos. Por eso la unidad se define sobre la probabilidad y no sobre el ángulo: es la escala en la
 que el instrumento entrega los datos.
 
-![La regla del mili-qang. Arriba, la escala en m-qg; al medio, la probabilidad $p_0$, alineada y lineal; abajo, el ángulo qang, cuyas marcas cada $15^\circ$ se comprimen hacia los polos.](figuras/cap01_regla.png){#fig-regla width=100%}
+![La regla del mili-qang. Arriba, la escala en m-qg; al medio, la probabilidad $p_0$, alineada y lineal; abajo, el ángulo qang en grados (marcas cada $15^\circ$) y en qga, la escala angular de la @sec-qga (marcas cada 25 qga); las dos se comprimen hacia los polos.](figuras/cap01_regla.png){#fig-regla width=100%}
 
 ### Resolución por disparos
 
@@ -137,6 +137,19 @@ siempre hacia el ecuador; en general va como $\theta^2\cos\theta$ (@fig-pulso). 
 fórmula para elegir, entre representaciones equivalentes de una misma compuerta, la de menor área de pulso.
 
 ![Presupuesto de error en mili-qang: corrimiento del sesgo polar tras $R_x(\theta)$ para distintos errores relativos de amplitud $\sigma$.](figuras/cap01_pulso.png){#fig-pulso width=90%}
+
+Los capítulos 2 y 3 usan dos derivadas de la lectura respecto del ángulo, que conviene nombrar aquí. El **gradiente
+polar** y la **curvatura** (o *impedancia de pulso*) son
+
+$$
+\nabla_{qg} = \frac{dm}{d\theta} = -1000\,\sin\theta\ \ \text{m-qg/rad},
+\qquad
+\kappa_{qg} = \left|\frac{d^2m}{d\theta^2}\right| = 1000\,\lvert\cos\theta\rvert\ \ \text{m-qg/rad}^2 .
+$$
+
+No son lecturas nuevas: son derivadas de $m=1000\cos\theta$. La curvatura explica el presupuesto anterior, porque a
+segundo orden en el error, $\lvert\varepsilon_m\rvert\approx\tfrac12\,\theta^2\sigma^2\,\kappa_{qg}$: el error aleatorio
+de amplitud corre la lectura en proporción a $\kappa_{qg}$, que vale 1000 en los polos y 0 en el ecuador.
 
 ## La ecuación de probabilidad del qang y del mili-qang {#sec-ecuacion}
 
@@ -190,6 +203,104 @@ qang es, salvo el factor 2, la distancia estadística entre lo que se mide y el 
 resultados, por ejemplo, $p=(0{,}5;\,0{,}3;\,0{,}2)$ y $q=(0{,}4;\,0{,}4;\,0{,}2)$ están a $0{,}113$ rad. Esta es la
 puerta por la que la unidad sale del qubit: la Parte II la usa para la información de Fisher y la métrica de
 Fubini–Study, y la misma geometría vale para cualquier proporción medida, cuántica o no.
+
+## La escala angular: el qang angular (qga) {#sec-qga}
+
+La *Fundamentación geométrica y dimensional del sistema qang* [@monteverde2026fund] propone medir los ángulos en una
+base milesimal: una vuelta completa son 1000 unidades. El libro adopta esa escala, pero con otro nombre, porque en
+todo el libro, en la librería y en los capítulos que siguen, **m-qg designa la lectura** $m=1000\,qg_Z$, que es
+lineal en la probabilidad y no es un ángulo (sección anterior). La escala angular se escribe **qga** (qang angular)
+y su milésima, **m-qga**:
+
+$$
+1\ \text{vuelta} = 2\pi\ \text{rad} = 1000\ \text{qga} = 10^6\ \text{m-qga},
+\qquad
+\theta[\text{rad}] = \frac{2\pi}{1000}\,\theta_{qga},
+\qquad 1\ \text{m-qga}\approx 6{,}283\cdot10^{-6}\ \text{rad}.
+$$
+
+Con el ángulo polar de Bloch en qga, la regla de Born y la lectura quedan
+
+$$
+p_0 = \cos^2\!\frac{\pi\,\theta_{qga}}{1000} = \frac{1+\cos(2\pi\theta_{qga}/1000)}{2},
+\qquad
+m = 1000\cos\frac{2\pi\,\theta_{qga}}{1000}\ \text{m-qg}.
+$$
+
+El polo $\vert0\rangle$ está en 0 qga, el ecuador en 250 qga y el polo $\vert1\rangle$ en 500 qga; la fase
+$\varphi$ recorre $[0,1000)$ qga. Las dos escalas se complementan: el qga es uniforme en el ángulo y el m-qg es
+uniforme en la probabilidad. El estado de la @fig-circulo, por ejemplo, está a $166{,}667$ qga y lee $+500$ m-qg; en
+el ecuador, un m-qg de lectura equivale a un miliradián, es decir, a $0{,}159$ qga ($159$ m-qga).
+
+**La coordenada azimutal.** La fase se lee con dos mediciones transversales,
+$\varphi=\operatorname{atan2}(qg_Y,\,qg_X)$, porque $qg_X=\sin\theta\cos\varphi$ y $qg_Y=\sin\theta\sin\varphi$ y el
+cociente elimina $\sin\theta$. Expresada como fracción de vuelta, $qg_\varphi=(\varphi\bmod 2\pi)/2\pi\in[0,1)$, es
+exactamente el ángulo azimutal en qga dividido por 1000. No está definida en los polos, donde $qg_X=qg_Y=0$.
+
+**Geometría.** La métrica de Fubini–Study de un qubit y la información de Fisher de la medición en $Z$ tienen, en
+qga, un factor constante:
+
+$$
+ds^2 = \tfrac14\left(d\theta^2+\sin^2\theta\,d\varphi^2\right)
+     = \frac{\pi^2}{10^6}\left(d\theta_{qga}^2+\sin^2\theta\,d\varphi_{qga}^2\right),
+\qquad
+I_F(\theta) = 1\ \text{rad}^{-2} = 4\pi^2\cdot10^{-6}\ \text{qga}^{-2}.
+$$
+
+La segunda es la estabilización de la sección del arcoseno dicha en otra unidad: la desviación estándar del ángulo
+qang es $159{,}15/\sqrt N$ qga en todo el círculo ($5{,}03$ qga con 1000 disparos). La curvatura de Berry,
+$F=\tfrac12\sin\theta\,d\theta\wedge d\varphi$, integrada sobre la esfera ($\theta$ abarca 500 qga y $\varphi$, 1000)
+da $2\pi$, es decir, número de Chern 1.
+
+**Correcciones a la Fundamentación.** Tres afirmaciones del documento fuente no se adoptan, porque sus propias
+fórmulas las contradicen:
+
+- Asigna $p_0=0{,}5$ a 125 qga. Con su propia ecuación, $p_0(125\ \text{qga})=\cos^2(\pi/8)=0{,}854$ (+707 m-qg);
+  $p_0=0{,}5$ corresponde a 250 qga.
+- Atribuye curvatura $K=1$ a la métrica $ds^2=\tfrac14\,d\theta^2$. Esa métrica, con su término azimutal, es la de una
+  esfera de radio $1/2$, cuya curvatura gaussiana es $K=4$; $K=1$ es la de la esfera de Bloch de radio 1.
+- Sugiere que una retícula en m-qga evita las mesetas estériles. Cambiar la unidad del parámetro multiplica todas las
+  derivadas por la constante $2\pi/1000$: no cambia la relación entre la varianza del gradiente y su escala ni su
+  decaimiento con el número de qubits. La unidad no tiene efecto sobre las mesetas.
+
+### Propuesta sin verificar: energía y antimateria en qga {#sec-qga-energia}
+
+La Fundamentación extiende la escala a la cinemática relativista. Lo que sigue es una **propuesta sin verificar**: se
+corrigen las identidades, pero la interpretación física no está probada y el resto del libro no la usa.
+
+**Ángulo relativista.** De $E^2=(mc^2)^2+(pc)^2$, al dividir por $E^2$, se obtiene
+$\cos\theta_r=mc^2/E=1/\gamma$ y $\sin\theta_r=pc/E=\beta$. La identidad es exacta, porque
+$1/\gamma^2+\beta^2=1$. Con $\theta_r$ en qga, $E=mc^2/\cos(2\pi\theta_{r,qga}/1000)$: el reposo está en 0 qga y el
+límite ultrarrelativista ($E=pc$), en 250 qga. El ángulo $\theta_r$ se relaciona con la rapidez $\eta$ por
+$\cos\theta_r=1/\cosh\eta$ (la función de Gudermann), sin necesidad de rotación de Wick.
+
+**Antimateria.** La ecuación de Dirac da dos ramas, $E_\pm=\pm\sqrt{(pc)^2+(mc^2)^2}=\pm\,mc^2/\cos\theta_r$. La
+Fundamentación asigna a la rama negativa un desplazamiento de 500 qga, ligado a la simetría CPT. Esa identificación no
+tiene respaldo y no se adopta.
+
+**Probabilidades.** La Fundamentación iguala $P_\text{reposo}=(mc^2/E)^2$ con $p_0(\theta_{qga})$. Hay un factor 2 en
+el ángulo: $(mc^2/E)^2=\cos^2\theta_r$, mientras que $p_0=\cos^2(\theta/2)$, de modo que la igualdad sólo vale si el
+ángulo de Bloch es $2\theta_r$. Si en cambio se toma el ángulo de Bloch igual a $\theta_r$, sí hay un resultado
+conocido detrás de las fórmulas $\cos^2(\pi\,\text{qg}/1000)$ y $\sin^2(\pi\,\text{qg}/1000)$ del documento: en el
+espinor de Dirac libre, la componente grande pesa $(E+mc^2)/2E=\cos^2(\theta_r/2)$ y la pequeña,
+$\sin^2(\theta_r/2)$. Pero esos pesos no son probabilidades de «materia» y «antimateria», como los llama el documento
+fuente: los dos pertenecen a la misma solución de energía positiva.
+
+**Nombres propuestos.** @tbl-nombres-qga recoge los nombres que introduce la Fundamentación y cómo los trata el libro.
+
+| nombre de la Fundamentación | definición | tratamiento en el libro |
+|---|---|---|
+| ángulo relativista $\theta_r$ | $\cos\theta_r=mc^2/E$, $\sin\theta_r=\beta$ | identidad exacta; en qga, propuesta |
+| $E(\text{qg})=mc^2/\cos(2\pi\,\text{qg}/1000)$ | energía total en función de $\theta_r$ | exacta, con $\theta_r$ en qga |
+| $E_\pm$, hojas de materia y antimateria | $\pm\,mc^2/\cos\theta_r$ | ramas de Dirac; el desplazamiento CPT de 500 qga no se adopta |
+| $P_\text{reposo}$, $P_\text{cinético}$ | $(mc^2/E)^2$, $\beta^2$ | suman 1; no son $p_0$, $p_1$ del mismo ángulo (factor 2) |
+| $P_\text{materia}$, $P_\text{antimateria}$ | $\cos^2$, $\sin^2$ del semiángulo | pesos de las componentes grande y pequeña del espinor, no probabilidades de antimateria |
+| Q-Hertz (qHz) | qga por segundo | unidad de frecuencia angular; propuesta |
+| Q-Fisher (qFi) | información de Fisher por qga² | $4\pi^2\cdot10^{-6}$ qga$^{-2}$ para un qubit puro |
+| Q-Shannon (q-sh) | entropía de Shannon del resultado | es $qg_S$; no es la entropía de von Neumann |
+| Q-Fuerza, Q-Conductancia, Q-Momento | gradiente de fase, qga por voltio, $(\pi/500)\hbar$ | nombres propuestos, sin uso en el libro |
+
+: Nombres de la Fundamentación para la energía, la antimateria y las unidades derivadas, y cómo los trata el libro. {#tbl-nombres-qga}
 
 ## Por qué medir en qg: la brecha geometría–probabilidad {#sec-bloch}
 
@@ -332,6 +443,20 @@ error de ángulo que el modelo usual no ve. Pero se probó en un qubit, una vez,
 dispersión de circuitos repetidos. La replicación en más qubits y en otro día queda pendiente, y el libro trata
 esta base como sólida en lo matemático y prometedora, pero todavía no consolidada, en lo experimental.
 
+**Propuestas abiertas.** La versión de trabajo del autor añade a esta base tres propuestas, que el libro registra como
+**sin verificar**:
+
+- Una energía variacional regularizada,
+  $E_\text{total}=\langle H\rangle+\lambda_\theta L_\text{qang}(\theta)+\lambda_\varphi L_\text{qang}(\varphi)$. Aquí la
+  energía es el valor esperado de un hamiltoniano, no la energía relativista de la sección anterior. La forma de las
+  penalizaciones $L_\text{qang}$ y el valor de los pesos $\lambda$ no están definidos.
+- Una función de radiación normalizada,
+  $R(\theta,\varphi)=N\,[\,p_1+\alpha\cos\varphi\,]$, con la población excitada $p_1=\sin^2(\theta/2)$ como potencia
+  emisora. No se fijan $N$ ni $\alpha$, ni se contrasta con un modelo de emisión.
+- Mecanismos contra las mesetas estériles (costos locales en m-qg, compilación de mínima curvatura $\kappa_{qg}$,
+  inicialización con el signo de rama). Los costos locales son un resultado conocido de la literatura
+  [@cerezo2021], no de la escala; los demás no se han probado.
+
 ## Sin qang y con qang {#sec-comparacion01}
 
 | acción | sin qang | con qang | diferencia |
@@ -339,6 +464,7 @@ esta base como sólida en lo matemático y prometedora, pero todavía no consoli
 | describir el resultado de un qubit | la probabilidad $p_0$ (o $\langle Z\rangle$) | $qg_Z$, el ángulo $\theta$, $m$ y $qg_S$, todos funciones exactas de $p_0$ | **ninguna en contenido**: es la misma información; qang le da una escala de trabajo de $-1000$ a $+1000$ |
 | barra de error de una lectura | $\sqrt{p_0(1-p_0)/N}$, distinta en cada estado | el ángulo tiene varianza $1/N$ para todo estado; en m-qg, $1000\sin\theta/\sqrt N$ | **conveniencia**: la coordenada estabilizada de la estadística clásica (el arcoseno) coincide con el parámetro de la compuerta |
 | comparar un error de compuerta con el ruido de disparo | infidelidad por un lado, desvío binomial por otro, en unidades distintas | los dos en m-qg (en Garnet, 1,64 m-qg por compuerta $X$ frente al ruido de disparo de la corrida) | **a favor**: una sola escala para el presupuesto de errores |
+| expresar un ángulo de compuerta o de fase | radianes, con factores $\pi$ | qga: 1000 por vuelta ($X$ = 500 qga, ecuador = 250 qga) | **conveniencia**: la misma información sin factores $\pi$; no cambia gradientes ni mesetas |
 | mejorar el dispositivo | — | — | **ninguna**: la escala mide, no corrige; la predicción M2 de §168 falló |
 
 : Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion01}
@@ -383,6 +509,9 @@ Las figuras de este capítulo se generan con `tools/make_cap01_figures.py`, que 
   $(1000\sin\theta/\delta)^2$ disparos, y los errores de compuerta se presupuestan en las mismas unidades.
 - **Ecuación de probabilidad.** $\theta$, $qg_Z$, $qg_S$ y $m$ son funciones exactas de una sola probabilidad
   $p_0$; con varios resultados, el ángulo qang se generaliza a la distancia estadística de Wootters.
+- **Escala angular.** El qang angular mide ángulos con 1000 qga por vuelta y es distinto del m-qg, que es una
+  lectura: $p_0=\cos^2(\pi\theta_{qga}/1000)$ y $I_F=4\pi^2\cdot10^{-6}$ qga$^{-2}$. La extensión a la energía
+  relativista y a la antimateria queda como propuesta sin verificar, con tres errores del documento fuente corregidos.
 - **Estadística.** El ángulo qang es la transformación arcoseno de una proporción: su varianza es $1/N$ para todo
   estado, puro o mixto; lo que se corrige en un estado mixto es la estimación del ángulo de Bloch.
 - **Alcance.** La unidad no es física nueva sino una escala de trabajo. En hardware real (§168) midió un costo de
@@ -397,4 +526,6 @@ información de Fisher están en @braunstein1994; la cota de Cramér–Rao, en @
 arcoseno que estabiliza la varianza binomial viene de @bartlett1947, @anscombe1948 y @freeman1950, y el intervalo de
 puntaje es el de @wilson1927. La entropía binaria detrás de $qg_S$ es la de @shannon1948. Las notas de investigación
 numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de
-la unidad qang, en @monteverde2026.
+la unidad qang, en @monteverde2026. La escala angular qga y la propuesta relativista vienen del documento de trabajo
+@monteverde2026fund; el espinor de Dirac libre y sus componentes están en cualquier texto de mecánica cuántica
+relativista.

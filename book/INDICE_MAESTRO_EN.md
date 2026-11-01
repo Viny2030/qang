@@ -25,15 +25,16 @@ devices until a real run exists (Part X).
 
 ### Chapter 1. The qang unit: definition, milli-qang and the probability equation ✅ written
 1.1 Definition of the qang: Born's rule p₀ = cos²(θ/2), polar bias qg_Z = ⟨σ_z⟩ = 2p₀ − 1 = cos θ, qang angle and qg_S; the qang as an engineering unit (decibel analogy) — §7; figure: the qang circle with an m-qg scale
-1.2 Theory of the milli-qang: definition and scale (−1000 to +1000 m-qg); linear in probability (1 m-qg = Δp₀ = 0.0005), not linear in angle (1 mrad on the equator, 2.56° next to the pole); resolution from shots σ_m = 1000 sin θ/√N and N = (1000 sin θ/δ)²; gate error budget in m-qg — §160, §167; figures: milli-qang ruler, resolution from shots, pulse budget
+1.2 Theory of the milli-qang: definition and scale (−1000 to +1000 m-qg); linear in probability (1 m-qg = Δp₀ = 0.0005), not linear in angle (1 mrad on the equator, 2.56° next to the pole); resolution from shots σ_m = 1000 sin θ/√N and N = (1000 sin θ/δ)²; gate error budget in m-qg; polar gradient ∇_qg = dm/dθ and curvature κ_qg = |d²m/dθ²| — §160, §167; figures: milli-qang ruler, resolution from shots, pulse budget
 1.3 The probability equation of the qang and the milli-qang: θ, qg_Z, qg_S and m as exact functions of p₀; anchor table; generalization to several outcomes through Wootters' statistical distance (Bhattacharyya angle) — §167; figure: the readings of one probability
+1.3b 🆕 The angular qga scale of the geometric Foundation (1000 qga per turn, distinct from m-qg, which is a reading): Born rule in qga, azimuthal coordinate qg_φ, Fubini–Study metric and Fisher information in qga, Berry curvature; three errors of the source document corrected; unverified proposal on relativistic energy and antimatter with its table of names — `tools/verify_cap01.py`
 1.4 Why measure in qg: the geometry–probability gap (gradient singularity and state-dependent variance) — §1, §5
 1.5 Inversion θ = arccos(qg_Z) and the branch sign — §65
 1.6 The outcome entropy qg_S, its invertibility by halves and its error bars — §2, §7, §51
 1.7 The qang angle as the arcsine transformation of a proportion (Bartlett, Anscombe, Freeman–Tukey) — §125
 1.8 Mixed states and multi-qubit registers — §3, §4, §45
 1.9 In code: `qang.probability` as the analysis tool (`analyze`) — §167
-1.10 Scope and limits of the base: not new physics but a working scale; first hardware test (§168, IQM Garnet): 1.64 m-qg per X gate, angle errors of 16–55 m-qg, M2 failed; hardware figure — §168
+1.10 Scope and limits of the base: not new physics but a working scale; first hardware test (§168, IQM Garnet): 1.64 m-qg per X gate, angle errors of 16–55 m-qg, M2 failed; hardware figure; open unverified proposals (regularized energy, radiation function, barren plateaus) — §168
 
 ### Chapter 2. Native gates, closed algebra and the universal operator
 2.1 The elementary gate RQangGate(qg_Z) and its native decomposition into Ry(θ) — §6

@@ -97,7 +97,7 @@ One m-qg from the pole is $0.0447$ rad ($2.56^\circ$); ten m-qg, $8.1^\circ$. @f
 the milli-qang ruler the probability marks are evenly spaced and the angle marks crowd at the poles. That is why the
 unit is defined on probability and not on angle: it is the scale in which the instrument delivers the data.
 
-![The milli-qang ruler. Top, the scale in m-qg; middle, the probability $p_0$, aligned and linear; bottom, the qang angle, whose marks every $15^\circ$ are compressed towards the poles.](figures/cap01_regla.png){#fig-ruler width=100%}
+![The milli-qang ruler. Top, the scale in m-qg; middle, the probability $p_0$, aligned and linear; bottom, the qang angle in degrees (marks every $15^\circ$) and in qga, the angular scale of @sec-qga (marks every 25 qga); both are compressed towards the poles.](figures/cap01_regla.png){#fig-ruler width=100%}
 
 ### Resolution from shots
 
@@ -136,6 +136,19 @@ $\pi/2$ rotation does not shift at all, because it already sits on the equator. 
 choose, among equivalent representations of the same gate, the one with the smallest pulse area.
 
 ![Error budget in milli-qang: shift of the polar bias after $R_x(\theta)$ for several relative amplitude errors $\sigma$.](figures/cap01_pulso.png){#fig-pulse width=90%}
+
+Chapters 2 and 3 use two derivatives of the reading with respect to the angle, which are worth naming here. The
+**polar gradient** and the **curvature** (or *pulse impedance*) are
+
+$$
+\nabla_{qg} = \frac{dm}{d\theta} = -1000\,\sin\theta\ \ \text{m-qg/rad},
+\qquad
+\kappa_{qg} = \left|\frac{d^2m}{d\theta^2}\right| = 1000\,\lvert\cos\theta\rvert\ \ \text{m-qg/rad}^2 .
+$$
+
+They are not new readings: they are derivatives of $m=1000\cos\theta$. The curvature explains the budget above: to
+second order in the error, $\lvert\varepsilon_m\rvert\approx\tfrac12\,\theta^2\sigma^2\,\kappa_{qg}$, so a random
+amplitude error shifts the reading in proportion to $\kappa_{qg}$, which is 1000 at the poles and 0 at the equator.
 
 ## The probability equation of the qang and the milli-qang {#sec-equation}
 
@@ -189,6 +202,103 @@ factor 2, the qang angle is the statistical distance between what is measured an
 outcomes, for example, $p=(0.5, 0.3, 0.2)$ and $q=(0.4, 0.4, 0.2)$ are $0.113$ rad apart. This is the door through
 which the unit leaves the qubit: Part II uses it for the Fisher information and the Fubini–Study metric, and the same
 geometry holds for any measured proportion, quantum or not.
+
+## The angular scale: the angular qang (qga) {#sec-qga}
+
+The *Geometric and Dimensional Foundation of the Qang System* [@monteverde2026fund] proposes measuring angles on a
+thousand-based scale: one full turn is 1000 units. The book adopts that scale under another name, because throughout
+the book, the library and the chapters that follow, **m-qg names the reading** $m=1000\,qg_Z$, which is linear in the
+probability and is not an angle (previous section). The angular scale is written **qga** (angular qang) and its
+thousandth **m-qga**:
+
+$$
+1\ \text{turn} = 2\pi\ \text{rad} = 1000\ \text{qga} = 10^6\ \text{m-qga},
+\qquad
+\theta[\text{rad}] = \frac{2\pi}{1000}\,\theta_{qga},
+\qquad 1\ \text{m-qga}\approx 6.283\cdot10^{-6}\ \text{rad}.
+$$
+
+With the Bloch polar angle in qga, the Born rule and the reading become
+
+$$
+p_0 = \cos^2\!\frac{\pi\,\theta_{qga}}{1000} = \frac{1+\cos(2\pi\theta_{qga}/1000)}{2},
+\qquad
+m = 1000\cos\frac{2\pi\,\theta_{qga}}{1000}\ \text{m-qg}.
+$$
+
+The pole $\vert0\rangle$ is at 0 qga, the equator at 250 qga and the pole $\vert1\rangle$ at 500 qga; the phase
+$\varphi$ runs over $[0,1000)$ qga. The two scales complement each other: qga is uniform in the angle and m-qg is
+uniform in the probability. The state of @fig-circle, for instance, sits at $166.667$ qga and reads $+500$ m-qg; at
+the equator, one m-qg of reading equals one milliradian, that is, $0.159$ qga ($159$ m-qga).
+
+**The azimuthal coordinate.** The phase is read from two transverse measurements,
+$\varphi=\operatorname{atan2}(qg_Y,\,qg_X)$, because $qg_X=\sin\theta\cos\varphi$ and $qg_Y=\sin\theta\sin\varphi$ and
+the ratio cancels $\sin\theta$. As a fraction of a turn, $qg_\varphi=(\varphi\bmod 2\pi)/2\pi\in[0,1)$ is exactly
+the azimuthal angle in qga divided by 1000. It is undefined at the poles, where $qg_X=qg_Y=0$.
+
+**Geometry.** The Fubini–Study metric of a qubit and the Fisher information of the $Z$ measurement carry a constant
+factor in qga:
+
+$$
+ds^2 = \tfrac14\left(d\theta^2+\sin^2\theta\,d\varphi^2\right)
+     = \frac{\pi^2}{10^6}\left(d\theta_{qga}^2+\sin^2\theta\,d\varphi_{qga}^2\right),
+\qquad
+I_F(\theta) = 1\ \text{rad}^{-2} = 4\pi^2\cdot10^{-6}\ \text{qga}^{-2}.
+$$
+
+The second is the stabilization of the arcsine section in another unit: the standard deviation of the qang angle is
+$159.15/\sqrt N$ qga over the whole circle ($5.03$ qga with 1000 shots). The Berry curvature,
+$F=\tfrac12\sin\theta\,d\theta\wedge d\varphi$, integrated over the sphere ($\theta$ spans 500 qga and $\varphi$
+1000) gives $2\pi$, that is, Chern number 1.
+
+**Corrections to the Foundation.** Three claims of the source document are not adopted, because its own formulas
+contradict them:
+
+- It assigns $p_0=0.5$ to 125 qga. Its own equation gives $p_0(125\ \text{qga})=\cos^2(\pi/8)=0.854$ (+707 m-qg);
+  $p_0=0.5$ belongs to 250 qga.
+- It gives curvature $K=1$ to the metric $ds^2=\tfrac14\,d\theta^2$. That metric, with its azimuthal term, is the one
+  of a sphere of radius $1/2$, whose Gaussian curvature is $K=4$; $K=1$ belongs to the Bloch sphere of radius 1.
+- It suggests that a lattice in m-qga avoids barren plateaus. Changing the unit of the parameter multiplies every
+  derivative by the constant $2\pi/1000$: it changes neither the ratio of gradient variance to its scale nor its decay
+  with the number of qubits. The unit has no effect on plateaus.
+
+### Unverified proposal: energy and antimatter in qga {#sec-qga-energy}
+
+The Foundation extends the scale to relativistic kinematics. What follows is an **unverified proposal**: the
+identities are corrected, but the physical reading is unproven and the rest of the book does not use it.
+
+**Relativistic angle.** Dividing $E^2=(mc^2)^2+(pc)^2$ by $E^2$ gives $\cos\theta_r=mc^2/E=1/\gamma$ and
+$\sin\theta_r=pc/E=\beta$. The identity is exact, because $1/\gamma^2+\beta^2=1$. With $\theta_r$ in qga,
+$E=mc^2/\cos(2\pi\theta_{r,qga}/1000)$: rest is at 0 qga and the ultra-relativistic limit ($E=pc$) at 250 qga. The
+angle $\theta_r$ is tied to the rapidity $\eta$ by $\cos\theta_r=1/\cosh\eta$ (the Gudermann function), with no Wick
+rotation needed.
+
+**Antimatter.** The Dirac equation has two branches, $E_\pm=\pm\sqrt{(pc)^2+(mc^2)^2}=\pm\,mc^2/\cos\theta_r$. The
+Foundation assigns the negative branch a shift of 500 qga, tied to CPT symmetry; that identification has no support
+and is not adopted.
+
+**Probabilities.** The Foundation equates $P_\text{rest}=(mc^2/E)^2$ with $p_0(\theta_{qga})$. There is a factor 2 in
+the angle: $(mc^2/E)^2=\cos^2\theta_r$, whereas $p_0=\cos^2(\theta/2)$, so the equality holds only if the Bloch angle
+is $2\theta_r$. If instead the Bloch angle is taken equal to $\theta_r$, there is a known result behind the document's
+formulas $\cos^2(\pi\,\text{qg}/1000)$ and $\sin^2(\pi\,\text{qg}/1000)$: in the free Dirac spinor the large component
+weighs $(E+mc^2)/2E=\cos^2(\theta_r/2)$ and the small one $\sin^2(\theta_r/2)$. But those weights are not probabilities
+of "matter" and "antimatter", as the source document calls them: both belong to the same positive-energy solution.
+
+**Proposed names.** @tbl-names-qga lists the names the Foundation introduces and how the book treats them.
+
+| Foundation name | definition | treatment in the book |
+|---|---|---|
+| relativistic angle $\theta_r$ | $\cos\theta_r=mc^2/E$, $\sin\theta_r=\beta$ | exact identity; in qga, a proposal |
+| $E(\text{qg})=mc^2/\cos(2\pi\,\text{qg}/1000)$ | total energy as a function of $\theta_r$ | exact, with $\theta_r$ in qga |
+| $E_\pm$, matter and antimatter sheets | $\pm\,mc^2/\cos\theta_r$ | Dirac branches; the 500 qga CPT shift is not adopted |
+| $P_\text{rest}$, $P_\text{kinetic}$ | $(mc^2/E)^2$, $\beta^2$ | they add to 1; they are not $p_0$, $p_1$ of the same angle (factor 2) |
+| $P_\text{matter}$, $P_\text{antimatter}$ | $\cos^2$, $\sin^2$ of the half angle | weights of the spinor's large and small components, not antimatter probabilities |
+| Q-Hertz (qHz) | qga per second | unit of angular frequency; a proposal |
+| Q-Fisher (qFi) | Fisher information per qga² | $4\pi^2\cdot10^{-6}$ qga$^{-2}$ for a pure qubit |
+| Q-Shannon (q-sh) | Shannon entropy of the outcome | it is $qg_S$; it is not the von Neumann entropy |
+| Q-Force, Q-Conductance, Q-Momentum | phase gradient, qga per volt, $(\pi/500)\hbar$ | proposed names, not used in the book |
+
+: The Foundation's names for energy, antimatter and the derived units, and how the book treats them. {#tbl-names-qga}
 
 ## Why measure in qg: the geometry–probability gap {#sec-bloch}
 
@@ -328,6 +438,20 @@ error that the usual model does not see. But it was tested on one qubit, once, a
 scatter of repeated circuits. Replication on more qubits and on another day is pending, and the book treats this base
 as solid mathematically and promising, but not yet consolidated, experimentally.
 
+**Open proposals.** The author's working version adds three proposals to this basis, which the book records as
+**unverified**:
+
+- A regularized variational energy,
+  $E_\text{total}=\langle H\rangle+\lambda_\theta L_\text{qang}(\theta)+\lambda_\varphi L_\text{qang}(\varphi)$. Here
+  the energy is the expectation value of a Hamiltonian, not the relativistic energy of the previous section. The form
+  of the penalties $L_\text{qang}$ and the values of the weights $\lambda$ are not defined.
+- A normalized radiation function, $R(\theta,\varphi)=N\,[\,p_1+\alpha\cos\varphi\,]$, with the excited population
+  $p_1=\sin^2(\theta/2)$ as the emitting power. Neither $N$ nor $\alpha$ is fixed, and it is not checked against an
+  emission model.
+- Mechanisms against barren plateaus (local costs in m-qg, minimum-curvature $\kappa_{qg}$ compilation, initialization
+  with the branch sign). Local costs are a known result of the literature [@cerezo2021], not of the scale; the others
+  have not been tested.
+
 ## Without qang and with qang {#sec-comparison01}
 
 | action | without qang | with qang | difference |
@@ -335,6 +459,7 @@ as solid mathematically and promising, but not yet consolidated, experimentally.
 | describe the outcome of a qubit | the probability $p_0$ (or $\langle Z\rangle$) | $qg_Z$, the angle $\theta$, $m$ and $qg_S$, all exact functions of $p_0$ | **none in content**: the same information; qang gives it a working scale from $-1000$ to $+1000$ |
 | error bar of a reading | $\sqrt{p_0(1-p_0)/N}$, different for each state | the angle has variance $1/N$ for every state; in m-qg, $1000\sin\theta/\sqrt N$ | **convenience**: the variance-stabilized coordinate of classical statistics (the arcsine) is the gate parameter |
 | compare a gate error with shot noise | infidelity on one side, binomial deviation on the other, in different units | both in m-qg (on Garnet, 1.64 m-qg per $X$ gate against the run's shot noise) | **in favour**: one scale for the error budget |
+| express a gate or phase angle | radians, with factors of $\pi$ | qga: 1000 per turn ($X$ = 500 qga, equator = 250 qga) | **convenience**: the same information without factors of $\pi$; it changes neither gradients nor plateaus |
 | improve the device | — | — | **none**: the scale measures, it does not correct; prediction M2 of §168 failed |
 
 : The chapter's actions without the qang scale and with it. {#tbl-comparison01}
@@ -378,6 +503,9 @@ The figures of this chapter are generated by `tools/make_cap01_figures.py`, whic
   $(1000\sin\theta/\delta)^2$ shots, and gate errors are budgeted in the same units.
 - **Probability equation.** $\theta$, $qg_Z$, $qg_S$ and $m$ are exact functions of a single probability $p_0$; with
   several outcomes, the qang angle generalizes to Wootters' statistical distance.
+- **Angular scale.** The angular qang measures angles with 1000 qga per turn and is distinct from m-qg, which is a
+  reading: $p_0=\cos^2(\pi\theta_{qga}/1000)$ and $I_F=4\pi^2\cdot10^{-6}$ qga$^{-2}$. The extension to relativistic
+  energy and antimatter is an unverified proposal, with three errors of the source document corrected.
 - **Statistics.** The qang angle is the arcsine transformation of a proportion: its variance is $1/N$ for every
   state, pure or mixed; what needs a correction in a mixed state is the estimate of the Bloch angle.
 - **Scope.** The unit is not new physics but a working scale. On real hardware (§168) it measured a cost of 1.64 m-qg
@@ -392,4 +520,5 @@ information are in @braunstein1994; the Cramér–Rao bound, in @cramer1946 and 
 stabilizes the binomial variance comes from @bartlett1947, @anscombe1948 and @freeman1950, and the score interval is
 that of @wilson1927. The binary entropy behind $qg_S$ is that of @shannon1948. The numbered research notes (§) cited in
 this chapter and the scripts that check it are in the repository [@qangrepo]; the definition of the qang unit is in
-@monteverde2026.
+@monteverde2026. The angular qga scale and the relativistic proposal come from the working document
+@monteverde2026fund; the free Dirac spinor and its components are in any text on relativistic quantum mechanics.

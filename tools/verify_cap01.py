@@ -480,6 +480,90 @@ def part_theory():
     check("Cirq: θ = sign(qg_X)·arccos(qg_Z) recupera θ en (−π, π]", max(errs) < 1e-6, f"error máx {max(errs):.1e}")
 
 
+def part_qga():
+    """The angular qga scale of the Foundation (sec-qga): identities in sympy, states in QuTiP and Qiskit."""
+    import sympy as sp
+    a, th, ph, eps, sg = sp.symbols("a theta phi epsilon sigma", real=True)
+    rad = 2 * sp.pi * a / 1000
+    check("sympy: p0 = cos²(π a/1000) = (1 + cos(2π a/1000))/2 y m = 1000 cos(2π a/1000) = 2000 p0 − 1000",
+          sp.simplify(sp.cos(sp.pi * a / 1000) ** 2 - (1 + sp.cos(rad)) / 2) == 0
+          and sp.simplify(2000 * sp.cos(sp.pi * a / 1000) ** 2 - 1000 - 1000 * sp.cos(rad)) == 0)
+    anchors = {0: 1000, 125: 707, 250: 0, 500: -1000}
+    check("anclajes: 0, 125, 250, 500 qga leen +1000, +707, 0, −1000 m-qg; p0(125 qga) = 0,854",
+          all(round(1000 * math.cos(2 * math.pi * k / 1000)) == v for k, v in anchors.items())
+          and round(math.cos(math.pi * 125 / 1000) ** 2, 3) == 0.854)
+    check("166,667 qga = π/3 lee +500 m-qg; 1 mrad = 0,159 qga = 159 m-qga",
+          abs(1000 * math.cos(2 * math.pi * (1000 / 6) / 1000) - 500) < 1e-9
+          and round(1e-3 * 1000 / (2 * math.pi), 3) == 0.159 and round(1e-3 * 1e6 / (2 * math.pi)) == 159)
+    # Fubini-Study from the state overlap, with theta and phi in qga
+    psi = sp.Matrix([sp.cos(th / 2), sp.exp(sp.I * ph) * sp.sin(th / 2)])
+    d1, d2 = sp.symbols("d1 d2", real=True)
+    psi2 = psi.subs({th: th + eps * d1, ph: ph + eps * d2})
+    fid = sp.simplify((psi.H * psi2)[0] * (psi2.H * psi)[0])
+    ds2 = sp.simplify(sp.series(1 - fid, eps, 0, 3).removeO() / eps ** 2)
+    check("sympy: 1 − |⟨ψ|ψ+dψ⟩|² = ¼(dθ² + sin²θ dφ²)", sp.simplify(ds2 - (d1 ** 2 + sp.sin(th) ** 2 * d2 ** 2) / 4) == 0)
+    check("sympy: en qga, ds² = (π²/10⁶)(dθ² + sin²θ dφ²)", sp.simplify((2 * sp.pi / 1000) ** 2 / 4 - sp.pi ** 2 / 10 ** 6) == 0)
+    # Gaussian curvature of ds² = E dθ² + G dφ² with E = 1/4 constant and √G = sin θ / 2: K = −(√G)'' / (E √G)
+    sqrtG = sp.sin(th) / 2
+    K = sp.simplify(-sp.diff(sqrtG, th, 2) / (sp.Rational(1, 4) * sqrtG))
+    check("sympy: la métrica ¼(dθ² + sin²θ dφ²) tiene curvatura gaussiana K = 4 (no 1)", K == 4, f"K = {K}")
+    p0 = sp.cos(th / 2) ** 2
+    fisher = sp.diff(p0, th) ** 2 / (p0 * (1 - p0))
+    f_ok = sp.trigsimp(sp.simplify(fisher)) == 1 or all(
+        abs(float(fisher.subs(th, v)) - 1) < 1e-12 for v in np.linspace(0.05, math.pi - 0.05, 40))
+    check("sympy: I_F(θ) = 1 rad⁻², es decir 4π²·10⁻⁶ qga⁻²; σ del ángulo = 159,15/√N qga (5,03 con N = 1000)",
+          f_ok and round(1000 / (2 * math.pi), 2) == 159.15 and round(1000 / (2 * math.pi) / math.sqrt(1000), 2) == 5.03)
+    berry = sp.integrate(sp.integrate(sp.sin(th) / 2, (th, 0, sp.pi)), (ph, 0, 2 * sp.pi))
+    check("sympy: ∫ ½ sin θ dθ dφ sobre la esfera = 2π (Chern 1)", sp.simplify(berry - 2 * sp.pi) == 0)
+    # derivatives of the reading and the second-order amplitude budget
+    m = 1000 * sp.cos(th)
+    check("sympy: ∇ = dm/dθ = −1000 sin θ y d²m/dθ² = −1000 cos θ",
+          sp.simplify(sp.diff(m, th) + 1000 * sp.sin(th)) == 0 and sp.simplify(sp.diff(m, th, 2) + 1000 * sp.cos(th)) == 0)
+    eps_exact = 1000 * sp.cos(th) * (sp.exp(-th ** 2 * sg ** 2 / 2) - 1)
+    lead = sp.series(eps_exact, sg, 0, 3).removeO()
+    check("sympy: ε_m = ½ θ² σ² d²m/dθ² + O(σ⁴), es decir |ε_m| ≈ ½ θ² σ² κ_qg",
+          sp.simplify(lead - sp.Rational(1, 2) * th ** 2 * sg ** 2 * sp.diff(m, th, 2)) == 0)
+    # the azimuthal coordinate, on random states in QuTiP
+    import qutip
+    rng = np.random.default_rng(7)
+    errs = []
+    for _ in range(50):
+        t, f = rng.uniform(0.1, math.pi - 0.1), rng.uniform(0, 2 * math.pi)
+        st = (math.cos(t / 2) * qutip.basis(2, 0) + np.exp(1j * f) * math.sin(t / 2) * qutip.basis(2, 1)).unit()
+        x, y = qutip.expect(qutip.sigmax(), st), qutip.expect(qutip.sigmay(), st)
+        errs.append(abs((math.atan2(y, x) % (2 * math.pi)) / (2 * math.pi) * 1000 - f / (2 * math.pi) * 1000))
+    check("QuTiP: φ = atan2(qg_Y, qg_X) recupera la fase; qg_φ·1000 = φ en qga (50 estados)", max(errs) < 1e-9,
+          f"error máx {max(errs):.1e} qga")
+    # relativistic proposal: identities only
+    beta = sp.symbols("beta", positive=True)
+    gam = 1 / sp.sqrt(1 - beta ** 2)
+    check("sympy: (1/γ)² + β² = 1, así que cos θ_r = 1/γ y sin θ_r = β definen un ángulo",
+          sp.simplify((1 / gam) ** 2 + beta ** 2 - 1) == 0)
+    eta = sp.symbols("eta", positive=True)
+    check("sympy: con γ = cosh η, cos θ_r = 1/cosh η y sin θ_r = tanh η = β (Gudermann)",
+          sp.simplify((1 / sp.cosh(eta)) ** 2 + sp.tanh(eta) ** 2 - 1) == 0)
+    E, mc2 = sp.symbols("E mc2", positive=True)
+    ct = mc2 / E
+    check("sympy: (E + mc²)/2E = cos²(θ_r/2) y (E − mc²)/2E = sin²(θ_r/2) con cos θ_r = mc²/E",
+          sp.simplify((E + mc2) / (2 * E) - (1 + ct) / 2) == 0 and sp.simplify((E - mc2) / (2 * E) - (1 - ct) / 2) == 0)
+    # the free Dirac spinor u(p) in the standard representation: large/small component weights
+    import numpy.linalg as la
+    mass, p = 1.0, 0.8
+    En = math.sqrt(p ** 2 + mass ** 2)
+    xi = np.array([1.0, 0.0])
+    sz = np.array([[1, 0], [0, -1]])
+    u = np.concatenate([math.sqrt(En + mass) * xi, math.sqrt(En + mass) * (p * sz @ xi) / (En + mass)])
+    big, small = la.norm(u[:2]) ** 2 / la.norm(u) ** 2, la.norm(u[2:]) ** 2 / la.norm(u) ** 2
+    tr = math.acos(mass / En)
+    check("numpy: en u(p) de Dirac (p ∥ z), las componentes pesan cos²(θ_r/2) y sin²(θ_r/2)",
+          abs(big - math.cos(tr / 2) ** 2) < 1e-12 and abs(small - math.sin(tr / 2) ** 2) < 1e-12,
+          f"{big:.4f} / {small:.4f}")
+    check("factor 2: (mc²/E)² = cos² θ_r ≠ cos²(θ_r/2) salvo en reposo",
+          abs((mass / En) ** 2 - math.cos(tr / 2) ** 2) > 0.1)
+    check("cambio de unidad rad → qga: todas las derivadas por la misma constante 2π/1000",
+          sp.simplify(sp.diff(sp.cos(rad), a) / sp.diff(sp.cos(th), th).subs(th, rad) - 2 * sp.pi / 1000) == 0)
+
+
 def main():
     part_equation()
     part_shots()
@@ -488,6 +572,7 @@ def main():
     part_hardware()
     part_criteria()
     part_theory()
+    part_qga()
     n_ok = sum(RESULTS)
     print(f"\n{n_ok} de {len(RESULTS)} afirmaciones PASAN")
     return 0 if n_ok == len(RESULTS) else 1

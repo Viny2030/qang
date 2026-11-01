@@ -24,15 +24,16 @@ hasta que exista una corrida real (Parte X).
 
 ### Capítulo 1. La unidad qang: definición, mili-qang y la ecuación de probabilidad ✅ escrito
 1.1 Definición del qang: regla de Born p₀ = cos²(θ/2), sesgo polar qg_Z = ⟨σ_z⟩ = 2p₀ − 1 = cos θ, ángulo qang y qg_S; el qang como unidad de ingeniería (analogía del decibelio) — §7; figura: el círculo qang con escala en m-qg
-1.2 Teoría del mili-qang: definición y escala (−1000 a +1000 m-qg); lineal en probabilidad (1 m-qg = Δp₀ = 0,0005), no lineal en ángulo (1 mrad en el ecuador, 2,56° junto al polo); resolución por disparos σ_m = 1000 sin θ/√N y N = (1000 sin θ/δ)²; presupuesto de error de compuerta en m-qg — §160, §167; figuras: regla del mili-qang, resolución por disparos, presupuesto de pulso
+1.2 Teoría del mili-qang: definición y escala (−1000 a +1000 m-qg); lineal en probabilidad (1 m-qg = Δp₀ = 0,0005), no lineal en ángulo (1 mrad en el ecuador, 2,56° junto al polo); resolución por disparos σ_m = 1000 sin θ/√N y N = (1000 sin θ/δ)²; presupuesto de error de compuerta en m-qg; gradiente polar ∇_qg = dm/dθ y curvatura κ_qg = |d²m/dθ²| — §160, §167; figuras: regla del mili-qang, resolución por disparos, presupuesto de pulso
 1.3 La ecuación de probabilidad del qang y del mili-qang: θ, qg_Z, qg_S y m como funciones exactas de p₀; tabla de anclajes; generalización a varios resultados por la distancia estadística de Wootters (ángulo de Bhattacharyya) — §167; figura: las lecturas de una misma probabilidad
+1.3b 🆕 La escala angular qga de la Fundamentación geométrica (1000 qga por vuelta, distinta del m-qg, que es una lectura): Born en qga, coordenada azimutal qg_φ, Fubini–Study e información de Fisher en qga, curvatura de Berry; tres errores del documento fuente corregidos; propuesta sin verificar de energía relativista y antimateria con su tabla de nombres — `tools/verify_cap01.py`
 1.4 Por qué medir en qg: la brecha geometría–probabilidad (singularidad del gradiente y varianza dependiente del estado) — §1, §5
 1.5 Inversión θ = arccos(qg_Z) y el signo de rama — §65
 1.6 La entropía del resultado qg_S, su invertibilidad por mitades y sus barras de error — §2, §7, §51
 1.7 El ángulo qang como transformación arcoseno de una proporción (Bartlett, Anscombe, Freeman–Tukey) — §125
 1.8 Estados mixtos y registros de varios qubits — §3, §4, §45
 1.9 En código: `qang.probability` como herramienta de análisis (`analyze`) — §167
-1.10 Alcance y límites de la base: no es física nueva sino una escala de trabajo; primera prueba en hardware (§168, IQM Garnet): 1,64 m-qg por compuerta X, errores de ángulo de 16–55 m-qg, M2 falló; figura de hardware — §168
+1.10 Alcance y límites de la base: no es física nueva sino una escala de trabajo; primera prueba en hardware (§168, IQM Garnet): 1,64 m-qg por compuerta X, errores de ángulo de 16–55 m-qg, M2 falló; figura de hardware; propuestas abiertas sin verificar (energía regularizada, función de radiación, mesetas estériles) — §168
 
 ### Capítulo 2. Compuertas nativas, álgebra cerrada y el operador universal
 2.1 La compuerta elemental RQangGate(qg_Z) y su descomposición nativa en Ry(θ) — §6

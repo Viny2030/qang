@@ -144,3 +144,20 @@ tienen los hallazgos de abajo.
    mezcla 0,2/0,8, así que el lector puede leer las dos como la misma. Propuesta: "la entropía de Shannon conjunta
    de los resultados, normalizada, es 0,5".
 6. **T1 — 501,8 m-qg** (ES/EN 74): aplicado como $qg_Z=0{,}5018$.
+
+### Base geométrica: la escala angular qga (2026-11-01)
+
+A pedido del autor, el capítulo incorpora la *Fundamentación geométrica y dimensional del sistema qang*
+(`monteverde2026fund`) con la convención B elegida por él: **m-qg sigue siendo la lectura** $1000\,qg_Z$ en todo el
+libro y en la librería (T2 intacto), y la escala angular del documento entra como **qga** (1000 qga por vuelta). Se
+agregaron la sección `sec-qga` y la subsección `sec-qga-energia` (propuesta sin verificar); las derivadas
+$\nabla_{qg}$ y $\kappa_{qg}$, al final del presupuesto de error; las propuestas abiertas, en el alcance; una fila en
+la tabla de comparación; y la fila qga en `fig-regla`. Parte `part_qga` de `tools/verify_cap01.py`: **18 afirmaciones
+nuevas; el script completo da 110/110**.
+
+Errores del documento fuente que no se adoptaron (se dicen en el texto): $p_0(125\ \text{qga})=0{,}854$, no 0,5;
+la métrica $\tfrac14(d\theta^2+\sin^2\theta\,d\varphi^2)$ tiene $K=4$, no 1; $(mc^2/E)^2=\cos^2\theta_r$ no es
+$p_0=\cos^2(\theta/2)$ (factor 2); el cambio de unidad no afecta las mesetas estériles. Tampoco se adoptan, por falta
+de respaldo, el desplazamiento CPT de 500 qga ni la lectura de $\cos^2$ y $\sin^2$ del semiángulo como probabilidades
+de materia y antimateria: son los pesos de las componentes grande y pequeña del espinor de Dirac libre (comprobado en
+numpy).

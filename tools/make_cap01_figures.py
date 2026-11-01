@@ -36,6 +36,7 @@ TEXT = {
         "theta_lbl": r"$\theta/\pi$ (ángulo qang)",
         "ruler_title": "La regla del mili-qang: lineal en $p_0$, no lineal en el ángulo",
         "ruler_theta": r"$\theta$ (grados)",
+        "ruler_qga": r"$\theta$ (qga)",
         "noise_x": r"ángulo qang $\theta$ (grados)",
         "noise_y": "desviación estándar",
         "noise_m": r"$\sigma_m$ (m-qg), $N$ = {n}",
@@ -57,6 +58,7 @@ TEXT = {
         "theta_lbl": r"$\theta/\pi$ (qang angle)",
         "ruler_title": "The milli-qang ruler: linear in $p_0$, not linear in the angle",
         "ruler_theta": r"$\theta$ (degrees)",
+        "ruler_qga": r"$\theta$ (qga)",
         "noise_x": r"qang angle $\theta$ (degrees)",
         "noise_y": "standard deviation",
         "noise_m": r"$\sigma_m$ (m-qg), $N$ = {n}",
@@ -152,9 +154,9 @@ def fig_readings(t, lang):
 
 
 def fig_ruler(t, lang):
-    fig, ax = plt.subplots(figsize=(10, 3.2))
+    fig, ax = plt.subplots(figsize=(10, 4.0))
     ax.axis("off")
-    rows = {"m": 2.0, "p": 1.0, "t": 0.0}
+    rows = {"m": 3.0, "p": 2.0, "t": 1.0, "a": 0.0}
     for yy in rows.values():
         ax.plot([-1000, 1000], [yy, yy], color=INK, lw=1.5)
     for m in range(-1000, 1001, 250):
@@ -169,12 +171,20 @@ def fig_ruler(t, lang):
         ax.plot([m, m], [rows["t"] - (0.1 if big else 0.05), rows["t"] + (0.1 if big else 0.05)], color=BLUE)
         if big:
             ax.text(m, rows["t"] - 0.32, f"{deg}°", ha="center", fontsize=9, color=BLUE)
+    # the angular qang of the Foundation: 1000 qga per turn, so the pole |1> is at 500 qga
+    for qga in range(500, -1, -25):
+        m = PB.milliqang_from_theta(2 * math.pi * qga / 1000)
+        big = qga % 100 == 0 or qga in (250,)
+        ax.plot([m, m], [rows["a"] - (0.1 if big else 0.05), rows["a"] + (0.1 if big else 0.05)], color=GREEN)
+        if big:
+            ax.text(m, rows["a"] - 0.32, f"{qga}", ha="center", fontsize=9, color=GREEN)
     ax.text(-1080, rows["m"], "m-qg", ha="right", va="center", weight="bold")
     ax.text(-1080, rows["p"], "$p_0$", ha="right", va="center", color="#555555")
     ax.text(-1080, rows["t"], t["ruler_theta"], ha="right", va="center", color=BLUE)
+    ax.text(-1080, rows["a"], t["ruler_qga"], ha="right", va="center", color=GREEN)
     ax.set_title(t["ruler_title"], fontsize=12)
     ax.set_xlim(-1300, 1060)
-    ax.set_ylim(-0.6, 2.5)
+    ax.set_ylim(-0.6, 3.5)
     fig.tight_layout()
     return fig
 
