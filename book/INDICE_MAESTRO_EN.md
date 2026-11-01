@@ -110,6 +110,7 @@ devices until a real run exists (Part X).
 8.2 Ramsey sensing: where to operate — §36
 8.3 GHZ metrology: when entanglement beats N independent qubits — §58
 8.4 Thermal states: qg_Z = tanh(βh) — §25
+8.5 🆕 The Fisher information in qga (4π²·10⁻⁶ qga⁻², the Q-Fisher; 159.15/√N qga) and the Schottky point as a reading and an angle (+833.6 m-qg, 33.53° = 93.2 qga) — `tools/verify_cap08.py`
 
 ---
 
