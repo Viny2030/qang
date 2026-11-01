@@ -154,6 +154,7 @@ hasta que exista una corrida real (Parte X).
 12.4 Fidelidad óptima F* = (2 + η/κ)/3; con asistencia F* = 1 en tan α* = √N > 1: un recurso "más que maximalmente entrelazado" — §157
 12.5 El estado recurso óptimo leído en su polarización polar: qg_Z* = cos 2α* = (κ² − η)/(κ² + η) — §157
 12.6 Pares de Bell en una red cuántica, leídos en qg — §57
+12.7 🆕 El par de Bell en qga: α = 125 qga, su qubit en el ecuador (250 qga) — `tools/verify_qga_lecturas.py`
 
 ### Capítulo 13. Doble carril, filtro de sector y fidelidad a larga distancia
 13.1 La fidelidad de teleportación como lectura lineal de tres correladores qg: F = (3 + qg_XX − qg_YY + qg_ZZ)/6 — §158
@@ -180,6 +181,7 @@ hasta que exista una corrida real (Parte X).
 14.6 Efectos no lineales de las P-CTC y límites en la discriminación de estados no ortogonales — 🔬 (pendiente: circuito y predicción)
 14.7 🆕 D-CTC de Deutsch como punto fijo: comparación numérica con P-CTC en el mismo circuito, y qué ve qg en cada una: en el libro, álgebra exacta (P-CTC mueve m_Z de S, D-CTC no y baja m_X; el radio local separa los puntos fijos de Deutsch); la corrida en dispositivos sigue pendiente
 14.8 🆕 El costo de la posselección como tasa (cos²(φ/2)): cuántos disparos cuesta "viajar en el tiempo" en un dispositivo: en el libro, 1/P disparos por disparo útil (2 en π/2, 4 en 2π/3, 400 a 0,1 rad de la paradoja; nunca más de 2 con control) 🧪
+14.9 🆕 La ley de éxito en qga, cos²(πφ_qga/1000), con la paradoja en 500 qga; los errores polares de 34–138 m-qg son 41,6–84,6 qga — `tools/verify_qga_lecturas.py`
 
 ### Capítulo 15. Termodinámica de agujeros negros, caos cuántico y el decodificador de Yoshida–Kitaev
 15.1 La paradoja de la pérdida de información de Hawking y la complementariedad de agujeros negros — §164 (contexto)

@@ -155,6 +155,7 @@ devices until a real run exists (Part X).
 12.4 Optimal fidelity F* = (2 + η/κ)/3; with assistance F* = 1 at tan α* = √N > 1: a "more than maximally entangled" resource — §157
 12.5 The optimal resource state read in its polar polarization: qg_Z* = cos 2α* = (κ² − η)/(κ² + η) — §157
 12.6 Bell pairs in a quantum network, read in qg — §57
+12.7 🆕 The Bell pair in qga: α = 125 qga, its qubit on the equator (250 qga) — `tools/verify_qga_lecturas.py`
 
 ### Chapter 13. Dual rail, sector filtering and long-distance fidelity
 13.1 Teleportation fidelity as a linear readout of three qg correlators: F = (3 + qg_XX − qg_YY + qg_ZZ)/6 — §158
@@ -181,6 +182,7 @@ devices until a real run exists (Part X).
 14.6 Non-linear effects of P-CTCs and limits on discriminating non-orthogonal states — 🔬 (pending: circuit and prediction)
 14.7 🆕 Deutsch's D-CTC as a fixed point: a numerical comparison with P-CTC on the same circuit, and what qg sees in each: in the book, exact algebra (P-CTC moves m_Z of S, D-CTC does not and lowers m_X; the local radius separates Deutsch's fixed points); the device run is still open
 14.8 🆕 The cost of postselection as a rate (cos²(φ/2)): how many shots "time travel" costs on a device: in the book, 1/P shots per useful shot (2 at π/2, 4 at 2π/3, 400 at 0.1 rad from the paradox; never above 2 when controlled) 🧪
+14.9 🆕 The success law in qga, cos²(πφ_qga/1000), with the paradox at 500 qga; the polar errors of 34–138 m-qg are 41.6–84.6 qga — `tools/verify_qga_lecturas.py`
 
 ### Chapter 15. Black-hole thermodynamics, quantum chaos and the Yoshida–Kitaev decoder
 15.1 Hawking's information-loss paradox and black-hole complementarity — §164 (context)

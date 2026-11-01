@@ -31,6 +31,21 @@ th = 0.3
 qz = math.cos(2 * th) ** 2 - math.sin(2 * th) ** 2
 check("cap. 9: en el máximo qg_Z = cos 4θ, así que θ_qga = ϑ_qga/4", abs(math.acos(qz) * QGA / 4 - th * QGA) < 1e-9)
 
+# chapter 12: the Bell pair's Schmidt angle and its qubit's qang angle
+alpha = math.pi / 4
+qz_local = math.cos(alpha) ** 2 - math.sin(alpha) ** 2          # cos²α − sin²α for one qubit of the resource
+check("cap. 12: el par de Bell tiene α = 125 qga y su qubit (qg_Z = 0) está en 250 qga",
+      round(alpha * QGA) == 125 and abs(qz_local) < 1e-12 and round(math.acos(qz_local) * QGA) == 250
+      and abs(math.acos(qz_local) - 2 * alpha) < 1e-12)
+
+# chapter 14: the polar errors of the devices as angles, and the success law in qga
+errs = [math.acos(1 - d / 1000) for d in (34, 138)]
+check("cap. 14: 34 y 138 m-qg junto al polo son 0,26 y 0,53 rad, 41,6 y 84,6 qga",
+      [round(e, 2) for e in errs] == [0.26, 0.53] and [round(e * QGA, 1) for e in errs] == [41.6, 84.6])
+check("cap. 14: éxito = cos²(φ/2) = cos²(π φ_qga/1000); la paradoja (éxito 0) en 500 qga",
+      max(abs(math.cos(p / 2) ** 2 - math.cos(math.pi * p * QGA / 1000) ** 2) for p in np.linspace(0, math.pi, 13)) < 1e-12
+      and abs(math.cos(math.pi * 500 / 1000) ** 2) < 1e-12)
+
 # chapter 16: the Shor-Preskill threshold as a reading and an angle
 h = lambda q: -q * math.log2(q) - (1 - q) * math.log2(1 - q)  # noqa: E731
 Q = brentq(lambda q: 1 - 2 * h(q), 0.05, 0.2)
