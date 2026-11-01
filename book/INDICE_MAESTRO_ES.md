@@ -100,6 +100,7 @@ hasta que exista una corrida real (Parte X).
 7.3 Bucles a qg_Z constante: fase φ = (qg_Z − 1)/2 vueltas (mod 1) — §84
 7.4 Tres cálculos independientes (producto de solapamientos invariante de gauge, abanico esférico, flujo numérico) — §84
 7.5 La fase de Pancharatnam y el octante canónico H → D → R → H — §84
+7.6 🆕 La fase geométrica en la escala qga: un bucle a altura constante acumula 1000·p₀ qga = (1000 + m)/2 qga (750 qga a +500 m-qg; octante −125 qga) — `tools/verify_cap07.py`
 
 ### Capítulo 8. Información de Fisher, relojes, gravedad y metrología 🆕 (no figuraba en los índices)
 8.0 Desde la base: el ángulo qang es la coordenada plana de Fisher (información 1 por disparo) y qg_Z la curva (1/(1-qg_Z²)); la resolución en m-qg del capítulo 1 es su cota de Cramér–Rao — §167

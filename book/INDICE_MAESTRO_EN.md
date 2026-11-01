@@ -101,6 +101,7 @@ devices until a real run exists (Part X).
 7.3 Loops at constant qg_Z: phase φ = (qg_Z − 1)/2 turns (mod 1) — §84
 7.4 Three independent computations (gauge-invariant overlap product, spherical fan, numerical flux) — §84
 7.5 The Pancharatnam phase and the canonical octant H → D → R → H — §84
+7.6 🆕 The geometric phase on the qga scale: a loop at constant height picks up 1000·p₀ qga = (1000 + m)/2 qga (750 qga at +500 m-qg; octant −125 qga) — `tools/verify_cap07.py`
 
 ### Chapter 8. Fisher information, clocks, gravity and metrology 🆕 (not in either index)
 8.0 From the base: the qang angle is the Fisher-flat coordinate (information 1 per shot) and qg_Z the curved one (1/(1-qg_Z²)); Chapter 1's m-qg resolution is its Cramér–Rao bound — §167
