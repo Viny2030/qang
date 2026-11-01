@@ -202,6 +202,7 @@ hasta que exista una corrida real (Parte X).
 16.3 El vector de ataque cuántico: Grover avanza el ángulo qang 4·arcsin 2^(−n/2) por iteración (verificado a 10⁻¹⁰ rad, n = 4–10); en la QPE de un autoestado el registro objetivo queda en qg_Z = −1 y cada qubit de conteo lleva un bit en m_X; en Shor las lecturas por qubit sólo ven el orden si es potencia de 2 (N = 15 sí, N = 21 con r = 6 no) — §13; en el libro, estado exacto
 16.4 Conclusión: qang es una herramienta de capa física y cuántica, no de criptografía algebraica clásica — §14
 16.5 ⚠️ No existe un módulo `qang.crypto`: la criptografía vive en `examples/` (bb84_*, qrng_qg_certified, ionq_sim_*) y en `manuscript/crypto*`
+16.6 🆕 El umbral de Shor–Preskill como ángulo: 0,676 rad (38,7°) = 107,6 qga — `tools/verify_qga_lecturas.py`
 
 ### Capítulo 17. Distribución cuántica de claves (QKD) y BB84 en espacio qg
 17.0 ✅ escrito sobre la base del capítulo 1: las cuatro lecturas de BB84 dan el centro y el semieje de la imagen de la esfera en cada base; T1 corre el centro y encoge igual, el espía encoge sin moverlo, un canal de Pauli encoge ejes — figuras: elipse y monitor, clave finita, tres familias e IonQ
@@ -224,6 +225,7 @@ hasta que exista una corrida real (Parte X).
 19.0 ✅ escrito sobre la base del capítulo 1: energía (1000 − m_Z)/2000, ergotropía (m_r − m_Z)/2000 y carga atrapada por la mezcla (1000 − m_r)/2000; para un estado puro la ergotropía es ω p₁ — figuras: reparto y almacenamiento, certificación y registro, par de Bell guardado
 19.1 Baterías de qubits en qg: almacenamiento (la inversión muere al cruzar el ecuador, t = T1 ln 2; cruce cerrado ln(4/3), ln(3/2)), certificación (la estimación directa ve carga en una batería pasiva en 99–100 % de las corridas) y carga bloqueada (Dicke D(4,2): radio local cero, suma de ergotropías locales 0) — §56
 19.2 Redes: un par de Bell guardado en dos memorias; corte BBM92 0,05–0,18 T1, una ronda DEJMPS casi lo duplica y conviene sólo después de 0,03–0,09 T1 — §57 (parte C; las partes A y B están en 12.6)
+19.3 🆕 La ergotropía en qga: W = ω sin²(πθ_qga/1000) — `tools/verify_qga_lecturas.py`
 
 ---
 
@@ -268,6 +270,7 @@ hasta que exista una corrida real (Parte X).
 23.4 Descenso amortiguado en los polos: robustez ante tasas de aprendizaje agresivas en VQE — §9
 23.5 Núcleos cuánticos filtrados: reparación de la matriz de Gram 2,4–6× — §161
 23.6 Mesetas estériles (barren plateaus) en espacio qg; costo global frente a costo local qg — §12, §23
+23.7 🆕 La escala qga es una coordenada plana de Fisher (4π²·10⁻⁶ qga⁻²); medir en qga no cambia la meseta (§12) — `tools/verify_qga_lecturas.py`
 
 ---
 

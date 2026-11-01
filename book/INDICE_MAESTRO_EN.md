@@ -203,6 +203,7 @@ devices until a real run exists (Part X).
 16.3 The quantum attack vector: Grover advances the qang angle by 4·arcsin 2^(−n/2) per iteration (checked to 10⁻¹⁰ rad, n = 4–10); in the QPE of an eigenstate the target register stays at qg_Z = −1 and each counting qubit carries one bit in m_X; in Shor single-qubit readings see the order only for a power of 2 (N = 15 yes, N = 21 with r = 6 no) — §13; in the book, exact state
 16.4 Conclusion: qang is a physical- and quantum-layer tool, not classical algebraic cryptography — §14
 16.5 ⚠️ There is no `qang.crypto` module: the cryptography lives in `examples/` (bb84_*, qrng_qg_certified, ionq_sim_*) and in `manuscript/crypto*`
+16.6 🆕 The Shor–Preskill threshold as an angle: 0.676 rad (38.7°) = 107.6 qga — `tools/verify_qga_lecturas.py`
 
 ### Chapter 17. Quantum key distribution (QKD) and BB84 in qg space
 17.0 ✅ written on the chapter 1 base: the four BB84 readings give the centre and semi-axis of the image of the sphere in each basis; T1 shifts the centre and shrinks by the same amount, the eavesdropper shrinks without moving it, a Pauli channel shrinks axes — figures: ellipse and monitor, finite key, three families and IonQ
@@ -225,6 +226,7 @@ devices until a real run exists (Part X).
 19.0 ✅ written on the chapter 1 base: energy (1000 − m_Z)/2000, ergotropy (m_r − m_Z)/2000 and charge locked by mixing (1000 − m_r)/2000; for a pure state the ergotropy is ω p₁ — figures: split and storage, certification and register, stored Bell pair
 19.1 Qubit batteries in qg: storage (inversion dies at the equator crossing, t = T1 ln 2; closed crossover ln(4/3), ln(3/2)), certification (the plug-in estimate sees charge in a passive battery in 99–100% of runs) and locked charge (Dicke D(4,2): local radius zero, sum of local ergotropies 0) — §56
 19.2 Networks: a Bell pair stored in two memories; BBM92 cutoff 0.05–0.18 T1, one DEJMPS round almost doubles it and pays only after 0.03–0.09 T1 — §57 (part C; parts A and B are in 12.6)
+19.3 🆕 Ergotropy in qga: W = ω sin²(πθ_qga/1000) — `tools/verify_qga_lecturas.py`
 
 ---
 
@@ -269,6 +271,7 @@ devices until a real run exists (Part X).
 23.4 Pole-damped descent: robustness to aggressive learning rates in VQE — §9
 23.5 Filtered quantum kernels: Gram-matrix repair 2.4–6× — §161
 23.6 Barren plateaus in qg space; global cost against the local qg cost — §12, §23
+23.7 🆕 The qga scale is a flat Fisher coordinate (4π²·10⁻⁶ qga⁻²); measuring in qga does not change the plateau (§12) — `tools/verify_qga_lecturas.py`
 
 ---
 
