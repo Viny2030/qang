@@ -320,5 +320,25 @@ check("QuTiP: por encima de 180° el error de R_X tal cual no crece con θ² (ce
       abs(eps[1]) < 1e-9 and abs(eps[0]) > abs(eps[1]) < abs(eps[2]),
       ", ".join(f"{d}°: {e:+.1f}" for d, e in zip((200, 270, 324, 360), eps)))
 
+# the angular qga scale of Chapter 1 (1000 qga per turn) applied to the gates of this chapter
+QGA = 1000 / (2 * math.pi)
+check("ángulos en qga: 60° = 166,667; 324° = 900; −36° = −100; π = 500; π/2 = 250",
+      [round(math.radians(d) * QGA, 3) for d in (60, 324, -36, 180, 90)] == [166.667, 900.0, -100.0, 500.0, 250.0])
+from qiskit.circuit.library import UGate  # noqa: E402
+from qiskit.quantum_info import Operator as QOperator  # noqa: E402
+check("tabla de compuertas: X y H como U(θ, 0, π) con θ = 500 y 250 qga (Qiskit)",
+      phase_equal(QOperator(UGate(2 * math.pi * 500 / 1000, 0, math.pi)).data, np.array([[0, 1], [1, 0]])) < 1e-10
+      and phase_equal(QOperator(UGate(2 * math.pi * 250 / 1000, 0, math.pi)).data,
+                      np.array([[1, 1], [1, -1]]) / math.sqrt(2)) < 1e-10)
+# second-order shift ½ θ² σ² κ_qg against the exact random-amplitude formula, through QuTiP
+worst = 0.0
+for d in (30, 60, 120, 150, 180):
+    t = math.radians(d)
+    exact = 1000 * (qgz_rx_qutip(t, 0.01) - math.cos(t))
+    approx = -0.5 * t ** 2 * 0.01 ** 2 * 1000 * math.cos(t)
+    worst = max(worst, abs(exact - approx) / max(abs(exact), 1e-12))
+check("QuTiP: con σ = 0,01 el corrimiento aleatorio coincide con ½ θ² σ² κ_qg (signo hacia el ecuador)",
+      worst < 1e-3, f"error relativo máx {worst:.1e}")
+
 print(f"\n{sum(RESULTS)}/{len(RESULTS)} afirmaciones PASAN")
 sys.exit(0 if all(RESULTS) else 1)

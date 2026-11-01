@@ -44,6 +44,7 @@ hasta que exista una corrida real (Parte X).
 2.6 La compuerta qg con signo y la pantalla sin ruido de cuánto T1 deja pasar el filtro — §68
 2.7 Un único orden de qubits para todos los SDK (Qiskit, Cirq, PennyLane, Braket, pytket) — §130
 2.8 Sobre la base del capítulo 1: preparar desde p₀ o m-qg; la compuerta como ecuación de probabilidad (un número en m-qg fija su acción, capacidad 1 − qg_S); el área de pulso en m-qg — §160, §167; figura: error de R_x en m-qg, ángulo pedido frente a representante de área mínima
+2.9 🆕 Ángulos de compuerta en la escala qga del capítulo 1 (X = 500 qga, H en 250 qga, R_X(324°) = R_X(900 qga), período de R_ZZ = 500 qga); el corrimiento aleatorio como ½θ²σ²κ_qg; propuestas sin verificar contra las mesetas — `tools/verify_cap02.py`
 
 ### Capítulo 3. Reflexiones, Householder y la dinámica de Grover
 3.1 🔬 Matrices uniestocásticas y estocásticas de rotación cerrada sin funciones trascendentes

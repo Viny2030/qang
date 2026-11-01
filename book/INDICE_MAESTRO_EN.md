@@ -45,6 +45,7 @@ devices until a real run exists (Part X).
 2.6 The signed qg gate and the noise-free screen for how much T1 the filter lets through — §68
 2.7 One qubit order for every SDK (Qiskit, Cirq, PennyLane, Braket, pytket) — §130
 2.8 On the base of Chapter 1: preparing from p₀ or m-qg; the gate as a probability equation (one m-qg number fixes its action, capacity 1 − qg_S); pulse area in m-qg — §160, §167; figure: m-qg error of R_x, requested angle against the minimal-area representative
+2.9 🆕 Gate angles on the qga scale of Chapter 1 (X = 500 qga, H at 250 qga, R_X(324°) = R_X(900 qga), R_ZZ period = 500 qga); the random shift as ½θ²σ²κ_qg; unverified proposals against plateaus — `tools/verify_cap02.py`
 
 ### Chapter 3. Reflections, Householder and Grover dynamics
 3.1 🔬 Unistochastic and stochastic closed-rotation matrices without transcendental functions

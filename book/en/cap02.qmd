@@ -18,7 +18,9 @@ $\theta=\arccos q$. qang provides it as a native gate in the three most widely u
 
 By the probability equation (@sec-equation), the gate parameter can be set from any of the readings: for a
 probability $p_0$ use $q=2p_0-1$, and for a reading of $m$ m-qg, $q=m/1000$. Asking for $p_0=0.75$ or for $+500$ m-qg
-is asking for the same gate, $R_y(60^\circ)$.
+is asking for the same gate, $R_y(60^\circ)$. On the angular qga scale of @sec-qga (1000 qga per turn), that gate
+is $R_y(166.667\ \text{qga})$: a gate angle is written without factors of $\pi$, with $X$ at 500 qga and the
+equator at 250 qga.
 
 All three prepare exactly the same state for the same qg value, which is checked both on the measured probabilities
 and on the state-vector fidelity. The gate accepts symbolic parameters (Qiskit `Parameter`, sympy symbols), so it can
@@ -87,12 +89,12 @@ computational basis to itself.
 The formula was checked against Qiskit 2.6's `U` gate on 2000 random gates, with a largest difference of
 $1.8\times10^{-16}$, and likewise against Cirq, PennyLane and QuTiP (§166, `tools/verify_cap02.py`). The usual gates appear at simple values:
 
-| gate | $q$ | m-qg | $\varphi$ | $\lambda$ |
-|---|---|---|---|---|
-| $I$ | $1$ | $+1000$ | $0$ | $0$ |
-| $X$ | $-1$ | $-1000$ | $0$ | $\pi$ |
-| $Z$ | $1$ | $+1000$ | $0$ | $\pi$ |
-| $H$ | $0$ | $0$ | $0$ | $\pi$ |
+| gate | $q$ | m-qg | $\theta$ (qga) | $\varphi$ | $\lambda$ |
+|---|---|---|---|---|---|
+| $I$ | $1$ | $+1000$ | $0$ | $0$ | $0$ |
+| $X$ | $-1$ | $-1000$ | $500$ | $0$ | $\pi$ (500 qga) |
+| $Z$ | $1$ | $+1000$ | $0$ | $0$ | $\pi$ (500 qga) |
+| $H$ | $0$ | $0$ | $250$ | $0$ | $\pi$ (500 qga) |
 
 : Standard gates as points of $U_3^{qg}$. {#tbl-gates}
 
@@ -141,16 +143,20 @@ is largest at $\pi/2$ and vanishes at $0$ and $\pi$; the fixed error is relative
 near $116^\circ$ (§160). This is Chapter 1's milli-qang error budget (@fig-pulse), and the
 scale makes the gate error comparable with the shot noise of the read-out: with $\sigma=0.05$, the shift of an $X$
 (12.3 m-qg) is about eight times the resolution of $10^4$ shots at its reading, $-987.7$ m-qg, where
-$\sigma_m=1000\sin\theta/\sqrt N=1.6$ m-qg (on the equator it would be 10 m-qg).
+$\sigma_m=1000\sin\theta/\sqrt N=1.6$ m-qg (on the equator it would be 10 m-qg). In terms of the curvature of
+Chapter 1, the random shift is, to second order, $\tfrac12\theta^2\sigma^2\kappa_{qg}$: it depends on the area
+($\theta^2$) and on where the state ends ($\kappa_{qg}=1000\lvert\cos\theta\rvert$), which vanishes on the equator.
 
-Every gate has shorter representatives. $R_X(\theta)=-R_X(\theta-2\pi)$ has period $2\pi$ up to a global phase, and
-@fig-area shows what is gained: asking for $R_X(324^\circ)$ as is shifts the reading by $-31.7$ m-qg, while its
-representative $R_X(-36^\circ)$, the same gate, shifts it by $-0.4$ m-qg.
+Every gate has shorter representatives. $R_X(\theta)=-R_X(\theta-2\pi)$ has period $2\pi$ up to a global phase (1000
+qga), and @fig-area shows what is gained: asking for $R_X(324^\circ)=R_X(900\ \text{qga})$ as is shifts the reading
+by $-31.7$ m-qg, while its representative $R_X(-36^\circ)=R_X(-100\ \text{qga})$, the same gate, shifts it by $-0.4$
+m-qg.
 
 ![Milli-qang error of $R_x(\theta)$ under a random amplitude error $\sigma=0.05$: the angle as requested against the minimal-area representative. Below $180^\circ$ they coincide; above it, the short representative avoids the error that, at multiples of $\pi$, grows with the square of the angle.](figures/cap02_area.png){#fig-area width=90%}
 
 More interesting: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, and $Z\otimes Z$ is two virtual $R_Z(\pi)$ rotations, free
-on superconducting processors. So $R_{ZZ}$ has period $\pi$ and its area never needs to exceed $\pi/2$. The function
+on superconducting processors. So $R_{ZZ}$ has period $\pi$ (500 qga) and its area never needs to exceed $\pi/2$
+(250 qga). The function
 `minimal_area_circuit` rewrites a circuit with those representatives and preserves the unitary exactly, global phase
 included.
 
@@ -162,6 +168,11 @@ already minimal after the first reduction. The general result stands: **the erro
 notes: on IBM processors ordinary single-qubit rotations are virtual $R_Z$ plus fixed $\sqrt X$ pulses, of duration
 independent of the angle, so the rule applies to fractional gates; and the benefit depends on how strongly the error
 scales with the area on each platform.
+
+The author's working version further proposes using this minimum-curvature compilation, together with a regularized
+variational energy and a radiation function tied to the excited population $p_1=(1-q)/2$, against noise-induced
+barren plateaus. These are the open proposals of Chapter 1 (@sec-scope): **unverified**, and the book attributes no
+result to them.
 
 ## An exposure screen before running {#sec-exposure}
 

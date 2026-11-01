@@ -19,7 +19,9 @@ $\theta=\arccos q$. qang la ofrece como compuerta nativa en los tres kits de des
 
 Por la ecuación de probabilidad (@sec-ecuacion), el parámetro de la compuerta se puede fijar desde cualquiera de las
 lecturas: para obtener una probabilidad $p_0$ se usa $q=2p_0-1$, y para una lectura de $m$ m-qg, $q=m/1000$. Pedir
-$p_0=0{,}75$ o $+500$ m-qg es pedir la misma compuerta, $R_y(60^\circ)$.
+$p_0=0{,}75$ o $+500$ m-qg es pedir la misma compuerta, $R_y(60^\circ)$. En la escala angular qga de la @sec-qga
+(1000 qga por vuelta), esa compuerta es $R_y(166{,}667\ \text{qga})$: el ángulo de una compuerta se escribe sin
+factores $\pi$, con $X$ en 500 qga y el ecuador en 250 qga.
 
 Las tres preparan exactamente el mismo estado para un mismo valor de qg, lo que se verifica tanto con las
 probabilidades medidas como con la fidelidad del vector de estado. La compuerta acepta parámetros simbólicos
@@ -89,12 +91,12 @@ de la base computacional a sí misma.
 La fórmula se comprobó contra la compuerta `U` de Qiskit 2.6 en 2000 compuertas aleatorias, con una diferencia
 máxima de $1{,}8\times10^{-16}$, y lo mismo contra Cirq, PennyLane y QuTiP (§166, `tools/verify_cap02.py`). Las compuertas habituales aparecen en valores simples:
 
-| compuerta | $q$ | m-qg | $\varphi$ | $\lambda$ |
-|---|---|---|---|---|
-| $I$ | $1$ | $+1000$ | $0$ | $0$ |
-| $X$ | $-1$ | $-1000$ | $0$ | $\pi$ |
-| $Z$ | $1$ | $+1000$ | $0$ | $\pi$ |
-| $H$ | $0$ | $0$ | $0$ | $\pi$ |
+| compuerta | $q$ | m-qg | $\theta$ (qga) | $\varphi$ | $\lambda$ |
+|---|---|---|---|---|---|
+| $I$ | $1$ | $+1000$ | $0$ | $0$ | $0$ |
+| $X$ | $-1$ | $-1000$ | $500$ | $0$ | $\pi$ (500 qga) |
+| $Z$ | $1$ | $+1000$ | $0$ | $0$ | $\pi$ (500 qga) |
+| $H$ | $0$ | $0$ | $250$ | $0$ | $\pi$ (500 qga) |
 
 : Compuertas estándar como puntos de $U_3^{qg}$. {#tbl-compuertas}
 
@@ -143,17 +145,20 @@ m-qg. La sensibilidad a un error absoluto de ángulo, $d\,qg_Z/d\theta=-\sin\the
 en $0$ y $\pi$; el error fijo es relativo ($\varepsilon\theta$) y pesa más cerca de $116^\circ$ (§160). Es el presupuesto de error en mili-qang del capítulo 1 (@fig-pulso), y la escala hace comparables el error
 de la compuerta y el ruido de disparo de la lectura: con $\sigma=0{,}05$, el corrimiento de una $X$ (12,3 m-qg) es
 unas ocho veces la resolución de $10^4$ disparos en su lectura, $-987{,}7$ m-qg, donde
-$\sigma_m=1000\sin\theta/\sqrt N=1{,}6$ m-qg (en el ecuador serían 10 m-qg).
+$\sigma_m=1000\sin\theta/\sqrt N=1{,}6$ m-qg (en el ecuador serían 10 m-qg). En términos de la curvatura del
+capítulo 1, el corrimiento aleatorio es, a segundo orden, $\tfrac12\theta^2\sigma^2\kappa_{qg}$: depende del área
+($\theta^2$) y de dónde termina el estado ($\kappa_{qg}=1000\lvert\cos\theta\rvert$), que se anula en el ecuador.
 
 Cada compuerta tiene representantes más cortos. $R_X(\theta)=-R_X(\theta-2\pi)$ tiene período $2\pi$ salvo una fase
-global, y la @fig-area muestra lo que se gana: pedir $R_X(324^\circ)$ tal cual corre la lectura $-31{,}7$ m-qg, mientras
-que su representante $R_X(-36^\circ)$, la misma compuerta, la corre $-0{,}4$ m-qg.
+global (1000 qga), y la @fig-area muestra lo que se gana: pedir $R_X(324^\circ)=R_X(900\ \text{qga})$ tal cual corre
+la lectura $-31{,}7$ m-qg, mientras que su representante $R_X(-36^\circ)=R_X(-100\ \text{qga})$, la misma compuerta,
+la corre $-0{,}4$ m-qg.
 
 ![Error en mili-qang de $R_x(\theta)$ con un error de amplitud aleatorio $\sigma=0{,}05$: el ángulo tal como se pide frente al representante de área mínima. Por debajo de $180^\circ$ coinciden; por encima, el representante corto evita el error que, en los múltiplos de $\pi$, crece con el cuadrado del ángulo.](figuras/cap02_area.png){#fig-area width=90%}
 
 Más interesante: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, y $Z\otimes Z$ son dos rotaciones $R_Z(\pi)$
-virtuales, sin costo en los procesadores superconductores. Así $R_{ZZ}$ tiene período $\pi$ y su área nunca necesita
-superar $\pi/2$. La función `minimal_area_circuit` reescribe un circuito con esos representantes y conserva el
+virtuales, sin costo en los procesadores superconductores. Así $R_{ZZ}$ tiene período $\pi$ (500 qga) y su área
+nunca necesita superar $\pi/2$ (250 qga). La función `minimal_area_circuit` reescribe un circuito con esos representantes y conserva el
 unitario exactamente, fase global incluida.
 
 En un modelo de QAOA de 4 qubits con errores proporcionales al área (150 instancias), reducir los ángulos módulo
@@ -164,6 +169,11 @@ mínima tras la primera reducción. El resultado general se mantiene: **el error
 alcance: en los procesadores IBM las rotaciones comunes de un qubit son $R_Z$ virtuales más pulsos $\sqrt X$ fijos, de
 duración independiente del ángulo, de modo que la regla aplica a las compuertas fraccionarias; y el beneficio depende
 de cuánto escala el error con el área en cada plataforma.
+
+La versión de trabajo del autor propone además usar esta compilación de mínima curvatura, junto con una energía
+variacional regularizada y una función de radiación ligada a la población excitada $p_1=(1-q)/2$, contra las mesetas
+estériles inducidas por ruido. Son las propuestas abiertas del capítulo 1 (@sec-alcance): **sin verificar**, y el
+libro no les atribuye ningún resultado.
 
 ## Pantalla de exposición antes de correr {#sec-exposicion}
 

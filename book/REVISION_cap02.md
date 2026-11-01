@@ -128,3 +128,11 @@ ocho veces), y menciona la del ecuador entre paréntesis.
    θ² es la dispersión. Propuesta: "el error que, en los múltiplos de π, crece con el cuadrado del ángulo".
 5. **T3 — pregunta 3 de la primera revisión** (X frente a la resolución del ecuador): primero el autor decidió
    dejarla; el 2026-10-26 pidió aplicarla. Se anota que bajo T3 la resolución a comparar es la del punto de la lectura (1,6 m-qg en −987,7), no la del ecuador.
+
+## Base geométrica: ángulos en qga (2026-11-01)
+
+Con la convención B del autor (m-qg sigue siendo la lectura), el capítulo expresa también los ángulos de compuerta en
+la escala qga del capítulo 1: $R_y(166{,}667\ \text{qga})$, columna $\theta$ (qga) en `tbl-compuertas`,
+$R_X(900\ \text{qga})$ y $R_X(-100\ \text{qga})$, período de $R_{ZZ}$ de 500 qga. Se agregó el corrimiento aleatorio
+como $\tfrac12\theta^2\sigma^2\kappa_{qg}$ y un párrafo que remite a las propuestas abiertas del capítulo 1 (sin
+verificar). `tools/verify_cap02.py`: tres afirmaciones nuevas, **37/37**.
