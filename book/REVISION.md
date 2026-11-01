@@ -161,3 +161,35 @@ $p_0=\cos^2(\theta/2)$ (factor 2); el cambio de unidad no afecta las mesetas est
 de respaldo, el desplazamiento CPT de 500 qga ni la lectura de $\cos^2$ y $\sin^2$ del semiángulo como probabilidades
 de materia y antimateria: son los pesos de las componentes grande y pequeña del espinor de Dirac libre (comprobado en
 numpy).
+
+## Capítulos 2–24 frente a los .docx del autor y la escala qga (2026-11-01)
+
+El autor envió sus versiones de trabajo de los capítulos 1–24 en Word y pidió llevarlas al libro con la base
+geométrica y la convención B. Los .docx 9–24 son reformulaciones bilingües del mismo contenido; los 1–6 agregan
+secciones (fase azimutal, energía regularizada, función de radiación, mesetas estériles). Se compararon número por
+número contra el texto del libro y contra `RESEARCH_NOTES.md`. Lo aplicado está en un commit por capítulo, con un
+script de verificación nuevo para lo agregado (`verify_cap03` a `verify_cap08`, `verify_qga_lecturas`; todos pasan).
+
+**Hallazgos.**
+
+1. **Cap. 10, errata del libro:** $P(\bar\nu_\mu\to\bar\nu_e)$ en vacío con ordenamiento invertido es 0,038, no 0,039
+   (`qang.neutrino` da 0,03848). El .docx tenía el valor correcto. **Corregido.**
+2. **Cap. 16, error del .docx:** el ángulo crítico de BB84 es $2\arcsin\sqrt{0{,}110}=0{,}676$ rad (38,7°), no
+   0,687 rad (39,38°). El libro da el correcto.
+3. **Cap. 4, fórmula del .docx:** $\operatorname{Var}(\hat\varphi)\approx1/(N\sin^2\theta)$ es una cota; la varianza del
+   método delta es $[1-\tfrac12\sin^2\theta\sin^22\varphi]/(N\sin^2\theta)$, la mitad en el ecuador a 45° (muestreo en
+   QuTiP y Qiskit). El libro da la exacta y menciona la cota.
+4. **Cap. 5, condición faltante:** la fase azimutal no depende del radio sólo si el ruido acorta por igual $X$ e $Y$
+   (despolarizante, desfase, T1); una inversión de bit la corre. Se agregó la condición.
+5. **Cap. 8, cifra sin fuente:** el "+2,8% a +4,5%" de sesgo sin corregir con 1000 disparos no está en §126. **No se
+   aplicó.**
+6. **Cap. 20, afirmación más fuerte que el libro:** el .docx dice que los gradientes filtrados "sortean las mesetas
+   inducidas por ruido"; el libro ya dice, con §112, que con muchos qubits el sector mismo aplana el gradiente. Se
+   mantuvo el libro.
+7. Las propuestas de los .docx (energía regularizada $E_\text{total}$, función de radiación $R(\theta,\varphi)$,
+   mitigación de mesetas por $\kappa_{qg}$ o por el radio, vigilancia de 2-diseños con $qg_F$) entraron marcadas **sin
+   verificar**, en los capítulos 1, 2, 3, 4, 5 y 6.
+
+Quedan sin aplicar unas 300 cifras de los .docx que el libro no tiene: casi todas son conversiones a m-qg o
+redondeos distintos de números que el libro sí trae. La lista completa, con contexto y con la indicación de si
+`RESEARCH_NOTES.md` las respalda, se entregó al autor aparte para su decisión.
