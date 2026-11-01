@@ -91,6 +91,7 @@ devices until a real run exists (Part X).
 6.3 Lossless Mueller matrices and the rule qg_P′ = qg{U†PU} — §83
 6.4 Malus's law unified: I(θ) = (I0/2)(1 + qg_Z cos 2θ + qg_X sin 2θ) — §83
 6.5 Single-photon polarimetry from counts, with credible intervals — §83
+6.6 🆕 The angle under depolarization (naive 53.1° → 65.2°, separated 26.57° = 73.8 qga), complementarity P_Z² + V² = P² and the purity-corrected entropic bound; unverified polarimetric energy and radiation proposals — `tools/verify_cap06.py`
 
 ### Chapter 7. Geometric phases and Stokes' theorem on the sphere
 7.0 The geometric phase in the probability equation: a loop at constant qg_Z picks up (qg_Z-1)/2=-p_1 turns, that is, (m-1000)/2000 turns in milli-qang — §167

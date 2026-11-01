@@ -90,6 +90,7 @@ hasta que exista una corrida real (Parte X).
 6.3 Matrices de Mueller sin pérdidas y la regla qg_P′ = qg{U†PU} — §83
 6.4 Ley de Malus unificada: I(θ) = (I0/2)(1 + qg_Z cos 2θ + qg_X sin 2θ) — §83
 6.5 Polarimetría de fotón único a partir de conteos e intervalos de credibilidad — §83
+6.6 🆕 El ángulo bajo despolarización (ingenuo 53,1° → 65,2°, separado 26,57° = 73,8 qga), complementariedad P_Z² + V² = P² y cota entrópica con pureza; propuestas sin verificar de energía y radiación polarimétricas — `tools/verify_cap06.py`
 
 ### Capítulo 7. Fases geométricas y el teorema de Stokes en la esfera
 7.0 La fase geométrica en la ecuación de probabilidad: un bucle a qg_Z constante acumula (qg_Z-1)/2=-p_1 vueltas, es decir, (m-1000)/2000 vueltas en mili-qang — §167
