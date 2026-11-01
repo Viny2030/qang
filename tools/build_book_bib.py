@@ -340,6 +340,16 @@ HAND = r"""
   year = {2026}
 }
 
+@article{wang2021nibp,
+  author = {Wang, Samson and Fontana, Enrico and Cerezo, M. and Sharma, Kunal and Sone, Akira and Cincio, Lukasz and Coles, Patrick J.},
+  title = {Noise-induced barren plateaus in variational quantum algorithms},
+  journal = {Nature Communications},
+  volume = {12},
+  number = {1},
+  year = {2021},
+  doi = {10.1038/s41467-021-27045-6}
+}
+
 @unpublished{monteverde2026fund,
   title = {Fundamentación geométrica y dimensional del sistema qang},
   author = {Monteverde, Vicente Humberto},

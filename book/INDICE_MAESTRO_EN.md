@@ -81,6 +81,7 @@ devices until a real run exists (Part X).
 5.4 Separating polar direction from radius: θ = atan2(√(qg_X²+qg_Y²), qg_Z) = arccos(qg_Z/r) under depolarizing noise — §102, §103
 5.5 The collapse r = |qg_Z| in fixed-Hamming-weight states and reading entanglement in the Z basis — §98, §100, §104
 5.6 Wave–particle duality as the Bloch radius, and entropic uncertainty with qg_S — §127
+5.7 🆕 The azimuthal phase does not depend on the radius under depolarizing noise, dephasing and T1 (it does under channels that treat X and Y differently); the 30° example in qga; unverified proposals (purity penalty, damped radiation, noise-induced plateaus) — `tools/verify_cap05.py`
 
 ### Chapter 6. Optical polarization and Stokes parameters in qg units
 6.0 Malus's law as a probability equation: the transmission of a polarizer is p_0=cos ²Δ, so the qang angle is 2Δ and each normalized Stokes parameter reads in m-qg (S_1/S_0=qg_Z) — §167
