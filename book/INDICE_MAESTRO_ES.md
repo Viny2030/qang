@@ -80,6 +80,7 @@ hasta que exista una corrida real (Parte X).
 5.4 Desacople de dirección polar y radio: θ = atan2(√(qg_X²+qg_Y²), qg_Z) = arccos(qg_Z/r) bajo ruido despolarizante — §102, §103
 5.5 El colapso r = |qg_Z| en estados de peso de Hamming fijo y la lectura de entrelazamiento en base Z — §98, §100, §104
 5.6 Dualidad onda–partícula como radio de Bloch e incertidumbre entrópica con qg_S — §127
+5.7 🆕 La fase azimutal no depende del radio bajo despolarizante, desfase y T1 (sí bajo canales que tratan distinto X e Y); el ejemplo de 30° en qga; propuestas sin verificar (penalización de pureza, radiación atenuada, mesetas inducidas por ruido) — `tools/verify_cap05.py`
 
 ### Capítulo 6. Polarización óptica y parámetros de Stokes en unidades qg
 6.0 La ley de Malus como ecuación de probabilidad: la transmisión de un polarizador es p_0=cos ²Δ, de modo que el ángulo qang es 2Δ y cada parámetro de Stokes normalizado se lee en m-qg (S_1/S_0=qg_Z) — §167
