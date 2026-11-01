@@ -125,6 +125,7 @@ devices until a real run exists (Part X).
 9.5 Three flavours in the weight-1 sector (|100⟩, |010⟩, |001⟩) on 3 qubits; PMNS as three RBS gates and two phases — §151
 9.6 ⚠️ Noise suppression with the qg filter: the error falls ~3× (3.0–3.8×) **on simulated noise models** — §151; on real hardware (IQM Garnet) 1.6× and the oscillation maximum returns to 2.6 GeV — §165; figures: precession cone, three-flavour spectrum, Garnet run
 9.7 The CP asymmetry in vacuum, and why it survives even without the filter — §151
+9.8 🆕 The mixing angle in qga: θ_mix = ϑ_qga/4, σ = 1.26 qga with 1000 shots, θ ≤ 125 qga
 
 ### Chapter 10. Matter effects, solar neutrinos and collective oscillations
 10.0 Flavour probabilities in matter, in the Sun and in collective oscillations read in m-qg: matter effects as shifts measured on the same scale as shot noise — §167

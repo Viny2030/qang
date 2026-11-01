@@ -124,6 +124,7 @@ hasta que exista una corrida real (Parte X).
 9.5 Tres sabores en el sector de peso 1 (|100⟩, |010⟩, |001⟩) sobre 3 qubits; PMNS como tres RBS y dos fases — §151
 9.6 ⚠️ Supresión del ruido con el filtro qg: el error baja ~3× (3,0–3,8×) **en modelos de ruido simulados** — §151; en hardware real (IQM Garnet) 1,6× y el máximo de oscilación vuelve a 2,6 GeV — §165; figuras: cono de precesión, espectro de tres sabores, corrida en Garnet
 9.7 La asimetría CP en el vacío y por qué sobrevive incluso sin filtro — §151
+9.8 🆕 El ángulo de mezcla en qga: θ_mezcla = ϑ_qga/4, σ = 1,26 qga con 1000 disparos, θ ≤ 125 qga
 
 ### Capítulo 10. Efectos de materia, neutrinos solares y oscilaciones colectivas
 10.0 Las probabilidades de sabor en materia, en el Sol y en oscilaciones colectivas leídas en m-qg: los efectos de materia como corrimientos medidos en la misma escala que el ruido de disparo — §167
