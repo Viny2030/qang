@@ -67,6 +67,7 @@ devices until a real run exists (Part X).
 4.6 Few-shot single-qubit tomography; classical shadows against direct measurement — §35, §62
 4.7 Functional-analysis foundation: Riesz–Fréchet, why qg_Z is the canonical linear readout and qg_S is not — Appendix A
 4.8 On the base of Chapter 1: Haar is uniform in m-qg and in p₀ (½ sin θ in angle); intervals in m-qg (the delta method collapses or runs off the scale); planning shots in m-qg; the milli-qang as a linear functional (Riesz–Fréchet) — §15, §143, §167; figures: Haar in m-qg and in angle, interval widths with 50 shots
+4.9 🆕 The azimuthal phase: Var(atan2) = [1 − ½ sin²θ sin²2φ]/(N sin²θ), with the working version's bound 1/(N sin²θ) (exact only on the axes); the qga angle is not linear in ρ; κ_qg as an explanation of the 1.4–1.6× (untested) and unverified open proposals — `tools/verify_cap04.py`
 
 ---
 

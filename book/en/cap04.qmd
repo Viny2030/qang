@@ -25,6 +25,23 @@ The delta method is a first-order approximation and fails where the derivative v
 $\widehat{qg}_Z$ is exactly $\pm1$ in a sizeable fraction of experiments, and the estimated standard error
 $\sqrt{(1-\widehat{qg}_Z^2)/N}$ becomes zero: the interval collapses exactly where the state is most extreme.
 
+### The azimuthal phase
+
+The phase is estimated from the two transverse bases, $\hat\varphi=\operatorname{atan2}(\widehat{qg}_Y,\widehat{qg}_X)$
+(@sec-qga). With $N$ shots in each basis, the delta method gives
+
+$$
+\operatorname{Var}(\hat\varphi)\approx\frac{1-\tfrac12\sin^2\theta\,\sin^2 2\varphi}{N\sin^2\theta}
+\;\le\;\frac{1}{N\sin^2\theta}.
+$$
+
+The bound on the right, which is the one the author's working version uses, is exact on the axes ($\varphi$ a multiple
+of $90^\circ$) and near the poles, but on the equator at $\varphi=45^\circ$ it doubles the true variance. The essential
+point stands: the phase becomes unobservable towards a pole, where $\sin\theta\to0$. On the angular scale of Chapter 1,
+on the equator and on an axis, the deviation is $159.15/\sqrt N$ qga, the same as for the polar angle. The transverse
+reading $\widehat{qg}_X=\sin\theta\cos\varphi$, by contrast, does not diverge: its variance is $(1-qg_X^2)/N\le1/N$, for
+the same reason as that of $\widehat{qg}_Z$.
+
 ## The Haar distribution in qg space {#sec-haar}
 
 What is known about a qubit before it is measured? If its state is "any state", the natural distribution is the Haar
@@ -104,7 +121,10 @@ on the equator; the plan asks for more because it discounts the shots the filter
 The per-qubit prediction, however, was 1.4–1.6 times optimistic on average, and its analysis is instructive: the
 qubits that missed were those near a pole ($|qg|>0.8$, with ratios of 2.4–3.1), whose $qg_Z$ the noise pulls away from
 $\pm1$ and whose real variance is larger than the ideal one. The plan uses the worst qubit and therefore holds; the
-safe option, assuming no value of qg, is to plan for the worst case, $qg=0$.
+safe option, assuming no value of qg, is to plan for the worst case, $qg=0$. The author's working version
+attributes that excess to the curvature $\kappa_{qg}=1000\,\lvert qg_Z\rvert$ of Chapter 1, largest at the poles: a
+random pulse error shifts the reading towards the equator in proportion to $\kappa_{qg}$, and there the binomial
+variance is larger. It is an interpretation consistent with Chapter 1, but it was **not tested** on the data of §143.
 
 ## Few-shot tomography and classical shadows {#sec-tomography}
 
@@ -152,7 +172,17 @@ beyond what the representative of $qg_Z$ already extracts.
 The milli-qang inherits this property: $m(\rho)=1000\,\operatorname{Tr}(\rho\,\sigma_z)$ is linear too, with representative
 $1000\,\sigma_z$, which is why its estimator is the shot average, without bias. It is the underlying reason Chapter 1
 defined the unit on probability and not on angle: $\theta=\arccos(qg_Z)$ is not linear in $\rho$, has no representative
-and its direct estimator is biased.
+and its direct estimator is biased. The same holds for the angle on the qga scale of Chapter 1: it is the same
+$\theta$ multiplied by $1000/2\pi$, so the angular scale changes the unit of the angle but does not make it linear in
+$\rho$.
+
+**Open proposals.** The author's working version adds three proposals to this chapter, which the book records as
+**unverified**: watching the Fisher information $qg_F=4000\,\operatorname{Var}(\sigma_z)$ so that an ansatz does not
+approach a global Haar 2-design (that the Haar measure over all of $SU(2^n)$ produces barren plateaus is a known
+result [@mcclean2018]; that $qg_F$ serves to watch it is not); shot-noise propagation formulas for the regularized
+energy and the radiation function of Chapter 1, which depend on penalties not yet defined; and that the natural
+gradient in qg canonically diagonalizes the Fubini–Study tensor, which is true only for the coordinates
+$(\theta,\varphi)$ of one qubit (@sec-qga).
 
 ## Without qang and with qang {#sec-comparison04}
 

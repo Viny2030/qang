@@ -66,6 +66,7 @@ hasta que exista una corrida real (Parte X).
 4.6 Tomografía de un qubit con pocos disparos; sombras clásicas contra medición directa — §35, §62
 4.7 Fundamento de análisis funcional: Riesz–Fréchet, por qué qg_Z es la lectura lineal canónica y qg_S no — Apéndice A
 4.8 Sobre la base del capítulo 1: Haar es uniforme en m-qg y en p₀ (½ sin θ en el ángulo); intervalos en m-qg (el método delta colapsa o se sale de la escala); planificar disparos en m-qg; el mili-qang como funcional lineal (Riesz–Fréchet) — §15, §143, §167; figuras: Haar en m-qg y en ángulo, ancho de intervalos con 50 disparos
+4.9 🆕 La fase azimutal: Var(atan2) = [1 − ½ sin²θ sin²2φ]/(N sin²θ), con la cota 1/(N sin²θ) de la versión de trabajo (exacta sólo sobre los ejes); el ángulo qga no es lineal en ρ; κ_qg como explicación del 1,4–1,6× (sin probar) y propuestas abiertas sin verificar — `tools/verify_cap04.py`
 
 ---
 

@@ -27,6 +27,23 @@ El método delta es una aproximación de primer orden y falla donde la derivada 
 $\widehat{qg}_Z$ vale exactamente $\pm1$ en una fracción apreciable de los experimentos, y el error estándar estimado
 $\sqrt{(1-\widehat{qg}_Z^2)/N}$ se vuelve cero: el intervalo colapsa justo donde el estado es más extremo.
 
+### La fase azimutal
+
+La fase se estima con las dos bases transversales, $\hat\varphi=\operatorname{atan2}(\widehat{qg}_Y,\widehat{qg}_X)$
+(@sec-qga). Con $N$ disparos en cada base, el método delta da
+
+$$
+\operatorname{Var}(\hat\varphi)\approx\frac{1-\tfrac12\sin^2\theta\,\sin^2 2\varphi}{N\sin^2\theta}
+\;\le\;\frac{1}{N\sin^2\theta}.
+$$
+
+La cota de la derecha, que es la que usa la versión de trabajo del autor, es exacta sobre los ejes ($\varphi$ múltiplo
+de $90^\circ$) y cerca de los polos, pero en el ecuador a $\varphi=45^\circ$ duplica la varianza real. Lo esencial no
+cambia: la fase se vuelve inobservable al acercarse a un polo, donde $\sin\theta\to0$. En la escala angular del
+capítulo 1, en el ecuador y sobre un eje, la desviación es $159{,}15/\sqrt N$ qga, igual que la del ángulo polar. La
+lectura transversal $\widehat{qg}_X=\sin\theta\cos\varphi$, en cambio, no diverge: su varianza es
+$(1-qg_X^2)/N\le1/N$, por la misma razón que la de $\widehat{qg}_Z$.
+
 ## La distribución de Haar en espacio qg {#sec-haar}
 
 ¿Qué se sabe de un qubit antes de medirlo? Si su estado es "cualquiera", la distribución natural es la medida de
@@ -109,7 +126,10 @@ disparos que el filtro va a descartar.
 La predicción por qubit, en cambio, resultó 1,4–1,6 veces optimista en promedio, y su análisis es instructivo: los
 qubits que fallaron eran los cercanos a un polo ($|qg|>0{,}8$, con cocientes de 2,4–3,1), cuyo $qg_Z$ el ruido aleja de
 $\pm1$ y cuya varianza real es mayor que la ideal. El plan usa el peor qubit y por eso cumple; la opción segura, sin
-suponer el valor de qg, es planificar para el caso peor, $qg=0$.
+suponer el valor de qg, es planificar para el caso peor, $qg=0$. La versión de trabajo del autor atribuye ese
+exceso a la curvatura $\kappa_{qg}=1000\,\lvert qg_Z\rvert$ del capítulo 1, máxima en los polos: un error aleatorio de
+pulso corre la lectura hacia el ecuador en proporción a $\kappa_{qg}$, y ahí la varianza binomial es mayor. Es una
+interpretación coherente con el capítulo 1, pero **no se probó** sobre los datos de §143.
 
 ## Tomografía con pocos disparos y sombras clásicas {#sec-tomografia}
 
@@ -158,7 +178,17 @@ contiene información sobre el estado que el representante de $qg_Z$ no extraiga
 El mili-qang hereda esta propiedad: $m(\rho)=1000\,\operatorname{Tr}(\rho\,\sigma_z)$ también es lineal, con representante
 $1000\,\sigma_z$, y por eso su estimador es el promedio de los disparos, sin sesgo. Es la razón de fondo por la que el
 capítulo 1 definió la unidad sobre la probabilidad y no sobre el ángulo: $\theta=\arccos(qg_Z)$ no es lineal en
-$\rho$, no tiene representante y su estimador directo tiene sesgo.
+$\rho$, no tiene representante y su estimador directo tiene sesgo. Lo mismo vale para el ángulo en la escala qga
+del capítulo 1: es el mismo $\theta$ multiplicado por $1000/2\pi$, de modo que la escala angular cambia la unidad del
+ángulo pero no lo vuelve lineal en $\rho$.
+
+**Propuestas abiertas.** La versión de trabajo del autor agrega a este capítulo tres propuestas que el libro registra
+**sin verificar**: vigilar la información de Fisher $qg_F=4000\,\operatorname{Var}(\sigma_z)$ para que un ansatz no se
+acerque a un 2-diseño de Haar global (que la medida de Haar sobre todo $SU(2^n)$ produce mesetas estériles es un
+resultado conocido [@mcclean2018]; que $qg_F$ sirva para vigilarlo, no); fórmulas de propagación del ruido de disparo
+para la energía regularizada y la función de radiación del capítulo 1, que dependen de penalizaciones todavía sin
+definir; y que el gradiente natural en qg diagonalice de forma canónica el tensor de Fubini–Study, que sólo es cierto
+para las coordenadas $(\theta,\varphi)$ de un qubit (@sec-qga).
 
 ## Sin qang y con qang {#sec-comparacion04}
 
