@@ -26,7 +26,9 @@ $$
 The term $-\sqrt{(1-q_1^2)(1-q_2^2)}$ is the interference: the transverse part of each state, invisible in $T$, adding
 up in amplitude. With $q_1=0.3$ and $q_2=-0.5$, the classical composition gives $-0.15$ and the quantum one $-0.976$:
 in milli-qang, $-150$ against $-976$, an interference of 826 m-qg, close to half the scale. The transition matrix
-describes each gate on its own, but not the sequence: that needs the phases.
+describes each gate on its own, but not the sequence: that needs the phases. On the angular qga scale of
+Chapter 1 (@sec-qga) quantum composition is simply additive: $\theta_1=201.5$ qga, $\theta_2=333.3$ qga, the sum is
+$534.8$ qga and $\cos(2\pi\cdot534.8/1000)=-0.976$. What is not additive is the reading in m-qg.
 
 ## The Householder reflector in qg space {#sec-householder}
 
@@ -38,7 +40,7 @@ H(q)=I-2|\psi(q)\rangle\langle\psi(q)|=-q\,\sigma_z-\sqrt{1-q^2}\;\sigma_x ,
 $$
 
 a Hermitian, unitary matrix with $H(q)^2=I$, whose coefficients are the state's own qg values: $q$ on $\sigma_z$ and
-its transverse part $\sqrt{1-q^2}$ on $\sigma_x$ (§166). On the Bloch sphere it is the rotation by $\pi$ about the axis
+its transverse part $\sqrt{1-q^2}$ on $\sigma_x$ (§166). On the Bloch sphere it is the rotation by $\pi$ (500 qga) about the axis
 of the state, together with an overall sign change.
 
 ## The Grover diffuser as a qg reflection {#sec-diffuser}
@@ -53,7 +55,8 @@ $$
 In the two-dimensional plane of the algorithm (the "good" state being searched for and the "bad" one, its
 complement), the oracle is the reflection about the bad axis and the diffuser the reflection about the initial state.
 The product of two reflections is a rotation by twice the angle between their axes: that is the whole of Grover's
-dynamics.
+dynamics. In the Fubini–Study metric (@sec-qga), each iteration covers the same arc length along a great circle:
+$2t$ in Hilbert space, that is, $4t$ in the Bloch angle of the flag qubit of the Chebyshev section.
 
 ## Transition probability between qg states {#sec-ptransition}
 
@@ -83,7 +86,9 @@ $$
 the qang angle of the transition probability is the angle between the states, and its milli-qang reading is a
 thousand times the dot product of their qg vectors. It is Chapter 1's Wootters statistical distance applied to two
 states (@sec-equation). With $q_1=0.3$ and $q_2=-0.5$ on the same meridian, $P=0.838$, $m_P=+676$ m-qg and
-$\gamma=0.828$ rad, which is exactly $|\theta_1-\theta_2|=|\arccos 0.3-\arccos(-0.5)|$.
+$\gamma=0.828$ rad, which is exactly $|\theta_1-\theta_2|=|\arccos 0.3-\arccos(-0.5)|$. In qga,
+$\gamma=131.8$ qga and $P=\cos^2(\pi\gamma_{qga}/1000)$; the Fubini–Study distance between the two states is
+$\gamma/2$.
 
 ## The Grover trajectory as a Chebyshev polynomial {#sec-chebyshev}
 
@@ -97,7 +102,9 @@ $$
 with $T_m$ the Chebyshev polynomial of the first kind, $T_m(\cos x)=\cos mx$ (§37). By the probability equation, the
 success probability is $P_k=(1-qg_k)/2$, and certain success is the pole at $-1000$ m-qg. For instance, with $a=0.1$,
 $qg_0=0.8$ and the successive iterations give $+800$, $-352$, $-997$ and $-206$ m-qg: the bias crosses the pole at
-$k=2$ ($P_2=0.9986$) and then moves away (@fig-grover).
+$k=2$ ($P_2=0.9986$) and then moves away (@fig-grover). In qga the step is uniform: $t=51.2$ qga, the flag's
+Bloch angle starts at $2t=102.4$ qga and advances $4t=204.8$ qga per iteration; at $k=2$ it reaches $512.1$ qga,
+12 qga past the pole (500 qga).
 
 ![The Grover trajectory in milli-qang: the flag bias samples a cosine at the odd points $(2k+1)\,2t$. With $a=0.1$ success arrives at $k=2$; with $a=0.3$ the angle is coarse, success arrives at $k=1$ and by $k=2$ the bias has overshot the pole.](figures/cap03_grover.png){#fig-grover width=90%}
 
@@ -111,11 +118,14 @@ $$
 depth multiplies the qg information of Chapter 1 by $m^2$, uniformly along the fringe. It is the qg form of the known
 factor $4m^2$ for the angle [@suzuki2020]. On the milli-qang scale, the resolution on $qg_0$ with $N$
 shots at depth $m$ is $1000\sqrt{1-qg_0^2}/(m\sqrt N)$ m-qg: with $a=0.1$ and 100 shots, 60 m-qg without iterating and
-12 m-qg at depth $m=5$.
+12 m-qg at depth $m=5$. With respect to the flag's initial angle, the information is $m^2$ times that of Chapter 1
+and does not depend on the state: $m^2\cdot4\pi^2\cdot10^{-6}$ qga$^{-2}$, with a resolution of
+$159.15/(m\sqrt N)$ qga, that is, 15.9 qga without iterating and 3.2 qga at depth 5.
 
 ## Analytic limits: coarse angles and overshoot {#sec-limits}
 
-The optimal number of iterations is $k^\ast=\operatorname{round}\!\big(\tfrac{\pi}{4t}-\tfrac12\big)$. When the searched
+The optimal number of iterations is $k^\ast=\operatorname{round}\!\big(\tfrac{\pi}{4t}-\tfrac12\big)$; with $t$ in
+qga, $k^\ast=\operatorname{round}(125/t_{qga}-\tfrac12)$. When the searched
 fraction $a=M/N$ is small, $t$ is small, $k^\ast\approx\tfrac{\pi}{4}\sqrt{N/M}$ and the rounding hardly matters. When
 $M/N$ is not negligible, the angle per iteration is *coarse*: the bias jumps in large steps along the curve
 $\cos((2k+1)2t)$ and can overshoot the pole. Iterating more does not help; it hurts, because the rotation keeps going.
@@ -138,7 +148,9 @@ with each multi-controlled Z compiled to 14, 36 and 84 CNOTs and depolarizing no
   signs and 91% with the most frequent bitstring.
 
 The honest balance: in Grover search the outcome histogram is a better estimator than the per-qubit qg reading. qg
-provides the Chebyshev picture and the information factor, not a better estimator.
+provides the Chebyshev picture and the information factor, not a better estimator. The author's working version
+further proposes a regularized variational energy for reflection circuits and a radiation function that would
+follow $P_k$ during amplification; these are the open proposals of Chapter 1 (@sec-scope), **unverified**.
 
 ## Amplitude estimation {#sec-amplitude}
 

@@ -55,6 +55,7 @@ hasta que exista una corrida real (Parte X).
 3.6 Límites analíticos, ángulo grueso y sobreoscilación cuando M/N no es despreciable; Grover con ruido: la lectura qg pierde contra el histograma — §37, §63
 3.7 Estimación de amplitud de Grover en el simulador ruidoso de IonQ — §39
 3.8 Sobre la base del capítulo 1: la probabilidad de transición tiene ángulo qang γ (el ángulo entre los estados) y lectura 1000·r₁·r₂ m-qg; la trayectoria de Grover y la resolución por profundidad en m-qg — §37, §166, §167; figura: trayectoria de Grover en m-qg (a = 0,1 y 0,3)
+3.9 🆕 Reflexiones y Grover en la escala qga: composición aditiva en qga (no en m-qg), arco de Fubini–Study constante por iteración, bandera de Grover en qga (paso 4t, k* = round(125/t_qga − ½)), información m²·4π²·10⁻⁶ qga⁻²; propuestas sin verificar de energía y radiación — `tools/verify_cap03.py`
 
 ### Capítulo 4. Estadística de muestreo, inferencia bayesiana y la distribución de Haar
 4.1 Propagación del ruido de disparo por el método delta: Var(θ̂) ≈ 1/N — §5, §125

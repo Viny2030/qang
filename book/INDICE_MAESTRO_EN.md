@@ -56,6 +56,7 @@ devices until a real run exists (Part X).
 3.6 Analytic limits, coarse angles and overshoot when M/N is not negligible; Grover with noise: the qg reading loses to the histogram — §37, §63
 3.7 Grover amplitude estimation on IonQ's noisy simulator — §39
 3.8 On the base of Chapter 1: the transition probability has qang angle γ (the angle between the states) and reading 1000·r₁·r₂ m-qg; the Grover trajectory and depth resolution in m-qg — §37, §166, §167; figure: Grover trajectory in m-qg (a = 0.1 and 0.3)
+3.9 🆕 Reflections and Grover on the qga scale: composition additive in qga (not in m-qg), constant Fubini–Study arc per iteration, Grover flag in qga (step 4t, k* = round(125/t_qga − ½)), information m²·4π²·10⁻⁶ qga⁻²; unverified energy and radiation proposals — `tools/verify_cap03.py`
 
 ### Chapter 4. Sampling statistics, Bayesian inference and the Haar distribution
 4.1 Shot-noise propagation by the delta method: Var(θ̂) ≈ 1/N — §5, §125
