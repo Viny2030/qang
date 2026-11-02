@@ -117,11 +117,53 @@ resuelve mejor cuanto más rápida es la partícula. Con 1000 disparos, el ángu
 rango, y a $0{,}99c$ la velocidad se resuelve a $0{,}0045$. El script lo comprueba muestreando con Qiskit a $0{,}3c$,
 $0{,}6c$ y $0{,}9c$.
 
+## La lectura de $\beta$ en un chip real (§170) {#sec-g-garnet}
+
+En una dimensión y con impulso fijo, el hamiltoniano de Dirac es un solo qubit, $H=p\,X+m\,Z$, con $\beta=Z$. Así el qubit
+de $\beta$ se puede preparar y leer en un qubit físico. Con $m=1$ y $p=0{,}75$ es $E=1{,}25$, $v=0{,}6c$, $\gamma=1{,}25$ y
+$\theta_r=102{,}4$ qga. Lo exacto es esto: el autoestado de energía positiva, $R_y(\theta_r)|0\rangle$, lee $+800$ m-qg en
+todo momento, y el de energía negativa lee $-800$. En cambio $|0\rangle$ mezcla las dos ramas, y su lectura oscila a la
+frecuencia $2E$ entre $+1000$ y $+280$ m-qg alrededor de $1000/\gamma^2=+640$: es el *Zitterbewegung*, el temblor de
+Dirac. Ese promedio, $1000\,(mc^2/E)^2$, es el $P_\text{reposo}$ del documento fuente (@sec-g-pitagoras): la
+probabilidad del documento es el promedio temporal de la lectura de $\beta$.
+
+Se corrió en IQM Garnet, en el qubit 0: 24 circuitos de 2000 disparos en un trabajo de 32 s, con la lectura corregida
+desde los polos ($e_0=0{,}0030$, $e_1=0{,}0265$). Las cinco predicciones quedaron fijadas antes de la corrida (sha256 del
+archivo subido al repositorio antes del trabajo; @sec-cap28). Llevan un margen sistemático de 60 m-qg, tomado de §168,
+donde $R_y$ en ángulos intermedios leyó bajo.
+
+| predicción | medido (m-qg, corregido) | previsto | veredicto |
+|---|---|---|---|
+| Z1: $E_+$ en $t=0$ | $+759{,}9\pm14{,}9$ | $+800$ | cumple ($z=-2{,}7$; también sin el margen) |
+| Z2: $E_-$ en $t=0$; reflexión $C$ | $-809{,}4\pm14{,}9$; $-49{,}5$ | $-800$; 0 | cumple (dentro de $3\sigma$ sin el margen) |
+| Z3: $E_+$ no tiembla (rango en un período) | 45,3 | $\le108$ | cumple |
+| Z4: frecuencia ajustada | 2,511 | $2E=2{,}5$ ($\pm5$ %) | cumple (0,44 % de diferencia) |
+| Z5: media; amplitud | 625,6; 356,1 | 640; 360 ($\pm60$) | cumple (14 y 4 m-qg de diferencia) |
+
+: La lectura de $\beta$ en IQM Garnet (notas §170). {#tbl-g-garnet}
+
+Las cinco predicciones se cumplen. En un chip real, el autoestado de Dirac lee $1000/\gamma$, la rama negativa lo
+refleja, y el *Zitterbewegung* aparece a la frecuencia $2E$, con la media $1000/\gamma^2$ y la amplitud previstas
+(@fig-g-garnet). Z1 y Z5 discriminaban de verdad. El qubit de Pitágoras habría leído $+640$ en Z1. Una media de
+$1000/\gamma$ habría dado $+800$ en Z5. Las dos quedan fuera de la tolerancia.
+
+**No salió limpio, y se dice.** Las cuatro lecturas de $E_+$ quedan entre 26 y 71 m-qg por debajo de $+800$; la peor, en
+$t=T/2$, tiene $z=-4{,}5$ y no forma parte de ninguna predicción. Es la misma dirección que en §168. Los 16 puntos del
+*Zitterbewegung* se apartan 30 m-qg (rms) de la curva exacta, más que el ruido de disparo ($\chi^2$ por grado de libertad
+2,4), así que los errores de compuerta se ven, aunque no mueven ni la frecuencia ni la media. Como velocímetro,
+$E_+$ en $t=0$ da $\gamma=1{,}316$ (la verdadera es 1,25: +5 %) y $E_-$ da 1,236 (−1 %). Es una sola corrida en un
+solo qubit. Falta repetirla en otro qubit y otro día, igual que §168.
+
+![La lectura de $\beta$ en IQM Garnet (§170), con $v=0{,}6c$ y 2000 disparos por punto. La curva es el *Zitterbewegung* exacto desde $|0\rangle$, y los círculos, lo medido. Los cuadrados son el autoestado $E_+$, que no tiembla y lee cerca de $+800$; los rombos, el autoestado $E_-$, su reflejo en $-800$.](figuras/apg_zitterbewegung.png){#fig-g-garnet width=95%}
+
 ## Qué se afirma y qué no {#sec-g-balance}
 
 - **Exacto y comprobado:** el ángulo relativista y sus identidades; $\langle\beta\rangle=mc^2/E$ con el signo de la rama
   (Hellmann–Feynman), independiente de la representación; sus cuatro lecturas qang ($p_1=T/2E$, $m=1000/\gamma$);
   $C$ y $CPT$ invierten la lectura, y $P$ y $T$ la conservan; el qubit de Pitágoras; la barra de error del ángulo.
+- **Comprobado en hardware (una corrida, §170):** en IQM Garnet, la lectura $1000/\gamma$ de un autoestado, su reflejo en
+  la rama negativa y el *Zitterbewegung* a $2E$ con media $1000/\gamma^2$. Las cinco predicciones se cumplen, con un
+  sesgo de compuerta de 26 a 71 m-qg que queda a la vista.
 - **Conocido, no nuevo:** todo lo anterior es mecánica cuántica relativista de libro [@thaller1992] escrita en la escala
   del capítulo 1. Lo que la escala agrega es la lectura: la energía en m-qg, el ángulo en qga y su ruido de disparo.
 - **Lectura propuesta, sin verificar como física:** llamar «materia» y «antimateria» a los hemisferios del qubit de

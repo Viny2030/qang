@@ -116,11 +116,53 @@ $159.15/\sqrt N$ qga. The velocity, $\beta=\sin\theta_r$, then has $\sigma(\beta
 the faster the particle. With 1000 shots the angle has 5.03 qga of uncertainty over the whole range, and at $0.99c$ the
 velocity is resolved to $0.0045$. The script checks it by sampling in Qiskit at $0.3c$, $0.6c$ and $0.9c$.
 
+## The reading of $\beta$ on a real chip (§170) {#sec-g-garnet}
+
+In one dimension and at fixed momentum the Dirac Hamiltonian is a single qubit, $H=p\,X+m\,Z$ with $\beta=Z$, so the
+$\beta$ qubit can be prepared and read on one physical qubit. With $m=1$ and $p=0.75$, $E=1.25$, $v=0.6c$, $\gamma=1.25$
+and $\theta_r=102.4$ qga. The exact readings: the positive-energy eigenstate, $R_y(\theta_r)|0\rangle$, reads $+800$
+m-qg at every time; the negative-energy one reads $-800$. The state $|0\rangle$ mixes both branches instead, and its
+reading oscillates at frequency $2E$ between $+1000$ and $+280$ m-qg around $1000/\gamma^2=+640$: the
+*Zitterbewegung*, Dirac's trembling motion. That mean, $1000\,(mc^2/E)^2$, is the source document's $P_\text{rest}$
+(@sec-g-pythagoras): the document's probability is the time average of the $\beta$ reading.
+
+It ran on IQM Garnet, qubit 0: 24 circuits of 2000 shots in one 32 s job, with the readout corrected from the poles
+($e_0=0.0030$, $e_1=0.0265$). The five predictions were frozen before the run (the sha256 of the file was committed to
+the repository before the job; @sec-ch28). They carry a 60 m-qg systematic allowance taken from §168, where $R_y$ read
+low at intermediate angles.
+
+| prediction | measured (m-qg, corrected) | predicted | verdict |
+|---|---|---|---|
+| Z1: $E_+$ at $t=0$ | $+759.9\pm14.9$ | $+800$ | pass ($z=-2.7$; also without the allowance) |
+| Z2: $E_-$ at $t=0$; $C$ reflection | $-809.4\pm14.9$; $-49.5$ | $-800$; 0 | pass (within $3\sigma$ without the allowance) |
+| Z3: $E_+$ does not tremble (span over a period) | 45.3 | $\le108$ | pass |
+| Z4: fitted frequency | 2.511 | $2E=2.5$ ($\pm5$%) | pass (0.44% off) |
+| Z5: mean; amplitude | 625.6; 356.1 | 640; 360 ($\pm60$) | pass (14 and 4 m-qg off) |
+
+: The reading of $\beta$ on IQM Garnet (notes §170). {#tbl-g-garnet}
+
+All five pass. On a real chip the Dirac eigenstate reads $1000/\gamma$, the negative branch mirrors it, and the
+*Zitterbewegung* shows at frequency $2E$ with the predicted mean $1000/\gamma^2$ and amplitude (@fig-g-garnet). Z1 and Z5
+did discriminate. The Pythagoras qubit would have read $+640$ at Z1, and a mean of $1000/\gamma$ would have given $+800$ at
+Z5. Both lie outside the tolerance.
+
+**Not clean, and said so.** The four $E_+$ readings sit 26–71 m-qg below $+800$. The worst, at $t=T/2$, has $z=-4.5$ and is
+not part of any prediction. This is the same direction as in §168. The 16 *Zitterbewegung* points scatter 30 m-qg rms
+around the exact curve, more than shot noise ($\chi^2$ per degree of freedom 2.4). So gate errors are visible, but they
+move neither the frequency nor the mean. As a speedometer, $E_+$ at $t=0$ gives $\gamma=1.316$ (true value 1.25: +5%) and
+$E_-$ gives 1.236 (−1%). This is one run on one qubit. A replication on another qubit and another day is pending, as for
+§168.
+
+![The reading of $\beta$ on IQM Garnet (§170), with $v=0.6c$ and 2000 shots per point. The curve is the exact *Zitterbewegung* from $|0\rangle$ and the circles are measured. The squares are the $E_+$ eigenstate, which does not tremble and reads near $+800$; the diamonds are the $E_-$ eigenstate, its mirror at $-800$.](figures/apg_zitterbewegung.png){#fig-g-garnet width=95%}
+
 ## What is claimed and what is not {#sec-g-balance}
 
 - **Exact and checked:** the relativistic angle and its identities; $\langle\beta\rangle=mc^2/E$ with the sign of the
   branch (Hellmann–Feynman), independent of the representation; its four qang readings ($p_1=T/2E$, $m=1000/\gamma$);
   $C$ and $CPT$ invert the reading, and $P$ and $T$ preserve it; the Pythagoras qubit; the angle's error bar.
+- **Checked on hardware (one run, §170):** on IQM Garnet, the reading $1000/\gamma$ of an eigenstate, its mirror on the
+  negative branch, and the *Zitterbewegung* at $2E$ with mean $1000/\gamma^2$. All five predictions pass, and a gate bias
+  of 26–71 m-qg is reported in the open.
 - **Known, not new:** all of the above is textbook relativistic quantum mechanics [@thaller1992] written on the scale
   of Chapter 1. What the scale adds is the reading: the energy in m-qg, the angle in qga and its shot noise.
 - **Proposed reading, unverified as physics:** calling the hemispheres of the $\beta$ qubit "matter" and "antimatter".

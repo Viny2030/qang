@@ -57,7 +57,7 @@ def main():
         ax.set_ylabel(tx["y"])
         ax.set_ylim(-1050, 1100)
         ax.set_title(tx["title"], fontsize=11)
-        ax.legend(fontsize=8, ncol=2, loc="lower left")
+        ax.legend(fontsize=8, ncol=2, loc="center", bbox_to_anchor=(0.5, 0.33))   # the empty band above E_-
         fig.tight_layout()
         os.makedirs(tx["dir"], exist_ok=True)
         path = os.path.join(tx["dir"], "apg_zitterbewegung.png")
