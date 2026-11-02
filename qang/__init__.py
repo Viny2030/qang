@@ -28,6 +28,9 @@ This package covers, in order:
                        few-shot qg_Z intervals (Haar-prior Bayes, Wilson).
   - qang.probability  the qang probability equation and the milli-qang:
                        every reading of one probability, with intervals (§167).
+                       m-qg is the reading 1000 * qg_Z, not an angle.
+  - qang.qga          the angular qang: 1000 qga per turn; conversions between
+                       qga, radians, p0 and m-qg, Fisher and Berry phase in qga.
   - qang.proportions  the qang angle as the arcsine transformation of any
                        binomial proportion: intervals and Cohen's h (§125).
   - qang.clock_comparison  differential phase of two clocks from the
@@ -68,4 +71,4 @@ See RESEARCH_NOTES.md for the derivations and results behind each module.
 from .core import Qang, MILLIQANG_PER_QANG
 
 __all__ = ["Qang", "MILLIQANG_PER_QANG"]
-__version__ = "0.13.1"
+__version__ = "0.14.0"

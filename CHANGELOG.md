@@ -5,6 +5,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-02
+
+### Added
+- `qang.qga` (book, chapter 1, section "La escala angular"): the angular qang of the *Geometric and Dimensional
+  Foundation of the Qang System*, 1 turn = 1000 qga = 10^6 m-qga. `radians_from_qga` / `qga_from_radians`,
+  `degrees_from_qga` / `qga_from_degrees`, `p0_from_qga` / `qga_from_p0`, `milliqang_from_qga` / `qga_from_milliqang`,
+  `azimuth_qga`, `angle_sigma_qga`, `fubini_study_metric_qga`, `cone_phase_qga` and the constants `QGA_PER_TURN`,
+  `MILLI_QGA_PER_QGA`, `FISHER_PER_QGA2`. Standard library only; tests in `tests/test_qga.py`.
+- Book check scripts for the qga additions: `tools/verify_cap03.py` … `tools/verify_cap08.py` and
+  `tools/verify_qga_lecturas.py`; `tools/verify_cap01.py` and `tools/verify_cap02.py` extended.
+
+### Changed
+- The milli-qang keeps its meaning: m-qg is the reading 1000·qg_Z, not an angle (documented in `qang.probability`,
+  `qang.qga` and the README). The angle scale is named qga so the two never share a symbol.
+- The book (chapters 1–24, 30–34, appendices A–B, Spanish and English) gives angles in qga where it helps. Chapter 1
+  corrects three claims of the source document (p0 = 0.5 at 250 qga, not 125; curvature 4, not 1; the factor 2 in
+  P_rest) and writes its relativistic and antimatter extension as an unverified proposal.
+- `tools/make_appendices.py` checks the qga sentences of appendices A and B when it regenerates them.
+
+### Fixed
+- Book, chapter 10: P(anti-nu_mu -> anti-nu_e) in vacuum, inverted ordering, 1300 km, 2.6 GeV is 0.038, not 0.039.
+
 ## [0.13.1] - 2026-10-25
 
 ### Added

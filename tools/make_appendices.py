@@ -293,6 +293,8 @@ DESC = {
     "pulse_area": ("Área de pulso de compuertas fraccionarias: la regla del área mínima (§160).",
                    "Pulse area of fractional gates: the minimal-area rule (§160)."),
     "qec": ("El código de bit-flip de 3 qubits con síndromes leídos en qg.", "The 3-qubit bit-flip code with syndromes read in qg."),
+    "qga": ("La escala angular qga: 1000 qga por vuelta; conversiones a radianes, $p_0$ y m-qg, Fisher y fase de Berry en qga (capítulo 1).",
+            "The angular qga scale: 1000 qga per turn; conversions to radians, $p_0$ and m-qg, Fisher and Berry phase in qga (Chapter 1)."),
     "qiskit_gate": ("qg como compuerta nativa de Qiskit.", "qg as a native Qiskit gate."),
     "qiskit_ml": ("La QNN de peso dentro de qiskit-machine-learning (§140).", "The weight QNN inside qiskit-machine-learning (§140)."),
     "qml": ("Redes neuronales cuánticas que conservan el peso, con y sin filtro (§75–§80; capítulo 20).",

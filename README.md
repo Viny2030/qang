@@ -21,6 +21,23 @@ Reference implementation and computational toolkit for:
 - **IQM** devices (`qang.iqm`): readout correction from the two poles or the error profile, qg read-outs of `IQMBackend` counts, chain choice; the project's first real-hardware runs were on IQM Garnet.
 - A bilingual **book**, *Quantum Computing, Information and Physics in qang Space*: [English](https://viny2030.github.io/qang/en/) · [Español](https://viny2030.github.io/qang/es/).
 
+### What's new in 0.14.0 — the angular scale qga, and the book rebuilt on it
+
+- **`qang.qga`**: the thousand-based angle scale of the *Geometric and Dimensional Foundation of the Qang System*,
+  1 turn = 2π rad = **1000 qga** = 10⁶ m-qga. The milli-qang keeps its meaning: **m-qg is the reading** m = 1000·qg_Z,
+  linear in the probability and not an angle; qga is the angle, uniform in the angle. Conversions between qga, radians,
+  degrees, p₀ and m-qg (`p0_from_qga(250) == 0.5`, `milliqang_from_qga(500) == -1000`), the azimuth `azimuth_qga`, the
+  Fisher information `FISHER_PER_QGA2` = 4π²·10⁻⁶ qga⁻² (so the qang angle from N shots has
+  `angle_sigma_qga(N)` = 159.15/√N qga for any state), the Fubini–Study metric in qga and the Berry phase of a loop at
+  constant height, `cone_phase_qga` = 1000·p₀ qga. A change of unit rescales every gradient by a constant: it does not
+  change barren plateaus.
+- **The book, rebuilt on the angular scale.** Chapter 1 has a new section on qga, with three claims of the source
+  document corrected (p₀ = 0.5 is at 250 qga, not 125; the metric ¼dθ² has curvature 4, not 1; (mc²/E)² is not p₀ of the
+  same angle) and its relativistic and antimatter extension written up as an **unverified proposal**; chapters 2–24 and
+  30–34 and appendices A–B give their angles in qga where it helps. Each addition has a check script in `tools/`
+  (`verify_cap01.py` … `verify_cap08.py`, `verify_qga_lecturas.py`). Comparing with the author's working drafts also
+  fixed one figure of chapter 10 (0.038, not 0.039).
+
 ### What's new in 0.13.1 — IQM devices, and the book complete
 
 - **`qang.iqm`** (book chapter 31, §169): what `qang.ibm` does, for IQM devices. `readout_errors` reads a fake backend's
@@ -185,6 +202,7 @@ Full list in [CHANGELOG.md](CHANGELOG.md).
 | `qang.probability` | The qang probability equation and the milli-qang (§167; Chapter 1) |
 | `qang.pulse_area` | Pulse area of fractional gates: the minimal-area rule (§160) |
 | `qang.qec` | The 3-qubit bit-flip code with syndromes read in qg |
+| `qang.qga` | The angular qang: 1000 qga per turn, conversions to radians, p₀ and m-qg, Fisher and Berry phase in qga (Chapter 1) |
 | `qang.qpon` | Teleportation through a passive optical network, discrete variables (§157; Chapters 12–13) |
 | `qang.transformations` | Closed-form transformations between qang-parameterized states |
 | `qang.varqte` | Variational real-time evolution (McLachlan) with a weight-preserving ansatz (§162) |
@@ -468,7 +486,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1425 tests, run in CI on Python 3.9–3.12; those that need an optional SDK are skipped when it is absent) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (1438 tests, run in CI on Python 3.9–3.12; those that need an optional SDK are skipped when it is absent) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v
