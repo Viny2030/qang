@@ -264,7 +264,9 @@ fórmulas las contradicen:
   esfera de radio $1/2$, cuya curvatura gaussiana es $K=4$; $K=1$ es la de la esfera de Bloch de radio 1.
 - Sugiere que una retícula en m-qga evita las mesetas estériles. Cambiar la unidad del parámetro multiplica todas las
   derivadas por la constante $2\pi/1000$: no cambia la relación entre la varianza del gradiente y su escala ni su
-  decaimiento con el número de qubits. La unidad no tiene efecto sobre las mesetas.
+  decaimiento con el número de qubits. La unidad no tiene efecto sobre las mesetas. Otra cosa son las herramientas de
+  qang, que sí las mitigan en regímenes probados: el costo local en qg (@sec-geo-mesetas) y el filtro de peso bajo T1
+  (@sec-qnn-entrenar).
 
 ### Propuesta sin verificar: energía y antimateria en qga {#sec-qga-energia}
 
@@ -461,8 +463,14 @@ esta base como sólida en lo matemático y prometedora, pero todavía no consoli
   $R(\theta,\varphi)=N\,[\,p_1+\alpha\cos\varphi\,]$, con la población excitada $p_1=\sin^2(\theta/2)$ como potencia
   emisora. No se fijan $N$ ni $\alpha$, ni se contrasta con un modelo de emisión.
 - Mecanismos contra las mesetas estériles (costos locales en m-qg, compilación de mínima curvatura $\kappa_{qg}$,
-  inicialización con el signo de rama). Los costos locales son un resultado conocido de la literatura
-  [@cerezo2021], no de la escala; los demás no se han probado.
+  inicialización con el signo de rama). Dos herramientas de qang ya están probadas en las redes del libro. El **costo
+  local en qg**, $(1-\overline{qg_Z})/2$, la idea de @cerezo2021 escrita como lectura, tiene 470 veces más varianza de
+  gradiente que el costo global con 10 qubits y circuitos cortos (@sec-geo-mesetas). El **filtro de peso** devuelve
+  bajo T1 exactamente el gradiente sin ruido, a $10^{-16}$, contra una meseta inducida por ruido
+  (@sec-qnn-entrenar; predicción pre-registrada, §112). Las dos tienen límites medidos: con circuitos profundos el costo
+  local también decae exponencialmente y, donde escapa a la meseta, es simulable clásicamente; y el propio sector de
+  peso aplana el gradiente al crecer el registro, con filtro o sin él. La compilación por $\kappa_{qg}$ y la
+  inicialización con signo de rama no se han probado contra las mesetas.
 
 ## Sin qang y con qang {#sec-comparacion01}
 

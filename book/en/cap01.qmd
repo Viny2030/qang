@@ -263,7 +263,9 @@ contradict them:
   of a sphere of radius $1/2$, whose Gaussian curvature is $K=4$; $K=1$ belongs to the Bloch sphere of radius 1.
 - It suggests that a lattice in m-qga avoids barren plateaus. Changing the unit of the parameter multiplies every
   derivative by the constant $2\pi/1000$: it changes neither the ratio of gradient variance to its scale nor its decay
-  with the number of qubits. The unit has no effect on plateaus.
+  with the number of qubits. The unit has no effect on plateaus. The qang tools are another matter: they do mitigate
+  them in tested regimes, namely the qg local cost (@sec-geo-plateaus) and the weight filter under T1
+  (@sec-qnn-training).
 
 ### Unverified proposal: energy and antimatter in qga {#sec-qga-energy}
 
@@ -456,8 +458,14 @@ as solid mathematically and promising, but not yet consolidated, experimentally.
   $p_1=\sin^2(\theta/2)$ as the emitting power. Neither $N$ nor $\alpha$ is fixed, and it is not checked against an
   emission model.
 - Mechanisms against barren plateaus (local costs in m-qg, minimum-curvature $\kappa_{qg}$ compilation, initialization
-  with the branch sign). Local costs are a known result of the literature [@cerezo2021], not of the scale; the others
-  have not been tested.
+  with the branch sign). Two qang tools are already tested on the book's networks. The **qg local cost**,
+  $(1-\overline{qg_Z})/2$, the idea of @cerezo2021 written as a reading, has 470 times more gradient variance than the
+  global cost with 10 qubits and shallow circuits (@sec-geo-plateaus). The **weight filter** returns, under T1, exactly
+  the noiseless gradient, to $10^{-16}$, against a noise-induced plateau (@sec-qnn-training; pre-registered prediction,
+  §112). Both have measured limits: with deep circuits the local cost also decays exponentially and, where it escapes
+  the plateau, it is classically simulable; and the weight sector itself flattens the gradient as the register grows,
+  with or without the filter. Compilation by $\kappa_{qg}$ and initialization with the branch sign have not been tested
+  against plateaus.
 
 ## Without qang and with qang {#sec-comparison01}
 
