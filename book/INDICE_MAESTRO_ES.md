@@ -353,6 +353,7 @@ hasta que exista una corrida real (Parte X).
 30.6 Inaplicabilidad en estimación de fase pura (QPE, Shor, HHL) y en PQC — §13
 30.7 La paradoja de las P-CTC en Torino, la fidelidad del decodificador y los demás fallos pre-registrados de §157–§164 — §157–§164
 30.8 Lista consolidada de limitaciones conocidas — §14
+30.9 🆕 La escala angular qga da unidad a las fases pero no las vuelve visibles en Z
 
 ### Capítulo 31. 🆕 🧪 Primer experimento en hardware real: IQM Resonance
 31.0 ✅ escrito (tools/make_cap31_figures.py): corrida de §165 recalculada del archivo guardado (1,59×, máximo en 2,6 GeV contra 0,8 crudo); 12 contra 18 compuertas de dos qubits es del nivel de optimización (1 contra 3), no de IQM; créditos 30 → 12,50 (pruebas 3,3 %, corridas 55 %); el módulo `qang.iqm` se escribió el 2026-10-25, después de las corridas — figuras: neutrinos en Garnet y créditos
@@ -384,6 +385,7 @@ hasta que exista una corrida real (Parte X).
 33.4 Bloqueo de Coulomb y transistor de un electrón: la ocupación de un nivel como p₀ y qg_Z = −tanh(x/2)
 33.5 Puntos cuánticos como qubits de carga y de espín: Rabi y lectura por sensor de carga en qg; fidelidad de lectura en m-qg
 33.6 Centros NV en nanodiamante: contraste de ODMR como qg_Z y magnetometría nanométrica en m-qg
+33.7 🆕 El desvío del ángulo en qga: 159,15/√N qga para cualquier p₀ — `tools/verify_qga_lecturas.py`
 
 ## PARTE XII. Aplicaciones transversales 🆕
 
@@ -395,6 +397,7 @@ hasta que exista una corrida real (Parte X).
 34.3 Relatividad y óptica: rotación de Wigner, Fresnel y Goos–Hänchen, Bogoliubov y Unruh
 34.4 Termodinámica y metrología: Jarzynski, información de Fisher de GHZ
 34.5 Geometría y caos: Fubini–Study, OTOC
+34.6 🆕 La escala qga sí es periódica (π = 500 qga) pero sigue siendo un ángulo, no una lectura; Ω_W = 52,6 qga; enlace a la propuesta de energía del capítulo 1 — `tools/verify_qga_lecturas.py`
 
 ## PARTE XIII. Ecosistema: qang dentro de otras librerías 🆕
 
@@ -404,8 +407,8 @@ hasta que exista una corrida real (Parte X).
 ---
 
 ## Apéndices
-A. Catálogo de las 15 compuertas fundamentales en representación qg ✅ (generado por tools/make_appendices.py)
-B. Fórmulas de transición, matrices de Gell-Mann 🔬 y polinomios de Chebyshev en circuitos paramétricos — §37
+A. Catálogo de las 15 compuertas fundamentales en representación qg ✅ (generado por tools/make_appendices.py); ángulos de compuerta en qga (R_X(500 qga) = X salvo fase)
+B. Fórmulas de transición, matrices de Gell-Mann 🔬 y polinomios de Chebyshev en circuitos paramétricos — §37; estado y sesgo con el ángulo en qga
 C. Protocolo de calibración por eco e inversión matricial en sectores de Hamming — §105–§108
 D. Referencia rápida de la API de qang 0.13.0 ✅ (generada por tools/make_appendices.py)
 E. Declaración de falsación y registro pre-registrado de predicciones (recuento completo §1–§164)

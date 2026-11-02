@@ -81,5 +81,34 @@ check("cap. 23: Var(∂C/∂θ_qga) / Var(∂C/∂θ) = (2π/1000)² para cualqu
       abs(np.var(g_qga) / np.var(g_rad) - (2 * math.pi / 1000) ** 2) < 1e-15
       and abs(np.var(g_qga) / np.mean(g_qga) ** 2 - np.var(g_rad) / np.mean(g_rad) ** 2) < 1e-6)
 
+# chapter 33: the angle's spread in qga, independent of p0 (binomial sampling)
+rng33 = np.random.default_rng(33)
+N33, worst33 = 2000, 0.0
+for p in (0.05, 0.3, 0.7, 0.95):
+    k = rng33.binomial(N33, p, 40000)
+    ang = 2 * np.arccos(np.sqrt(k / N33)) * QGA
+    worst33 = max(worst33, abs(np.std(ang) / (QGA / math.sqrt(N33)) - 1))
+check("cap. 33: σ del ángulo = 159,15/√N qga para p0 = 0,05 … 0,95", worst33 < 0.05, f"desvío relativo máx {worst33:.3f}")
+
+# chapter 34: the Wigner angle of 0.6c x̂ then 0.8c ŷ, recomputed from 4x4 boosts, in qga
+def boost(v):
+    v = np.asarray(v, float)
+    b2 = v @ v
+    g = 1 / math.sqrt(1 - b2)
+    L = np.eye(4)
+    L[0, 0] = g
+    L[0, 1:] = L[1:, 0] = g * v
+    L[1:, 1:] += (g - 1) * np.outer(v, v) / b2
+    return L
+
+
+Lc = boost([0, 0.8, 0]) @ boost([0.6, 0, 0])
+u = Lc[1:, 0] / Lc[0, 0]                                     # velocity of the composed boost
+R = np.linalg.inv(boost(u)) @ Lc                             # what is left is a rotation
+omega = math.acos((np.trace(R[1:, 1:]) - 1) / 2)
+check("cap. 34: Ω_W = 0,3303 rad (18,92°) = 52,6 qga", round(omega, 4) == 0.3303 and round(omega * QGA, 1) == 52.6,
+      f"{omega:.5f} rad")
+check("cap. 34: una fase de π son 500 qga (la escala qga es periódica: 1000 qga por vuelta)", round(math.pi * QGA) == 500)
+
 print(f"\n{sum(RESULTS)} de {len(RESULTS)} afirmaciones PASAN")
 sys.exit(0 if all(RESULTS) else 1)

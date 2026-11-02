@@ -354,6 +354,7 @@ devices until a real run exists (Part X).
 30.6 Inapplicability to pure phase estimation (QPE, Shor, HHL) and to PQC — §13
 30.7 The P-CTC paradox on Torino, the decoder fidelity and the other pre-registered failures of §157–§164 — §157–§164
 30.8 The consolidated list of known limitations — §14
+30.9 🆕 The angular qga scale gives phases a unit but does not make them visible in Z
 
 ### Chapter 31. 🆕 🧪 First experiment on real hardware: IQM Resonance
 31.0 ✅ written (tools/make_cap31_figures.py): the §165 run rescored from its stored file (1.59×, maximum at 2.6 GeV against 0.8 raw); 12 against 18 two-qubit gates comes from the optimization level (3 against 1), not from IQM; credits 30 → 12.50 (probes 3.3 %, runs 55 %); the `qang.iqm` module was written on 2026-10-25, after the runs — figures: neutrinos on Garnet and credits
@@ -385,6 +386,7 @@ devices until a real run exists (Part X).
 33.4 Coulomb blockade and the single-electron transistor: the occupation of a level as p₀ and qg_Z = −tanh(x/2)
 33.5 Quantum dots as charge and spin qubits: Rabi and charge-sensor read-out in qg; read-out fidelity in m-qg
 33.6 NV centres in nanodiamond: the ODMR contrast as qg_Z and nanoscale magnetometry in m-qg
+33.7 🆕 The angle's spread in qga: 159.15/√N qga for any p₀ — `tools/verify_qga_lecturas.py`
 
 ## PART XII. Cross-domain applications 🆕
 
@@ -396,6 +398,7 @@ devices until a real run exists (Part X).
 34.3 Relativity and optics: Wigner rotation, Fresnel and Goos–Hänchen, Bogoliubov and Unruh
 34.4 Thermodynamics and metrology: Jarzynski, Fisher information of GHZ
 34.5 Geometry and chaos: Fubini–Study, OTOC
+34.6 🆕 The qga scale is periodic (π = 500 qga) but is still an angle, not a reading; Ω_W = 52.6 qga; link to the Chapter 1 energy proposal — `tools/verify_qga_lecturas.py`
 
 ## PART XIII. Ecosystem: qang inside other libraries 🆕
 
@@ -405,8 +408,8 @@ devices until a real run exists (Part X).
 ---
 
 ## Appendices
-A. Catalogue of the 15 fundamental gates in qg representation
-B. Transition formulas, Gell-Mann matrices 🔬 and Chebyshev polynomials in parametric circuits — §37
+A. Catalogue of the 15 fundamental gates in qg representation; gate angles in qga (R_X(500 qga) = X up to a phase)
+B. Transition formulas, Gell-Mann matrices 🔬 and Chebyshev polynomials in parametric circuits — §37; state and bias with the angle in qga
 C. The echo-calibration protocol and matrix inversion in Hamming sectors — §105–§108
 D. Quick reference to the qang 0.12.0 API: core, formulation, sectors, qml, ibm, interop, pulse_area, neutrino, postselection, qpon, fisher, kernels, varqte, channels, angular, qsp, knitting, qec, statistics, polarization, geometric, clock_comparison, complementarity, proportions (⚠️ no `crypto`; ⚠️ `iqm` not written yet, see 31.2)
 E. Falsification statement and the register of pre-registered predictions (full count §1–§164)
