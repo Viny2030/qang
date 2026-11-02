@@ -413,6 +413,7 @@ C. Protocolo de calibración por eco e inversión matricial en sectores de Hammi
 D. Referencia rápida de la API de qang 0.13.0 ✅ (generada por tools/make_appendices.py)
 E. Declaración de falsación y registro pre-registrado de predicciones (recuento completo §1–§164)
 F. Fundamento de análisis funcional: Riesz–Fréchet — Apéndice A de las notas
+G. 🆕 La energía relativista y la antimateria como lecturas qang: el ángulo relativista (cos θ_r = 1/γ) en qga; ⟨β⟩ = mc²/E como qg_Z (p₁ = T/2E, m = 1000/γ m-qg); la rama negativa y la conjugación de carga, que invierte la lectura; el qubit de Pitágoras (p₀ = 1/γ², doble ángulo); el ruido de disparo del ángulo — `tools/verify_apendice_g.py`
 
 Bibliografía general y registro DOI de Zenodo (10.5281/zenodo.22832150 y preprints asociados).
 

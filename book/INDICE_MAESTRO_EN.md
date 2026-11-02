@@ -414,6 +414,7 @@ C. The echo-calibration protocol and matrix inversion in Hamming sectors — §1
 D. Quick reference to the qang 0.12.0 API: core, formulation, sectors, qml, ibm, interop, pulse_area, neutrino, postselection, qpon, fisher, kernels, varqte, channels, angular, qsp, knitting, qec, statistics, polarization, geometric, clock_comparison, complementarity, proportions (⚠️ no `crypto`; ⚠️ `iqm` not written yet, see 31.2)
 E. Falsification statement and the register of pre-registered predictions (full count §1–§164)
 F. Functional-analysis foundation: Riesz–Fréchet — Appendix A of the notes
+G. 🆕 Relativistic energy and antimatter as qang readings: the relativistic angle (cos θ_r = 1/γ) in qga; ⟨β⟩ = mc²/E as a qg_Z (p₁ = T/2E, m = 1000/γ m-qg); the negative branch and charge conjugation, which inverts the reading; the Pythagoras qubit (p₀ = 1/γ², double angle); the shot noise of the angle — `tools/verify_apendice_g.py`
 
 General bibliography and Zenodo DOI record (10.5281/zenodo.22832150 and associated preprints).
 
