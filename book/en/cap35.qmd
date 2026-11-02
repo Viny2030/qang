@@ -144,7 +144,8 @@ Each gets the qang rotation ($R_Y(\arccos qg)$) and the canonical reading with t
 
 - **Qibo**: the reading of $qg=0.6$ with 100,000 shots gives 0.5978;
 - **pytket**: gives the exact value, $-0.25$, from the statevector. pytket measures angles in half-turns, not radians, and
-  `rqang` does the conversion. It is the kind of unit error this scale is meant to prevent;
+  `rqang` does the conversion. It is the kind of unit error this scale is meant to prevent. On the qga scale of Chapter 1 a
+  half-turn is 500 qga, so going from pytket to qga is multiplying by 500;
 - **Braket**: runs on the `LocalSimulator`, so it is no longer just a result format (Chapter 32); the reading of 0.2 gives
   0.201;
 - **CUDA-Q**: runs in WSL with CUDA-Q 0.16.0. On the CPU simulator (`qpp-cpu`), the reading of $-0.5$ gives $-0.5018$ and
@@ -167,6 +168,8 @@ backing it has in the book:
 | PyMatching / Stim | T1-aware reweighting | Chapter 26 | moderate (loses 15 % under depolarizing noise) |
 | Qiskit transpiler | keep N-conserving gates | Chapter 24 | moderate |
 | qiskit-machine-learning | filter as a Gram-matrix repair | Chapter 23 | weak (a single kernel) |
+| PennyLane | NaN in the jacobian of `qml.probs` through `SingleExcitation` with `default.mixed` and `backprop` (0.45.1) | Chapter 20 | a real ecosystem bug |
+| qiskit-machine-learning | `SamplerQNN` reads the bits at the physical *layout* positions (0.9.1) | Chapter 20, §140 | a real bug, quoted from the notes |
 
 : Proposals for each project, with their backing. {#tbl-proposals35}
 
@@ -203,8 +206,10 @@ CUDA-Q. The book's `.venv` was left untouched.
 **Verdict.** Two integrations add something the library does not have: heralded calibration, which separates temperature and
 readout, and ZNE of the filtered reading with the cost rule. The learning ones open up use without improving accuracy, which
 is what Chapter 20 had already measured. The rest are translation: readings in m-qg and a single qubit order, which is little
-but prevents real errors, such as pytket's half-turns. No figure comes from hardware. The proposals have not been sent to
-any project yet.
+but prevents real errors, such as pytket's half-turns. No figure comes from hardware. Three proposals were posted on 25
+October 2026: the heralded calibration to qiskit-experiments (issue #1662), post-selection with ZNE and its cost rule to
+mitiq (issue #3173), and T1-aware reweighting in a PyMatching discussion (#190). The drafts and the pre-send check are in
+`docs/upstream/`; the others have not been sent yet.
 
 ## In code {#sec-code35}
 

@@ -44,9 +44,7 @@ pendiente:
 - **Corrección de lectura.** En §165 no la hubo: los modelos simulados de IQM no publican los errores de lectura en el
   `target` de Qiskit, donde los busca `qang.ibm`, sino en un perfil de errores propio. `qang.iqm.readout_errors` los lee de
   ahí. Para un dispositivo real, `pole_circuits` y `readout_from_poles` los miden con dos circuitos, todos los qubits en
-  $|0
-angle$ y todos en $|1
-angle$, como se hizo en §168. Con los conteos guardados de §168 da $e_0=0{,}0055$ y $e_1=0{,}029$.
+  $|0\rangle$ y todos en $|1\rangle$, como se hizo en §168. Con los conteos guardados de §168 da $e_0=0{,}0055$ y $e_1=0{,}029$.
   `iqm_qg` aplica la inversión de `qang.ibm` y da las cuatro lecturas: cruda, corregida, filtrada y filtrada después de corregir.
 - **Elección de la cadena.** `best_chain` compara la disposición por defecto con cadenas de la red cuadrada y se queda con la
   de mayor fracción conservada prevista (`predict_kept_fraction`, con las compuertas y unidades de IQM).
@@ -128,6 +126,9 @@ El script recalcula todo desde el archivo guardado:
 - **El milli-qang en Garnet** (§168, capítulo 28) usó la mayor parte de los créditos. Se cumplieron 3 de 4 predicciones: una X
   cuesta 1,64 m-qg y el costo crece en línea recta con el número de compuertas. La dispersión de las copias en el ecuador fue la
   mitad de la esperada (M2 falló), y eso sigue abierto.
+- **$E=mc^2$ como lectura en Garnet** (§170, apéndice G): 24 circuitos de 2000 disparos en el mismo qubit, con el
+  pre-registro subido en su propio commit antes del trabajo. Se cumplieron las 5 predicciones, con un sesgo de compuerta de
+  26 a 71 m-qg en la misma dirección que en §168. Costó unos 7,7 créditos.
 - **La réplica en cinco qubits y dos días** está preparada en `examples/iqm_milliqang_replication_qg.py`, todavía sin
   pre-registrar ni correr. A tamaño completo (130 circuitos × 4000 disparos por día) costaría unos 80 créditos por día, mucho
   más de lo que queda: hay que achicarla antes de usarla.
@@ -187,7 +188,8 @@ d["energies"][int(np.argmin(fil[:, 1]))]           # 2,6 GeV: el máximo de osci
   (exacto 2,63). Las cuatro predicciones pre-registradas se cumplieron.
 - El chip fue mejor que su modelo simulado, y el filtro ganó menos (1,59 veces contra 2,16).
 - La ventaja de compilación de IQM (12 contra 18) era del nivel de optimización: con el mismo nivel, IBM también da 12.
-- Se gastaron 17,50 de 30 créditos, a unos 0,15 cada 1000 disparos con un piso de 0,50 por trabajo.
+- Se gastaron 17,50 de 30 créditos en las corridas de este capítulo, a unos 0,15 cada 1000 disparos con un piso de 0,50 por
+  trabajo; con §170 (apéndice G) son unos 25,2 y quedan unos 4,8.
 - `qang.iqm`, escrito después de las corridas, agrega la corrección de lectura y la elección de cadena. En el modelo de Garnet
   la corrección quita otro 15 % del error filtrado; en el chip real todavía no se probó.
 

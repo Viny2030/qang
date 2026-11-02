@@ -147,7 +147,8 @@ Cada uno recibe la rotación qang ($R_Y(\arccos qg)$) y la lectura canónica con
 
 - **Qibo**: la lectura de $qg=0{,}6$ con 100 000 disparos da 0,5978;
 - **pytket**: da el valor exacto, $-0{,}25$, desde el vector de estado. pytket mide los ángulos en medias vueltas, no en
-  radianes, y `rqang` hace la conversión. Es el tipo de error de unidades que esta escala busca evitar;
+  radianes, y `rqang` hace la conversión. Es el tipo de error de unidades que esta escala busca evitar. En la escala qga del
+  capítulo 1, media vuelta son 500 qga, así que pasar de pytket a qga es multiplicar por 500;
 - **Braket**: corre en el `LocalSimulator`, que deja de ser sólo un formato de resultados (capítulo 32); la lectura de 0,2 da
   0,201;
 - **CUDA-Q**: corre en WSL con CUDA-Q 0.16.0. En el simulador de CPU (`qpp-cpu`), la lectura de $-0{,}5$ da $-0{,}5018$ y el
@@ -170,6 +171,8 @@ respaldo que tiene en el libro:
 | PyMatching / Stim | reponderación consciente del T1 | capítulo 26 | moderada (pierde un 15 % con despolarizante) |
 | transpilador de Qiskit | conservar compuertas que conservan N | capítulo 24 | moderada |
 | qiskit-machine-learning | filtro como reparación de la matriz de Gram | capítulo 23 | débil (un solo núcleo) |
+| PennyLane | NaN en el jacobiano de `qml.probs` a través de `SingleExcitation` con `default.mixed` y `backprop` (0.45.1) | capítulo 20 | un error real del ecosistema |
+| qiskit-machine-learning | `SamplerQNN` lee los bits en las posiciones físicas del *layout* (0.9.1) | capítulo 20, §140 | un error real, citado de las notas |
 
 : Propuestas para cada proyecto, con su respaldo. {#tbl-propuestas35}
 
@@ -206,8 +209,10 @@ quedó intacto.
 **Balance.** Dos integraciones aportan algo que la librería no tiene: la calibración con anuncio, que separa temperatura y
 lectura, y la ZNE de la lectura filtrada con la regla de costo. Las de aprendizaje abren el uso sin mejorar la exactitud, que es
 lo que el capítulo 20 ya había medido. Las demás son traducción: lecturas en m-qg y un solo orden de qubits, que es poco pero
-evita errores reales, como el de las medias vueltas de pytket. Ninguna cifra viene de hardware. Las propuestas para cada
-proyecto todavía no se enviaron.
+evita errores reales, como el de las medias vueltas de pytket. Ninguna cifra viene de hardware. Tres propuestas ya se
+publicaron, el 25 de octubre de 2026: la calibración con anuncio en qiskit-experiments (issue #1662), la posselección con ZNE
+y su regla de costo en mitiq (issue #3173) y la reponderación consciente del T1 en una discusión de PyMatching (#190). Los
+borradores y la revisión previa al envío están en `docs/upstream/`; las demás todavía no se enviaron.
 
 ## En código {#sec-codigo35}
 

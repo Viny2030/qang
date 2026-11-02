@@ -31,6 +31,11 @@ predictions committed before running:
 
 All five predictions held. The index's figures ("+2.5 and +16.5 over 60 runs") are in §80 as stated.
 
+**The gradient, too** (§112). Under equal T1 the filter returns the noiseless gradient exactly; without the filter, at weight 1
+the gradient is $K$ times smaller. This is the noise-induced barren plateau, and the filter trades it for shots: the cost of
+resolving the sign of the gradient grows like $1/K$ instead of $1/K^2$ (@sec-geo-three). In the notes the filter needed
+fewer shots in 10 of 12 cells; at half filling with $K\le0.14$ it needed 1.3–2.2 times more (T5 failed).
+
 ## Lower readout error on simulated devices {#sec-advantages-filter}
 
 The script recomputes the error-reduction factor (raw over filter plus readout correction) on every device of every stored run:
@@ -83,7 +88,9 @@ Neutrino oscillations in a circuit conserve the weight, so the filter applies wi
 (§151), the error falls 3.4 times in the median of three simulated devices (the index said 3 times); with a sterile neutrino
 (§163), 5.6 times, and the survival dip appears at the right energy on all three. **On IQM Garnet** (§165), on real hardware,
 the filter cuts the error 1.59 times and puts the oscillation maximum back at 2.6 GeV (exact 2.63), where the raw readout placed
-it at 0.8 GeV. It is the only one of these advantages confirmed on hardware.
+it at 0.8 GeV. It is the only one of these advantages confirmed on hardware. The other two Garnet runs (§168 and §170, 8 of 9
+predictions) tested the scale and the reading, not an advantage: they show that the milli-qang measures a real chip, not
+that qang improves it.
 
 ## BB84: fewer false alarms under thermal drift {#sec-advantages-bb84}
 
@@ -122,6 +129,7 @@ circuit with several excitations.
 | accuracy under T1 without retraining | 0.928 / 0.757 (weight 1 / 2) | 0.952 / 0.922 | +2.5 / +16.5 points | with unequal T1 it loses ≤ 1 point; training under noise, none |
 | readout error (simulated) | raw | filter + readout | 1.6 to 11 times, never worse | error inside the sector |
 | error on real hardware | 0.062 | 0.039 | 1.59 times | chips better than their model gain less |
+| gradient under T1 | $K$ times smaller | exact with the filter | shots from $1/K^2$ to $1/K$; 10 of 12 cells | half filling with $K\le0.14$ (§112) |
 | a classifier's decisions | 15 of 945 differ | 3 with filter and echo | 5 times fewer | narrow margin (§108) |
 | readout and temperature | $e_{01}$ inflated, 0 mK | unbiased, to 1 mK | — | needs mid-circuit measurement |
 | T1 diagnosis | 0.70–0.76 with ideal simulation | 0.88 from counts only | +12–18 points | realistic noise: chance |
@@ -151,6 +159,7 @@ d["kept"]                                 # 0.88 of the shots kept
   60 runs.
 - The filter cuts the readout error 1.6 to 11 times in 74 simulated-device cases, never making it worse; on real hardware, 1.59
   times.
+- Against the T1 noise plateau, the filter returns the exact gradient and lowers the shot cost from $1/K^2$ to $1/K$.
 - The echo brings wrong decisions from 15 to 3 over 945 readouts.
 - The scale itself separates temperature from readout error, T1 from unital noise, and thermal drift from an attack in BB84.
 - Each advantage has written down where it stops holding; Chapter 30 gathers the negative results.
