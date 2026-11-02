@@ -7062,6 +7062,33 @@ What §165 and §168 did by hand, as a module (book chapter 31). Written after b
   calibration, which this module does not read.
 * **Verdict.** The module closes the two gaps of chapter 31 in simulation. Nothing in it has run on the chip.
 
+## 170. E = mc² as a reading: the Dirac β qubit and Zitterbewegung on IQM Garnet (`examples/iqm_zitterbewegung_qg.py`)
+
+Book appendix G: for a free Dirac particle <β> = mc²/E, a qg_Z read as 1000/γ m-qg with the sign of the energy
+branch, and charge conjugation inverts it. In 1D at fixed momentum the Dirac Hamiltonian is one qubit,
+H = p X + m Z (β = Z), so the reading can be tested on a single physical qubit. m = 1, p = 0.75: E = 1.25, v = 0.6,
+γ = 1.25, θ_r = 36.87° = 102.4 qga. Exact predictions (`--exact`): the positive-energy eigenstate R_y(θ_r)|0>
+reads +800 m-qg at every time, the negative one −800; |0> mixes both branches and its reading oscillates at 2E
+(Zitterbewegung) between +1000 and +280 m-qg around 1000/γ² = +640, which is 1000·(mc²/E)², the "P_rest" of the
+source document (appendix G): the source document's probability is the time average of the β reading.
+
+**Predictions, frozen before any job** (sha256 in `examples/data/iqm_zitterbewegung_qg.prereg`, committed before the
+run; readings corrected with the poles; ALLOW = 60 m-qg is a systematic allowance fixed from §168, where R_y at
+intermediate angles read 16–55 m-qg low):
+
+* **Z1** the positive-energy eigenstate reads +800 (1000/γ) within 3σ + ALLOW.
+* **Z2** the negative-energy eigenstate reads −800 within 3σ + ALLOW, and the C reflection holds,
+  |m(E+) + m(E−)| ≤ 3σ + ALLOW.
+* **Z3** an eigenstate does not tremble: the four E+ readings over one Zitterbewegung period span at most 108 m-qg
+  (15% of the 720 m-qg peak-to-peak).
+* **Z4** the Zitterbewegung frequency, fitted on 16 points over two periods, is within 5% of 2E = 2.5.
+* **Z5** its mean is within ALLOW of +640 (1000/γ²) and its amplitude within ALLOW of 360 (1000 sin²θ_r).
+
+24 circuits on one qubit, 2000 shots each, one job (about 7.7 credits at §168's rate). Free rehearsal on IQM's
+fake backends: Z1–Z5 pass on both (IQMFakeApollo fit w 2.494, A 634; IQMFakeAphrodite w 2.477, A 630). Z1 and Z5
+discriminate: the Pythagoras qubit would read +640 at Z1, and a mean of 1000/γ would be +800 at Z5, both outside
+the tolerance. **Not yet run on the chip.**
+
 ## Suggested next steps
 
 * **First hardware data point (IonQ).** H2 with the qg filter (§20/§21), 7
