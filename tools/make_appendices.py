@@ -121,7 +121,12 @@ filtro de los capítulos 21 y 22.""",
         after2="""Desde $|0\\rangle$, $R_X(\\theta)$ y $R_Y(\\theta)$ son la ecuación de probabilidad del capítulo 1: el ángulo de la
 compuerta es el ángulo qang y la lectura es $m=1000\\cos\\theta$. $R_Z$ y $P$ no cambian la lectura en $Z$. Ninguna rotación
 alrededor de $X$ o de $Y$ conserva el peso: mueve poblaciones entre $|0\\rangle$ y $|1\\rangle$. Por eso las capas que se usan
-con el filtro son de rotaciones de Givens (RBS) entre pares, no de rotaciones de un qubit.""",
+con el filtro son de rotaciones de Givens (RBS) entre pares, no de rotaciones de un qubit.
+
+En la escala angular qga del capítulo 1 (@sec-qga), con 1000 qga por vuelta, el ángulo de una compuerta se escribe sin
+factores $\\pi$: $\\theta=2\\pi\\,\\theta_{qga}/1000$ y, desde $|0\\rangle$, $m=1000\\cos(2\\pi\\,\\theta_{qga}/1000)$. Así
+$R_X(500\\ \\text{qga})$ es $X$ salvo una fase global y lee $-1000$ m-qg, $R_Y(250\\ \\text{qga})$ deja el qubit en el
+ecuador ($m=0$) y $R_Z(\\varphi)$ gira la fase $\\varphi_{qga}$ milésimas de vuelta. El script comprueba los dos primeros.""",
         h3="## Compuertas de varios qubits {#sec-a-multi}",
         t3_head="| compuerta | qubits | qué pasa con cada $qg_Z$ local | Clifford | conserva el peso | radio | déficit máximo |",
         t3_cap=": Compuertas de varios qubits: la transformación de las lecturas $Z$ locales (las de $X$ e $Y$ están en `gate_table`). {#tbl-a-multi}",
@@ -170,7 +175,13 @@ the filter of Chapters 21 and 22.""",
         after2="""From $|0\\rangle$, $R_X(\\theta)$ and $R_Y(\\theta)$ are the Chapter 1 probability equation: the gate angle is the qang
 angle and the reading is $m=1000\\cos\\theta$. $R_Z$ and $P$ do not change the $Z$ reading. No rotation about $X$ or $Y$
 conserves the weight: it moves population between $|0\\rangle$ and $|1\\rangle$. That is why the layers used with the filter
-are made of Givens (RBS) rotations between pairs, not of single-qubit rotations.""",
+are made of Givens (RBS) rotations between pairs, not of single-qubit rotations.
+
+On the angular qga scale of Chapter 1 (@sec-qga), with 1000 qga per turn, a gate angle is written without factors of
+$\\pi$: $\\theta=2\\pi\\,\\theta_{qga}/1000$ and, from $|0\\rangle$, $m=1000\\cos(2\\pi\\,\\theta_{qga}/1000)$. So
+$R_X(500\\ \\text{qga})$ is $X$ up to a global phase and reads $-1000$ m-qg, $R_Y(250\\ \\text{qga})$ leaves the qubit on the
+equator ($m=0$) and $R_Z(\\varphi)$ turns the phase by $\\varphi_{qga}$ thousandths of a turn. The script checks the first
+two.""",
         h3="## Multi-qubit gates {#sec-a-multi}",
         t3_head="| gate | qubits | what happens to each local $qg_Z$ | Clifford | conserves weight | radius | maximal deficit |",
         t3_cap=": Multi-qubit gates: how the local $Z$ readings transform (those of $X$ and $Y$ are in `gate_table`). {#tbl-a-multi}",
@@ -206,6 +217,11 @@ def check_parametric():
             assert abs(from_zero(U) - 1000 * c) < 1e-9
     U = F.GATES_PARAMETRIC["P"](t) @ np.linalg.inv(F.GATES_PARAMETRIC["Rz"](t))
     assert np.allclose(U, np.exp(1j * t / 2) * np.eye(2))
+    # the qga sentence after the table: R_X(500 qga) is X up to a phase, R_Y(250 qga) lands on the equator
+    rx500 = F.GATES_PARAMETRIC["Rx"](2 * math.pi * 500 / 1000)
+    assert abs(abs(np.trace(rx500.conj().T @ F.GATES_1Q["X"])) / 2 - 1) < 1e-12
+    assert abs(from_zero(rx500) + 1000) < 1e-9
+    assert abs(from_zero(F.GATES_PARAMETRIC["Ry"](2 * math.pi * 250 / 1000))) < 1e-9
 
 
 def write_a():
@@ -535,6 +551,10 @@ def write_b():
     from numpy.polynomial import chebyshev as C
 
     err = check_b()
+    # the qga sentence: amplitudes cos(π a/1000), sin(π a/1000) for the state of bias cos(2π a/1000), a in [0, 500] qga
+    for a in np.linspace(0, 500, 51):
+        amp = psi(math.cos(2 * math.pi * a / 1000))
+        assert abs(amp[0] - math.cos(math.pi * a / 1000)) < 1e-9 and abs(amp[1] - math.sin(math.pi * a / 1000)) < 1e-9
     gm = gellmann_rows()
     ec, qutrit = check_cartan()
     eg, ef = check_grover()
@@ -559,6 +579,12 @@ algebra on 2000 random states and writes the maximal error here. If a formula we
                 "The pure state with polar bias $q$ and azimuth $\\varphi$ is"), "",
               "$$", "|\\psi(q,\\varphi)\\rangle=\\sqrt{\\tfrac{1+q}{2}}\\,|0\\rangle+e^{i\\varphi}\\sqrt{\\tfrac{1-q}{2}}\\,|1\\rangle,"
               "\\qquad \\vec r=\\big(\\sqrt{1-q^2}\\cos\\varphi,\\ \\sqrt{1-q^2}\\sin\\varphi,\\ q\\big).", "$$", "",
+              t("En la escala angular qga del capítulo 1 (@sec-qga), con $\\theta=2\\pi\\,\\theta_{qga}/1000$, el sesgo es "
+                "$q=\\cos(2\\pi\\,\\theta_{qga}/1000)$ y las amplitudes son $\\cos(\\pi\\,\\theta_{qga}/1000)$ y "
+                "$\\sin(\\pi\\,\\theta_{qga}/1000)$: las fórmulas de abajo no cambian, sólo la unidad del ángulo.",
+                "On the angular qga scale of Chapter 1 (@sec-qga), with $\\theta=2\\pi\\,\\theta_{qga}/1000$, the bias is "
+                "$q=\\cos(2\\pi\\,\\theta_{qga}/1000)$ and the amplitudes are $\\cos(\\pi\\,\\theta_{qga}/1000)$ and "
+                "$\\sin(\\pi\\,\\theta_{qga}/1000)$: the formulas below do not change, only the unit of the angle."), "",
               t("Las fórmulas son:", "The formulas are:"), "",
               "$$", "U_3^{qg}(q,\\varphi,\\lambda)=\\begin{pmatrix}\\sqrt{\\tfrac{1+q}{2}} & -e^{i\\lambda}\\sqrt{\\tfrac{1-q}{2}}\\\\"
               " e^{i\\varphi}\\sqrt{\\tfrac{1-q}{2}} & e^{i(\\varphi+\\lambda)}\\sqrt{\\tfrac{1+q}{2}}\\end{pmatrix},\\qquad"
