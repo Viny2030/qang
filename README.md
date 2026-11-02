@@ -53,8 +53,8 @@ Reference implementation and computational toolkit for:
   3 of 4 predictions passed, and M2 (the equator scatters half the binomial level) is open.
 - **The book is complete**: 35 chapters and appendices A–F, in Spanish and English
   ([Español](https://viny2030.github.io/qang/es/) · [English](https://viny2030.github.io/qang/en/)). The appendices are
-  generated from the code by `tools/make_appendices.py`. Appendix E is the falsification register: 143 predictions stored
-  with their verdicts (89 passed, 54 failed), 54 of 54 commit pre-registrations consistent, 7 of 15 sha256
+  generated from the code by `tools/make_appendices.py`. Appendix E is the falsification register: 148 predictions stored
+  with their verdicts (94 passed, 54 failed), 54 of 54 commit pre-registrations consistent, 8 of 16 sha256
   pre-registrations checkable in git.
 - **Upstream proposals from chapter 35**, posted: [qiskit-experiments#1662](https://github.com/qiskit-community/qiskit-experiments/issues/1662)
   (heralded readout), [mitiq#3173](https://github.com/unitaryfoundation/mitiq/issues/3173) (weight post-selection with

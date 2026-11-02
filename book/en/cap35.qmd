@@ -8,6 +8,10 @@ Stim, scikit-learn, JAX, PyTorch, Qibo, pytket, Amazon Braket and NVIDIA's CUDA-
 environments because not every library fits in one. None comes from real hardware. The chapter separates what is done and
 tested inside qang from what would still have to be proposed to each project.
 
+The next version, 0.14.0, adds the module `qang.qga` with the angular scale of Chapter 1 (@sec-qga): 1000 qga per turn and
+the conversions to radians, $p_0$ and m-qg. The integrations of this chapter do not change, and their figures were
+measured with 0.13.0.
+
 ## From the base: what each library gets {#sec-base35}
 
 The Chapter 1 base is a probability $p_0$ and its readings, $qg_Z=2p_0-1$, $m=1000\,qg_Z$ and $\theta=\arccos qg_Z$. What
@@ -222,7 +226,8 @@ GridSearchCV(WeightQNNClassifier(gamma=0.15), {"qang": [True, False]}, cv=3).fit
 
 ## Summary {#sec-summary35}
 
-- qang 0.13.0 has `qang.integrations`, with twelve libraries, one extra for each and tests that skip themselves.
+- qang 0.13.0 has `qang.integrations`, with twelve libraries, one extra for each and tests that skip themselves; 0.14.0 adds
+  `qang.qga`, the angular scale.
 - mitiq: the filter with ZNE lowers the error from 55.9 to 1.1 m-qg under T1 and dephasing; post-selection already existed.
 - qiskit-experiments: heralded calibration gives unbiased $e_{01}$, $p$ and $T_{\text{eff}}$, where the standard one sees the
   qubit as cold.

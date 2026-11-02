@@ -326,9 +326,9 @@ devices until a real run exists (Part X).
 ## PART X. Experimental evidence, real hardware and the falsification audit
 
 ### Chapter 28. Methodology: the pre-registered falsification protocol
-28.0 ✅ written: an audit of the repository in code (tools/make_cap28_figures.py). 33 runs store verdicts: 143 predictions, 89 passed and 54 failed; the 54 predictions pinned by commit (§71–§165) precede their results; of the 15 sha256 pre-registrations, 7 are checkable in git and 8 only have their own timestamp. Real hardware: IQM Garnet, neutrinos (4 of 4, 1.59×) and milli-qang (3 of 4, 1.64 m-qg per X) — figure: audit
+28.0 ✅ written: an audit of the repository in code (tools/make_cap28_figures.py). 34 runs store verdicts: 148 predictions, 94 passed and 54 failed (updated 2026-11-02 with §170); the 54 predictions pinned by commit (§71–§165) precede their results; of the 16 sha256 pre-registrations, 8 are checkable in git and 8 only have their own timestamp. Real hardware: IQM Garnet, neutrinos (4 of 4, 1.59×) and milli-qang (3 of 4, 1.64 m-qg per X) — figure: audit
 28.1 The discipline of pre-registration: hypotheses and predictions committed (commit or sha256) before running — §46, §75–§164
-28.2 Passes and failures: 89/54 over the 33 runs with stored verdicts; "123 / 53" is only the QML line (§75–§123, README). The full count of §1–§168 is left to be done by hand
+28.2 Passes and failures: 94/54 over the 34 runs with stored verdicts; "123 / 53" is only the QML line (§75–§123, README). The full count of §1–§170 is left to be done by hand
 28.3 Test beds: calibrated noise models of IBM (Brisbane, Sherbrooke, Torino, Fez, a fleet of 21) and IonQ (Aria-1, Forte-1) — §20, §137, §144
 28.4 Runs on real hardware: IonQ Forte-1 (§128) refused before the job was accepted; IQM Garnet (§165, §168) gives the first two real data points. QuTech/Quantum Inspire does not appear in the repository and is not used
 28.5 The Var_θ(F_echo) criterion is not defined in the repository: the chapter leaves it out as an unwritten proposal
