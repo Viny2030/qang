@@ -207,6 +207,61 @@ la varianza de la derivada respecto del primer parámetro con 200 inicializacion
 
 ![Varianza del gradiente frente al número de qubits para el costo global y el costo local qg, con circuitos cortos ($L=2$) y profundos ($L=4n$). Sólo el costo local con circuitos cortos escapa al decaimiento exponencial.](figuras/cap23_mesetas.png){#fig-mesetas23 width=80%}
 
+## Tres mesetas y lo que qang hace con cada una {#sec-geo-tres}
+
+Una meseta estéril puede venir de tres fuentes distintas, y conviene separarlas porque qang responde distinto a cada una:
+
+- **Expresividad.** Un circuito que explora todo el espacio de $2^n$ dimensiones tiene gradientes que caen como la
+  inversa de esa dimensión [@mcclean2018]. La teoría actual lo dice en términos del álgebra de Lie que generan las
+  compuertas (Ragone y otros, 2024): la varianza sigue la dimensión del espacio que el circuito realmente recorre.
+- **Costo global.** Un costo que compara todos los qubits a la vez, como la fidelidad, se aplana aunque el circuito sea
+  corto [@cerezo2021]. Es lo de @sec-geo-mesetas.
+- **Ruido.** El ruido acumulado con la profundidad aplana el paisaje aunque no haya ninguna de las dos causas
+  anteriores [@wang2021nibp].
+
+**La unidad no hace nada.** Medir los parámetros en qga o la lectura en m-qg multiplica todas las derivadas por una
+constante, y no cambia ninguna de las tres (§12; capítulo 1).
+
+**Costo global → costo local qg.** Es @sec-geo-mesetas: escapa a la meseta con circuitos cortos, no con profundos, y donde
+escapa es simulable con el cono de luz.
+
+**Expresividad → un sector de peso.** Las redes del capítulo 20 conservan el peso: el circuito nunca sale del sector de peso
+$k$, cuya dimensión es $\binom nk$, no $2^n$. El script del capítulo lo comprueba sin ruido, con `qang.qml.WeightQNN`, $2n$
+capas, 100 sorteos por punto y la derivada de la lectura $qg_Z$ del qubit 0. Es un cálculo exploratorio: no se registró
+antes.
+
+| peso | $n=4$ | $n=6$ | $n=8$ | $n=10$ | $n=12$ | cómo cae |
+|---|---|---|---|---|---|---|
+| 1 (dimensión $n$) | 0,300 | 0,107 | 0,041 | 0,026 | 0,014 | como $n^{-2{,}8}$: polinomial |
+| $n/2$ (dimensión $\binom{n}{n/2}$) | 0,283 | 0,075 | 0,012 | 0,0043 | — | varianza × dimensión entre 0,8 y 1,7: exponencial |
+
+: Varianza del gradiente sin ruido en la red de peso ($L=2n$, 100 sorteos). {#tbl-tres23}
+
+Con peso 1 la varianza cae 22 veces de 4 a 12 qubits, como un polinomio; con media ocupación sigue a $1/\binom{n}{n/2}$,
+que crece casi como $2^n$ (@fig-sector23). La restricción al sector sí evita la meseta, pero sólo cuando el sector es
+chico, y un sector chico es justamente lo que se simula en una computadora clásica. En peso 1 la red entera es una matriz
+de $n\times n$, el gemelo cuadrático del capítulo 20 (@sec-qnn-simulable). Es el mismo equilibrio que encontró el costo
+local, y el que describe @cerezo2023: donde no hay meseta, el problema tiende a ser simulable.
+
+![Varianza del gradiente sin ruido de la red de peso frente al número de qubits. Con peso 1 (sector de dimensión $n$) cae como un polinomio; con media ocupación sigue a la inversa de la dimensión del sector (línea punteada), que crece casi como $2^n$.](figuras/cap23_sector.png){#fig-sector23 width=80%}
+
+**Ruido → el filtro de peso.** Bajo T1 igual, el filtro devuelve el gradiente sin ruido exactamente (capítulo 20, §112 T1).
+Sin el filtro, en peso 1 el gradiente crudo es $K$ veces más chico, con $K=(1-\gamma)^{k\,d}$ la fracción conservada, que cae
+exponencialmente con la profundidad $d$: es la meseta por ruido. El filtro no la regala. Cambia una varianza $K^2$ veces
+más chica por una fracción $K$ de disparos útiles, de modo que el costo en disparos pasa de crecer como $1/K^2$ a crecer como
+$1/K$. En las notas, el filtro resolvió el signo del gradiente con menos disparos en 10 de 12 casos. Con media ocupación y
+$K\le0{,}14$ necesitó entre 1,3 y 2,2 veces más (§112, la predicción T5 falló). Con desfase o errores de compuerta dentro
+del sector, el filtro no devuelve el gradiente sin ruido (capítulos 21 y 22).
+
+| origen de la meseta | sin qang | con qang | alcance |
+|---|---|---|---|
+| expresividad | ansatz de todo el espacio | sector de peso $k$, dimensión $\binom nk$ | sin meseta en peso 1, pero simulable; con media ocupación, meseta |
+| costo global | fidelidad | costo local $(1-\overline{qg_Z})/2$ | sólo con circuitos cortos, simulables por el cono de luz |
+| ruido (T1) | gradiente $K$ veces más chico | filtro: gradiente exacto con una fracción $K$ de los disparos | disparos de $1/K^2$ a $1/K$; no corrige desfase ni errores dentro del sector |
+| unidad | radianes | qga, m-qg | ninguno |
+
+: Las tres mesetas y qang. {#tbl-tres-resumen23}
+
 ## Lo que queda pendiente {#sec-pendiente23}
 
 Todo lo de este capítulo es sin ruido o en modelos de ruido. El gradiente natural de §159 se probó con gradientes exactos en
@@ -226,6 +281,8 @@ que aparece con más qubits.
 | paso cerca de los polos | tasa fija | amortiguado por $|\sin\theta|$, sin ajuste | **a favor** con tasas agresivas (2,3 a 13 veces más éxitos desde tasa 2); cuesta poco o nada con tasas seguras |
 | reparar un núcleo ruidoso | normalizar por la diagonal | filtro qg en circuitos de peso fijo | **a favor**: Gram 1,0 a 2,5 veces mejor sin los circuitos de la diagonal; **ninguna** en precisión |
 | costo de entrenamiento | fidelidad global | costo local $(1-\overline{qg_Z})/2$ | **a favor** con circuitos cortos (470 veces más varianza en $n=10$); **ninguna** con circuitos profundos |
+| meseta por expresividad | ansatz de todo el espacio | sector de peso | **a favor** en peso 1 (varianza polinomial), pero ahí es simulable; **ninguna** con media ocupación |
+| meseta por ruido (T1) | gradiente $K$ veces más chico | filtro de peso: gradiente exacto | **a favor**: disparos de $1/K^2$ a $1/K$; **en contra** en 2 de 12 casos de §112 con $K\le0{,}14$ |
 
 : Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion23}
 
@@ -266,10 +323,14 @@ np.abs(B[:4, :4] - G[:4, :4]).max()                   # ~1e-16 dentro de la capa
 - El filtro qg repara la matriz de Gram de un núcleo de peso fijo mejor que la normalización y sin sus circuitos; la
   precisión casi no cambia.
 - El costo local qg escapa a la meseta sólo con circuitos cortos, y ahí también es simulable clásicamente.
+- De las tres fuentes de meseta, qang responde a dos con herramientas: el sector de peso contra la expresividad (sin meseta
+  en peso 1, que es simulable) y el filtro contra el ruido T1 (gradiente exacto, disparos de $1/K^2$ a $1/K$). La unidad no
+  cambia ninguna.
 
 ## Notas bibliográficas {.unnumbered}
 
 La geometría de Fisher es @braunstein1994, y el gradiente natural, @amari1998 y, en circuitos cuánticos, @stokes2020. El
 descenso amortiguado es el de @levenberg1944 y @marquardt1963. Los núcleos cuánticos son @havlicek2019 y @schuld2019;
-las mesetas estériles, @mcclean2018 y @cerezo2021. Las notas de investigación numeradas (§) que cita el capítulo y los
+las mesetas estériles, @mcclean2018 y @cerezo2021; las inducidas por ruido, @wang2021nibp, y su relación con la
+simulabilidad, @cerezo2023. Las notas de investigación numeradas (§) que cita el capítulo y los
 scripts que lo verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en @monteverde2026.

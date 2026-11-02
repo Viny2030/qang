@@ -9,7 +9,10 @@ Carlo of the sample mean), the §1 descent from a pole in theta, raw qg and regu
 evaluation cannot tell apart, the qg_YY block metric against the full Fubini-Study metric, the §159 test seeds of the
 natural gradient on the TFIM (with the learning rates stored by the notes' pre-registered run), the §9.2 robustness of
 pole-damped descent, the qang angle of the fidelity kernel, and the §23 gradient variance of the global and qg local
-costs. The kernel results on device noise models (§161) are quoted from the notes. Runs in a few minutes.
+costs, and the noiseless gradient variance of the weight-conserving network (qang.qml.WeightQNN) against the dimension
+of its sector: weight 1 (dimension n) and half filling (dimension C(n, n/2)). That last check is exploratory, not
+pre-registered. The kernel results on device noise models (§161) are quoted from the notes. Runs in a few minutes;
+``--sector`` runs only the sector check and its figure (about 2 minutes).
 """
 
 import json
@@ -31,6 +34,7 @@ from make_cap01_figures import BLUE, GREEN, GREY, INK, ORANGE  # noqa: E402
 from qang import fisher as F  # noqa: E402
 from qang import gradients as GR  # noqa: E402
 from qang import kernels as KR  # noqa: E402
+from qang.qml import WeightQNN  # noqa: E402
 
 import barren_plateau_qg_local_cost as BP  # noqa: E402
 import fisher_natural_gradient_qg as FN  # noqa: E402
@@ -67,6 +71,11 @@ TEXT = {
         "v_g": "costo global",
         "v_l": "costo local qg",
         "v_title": "Mesetas estériles: costo global contra costo local qg",
+        "s_y": r"Var($\partial qg_Z/\partial\theta_0$), sin ruido",
+        "s_k1": r"peso 1 (dimensión $n$)",
+        "s_kh": r"peso $n/2$ (dimensión $\binom{n}{n/2}$)",
+        "s_ref": r"$1/\binom{n}{n/2}$",
+        "s_title": r"La meseta sigue la dimensión del sector (red de peso, $L=2n$)",
     },
     "en": {
         "dir": os.path.join(ROOT, "book", "en", "figures"),
@@ -95,6 +104,11 @@ TEXT = {
         "v_g": "global cost",
         "v_l": "qg local cost",
         "v_title": "Barren plateaus: global cost against qg local cost",
+        "s_y": r"Var($\partial qg_Z/\partial\theta_0$), noiseless",
+        "s_k1": r"weight 1 (dimension $n$)",
+        "s_kh": r"weight $n/2$ (dimension $\binom{n}{n/2}$)",
+        "s_ref": r"$1/\binom{n}{n/2}$",
+        "s_title": r"The plateau follows the dimension of the sector (weight network, $L=2n$)",
     },
 }
 
@@ -207,6 +221,67 @@ def fig_qng(t, steps, pd):
     return fig
 
 
+def sector_variance(n, k, draws=100, rng=None, h=1e-5):
+    """Noiseless variance of d qg_Z(qubit 0) / d theta_0 for WeightQNN(n, k, layers=2n), random angles and a random real
+    input state in the weight-k sector (the §112 set-up without noise, deeper and up to larger n)."""
+    m = WeightQNN(n, k, layers=2 * n)
+    idx = m.idx[k]
+    g = []
+    for _ in range(draws):
+        th = rng.uniform(-np.pi, np.pi, m.n_theta)
+        psi = np.zeros((1, m.dim))
+        psi[0, idx] = rng.normal(size=len(idx))
+        psi /= np.linalg.norm(psi)
+
+        def f(t):
+            th2 = th.copy()
+            th2[0] = t
+            return float(m.qg_z(m.probs(th2, psi, None), False)[0, 0])
+
+        g.append((f(th[0] + h) - f(th[0] - h)) / (2 * h))
+    return float(np.var(g))
+
+
+def sector_plateaus(n1=(4, 6, 8, 10, 12), nh=(4, 6, 8, 10), seed=112):
+    rng = np.random.default_rng(seed)
+    v1 = [sector_variance(n, 1, rng=rng) for n in n1]
+    vh = [sector_variance(n, n // 2, rng=rng) for n in nh]
+    return list(n1), v1, list(nh), vh
+
+
+def fig_sector(t, n1, v1, nh, vh):
+    fig, ax = plt.subplots(figsize=(7.2, 4.4))
+    ax.semilogy(n1, v1, "-", marker="o", color=BLUE, label=t["s_k1"])
+    ax.semilogy(nh, vh, "-", marker="s", color=ORANGE, label=t["s_kh"])
+    ax.semilogy(nh, [1 / math.comb(n, n // 2) for n in nh], ":", color=GREY, label=t["s_ref"])
+    ax.set_xlabel(t["v_x"])
+    ax.set_ylabel(t["s_y"])
+    ax.set_title(t["s_title"], fontsize=10)
+    ax.legend(fontsize=8, frameon=False)
+    ax.grid(alpha=0.3, which="both")
+    fig.tight_layout()
+    return fig
+
+
+def sector_main():
+    n1, v1, nh, vh = sector_plateaus()
+    print("\nSector check (exploratory, 100 draws per point, WeightQNN layers = 2n, noiseless):")
+    for n, v in zip(n1, v1):
+        print(f"  weight 1    n = {n:2d}  dim {n:4d}  Var {v:.3e}")
+    slope = np.polyfit(np.log(n1), np.log(v1), 1)[0]
+    print(f"  weight 1: Var ~ n^{slope:.2f}; ratio n = 4 -> 12: {v1[0] / v1[-1]:.1f}")
+    for n, v in zip(nh, vh):
+        d = math.comb(n, n // 2)
+        print(f"  weight n/2  n = {n:2d}  dim {d:4d}  Var {v:.3e}  Var * dim {v * d:.2f}")
+    for lang, tx in TEXT.items():
+        os.makedirs(tx["dir"], exist_ok=True)
+        path = os.path.join(tx["dir"], {"es": "cap23_sector", "en": "cap23_sector"}[lang] + ".png")
+        fig = fig_sector(tx, n1, v1, nh, vh)
+        fig.savefig(path, dpi=180, facecolor="white")
+        plt.close(fig)
+        print("wrote", os.path.relpath(path, ROOT))
+
+
 def fig_plateaus(t, ns, var):
     fig, ax = plt.subplots(figsize=(7.2, 4.4))
     for (name, cost), v in var.items():
@@ -281,7 +356,11 @@ def main():
             fig.savefig(path, dpi=180, facecolor="white")
             plt.close(fig)
             print("wrote", os.path.relpath(path, ROOT))
+    sector_main()
 
 
 if __name__ == "__main__":
-    main()
+    if "--sector" in sys.argv:
+        sector_main()
+    else:
+        main()

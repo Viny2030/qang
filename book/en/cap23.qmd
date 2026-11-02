@@ -204,6 +204,62 @@ variance of the derivative with respect to the first parameter over 200 random i
 
 ![Gradient variance against the number of qubits for the global cost and the qg local cost, with short ($L=2$) and deep ($L=4n$) circuits. Only the local cost with short circuits escapes exponential decay.](figures/cap23_plateaus.png){#fig-plateaus23 width=80%}
 
+## Three plateaus and what qang does with each {#sec-geo-three}
+
+A barren plateau can come from three different sources. They are worth separating, because qang answers each one
+differently:
+
+- **Expressivity.** A circuit that explores the whole $2^n$-dimensional space has gradients that fall like the inverse of
+  that dimension [@mcclean2018]. Current theory states it in terms of the Lie algebra the gates generate (Ragone et al.
+  2024): the variance follows the dimension of the space the circuit actually explores.
+- **Global cost.** A cost that compares all qubits at once, such as the fidelity, flattens even for a short circuit
+  [@cerezo2021]. This is @sec-geo-plateaus.
+- **Noise.** Noise accumulated with depth flattens the landscape even without either of the other two causes
+  [@wang2021nibp].
+
+**The unit does nothing.** Measuring the parameters in qga or the readout in m-qg multiplies every derivative by a
+constant and changes none of the three (§12; Chapter 1).
+
+**Global cost → the qg local cost.** This is @sec-geo-plateaus: it escapes the plateau with short circuits, not deep ones,
+and where it escapes, the light cone simulates it.
+
+**Expressivity → a weight sector.** The networks of Chapter 20 conserve the weight. The circuit never leaves the weight-$k$
+sector, whose dimension is $\binom nk$, not $2^n$. The chapter's script checks this without noise, with
+`qang.qml.WeightQNN`, $2n$ layers, 100 draws per point and the derivative of the $qg_Z$ readout of qubit 0. The
+calculation is exploratory: it was not registered in advance.
+
+| weight | $n=4$ | $n=6$ | $n=8$ | $n=10$ | $n=12$ | decay |
+|---|---|---|---|---|---|---|
+| 1 (dimension $n$) | 0.300 | 0.107 | 0.041 | 0.026 | 0.014 | like $n^{-2.8}$: polynomial |
+| $n/2$ (dimension $\binom{n}{n/2}$) | 0.283 | 0.075 | 0.012 | 0.0043 | — | variance × dimension between 0.8 and 1.7: exponential |
+
+: Noiseless gradient variance of the weight network ($L=2n$, 100 draws). {#tbl-three23}
+
+At weight 1 the variance falls 22 times from 4 to 12 qubits, like a polynomial. At half filling it follows
+$1/\binom{n}{n/2}$, which grows almost like $2^n$ (@fig-sector23). Restricting to a sector does avoid the plateau, but
+only when the sector is small, and a small sector is exactly what a classical computer simulates. At weight 1 the whole
+network is an $n\times n$ matrix, the quadratic twin of Chapter 20 (@sec-qnn-simulable). This is the same trade-off the
+local cost met, and the one @cerezo2023 describe: where there is no plateau, the problem tends to be simulable.
+
+![Noiseless gradient variance of the weight network against the number of qubits. At weight 1 (a sector of dimension $n$) it falls like a polynomial; at half filling it follows the inverse of the sector's dimension (dotted line), which grows almost like $2^n$.](figures/cap23_sector.png){#fig-sector23 width=80%}
+
+**Noise → the weight filter.** Under equal T1 the filter returns the noiseless gradient exactly (Chapter 20, §112 T1).
+Without the filter, at weight 1 the raw gradient is $K$ times smaller. Here $K=(1-\gamma)^{k\,d}$ is the kept fraction,
+which falls exponentially with the depth $d$: this is the noise-induced plateau. The filter does not make it free. It
+trades a variance $K^2$ times smaller for a fraction $K$ of useful shots, so the shot cost grows like $1/K$ instead of
+$1/K^2$. In the notes the filter resolved the sign of the gradient with fewer shots in 10 of 12 cells. At half filling
+with $K\le0.14$ it needed 1.3–2.2 times more (§112: prediction T5 failed). With dephasing or gate errors inside the
+sector, the filter does not return the noiseless gradient (Chapters 21 and 22).
+
+| source of the plateau | without qang | with qang | reach |
+|---|---|---|---|
+| expressivity | ansatz over the whole space | weight-$k$ sector, dimension $\binom nk$ | no plateau at weight 1, but simulable; at half filling, a plateau |
+| global cost | fidelity | local cost $(1-\overline{qg_Z})/2$ | only with short circuits, which the light cone simulates |
+| noise (T1) | gradient $K$ times smaller | filter: exact gradient with a fraction $K$ of the shots | shots from $1/K^2$ to $1/K$; no fix for dephasing or in-sector errors |
+| unit | radians | qga, m-qg | none |
+
+: The three plateaus and qang. {#tbl-three-summary23}
+
 ## What remains open {#sec-open23}
 
 Everything in this chapter is noiseless or on noise models. The §159 natural gradient was tested with exact gradients on one
@@ -223,6 +279,8 @@ appears with more qubits.
 | step near the poles | fixed rate | damped by $|\sin\theta|$, no tuning | **in favour** at aggressive rates (2.3 to 13 times more successes from rate 2); costs little or nothing at safe rates |
 | repair a noisy kernel | normalize by the diagonal | qg filter on fixed-weight circuits | **in favour**: Gram 1.0 to 2.5 times better without the diagonal circuits; **none** in accuracy |
 | training cost | global fidelity | local cost $(1-\overline{qg_Z})/2$ | **in favour** with short circuits (470 times more variance at $n=10$); **none** with deep circuits |
+| expressivity plateau | ansatz over the whole space | weight sector | **in favour** at weight 1 (polynomial variance), but simulable there; **none** at half filling |
+| noise plateau (T1) | gradient $K$ times smaller | weight filter: exact gradient | **in favour**: shots from $1/K^2$ to $1/K$; **against** in 2 of 12 cells of §112 with $K\le0.14$ |
 
 : The chapter's actions without the qang scale and with it. {#tbl-comparison23}
 
@@ -263,10 +321,14 @@ np.abs(B[:4, :4] - G[:4, :4]).max()                   # ~1e-16 within the layer
 - The qg filter repairs the Gram matrix of a fixed-weight kernel better than the normalization and without its circuits;
   accuracy barely changes.
 - The qg local cost escapes the plateau only with short circuits, and there it is also classically simulable.
+- Of the three sources of a plateau, qang answers two with tools: the weight sector against expressivity (no plateau at
+  weight 1, which is simulable) and the filter against T1 noise (exact gradient, shots from $1/K^2$ to $1/K$). The unit
+  changes none.
 
 ## Bibliographic notes {.unnumbered}
 
 Fisher geometry is @braunstein1994, and the natural gradient, @amari1998 and, for quantum circuits, @stokes2020. Damped
 descent is that of @levenberg1944 and @marquardt1963. Quantum kernels are @havlicek2019 and @schuld2019; barren
-plateaus, @mcclean2018 and @cerezo2021. The numbered research notes (§) cited in this chapter and the scripts that check
+plateaus, @mcclean2018 and @cerezo2021; noise-induced ones, @wang2021nibp, and their relation to simulability,
+@cerezo2023. The numbered research notes (§) cited in this chapter and the scripts that check
 it are in the repository [@qangrepo]; the definition of the qang unit is in @monteverde2026.

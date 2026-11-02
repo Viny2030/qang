@@ -272,6 +272,7 @@ hasta que exista una corrida real (Parte X).
 23.4 Descenso amortiguado en los polos: robustez ante tasas de aprendizaje agresivas en VQE — §9
 23.5 Núcleos cuánticos filtrados: reparación de la matriz de Gram 2,4–6× — §161
 23.6 Mesetas estériles (barren plateaus) en espacio qg; costo global frente a costo local qg — §12, §23
+23.7 🆕 Tres mesetas y lo que qang hace con cada una (2026-11-02): expresividad → sector de peso (varianza sin ruido ∝ n^−2,8 en peso 1, simulable; ∝ 1/C(n, n/2) con media ocupación; exploratorio, tools/make_cap23_figures.py --sector, figura cap23_sector); costo global → costo local qg; ruido T1 → filtro (gradiente exacto, disparos de 1/K² a 1/K; T5 de §112 falló con K ≤ 0,14); la unidad no cambia ninguna — §12, §23, §112
 23.7 🆕 La escala qga es una coordenada plana de Fisher (4π²·10⁻⁶ qga⁻²); medir en qga no cambia la meseta (§12) — `tools/verify_qga_lecturas.py`
 
 ---

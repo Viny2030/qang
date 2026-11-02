@@ -273,6 +273,7 @@ devices until a real run exists (Part X).
 23.4 Pole-damped descent: robustness to aggressive learning rates in VQE — §9
 23.5 Filtered quantum kernels: Gram-matrix repair 2.4–6× — §161
 23.6 Barren plateaus in qg space; global cost against the local qg cost — §12, §23
+23.7 🆕 Three plateaus and what qang does with each (2026-11-02): expressivity → weight sector (noiseless variance ∝ n^−2.8 at weight 1, simulable; ∝ 1/C(n, n/2) at half filling; exploratory, tools/make_cap23_figures.py --sector, figure cap23_sector); global cost → qg local cost; T1 noise → filter (exact gradient, shots from 1/K² to 1/K; §112 T5 failed with K ≤ 0.14); the unit changes none — §12, §23, §112
 23.7 🆕 The qga scale is a flat Fisher coordinate (4π²·10⁻⁶ qga⁻²); measuring in qga does not change the plateau (§12) — `tools/verify_qga_lecturas.py`
 
 ---
