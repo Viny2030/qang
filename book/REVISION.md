@@ -193,3 +193,13 @@ script de verificación nuevo para lo agregado (`verify_cap03` a `verify_cap08`,
 Quedan sin aplicar unas 300 cifras de los .docx que el libro no tiene: casi todas son conversiones a m-qg o
 redondeos distintos de números que el libro sí trae. La lista completa, con contexto y con la indicación de si
 `RESEARCH_NOTES.md` las respalda, se entregó al autor aparte para su decisión.
+
+## Capítulos 25–35 y apéndices: visión general con la escala qga (2026-11-02)
+
+Pasada ligera, sin .docx del autor: se revisó la sección "Desde la base" de cada capítulo y su notación contra la
+convención B. Ninguno usa qg ni m-qg como unidad de ángulo ("T2 qg", en el capítulo 27, es el nombre de un estimador),
+así que no hubo que corregir notación. Se agregó la lectura qga donde un ángulo es central: capítulos 30, 33 y 34 (en el
+34 se precisó "qg no tiene período": la lectura no lo tiene, la escala qga sí, pero una fase sigue siendo un ángulo que
+se lee con un interferómetro) y apéndices A y B (texto en `tools/make_appendices.py`, que ahora lo comprueba; C–F se
+regeneran idénticos). Los cuerpos de los capítulos, verificados contra las notas y el código, no se tocaron. Capítulos
+25–29, 31, 32 y 35: sin cambios. `tools/verify_qga_lecturas.py`: 13/13.
