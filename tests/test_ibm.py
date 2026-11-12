@@ -95,12 +95,13 @@ def test_example_circuits_are_weight_one():
         assert abs(sum((1 - z) / 2 for z in E.ideal(E.circuit(s))) - 1) < 1e-9     # one excitation in total
 
 
+# En tests/test_ibm.py (test_estimator_predictor_and_chains)
 def test_estimator_predictor_and_chains():
     pytest.importorskip("qiskit_ibm_runtime")
     from qiskit_ibm_runtime import EstimatorV2
-    from qiskit_ibm_runtime.fake_provider import FakeSherbrooke
+    from qiskit_ibm_runtime.fake_provider import FakeManilaV2  # 5 qubits en lugar de 127 (FakeSherbrooke)
 
-    b = FakeSherbrooke()
+    b = FakeManilaV2()
     qc = _w_like(4, seed=2)
     t = transpile(qc, b, optimization_level=1, seed_transpiler=3)
     out = ibm.estimator_qg(EstimatorV2(mode=b), t, weight=1)
