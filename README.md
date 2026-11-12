@@ -6,6 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/qang.svg)](https://pypi.org/project/qang/)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://github.com/Viny2030/qang/actions/workflows/tests.yml/badge.svg)](https://github.com/Viny2030/qang/actions/workflows/tests.yml)
+[![Qiskit Ecosystem](https://qisk.it/e-16c304f9)](https://qisk.it/e)
 
 Reference implementation and computational toolkit for:
 

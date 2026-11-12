@@ -5,6 +5,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Derived quantities of the reading (book, chapter 1, section "Magnitudes derivadas"), from the author's treatise
+  formulation: `qang.probability.quantum_snr` (qg_SNR = |qg_Z|/sqrt(1 - qg_Z^2)), `shots_for_sign`,
+  `information_curvature` (qg_kappa = -d^2 qg_S/d qg_Z^2 = 1/(ln 2 (1 - qg_Z^2)), the Fisher information about qg_Z in
+  bits; not the pulse curvature kappa_qg) and `dissipative_deficit` (qg_tau = sqrt(1 - r^2)); `qang.algebra.geodesic_distance`
+  (qg_L = |theta1 - theta2|/2), `chebyshev_trajectory` and `grover_fisher_information`. Tests in
+  `tests/test_probability.py` and `tests/test_algebra.py`.
+- `qang.integrations.jax`: the qga scale, the derived quantities and the qg algebra of chapters 1–3 as `jax.numpy`
+  functions (jit, grad and vmap), checked against their NumPy counterparts, and `curvature_damped_update`, the step the
+  treatise proposes with qg_kappa. `tools/bench_jax_curvature_step.py` measures it: it removes the divergence of plain
+  gradient descent on qg_Z near the poles and matches plain gradient descent on theta step for step (they are the same
+  to first order), so it brings no gain over optimizing the qang angle.
+- README: Qiskit Ecosystem badge (qang joined the Qiskit Ecosystem, Qiskit/ecosystem#1419).
+
+### Changed
+- Book, chapters 1–3 (Spanish and English) extended to the treatise formulation: a new section on the derived
+  quantities (chapter 1), the capacity curvature and the area-only dissipative deficit of a gate (chapter 2), and the
+  geodesic distance, the SNR/curvature table of the Grover trajectory and the visibility limit of amplitude estimation
+  read as qg_tau (chapter 3). `tools/verify_cap01.py`, `verify_cap02.py` and `verify_cap03.py` check every new claim.
+
 ## [0.14.0] - 2026-11-02
 
 ### Added
