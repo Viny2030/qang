@@ -43,7 +43,7 @@ TEXT = {
         "v_x": "predicciones",
         "v_pass": "cumplidas",
         "v_fail": "falladas",
-        "v_title": "Veredictos guardados por el código: 33 corridas",
+        "v_title": "Veredictos guardados por el código: {n} corridas",
         "a_y": "pre-registros",
         "a_cats": ("por commit,\ncitados en las notas", "por sha256,\nverificables en git", "por sha256,\nsólo con fecha propia"),
         "a_ok": "consistentes",
@@ -54,7 +54,7 @@ TEXT = {
         "v_x": "predictions",
         "v_pass": "passed",
         "v_fail": "failed",
-        "v_title": "Verdicts stored by the code: 33 runs",
+        "v_title": "Verdicts stored by the code: {n} runs",
         "a_y": "pre-registrations",
         "a_cats": ("by commit,\ncited in the notes", "by sha256,\ncheckable in git", "by sha256,\nown timestamp only"),
         "a_ok": "consistent",
@@ -152,7 +152,7 @@ def figure(t, rows, sha, n_commit, ok_commit):
     ax1.set_yticks(y)
     ax1.set_yticklabels([r[0].replace("_qg", "").replace("_", " ") for r in rows], fontsize=5.5)
     ax1.set_xlabel(t["v_x"])
-    ax1.set_title(t["v_title"], fontsize=10)
+    ax1.set_title(t["v_title"].format(n=len(rows)), fontsize=10)
     ax1.legend(fontsize=8, frameon=False, loc="lower right")
     ax1.grid(axis="x", alpha=0.3)
     ver = sum(1 for r in sha if r["match_at_prereg"] and r["before_results"])

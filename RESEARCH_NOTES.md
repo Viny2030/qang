@@ -7087,7 +7087,29 @@ intermediate angles read 16–55 m-qg low):
 24 circuits on one qubit, 2000 shots each, one job (about 7.7 credits at §168's rate). Free rehearsal on IQM's
 fake backends: Z1–Z5 pass on both (IQMFakeApollo fit w 2.494, A 634; IQMFakeAphrodite w 2.477, A 630). Z1 and Z5
 discriminate: the Pythagoras qubit would read +640 at Z1, and a mean of 1000/γ would be +800 at Z5, both outside
-the tolerance. **Not yet run on the chip.**
+the tolerance.
+
+**Run, 2026-11-02.** Job 01a19c58-a557-776d-8c9c-fb5a54f43715, Garnet, qubit 0, 24 circuits × 2000 shots, 32 s; run
+with the frozen file (sha256 472cdc16…5583, committed and pushed in ef419915 before the job). Readout from the poles:
+e0 = 0.0030, e1 = 0.0265 (contrast 0.9705). Data in `examples/data/iqm_zitterbewegung_qg_run.json` and `_analysis.json`;
+figure `tools/make_apendice_g_figures.py`.
+
+| prediction | measured (corrected, m-qg) | predicted | verdict |
+|---|---|---|---|
+| Z1 E+ at t = 0 | +759.9 ± 14.9 | +800 | PASS (z = −2.7; passes without ALLOW too) |
+| Z2 E− at t = 0; reflection | −809.4 ± 14.9; −49.5 | −800; 0 | PASS (both within 3σ without ALLOW) |
+| Z3 E+ span over a period | 45.3 | ≤ 108 | PASS |
+| Z4 fitted frequency | 2.511 | 2.5 (±5%) | PASS (0.44% off) |
+| Z5 fitted mean; amplitude | 625.6; 356.1 | 640; 360 (±60) | PASS (14 and 4 m-qg off) |
+
+* **Z1–Z5 pass.** The β reading of a Dirac eigenstate is 1000/γ on a real chip, the negative branch mirrors it, and
+  the Zitterbewegung shows at 2E with the predicted mean 1000/γ² and amplitude.
+* **Not clean, and said so.** The four E+ readings sit 26–71 m-qg below +800 (the worst, at t = T/2, is z = −4.5 and
+  is not part of any prediction), while E− at t = 0 is within 10: the same direction as §168, where R_y at
+  intermediate angles read low. The 16 Zitterbewegung points scatter 30 m-qg rms around the exact curve, more than shot
+  noise (χ²/dof 2.4 for the fit), so gate errors are visible, but the frequency and the mean are not moved by them.
+* **As a speedometer:** γ from E+ at t = 0 is 1.316 (true 1.25, +5%), from E− 1.236 (−1%).
+* One run on one qubit; a replication on another qubit and day is pending, as for §168.
 
 ## Suggested next steps
 

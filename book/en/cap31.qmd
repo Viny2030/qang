@@ -43,10 +43,8 @@ those runs left pending:
 
 - **Readout correction.** §165 had none: IQM's simulated models do not publish their readout errors in the Qiskit `target`,
   where `qang.ibm` looks for them, but in an error profile of their own. `qang.iqm.readout_errors` reads them there. For a
-  real device, `pole_circuits` and `readout_from_poles` measure them with two circuits, every qubit in $|0
-angle$ and every
-  qubit in $|1
-angle$, as §168 did. On the stored counts of §168 it gives $e_0=0.0055$ and $e_1=0.029$. `iqm_qg` applies the
+  real device, `pole_circuits` and `readout_from_poles` measure them with two circuits, every qubit in $|0\rangle$ and every
+  qubit in $|1\rangle$, as §168 did. On the stored counts of §168 it gives $e_0=0.0055$ and $e_1=0.029$. `iqm_qg` applies the
   inversion of `qang.ibm` and gives the four readings: raw, corrected, filtered, and filtered after correction.
 - **Chain choice.** `best_chain` compares the default layout with chains of the square lattice and keeps the one with the
   highest predicted kept fraction (`predict_kept_fraction`, with IQM's gates and units).
@@ -85,10 +83,12 @@ The token is read only from the environment variable `IQM_TOKEN`, and no script 
 | neutrino run | 2400 | 0.50 | 29.00 |
 | milli-qang probe | 100 | 0.50 | 28.50 |
 | milli-qang run | 104,000 | 16.00 | 12.50 |
+| $E=mc^2$ run (§170, Appendix G) | 48,000 | ≈ 7.7 (estimated) | ≈ 4.8 |
 
-: IQM Resonance credits. The cost of the neutrino run is not written down: it is the difference of two balances. {#tbl-credits31}
+: IQM Resonance credits. The cost of the neutrino run is not written down: it is the difference of two balances. Neither is that of §170: it is the notes' estimate at the §168 rate. {#tbl-credits31}
 
-- **Spent:** probes 3.3 %; runs 55.0 %; 12.50 credits left (41.7 %). The plan held with room to spare.
+- **Spent up to §168:** probes 3.3 %; runs 55.0 %; 12.50 credits were left (41.7 %). The plan held with room to spare.
+  The §170 run (@sec-g-garnet) spent about 7.7 more, outside the chapter's plan, and about 4.8 are left.
 - **The cost model was corrected with data.** The first estimate, 0.50 credits per job, came from small jobs and was wrong.
   The cost grows with the shots (about 0.15 credits per 1000) and has a floor of about 0.50 per job.
 
@@ -126,6 +126,9 @@ The script recomputes everything from the stored file:
 - **The milli-qang on Garnet** (§168, Chapter 28) used most of the credits. Three of four predictions passed: one X gate costs
   1.64 m-qg and the cost grows in a straight line with the number of gates. The equator copies scattered half as much as
   expected (M2 failed), and that is still open.
+- **$E=mc^2$ as a reading on Garnet** (§170, Appendix G): 24 circuits of 2000 shots on the same qubit, with the
+  pre-registration pushed in its own commit before the job. All 5 predictions passed, with a 26–71 m-qg gate bias in the
+  same direction as in §168. It cost about 7.7 credits.
 - **The replication on five qubits and two days** is prepared in `examples/iqm_milliqang_replication_qg.py`, not yet
   pre-registered or run. At full size (130 circuits × 4000 shots per day) it would cost about 80 credits per day, far more
   than is left: it has to be shrunk before use.
@@ -133,7 +136,7 @@ The script recomputes everything from the stored file:
   two-qubit gates on the IBM models, probably too deep) and H₂ (§20, §128). The H₂ run on IonQ was refused before any job was
   accepted, and nothing was charged.
 
-With 12.50 credits at about 0.15 per 1000 shots, some 80,000 shots are left, minus the per-job floors.
+With about 4.8 credits after §170 at about 0.15 per 1000 shots, some 30,000 shots are left, minus the per-job floors.
 
 ## Result: hits, misses and comparison with simulation {#sec-iqm-result}
 
@@ -185,7 +188,8 @@ d["energies"][int(np.argmin(fil[:, 1]))]           # 2.6 GeV: the oscillation ma
   (exact 2.63). All four pre-registered predictions passed.
 - The chip did better than its simulated model, and the filter gained less (1.59 times against 2.16).
 - IQM's compilation advantage (12 against 18) came from the optimization level: at the same level IBM also gives 12.
-- 17.50 of 30 credits were spent, at about 0.15 per 1000 shots with a floor of 0.50 per job.
+- 17.50 of 30 credits were spent on this chapter's runs, at about 0.15 per 1000 shots with a floor of 0.50 per job; with
+  §170 (Appendix G) about 25.2 are spent and about 4.8 are left.
 - `qang.iqm`, written after the runs, adds readout correction and chain choice. On the Garnet model the correction removes
   another 15% of the filtered error; it has not been tried on the real chip.
 

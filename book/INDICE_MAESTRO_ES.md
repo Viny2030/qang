@@ -272,6 +272,7 @@ hasta que exista una corrida real (Parte X).
 23.4 Descenso amortiguado en los polos: robustez ante tasas de aprendizaje agresivas en VQE — §9
 23.5 Núcleos cuánticos filtrados: reparación de la matriz de Gram 2,4–6× — §161
 23.6 Mesetas estériles (barren plateaus) en espacio qg; costo global frente a costo local qg — §12, §23
+23.7 🆕 Tres mesetas y lo que qang hace con cada una (2026-11-02): expresividad → sector de peso (varianza sin ruido ∝ n^−2,8 en peso 1, simulable; ∝ 1/C(n, n/2) con media ocupación; exploratorio, tools/make_cap23_figures.py --sector, figura cap23_sector); costo global → costo local qg; ruido T1 → filtro (gradiente exacto, disparos de 1/K² a 1/K; T5 de §112 falló con K ≤ 0,14); la unidad no cambia ninguna — §12, §23, §112
 23.7 🆕 La escala qga es una coordenada plana de Fisher (4π²·10⁻⁶ qga⁻²); medir en qga no cambia la meseta (§12) — `tools/verify_qga_lecturas.py`
 
 ---
@@ -325,9 +326,9 @@ hasta que exista una corrida real (Parte X).
 ## PARTE X. Evidencia experimental, hardware real y auditoría de falsación
 
 ### Capítulo 28. Metodología: el protocolo de falsación pre-registrada
-28.0 ✅ escrito: auditoría del repositorio con código (tools/make_cap28_figures.py). 33 corridas guardan veredictos: 143 predicciones, 89 cumplidas y 54 falladas; las 54 predicciones fijadas por commit (§71–§165) son anteriores a sus resultados; de los 15 pre-registros por sha256, 7 se comprueban en git y 8 sólo tienen su propia fecha. Hardware real: IQM Garnet, neutrinos (4 de 4, 1,59×) y milli-qang (3 de 4, 1,64 m-qg por X) — figura: auditoría
+28.0 ✅ escrito: auditoría del repositorio con código (tools/make_cap28_figures.py). 34 corridas guardan veredictos: 148 predicciones, 94 cumplidas y 54 falladas (actualizado 2026-11-02 con §170); las 54 predicciones fijadas por commit (§71–§165) son anteriores a sus resultados; de los 16 pre-registros por sha256, 8 se comprueban en git y 8 sólo tienen su propia fecha. Hardware real: IQM Garnet, neutrinos (4 de 4, 1,59×) y milli-qang (3 de 4, 1,64 m-qg por X) — figura: auditoría
 28.1 La disciplina del pre-registro: hipótesis y predicciones comprometidas (commit o sha256) antes de correr — §46, §75–§164
-28.2 Balance de aciertos y fallos: 89/54 en las 33 corridas con veredictos guardados; "123 / 53" es sólo la línea QML (§75–§123, README). El recuento total de §1–§168 queda a mano
+28.2 Balance de aciertos y fallos: 94/54 en las 34 corridas con veredictos guardados; "123 / 53" es sólo la línea QML (§75–§123, README). El recuento total de §1–§170 queda a mano
 28.3 Bancos de prueba: modelos de ruido calibrados de IBM (Brisbane, Sherbrooke, Torino, Fez, flota de 21) e IonQ (Aria-1, Forte-1) — §20, §137, §144
 28.4 Ejecución en hardware real: IonQ Forte-1 (§128) rechazado antes de aceptar el trabajo; IQM Garnet (§165, §168) da los dos primeros datos reales. QuTech/Quantum Inspire no aparece en el repo y no se usa
 28.5 El criterio Var_θ(F_eco) no está definido en el repo: el capítulo lo deja fuera como propuesta sin escribir

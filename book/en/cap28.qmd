@@ -24,19 +24,19 @@ The notes used two:
 
 ## The tally of hits and misses {#sec-pre-tally}
 
-**What the code stored.** 33 runs leave in their results file a dictionary of verdicts computed by the script itself. The
-chapter's script counts them: **143 predictions, 89 passed (62%) and 54 failed**. Three runs failed all their predictions (the
-IBM fleet, the coherent ZZ and collective neutrinos) and six passed all of theirs.
+**What the code stored.** 34 runs leave in their results file a dictionary of verdicts computed by the script itself. The
+chapter's script counts them: **148 predictions, 94 passed (64%) and 54 failed**. Three runs failed all their predictions (the
+IBM fleet, the coherent ZZ and collective neutrinos) and seven passed all of theirs, among them $E=mc^2$ on IQM Garnet (§170).
 
 **The QML line.** For §75–§123, the repository's README keeps another tally: 176 predictions judged, 123 passed and 53 failed,
 with 4 more waiting for the IonQ hardware run. The two counts are separate bookkeeping that partly overlap, and must not be
 added.
 
 **What cannot be recounted automatically.** The sections before §71 barely use pre-registration, and many later ones record
-their verdicts only in prose ("Four passed; V1 failed"), with varied wording. A full count over §1–§168 would have to be done by
+their verdicts only in prose ("Four passed; V1 failed"), with varied wording. A full count over §1–§170 would have to be done by
 hand, section by section. This book does not do it: it gives the two counts that can be checked.
 
-A 62% hit rate is not a weakness. A rate near 100% would signal thresholds that are too soft. Several failures were the most
+A 64% hit rate is not a weakness. A rate near 100% would signal thresholds that are too soft. Several failures were the most
 informative results in the notes: the coherent ZZ that the filter does see (Chapter 27), the erasure rule that had to be fixed
 with $(1-h)$ (Chapter 26), the qg_YY metric that helps less than predicted (Chapter 23).
 
@@ -46,11 +46,11 @@ That a prediction was written "before" has to be checkable. The script checks it
 
 - **By commit (54 citations, §71–§165)**: every cited commit exists in the history and, at that commit, the notes do not yet
   contain the section's results. **All 54 are consistent.**
-- **By sha256 (15 files)**: no script matches its hash today, as expected, because after the run the findings are added to its
+- **By sha256 (16 files)**: no script matches its hash today, as expected, because after the run the findings are added to its
   opening comment. The question is whether any stored version matches.
-  - In **7 of 15**, the hash matches the script at the commit that added the `.prereg`, and that commit is earlier than the
+  - In **8 of 16**, the hash matches the script at the commit that added the `.prereg`, and that commit is earlier than the
     results'. The "before" is **checked**.
-  - In **8 of 15**, the `.prereg` and the results came in the same commit, and no version of the script stored in git matches
+  - In **8 of 16**, the `.prereg` and the results came in the same commit, and no version of the script stored in git matches
     the hash: the script was frozen, run and edited before anything was pushed. For those eight the "before" rests **only on the
     file's own timestamp**, which the author could have written at any time.
 
@@ -59,7 +59,7 @@ area, the quantum kernel and VarQTE. Their results are not false because of this
 third party. The fix for what comes next is simple: push the `.prereg` and the frozen script in a commit of their own before
 running.
 
-![Left: predictions passed and failed in the 33 runs that store their verdicts. Right: audit of the "before": the 54 predictions pinned by commit are consistent; of the 15 sha256 pre-registrations, 7 can be checked in git and 8 only have their own timestamp.](figures/cap28_audit.png){#fig-audit28 width=100%}
+![Left: predictions passed and failed in the 34 runs that store their verdicts. Right: audit of the "before": the 54 predictions pinned by commit are consistent; of the 16 sha256 pre-registrations, 8 can be checked in git and 8 only have their own timestamp.](figures/cap28_audit.png){#fig-audit28 width=100%}
 
 ## Testbeds {#sec-pre-testbeds}
 
@@ -85,10 +85,13 @@ vendor's software batches circuits. That is why the book calls "simulated" every
 - **IQM Garnet, the milli-qang** (§168, 26 circuits of 4000 shots on one qubit): three of four predictions held. The script
   recomputes the X-gate cost with a single slope: **1.64 m-qg per gate** ($\chi^2/\text{dof}=0.81$). Prediction M2 failed: the
   ten equator copies scatter half as much as binomial noise allows (ratio 0.50). It remains open.
+- **IQM Garnet, $E=mc^2$ as a reading** (§170, 24 circuits of 2000 shots on the same qubit): the pre-registration was pushed
+  in its own commit before the job, as the fix of @sec-pre-audit asked, which is why it is the eighth checkable sha256.
+  **All five predictions hold** (@sec-g-garnet), with a 26–71 m-qg gate bias reported in the open.
 
-The two IQM runs are the project's first real-hardware data, and Chapter 31 treats them in detail. A replication of §168 on
-five qubits and two days is prepared but not pushed to the repository, because at full size it would cost about 80 credits and
-12.50 are left.
+The three IQM runs are the project's first real-hardware data, and Chapter 31 treats them in detail. A replication of §168
+on five qubits and two days is prepared but not pushed to the repository, because at full size it would cost about 80
+credits, and about 5 are left after §170 (estimated).
 
 **The $\mathrm{Var}_\theta(F_{\text{echo}})$ criterion.** The index announced a QPU falsification criterion based on the variance of
 the inversion echo over continuous trajectories. It is not defined anywhere in the repository, so the book does not use it. It
@@ -101,9 +104,9 @@ with it.
 
 | action | without pre-registration | with pre-registration | difference |
 |---|---|---|---|
-| decide whether a result helps | decided after seeing the data | threshold fixed beforehand, in m-qg or in ratios | **in favour**: 54 of 143 predictions failed and were published |
-| report failures | omitted or reinterpreted | reported with their numbers (89/54, 123/53) | **in favour** |
-| check the "before" | impossible | by commit: 54 of 54 checked; by sha256: 7 of 15 | **in favour**, with 8 cases unverified |
+| decide whether a result helps | decided after seeing the data | threshold fixed beforehand, in m-qg or in ratios | **in favour**: 54 of 148 predictions failed and were published |
+| report failures | omitted or reinterpreted | reported with their numbers (94/54, 123/53) | **in favour** |
+| check the "before" | impossible | by commit: 54 of 54 checked; by sha256: 8 of 16 | **in favour**, with 8 cases unverified |
 | rehearse before spending | — | free simulator with the same predictions before every QPU run | **in favour**: IonQ's refusal cost nothing |
 | pin the script by sha256 | — | only checkable if the `.prereg` is pushed before the results | **none** in 8 cases: the procedure must be fixed |
 
@@ -127,12 +130,12 @@ hashlib.sha256(frozen.replace(b"\r\n", b"\n")).hexdigest() == h   # True: this i
 ## Summary {#sec-summary28}
 
 - Predictions were pinned by commit (§71–§165) or by the sha256 of the frozen script.
-- The 33 runs that store verdicts add up to 143 predictions: 89 passed and 54 failed; the QML line (§75–§123) records 123 and
-  53. A full count of §1–§168 would have to be done by hand.
-- The "before" is checked for the 54 predictions pinned by commit and for 7 of the 15 sha256 pre-registrations; for 8 there is
+- The 34 runs that store verdicts add up to 148 predictions: 94 passed and 54 failed; the QML line (§75–§123) records 123 and
+  53. A full count of §1–§170 would have to be done by hand.
+- The "before" is checked for the 54 predictions pinned by commit and for 8 of the 16 sha256 pre-registrations; for 8 there is
   only their own timestamp.
-- Nearly everything is simulated with calibrated models. Real hardware is two runs on IQM Garnet: neutrinos (4 of 4) and the
-  milli-qang (3 of 4, with 1.64 m-qg per X gate).
+- Nearly everything is simulated with calibrated models. Real hardware is three runs on IQM Garnet: neutrinos (4 of 4), the
+  milli-qang (3 of 4, with 1.64 m-qg per X gate) and $E=mc^2$ as a reading (5 of 5, §170).
 - The $\mathrm{Var}_\theta(F_{\text{echo}})$ criterion does not exist in the repository and is not used.
 
 ## Bibliographic notes {.unnumbered}

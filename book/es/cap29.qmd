@@ -31,6 +31,11 @@ datos), con predicciones registradas antes de correr:
 
 Las cinco predicciones se cumplieron. Las cifras del índice ("+2,5 y +16,5 en 60 corridas") están en §80, tal cual.
 
+**El gradiente, también** (§112). Bajo T1 igual, el filtro devuelve exactamente el gradiente sin ruido; sin el filtro, en peso 1
+el gradiente es $K$ veces más chico. Es la meseta estéril por ruido, y el filtro la cambia por disparos: el costo para
+resolver el signo del gradiente pasa de crecer como $1/K^2$ a crecer como $1/K$ (@sec-geo-tres). En las notas, el filtro
+necesitó menos disparos en 10 de 12 casos; con media ocupación y $K\le0{,}14$ necesitó entre 1,3 y 2,2 veces más (T5 falló).
+
 ## Menos error en las lecturas de dispositivos simulados {#sec-ventajas-filtro}
 
 El script recalcula el factor de reducción del error (crudo sobre filtro más corrección de lectura) en cada dispositivo de cada
@@ -84,7 +89,9 @@ Las oscilaciones de neutrinos en un circuito conservan el peso, así que el filt
 sabores (§151), el error baja 3,4 veces en la mediana de tres dispositivos simulados (el índice decía 3 veces); con un neutrino
 estéril (§163), 5,6 veces, y la caída de supervivencia aparece en la energía correcta en los tres. **En IQM Garnet** (§165), con
 hardware real, el filtro baja el error 1,59 veces y devuelve el máximo de oscilación a 2,6 GeV (exacto 2,63), donde la lectura
-cruda lo ponía en 0,8 GeV. Es la única de estas ventajas confirmada en hardware.
+cruda lo ponía en 0,8 GeV. Es la única de estas ventajas confirmada en hardware. Las otras dos corridas en Garnet (§168 y
+§170, 8 de 9 predicciones) probaron la escala y la lectura, no una ventaja: muestran que el mili-qang mide un chip real, no
+que qang lo mejore.
 
 ## BB84: menos falsas alarmas ante la deriva térmica {#sec-ventajas-bb84}
 
@@ -122,6 +129,7 @@ filtro en un circuito de varias excitaciones.
 | precisión bajo T1 sin reentrenar | 0,928 / 0,757 (pesos 1 / 2) | 0,952 / 0,922 | +2,5 / +16,5 puntos | con T1 desigual pierde ≤ 1 punto; entrenando con ruido, ninguna |
 | error de las lecturas (simulado) | crudo | filtro + lectura | 1,6 a 11 veces, nunca peor | error dentro del sector |
 | error en hardware real | 0,062 | 0,039 | 1,59 veces | chips mejores que su modelo ganan menos |
+| gradiente bajo T1 | $K$ veces más chico | exacto con el filtro | disparos de $1/K^2$ a $1/K$; 10 de 12 casos | media ocupación con $K\le0{,}14$ (§112) |
 | decisiones de un clasificador | 15 de 945 distintas | 3 con filtro y eco | 5 veces menos | margen estrecho (§108) |
 | lectura y temperatura | $e_{01}$ inflado, 0 mK | sin sesgo, a 1 mK | — | necesita medición a mitad de circuito |
 | diagnóstico del T1 | 0,70–0,76 con simulación ideal | 0,88 sólo con conteos | +12–18 puntos | ruido realista: azar |
@@ -151,6 +159,7 @@ d["kept"]                                 # 0,88 de los disparos conservados
 - El filtro baja el error de las lecturas entre 1,6 y 11 veces en 74 casos de dispositivos simulados, sin empeorarlo nunca; en hardware real,
   1,59 veces.
 - El eco lleva las decisiones erróneas de 15 a 3 sobre 945 lecturas.
+- Contra la meseta por ruido T1, el filtro devuelve el gradiente exacto y baja el costo en disparos de $1/K^2$ a $1/K$.
 - La escala misma separa temperatura de error de lectura, T1 de ruido unital y deriva térmica de un ataque en BB84.
 - Cada ventaja tiene escrito dónde deja de valer; el capítulo 30 junta los resultados negativos.
 
