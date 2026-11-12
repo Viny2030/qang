@@ -310,3 +310,91 @@ def test_qiskit_dynamics_area():
         assert abs(rabi_qg(area) - math.cos(area)) < 2e-3
         assert abs(rabi_qg(area, shape="gaussian") - math.cos(area)) < 2e-3
     assert math.isclose(area_error_qg(1.3, 0.02), rx_qg_z_systematic_amplitude(1.3, 0.02), rel_tol=1e-12)
+
+
+# ---------------------------------------------------------------- JAX: qga, derived quantities, qg algebra
+
+def _jax64():
+    jax = pytest.importorskip("jax")
+    jax.config.update("jax_enable_x64", True)
+    return jax
+
+
+def test_jax_qga_and_derived_match_numpy():
+    jax = _jax64()
+    jnp = jax.numpy
+    from qang import algebra, probability, qga
+    from qang.integrations import jax as qj
+
+    for t in (0.0, 166.667, 250.0, 400.0):
+        assert abs(float(qj.p0_from_qga(t)) - qga.p0_from_qga(t)) < 1e-12
+        assert abs(float(qj.milliqang_from_qga(t)) - qga.milliqang_from_qga(t)) < 1e-9
+    for m in (-1000.0, -300.0, 0.0, 500.0):
+        assert abs(float(qj.qga_from_milliqang(m)) - qga.qga_from_milliqang(m)) < 1e-9
+    for z in (-0.9, -0.3, 0.0, 0.5, 0.8):
+        assert abs(float(qj.quantum_snr(z)) - probability.quantum_snr(z)) < 1e-12
+        assert abs(float(qj.information_curvature(z)) - probability.information_curvature(z)) < 1e-12
+    r = jnp.array([[0.0, 0.0, -0.6], [0.2, -0.3, 0.4]])
+    expected = [probability.dissipative_deficit(*row) for row in r.tolist()]
+    assert jnp.allclose(qj.dissipative_deficit(r), jnp.array(expected), atol=1e-12)
+    assert abs(float(qj.geodesic_distance(0.3, -0.5)) - algebra.geodesic_distance(0.3, -0.5)) < 1e-12
+    p, q = jnp.array([0.5, 0.3, 0.2]), jnp.array([0.4, 0.4, 0.2])
+    assert abs(float(qj.statistical_angle(p, q)) - probability.statistical_angle([0.5, 0.3, 0.2], [0.4, 0.4, 0.2])) < 1e-12
+
+
+def test_jax_algebra_matches_numpy():
+    jax = _jax64()
+    jnp = jax.numpy
+    from qang import algebra
+    from qang.integrations import jax as qj
+
+    for q, phi, lam in ((0.0, 0.0, 3.141592653589793), (0.3, 1.1, -0.4), (-0.8, 2.5, 0.9)):
+        assert jnp.allclose(qj.u3_qang(q, phi, lam), algebra.u3_qang(q, phi, lam), atol=1e-12)
+        assert jnp.allclose(qj.transition_matrix(q), algebra.transition_matrix(q), atol=1e-12)
+        assert jnp.allclose(qj.householder_qg(q), algebra.householder_qg(q), atol=1e-12)
+        assert jnp.allclose(qj.grover_diffuser_qg(q), algebra.grover_diffuser_qg(q), atol=1e-12)
+    assert abs(float(qj.transition_probability(0.3, -0.5, 0.0, 1.2)) - algebra.transition_probability(0.3, -0.5, 0.0, 1.2)) < 1e-12
+    ks = jnp.arange(6)
+    traj = qj.chebyshev_trajectory(0.8, ks)
+    assert jnp.allclose(traj, jnp.array([algebra.chebyshev_trajectory(0.8, k) for k in range(6)]), atol=1e-12)
+    assert abs(float(qj.grover_fisher_information(0.8, 5)) - algebra.grover_fisher_information(0.8, 5)) < 1e-12
+
+
+def test_jax_new_functions_jit_grad_vmap():
+    jax = _jax64()
+    jnp = jax.numpy
+    from qang.integrations import jax as qj
+
+    zs = jnp.linspace(-0.9, 0.9, 7)
+    # vmap and jit agree with the elementwise call
+    assert jnp.allclose(jax.vmap(qj.information_curvature)(zs), qj.information_curvature(zs))
+    assert jnp.allclose(jax.jit(qj.quantum_snr)(zs), qj.quantum_snr(zs))
+    # grad of qg_S twice gives -qg_kappa
+    def qg_s(z):
+        p = (1 + z) / 2
+        return -(p * jnp.log2(p) + (1 - p) * jnp.log2(1 - p))
+    d2 = jax.vmap(jax.grad(jax.grad(qg_s)))(zs)
+    assert jnp.allclose(-d2, qj.information_curvature(zs), rtol=1e-10)
+    # grad of the Chebyshev trajectory: T'_m(x) = m U_{m-1}(x) = m sin(m t) / sin t
+    x = 0.8
+    g = jax.grad(lambda v: qj.chebyshev_trajectory(v, 2))(x)
+    t = jnp.arccos(x)
+    assert abs(float(g) - float(5 * jnp.sin(5 * t) / jnp.sin(t))) < 1e-10
+    # gradient through the gate: d/dq of |U_00|^2 = 1/2
+    assert abs(float(jax.grad(lambda q: jnp.abs(qj.u3_qang(q, 0.3, 0.7)[0, 0]) ** 2)(0.2)) - 0.5) < 1e-12
+
+
+def test_jax_curvature_step_is_theta_gradient_to_first_order():
+    jax = _jax64()
+    jnp = jax.numpy
+    from qang.integrations import jax as qj
+
+    # E = <a Z + b X> on the meridian phi = 0: E(q) = a q + b sqrt(1 - q^2), E(theta) = a cos theta + b sin theta
+    a, b, lr = 1.0, 0.3, 1e-4
+    E_q = lambda q: a * q + b * jnp.sqrt(1 - q * q)
+    E_t = lambda t: a * jnp.cos(t) + b * jnp.sin(t)
+    for q in (-0.7, 0.1, 0.6):
+        new_q = qj.curvature_damped_update(q, jax.grad(E_q)(q), lr)
+        t = jnp.arccos(q)
+        new_t = t - lr * jax.grad(E_t)(t)
+        assert abs(float(new_q) - float(jnp.cos(new_t))) < 1e-7
