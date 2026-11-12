@@ -1,0 +1,136 @@
+# Catalogue of qang sub-measures {#sec-appendix-h}
+
+The qang unit does not reformulate any physical law. Each sub-measure in this catalogue is a reading of
+one probability, or of a few, and equals a quantity that physics or statistics already has. What a sub-measure can
+bring is a **decision**: fewer shots, a shorter pulse, a compilation chosen before running, a reading that noise does
+not bias. For each one the catalogue records its definition, what it equals, which decision it improves and with what
+evidence, and classifies it with one of the statuses of @tbl-h-statuses.
+
+The tables are generated from the registry `qang.measures` with `tools/make_apendice_h.py`, the same source for both
+languages of the book. A new sub-measure enters the catalogue as **unverified** and changes status only with a test,
+preferably pre-registered (Chapter 28).
+
+| status | meaning | sub-measures |
+|---|---|---|
+| exact | exact identity: it names or re-scales something; no gain is claimed | 14 |
+| measured gain | tested in simulation or analysis, with a measured gain over the usual practice | 13 |
+| tested on hardware | tested on a real device | 2 |
+| mixed | a gain in some regimes, none or a loss in others | 6 |
+| no gain | tested: equivalent to the usual practice | 2 |
+| against | tested: worse than the usual practice | 1 |
+| unverified | untested proposal: a candidate for a pre-registered experiment | 3 |
+| not adopted | proposal rejected as wrong or unsupported | 1 |
+
+: Statuses of the catalogue. {#tbl-h-statuses}
+
+## Base readings {#sec-h-base}
+
+| sub-measure | definition | equals | decision it improves | status | evidence | where |
+|---|---|---|---|---|---|---|
+| $qg_Z$ | $2p_0-1=\langle\sigma_z\rangle=\cos\theta$ | expectation value of $\sigma_z$ | working coordinate measured without inversion | **exact** | identity; holds for mixed states | ch. 1, §7 |
+| m-qg | $m=1000\,qg_Z$ | $\langle\sigma_z\rangle$ times a thousand, linear in $p_0$ | budget gate error and shot noise on one scale | **tested on hardware** | IQM Garnet: 1.64 m-qg per $X$, over-rotations of 16–55 m-qg hidden from the readout model; M2 failed | ch. 1, §168 |
+| $\theta$ | $\arccos qg_Z$ | arcsine transformation of a proportion | error bar $1/\sqrt N$ equal over the whole circle | **exact** | exact binomial sums; asymptotic (fails at $Np\approx2.5$) | ch. 1, §125 |
+| $qg_S$ | $H(p_0)=H\big((1+qg_Z)/2\big)$ | Shannon entropy of the outcome | certify randomness together with the mean reading | **mixed** | alone it is fooled under T1; paired with the mean reading it is not | chs. 1 and 26, §7, §51 |
+| qga | $1\ \text{turn}=1000\ \text{qga}$ | an angle in another unit | write gate angles without factors of $\pi$ | **exact** | convenience; changes neither gradients nor plateaus | ch. 1 |
+| $(qg_Z,s)$ | $s=\operatorname{sign}(qg_X)$ | the sign of the angle's sine | cross a pole during an optimization | **measured gain** | H$_2$: with $qg_Z$ alone it stops at Hartree–Fock; with the sign it reaches the exact energy | ch. 1, §65 |
+
+: Base readings. {#tbl-h-base}
+
+## Derived quantities {#sec-h-derivadas}
+
+| sub-measure | definition | equals | decision it improves | status | evidence | where |
+|---|---|---|---|---|---|---|
+| $qg_\kappa$ | $1/[\ln2\,(1-qg_Z^2)]$ | Fisher information about $qg_Z$, in bits | damp an optimizer's step near the poles | **no gain** | removes the divergence of the gradient in $q$, but matches gradient descent on $\theta$ step for step | ch. 1; bench_jax_curvature_step |
+| $qg_{SNR}$ | $\lvert qg_Z\rvert/\sqrt{1-qg_Z^2}$ | signal-to-noise of one shot, $\lvert\cot\theta\rvert$ | shots to read a sign: $(z/qg_{SNR})^2$ | **exact** | 27 shots at 60° for 3σ; exact binomial: error < 1 % | chs. 1 and 3 |
+| $qg_L$ | $\lvert\theta-\theta'\rvert/2$ | Bhattacharyya angle; Fubini–Study on a common meridian | distance between states from two $Z$ histograms | **exact** | with different azimuths it is only a lower bound | chs. 1 and 3 |
+| $qg_\tau$ | $\sqrt{1-r^2}=2\sqrt{\det\rho}$ | lack of purity | see a pulse's area where the m-qg reading does not shift | **exact** | 0.277 for $R_X(324^\circ)$ against 0.031 for $R_X(-36^\circ)$; needs three bases | chs. 1–3 |
+| $\kappa_{qg}$ | $1000\,\lvert\cos\theta\rvert$ | curvature of the reading with respect to the angle | predict the shift from amplitude error, $\tfrac12\theta^2\sigma^2\kappa_{qg}$ | **exact** | QuTiP: agrees to second order | chs. 1 and 2, §160 |
+| qFi | $4\pi^2\cdot10^{-6}\ \text{qga}^{-2}$ | Fisher information of the qang angle | fixed angular resolution: $159.15/\sqrt N$ qga | **exact** | not a flat manifold: the sphere has curvature 4 | ch. 1 |
+| qHz | $\text{qga}/\text{s}$ | angular frequency, $2\pi/1000$ rad/s | none so far | **exact** | unit with no use in the book | ch. 1 |
+
+: Derived quantities. {#tbl-h-derivadas}
+
+## States and registers {#sec-h-estado}
+
+| sub-measure | definition | equals | decision it improves | status | evidence | where |
+|---|---|---|---|---|---|---|
+| $1-r^2$ | $4p_0(1-p_0)$ at definite weight | local purity | measure purity with one basis instead of three | **measured gain** | holds only with a definite Hamming weight | ch. 5 |
+| $\arccos(qg_Z/r)$ | $qg_Z/r$ | Bloch polar angle of a mixed state | direction of a noisy state | **mixed** | in favour with depolarizing noise; against with pure dephasing | ch. 5, §45 |
+| $qg_{XX},qg_{YY},qg_{ZZ}$ | $\langle\sigma_i\otimes\sigma_i\rangle$ | Pauli correlators | diagnose a Bell pair and predict teleportation without teleporting | **measured gain** | 3 settings instead of 9; 4–5 two-qubit gates instead of 10–11, maximum error 0.029 | chs. 12 and 13 |
+| $m_E$ | $\sqrt{1000^2-m_\perp^2}$ | Eve's information (Helstrom with purification) | how many test rounds certifying bits needs | **exact** | the computation is standard; the reading makes it geometric | ch. 18 |
+| $(1000-m_r)/2000$ | $m_r=1000\,r$ | energy of the passive state | know how much energy nobody can extract | **exact** | modest: the split is read at a glance | ch. 19 |
+| syndrome $qg_Z,qg_X$ | ancilla readings | the $T_2/T_1$ rule | choose and recalibrate an error-correcting code without test shots | **measured gain** | 6.4 % over the oracle against 64–220 % for a fixed code; drift 13.1 % against 20.4 % | ch. 26 |
+| $\gamma$ | $1+2\sqrt{1-qg^2}$ | overhead of cutting a gate | choose which gates to cut | **mixed** | up to 2.9 times against angle-blind rules; none against qiskit-addon-cutting | ch. 26 |
+
+: States and registers. {#tbl-h-estado}
+
+## Gates and compilation {#sec-h-compuertas}
+
+| sub-measure | definition | equals | decision it improves | status | evidence | where |
+|---|---|---|---|---|---|---|
+| minimum area | $\theta\bmod2\pi$; $R_{ZZ}$ with period $\pi$ | shortest representative of the same gate | compile with less pulse area: less error | **measured gain** | 4-qubit QAOA: area 4.4× and error 4.1× lower; the 1.5× prediction for $R_{ZZ}$ failed (1.14×) | ch. 2, §160 |
+| exposure | population outside the sector after each two-qubit gate | noiseless computation on the circuit | choose the compilation before spending shots | **measured gain** | rank correlation 0.80 with T1 leakage; zero exposure removes ≥ 98 % of T1 | ch. 2, §68 |
+| $N$-conserving gates | $[U,\sum_i Z_i]=0$ | compilation within the sector | compile so that the filter removes T1 | **mixed** | the filter removes 99.5 % of T1 against 48.5 % with CNOT; none on ions | ch. 24, §61 |
+| qg grid | equal steps in $qg_Z$ | control quantization | quantize the control angles | **mixed** | probabilities $\pi/2$ times better, 43 of 45 loads; against for fidelity near the poles | ch. 27 |
+
+: Gates and compilation. {#tbl-h-compuertas}
+
+## Noise and readout {#sec-h-ruido}
+
+| sub-measure | definition | equals | decision it improves | status | evidence | where |
+|---|---|---|---|---|---|---|
+| weight filter, $K$ | $K=(1-\gamma)^{kd}$ | post-selection on the Hamming sector | read, train and differentiate under T1 without bias; shot cost known before running | **measured gain** | exact reading to $10^{-12}$ m-qg; exact gradient; against in 2 of 12 cases with $K\le0.14$ | chs. 20, 21 and 23, §112 |
+| echo, $M^{1/2}$ | echo transfer matrix | correction of errors within the sector | remove what the filter cannot see | **measured gain** | −27 to −62 % of the filtered error, with $\binom nk$ more echo circuits | ch. 22, §106 |
+| $qg_{eq}$, $T_\text{eff}$ | heralded affine readout | readout calibration with repeated measurements | calibrate readout without mistaking temperature for error | **measured gain** | effective temperature to 1 mK; avoids an unsafe certifier and recovers 10–50 % of bits | chs. 18 and 27, §31 |
+| step $\times\lvert\sin\theta\rvert$ | $\theta-\eta\max(\lvert\sin\theta\rvert,\epsilon)\,g$ | trust region near the poles | train with aggressive rates without tuning | **measured gain** | 2.3 to 13 times more successes from rate 2; little or nothing with safe rates | ch. 23 |
+| local cost | $(1-\overline{qg_Z})/2$ | local cost of Cerezo et al. | avoid the barren plateau of a global cost | **mixed** | 470 times more gradient variance with 10 qubits and short circuits; none with deep circuits | ch. 23 |
+
+: Noise and readout. {#tbl-h-ruido}
+
+## Readings of known physical laws {#sec-h-fisica}
+
+| sub-measure | definition | equals | decision it improves | status | evidence | where |
+|---|---|---|---|---|---|---|
+| $\langle\beta\rangle$ | $mc^2/E$ | expectation value of the Dirac matrix $\beta$ | read $E=mc^2$ and charge conjugation as a $qg_Z$ | **tested on hardware** | exact and known; charge conjugation flips the reading; run §170 on IQM Garnet | app. G, §170 |
+| $\widehat{qg^2}$ | unbiased squares | standard bias correction | compare two clocks with few shots | **measured gain** | bias from +11.8 % to +0.9 % with 100 shots | ch. 8 |
+| unbiased $\sqrt{S_1^2+S_2^2+S_3^2}$ | unbiased Stokes squares | degree of polarization | estimate polarization with few photons | **measured gain** | the bias drops about three times, without vanishing | ch. 6 |
+| $\arccos(m/l)$ | $\langle J_z\rangle/l$ | direction of $\langle\mathbf J\rangle$ | read angular momentum as a $qg_Z$ | **exact** | the vector model $\arccos(m/\sqrt{l(l+1)})$ draws something else | ch. 11 |
+| flavour $qg_Z$ | $1-2P_{\alpha\to\beta}$ | oscillation probability | read the mixing angle with a fixed error bar | **exact** | identity on the two-flavour formula | ch. 9 |
+| $m_Z$, $m_X$ | readings of the chronology qubit | comparing density matrices | tell P-CTC from D-CTC with one $Z$ reading | **measured gain** | P-CTC moves $m_Z$, D-CTC does not | ch. 14 |
+| $(1000+m_P)(1000+m_F)$ | $=10^6$ | Yoshida–Kitaev law | judge a wormhole decoder | **exact** | the law is known; the scale shows that $m_P=-500$ proves nothing | ch. 15 |
+
+: Readings of known physical laws. {#tbl-h-fisica}
+
+## Open and rejected proposals {#sec-h-propuestas}
+
+| sub-measure | definition | equals | decision it improves | status | evidence | where |
+|---|---|---|---|---|---|---|
+| $\kappa_{qg}$ compilation | minimum arrival curvature | — | mitigate barren plateaus | **unverified** | untested | chs. 1 and 2 |
+| $E_\text{total}$ | $\langle H\rangle+\lambda_\theta L(\theta)+\lambda_\varphi L(\varphi)$ | — | regularize a VQE | **unverified** | $L$ and $\lambda$ undefined | ch. 1 |
+| $R(\theta,\varphi)$ | $N[p_1+\alpha\cos\varphi]$ | — | model emission from the excited population | **unverified** | $N$ and $\alpha$ not fixed; not compared with an emission model | ch. 1 |
+| 500 qga CPT | $E_-\leftrightarrow$ a 500 qga shift | — | place antimatter on the scale | **not adopted** | no support; the correct reading is charge conjugation on $\langle\beta\rangle$ | ch. 1, app. G |
+| signs of $qg_{Z,i}$ | $\operatorname{sign}qg_{Z,i}$ | bit-string histogram | read the marked item in a noisy search | **against** | 66 % against 91 % for the histogram mode (5 qubits, 100 shots) | ch. 3, §63 |
+| stopping $qg_{SNR}$, $qg_\kappa$ | threshold on $\lvert qg_k\rvert$ | the formula for $k^\ast$ | stop Grover iterations | **no gain** | they cannot tell whether the flag passed the pole; they cost one run per $k$ | ch. 3 |
+
+: Open and rejected proposals. {#tbl-h-propuestas}
+
+## Balance {#sec-h-balance}
+
+Of 42 sub-measures, 14 are exact identities, 13 have a measured gain in simulation or
+analysis, 2 were tested on a real device (with a mixed result for the milli-qang), 6 are mixed, 2 turned out equivalent to the usual practice, 1 lost to it, 3
+are unverified and 1 was not adopted. The gains do not come from the unit but from the decisions the reading
+allows before spending resources: choosing the minimum-area representative, the compilation of least exposure, the
+code from two readings, or reading only the weight sector that T1 does not contaminate. The unverified sub-measures
+are the list of pending experiments; the catalogue keeps them in sight so that they are not cited as results.
+
+## In code {#sec-h-code}
+
+```python
+from qang import measures
+
+measures.summary()                       # sub-measures per status
+measures.by_status("sin_verificar")      # the pending experiments
+m = measures.find("min_area")
+m.decision[1], m.evidence[1]             # the decision it improves and the evidence, in English
+measures.resolve(m)                      # qang.pulse_area.minimal_area_circuit
+```

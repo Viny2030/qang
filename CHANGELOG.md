@@ -17,6 +17,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   treatise proposes with qg_kappa. `tools/bench_jax_curvature_step.py` measures it: it removes the divergence of plain
   gradient descent on qg_Z near the poles and matches plain gradient descent on theta step for step (they are the same
   to first order), so it brings no gain over optimizing the qang angle.
+- `qang.measures` (book, appendix H): the catalogue of qang sub-measures, 42 entries in seven families, each with its
+  definition, the standard quantity it equals, the decision it improves, a status (exact, measured gain, tested on
+  hardware, mixed, no gain, against, unverified, not adopted) and its evidence. `tools/make_apendice_h.py` writes
+  appendix H in Spanish and English from it; tests in `tests/test_measures.py`.
 - README: Qiskit Ecosystem badge (qang joined the Qiskit Ecosystem, Qiskit/ecosystem#1419).
 
 ### Changed

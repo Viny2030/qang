@@ -205,6 +205,7 @@ Full list in [CHANGELOG.md](CHANGELOG.md).
 | `qang.pulse_area` | Pulse area of fractional gates: the minimal-area rule (§160) |
 | `qang.qec` | The 3-qubit bit-flip code with syndromes read in qg |
 | `qang.qga` | The angular qang: 1000 qga per turn, conversions to radians, p₀ and m-qg, Fisher and Berry phase in qga (Chapter 1) |
+| `qang.measures` | Catalogue of qang sub-measures: definition, equivalent quantity, the decision each improves, status and evidence (appendix H) |
 | `qang.qpon` | Teleportation through a passive optical network, discrete variables (§157; Chapters 12–13) |
 | `qang.transformations` | Closed-form transformations between qang-parameterized states |
 | `qang.varqte` | Variational real-time evolution (McLachlan) with a weight-preserving ansatz (§162) |
