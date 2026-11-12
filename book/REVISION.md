@@ -195,8 +195,10 @@ derivadas y su uso en Grover. Se agregó, en ES y EN:
   que sí tienen (disparos para confirmar el signo).
 - **$qg_\tau$ como «relajación $T_1/T_2$».** Mide pérdida de pureza de cualquier origen; el capítulo 2 muestra un caso
   sin relajación (promedio sobre errores de amplitud).
-- **Amortiguar optimizadores con $qg_\kappa$.** Es el gradiente natural; queda **sin verificar** en los
-  optimizadores del libro.
+- **Amortiguar optimizadores con $qg_\kappa$.** Es el gradiente natural en la coordenada $qg_Z$. El capítulo 30
+  ya lo había medido (`sec-limites-qng`): equivale al descenso en $\theta$, 103 pasos los dos. La primera
+  redacción del capítulo 1 decía «no se ha medido»; se corrigió el 2026-11-12, y
+  `tools/bench_jax_curvature_step.py` repite el resultado en JAX.
 
 ## Capítulos 2–24 frente a los .docx del autor y la escala qga (2026-11-01)
 

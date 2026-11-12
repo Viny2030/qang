@@ -44,7 +44,7 @@ de preferencia pre-registrada (capítulo 28).""",
         "caption": ": {name}. {{#tbl-h-{fam}}}",
         "balance_title": "## Balance {#sec-h-balance}",
         "balance": r"""De {n} submedidas, {exact} son identidades exactas, {gain} tienen una ganancia medida en simulación o
-análisis, {hw} se probaron en un dispositivo real (con un resultado mixto en el caso del mili-qang), {mixed} son mixtas, {nogain} resultaron equivalentes a la práctica usual, {against} perdió frente a
+análisis, {hw} se probaron en un dispositivo real (con un resultado mixto en el caso del mili-qang), {mixed} son mixtas, {nogain} resultaron equivalentes a la práctica usual, {against} quedaron por debajo de
 ella, {open} están sin verificar y {rejected} no se adoptó. Las ganancias no vienen de la unidad sino de las decisiones que
 la lectura permite tomar antes de gastar recursos: elegir el representante de menor área, la compilación de menor
 exposición, el código según dos lecturas, o leer sólo el sector de peso que el T1 no contamina. Las submedidas sin

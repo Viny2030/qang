@@ -12,12 +12,12 @@ de preferencia pre-registrada (capítulo 28).
 
 | estado | significado | submedidas |
 |---|---|---|
-| exacta | identidad exacta: nombra o re-escala algo; no se atribuye ganancia | 14 |
-| ganancia medida | probada en simulación o análisis, con ganancia medida frente a la práctica usual | 13 |
-| probada en hardware | probada en un dispositivo real | 2 |
-| mixta | ganancia en algunos regímenes, ninguna o pérdida en otros | 6 |
-| sin ganancia | probada: equivalente a la práctica usual | 2 |
-| en contra | probada: peor que la práctica usual | 1 |
+| exacta | identidad exacta: nombra o re-escala algo; no se atribuye ganancia | 18 |
+| ganancia medida | probada en simulación o análisis, con ganancia medida frente a la práctica usual | 14 |
+| probada en hardware | probada en un dispositivo real | 3 |
+| mixta | ganancia en algunos regímenes, ninguna o pérdida en otros | 7 |
+| sin ganancia | probada: equivalente a la práctica usual | 4 |
+| en contra | probada: peor que la práctica usual | 2 |
 | sin verificar | propuesta sin prueba: candidata a un experimento pre-registrado | 3 |
 | no adoptada | propuesta descartada por errónea o sin respaldo | 1 |
 
@@ -40,7 +40,7 @@ de preferencia pre-registrada (capítulo 28).
 
 | submedida | definición | equivale a | decisión que mejora | estado | evidencia | dónde |
 |---|---|---|---|---|---|---|
-| $qg_\kappa$ | $1/[\ln2\,(1-qg_Z^2)]$ | información de Fisher sobre $qg_Z$, en bits | amortiguar el paso de un optimizador junto a los polos | **sin ganancia** | evita la divergencia del gradiente en $q$, pero empata paso a paso con el gradiente en $\theta$ | cap. 1; bench_jax_curvature_step |
+| $qg_\kappa$ | $1/[\ln2\,(1-qg_Z^2)]$ | información de Fisher sobre $qg_Z$, en bits | amortiguar el paso de un optimizador junto a los polos | **sin ganancia** | evita la divergencia del gradiente en $q$, pero es el descenso en $\theta$: 103 pasos los dos (cap. 30); el banco de JAX lo repite | caps. 1, 23 y 30 |
 | $qg_{SNR}$ | $\lvert qg_Z\rvert/\sqrt{1-qg_Z^2}$ | señal a ruido de un disparo, $\lvert\cot\theta\rvert$ | disparos para leer un signo: $(z/qg_{SNR})^2$ | **exacta** | 27 disparos a 60° para 3σ; binomial exacta: error < 1 % | caps. 1 y 3 |
 | $qg_L$ | $\lvert\theta-\theta'\rvert/2$ | ángulo de Bhattacharyya; Fubini–Study en un meridiano común | distancia entre estados desde dos histogramas en $Z$ | **exacta** | con azimutes distintos es sólo una cota inferior | caps. 1 y 3 |
 | $qg_\tau$ | $\sqrt{1-r^2}=2\sqrt{\det\rho}$ | falta de pureza | ver el área de un pulso donde la lectura en m-qg no se corre | **exacta** | 0,277 para $R_X(324^\circ)$ frente a 0,031 para $R_X(-36^\circ)$; necesita tres bases | caps. 1–3 |
@@ -61,6 +61,8 @@ de preferencia pre-registrada (capítulo 28).
 | $(1000-m_r)/2000$ | $m_r=1000\,r$ | energía del estado pasivo | saber cuánta energía nadie puede extraer | **exacta** | modesto: el reparto se lee de un vistazo | cap. 19 |
 | $qg_Z,qg_X$ de síndromes | lecturas de los ancillas | la regla $T_2/T_1$ | elegir y recalibrar un código corrector sin disparos de prueba | **ganancia medida** | 6,4 % sobre el oráculo frente a 64–220 % de un código fijo; deriva 13,1 % frente a 20,4 % | cap. 26 |
 | $\gamma$ | $1+2\sqrt{1-qg^2}$ | sobrecosto de cortar una compuerta | elegir qué compuertas cortar | **mixta** | hasta 2,9 veces frente a reglas ciegas al ángulo; ninguna frente a qiskit-addon-cutting | cap. 26 |
+| $qg_Z$ en estados de grafo | $qg_Z=0,\ qg_S=1$ | la lectura local en $Z$ | detectar entrelazamiento con lecturas locales en $Z$ | **sin ganancia** | no distingue un estado de grafo de un producto: el límite es de la base $Z$ | cap. 30 |
+| $qg$ de paridad | $(dqg)^2/(1-qg^2)=N^2$ | información de Fisher cuántica de un GHZ | alcanzar la cota de Heisenberg con una lectura de paridad | **exacta** | la fórmula de un disparo del capítulo 1 alcanza la cota | cap. 34 |
 
 : Estados y registros. {#tbl-h-estado}
 
@@ -72,6 +74,7 @@ de preferencia pre-registrada (capítulo 28).
 | exposición | población fuera del sector tras cada compuerta de dos qubits | cálculo sin ruido del circuito | elegir la compilación antes de gastar disparos | **ganancia medida** | correlación de rangos 0,80 con la fuga de T1; exposición nula quita ≥ 98 % del T1 | cap. 2, §68 |
 | compuertas que conservan $N$ | $[U,\sum_i Z_i]=0$ | compilación en el sector | compilar para que el filtro quite el T1 | **mixta** | el filtro quita 99,5 % del T1 frente a 48,5 % con CNOT; ninguna en iones | cap. 24, §61 |
 | grilla en qg | pasos iguales en $qg_Z$ | cuantización del control | cuantizar los ángulos de control | **mixta** | probabilidades $\pi/2$ veces mejores, 43 de 45 cargas; en contra para fidelidad junto a los polos | cap. 27 |
+| best_chain | cadena de qubits de mayor $K$ predicho | elección de disposición con datos de calibración | elegir los qubits físicos antes de correr | **ganancia medida** | entre 6 y 17 puntos más de disparos conservados que la disposición por defecto (simulado) | cap. 32 |
 
 : Compuertas y compilación. {#tbl-h-compuertas}
 
@@ -79,11 +82,13 @@ de preferencia pre-registrada (capítulo 28).
 
 | submedida | definición | equivale a | decisión que mejora | estado | evidencia | dónde |
 |---|---|---|---|---|---|---|
-| filtro de peso, $K$ | $K=(1-\gamma)^{kd}$ | post-selección en el sector de Hamming | leer, entrenar y derivar bajo T1 sin sesgo; costo en disparos conocido antes de correr | **ganancia medida** | lectura exacta a $10^{-12}$ m-qg; gradiente exacto; en contra en 2 de 12 casos con $K\le0{,}14$ | caps. 20, 21 y 23, §112 |
+| filtro de peso, $K$ | $K=(1-\gamma)^{kd}$ | post-selección en el sector de Hamming | leer, entrenar y derivar bajo T1 sin sesgo; costo en disparos conocido antes de correr | **probada en hardware** | IQM Resonance: error 0,0615 → 0,0386 (1,59×) con 88 % de los disparos; simulado: exacto a $10^{-12}$ m-qg; en contra con $K\le0{,}14$ (2 de 12) y en LiH profundo (76,6 → 85,0 mHa) | caps. 20, 21, 23, 30 y 31, §112 |
 | eco, $M^{1/2}$ | matriz de transferencia del eco | corrección de errores dentro del sector | quitar lo que el filtro no ve | **ganancia medida** | −27 a −62 % del error filtrado, con $\binom nk$ circuitos de eco más | cap. 22, §106 |
 | $qg_{eq}$, $T_\text{ef}$ | lectura afín con heraldo | calibración de lectura con mediciones repetidas | calibrar la lectura sin confundir temperatura con error | **ganancia medida** | temperatura efectiva a 1 mK; evita un certificador inseguro y recupera 10–50 % de bits | caps. 18 y 27, §31 |
 | paso $\times\lvert\sin\theta\rvert$ | $\theta-\eta\max(\lvert\sin\theta\rvert,\epsilon)\,g$ | región de confianza junto a los polos | entrenar con tasas agresivas sin ajuste | **ganancia medida** | 2,3 a 13 veces más éxitos desde tasa 2; poco o nada con tasas seguras | cap. 23 |
 | costo local | $(1-\overline{qg_Z})/2$ | costo local de Cerezo et al. | evitar la meseta estéril de un costo global | **mixta** | 470 veces más varianza de gradiente con 10 qubits y circuitos cortos; ninguna con circuitos profundos | cap. 23 |
+| ZNE de la lectura filtrada | extrapolación a ruido cero sobre $qg_Z$ filtrado | post-selección y ZNE por separado (mitiq) | mitigar T1 y desfase juntos | **ganancia medida** | 55,9 → 1,1 m-qg con T1 y desfase; con pocos disparos la ZNE no paga | caps. 21 y 35 |
+| par $(qg_S,\overline{qg_Z})$ | entropía y lectura media del registro | XEB o HOP con simulación ideal | distinguir T1 de ruido unital sólo con conteos | **mixta** | 0,88–0,91 frente a 0,70–0,76 con ruido fuerte; azar con ruido realista | caps. 27, 29 y 30 |
 
 : Ruido y lectura. {#tbl-h-ruido}
 
@@ -98,6 +103,10 @@ de preferencia pre-registrada (capítulo 28).
 | $qg_Z$ de sabor | $1-2P_{\alpha\to\beta}$ | probabilidad de oscilación | leer el ángulo de mezcla con barra de error fija | **exacta** | identidad sobre la fórmula de dos sabores | cap. 9 |
 | $m_Z$, $m_X$ | lecturas del qubit cronológico | comparar matrices densidad | distinguir P-CTC de D-CTC con una lectura en $Z$ | **ganancia medida** | P-CTC mueve $m_Z$, D-CTC no | cap. 14 |
 | $(1000+m_P)(1000+m_F)$ | $=10^6$ | ley de Yoshida y Kitaev | juzgar un decodificador de agujero de gusano | **exacta** | la ley es conocida; la escala muestra que $m_P=-500$ no prueba nada | cap. 15 |
+| $N/2+\sum_n qg_n/2$ | $G/G_0=\sum_n T_n$ | fórmula de Landauer | leer conductancia y ruido de partición en una escala | **exacta** | conductancia = $qg$ medio, ruido = $qg^2$ medio; la barra de $\hat\theta$ es constante (0,985–1,009) | cap. 33 |
+| recta en artanh | $\operatorname{artanh}qg$ | ajuste de Fermi | medir temperatura electrónica | **en contra** | sesgo de +2,9 % (ajuste de Fermi: −0,14 %) | cap. 33 |
+| $\theta/2=\operatorname{gd}(r)$ | función de Gudermann de la compresión $r$ | $\tanh^2r$, $\bar n$ y la entropía | leer la compresión como un ángulo qang | **exacta** | identidad nueva, exacta | cap. 34 |
+| $\theta=2\pi\Phi/\Phi_0$ | franjas de interferencia | fase de Aharonov–Bohm | estimar el flujo con barra de error pareja | **exacta** | desvío $1/2\pi\sqrt N$ constante; el signo pide otra lectura | cap. 34 |
 
 : Lecturas de leyes físicas conocidas. {#tbl-h-fisica}
 
@@ -111,13 +120,14 @@ de preferencia pre-registrada (capítulo 28).
 | 500 qga CPT | $E_-\leftrightarrow$ desplazamiento de 500 qga | — | ubicar la antimateria en la escala | **no adoptada** | sin respaldo; la lectura correcta es la conjugación de carga sobre $\langle\beta\rangle$ | cap. 1, ap. G |
 | signos de $qg_{Z,i}$ | $\operatorname{sign}qg_{Z,i}$ | histograma de cadenas de bits | leer el elemento marcado en una búsqueda con ruido | **en contra** | 66 % frente a 91 % de la moda del histograma (5 qubits, 100 disparos) | cap. 3, §63 |
 | $qg_{SNR}$, $qg_\kappa$ de parada | umbral sobre $\lvert qg_k\rvert$ | la fórmula de $k^\ast$ | cortar las iteraciones de Grover | **sin ganancia** | no distinguen si la bandera pasó el polo; cuestan una corrida por $k$ | cap. 3 |
+| ciclos qg | traducción de ángulo a lectura en Wigner, Kitaev y OTOC | — | proteger estados o medir caos | **sin ganancia** | no protegen ni miden caos | cap. 34 |
 
 : Propuestas abiertas y descartadas. {#tbl-h-propuestas}
 
 ## Balance {#sec-h-balance}
 
-De 42 submedidas, 14 son identidades exactas, 13 tienen una ganancia medida en simulación o
-análisis, 2 se probaron en un dispositivo real (con un resultado mixto en el caso del mili-qang), 6 son mixtas, 2 resultaron equivalentes a la práctica usual, 1 perdió frente a
+De 52 submedidas, 18 son identidades exactas, 14 tienen una ganancia medida en simulación o
+análisis, 3 se probaron en un dispositivo real (con un resultado mixto en el caso del mili-qang), 7 son mixtas, 4 resultaron equivalentes a la práctica usual, 2 quedaron por debajo de
 ella, 3 están sin verificar y 1 no se adoptó. Las ganancias no vienen de la unidad sino de las decisiones que
 la lectura permite tomar antes de gastar recursos: elegir el representante de menor área, la compilación de menor
 exposición, el código según dos lecturas, o leer sólo el sector de peso que el T1 no contamina. Las submedidas sin

@@ -12,7 +12,6 @@ Reference implementation and computational toolkit for:
 
 > V. H. Monteverde, *"The Qang (qg): A Unified Angular-Probability Unit and Metric for Parametric Quantum Circuit Design."*
 > ORCID: [0000-0001-8884-4811](https://orcid.org/0000-0001-8884-4811) · DOI: [10.5281/zenodo.22832150](https://doi.org/10.5281/zenodo.22832150)
-> [![Qiskit Ecosystem](https://img.shields.io/badge/Qiskit%20Ecosystem-Member-purple?style=flat&logo=qiskit&logoColor=white)](https://qiskit.github.io/ecosystem/)
 
 `qang` bridges the gap between continuous Bloch-sphere rotation angles (θ ∈ [0, π]) and projective measurement spaces in parameterized quantum circuits (PQCs). It provides native representations for:
 - **Polar Bias Qang (qg_Z):** qg_Z(θ) = cos θ = ⟨σ_z⟩ ∈ [−1, 1].

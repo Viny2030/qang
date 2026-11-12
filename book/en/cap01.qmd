@@ -421,7 +421,7 @@ improves and its evidence.
 | Q-Hertz (qHz) | qga per second | angular frequency on the qga scale: 1 qHz $=2\pi/1000$ rad/s | unit of convenience |
 | Q-Fisher (qFi) | Fisher information per qga² | $I_F=4\pi^2\cdot10^{-6}$ qga$^{-2}$ about the qang angle, for every state | exact (@sec-qga) |
 | Q-Shannon ($qg_S$) | $H(p_0)=H\big((1+qg_Z)/2\big)$ | Shannon entropy of the outcome | exact (@sec-qgs) |
-| Q-Curvature ($qg_\kappa$) | $-d^2qg_S/d\,qg_Z^2=1/[\ln2\,(1-qg_Z^2)]$ | Fisher information about $qg_Z$, in bits | exact; its use in optimizers, unverified |
+| Q-Curvature ($qg_\kappa$) | $-d^2qg_S/d\,qg_Z^2=1/[\ln2\,(1-qg_Z^2)]$ | Fisher information about $qg_Z$, in bits | exact; in optimizers, no gain (@sec-limits-qng) |
 | Q-SNR ($qg_{SNR}$) | $\lvert qg_Z\rvert/\sqrt{1-qg_Z^2}=\lvert\cot\theta\rvert$ | signal-to-noise of one shot | exact; sets the shots needed to read a sign |
 | Q-Geodesic ($qg_L$) | $\arccos\big(\sqrt{p_0p_0'}+\sqrt{p_1p_1'}\big)=\lvert\theta-\theta'\rvert/2$ | Bhattacharyya angle between two readings | exact; it is the Fubini–Study distance on a common meridian |
 | Dissipative deficit ($qg_\tau$) | $\sqrt{1-r^2}=\sqrt{1-qg_X^2-qg_Y^2-qg_Z^2}$ | $2\sqrt{\det\rho}$, the lack of purity | exact; measures loss of purity of any origin |
@@ -447,7 +447,8 @@ $qg_\kappa=1/(\ln2\,\sin^2\theta)$. **Mind the notation:** $qg_\kappa$ is not th
 $\kappa_{qg}=1000\,\lvert\cos\theta\rvert$ of @sec-milliqang. That one is the second derivative of the reading with
 respect to the angle; this one, that of the entropy with respect to the reading. The formulation proposes using
 $qg_\kappa$ to damp an optimizer's step near the poles. Scaling the step by the inverse Fisher information is the
-natural gradient [@amari1998], and its effect on the book's optimizers has not been measured.
+natural gradient [@amari1998], and Chapter 30 measures it (@sec-limits-qng): on the coordinate $qg_Z$ that step is, to
+first order, gradient descent on $\theta$, and it brings no speed-up of its own.
 
 **Signal-to-noise per shot.** A shot is $\pm1$, with mean $qg_Z$ and standard deviation $\sqrt{1-qg_Z^2}$, for any
 state, pure or mixed. Their ratio and the number of shots a sign requires are
