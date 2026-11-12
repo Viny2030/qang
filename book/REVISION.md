@@ -162,6 +162,42 @@ de respaldo, el desplazamiento CPT de 500 qga ni la lectura de $\cos^2$ y $\sin^
 de materia y antimateria: son los pesos de las componentes grande y pequeña del espinor de Dirac libre (comprobado en
 numpy).
 
+## Capítulos 1–3 frente a la formulación del tratado: magnitudes derivadas (2026-11-12)
+
+Fuente: `Tratado_Qang_Capitulos_1_y_2.docx` (sección 1.4.1 y capítulo 2) y `Tratado_Qang_Capitulo_03_Reescrito.docx`
+del autor. Casi todo el contenido de los dos documentos ya estaba en los capítulos; lo nuevo son cuatro magnitudes
+derivadas y su uso en Grover. Se agregó, en ES y EN:
+
+- **Capítulo 1**, sección «Magnitudes derivadas de la lectura» (`sec-derivadas` / `sec-derived`) con la tabla
+  `tbl-derivadas`: $qg_\kappa=1/[\ln2(1-qg_Z^2)]$ (es la información de Fisher sobre $qg_Z$ en bits),
+  $qg_{SNR}=\lvert\cot\theta\rvert$ con $N_\text{signo}=(z/qg_{SNR})^2$, $qg_L=\lvert\theta-\theta'\rvert/2$
+  (Bhattacharyya; Fubini–Study en un meridiano común, cota inferior si no) y $qg_\tau=\sqrt{1-r^2}=2\sqrt{\det\rho}$.
+- **Capítulo 2**: $d^2C/dq^2=qg_\kappa$ para la capacidad del canal; $qg_\tau=\sqrt{1-e^{-\theta^2\sigma^2}}$ del error
+  aleatorio de amplitud, que depende sólo del área (0,277 para $R_X(324^\circ)$ frente a 0,031 para $R_X(-36^\circ)$).
+- **Capítulo 3**: $qg_L=\gamma/2$ con un contraejemplo de azimutes distintos; tabla `tbl-grover-derivadas`; la
+  frontera $1/p$ de la estimación de amplitud leída como $qg_\tau=\sqrt{1-V^{2k}}$.
+- Funciones nuevas en `qang.probability` y `qang.algebra` (CHANGELOG, sin publicar) y comprobaciones en
+  `tools/verify_cap01.py` (124/124), `verify_cap02.py` (43/43) y `verify_cap03.py` (23/23).
+
+### Lo que no se adoptó o se corrigió del documento fuente
+
+- **Números de la tabla de Grover (cap. 3, 3.5–3.6).** El documento calcula $qg_{SNR}$ y $qg_\kappa$ en $k=2$ con
+  $qg_2$ redondeado a $-0{,}997$: da 12,87 y 240,5. Con el valor exacto, $qg_2=-0{,}99712$, son **13,15** y **250,8**.
+  También $k=3$: $-206{,}4$ m-qg, 716,9 qga y $P_3=0{,}6032$ (el documento: $-206{,}0$, 716,8, 0,6030), y
+  $P_2=0{,}9986$ (el documento: 0,9985). El libro usa los valores exactos.
+- **«Variedad plana» (Q-Fisher, 1.4.1).** Lo constante es la información sobre el ángulo polar; la esfera con la
+  métrica de Fubini–Study tiene curvatura 4. No se adopta la expresión.
+- **$qg_\kappa$ frente a $\kappa_{qg}$.** El documento usa los dos símbolos (1.4.1 y 2.6) para cosas distintas: la
+  curvatura de información y la curvatura de pulso $1000\lvert\cos\theta\rvert$. El libro mantiene los dos y advierte
+  la diferencia.
+- **SNR y curvatura como criterio de parada de Grover (3.6).** Son funciones de $\lvert qg_k\rvert$: no distinguen
+  si la bandera llegó al polo o lo pasó, y leerlas exige una corrida por cada $k$. El libro lo dice y les da el uso
+  que sí tienen (disparos para confirmar el signo).
+- **$qg_\tau$ como «relajación $T_1/T_2$».** Mide pérdida de pureza de cualquier origen; el capítulo 2 muestra un caso
+  sin relajación (promedio sobre errores de amplitud).
+- **Amortiguar optimizadores con $qg_\kappa$.** Es el gradiente natural; queda **sin verificar** en los
+  optimizadores del libro.
+
 ## Capítulos 2–24 frente a los .docx del autor y la escala qga (2026-11-01)
 
 El autor envió sus versiones de trabajo de los capítulos 1–24 en Word y pidió llevarlas al libro con la base

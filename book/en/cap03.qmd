@@ -4,8 +4,11 @@ Grover's algorithm is, at heart, a sequence of reflections. Written in qg units,
 matrix in the polar bias, the trajectory of the algorithm is a Chebyshev polynomial and the information each
 iteration brings has a closed form. Everything rests on the base of Chapter 1: the transition probability between
 two states is a probability like $p_0$, with its own qang angle and m-qg reading, and the bias of Grover's flag is read
-on the same scale. This chapter develops that reading and sets it against what happens when the gates are noisy,
-where the qg reading loses to the simplest tool.
+on the same scale. The derived quantities of Chapter 1 (@sec-derived) are read here on the algorithm: the geodesic
+distance $qg_L$ between the states of a reflector, the signal-to-noise $qg_{SNR}$ and the information curvature
+$qg_\kappa$ along the trajectory, and the dissipative deficit $qg_\tau$ as a measure of the visibility that noise
+leaves to amplitude estimation. The chapter develops that reading and sets it against what happens when the gates
+are noisy, where the qg reading loses to the simplest tool.
 
 ## Transition matrices without transcendental functions {#sec-transition}
 
@@ -87,8 +90,20 @@ the qang angle of the transition probability is the angle between the states, an
 thousand times the dot product of their qg vectors. It is Chapter 1's Wootters statistical distance applied to two
 states (@sec-equation). With $q_1=0.3$ and $q_2=-0.5$ on the same meridian, $P=0.838$, $m_P=+676$ m-qg and
 $\gamma=0.828$ rad, which is exactly $|\theta_1-\theta_2|=|\arccos 0.3-\arccos(-0.5)|$. In qga,
-$\gamma=131.8$ qga and $P=\cos^2(\pi\gamma_{qga}/1000)$; the Fubini–Study distance between the two states is
-$\gamma/2$.
+$\gamma=131.8$ qga and $P=\cos^2(\pi\gamma_{qga}/1000)$.
+
+**The geodesic distance.** The Fubini–Study distance between the two states, the shortest path between them over the
+state space, is
+
+$$
+qg_L=\arccos\sqrt P=\frac{\gamma}{2},
+$$
+
+the quantity $qg_L$ of Chapter 1: in the example, $0.414$ rad ($65.9$ qga). On a common meridian it equals the
+Bhattacharyya angle of the two $Z$ readings, so it is obtained from two single-qubit histograms without tomography.
+With different azimuths the $Z$ reading underestimates it: two states with $q=0.45$ and phases $0$ and $\pi$ have the
+same reading, and hence a zero Bhattacharyya angle in $Z$, but $\lvert\langle\psi_1\vert\psi_2\rangle\rvert=0.45$ and
+they are $qg_L=\arccos0.45=1.104$ rad ($175.7$ qga) apart. The full transverse part is then needed.
 
 ## The Grover trajectory as a Chebyshev polynomial {#sec-chebyshev}
 
@@ -132,6 +147,30 @@ $\cos((2k+1)2t)$ and can overshoot the pole. Iterating more does not help; it hu
 The qg reading makes this behaviour visible: $qg_k$ samples a cosine at odd points. With $a=0.3$, $k^\ast=1$ gives
 $-944$ m-qg ($P=0.972$) and one more iteration jumps to $+884$ m-qg ($P=0.058$), the orange curve of @fig-grover.
 
+### Signal-to-noise and curvature along the trajectory
+
+The formulation proposes reading the trajectory with two derived quantities of Chapter 1: the per-shot signal-to-noise
+$qg_{SNR}=\lvert qg_k\rvert/\sqrt{1-qg_k^2}$ and the information curvature $qg_\kappa=1/[\ln2\,(1-qg_k^2)]$.
+@tbl-grover-derived gives them for $a=0.1$.
+
+| iteration $k$ | depth $m$ | $qg_k$ (m-qg) | Bloch angle (qga) | success $P_k$ | $qg_{SNR}$ | $qg_\kappa$ |
+|---|---|---|---|---|---|---|
+| 0 | 1 | $+800.0$ | $102.4$ | $0.1000$ | $1.33$ | $4.01$ |
+| 1 | 3 | $-352.0$ | $307.2$ | $0.6760$ | $0.38$ | $1.65$ |
+| 2 (optimum) | 5 | $-997.1$ | $512.1$ | $0.9986$ | $13.15$ | $250.8$ |
+| 3 (overshoot) | 7 | $-206.4$ | $716.9$ | $0.6032$ | $0.21$ | $1.51$ |
+
+: The Grover trajectory with $a=0.1$ and its derived quantities. {#tbl-grover-derived}
+
+Near the pole both shoot up, and the formulation proposes using them as a pole-proximity detector to stop the
+iterations before the overshoot. Two precisions. First, they are functions of $qg_k$: a threshold on $qg_{SNR}$ or on
+$qg_\kappa$ is a threshold on $\lvert qg_k\rvert$, and it cannot tell whether the flag reached the pole or already
+passed it. At $k=2$ it is 12 qga beyond the pole, and both take the same values as 12 qga before. What says whether
+another iteration pays is the formula for $k^\ast$, not the quantity. Second, reading them costs shots: measuring the
+flag destroys the state, so every $k$ queried is a separate run. The use they do bring is that of Chapter 1:
+$qg_{SNR}$ says how many shots are needed to confirm the sign of the final reading, $N=(3/qg_{SNR})^2$, that is, one
+shot at $k=2$ and 64 at $k=1$.
+
 ### Grover with noise
 
 With noisy gates the picture changes, and it is worth recording as it came out (§63). In searches on 4 to 6 qubits,
@@ -164,6 +203,18 @@ Monte Carlo ($6.8\cdot10^{-3}$ against $2.7\cdot10^{-3}$), while one that includ
 $p=0.05$, not even the noise-aware likelihood beats Monte Carlo: beyond a depth of order $1/p$ the iterations carry
 almost no signal.
 
+The dissipative deficit of Chapter 1 places that limit on the qg scale. In the visibility model of the likelihood,
+every iteration shortens the flag's qg vector by a factor $V$; after $k$ iterations the fringe has amplitude $V^k$ and
+
+$$
+qg_\tau=\sqrt{1-V^{2k}} .
+$$
+
+With $V=1-p$, $V^k\approx e^{-kp}$: towards $k\approx1/p$ the fringe falls to $1/e$ of its amplitude and $qg_\tau$
+exceeds $0.93$, so further iterations add depth on an almost mixed state. With a visibility of $0.975$ per iteration,
+the middle of the range fitted on IonQ (next paragraph), $qg_\tau$ is $0.63$ after 10 iterations and $0.80$ after 20.
+It is the same $1/p$ depth frontier, read as loss of purity.
+
 On IonQ's calibrated noisy simulator (3 qubits, $a=0.3$, 36 000 queries), the estimate was accurate, with an RMS
 error of 0.0005–0.0015 and a fitted visibility of 0.965–0.985 per iteration, and 7 to 30 times better than a realistic
 Monte Carlo, whose depth-zero circuit is biased by the device noise (§39).
@@ -174,6 +225,8 @@ Monte Carlo, whose depth-zero circuit is biased by the device noise (§39).
 |---|---|---|---|
 | transition probability between two states | $\lvert\langle\psi\vert\phi\rangle\rvert^2$ | $(1+\mathbf r_1\cdot\mathbf r_2)/2$, with qang angle equal to the angle between the states and reading $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg | **none in value**; qang makes it geometric |
 | Grover trajectory | $\sin^2((2k+1)\theta_0)$ | $qg_k=T_{2k+1}(qg_0)$, success at $-1000$ m-qg | **equivalent**; the Chebyshev form shows that the m-qg resolution improves by a factor $m$ with depth |
+| distance between two states | $\arccos\lvert\langle\psi\vert\phi\rangle\rvert$ | $qg_L=\gamma/2$, which on a common meridian comes from two $Z$ histograms | **convenience**; with different azimuths the $Z$ reading is not enough |
+| decide when to stop iterating | $k^\ast$ from the formula | threshold on $qg_{SNR}$ or $qg_\kappa$ | **none**: they are functions of $\lvert qg_k\rvert$ and do not see whether the pole was passed; the formula for $k^\ast$ does |
 | read the search with noise | bit-string histogram | per-qubit qg reading | **against**: the qg reading loses to the histogram |
 | estimate an amplitude with noise | maximum likelihood on counts | the same, with the noise written into the qg likelihood | **in favour** up to a depth near $1/p$, not beyond |
 
@@ -192,6 +245,12 @@ algebra.grover_diffuser_qg(0.45)    # +0.45 Z + 0.893 X
 P = algebra.transition_probability(0.3, -0.5)        # 0.838, same meridian
 algebra.transition_probability(0.3, -0.5, 0.0, 1.2)  # different azimuths
 probability.readings_from_p0(P)     # theta = 0.828 rad (the angle between the states), +676 m-qg
+algebra.geodesic_distance(0.3, -0.5)                 # qg_L = 0.414 rad (65.9 qga) = gamma / 2
+
+qg_2 = algebra.chebyshev_trajectory(0.8, 2)          # -0.9971 (-997 m-qg, P = 0.9986), a = 0.1
+probability.quantum_snr(qg_2)                        # 13.15
+probability.information_curvature(qg_2)              # 250.8
+algebra.grover_fisher_information(0.8, 5)            # 69.4 per shot: 25 times that of m = 1
 ```
 
 ## Summary {#sec-summary03}
@@ -201,11 +260,14 @@ probability.readings_from_p0(P)     # theta = 0.828 rad (the angle between the s
 - The Householder reflector and the Grover diffuser are $\mp(q\,\sigma_z+\sqrt{1-q^2}\,\sigma_x)$.
 - The transition probability between two states is $(1+\mathbf r_1\cdot\mathbf r_2)/2$; on a common meridian it depends on
   the polar biases alone. Read with the equation of Chapter 1, its qang angle is the angle between the states and its
-  reading is $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg.
+  reading is $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg. The geodesic distance is $qg_L=\gamma/2$.
 - The Grover trajectory is $qg_k=T_{2k+1}(qg_0)$, with certain success at $-1000$ m-qg, and the Fisher information at
   depth $m$ is $m^2/(1-qg_0^2)$: the m-qg resolution improves by a factor $m$.
+- $qg_{SNR}$ and $qg_\kappa$ shoot up near the pole, but as a stopping criterion they do not see whether the flag has
+  already passed it; what they bring is the number of shots to confirm the sign of the final reading.
 - With noise, the per-qubit qg reading loses to the histogram in search; in amplitude estimation the advantage holds
-  if the noise enters the likelihood, and ends near depth $1/p$.
+  if the noise enters the likelihood, and ends near depth $1/p$, where the flag's dissipative deficit,
+  $qg_\tau=\sqrt{1-V^{2k}}$, exceeds $0.93$.
 
 ## Bibliographic notes {.unnumbered}
 

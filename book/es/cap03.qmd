@@ -4,8 +4,12 @@ El algoritmo de Grover es, en el fondo, una sucesión de reflexiones. Escrito en
 matriz algebraica en el sesgo polar, la trayectoria del algoritmo es un polinomio de Chebyshev y la información que
 aporta cada iteración tiene una fórmula cerrada. Todo descansa en la base del capítulo 1: la probabilidad de
 transición entre dos estados es una probabilidad como $p_0$, con su propio ángulo qang y su lectura en m-qg, y el
-sesgo de la bandera de Grover se lee en la misma escala. Este capítulo desarrolla esa lectura y la contrasta con lo
-que ocurre cuando las compuertas tienen ruido, donde la lectura qg pierde frente a la herramienta más simple.
+sesgo de la bandera de Grover se lee en la misma escala. Las magnitudes derivadas del capítulo 1 (@sec-derivadas) se
+leen aquí sobre el algoritmo: la distancia geodésica $qg_L$ entre los estados de un reflector, la señal a ruido
+$qg_{SNR}$ y la curvatura de información $qg_\kappa$ a lo largo de la trayectoria, y el déficit disipativo $qg_\tau$ como
+medida de la visibilidad que el ruido le deja a la estimación de amplitud. El capítulo desarrolla esa lectura y la
+contrasta con lo que ocurre cuando las compuertas tienen ruido, donde la lectura qg pierde frente a la herramienta más
+simple.
 
 ## Matrices de transición sin funciones trascendentes {#sec-transicion}
 
@@ -88,8 +92,20 @@ el ángulo qang de la probabilidad de transición es el ángulo entre los estado
 veces el producto escalar de sus vectores qg. Es la distancia estadística de Wootters del capítulo 1 aplicada a dos
 estados (@sec-ecuacion). Con $q_1=0{,}3$ y $q_2=-0{,}5$ en el mismo meridiano, $P=0{,}838$, $m_P=+676$ m-qg y
 $\gamma=0{,}828$ rad, que es exactamente $|\theta_1-\theta_2|=|\arccos 0{,}3-\arccos(-0{,}5)|$. En qga,
-$\gamma=131{,}8$ qga y $P=\cos^2(\pi\gamma_{qga}/1000)$; la distancia de Fubini–Study entre los dos estados es
-$\gamma/2$.
+$\gamma=131{,}8$ qga y $P=\cos^2(\pi\gamma_{qga}/1000)$.
+
+**La distancia geodésica.** La distancia de Fubini–Study entre los dos estados, el recorrido mínimo entre ellos sobre
+el espacio de estados, es
+
+$$
+qg_L=\arccos\sqrt P=\frac{\gamma}{2},
+$$
+
+la magnitud $qg_L$ del capítulo 1: en el ejemplo, $0{,}414$ rad ($65{,}9$ qga). En un meridiano común coincide con el
+ángulo de Bhattacharyya de las dos lecturas en $Z$, de modo que se obtiene de dos histogramas de un qubit sin
+tomografía. Con azimutes distintos la lectura en $Z$ la subestima: dos estados con $q=0{,}45$ y fases $0$ y $\pi$
+tienen la misma lectura, y por tanto ángulo de Bhattacharyya nulo en $Z$, pero $\lvert\langle\psi_1\vert\psi_2\rangle\rvert
+=0{,}45$ y están a $qg_L=\arccos0{,}45=1{,}104$ rad ($175{,}7$ qga). Hace falta entonces la parte transversal completa.
 
 ## La trayectoria de Grover como polinomio de Chebyshev {#sec-chebyshev}
 
@@ -134,6 +150,30 @@ lectura qg hace visible ese comportamiento: $qg_k$ recorre un coseno muestreado 
 $k^\ast=1$ da $-944$ m-qg ($P=0{,}972$) y una iteración más salta a $+884$ m-qg ($P=0{,}058$), la curva naranja de la
 @fig-grover.
 
+### Señal a ruido y curvatura a lo largo de la trayectoria
+
+La formulación propone leer la trayectoria con dos magnitudes derivadas del capítulo 1: la señal a ruido por disparo
+$qg_{SNR}=\lvert qg_k\rvert/\sqrt{1-qg_k^2}$ y la curvatura de información $qg_\kappa=1/[\ln2\,(1-qg_k^2)]$. La
+@tbl-grover-derivadas las da para $a=0{,}1$.
+
+| iteración $k$ | profundidad $m$ | $qg_k$ (m-qg) | ángulo de Bloch (qga) | éxito $P_k$ | $qg_{SNR}$ | $qg_\kappa$ |
+|---|---|---|---|---|---|---|
+| 0 | 1 | $+800{,}0$ | $102{,}4$ | $0{,}1000$ | $1{,}33$ | $4{,}01$ |
+| 1 | 3 | $-352{,}0$ | $307{,}2$ | $0{,}6760$ | $0{,}38$ | $1{,}65$ |
+| 2 (óptimo) | 5 | $-997{,}1$ | $512{,}1$ | $0{,}9986$ | $13{,}15$ | $250{,}8$ |
+| 3 (se pasó) | 7 | $-206{,}4$ | $716{,}9$ | $0{,}6032$ | $0{,}21$ | $1{,}51$ |
+
+: La trayectoria de Grover con $a=0{,}1$ y sus magnitudes derivadas. {#tbl-grover-derivadas}
+
+Junto al polo las dos se disparan, y la formulación propone usarlas como detector de proximidad polar para cortar las
+iteraciones antes de la sobreoscilación. Hay dos precisiones. Primero, son funciones de $qg_k$: un umbral sobre
+$qg_{SNR}$ o sobre $qg_\kappa$ es un umbral sobre $\lvert qg_k\rvert$, y no distingue si la bandera llegó al polo o ya
+lo pasó. En $k=2$ está 12 qga más allá del polo, y ambas valen lo mismo que 12 qga antes. Lo que dice si conviene otra
+iteración es la fórmula de $k^\ast$, no la magnitud. Segundo, leerlas cuesta disparos: medir la bandera destruye el
+estado, de modo que cada $k$ consultado es una corrida aparte. El uso que sí aportan es el del capítulo 1: $qg_{SNR}$
+dice cuántos disparos hacen falta para confirmar el signo de la lectura final, $N=(3/qg_{SNR})^2$, es decir, un
+disparo en $k=2$ y 64 en $k=1$.
+
 ### Grover con ruido
 
 Con compuertas ruidosas el cuadro cambia, y es útil registrarlo tal como resultó (§63). En búsquedas de 4 a 6
@@ -166,6 +206,19 @@ peor que Monte Carlo ($6{,}8\cdot10^{-3}$ frente a $2{,}7\cdot10^{-3}$), mientra
 ventaja de 4×. Con $p=0{,}05$, ni siquiera la verosimilitud con ruido supera a Monte Carlo: más allá de una
 profundidad del orden de $1/p$ las iteraciones casi no aportan señal.
 
+El déficit disipativo del capítulo 1 pone ese límite en la escala qg. En el modelo de visibilidad de la verosimilitud,
+cada iteración acorta el vector qg de la bandera en un factor $V$; tras $k$ iteraciones la franja tiene amplitud $V^k$
+y
+
+$$
+qg_\tau=\sqrt{1-V^{2k}} .
+$$
+
+Con $V=1-p$, $V^k\approx e^{-kp}$: hacia $k\approx1/p$ la franja cae a $1/e$ de su amplitud y $qg_\tau$ pasa de $0{,}93$,
+de modo que las iteraciones siguientes agregan profundidad sobre un estado casi mezclado. Con una visibilidad de
+$0{,}975$ por iteración, el centro del rango que se ajusta en IonQ (párrafo siguiente), $qg_\tau$ vale $0{,}63$ tras 10 iteraciones y $0{,}80$ tras 20. Es la misma frontera de la profundidad
+$1/p$, leída como pérdida de pureza.
+
 En el simulador con ruido calibrado de IonQ (3 qubits, $a=0{,}3$, 36 000 consultas), la estimación fue precisa, con
 error cuadrático medio de 0,0005–0,0015 y visibilidad ajustada de 0,965–0,985 por iteración, y entre 7 y 30 veces mejor
 que un Monte Carlo realista, cuyo circuito de profundidad cero está sesgado por el ruido del dispositivo (§39).
@@ -176,6 +229,8 @@ que un Monte Carlo realista, cuyo circuito de profundidad cero está sesgado por
 |---|---|---|---|
 | probabilidad de transición entre dos estados | $\lvert\langle\psi\vert\phi\rangle\rvert^2$ | $(1+\mathbf r_1\cdot\mathbf r_2)/2$, con ángulo qang igual al ángulo entre los estados y lectura $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg | **ninguna en el valor**; qang lo vuelve geométrico |
 | trayectoria de Grover | $\sin^2((2k+1)\theta_0)$ | $qg_k=T_{2k+1}(qg_0)$, éxito en $-1000$ m-qg | **equivalente**; la forma de Chebyshev muestra que la resolución en m-qg mejora un factor $m$ con la profundidad |
+| distancia entre dos estados | $\arccos\lvert\langle\psi\vert\phi\rangle\rvert$ | $qg_L=\gamma/2$, que en un meridiano común sale de dos histogramas en $Z$ | **conveniencia**; con azimutes distintos la lectura en $Z$ no basta |
+| decidir cuándo dejar de iterar | $k^\ast$ por la fórmula | umbral sobre $qg_{SNR}$ o $qg_\kappa$ | **ninguna**: son funciones de $\lvert qg_k\rvert$ y no ven si se pasó el polo; la fórmula de $k^\ast$ sí |
 | leer la búsqueda con ruido | histograma de cadenas de bits | lectura qg por qubit | **en contra**: la lectura qg pierde frente al histograma |
 | estimar una amplitud con ruido | máxima verosimilitud sobre conteos | la misma, con el ruido escrito en la verosimilitud qg | **a favor** hasta una profundidad cercana a $1/p$, no más allá |
 
@@ -194,6 +249,12 @@ algebra.grover_diffuser_qg(0.45)    # +0.45 Z + 0.893 X
 P = algebra.transition_probability(0.3, -0.5)        # 0.838, mismo meridiano
 algebra.transition_probability(0.3, -0.5, 0.0, 1.2)  # con azimutes distintos
 probability.readings_from_p0(P)     # theta = 0.828 rad (el ángulo entre los estados), +676 m-qg
+algebra.geodesic_distance(0.3, -0.5)                 # qg_L = 0.414 rad (65.9 qga) = gamma / 2
+
+qg_2 = algebra.chebyshev_trajectory(0.8, 2)          # -0.9971 (-997 m-qg, P = 0.9986), a = 0.1
+probability.quantum_snr(qg_2)                        # 13.15
+probability.information_curvature(qg_2)              # 250.8
+algebra.grover_fisher_information(0.8, 5)            # 69.4 por disparo: 25 veces la de m = 1
 ```
 
 ## Resumen {#sec-resumen03}
@@ -203,11 +264,14 @@ probability.readings_from_p0(P)     # theta = 0.828 rad (el ángulo entre los es
 - El reflector de Householder y el difusor de Grover son $\mp(q\,\sigma_z+\sqrt{1-q^2}\,\sigma_x)$.
 - La probabilidad de transición entre dos estados es $(1+\mathbf r_1\cdot\mathbf r_2)/2$; en un mismo meridiano depende solo
   de los sesgos polares. Leída con la ecuación del capítulo 1, su ángulo qang es el ángulo entre los estados y su
-  lectura es $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg.
+  lectura es $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg. La distancia geodésica es $qg_L=\gamma/2$.
 - La trayectoria de Grover es $qg_k=T_{2k+1}(qg_0)$, con éxito seguro en $-1000$ m-qg, y la información de Fisher a
   profundidad $m$ es $m^2/(1-qg_0^2)$: la resolución en m-qg mejora en un factor $m$.
+- $qg_{SNR}$ y $qg_\kappa$ se disparan junto al polo, pero como criterio de parada no ven si la bandera ya lo pasó; lo
+  que aportan es el número de disparos para confirmar el signo de la lectura final.
 - Con ruido, la lectura qg por qubit pierde frente al histograma en la búsqueda; en la estimación de amplitud la
-  ventaja se mantiene si el ruido entra en la verosimilitud, y termina cerca de la profundidad $1/p$.
+  ventaja se mantiene si el ruido entra en la verosimilitud, y termina cerca de la profundidad $1/p$, donde el déficit
+  disipativo de la bandera, $qg_\tau=\sqrt{1-V^{2k}}$, pasa de $0{,}93$.
 
 ## Notas bibliográficas {.unnumbered}
 

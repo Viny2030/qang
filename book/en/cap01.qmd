@@ -304,7 +304,8 @@ inverts that reading.
 | $P_\text{matter}$, $P_\text{antimatter}$ | $\cos^2$, $\sin^2$ of the half angle | weights of the spinor's large and small components, not antimatter probabilities |
 | Q-Hertz (qHz) | qga per second | unit of angular frequency; a proposal |
 | Q-Fisher (qFi) | Fisher information per qga² | $4\pi^2\cdot10^{-6}$ qga$^{-2}$ for a pure qubit |
-| Q-Shannon (q-sh) | Shannon entropy of the outcome | it is $qg_S$; it is not the von Neumann entropy |
+| Q-Shannon ($qg_S$) | Shannon entropy of the outcome | it is $qg_S$; it is not the von Neumann entropy |
+| Q-Curvature, Q-SNR, Q-Geodesic, dissipative deficit | $qg_\kappa$, $qg_{SNR}$, $qg_L$, $qg_\tau$ | defined and checked in @sec-derived |
 | Q-Force, Q-Conductance, Q-Momentum | phase gradient, qga per volt, $(\pi/500)\hbar$ | proposed names, not used in the book |
 
 : The Foundation's names for energy, antimatter and the derived units, and how the book treats them. {#tbl-names-qga}
@@ -407,6 +408,91 @@ The definitions extend unchanged to mixed states and to registers:
   register is 0). The register is globally pure and locally mixed; the
   local profiles are not enough to describe it, and chapter 5 returns to this point with the Bloch radius.
 
+## Derived quantities of the reading {#sec-derived}
+
+The treatise's formulation [@monteverde2026fund] names, on top of this base, seven derived quantities. All of them come
+from the reading —from $qg_Z$, or from the full qg vector when needed—, so they add no information to $p_0$: they name
+combinations that the rest of the book uses. @tbl-derived collects them with their definition, what they are in the
+usual terms of statistics or physics, and how they are treated here.
+
+| quantity | definition | what it is | treatment in the book |
+|---|---|---|---|
+| Q-Hertz (qHz) | qga per second | angular frequency on the qga scale: 1 qHz $=2\pi/1000$ rad/s | unit of convenience |
+| Q-Fisher (qFi) | Fisher information per qga² | $I_F=4\pi^2\cdot10^{-6}$ qga$^{-2}$ about the qang angle, for every state | exact (@sec-qga) |
+| Q-Shannon ($qg_S$) | $H(p_0)=H\big((1+qg_Z)/2\big)$ | Shannon entropy of the outcome | exact (@sec-qgs) |
+| Q-Curvature ($qg_\kappa$) | $-d^2qg_S/d\,qg_Z^2=1/[\ln2\,(1-qg_Z^2)]$ | Fisher information about $qg_Z$, in bits | exact; its use in optimizers, unverified |
+| Q-SNR ($qg_{SNR}$) | $\lvert qg_Z\rvert/\sqrt{1-qg_Z^2}=\lvert\cot\theta\rvert$ | signal-to-noise of one shot | exact; sets the shots needed to read a sign |
+| Q-Geodesic ($qg_L$) | $\arccos\big(\sqrt{p_0p_0'}+\sqrt{p_1p_1'}\big)=\lvert\theta-\theta'\rvert/2$ | Bhattacharyya angle between two readings | exact; it is the Fubini–Study distance on a common meridian |
+| Dissipative deficit ($qg_\tau$) | $\sqrt{1-r^2}=\sqrt{1-qg_X^2-qg_Y^2-qg_Z^2}$ | $2\sqrt{\det\rho}$, the lack of purity | exact; measures loss of purity of any origin |
+
+: Derived quantities of the formulation and how the book treats them. {#tbl-derived}
+
+The first three have already appeared. On the Q-Fisher, one precision: the formulation describes its constancy as that
+of a flat manifold, and it is not one. What is constant is the information about a single coordinate, the polar angle;
+the Bloch sphere with the Fubini–Study metric has Gaussian curvature 4 (@sec-qga).
+
+**Information curvature.** Differentiating twice the identity $qg_S=H((1+qg_Z)/2)$ of @sec-qgs,
+
+$$
+\frac{d\,qg_S}{d\,qg_Z}=\frac12\log_2\frac{1-qg_Z}{1+qg_Z},
+\qquad
+qg_\kappa=-\frac{d^2qg_S}{d\,qg_Z^2}=\frac{1}{\ln 2\,(1-qg_Z^2)} .
+$$
+
+The denominator is the variance of one shot, so $qg_\kappa=I_F(qg_Z)/\ln 2$: the curvature of the entropy is the Fisher
+information that one shot carries about the polar bias, expressed in bits. It is $1/\ln2=1.443$ on the equator and
+diverges at the poles, where the entropy is most sensitive. For a pure state, $1-qg_Z^2=\sin^2\theta$ and
+$qg_\kappa=1/(\ln2\,\sin^2\theta)$. **Mind the notation:** $qg_\kappa$ is not the pulse curvature
+$\kappa_{qg}=1000\,\lvert\cos\theta\rvert$ of @sec-milliqang. That one is the second derivative of the reading with
+respect to the angle; this one, that of the entropy with respect to the reading. The formulation proposes using
+$qg_\kappa$ to damp an optimizer's step near the poles. Scaling the step by the inverse Fisher information is the
+natural gradient [@amari1998], and its effect on the book's optimizers has not been measured.
+
+**Signal-to-noise per shot.** A shot is $\pm1$, with mean $qg_Z$ and standard deviation $\sqrt{1-qg_Z^2}$, for any
+state, pure or mixed. Their ratio and the number of shots a sign requires are
+
+$$
+qg_{SNR}=\frac{\lvert qg_Z\rvert}{\sqrt{1-qg_Z^2}}=\lvert\cot\theta\rvert,
+\qquad
+N_\text{sign}=\left(\frac{z}{qg_{SNR}}\right)^{2},
+$$
+
+with $\theta=\arccos qg_Z$, the qang angle. With $N$ shots the signal-to-noise is $\sqrt N\,qg_{SNR}$, and
+$N_\text{sign}$ is the number of shots for the sign of $qg_Z$ to stand $z$ standard deviations from zero: it is the
+stopping criterion the formulation proposes. At $60^\circ$ ($+500$ m-qg) $qg_{SNR}=0.577$ and 27 shots are enough for a
+3σ sign; at $80^\circ$ it takes 290, and at $89^\circ$, about 29 500. On the equator the signal vanishes and the
+criterion never ends. Like every formula of this chapter based on the normal approximation, it holds when
+$N_\text{sign}$ is not too small; with few shots the exact binomial test is used.
+
+**Geodesic distance.** Two readings $(p_0,p_1)$ and $(p_0',p_1')$ are at Wootters' statistical distance of
+@sec-equation, and for two outcomes that distance is
+
+$$
+qg_L=\arccos\big(\sqrt{p_0p_0'}+\sqrt{p_1p_1'}\big)=\frac{\lvert\theta-\theta'\rvert}{2},
+$$
+
+because $\sqrt{p_0p_0'}+\sqrt{p_1p_1'}=\cos\tfrac\theta2\cos\tfrac{\theta'}2+\sin\tfrac\theta2\sin\tfrac{\theta'}2
+=\cos\tfrac{\theta-\theta'}{2}$. It is half the difference of qang angles, that is, the distance between readings on
+the scale that stabilizes the variance. If both states are pure and share the meridian, $qg_L$ equals the Fubini–Study
+distance $\arccos\lvert\langle\psi\vert\psi'\rangle\rvert$. With different azimuths it is a lower bound, because a
+measurement cannot tell two states apart better than their overlap does. Chapter 3 uses it between the states of a
+reflector (@sec-ptransition).
+
+**Dissipative deficit.** The three readings $qg_X$, $qg_Y$ and $qg_Z$ form the qg vector $\mathbf r$, of length
+$r\le1$, and
+
+$$
+qg_\tau=\sqrt{1-r^2}=2\sqrt{\det\rho},
+\qquad
+\operatorname{Tr}\rho^2=1-\tfrac12\,qg_\tau^2 .
+$$
+
+It is 0 for a pure state and 1 for the maximally mixed state. The 0.2/0.8 mixture of the previous section has $r=0.6$
+and $qg_\tau=0.8$; each qubit of a Bell pair, $qg_\tau=1$. The formulation associates it with $T_1$ and $T_2$
+relaxation, which is one of its causes, but the quantity measures the loss of purity without telling its origin apart:
+an average over calibration errors produces it too (Chapter 2, @sec-area). Unlike the previous ones, it is not a
+function of $p_0$: it requires measuring in three bases.
+
 ## Scope and limits of the base {#sec-scope}
 
 It is worth stating precisely what this base brings and what it does not, before building the rest of the book on
@@ -474,6 +560,7 @@ as solid mathematically and promising, but not yet consolidated, experimentally.
 | describe the outcome of a qubit | the probability $p_0$ (or $\langle Z\rangle$) | $qg_Z$, the angle $\theta$, $m$ and $qg_S$, all exact functions of $p_0$ | **none in content**: the same information; qang gives it a working scale from $-1000$ to $+1000$ |
 | error bar of a reading | $\sqrt{p_0(1-p_0)/N}$, different for each state | the angle has variance $1/N$ for every state; in m-qg, $1000\sin\theta/\sqrt N$ | **convenience**: the variance-stabilized coordinate of classical statistics (the arcsine) is the gate parameter |
 | compare a gate error with shot noise | infidelity on one side, binomial deviation on the other, in different units | both in m-qg (on Garnet, 1.64 m-qg per $X$ gate against the run's shot noise) | **in favour**: one scale for the error budget |
+| decide how many shots the sign of a reading needs | binomial test or normal approximation | $N=(z/qg_{SNR})^2$, with $qg_{SNR}=\lvert\cot\theta\rvert$ | **convenience**: it is the normal approximation written with the reading |
 | express a gate or phase angle | radians, with factors of $\pi$ | qga: 1000 per turn ($X$ = 500 qga, equator = 250 qga) | **convenience**: the same information without factors of $\pi$; it changes neither gradients nor plateaus |
 | improve the device | — | — | **none**: the scale measures, it does not correct; prediction M2 of §168 failed |
 
@@ -505,6 +592,12 @@ pb.pole_angle(1.0)                         # 0.0447 rad: one m-qg below the pole
 pb.shots_for_resolution(10, math.pi / 2)   # 10000 shots to resolve 10 m-qg
 pb.pulse_error_milliqang(math.pi, 0.05)    # 12.3 m-qg: X gate with a 5 % amplitude error
 pb.statistical_angle([0.5, 0.3, 0.2], [0.4, 0.4, 0.2])   # 0.113 rad
+
+# derived quantities
+pb.quantum_snr(0.5)                        # 0.577: signal-to-noise of one shot at 60°
+pb.shots_for_sign(0.5)                     # 27 shots for a 3σ sign
+pb.information_curvature(0.0)              # 1.443 = 1/ln 2, the minimum curvature (equator)
+pb.dissipative_deficit(0.0, 0.0, -0.6)     # 0.8: the 0.2/0.8 mixture
 ```
 
 The figures of this chapter are generated by `tools/make_cap01_figures.py`, which uses the same functions.
@@ -523,6 +616,10 @@ The figures of this chapter are generated by `tools/make_cap01_figures.py`, whic
   energy and antimatter is an unverified proposal, with three errors of the source document corrected.
 - **Statistics.** The qang angle is the arcsine transformation of a proportion: its variance is $1/N$ for every
   state, pure or mixed; what needs a correction in a mixed state is the estimate of the Bloch angle.
+- **Derived quantities.** $qg_\kappa$ is the Fisher information about $qg_Z$ in bits (and not the pulse curvature
+  $\kappa_{qg}$); $qg_{SNR}=\lvert\cot\theta\rvert$ sets the shots needed to read a sign; $qg_L=\lvert\theta-\theta'\rvert/2$
+  is Wootters' distance between two readings; $qg_\tau=\sqrt{1-r^2}$ measures the lack of purity and is the only one
+  that needs three bases.
 - **Scope.** The unit is not new physics but a working scale. On real hardware (§168) it measured a cost of 1.64 m-qg
   per $X$ gate, linear in the number of gates, and exposed reading shifts of 16–55 m-qg (over-rotations of $1.3^\circ$–$3.9^\circ$); a prediction about shot noise
   failed and replication is pending.
@@ -533,7 +630,8 @@ The Born rule [@born1926] and the Bloch sphere [@bloch1946] are the starting poi
 channels in general, see @nielsen2010. Wootters' statistical distance [-@wootters1981] and its relation to Fisher
 information are in @braunstein1994; the Cramér–Rao bound, in @cramer1946 and @rao1945. The arcsine transformation that
 stabilizes the binomial variance comes from @bartlett1947, @anscombe1948 and @freeman1950, and the score interval is
-that of @wilson1927. The binary entropy behind $qg_S$ is that of @shannon1948. The numbered research notes (§) cited in
+that of @wilson1927. The binary entropy behind $qg_S$ is that of @shannon1948; the natural gradient, against which the information
+curvature $qg_\kappa$ is compared, is that of @amari1998. The numbered research notes (§) cited in
 this chapter and the scripts that check it are in the repository [@qangrepo]; the definition of the qang unit is in
 @monteverde2026. The angular qga scale and the relativistic proposal come from the working document
 @monteverde2026fund; the free Dirac spinor and its components are in any text on relativistic quantum mechanics.

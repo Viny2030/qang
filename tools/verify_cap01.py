@@ -564,6 +564,87 @@ def part_qga():
           sp.simplify(sp.diff(sp.cos(rad), a) / sp.diff(sp.cos(th), th).subs(th, rad) - 2 * sp.pi / 1000) == 0)
 
 
+def part_derivadas():
+    """Sección «Magnitudes derivadas de la lectura» (2026-11-12): qg_κ, qg_SNR, qg_L y qg_τ, sin qang salvo al final."""
+    print("\n9. Magnitudes derivadas: qg_κ, qg_SNR, qg_L, qg_τ (sympy, QuTiP, scipy)")
+    import qutip as qt
+    import sympy as sp
+    from scipy.stats import binom
+
+    z = sp.Symbol("z")
+    p = (1 + z) / 2
+    H = -(p * sp.log(p, 2) + (1 - p) * sp.log(1 - p, 2))
+    dH = sp.diff(H, z) - sp.log((1 - z) / (1 + z), 2) / 2
+    check("sympy: dqg_S/dqg_Z = ½ log2((1−z)/(1+z)) (evaluada en 9 puntos de (−1, 1))",
+          max(abs(float(dH.subs(z, v))) for v in np.linspace(-0.9, 0.9, 9)) < 1e-12)
+    kappa = sp.simplify(-sp.diff(H, z, 2))
+    check("sympy: qg_κ = −d²qg_S/dqg_Z² = 1/(ln2 (1 − qg_Z²))", sp.simplify(kappa - 1 / (sp.log(2) * (1 - z ** 2))) == 0)
+    # Fisher information of z from one ±1 shot: sum over outcomes of (dP/dz)^2 / P
+    fisher = sum(sp.diff(q, z) ** 2 / q for q in (p, 1 - p))
+    check("sympy: qg_κ = I_F(qg_Z)/ln 2 (información de Fisher de un disparo)", sp.simplify(kappa - fisher / sp.log(2)) == 0)
+    check("qg_κ(0) = 1/ln 2 = 1,443", round(1 / math.log(2), 3) == 1.443)
+
+    # qg_SNR: mean and standard deviation of one ±1 shot, on random mixed states (QuTiP)
+    worst = 0.0
+    for seed in range(50):
+        rho = qt.rand_dm(2, seed=seed)
+        zz = qt.expect(qt.sigmaz(), rho)
+        var = qt.expect(qt.sigmaz() ** 2, rho) - zz ** 2
+        worst = max(worst, abs(var - (1 - zz ** 2)))
+    check("QuTiP: un disparo tiene varianza 1 − qg_Z² para cualquier estado (50 matrices densidad)", worst < 1e-12)
+    snr60 = abs(math.cos(math.pi / 3)) / math.sin(math.pi / 3)
+    check("qg_SNR a 60° = |cot θ| = 0,577", round(snr60, 3) == 0.577 and abs(snr60 - 1 / math.tan(math.pi / 3)) < 1e-12)
+    ns = [math.ceil((3 / (abs(math.cos(math.radians(d))) / math.sin(math.radians(d)))) ** 2 - 1e-9) for d in (60, 80, 89)]
+    check("N_signo a 3σ: 27 a 60°, 290 a 80°, unos 29 500 a 89°", ns[0] == 27 and ns[1] == 290 and round(ns[2], -2) == 29500, f"{ns}")
+    # exact binomial: with 27 shots at 60° (p0 = 0.75), probability that the estimate does not have the right sign
+    wrong = binom.cdf(13, 27, 0.75)
+    check("binomial exacta: con 27 disparos a 60° el signo sale mal con probabilidad < 1 %", wrong < 0.01, f"{wrong:.4f}")
+
+    # qg_L: Bhattacharyya angle of the Z readings = |θ − θ'|/2, and lower bound of Fubini–Study
+    t1, t2 = sp.symbols("t1 t2", positive=True)
+    bc = sp.sqrt(sp.cos(t1 / 2) ** 2 * sp.cos(t2 / 2) ** 2) + sp.sqrt(sp.sin(t1 / 2) ** 2 * sp.sin(t2 / 2) ** 2)
+    vals = [float(bc.subs({t1: a, t2: b})) - math.cos((a - b) / 2) for a in (0.2, 1.1, 2.9) for b in (0.5, 1.6, 3.0)]
+    check("sympy: √(p0 p0') + √(p1 p1') = cos((θ − θ')/2) en [0, π]", max(abs(v) for v in vals) < 1e-12)
+    rng = np.random.default_rng(7)
+    ok_meridian, ok_bound = True, True
+    for _ in range(300):
+        a, b = rng.uniform(0, math.pi, 2)
+        pa, pb2 = rng.uniform(0, 2 * math.pi, 2)
+        s1 = (math.cos(a / 2) * qt.basis(2, 0) + np.exp(1j * pa) * math.sin(a / 2) * qt.basis(2, 1))
+        s2 = (math.cos(b / 2) * qt.basis(2, 0) + np.exp(1j * pb2) * math.sin(b / 2) * qt.basis(2, 1))
+        s3 = (math.cos(b / 2) * qt.basis(2, 0) + np.exp(1j * pa) * math.sin(b / 2) * qt.basis(2, 1))
+        qgl = abs(a - b) / 2
+        fs = math.acos(min(1.0, abs(s1.overlap(s2))))
+        fs_m = math.acos(min(1.0, abs(s1.overlap(s3))))
+        ok_bound &= qgl <= fs + 1e-12
+        ok_meridian &= abs(qgl - fs_m) < 1e-7
+    check("QuTiP: qg_L = Fubini–Study en un meridiano común (300 pares)", ok_meridian)
+    check("QuTiP: qg_L ≤ Fubini–Study con azimutes distintos (300 pares)", ok_bound)
+
+    # qg_τ = sqrt(1 − r²) = 2 sqrt(det ρ), Tr ρ² = 1 − qg_τ²/2
+    worst = 0.0
+    for seed in range(50):
+        rho = qt.rand_dm(2, seed=100 + seed)
+        r2 = sum(qt.expect(op, rho) ** 2 for op in (qt.sigmax(), qt.sigmay(), qt.sigmaz()))
+        tau = math.sqrt(max(0.0, 1 - r2))
+        det = float(np.real(np.linalg.det(rho.full())))
+        worst = max(worst, abs(tau - 2 * math.sqrt(max(det, 0.0))), abs((rho * rho).tr().real - (1 - tau ** 2 / 2)))
+    check("QuTiP: qg_τ = 2√det ρ y Tr ρ² = 1 − qg_τ²/2 (50 matrices densidad)", worst < 1e-10, f"{worst:.1e}")
+    mix = 0.2 * qt.ket2dm(qt.basis(2, 0)) + 0.8 * qt.ket2dm(qt.basis(2, 1))
+    r_mix = abs(qt.expect(qt.sigmaz(), mix))
+    bell = (qt.tensor(qt.basis(2, 0), qt.basis(2, 0)) + qt.tensor(qt.basis(2, 1), qt.basis(2, 1))).unit()
+    local = bell.ptrace(0)
+    r_bell = math.sqrt(sum(qt.expect(op, local) ** 2 for op in (qt.sigmax(), qt.sigmay(), qt.sigmaz())))
+    check("mezcla 0,2/0,8: r = 0,6, qg_τ = 0,8; qubit de Bell: qg_τ = 1",
+          round(r_mix, 6) == 0.6 and round(math.sqrt(1 - r_mix ** 2), 6) == 0.8 and round(math.sqrt(1 - r_bell ** 2), 6) == 1.0)
+
+    from qang import probability as pb  # final comparison only
+    check("qang coincide: quantum_snr, shots_for_sign, information_curvature, dissipative_deficit",
+          abs(pb.quantum_snr(0.5) - snr60) < 1e-12 and pb.shots_for_sign(0.5) == 27
+          and abs(pb.information_curvature(0.0) - 1 / math.log(2)) < 1e-12
+          and abs(pb.dissipative_deficit(0.0, 0.0, -0.6) - 0.8) < 1e-12)
+
+
 def main():
     part_equation()
     part_shots()
@@ -573,6 +654,7 @@ def main():
     part_criteria()
     part_theory()
     part_qga()
+    part_derivadas()
     n_ok = sum(RESULTS)
     print(f"\n{n_ok} de {len(RESULTS)} afirmaciones PASAN")
     return 0 if n_ok == len(RESULTS) else 1

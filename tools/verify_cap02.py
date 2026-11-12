@@ -340,5 +340,53 @@ for d in (30, 60, 120, 150, 180):
 check("QuTiP: con σ = 0,01 el corrimiento aleatorio coincide con ½ θ² σ² κ_qg (signo hacia el ecuador)",
       worst < 1e-3, f"error relativo máx {worst:.1e}")
 
+# ---------------------------------------------------------------- magnitudes derivadas (2026-11-12)
+print("\nMagnitudes derivadas en compuertas: curvatura de la capacidad y déficit disipativo del área")
+qs = sp.Symbol("q")
+p_q = (1 + qs) / 2
+C_q = 1 + (p_q * sp.log(p_q, 2) + (1 - p_q) * sp.log(1 - p_q, 2))
+d2C = sp.diff(C_q, qs, 2) - 1 / (sp.log(2) * (1 - qs ** 2))
+check("sympy: d²C/dq² = qg_κ = 1/(ln2 (1 − q²)) (evaluada en 9 puntos)",
+      max(abs(float(d2C.subs(qs, v))) for v in np.linspace(-0.9, 0.9, 9)) < 1e-10)
+
+
+def capacity(q):
+    p = (1 + q) / 2
+    return 1 + p * math.log2(p) + (1 - p) * math.log2(1 - p)
+
+
+check("C(+990 m-qg) = 0,955 bits (0,045 menos que la identidad); C(+10 m-qg) ≈ 7·10⁻⁵ bits",
+      round(capacity(0.99), 3) == 0.955 and round(1 - capacity(0.99), 3) == 0.045 and round(capacity(0.01) * 1e5) == 7)
+
+# average of R_x(theta (1 + eps)) |0><0| over eps ~ N(0, sigma) by Gauss-Hermite quadrature (QuTiP)
+gh_x, gh_w = np.polynomial.hermite_e.hermegauss(60)
+gh_w = gh_w / gh_w.sum()
+
+
+def averaged_bloch(theta, sigma):
+    rho = 0
+    for xk, wk in zip(gh_x, gh_w):
+        U = (-1j * theta * (1 + sigma * xk) / 2 * qutip.sigmax()).expm()
+        psi = U * qutip.basis(2, 0)
+        rho = rho + wk * psi * psi.dag()
+    return np.array([qutip.expect(op, rho) for op in (qutip.sigmax(), qutip.sigmay(), qutip.sigmaz())])
+
+
+ok_dir, taus = True, {}
+for deg in (180, 90, 324, -36):
+    th = math.radians(deg)
+    r = averaged_bloch(th, 0.05)
+    shrink = math.exp(-(th * 0.05) ** 2 / 2)
+    ok_dir &= np.allclose(r, shrink * np.array([0.0, -math.sin(th), math.cos(th)]), atol=1e-10)
+    taus[deg] = math.sqrt(max(0.0, 1 - float(r @ r)))
+check("QuTiP: el promedio sobre el error de amplitud acorta r a e^{−θ²σ²/2} (0, −sin θ, cos θ)", ok_dir)
+check("qg_τ con σ = 0,05: 0,156 (X), 0,078 (π/2), 0,277 (324°), 0,031 (−36°)",
+      [round(taus[d], 3) for d in (180, 90, 324, -36)] == [0.156, 0.078, 0.277, 0.031], f"{taus}")
+check("qg_τ ≈ |θ|σ: 0,157 frente a 0,156 para X", abs(math.pi * 0.05 - taus[180]) < 2e-3)
+th = math.radians(324)
+rr = math.exp(-(th * 0.05) ** 2 / 2)
+check("qang coincide: dissipative_deficit del ejemplo del capítulo = 0,277",
+      abs(probability.dissipative_deficit(0.0, -rr * math.sin(th), rr * math.cos(th)) - taus[324]) < 1e-9)
+
 print(f"\n{sum(RESULTS)}/{len(RESULTS)} afirmaciones PASAN")
 sys.exit(0 if all(RESULTS) else 1)

@@ -306,7 +306,8 @@ de carga invierte esa lectura.
 | $P_\text{materia}$, $P_\text{antimateria}$ | $\cos^2$, $\sin^2$ del semiángulo | pesos de las componentes grande y pequeña del espinor, no probabilidades de antimateria |
 | Q-Hertz (qHz) | qga por segundo | unidad de frecuencia angular; propuesta |
 | Q-Fisher (qFi) | información de Fisher por qga² | $4\pi^2\cdot10^{-6}$ qga$^{-2}$ para un qubit puro |
-| Q-Shannon (q-sh) | entropía de Shannon del resultado | es $qg_S$; no es la entropía de von Neumann |
+| Q-Shannon ($qg_S$) | entropía de Shannon del resultado | es $qg_S$; no es la entropía de von Neumann |
+| Q-Curvatura, Q-SNR, Q-Geodésica, déficit disipativo | $qg_\kappa$, $qg_{SNR}$, $qg_L$, $qg_\tau$ | definidas y verificadas en la @sec-derivadas |
 | Q-Fuerza, Q-Conductancia, Q-Momento | gradiente de fase, qga por voltio, $(\pi/500)\hbar$ | nombres propuestos, sin uso en el libro |
 
 : Nombres de la Fundamentación para la energía, la antimateria y las unidades derivadas, y cómo los trata el libro. {#tbl-nombres-qga}
@@ -412,6 +413,91 @@ Las definiciones se extienden sin cambios a estados mixtos y a registros:
   localmente mezclado; los perfiles locales no bastan para describirlo, y el capítulo 5 vuelve sobre este punto con
   el radio de Bloch.
 
+## Magnitudes derivadas de la lectura {#sec-derivadas}
+
+La formulación del tratado [@monteverde2026fund] nombra, sobre esta base, siete magnitudes derivadas. Todas salen de
+la lectura —de $qg_Z$, o del vector qg completo cuando hace falta—, de modo que no agregan información a $p_0$: dan
+nombre a combinaciones que el resto del libro usa. La @tbl-derivadas las reúne con su definición, lo que son en
+términos de la estadística o de la física usuales y el tratamiento que reciben aquí.
+
+| magnitud | definición | qué es | tratamiento en el libro |
+|---|---|---|---|
+| Q-Hertz (qHz) | qga por segundo | frecuencia angular en la escala qga: 1 qHz $=2\pi/1000$ rad/s | unidad de conveniencia |
+| Q-Fisher (qFi) | información de Fisher por qga² | $I_F=4\pi^2\cdot10^{-6}$ qga$^{-2}$ sobre el ángulo qang, para todo estado | exacta (@sec-qga) |
+| Q-Shannon ($qg_S$) | $H(p_0)=H\big((1+qg_Z)/2\big)$ | entropía de Shannon del resultado | exacta (@sec-qgs) |
+| Q-Curvatura ($qg_\kappa$) | $-d^2qg_S/d\,qg_Z^2=1/[\ln2\,(1-qg_Z^2)]$ | información de Fisher sobre $qg_Z$, en bits | exacta; su uso en optimizadores, sin verificar |
+| Q-SNR ($qg_{SNR}$) | $\lvert qg_Z\rvert/\sqrt{1-qg_Z^2}=\lvert\cot\theta\rvert$ | señal a ruido de un disparo | exacta; fija los disparos para leer un signo |
+| Q-Geodésica ($qg_L$) | $\arccos\big(\sqrt{p_0p_0'}+\sqrt{p_1p_1'}\big)=\lvert\theta-\theta'\rvert/2$ | ángulo de Bhattacharyya entre dos lecturas | exacta; es la distancia de Fubini–Study en un meridiano común |
+| Déficit disipativo ($qg_\tau$) | $\sqrt{1-r^2}=\sqrt{1-qg_X^2-qg_Y^2-qg_Z^2}$ | $2\sqrt{\det\rho}$, la falta de pureza | exacta; mide pérdida de pureza de cualquier origen |
+
+: Magnitudes derivadas de la formulación y cómo las trata el libro. {#tbl-derivadas}
+
+Las tres primeras ya aparecieron. Sobre la Q-Fisher, una precisión: la formulación describe su constancia como la de
+una variedad plana, y no lo es. Lo constante es la información sobre una sola coordenada, el ángulo polar; la esfera de
+Bloch con la métrica de Fubini–Study tiene curvatura gaussiana 4 (@sec-qga).
+
+**Curvatura de información.** Derivando dos veces la identidad $qg_S=H((1+qg_Z)/2)$ de la @sec-qgs,
+
+$$
+\frac{d\,qg_S}{d\,qg_Z}=\frac12\log_2\frac{1-qg_Z}{1+qg_Z},
+\qquad
+qg_\kappa=-\frac{d^2qg_S}{d\,qg_Z^2}=\frac{1}{\ln 2\,(1-qg_Z^2)} .
+$$
+
+El denominador es la varianza de un disparo, de modo que $qg_\kappa=I_F(qg_Z)/\ln 2$: la curvatura de la entropía es
+la información de Fisher que un disparo lleva sobre el sesgo polar, expresada en bits. Vale $1/\ln2=1{,}443$ en el
+ecuador y diverge en los polos, donde la entropía es más sensible. Para un estado puro, $1-qg_Z^2=\sin^2\theta$ y
+$qg_\kappa=1/(\ln2\,\sin^2\theta)$. **Atención a la notación:** $qg_\kappa$ no es la curvatura de pulso
+$\kappa_{qg}=1000\,\lvert\cos\theta\rvert$ de la @sec-miliqang. Aquella es la derivada segunda de la lectura respecto
+del ángulo; ésta, la de la entropía respecto de la lectura. La formulación propone usar $qg_\kappa$ para amortiguar el
+paso de un optimizador junto a los polos. Escalar el paso por la inversa de la información de Fisher es el gradiente
+natural [@amari1998], y su efecto en los optimizadores del libro no se ha medido.
+
+**Señal a ruido por disparo.** Un disparo vale $\pm1$, con media $qg_Z$ y desviación estándar $\sqrt{1-qg_Z^2}$, para
+cualquier estado, puro o mixto. Su cociente y el número de disparos que pide un signo son
+
+$$
+qg_{SNR}=\frac{\lvert qg_Z\rvert}{\sqrt{1-qg_Z^2}}=\lvert\cot\theta\rvert,
+\qquad
+N_\text{signo}=\left(\frac{z}{qg_{SNR}}\right)^{2},
+$$
+
+con $\theta=\arccos qg_Z$, el ángulo qang. Con $N$ disparos la señal a ruido es $\sqrt N\,qg_{SNR}$, y $N_\text{signo}$ es
+el número de disparos para que el signo de $qg_Z$ quede a $z$ desviaciones del cero: es el criterio de parada que
+propone la formulación. A $60^\circ$ ($+500$ m-qg) $qg_{SNR}=0{,}577$ y bastan 27 disparos para un signo a 3σ; a
+$80^\circ$ hacen falta 290, y a $89^\circ$, unos 29 500. En el ecuador la señal se anula y el criterio no termina.
+Como toda fórmula de este capítulo basada en la aproximación normal, vale cuando $N_\text{signo}$ no es muy chico; con
+pocos disparos se usa la prueba binomial exacta.
+
+**Distancia geodésica.** Dos lecturas $(p_0,p_1)$ y $(p_0',p_1')$ están a la distancia estadística de Wootters de la
+@sec-ecuacion, y para dos resultados esa distancia es
+
+$$
+qg_L=\arccos\big(\sqrt{p_0p_0'}+\sqrt{p_1p_1'}\big)=\frac{\lvert\theta-\theta'\rvert}{2},
+$$
+
+porque $\sqrt{p_0p_0'}+\sqrt{p_1p_1'}=\cos\tfrac\theta2\cos\tfrac{\theta'}2+\sin\tfrac\theta2\sin\tfrac{\theta'}2
+=\cos\tfrac{\theta-\theta'}{2}$. Es la mitad de la diferencia de ángulos qang, es decir, la distancia entre lecturas en
+la escala que estabiliza la varianza. Si los dos estados son puros y comparten el meridiano, $qg_L$ coincide con la
+distancia de Fubini–Study $\arccos\lvert\langle\psi\vert\psi'\rangle\rvert$. Con azimutes distintos es una cota
+inferior, porque una medición no distingue dos estados más de lo que los distingue su solapamiento. El capítulo 3 la
+usa entre los estados de un reflector (@sec-ptransicion).
+
+**Déficit disipativo.** Con las tres lecturas $qg_X$, $qg_Y$ y $qg_Z$ se forma el vector qg $\mathbf r$, de largo
+$r\le1$, y
+
+$$
+qg_\tau=\sqrt{1-r^2}=2\sqrt{\det\rho},
+\qquad
+\operatorname{Tr}\rho^2=1-\tfrac12\,qg_\tau^2 .
+$$
+
+Vale 0 para un estado puro y 1 para el estado máximamente mezclado. La mezcla 0,2/0,8 de la sección anterior tiene
+$r=0{,}6$ y $qg_\tau=0{,}8$; cada qubit de un par de Bell, $qg_\tau=1$. La formulación la asocia a la relajación $T_1$
+y $T_2$, que es una de sus causas, pero la magnitud mide la pérdida de pureza sin distinguir el origen: un promedio
+sobre errores de calibración también la produce (capítulo 2, @sec-area). A diferencia de las anteriores, no es función
+de $p_0$: requiere medir en tres bases.
+
 ## Alcance y límites de la base {#sec-alcance}
 
 Conviene decir con precisión qué aporta esta base y qué no, antes de construir el resto del libro sobre ella.
@@ -479,6 +565,7 @@ esta base como sólida en lo matemático y prometedora, pero todavía no consoli
 | describir el resultado de un qubit | la probabilidad $p_0$ (o $\langle Z\rangle$) | $qg_Z$, el ángulo $\theta$, $m$ y $qg_S$, todos funciones exactas de $p_0$ | **ninguna en contenido**: es la misma información; qang le da una escala de trabajo de $-1000$ a $+1000$ |
 | barra de error de una lectura | $\sqrt{p_0(1-p_0)/N}$, distinta en cada estado | el ángulo tiene varianza $1/N$ para todo estado; en m-qg, $1000\sin\theta/\sqrt N$ | **conveniencia**: la coordenada estabilizada de la estadística clásica (el arcoseno) coincide con el parámetro de la compuerta |
 | comparar un error de compuerta con el ruido de disparo | infidelidad por un lado, desvío binomial por otro, en unidades distintas | los dos en m-qg (en Garnet, 1,64 m-qg por compuerta $X$ frente al ruido de disparo de la corrida) | **a favor**: una sola escala para el presupuesto de errores |
+| decidir cuántos disparos pide el signo de una lectura | prueba binomial o aproximación normal | $N=(z/qg_{SNR})^2$, con $qg_{SNR}=\lvert\cot\theta\rvert$ | **conveniencia**: es la aproximación normal escrita con la lectura |
 | expresar un ángulo de compuerta o de fase | radianes, con factores $\pi$ | qga: 1000 por vuelta ($X$ = 500 qga, ecuador = 250 qga) | **conveniencia**: la misma información sin factores $\pi$; no cambia gradientes ni mesetas |
 | mejorar el dispositivo | — | — | **ninguna**: la escala mide, no corrige; la predicción M2 de §168 falló |
 
@@ -511,6 +598,12 @@ pb.pole_angle(1.0)                         # 0.0447 rad: un m-qg por debajo del 
 pb.shots_for_resolution(10, math.pi / 2)   # 10000 disparos para resolver 10 m-qg
 pb.pulse_error_milliqang(math.pi, 0.05)    # 12.3 m-qg: compuerta X con 5 % de error de amplitud
 pb.statistical_angle([0.5, 0.3, 0.2], [0.4, 0.4, 0.2])   # 0.113 rad
+
+# magnitudes derivadas
+pb.quantum_snr(0.5)                        # 0.577: señal a ruido de un disparo a 60°
+pb.shots_for_sign(0.5)                     # 27 disparos para un signo a 3σ
+pb.information_curvature(0.0)              # 1.443 = 1/ln 2, la curvatura mínima (ecuador)
+pb.dissipative_deficit(0.0, 0.0, -0.6)     # 0.8: la mezcla 0,2/0,8
 ```
 
 Las figuras de este capítulo se generan con `tools/make_cap01_figures.py`, que usa las mismas funciones.
@@ -529,6 +622,10 @@ Las figuras de este capítulo se generan con `tools/make_cap01_figures.py`, que 
   relativista y a la antimateria queda como propuesta sin verificar, con tres errores del documento fuente corregidos.
 - **Estadística.** El ángulo qang es la transformación arcoseno de una proporción: su varianza es $1/N$ para todo
   estado, puro o mixto; lo que se corrige en un estado mixto es la estimación del ángulo de Bloch.
+- **Magnitudes derivadas.** $qg_\kappa$ es la información de Fisher sobre $qg_Z$ en bits (y no la curvatura de pulso
+  $\kappa_{qg}$); $qg_{SNR}=\lvert\cot\theta\rvert$ fija los disparos para leer un signo; $qg_L=\lvert\theta-\theta'\rvert/2$
+  es la distancia de Wootters entre dos lecturas; $qg_\tau=\sqrt{1-r^2}$ mide la falta de pureza y es la única que
+  necesita tres bases.
 - **Alcance.** La unidad no es física nueva sino una escala de trabajo. En hardware real (§168) midió un costo de
   1,64 m-qg por compuerta $X$, lineal en el número de compuertas, y expuso corrimientos de lectura de 16–55 m-qg (sobre-rotaciones de $1{,}3^\circ$–$3{,}9^\circ$); una
   predicción sobre el ruido de disparo falló y la replicación queda pendiente.
@@ -539,7 +636,8 @@ La regla de Born [@born1926] y la esfera de Bloch [@bloch1946] son el punto de p
 canales en general, véase @nielsen2010. La distancia estadística de Wootters [-@wootters1981] y su relación con la
 información de Fisher están en @braunstein1994; la cota de Cramér–Rao, en @cramer1946 y @rao1945. La transformación
 arcoseno que estabiliza la varianza binomial viene de @bartlett1947, @anscombe1948 y @freeman1950, y el intervalo de
-puntaje es el de @wilson1927. La entropía binaria detrás de $qg_S$ es la de @shannon1948. Las notas de investigación
+puntaje es el de @wilson1927. La entropía binaria detrás de $qg_S$ es la de @shannon1948; el gradiente natural, con el
+que se compara la curvatura de información $qg_\kappa$, es el de @amari1998. Las notas de investigación
 numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de
 la unidad qang, en @monteverde2026. La escala angular qga y la propuesta relativista vienen del documento de trabajo
 @monteverde2026fund; el espinor de Dirac libre y sus componentes están en cualquier texto de mecánica cuántica

@@ -23,6 +23,15 @@ arccos(sum_k sqrt(p_k q_k)); for two outcomes, the distance from (p0, 1 - p0) to
 ``analyze(k0, n)`` reads counts (k0 zeros in n shots) and returns every reading with its interval, the
 intervals built once for qg_Z (Wilson) and mapped through the exact monotone relations above. Standard library
 only; the estimators come from ``qang.statistics``.
+
+Derived quantities of the reading (book, chapter 1, section "Magnitudes derivadas"). All are functions of qg_Z (or of
+the qg vector), so they carry no information that p0 lacks; they name combinations the book uses:
+
+    qg_SNR = |qg_Z| / sqrt(1 - qg_Z^2)          per-shot signal-to-noise of the reading (|cot theta|)
+    qg_kappa = -d^2 qg_S / d qg_Z^2 = 1 / (ln 2 (1 - qg_Z^2))   information curvature, = Fisher information / ln 2
+    qg_tau = sqrt(1 - r^2) = 2 sqrt(det rho)    purity deficit of the qg vector r = (qg_X, qg_Y, qg_Z)
+
+qg_kappa is not the pulse curvature kappa_qg = 1000 |cos theta| m-qg/rad^2 of chapter 1.
 """
 
 from __future__ import annotations
@@ -46,6 +55,10 @@ __all__ = [
     "shots_for_resolution",
     "pulse_error_milliqang",
     "statistical_angle",
+    "quantum_snr",
+    "shots_for_sign",
+    "information_curvature",
+    "dissipative_deficit",
     "Reading",
     "analyze",
 ]
@@ -136,6 +149,46 @@ def statistical_angle(p: Sequence[float], q: Sequence[float]) -> float:
             raise ValueError("p and q must be probability distributions.")
     bc = sum(math.sqrt(a * b) for a, b in zip(p, q))
     return math.acos(min(1.0, bc))
+
+
+def quantum_snr(qg_z: float) -> float:
+    """Per-shot signal-to-noise of the reading, qg_SNR = |qg_Z| / sqrt(1 - qg_Z^2) = |cot theta|; inf at a pole.
+
+    One shot has mean qg_Z and standard deviation sqrt(1 - qg_Z^2) for any state, pure or mixed, so N shots give a
+    signal-to-noise of sqrt(N) * qg_SNR.
+    """
+    if not -1.0 <= qg_z <= 1.0:
+        raise ValueError(f"qg_z must lie in [-1, 1], got {qg_z}.")
+    d = 1.0 - qg_z * qg_z
+    return math.inf if d == 0.0 else abs(qg_z) / math.sqrt(d)
+
+
+def shots_for_sign(qg_z: float, z: float = 3.0) -> float:
+    """Shots for the sign of qg_Z to stand z standard deviations from zero: ceil((z / qg_SNR)^2); inf on the equator."""
+    if z <= 0.0:
+        raise ValueError("z must be > 0.")
+    snr = quantum_snr(qg_z)
+    if snr == 0.0:
+        return math.inf
+    return max(1, math.ceil((z / snr) ** 2 - 1e-9))
+
+
+def information_curvature(qg_z: float) -> float:
+    """qg_kappa = -d^2 qg_S / d qg_Z^2 = 1 / (ln 2 (1 - qg_Z^2)), in bits; equal to the per-shot Fisher information
+    about qg_Z divided by ln 2. Minimum 1/ln 2 = 1.443 on the equator, infinite at a pole."""
+    if not -1.0 <= qg_z <= 1.0:
+        raise ValueError(f"qg_z must lie in [-1, 1], got {qg_z}.")
+    d = 1.0 - qg_z * qg_z
+    return math.inf if d == 0.0 else 1.0 / (math.log(2.0) * d)
+
+
+def dissipative_deficit(qg_x: float, qg_y: float, qg_z: float) -> float:
+    """Purity deficit qg_tau = sqrt(1 - r^2) of the qg vector r = (qg_X, qg_Y, qg_Z): 0 for a pure state, 1 for the
+    maximally mixed one; equal to 2 sqrt(det rho), and Tr(rho^2) = 1 - qg_tau^2 / 2. It needs all three axes."""
+    r2 = qg_x * qg_x + qg_y * qg_y + qg_z * qg_z
+    if r2 > 1.0 + 1e-12:
+        raise ValueError(f"|r| must be <= 1, got {math.sqrt(r2)}.")
+    return math.sqrt(max(0.0, 1.0 - r2))
 
 
 @dataclass(frozen=True)

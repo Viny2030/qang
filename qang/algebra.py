@@ -16,6 +16,12 @@ The Householder reflector through |psi(q)> = sqrt((1+q)/2)|0> + sqrt((1-q)/2)|1>
 I - 2|psi><psi| = -q Z - sqrt(1 - q^2) X, and the Grover diffuser about the same state is its negative,
 2|psi><psi| - I = q Z + sqrt(1 - q^2) X. The transition probability between two pure states with qg vectors
 r1, r2 is (1 + r1 . r2)/2; on a common meridian it is [1 + q1 q2 + sqrt((1 - q1^2)(1 - q2^2))]/2.
+The geodesic distance qg_L = arccos(sqrt(P)) between two states on a common meridian is |theta1 - theta2|/2, both the
+Fubini-Study distance and the Bhattacharyya angle of their Z-basis outcome distributions.
+
+Grover. A flag qubit with initial bias qg0 = 1 - 2a = cos(2t) reads qg_k = cos((2k+1) 2t) = T_{2k+1}(qg0) after k
+iterations (Chebyshev polynomial of the first kind), and one shot at depth m = 2k + 1 carries the Fisher information
+m^2 / (1 - qg0^2) about qg0.
 
 Qudits. The diagonal generalized Gell-Mann matrices (the Cartan subalgebra of su(d)),
 lambda_k = sqrt(2/(k(k+1))) diag(1, ..., 1, -k, 0, ..., 0) with k ones, k = 1 .. d-1, are the Z-basis-measurable
@@ -66,6 +72,32 @@ def qg_vector(q: float, phi: float = 0.0) -> np.ndarray:
 def transition_probability(q1: float, q2: float, phi1: float = 0.0, phi2: float = 0.0) -> float:
     """|<psi1|psi2>|^2 = (1 + r1 . r2)/2; with phi1 = phi2 it is [1 + q1 q2 + sqrt((1-q1^2)(1-q2^2))]/2."""
     return float((1 + qg_vector(q1, phi1) @ qg_vector(q2, phi2)) / 2)
+
+
+def geodesic_distance(q1: float, q2: float) -> float:
+    """qg_L = arccos(sqrt(P(q1 -> q2))) = |arccos q1 - arccos q2| / 2 for two pure states on a common meridian, in rad."""
+    for q in (q1, q2):
+        if not -1.0 <= q <= 1.0:
+            raise ValueError("q1, q2 = qg_Z must be in [-1, 1].")
+    return abs(math.acos(q1) - math.acos(q2)) / 2.0
+
+
+def chebyshev_trajectory(qg0: float, k: int) -> float:
+    """Bias of the Grover flag after k iterations: qg_k = T_{2k+1}(qg0) = cos((2k+1) arccos qg0)."""
+    if not -1.0 <= qg0 <= 1.0:
+        raise ValueError("qg0 must be in [-1, 1].")
+    if k < 0:
+        raise ValueError("k must be >= 0.")
+    return float(np.polynomial.chebyshev.chebval(qg0, [0] * (2 * k + 1) + [1]))
+
+
+def grover_fisher_information(qg0: float, depth_m: int) -> float:
+    """Fisher information about qg0 of one shot of the flag at depth m = 2k + 1: m^2 / (1 - qg0^2)."""
+    if not -1.0 < qg0 < 1.0:
+        raise ValueError("qg0 must be in (-1, 1).")
+    if depth_m < 1:
+        raise ValueError("depth_m must be >= 1.")
+    return depth_m * depth_m / (1.0 - qg0 * qg0)
 
 
 # ---------------------------------------------------------------- qudits

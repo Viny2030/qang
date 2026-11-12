@@ -1,7 +1,8 @@
 """Independent check of the qga additions to chapter 3 of the book (reflections and Grover on the angular scale).
 
-Covers only the sentences added on 2026-11-01 with the angular qga scale of Chapter 1 (1000 qga per turn); the
-rest of the chapter has not been through the T1-T9 review yet. Uses numpy, sympy and QuTiP, not qang. Prints
+Covers only the sentences added on 2026-11-01 with the angular qga scale of Chapter 1 (1000 qga per turn) and those
+added on 2026-11-12 with the derived quantities qg_L, qg_SNR, qg_kappa and qg_tau; the rest of the chapter has not been
+through the T1-T9 review yet. Uses numpy, sympy and QuTiP; qang only in the last comparison. Prints
 PASA/FALLA per claim and exits with 1 if any fails.
 
     .venv-int/Scripts/python tools/verify_cap03.py
@@ -84,6 +85,61 @@ for a, kstar in ((0.1, 2), (0.3, 1)):
 check("sympy: π/(4t) = 125/t_qga con t = 2π t_qga/1000",
       sp.simplify(sp.pi / (4 * 2 * sp.pi * sp.Symbol("x") / 1000) - 125 / sp.Symbol("x")) == 0)
 check("la reflexión de Householder es una rotación de π = 500 qga", round(math.pi * QGA) == 500)
+
+# ---------------------------------------------------------------- magnitudes derivadas (2026-11-12)
+print("\nMagnitudes derivadas en Grover: qg_L, qg_SNR, qg_κ, qg_τ")
+s1 = (math.sqrt(0.725) * qutip.basis(2, 0) + math.sqrt(0.275) * qutip.basis(2, 1))   # q = 0.45, phase 0
+s2 = (math.sqrt(0.725) * qutip.basis(2, 0) - math.sqrt(0.275) * qutip.basis(2, 1))   # q = 0.45, phase pi
+ov = abs(s1.overlap(s2))
+check("q = 0,45 con fases 0 y π: |⟨ψ1|ψ2⟩| = 0,45, qg_L = 1,104 rad = 175,7 qga, Bhattacharyya en Z = 0",
+      round(ov, 6) == 0.45 and round(math.acos(ov), 3) == 1.104 and round(math.acos(ov) * QGA, 1) == 175.7
+      and abs(math.acos(min(1.0, math.sqrt(0.725 * 0.725) + math.sqrt(0.275 * 0.275)))) < 1e-7)
+check("qg_L(0,3; −0,5) = 0,414 rad = 65,9 qga", round(gamma / 2, 3) == 0.414 and round(gamma / 2 * QGA, 1) == 65.9)
+
+rows = []
+for k in range(4):
+    zk = qutip.expect(qutip.sigmaz(), ry_state((2 * k + 1) * 2 * t))
+    snr = abs(zk) / math.sqrt(1 - zk ** 2)
+    kap = 1 / (math.log(2) * (1 - zk ** 2))
+    rows.append((round(1000 * zk, 1), round((2 * k + 1) * 2 * t * QGA, 1), round((1 - zk) / 2, 4), round(snr, 2), round(kap, 2)))
+expected = [(800.0, 102.4, 0.1, 1.33, 4.01), (-352.0, 307.2, 0.676, 0.38, 1.65),
+            (-997.1, 512.1, 0.9986, 13.15, 250.83), (-206.4, 716.9, 0.6032, 0.21, 1.51)]
+check("QuTiP: tabla tbl-grover-derivadas (qg_k, ángulo, P_k, qg_SNR, qg_κ)", rows == expected, f"{rows}")
+z_after = qutip.expect(qutip.sigmaz(), ry_state((500 + 12.1) / QGA))
+z_before = qutip.expect(qutip.sigmaz(), ry_state((500 - 12.1) / QGA))
+check("qg_SNR y qg_κ valen lo mismo 12 qga antes y después del polo", abs(z_after - z_before) < 1e-12)
+n_sign = [math.ceil((3 / (abs(z) / math.sqrt(1 - z * z))) ** 2 - 1e-9)
+          for z in (math.cos(5 * 2 * t), math.cos(3 * 2 * t))]
+check("disparos para el signo a 3σ: 1 en k = 2 y 64 en k = 1", n_sign == [1, 64], f"{n_sign}")
+
+# depolarizing noise shortens the flag's qg vector by V = 1 - p per iteration (QuTiP channel)
+def depolarize(rho, p):
+    return (1 - p) * rho + p * qutip.qeye(2) / 2
+
+
+def tau_after(p, k):
+    rho = ry_state(0.7) * ry_state(0.7).dag()
+    step = (-1j * 0.3 * qutip.sigmay()).expm()
+    for _ in range(k):
+        rho = depolarize(step * rho * step.dag(), p)
+    r2 = sum(qutip.expect(op, rho) ** 2 for op in (qutip.sigmax(), qutip.sigmay(), qutip.sigmaz()))
+    return math.sqrt(max(0.0, 1 - r2))
+
+
+check("QuTiP: con despolarización, qg_τ = √(1 − V^{2k}), V = 1 − p (p = 0,025, k = 10)",
+      abs(tau_after(0.025, 10) - math.sqrt(1 - 0.975 ** 20)) < 1e-12)
+check("V = 0,975: qg_τ = 0,63 tras 10 iteraciones y 0,80 tras 20",
+      round(tau_after(0.025, 10), 2) == 0.63 and round(tau_after(0.025, 20), 2) == 0.80)
+check("en k = 1/p, qg_τ > 0,93 (p = 0,01 y p = 0,05)", tau_after(0.01, 100) > 0.93 and tau_after(0.05, 20) > 0.93,
+      f"{tau_after(0.01, 100):.4f}, {tau_after(0.05, 20):.4f}")
+
+from qang import algebra, probability  # noqa: E402  final comparison only
+q2 = algebra.chebyshev_trajectory(0.8, 2)
+check("qang coincide: chebyshev_trajectory, quantum_snr, information_curvature, grover_fisher_information, geodesic_distance",
+      round(1000 * q2, 1) == -997.1 and round(probability.quantum_snr(q2), 2) == 13.15
+      and round(probability.information_curvature(q2), 1) == 250.8
+      and round(algebra.grover_fisher_information(0.8, 5), 1) == 69.4
+      and abs(algebra.geodesic_distance(0.3, -0.5) - gamma / 2) < 1e-12)
 
 print(f"\n{sum(RESULTS)} de {len(RESULTS)} afirmaciones PASAN")
 sys.exit(0 if all(RESULTS) else 1)

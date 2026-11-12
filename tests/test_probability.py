@@ -85,3 +85,49 @@ def test_invalid_inputs():
         PB.shots_for_resolution(0.0, 1.0)
     with pytest.raises(ValueError):
         PB.analyze(5, 10, target_qg_z=2.0)
+
+
+# ---------------------------------------------------------------- derived quantities (book, chapter 1)
+
+def test_quantum_snr_is_abs_cot_and_matches_shot_statistics():
+    for theta in (0.3, 1.0, math.pi / 3, 2.2):
+        z = math.cos(theta)
+        assert math.isclose(PB.quantum_snr(z), abs(1 / math.tan(theta)), rel_tol=1e-12)
+    assert PB.quantum_snr(0.0) == 0.0
+    assert PB.quantum_snr(1.0) == math.inf
+    # per shot: mean qg_Z, std sqrt(1 - qg_Z^2), from the two-point distribution of +-1
+    z = 0.5
+    p0 = (1 + z) / 2
+    mean = p0 - (1 - p0)
+    std = math.sqrt(1 - mean ** 2)
+    assert math.isclose(PB.quantum_snr(z), abs(mean) / std, rel_tol=1e-12)
+
+
+def test_shots_for_sign():
+    assert PB.shots_for_sign(math.cos(math.radians(60))) == 27
+    assert PB.shots_for_sign(math.cos(math.radians(30))) == 3
+    assert PB.shots_for_sign(0.0) == math.inf
+    with pytest.raises(ValueError):
+        PB.shots_for_sign(0.5, z=0)
+
+
+def test_information_curvature_is_minus_second_derivative_of_qg_s():
+    h = 1e-4
+    for z in (-0.8, -0.3, 0.0, 0.5, 0.9):
+        num = -(qg_s_from_qg_z(z + h) - 2 * qg_s_from_qg_z(z) + qg_s_from_qg_z(z - h)) / h ** 2
+        assert math.isclose(PB.information_curvature(z), num, rel_tol=1e-5)
+        assert math.isclose(PB.information_curvature(z) * math.log(2), 1 / (1 - z * z), rel_tol=1e-12)
+    assert math.isclose(PB.information_curvature(0.0), 1 / math.log(2))
+    assert PB.information_curvature(-1.0) == math.inf
+
+
+def test_dissipative_deficit():
+    assert PB.dissipative_deficit(0.0, 0.0, 1.0) == 0.0
+    assert PB.dissipative_deficit(0.0, 0.0, 0.0) == 1.0
+    assert math.isclose(PB.dissipative_deficit(0.0, 0.0, -0.6), 0.8)
+    # 2 sqrt(det rho) for a random mixed state
+    x, y, z = 0.2, -0.3, 0.4
+    rho_det = (1 - (x * x + y * y + z * z)) / 4
+    assert math.isclose(PB.dissipative_deficit(x, y, z), 2 * math.sqrt(rho_det), rel_tol=1e-12)
+    with pytest.raises(ValueError):
+        PB.dissipative_deficit(0.8, 0.8, 0.0)

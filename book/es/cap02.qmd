@@ -86,6 +86,17 @@ $$
 Una compuerta en un polo ($qg_S=0$) transmite un bit completo por cada uso; la Hadamard ($qg_S=1$) no transmite nada
 de la base computacional a sí misma.
 
+La curvatura de información del capítulo 1 (@sec-derivadas) tiene aquí una lectura directa. Como $C=1-qg_S$,
+
+$$
+\frac{d^2C}{dq^2}=qg_\kappa=\frac{1}{\ln2\,(1-q^2)} :
+$$
+
+la capacidad es convexa en el sesgo de la compuerta, con su mínimo en la Hadamard, y se curva cada vez más junto a los
+polos. Apartarse lo mismo de un polo o del ecuador no cuesta lo mismo: una compuerta a $+990$ m-qg, 10 m-qg por debajo
+del polo, transmite $0{,}955$ bits, ya $0{,}045$ menos que la identidad; una a $+10$ m-qg, 10 m-qg por encima del
+ecuador, transmite $7\cdot10^{-5}$ bits, casi lo mismo que la Hadamard.
+
 ## Verificación contra las bibliotecas estándar {#sec-verificacion}
 
 La fórmula se comprobó contra la compuerta `U` de Qiskit 2.6 en 2000 compuertas aleatorias, con una diferencia
@@ -154,6 +165,22 @@ global (1000 qga), y la @fig-area muestra lo que se gana: pedir $R_X(324^\circ)=
 la lectura $-31{,}7$ m-qg, mientras que su representante $R_X(-36^\circ)=R_X(-100\ \text{qga})$, la misma compuerta,
 la corre $-0{,}4$ m-qg.
 
+El déficit disipativo del capítulo 1 (@sec-derivadas) completa el presupuesto. El promedio sobre el error de amplitud
+no mueve el vector qg fuera de su meridiano; lo acorta:
+
+$$
+\mathbf r=e^{-\theta^2\sigma^2/2}\,(0,\,-\sin\theta,\,\cos\theta),
+\qquad
+qg_\tau=\sqrt{1-e^{-\theta^2\sigma^2}}\approx\lvert\theta\rvert\,\sigma .
+$$
+
+A diferencia del corrimiento en m-qg, que depende de dónde termina el estado y se anula en el ecuador, $qg_\tau$
+depende sólo del área. Con $\sigma=0{,}05$ vale $0{,}156$ para $X$ y $0{,}078$ para $R_X(\pi/2)$, cuya lectura no se
+corre en absoluto; para $R_X(324^\circ)$ vale $0{,}277$ y para su representante $R_X(-36^\circ)$, $0{,}031$. La lectura
+en m-qg ve el área sólo cuando el estado termina lejos del ecuador; $qg_\tau$, que exige medir en tres bases, la ve
+siempre. Aquí el déficit no viene de la relajación sino de promediar compuertas que difieren de un disparo a otro: el
+nombre de la formulación describe una de sus causas, no la única.
+
 ![Error en mili-qang de $R_x(\theta)$ con un error de amplitud aleatorio $\sigma=0{,}05$: el ángulo tal como se pide frente al representante de área mínima. Por debajo de $180^\circ$ coinciden; por encima, el representante corto evita el error que, en los múltiplos de $\pi$, crece con el cuadrado del ángulo.](figuras/cap02_area.png){#fig-area width=90%}
 
 Más interesante: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, y $Z\otimes Z$ son dos rotaciones $R_Z(\pi)$
@@ -216,6 +243,7 @@ $\log_2 3/3$), igual en los tres. En mili-qang, las lecturas van de 316 a 343 m-
 | preparar un estado con una probabilidad dada | calcular $\theta=2\arccos\sqrt{p_0}$ y aplicar $R_Y(\theta)$ | la compuerta $R_{qg}$ recibe directamente la lectura objetivo, en qg o en m-qg | **conveniencia**: la compuerta física es la misma |
 | describir la acción de una compuerta sobre las poblaciones | la matriz unitaria completa, con fases | una matriz de transición doblemente estocástica fijada por un número en m-qg, con capacidad $1-qg_S$ | **conveniencia** para poblaciones, con entradas sin coherencias; **en contra** para fases, que la descripción pierde (capítulo 3) |
 | presupuestar el error de una compuerta fraccionaria | fidelidad de proceso | error en m-qg: de $-31{,}7$ a $-0{,}4$ m-qg para $R_X(324^\circ)$ con el representante de área mínima | la mejora es del **principio de área mínima**; el m-qg la vuelve comparable con el ruido de disparo |
+| ver el área de un pulso en el ecuador | fidelidad de proceso o tomografía | $qg_\tau=\sqrt{1-e^{-\theta^2\sigma^2}}$, que crece con el área aunque la lectura en m-qg no se corra | **conveniencia**: es la pureza del estado tomográfico, con nombre qg |
 | generalizar a qudits | matrices de Gell-Mann | la subálgebra de Cartan como identidad qg | **ninguna demostrada**: no se encontró ventaja en leer más niveles |
 
 : Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion02}
@@ -237,6 +265,10 @@ algebra.cartan_values([0.5, 0.3, 0.2])     # los dos valores qg de un qutrit
 pulse_area.minimal_area_angle(3.5, math.pi)    # (0.358, 1): RZZ(3.5) = RZZ(0.358) · (Z ⊗ Z) · fase
 pulse_area.rx_qg_z_random_amplitude(math.pi, 0.05)   # -0.988 en lugar de -1
 probability.pulse_error_milliqang(math.pi, 0.05)     # 12.3 m-qg de error en una X
+
+th, s = math.radians(324), 0.05                      # R_X(324°) con 5 % de error de amplitud
+r = math.exp(-(th * s) ** 2 / 2)
+probability.dissipative_deficit(0.0, -r * math.sin(th), r * math.cos(th))   # 0.277; con -36°, 0.031
 ```
 
 ## Resumen {#sec-resumen02}
@@ -245,12 +277,14 @@ probability.pulse_error_milliqang(math.pi, 0.05)     # 12.3 m-qg de error en una
   signo.
 - Toda compuerta de un qubit es una función algebraica de $q=qg_Z$ y dos fases; su matriz de transición es
   doblemente estocástica, no depende de las fases y es la ecuación de probabilidad del capítulo 1: un solo número en
-  m-qg fija su acción sobre las poblaciones de una entrada sin coherencias, y la capacidad del canal es $1-qg_S$.
+  m-qg fija su acción sobre las poblaciones de una entrada sin coherencias, y la capacidad del canal es $1-qg_S$, con
+  curvatura $qg_\kappa$: se pierde capacidad mucho más rápido al apartarse de un polo que del ecuador.
 - La subálgebra de Cartan de $\mathfrak{su}(d)$ generaliza $qg_Z$ a qudits como identidad; no se demostró una ventaja
   de la lectura de más niveles.
 - En compuertas fraccionarias el error sigue al área de pulso; elegir el representante más corto lo reduce (de
   $-31{,}7$ a $-0{,}4$ m-qg para $R_X(324^\circ)$), y el presupuesto se expresa en m-qg, la misma escala que el ruido de
-  disparo.
+  disparo. El déficit disipativo $qg_\tau\approx\lvert\theta\rvert\sigma$ depende sólo del área y la muestra también
+  donde la lectura en m-qg no se corre.
 - La exposición fuera del sector, calculada sin ruido, ordena compilaciones según cuánto T1 dejará pasar el filtro.
 
 ## Notas bibliográficas {.unnumbered}
