@@ -135,7 +135,38 @@ factor $4m^2$ for the angle [@suzuki2020]. On the milli-qang scale, the resoluti
 shots at depth $m$ is $1000\sqrt{1-qg_0^2}/(m\sqrt N)$ m-qg: with $a=0.1$ and 100 shots, 60 m-qg without iterating and
 12 m-qg at depth $m=5$. With respect to the flag's initial angle, the information is $m^2$ times that of Chapter 1
 and does not depend on the state: $m^2\cdot4\pi^2\cdot10^{-6}$ qga$^{-2}$, with a resolution of
-$159.15/(m\sqrt N)$ qga, that is, 15.9 qga without iterating and 3.2 qga at depth 5.
+$159.15/(m\sqrt N)$ qga, that is, 15.9 qga without iterating and 3.2 qga at depth 5. In terms of the searched
+fraction, $1-qg_0^2=4a(1-a)$, so $F_m=m^2/[4a(1-a)]$ and the resolution is $2000\sqrt{a(1-a)}/(m\sqrt N)$ m-qg.
+
+### The trajectory as a harmonic oscillation {#sec-grover-harmonic}
+
+The treatise's formulation reads $qg_k=\cos\big((2k+1)\,2t\big)$ as a sampled harmonic oscillator: the flag runs along
+a cosine at a constant angular step, $4t$ per iteration. If each iteration lasts $\Delta t$, that is an angular
+frequency of $4t_{qga}/\Delta t$ qga per second, that is, in qHz (@sec-derived); with $a=0.1$, 204.8 qga per
+iteration. The picture has a useful consequence. At the pole the cosine is at its turning point, where the velocity
+$d\,qg/dk$ vanishes: there the success is insensitive, to first order, to an angle error. If the flag ends $\delta$
+away from the pole, $P=\cos^2(\delta/2)\approx1-\delta^2/4$. The 12.1 qga of excess at $k=2$ cost only 0.14 % of
+success ($P_2=0.9986$); 25 qga would cost 0.6 %, and 50 qga, 2.4 %. That is why the rounding of $k^\ast$ matters little
+when $a$ is small and a lot when the step is coarse. The geodesic distance to the solution says it in one figure: after
+$k=2$, $qg_L(qg_2,-1)=6.04$ qga, half the excess of Bloch angle.
+
+The outcome entropy runs through the same cycle: $qg_S$ is $0.469$, $0.909$, $0.016$ and $0.969$ bits at
+$k=0,\dots,3$. It falls almost to zero at the optimum and rises again past it. Like the other derived quantities, it is
+a function of $qg_k$ and cannot tell on which side of the pole the flag is.
+
+**Matter and antimatter: what the analogy allows.** The treatise proposes reading the Grover rotation as a conversion
+channel between matter and antimatter, with the equator as a "neutral meson" and the inversion as charge conjugation.
+As a physical claim it is **not adopted**: the marked and unmarked subspaces of a search are not particle and
+antiparticle. What is exact is more modest. The oscillation of a neutral meson between its particle and antiparticle
+states is also a two-level rotation, and its mixing asymmetry
+$(N_\text{unmixed}-N_\text{mixed})/(N_\text{unmixed}+N_\text{mixed})=\cos(\Delta m\,t)$, valid when the two widths are
+equal [@pdg2024], is a $qg_Z$: it has qang angle $\Delta m\,t$ and a uniform error bar in that angle, like any reading
+of Chapter 1. Grover and the meson share the kinematics, a cosine, and nothing else: the meson also decays. Appendix G
+(@sec-appendix-g) gives the correct reading of charge conjugation, which flips the expectation value of the Dirac
+matrix $\beta$.
+
+Two orthogonal states, such as the marked one and its complement, are $qg_L=\pi/2$ apart, that is, 250 qga, the
+maximum distance; an ideal unitary evolution preserves purity ($qg_\tau=0$) along the whole arc.
 
 ## Analytic limits: coarse angles and overshoot {#sec-limits}
 
@@ -251,6 +282,7 @@ qg_2 = algebra.chebyshev_trajectory(0.8, 2)          # -0.9971 (-997 m-qg, P = 0
 probability.quantum_snr(qg_2)                        # 13.15
 probability.information_curvature(qg_2)              # 250.8
 algebra.grover_fisher_information(0.8, 5)            # 69.4 per shot: 25 times that of m = 1
+algebra.geodesic_distance(qg_2, -1.0)                # 0.038 rad (6.04 qga) from the solution
 ```
 
 ## Summary {#sec-summary03}
@@ -265,6 +297,9 @@ algebra.grover_fisher_information(0.8, 5)            # 69.4 per shot: 25 times t
   depth $m$ is $m^2/(1-qg_0^2)$: the m-qg resolution improves by a factor $m$.
 - $qg_{SNR}$ and $qg_\kappa$ shoot up near the pole, but as a stopping criterion they do not see whether the flag has
   already passed it; what they bring is the number of shots to confirm the sign of the final reading.
+- The trajectory is a sampled cosine: at the pole it is at its turning point, so an excess of 12 qga costs only
+  0.14 % of success. The matter–antimatter reading of the rotation is not adopted; what is exact is that a neutral
+  meson's mixing asymmetry, $\cos(\Delta m\,t)$, is a $qg_Z$.
 - With noise, the per-qubit qg reading loses to the histogram in search; in amplitude estimation the advantage holds
   if the noise enters the likelihood, and ends near depth $1/p$, where the flag's dissipative deficit,
   $qg_\tau=\sqrt{1-V^{2k}}$, exceeds $0.93$.

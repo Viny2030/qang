@@ -116,7 +116,8 @@ turns a target standard error of the filtered $qg_Z$ into shots and estimated pr
 the fraction of shots the filter will keep (§143). For a target of 0.02 (20 m-qg) on two circuits per device it
 planned 3000–3400 shots, and over 30 repetitions the error of the worst qubit was 0.021–0.023 (21–23 m-qg): the plan
 held. For reference, Chapter 1's formula without the filter gives $N=(1000\sin\theta/\delta)^2=2500$ shots for 20 m-qg
-on the equator; the plan asks for more because it discounts the shots the filter will discard.
+on the equator; the plan asks for more because it discounts the shots the filter will discard. The simple rule is
+$N_\text{run}=N/(1-P_\text{discard})$: with a 20 % discard, the 2500 useful shots ask for 3125.
 
 The per-qubit prediction, however, was 1.4–1.6 times optimistic on average, and its analysis is instructive: the
 qubits that missed were those near a pole ($|qg|>0.8$, with ratios of 2.4–3.1), whose $qg_Z$ the noise pulls away from
@@ -184,6 +185,47 @@ energy and the radiation function of Chapter 1, which depend on penalties not ye
 gradient in qg canonically diagonalizes the Fubini–Study tensor, which is true only for the coordinates
 $(\theta,\varphi)$ of one qubit (@sec-qga).
 
+## The derived quantities in sampling {#sec-derived-sampling}
+
+The treatise's formulation brings the derived quantities of Chapter 1 (@sec-derived) to sampling. All of them are
+estimated from the same counts, and each one inherits a statistical property of this chapter.
+
+**Two Fisher informations.** A shot carries about the polar bias the information $F_{qg}=1/(1-qg_Z^2)$, which diverges
+at the poles, and about the qang angle $F_\theta=1$, constant. They are the same information in two coordinates, and
+the information curvature is the first one in bits: $qg_\kappa=F_{qg}/\ln2$.
+
+**Signal-to-noise and curvature when all shots agree.** The plug-in estimators of $qg_{SNR}$ and $qg_\kappa$ divide by
+$1-\widehat{qg}_Z^{\,2}$ and become infinite when the $N$ shots coincide, which is exactly the case of
+@sec-intervals. The Bayes–Haar posterior mean keeps them finite: with 50 out of 50, $qg_Z=50/52=0.962$,
+$qg_{SNR}=3.50$ and $qg_\kappa=19.1$.
+
+**The geodesic distance between two samples.** With $N_1$ and $N_2$ shots, each qang angle has variance $1/N$, so
+
+$$
+\widehat{qg}_L=\frac{\lvert\hat\theta_1-\hat\theta_2\rvert}{2},
+\qquad
+\operatorname{Var}\big(\widehat{qg}_L\big)\approx\frac14\left(\frac1{N_1}+\frac1{N_2}\right),
+$$
+
+wherever the two states are. It is half of Cohen's $h$, the classical effect size for comparing two proportions,
+so the test is not qang's: qang gives it the name of a distance. With 750 and 700 zeros in 1000 shots
+each, $\widehat{qg}_L=0.056$ rad (8.9 qga) with standard error $0.0224$: a difference of 2.5σ. What Chapter 1 said
+holds: on a common meridian it is the Fubini–Study distance; with different azimuths, a lower bound.
+
+**The dissipative deficit from counts.** $qg_\tau=\sqrt{1-r^2}$ is a quadratic quantity, and it inherits the bias of
+@sec-qg2 with the opposite sign. With $N$ shots per axis, the plug-in radius satisfies
+
+$$
+\mathbb E\big[\hat r^{\,2}\big]=r^2+\frac{3-r^2}{N},
+$$
+
+so shot noise makes the state look purer than it is. A pure state measured with 100 shots per axis averages
+$\hat r^{\,2}=1.02$, outside the sphere. A state with $r=0.9$ ($qg_\tau=0.436$) averages $\hat r^{\,2}=0.832$ with the
+plug-in estimator and $0.810$ with the corrected one, which is the true value. The square root, however, is not
+unbiased even with the correction: $\widehat{qg}_\tau$ averages $0.376$ with the plug-in radius and $0.404$ with the
+corrected one, both below $0.436$, because the root is concave and is clipped at zero. The formulation proposes
+$\sqrt{\max(0,1-\hat r^{\,2})}$ as an unbiased estimator; the corrected one halves the bias, it does not remove it.
+
 ## Without qang and with qang {#sec-comparison04}
 
 | action | without qang | with qang | difference |
@@ -191,6 +233,8 @@ $(\theta,\varphi)$ of one qubit (@sec-qga).
 | confidence interval near a pole | delta method: coverage below 10% | Bayes–Haar, $\mathrm{Beta}(1,1)$: uniform in m-qg, nominal coverage | **in favour of the method, not only of qang**: the Wilson interval, without qang, also recovers it; qang justifies the prior (Haar is uniform in m-qg) |
 | quadratic quantities (radii, $qg^2$) | square the estimate: biased upward | $(N\widehat{qg}^{\,2}-1)/(N-1)$ | the **standard unbiased estimator**; qang packages it and applies it in every chapter |
 | how many shots to take | binomial variance of the state | $N=(1000\sin\theta/\delta)^2$ to resolve $\delta$ m-qg | **equivalent**; the m-qg formula is the one used for planning |
+| compare two readings | Cohen's $h$ | $qg_L=h/2$, with variance $\tfrac14(1/N_1+1/N_2)$ over the whole circle | **none**: it is the same test, with the name of a distance |
+| estimate the lack of purity | $1-\operatorname{Tr}\rho^2$ with tomography | $qg_\tau$ with unbiased squares | the bias of $\hat r^{\,2}$ disappears; that of $\widehat{qg}_\tau$ is halved, **not removed** |
 | measure qang quantities | classical shadows | direct $Z$ measurement | 3–41 times fewer shots, but it is a **measurement choice**, not an effect of the unit |
 | justify the reading | — | Riesz–Fréchet: $qg_Z$ is the canonical linear reading | **in favour**: explains why $qg_Z$ is averaged and not the angle |
 
@@ -204,11 +248,13 @@ coverage improvement exists without qang too.
 
 ```python
 import math
-from qang import probability, statistics
+from qang import probability, proportions, statistics
 
 statistics.bayes_qg_estimate(48, 50)     # Haar posterior: qg_Z 0.885, interval [0.731, 0.975]
 statistics.wilson_qg_estimate(48, 50)    # the frequentist alternative
 statistics.qg2_unbiased(16, 20)          # qg^2 without the (1 - qg^2)/N bias
+statistics.radius2_estimate([(77, 100), (50, 100), (86, 100)])   # unbiased r^2 and its error, three axes
+proportions.cohens_h(0.75, 0.70) / 2     # qg_L between two readings: 0.056 rad
 
 probability.analyze(48, 50).milliqang    # (920.0, 730.8, 977.9) m-qg with the Wilson interval
 probability.shots_for_resolution(20, math.pi / 2)   # 2500 shots for 20 m-qg on the equator
@@ -223,6 +269,8 @@ probability.shots_for_resolution(20, math.pi / 2)   # 2500 shots for 20 m-qg on 
 - Wilson and Bayes–Haar recover the nominal coverage where the delta method covers less than 10%; neither reduces the
   shots required.
 - Quadratic quantities need the correction $(N\widehat{qg}^{\,2}-1)/(N-1)$; without it, Bloch radii are overestimated.
+- Of the derived quantities, $qg_L$ between two samples is half of Cohen's $h$, with variance
+  $\tfrac14(1/N_1+1/N_2)$; $qg_\tau$ estimated from counts stays biased low even with the quadratic correction.
 - Planning on the worst qubit meets the target; the qubits near a pole are the ones the noise pulls away most.
 - For qang's quantities, measuring directly in $Z$ costs 3–41 times fewer shots than classical shadows.
 - $qg_Z$, and with it the milli-qang, is the canonical linear read-out by the Riesz–Fréchet theorem; $qg_S$ and the

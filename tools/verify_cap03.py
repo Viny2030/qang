@@ -141,5 +141,42 @@ check("qang coincide: chebyshev_trajectory, quantum_snr, information_curvature, 
       and round(algebra.grover_fisher_information(0.8, 5), 1) == 69.4
       and abs(algebra.geodesic_distance(0.3, -0.5) - gamma / 2) < 1e-12)
 
+# ---------------------------------------------------------------- versión Integral del capítulo 3 (2026-11-12)
+print("\nLa trayectoria como oscilación armónica")
+check("sympy: 1 − qg0² = 4a(1 − a) con qg0 = 1 − 2a",
+      sp.simplify(1 - (1 - 2 * sp.Symbol("a")) ** 2 - 4 * sp.Symbol("a") * (1 - sp.Symbol("a"))) == 0)
+check("resolución 2000√(a(1−a))/(m√N): 60 y 12 m-qg con a = 0,1, N = 100, m = 1 y 5",
+      round(2000 * math.sqrt(0.09) / 10) == 60 and round(2000 * math.sqrt(0.09) / 50) == 12)
+losses = [1 - abs(ry_state(math.pi + d / QGA).overlap(qutip.basis(2, 1))) ** 2 for d in (12.1, 25, 50)]
+check("QuTiP: quedar a 12,1 / 25 / 50 qga del polo cuesta 0,14 % / 0,6 % / 2,4 % de éxito",
+      [round(100 * x, 2) for x in losses[:1]] == [0.14] and round(100 * losses[1], 1) == 0.6 and round(100 * losses[2], 1) == 2.4,
+      f"{[round(100 * x, 3) for x in losses]}")
+dd = sp.Symbol("d")
+check("sympy: cos²(δ/2) = 1 − δ²/4 + O(δ⁴)", sp.series(sp.cos(dd / 2) ** 2, dd, 0, 4).removeO() == 1 - dd ** 2 / 4)
+z2 = math.cos(5 * 2 * t)
+d_sol = math.acos(abs(ry_state(5 * 2 * t).overlap(qutip.basis(2, 1))))
+check("QuTiP: distancia de Fubini–Study de la bandera en k = 2 al polo |1⟩: 6,04 qga, la mitad del exceso",
+      round(d_sol * QGA, 2) == 6.04 and abs(d_sol * QGA - (5 * 2 * t * QGA - 500) / 2) < 1e-9)
+
+
+def h2(p):
+    return 0.0 if p in (0.0, 1.0) else -p * math.log2(p) - (1 - p) * math.log2(1 - p)
+
+
+ent = [round(h2((1 + math.cos((2 * k + 1) * 2 * t)) / 2), 3) for k in range(4)]
+check("qg_S en k = 0..3: 0,469, 0,909, 0,016, 0,969 bits", ent == [0.469, 0.909, 0.016, 0.969], f"{ent}")
+check("paso de 204,8 qga por iteración con a = 0,1", round(4 * t * QGA, 1) == 204.8)
+# neutral-meson mixing with equal widths: two-level rotation, asymmetry = cos(dm t)
+dm = 0.7
+ok = True
+for tt in (0.3, 1.1, 2.9, 4.0):
+    U = (-1j * dm * tt / 2 * qutip.sigmax()).expm()
+    psi = U * qutip.basis(2, 0)
+    unmixed, mixed = abs(psi[0, 0]) ** 2, abs(psi[1, 0]) ** 2
+    ok &= abs((unmixed - mixed) / (unmixed + mixed) - math.cos(dm * tt)) < 1e-12
+check("QuTiP: oscilación de dos niveles con anchuras iguales: la asimetría de mezcla es cos(Δm t), un qg_Z", ok)
+check("dos estados ortogonales están a π/2 = 250 qga", round(math.acos(abs(qutip.basis(2, 0).overlap(qutip.basis(2, 1)))) * QGA) == 250)
+check("qang coincide: geodesic_distance(qg_2, −1) = 6,04 qga", round(algebra.geodesic_distance(q2, -1.0) * QGA, 2) == 6.04)
+
 print(f"\n{sum(RESULTS)} de {len(RESULTS)} afirmaciones PASAN")
 sys.exit(0 if all(RESULTS) else 1)

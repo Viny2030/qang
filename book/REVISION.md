@@ -200,6 +200,63 @@ derivadas y su uso en Grover. Se agregó, en ES y EN:
   redacción del capítulo 1 decía «no se ha medido»; se corrigió el 2026-11-12, y
   `tools/bench_jax_curvature_step.py` repite el resultado en JAX.
 
+## Reescritura desde el capítulo 3 con las nuevas medidas (iniciada el 2026-11-12)
+
+El autor envió 37 .docx (capítulos 3 a 35 del *Tratado*, con versiones «Integral» de los capítulos 3 y 4) y pidió
+reescribir el libro desde el capítulo 3 con las magnitudes derivadas. Dos decisiones del autor fijan el método:
+
+- **Se mantiene el índice del libro.** Los .docx 16–35 traen otro índice (códigos estabilizadores, de superficie y
+  estados mágicos en 22–24; termodinámica y motores en 25–26; variables continuas, transiciones de fase, DI-QKD…) y
+  los .docx 26–35 son resúmenes de media página. Su contenido se integra por tema en el capítulo del libro que
+  corresponde; no se reemplaza ningún capítulo.
+- **Se verifica antes de incorporar.** Los .docx citan módulos que no existen (`qang.thermodynamics`,
+  `qang.stabilizer`, `qang.surface`, `qang.magic`, `qang.complexity`) y resultados sin respaldo en el repositorio
+  (por ejemplo, un ciclo de Otto con eficiencia 0,495 en FakeFez). Cada identidad se recalcula y cada simulación se
+  corre; lo que no se reproduce entra como **sin verificar** o corregido.
+
+### Estado por capítulo
+
+| capítulo | fuente | estado | comprobación |
+|---|---|---|---|
+| 3 | `Tratado_Qang_Capitulo_03_Reescrito_Integral.docx` | hecho, ES y EN | `verify_cap03.py`, 33/33 |
+| 4 | `Tratado_Qang_Capitulo_04_Reescrito_Integral.docx` | hecho, ES y EN | `verify_cap04.py`, 21/21 |
+| 5–35 | .docx del autor | pendiente | — |
+
+### Capítulo 3 (versión Integral)
+
+Agregado: la trayectoria como oscilación armónica (`sec-grover-armonico`): paso de $4t$ por iteración, punto de
+retorno en el polo y tolerancia $P\approx1-\delta^2/4$ (12,1 qga de exceso cuestan 0,14 %), $qg_L$ a la solución
+(6,04 qga), $qg_S$ a lo largo de la trayectoria, y $F_m=m^2/[4a(1-a)]$.
+
+No adoptado o corregido:
+
+- **«Canal de conversión materia–antimateria».** Los subespacios marcado y no marcado no son partícula y
+  antipartícula. Se escribe lo que sí es exacto: la asimetría de mezcla de un mesón neutro con anchuras iguales,
+  $\cos(\Delta m\,t)$, es un $qg_Z$; y se remite al apéndice G para la conjugación de carga.
+- **Q-Hertz de Grover, $f_G=2t/(2\pi\Delta t)$ [qga/s].** Las unidades no cierran. El ángulo de Bloch avanza $4t$ por
+  iteración: $4t_{qga}/\Delta t$ qHz.
+- **$qg_S$ en $k=2$:** 0,016 bits (el .docx: 0,015, por el redondeo de $qg_2$). Distancia a la solución: 6,04 qga
+  (el .docx: 6,2).
+- **`probability.qang_shannon_entropy`** no existe; el libro usa las funciones reales.
+- **«Sin forma cerrada compacta»** para la práctica estándar: $\sin^2((2k+1)\theta_0)$ es cerrada; el libro mantiene
+  «equivalente».
+
+### Capítulo 4 (versión Integral)
+
+El libro ya tenía todas las secciones del .docx. Agregado: «Las magnitudes derivadas en el muestreo»
+(`sec-derivadas-muestreo`) y la regla $N_\text{ejecución}=N/(1-P_\text{descarte})$.
+
+Hallazgos:
+
+- **$\widehat{qg}_\tau=\sqrt{\max(0,1-\hat r^{\,2})}$ no es insesgado**, como dice el .docx. Con $r=0{,}9$ y 100
+  disparos por eje (sumas binomiales exactas): promedia 0,376 con el radio directo y 0,404 con el corregido, frente a
+  0,436. La corrección cuadrática deja insesgado $\hat r^{\,2}$, no su raíz.
+- **$qg_L$ entre dos muestras es la mitad de la $h$ de Cohen.** El libro lo dice y no le acredita la prueba a qang
+  (criterio T8).
+- **$qg_{SNR}$ y $qg_\kappa$ directos son infinitos cuando todos los disparos coinciden**; se dan con la media de
+  Bayes–Haar.
+- **«Variedad plana $F_\theta=1$»:** se escribe como información constante sobre una coordenada (ver capítulo 1).
+
 ## Capítulos 2–24 frente a los .docx del autor y la escala qga (2026-11-01)
 
 El autor envió sus versiones de trabajo de los capítulos 1–24 en Word y pidió llevarlas al libro con la base

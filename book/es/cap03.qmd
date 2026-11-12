@@ -137,7 +137,39 @@ la forma qg del conocido factor $4m^2$ para el ángulo [@suzuki2020]. En la esca
 resolución sobre $qg_0$ con $N$ disparos a profundidad $m$ es $1000\sqrt{1-qg_0^2}/(m\sqrt N)$ m-qg: con $a=0{,}1$ y
 100 disparos, 60 m-qg sin iterar y 12 m-qg a profundidad $m=5$. Respecto del ángulo inicial de la bandera, la
 información es $m^2$ veces la del capítulo 1 sin depender del estado: $m^2\cdot4\pi^2\cdot10^{-6}$ qga$^{-2}$, con una
-resolución de $159{,}15/(m\sqrt N)$ qga, es decir, 15,9 qga sin iterar y 3,2 qga a profundidad 5.
+resolución de $159{,}15/(m\sqrt N)$ qga, es decir, 15,9 qga sin iterar y 3,2 qga a profundidad 5. En términos de la
+fracción buscada, $1-qg_0^2=4a(1-a)$, de modo que $F_m=m^2/[4a(1-a)]$ y la resolución es
+$2000\sqrt{a(1-a)}/(m\sqrt N)$ m-qg.
+
+### La trayectoria como oscilación armónica {#sec-grover-armonico}
+
+La formulación del tratado lee $qg_k=\cos\big((2k+1)\,2t\big)$ como un oscilador armónico muestreado: la bandera
+recorre un coseno a paso angular constante, $4t$ por iteración. Si cada iteración dura $\Delta t$, esa es una
+frecuencia angular de $4t_{qga}/\Delta t$ qga por segundo, es decir, en qHz (@sec-derivadas); con $a=0{,}1$, 204,8 qga
+por iteración. La imagen tiene una consecuencia útil. En el polo el coseno está en su punto de retorno, donde la
+velocidad $d\,qg/dk$ se anula: allí el éxito es insensible, a primer orden, a un error de ángulo. Si la bandera queda a
+$\delta$ del polo, $P=\cos^2(\delta/2)\approx1-\delta^2/4$. Los 12,1 qga de más de $k=2$ cuestan sólo 0,14 % de éxito
+($P_2=0{,}9986$); 25 qga costarían 0,6 %, y 50 qga, 2,4 %. Por eso el redondeo de $k^\ast$ pesa poco cuando $a$ es chica
+y mucho cuando el paso es grueso. La distancia geodésica a la solución lo dice en una cifra: tras $k=2$,
+$qg_L(qg_2,-1)=6{,}04$ qga, la mitad del exceso de ángulo de Bloch.
+
+La entropía del resultado recorre el mismo ciclo: $qg_S$ vale $0{,}469$, $0{,}909$, $0{,}016$ y $0{,}969$ bits en
+$k=0,\dots,3$. Cae casi a cero en el óptimo y vuelve a subir al pasarse. Como las otras magnitudes derivadas, es
+función de $qg_k$ y no distingue de qué lado del polo está la bandera.
+
+**Materia y antimateria: lo que la analogía permite decir.** El tratado propone leer la rotación de Grover como un
+canal de conversión entre materia y antimateria, con el ecuador como «mesón neutro» y la inversión como conjugación de
+carga. Como afirmación física **no se adopta**: los subespacios marcado y no marcado de una búsqueda no son partícula y
+antipartícula. Lo que sí es exacto es más modesto. La oscilación de un mesón neutro entre su estado de partícula y el de
+antipartícula es también una rotación de dos niveles, y su asimetría de mezcla
+$(N_\text{sin mezclar}-N_\text{mezclados})/(N_\text{sin mezclar}+N_\text{mezclados})=\cos(\Delta m\,t)$, válida cuando
+las dos anchuras son iguales [@pdg2024], es un $qg_Z$: tiene ángulo qang $\Delta m\,t$ y barra de error uniforme en ese
+ángulo, como cualquier lectura del capítulo 1. Grover y el mesón comparten la cinemática, un coseno, y nada más: el
+mesón además decae. El apéndice G (@sec-apendice-g) da la lectura correcta de la conjugación de carga, que invierte
+el valor esperado de la matriz $\beta$ de Dirac.
+
+Dos estados ortogonales, como el marcado y su complemento, están a $qg_L=\pi/2$, es decir, 250 qga, la distancia
+máxima; una evolución unitaria ideal conserva la pureza ($qg_\tau=0$) a lo largo de todo el arco.
 
 ## Límites analíticos: ángulo grueso y sobreoscilación {#sec-limites}
 
@@ -255,6 +287,7 @@ qg_2 = algebra.chebyshev_trajectory(0.8, 2)          # -0.9971 (-997 m-qg, P = 0
 probability.quantum_snr(qg_2)                        # 13.15
 probability.information_curvature(qg_2)              # 250.8
 algebra.grover_fisher_information(0.8, 5)            # 69.4 por disparo: 25 veces la de m = 1
+algebra.geodesic_distance(qg_2, -1.0)                # 0.038 rad (6.04 qga) hasta la solución
 ```
 
 ## Resumen {#sec-resumen03}
@@ -269,6 +302,9 @@ algebra.grover_fisher_information(0.8, 5)            # 69.4 por disparo: 25 vece
   profundidad $m$ es $m^2/(1-qg_0^2)$: la resolución en m-qg mejora en un factor $m$.
 - $qg_{SNR}$ y $qg_\kappa$ se disparan junto al polo, pero como criterio de parada no ven si la bandera ya lo pasó; lo
   que aportan es el número de disparos para confirmar el signo de la lectura final.
+- La trayectoria es un coseno muestreado: en el polo está en su punto de retorno, de modo que un exceso de 12 qga
+  cuesta sólo 0,14 % de éxito. La lectura materia–antimateria de la rotación no se adopta; lo exacto es que la
+  asimetría de mezcla de un mesón neutro, $\cos(\Delta m\,t)$, es un $qg_Z$.
 - Con ruido, la lectura qg por qubit pierde frente al histograma en la búsqueda; en la estimación de amplitud la
   ventaja se mantiene si el ruido entra en la verosimilitud, y termina cerca de la profundidad $1/p$, donde el déficit
   disipativo de la bandera, $qg_\tau=\sqrt{1-V^{2k}}$, pasa de $0{,}93$.
