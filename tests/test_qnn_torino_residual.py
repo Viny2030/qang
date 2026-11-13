@@ -66,6 +66,7 @@ def test_one_qubit_error_lowers_kept_fraction():
 
 def test_aer_models_split_the_gate_errors():
     pytest.importorskip("qiskit_aer")
+    pytest.importorskip("qiskit_ibm_runtime")
     import qnn_hardware_qg as H
     import qnn_torino_residual_qg as T
 

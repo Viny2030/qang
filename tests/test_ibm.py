@@ -212,6 +212,7 @@ def test_dead_readout_qubit_is_left_uncorrected():
 
 
 def test_coherent_zz_error_is_weight_preserving():
+    pytest.importorskip("qiskit_ibm_runtime")
     from qiskit.circuit.library import RZZGate
 
     U = RZZGate(0.1).to_matrix()
@@ -313,6 +314,7 @@ def test_inversion_and_swap_tests_give_the_overlap():
 
 
 def test_overlap_and_swap_readouts_on_fake_backend():
+    pytest.importorskip("qiskit_ibm_runtime")
     from qiskit_ibm_runtime.fake_provider import FakeTorino
     from qiskit_ibm_runtime import SamplerV2
 
@@ -327,6 +329,7 @@ def test_overlap_and_swap_readouts_on_fake_backend():
 
 
 def test_static_zz_conserves_weight_and_is_identity_at_zero():
+    pytest.importorskip("qiskit_ibm_runtime")
     from qiskit.quantum_info import Operator
     from qiskit_ibm_runtime.fake_provider import FakeBrisbane
 
