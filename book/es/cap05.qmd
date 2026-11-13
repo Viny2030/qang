@@ -182,6 +182,67 @@ Como $r^2$ es una suma de cuadrados, hereda el sesgo de los estimadores cuadrát
 $(N\widehat{qg}^{\,2}-1)/(N-1)$ se aplica eje por eje (`radius2_estimate`), y en un estado de peso definido basta con
 el eje $Z$.
 
+## Las magnitudes derivadas dentro de la esfera {#sec-derivadas-radio}
+
+Las magnitudes derivadas del capítulo 1 (@sec-derivadas) se definieron sobre la lectura, y valen también para un qubit
+mezclado. Con el radio, cuatro de ellas quedan ligadas entre sí; el capítulo 4 (@sec-derivadas-muestreo) ya trató cómo
+se estiman.
+
+**El déficit disipativo es la raíz del déficit de superficie.** Como $qg_\tau=\sqrt{1-r^2}=2\sqrt{\det\rho}$, el
+*one-tangle* de la @sec-deficit es $qg_\tau^2$ y el entrelazamiento global es $Q=\frac1n\sum_q qg_{\tau,q}^2$. En un
+registro puro de dos qubits, el $qg_\tau$ de cualquiera de los dos es la concurrencia [@coffman2000]: vale 1 en el
+estado de Bell, y en el W de 3 qubits cada qubit tiene $qg_\tau=\sqrt{8/9}=0{,}943$. En peso definido alcanza la base
+$Z$: para $0{,}6\,|01\rangle+0{,}8\,|10\rangle$ las lecturas son $\mp280$ m-qg y $qg_\tau=\sqrt{1-0{,}28^2}=0{,}96$, que
+es $2|ab|$, la concurrencia.
+
+**La dualidad con tres términos.** De la definición sale una igualdad para cualquier estado de un qubit:
+
+$$
+P^2+V^2+qg_\tau^2=1 .
+$$
+
+Lo que la desigualdad $P^2+V^2\le1$ de la @sec-dualidad deja sin asignar es el déficit disipativo. Cuando el qubit es
+parte de un par puro, $qg_\tau$ es la concurrencia y la igualdad es la relación de complementariedad de @jakob2010
+entre partícula, onda y entrelazamiento. El estado a $60^\circ$ con $r=0{,}9$ reparte $0{,}2025+0{,}6075+0{,}19$, con
+$qg_\tau=0{,}436$. Vale la advertencia de la @sec-deficit: con un estado global mixto el tercer término mezcla
+entrelazamiento y ruido.
+
+**El ruido de disparo se reparte en dos.** La misma igualdad, escrita para la varianza de un disparo en $Z$, es
+
+$$
+1-qg_Z^2=qg_\tau^2+V^2 :
+$$
+
+una parte viene de la falta de pureza y la otra de la coherencia. En peso definido $V=0$ y $r=|qg_Z|$, de modo que
+$qg_\tau$ es la desviación estándar de un disparo y las otras dos magnitudes son funciones suyas:
+$qg_{SNR}=r/qg_\tau$ y $qg_\kappa=1/(\ln2\,qg_\tau^2)$. A 800 m-qg, $qg_\tau=0{,}6$, $qg_{SNR}=1{,}33$ y
+$qg_\kappa=4{,}01$; a 990 m-qg, $0{,}141$, $7{,}02$ y $72{,}5$.
+
+**Los disparos de un signo con el vector acortado.** $qg_{SNR}$ se calcula con la lectura, y la lectura es
+$r\cos\theta$: el ruido que acorta el vector baja la señal y sube el ruido a la vez,
+
+$$
+N_\text{signo}=z^2\,\frac{1-r^2\cos^2\theta}{r^2\cos^2\theta}.
+$$
+
+A $60^\circ$ y 3σ son 27 disparos con $r=1$, 36 con $r=0{,}9$, 48 con $r=0{,}8$ y 135 con $r=0{,}5$. El presupuesto
+de disparos se planifica con el radio esperado del dispositivo, no con el estado ideal.
+
+**La distancia geodésica ve sólo una parte del acortamiento.** $qg_L$ compara dos lecturas en $Z$ con el ángulo qang
+$\arccos qg_Z$, no con el ángulo polar de Bloch. En el ejemplo de la @sec-direccion, el estado a $30^\circ$ y el mismo
+estado acortado a $r=0{,}8$ están a $qg_L=0{,}141$ rad (22,4 qga). Su distancia como estados cuánticos es el ángulo de
+Bures, $\arccos\sqrt F=0{,}322$ rad con $F=(1+r)/2=0{,}9$, y como una medición no aumenta la distinguibilidad
+[@nielsen2010], $qg_L$ es siempre una cota inferior: aquí ve el 44 %. Las dos coinciden si el estado está en un polo,
+y en el ecuador $qg_L=0$ para cualquier radio. Con el ángulo de referencia conocido, $\widehat{qg}_L$ tiene desviación
+$1/(2\sqrt N)$, y ver ese acortamiento a 3σ pide $N=(z/2qg_L)^2=114$ disparos en $Z$. De ahí la decisión: un estado de
+calibración cerca de un polo delata el acortamiento sin medir tres bases; cerca del ecuador hacen falta las tres.
+
+**Una base contra tres, en disparos.** Leer el déficit de un estado de peso definido sólo en $Z$ ahorra dos
+configuraciones y también disparos. Con 300 disparos en total y un qubit a 800 m-qg, el error estándar de
+$\hat r^{\,2}$ es 0,055 con todos en $Z$ y 0,098 repartidos en tres bases (sumas binomiales exactas): la varianza es 3,1
+veces mayor, y al menos 3 veces en los casos comprobados (de 0 a 990 m-qg). La ganancia es de la simetría de peso, que anula $qg_X$ y $qg_Y$; la ecuación
+de probabilidad la vuelve una lectura.
+
 ## Sin qang y con qang {#sec-comparacion05}
 
 | acción | sin qang | con qang | diferencia |
@@ -190,18 +251,24 @@ el eje $Z$.
 | medir entrelazamiento de un registro puro | one-tangle y Meyer–Wallach por su definición | el déficit $1-r^2$, promediado | **ninguna en el valor**; con estado global mixto el déficit mezcla entrelazamiento y ruido, igual que el one-tangle |
 | dirección de un estado con ruido | $\theta=\arccos qg_Z$ | $\theta=\arccos(qg_Z/r)$ | **a favor** con ruido despolarizante; **en contra** con desfase puro |
 | dualidad onda–partícula | visibilidad y predictibilidad por separado | $P^2+V^2=r^2$ | **reformulación**: misma relación |
+| disparos para el déficit en peso definido | $N$ repartidos en tres bases | $N$ en $Z$ | **a favor**: varianza unas 3 veces menor (3,1 a 800 m-qg con 300 disparos); la ganancia es de la simetría de peso |
+| entrelazamiento de un par puro | concurrencia por su definición | $qg_\tau$ de un qubit; en peso definido, $\sqrt{1-qg_Z^2}$ | **ninguna en el valor**; una base en peso definido |
+| dualidad con entrelazamiento | $P^2+V^2+C^2=1$ | $P^2+V^2+qg_\tau^2=1$ | **reformulación**; el tercer término es entrelazamiento sólo si el estado global es puro |
+| disparos para un signo con ruido | varianza binomial del estado ruidoso | $N_\text{signo}$ con $qg_Z=r\cos\theta$ | **equivalente**; a $60^\circ$, 27 → 36 → 48 disparos con $r=1$, 0,9 y 0,8 |
+| detectar que el vector se acortó | ángulo de Bures, con tomografía | $qg_L$ entre dos lecturas en $Z$ | **limitada**: exacta en un polo, 44 % a $30^\circ$, ciega en el ecuador |
 
 : Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion05}
 
-**Balance.** La diferencia práctica es leer la pureza en peso definido con una sola base de medición. El resto son
-identidades conocidas escritas en la escala qang, y la separación dirección–radio gana o pierde según el ruido.
+**Balance.** La diferencia práctica es leer la pureza en peso definido con una sola base de medición, que además
+baja la varianza unas 3 veces con los mismos disparos. El resto son identidades conocidas escritas en la escala
+qang, y la separación dirección–radio gana o pierde según el ruido.
 
 ## En código {#sec-codigo05}
 
 ```python
 import math
 import numpy as np
-from qang import complementarity, formulation, statistics
+from qang import algebra, complementarity, formulation, probability, statistics
 
 bell = np.array([1, 0, 0, 1]) / math.sqrt(2)
 formulation.radius_profile(bell, 2)          # [0.0, 0.0]: cada qubit en el centro
@@ -212,6 +279,10 @@ formulation.weight_sector_radius([0.99, 0.8])    # [0.0199, 0.36]: déficit desd
 formulation.direction_from_qg(0.4, 0.0, 0.6928)  # (0.524, 0.0, 0.8): θ = 30° separado de r = 0.8
 complementarity.duality_sum(0.779, 0.0, 0.45)    # 0.81 = P² + V² = r²
 complementarity.entropic_sum(0.45, 0.779)        # 1.35 ≥ cota 1.29
+
+probability.dissipative_deficit(0.7794, 0.0, 0.45)   # 0.436: qg_τ, con P² + V² + qg_τ² = 1
+probability.quantum_snr(0.45), probability.shots_for_sign(0.45)   # 0.504 y 36 disparos: 60° con r = 0.9
+algebra.geodesic_distance(0.866, 0.693)          # 0.141 rad: el estado a 30° y el mismo acortado a r = 0.8
 ```
 
 Las figuras se generan con `tools/make_cap05_figures.py`.
@@ -226,11 +297,14 @@ Las figuras se generan con `tools/make_cap05_figures.py`.
   pocos disparos mal ubicados lo inflan, y en dispositivos un déficit chico requiere calibración.
 - $\theta=\arccos(qg_Z/r)$ separa la dirección de la pureza: gana con ruido despolarizante y pierde con desfase puro.
 - La dualidad onda–partícula es $P^2+V^2=r^2$, y la incertidumbre entrópica acota $qg_S(Z)+qg_S(X)$ por $1+S(\rho)$.
+- De las magnitudes derivadas: $P^2+V^2+qg_\tau^2=1$, y $qg_\tau$ es la concurrencia de un par puro; en peso definido
+  $qg_\tau$ es la desviación de un disparo, con $qg_{SNR}=r/qg_\tau$ y $qg_\kappa=1/(\ln2\,qg_\tau^2)$; $qg_L$ en $Z$ es
+  una cota inferior del ángulo de Bures, ciega en el ecuador.
 
 ## Notas bibliográficas {.unnumbered}
 
 El *one-tangle* y la concurrencia son de @coffman2000, y el entrelazamiento global, de @meyer2002. La dualidad
-onda–partícula es @greenberger1988 y @englert1996; la incertidumbre entrópica, @maassen1988 y, con memoria cuántica,
+onda–partícula es @greenberger1988 y @englert1996, y su extensión con la concurrencia, @jakob2010; la incertidumbre entrópica, @maassen1988 y, con memoria cuántica,
 @berta2010. Los algoritmos de Deutsch–Jozsa, Bernstein–Vazirani, Simon y Grover son @deutsch1992, @bernstein1997,
 @simon1997 y @grover1996. Las notas de investigación numeradas (§) que cita el capítulo y los scripts que lo verifican
 están en el repositorio [@qangrepo]; la definición de la unidad qang, en @monteverde2026.

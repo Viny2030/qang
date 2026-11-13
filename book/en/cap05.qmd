@@ -179,6 +179,68 @@ Since $r^2$ is a sum of squares, it inherits the bias of the quadratic estimator
 adds $(1-qg^2)/N$, and an entangled state looks purer than it is. The exact correction $(N\widehat{qg}^{\,2}-1)/(N-1)$ is
 applied axis by axis (`radius2_estimate`), and in a definite-weight state the $Z$ axis is enough.
 
+## The derived quantities inside the sphere {#sec-derived-radius}
+
+The derived quantities of Chapter 1 (@sec-derived) were defined on the reading, and they hold for a mixed qubit too.
+With the radius, four of them become tied to one another; Chapter 4 (@sec-derived-sampling) already covered how they
+are estimated.
+
+**The dissipative deficit is the square root of the surface deficit.** Since $qg_\tau=\sqrt{1-r^2}=2\sqrt{\det\rho}$,
+the one-tangle of @sec-deficit is $qg_\tau^2$ and the global entanglement is $Q=\frac1n\sum_q qg_{\tau,q}^2$. In a pure
+two-qubit register, the $qg_\tau$ of either qubit is the concurrence [@coffman2000]: it is 1 in the Bell state, and in
+the 3-qubit W state each qubit has $qg_\tau=\sqrt{8/9}=0.943$. At definite weight the $Z$ basis is enough: for
+$0.6\,|01\rangle+0.8\,|10\rangle$ the readings are $\mp280$ m-qg and $qg_\tau=\sqrt{1-0.28^2}=0.96$, which is $2|ab|$,
+the concurrence.
+
+**Duality with three terms.** The definition gives an equality for any one-qubit state:
+
+$$
+P^2+V^2+qg_\tau^2=1 .
+$$
+
+What the inequality $P^2+V^2\le1$ of @sec-duality leaves unassigned is the dissipative deficit. When the qubit is part
+of a pure pair, $qg_\tau$ is the concurrence and the equality is the complementarity relation of @jakob2010 between
+particle, wave and entanglement. The state at $60^\circ$ with $r=0.9$ splits into $0.2025+0.6075+0.19$, with
+$qg_\tau=0.436$. The warning of @sec-deficit applies: with a mixed global state the third term mixes entanglement and
+noise.
+
+**Shot noise splits in two.** The same equality, written for the variance of one $Z$ shot, is
+
+$$
+1-qg_Z^2=qg_\tau^2+V^2 :
+$$
+
+one part comes from the lack of purity and the other from coherence. At definite weight $V=0$ and $r=|qg_Z|$, so
+$qg_\tau$ is the standard deviation of one shot and the other two quantities are functions of it:
+$qg_{SNR}=r/qg_\tau$ and $qg_\kappa=1/(\ln2\,qg_\tau^2)$. At 800 m-qg, $qg_\tau=0.6$, $qg_{SNR}=1.33$ and
+$qg_\kappa=4.01$; at 990 m-qg, $0.141$, $7.02$ and $72.5$.
+
+**The shots for a sign with a shortened vector.** $qg_{SNR}$ is computed from the reading, and the reading is
+$r\cos\theta$: noise that shortens the vector lowers the signal and raises the noise at once,
+
+$$
+N_\text{sign}=z^2\,\frac{1-r^2\cos^2\theta}{r^2\cos^2\theta}.
+$$
+
+At $60^\circ$ and 3σ that is 27 shots with $r=1$, 36 with $r=0.9$, 48 with $r=0.8$ and 135 with $r=0.5$. The shot
+budget is planned with the radius expected on the device, not with the ideal state.
+
+**The geodesic distance sees only part of the shortening.** $qg_L$ compares two $Z$ readings through the qang angle
+$\arccos qg_Z$, not through the Bloch polar angle. In the example of @sec-direction, the state at $30^\circ$ and the
+same state shortened to $r=0.8$ are $qg_L=0.141$ rad (22.4 qga) apart. Their distance as quantum states is the Bures
+angle, $\arccos\sqrt F=0.322$ rad with $F=(1+r)/2=0.9$, and since a measurement cannot increase distinguishability
+[@nielsen2010], $qg_L$ is always a lower bound: here it sees 44%. The two coincide if the state is at a pole, and on the
+equator $qg_L=0$ for any radius. With the reference angle known, $\widehat{qg}_L$ has standard deviation
+$1/(2\sqrt N)$, and seeing that shortening at 3σ takes $N=(z/2qg_L)^2=114$ shots in $Z$. Hence the decision: a
+calibration state near a pole reveals the shortening without measuring three bases; near the equator all three are
+needed.
+
+**One basis against three, in shots.** Reading the deficit of a definite-weight state in $Z$ alone saves two settings
+and shots as well. With 300 shots in total and a qubit at 800 m-qg, the standard error of $\hat r^{\,2}$ is 0.055 with
+all of them in $Z$ and 0.098 split over three bases (exact binomial sums): the variance is 3.1 times larger, and at
+least 3 times in the cases checked (from 0 to 990 m-qg). The gain belongs to the weight symmetry, which cancels $qg_X$ and $qg_Y$; the probability equation
+turns it into a reading.
+
 ## Without qang and with qang {#sec-comparison05}
 
 | action | without qang | with qang | difference |
@@ -187,18 +249,24 @@ applied axis by axis (`radius2_estimate`), and in a definite-weight state the $Z
 | measure the entanglement of a pure register | one-tangle and Meyer–Wallach by definition | the deficit $1-r^2$, averaged | **none in value**; with a mixed global state the deficit mixes entanglement and noise, like the one-tangle |
 | direction of a noisy state | $\theta=\arccos qg_Z$ | $\theta=\arccos(qg_Z/r)$ | **in favour** with depolarizing noise; **against** with pure dephasing |
 | wave–particle duality | visibility and predictability separately | $P^2+V^2=r^2$ | **reformulation**: the same relation |
+| shots for the deficit at definite weight | $N$ split over three bases | $N$ in $Z$ | **in favour**: variance about 3 times smaller (3.1 at 800 m-qg with 300 shots); the gain belongs to the weight symmetry |
+| entanglement of a pure pair | concurrence by definition | $qg_\tau$ of one qubit; at definite weight, $\sqrt{1-qg_Z^2}$ | **none in value**; one basis at definite weight |
+| duality with entanglement | $P^2+V^2+C^2=1$ | $P^2+V^2+qg_\tau^2=1$ | **reformulation**; the third term is entanglement only if the global state is pure |
+| shots for a sign under noise | binomial variance of the noisy state | $N_\text{sign}$ with $qg_Z=r\cos\theta$ | **equivalent**; at $60^\circ$, 27 → 36 → 48 shots with $r=1$, 0.9 and 0.8 |
+| detect that the vector got shorter | Bures angle, with tomography | $qg_L$ between two $Z$ readings | **limited**: exact at a pole, 44% at $30^\circ$, blind on the equator |
 
 : The chapter's actions without the qang scale and with it. {#tbl-comparison05}
 
-**Balance.** The practical difference is reading purity at definite weight with a single measurement basis. The rest
-are known identities written on the qang scale, and the direction–radius split wins or loses depending on the noise.
+**Balance.** The practical difference is reading purity at definite weight with a single measurement basis, which
+also lowers the variance about 3 times for the same shots. The rest are known identities written on the qang
+scale, and the direction–radius split wins or loses depending on the noise.
 
 ## In code {#sec-code05}
 
 ```python
 import math
 import numpy as np
-from qang import complementarity, formulation, statistics
+from qang import algebra, complementarity, formulation, probability, statistics
 
 bell = np.array([1, 0, 0, 1]) / math.sqrt(2)
 formulation.radius_profile(bell, 2)          # [0.0, 0.0]: each qubit at the centre
@@ -209,6 +277,10 @@ formulation.weight_sector_radius([0.99, 0.8])    # [0.0199, 0.36]: deficit from 
 formulation.direction_from_qg(0.4, 0.0, 0.6928)  # (0.524, 0.0, 0.8): θ = 30° separated from r = 0.8
 complementarity.duality_sum(0.779, 0.0, 0.45)    # 0.81 = P² + V² = r²
 complementarity.entropic_sum(0.45, 0.779)        # 1.35 ≥ bound 1.29
+
+probability.dissipative_deficit(0.7794, 0.0, 0.45)   # 0.436: qg_τ, with P² + V² + qg_τ² = 1
+probability.quantum_snr(0.45), probability.shots_for_sign(0.45)   # 0.504 and 36 shots: 60° with r = 0.9
+algebra.geodesic_distance(0.866, 0.693)          # 0.141 rad: the state at 30° and the same one shortened to r = 0.8
 ```
 
 The figures are generated by `tools/make_cap05_figures.py`.
@@ -224,11 +296,14 @@ The figures are generated by `tools/make_cap05_figures.py`.
 - $\theta=\arccos(qg_Z/r)$ separates direction from purity: it wins under depolarizing noise and loses under pure
   dephasing.
 - Wave–particle duality is $P^2+V^2=r^2$, and entropic uncertainty bounds $qg_S(Z)+qg_S(X)$ by $1+S(\rho)$.
+- Of the derived quantities: $P^2+V^2+qg_\tau^2=1$, and $qg_\tau$ is the concurrence of a pure pair; at definite weight
+  $qg_\tau$ is the standard deviation of one shot, with $qg_{SNR}=r/qg_\tau$ and $qg_\kappa=1/(\ln2\,qg_\tau^2)$; $qg_L$
+  in $Z$ is a lower bound of the Bures angle, blind on the equator.
 
 ## Bibliographic notes {.unnumbered}
 
 The one-tangle and the concurrence are from @coffman2000, and global entanglement, from @meyer2002. Wave–particle
-duality is @greenberger1988 and @englert1996; entropic uncertainty, @maassen1988 and, with quantum memory, @berta2010.
+duality is @greenberger1988 and @englert1996, and its extension with the concurrence, @jakob2010; entropic uncertainty, @maassen1988 and, with quantum memory, @berta2010.
 The Deutsch–Jozsa, Bernstein–Vazirani, Simon and Grover algorithms are @deutsch1992, @bernstein1997, @simon1997 and
 @grover1996. The numbered research notes (§) cited in this chapter and the scripts that check it are in the repository
 [@qangrepo]; the definition of the qang unit is in @monteverde2026.

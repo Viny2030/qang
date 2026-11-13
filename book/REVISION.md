@@ -220,7 +220,8 @@ reescribir el libro desde el capítulo 3 con las magnitudes derivadas. Dos decis
 |---|---|---|---|
 | 3 | `Tratado_Qang_Capitulo_03_Reescrito_Integral.docx` | hecho, ES y EN | `verify_cap03.py`, 33/33 |
 | 4 | `Tratado_Qang_Capitulo_04_Reescrito_Integral.docx` | hecho, ES y EN | `verify_cap04.py`, 21/21 |
-| 5–35 | .docx del autor | pendiente | — |
+| 5 | sin el .docx (no estaba disponible en la sesión del 2026-11-13) | magnitudes derivadas integradas, ES y EN; falta cotejar el .docx | `verify_cap05.py`, 25/25 |
+| 6–35 | .docx del autor | pendiente | — |
 
 ### Capítulo 3 (versión Integral)
 
@@ -256,6 +257,28 @@ Hallazgos:
 - **$qg_{SNR}$ y $qg_\kappa$ directos son infinitos cuando todos los disparos coinciden**; se dan con la media de
   Bayes–Haar.
 - **«Variedad plana $F_\theta=1$»:** se escribe como información constante sobre una coordenada (ver capítulo 1).
+
+### Capítulo 5 (2026-11-13, sin el .docx)
+
+El .docx del capítulo 5 no estaba disponible, así que no se cotejó ninguna afirmación suya: se llevaron al capítulo
+las magnitudes derivadas del capítulo 1, con el mismo método que en el 4. Agregado: «Las magnitudes derivadas dentro de
+la esfera» (`sec-derivadas-radio`), cinco filas en la tabla «sin qang / con qang» y la referencia `jakob2010`.
+
+Hallazgos:
+
+- **$qg_\tau$ es la concurrencia de un par puro** y el one-tangle es $qg_\tau^2$ (sympy; 200 estados en Qiskit y
+  QuTiP). Es una identidad: no se le acredita ganancia (criterio T8).
+- **$P^2+V^2+qg_\tau^2=1$** vale para cualquier estado de un qubit; es la relación de Jakob y Bergou cuando el par es
+  puro. Con estado global mixto el tercer término no es entrelazamiento.
+- **$1-qg_Z^2=qg_\tau^2+V^2$:** en peso definido $qg_\tau$ es la desviación de un disparo, $qg_{SNR}=r/qg_\tau$ y
+  $qg_\kappa=1/(\ln2\,qg_\tau^2)$.
+- **$qg_L$ en $Z$ es una cota inferior del ángulo de Bures** (500 pares de estados mixtos): exacta en un polo, 44 % a
+  $30^\circ$ con $r=0{,}8$, nula en el ecuador. Usa el ángulo qang, no el de Bloch (criterio T4).
+- **Una base contra tres:** con 300 disparos a 800 m-qg, el error de $\hat r^{\,2}$ es 0,055 frente a 0,098 (sumas
+  binomiales exactas). La ganancia es de la simetría de peso.
+
+Pendiente: cotejar el .docx del capítulo 5 cuando el autor lo envíe, y actualizar el campo `where` de `qg_tau`, `qg_l`
+y `qg_snr` en `qang.measures` (apéndice H) para que citen el capítulo 5.
 
 ## Capítulos 2–24 frente a los .docx del autor y la escala qga (2026-11-01)
 
