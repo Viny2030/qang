@@ -1,0 +1,192 @@
+# Decision-making in quantum environments: from model-free to model-aware learning {#sec-cap36}
+
+> **Status**: proposed chapter (new Part XIV). Source: M. Bilkis, *Decision-making in quantum environments: from model-free to model-aware learning of quantum controls*, PhD thesis, UAB (2023), and the talk "Three quantum problems".
+> **Check**: `python tools/verify_cap36.py` (28 checks; NumPy + `qang` 0.14.0 only).
+> **Units**: angles are in `qga` (1 turn = 1000 qga); readings are in `qg_Z` or in `m-qg` $= 1000\,qg_Z$. The two are not interchangeable.
+
+## 36.1 The axis: how much the agent knows
+
+A classical agent acts on a quantum system, receives a measurement outcome and chooses the next action. The three problems of the talk are ordered by what the agent knows about the system:
+
+| | Communications (36.2) | NISQ computing (36.3) | Sensing (36.4) |
+|---|---|---|---|
+| Knowledge of the model | none (model-free) | partial (the circuit's form, not the noise) | complete (model-aware) |
+| Action | displacement $\beta$ | ansatz parameters and structure | stop or keep measuring; chosen hypothesis |
+| Data | click / no click | expectation values with shot noise | photocurrent $dy_t$ |
+| Tool | Q-learning, bandits | parameter shift, VAns | quantum filter, likelihood ratio |
+| What `qang` adds | linear reading of the receiver; effect size $h$ | minimal area; sector filter under $T_1$ | $h$ for the shot budget; gain $= 1/I_F$ |
+
+The talk goes through them in the opposite order (sensing, NISQ, communications); this chapter follows the thesis, from less model to more.
+
+**What this chapter does not claim.** None of the three sections shows a new `qang` advantage measured on hardware. The identities are exact, two savings come from known statistics (Wald) or from knowing the model, and the only `qang` gain quoted (36.3.3) is the one already recorded in §112.
+
+## 36.2 Communications: telling $|{+}\alpha\rangle$ from $|{-}\alpha\rangle$
+
+### 36.2.1 Physical picture
+
+A strongly attenuated laser pulse arrives as a coherent state $|\pm\alpha\rangle$ with $|\alpha|^2 \lesssim 1$ photons. The two states are not orthogonal, $c = \langle -\alpha|\alpha\rangle = e^{-2\alpha^2}$, so no measurement separates them without error. Two pure states span a two-dimensional subspace: the problem is a qubit problem, and the separation between the hypotheses is an angle.
+
+### 36.2.2 Formalism
+
+On the Bloch sphere of that subspace the two states are $\Delta$ apart, with $\cos(\Delta/2) = c$. The geodesic distance is $qg_L = \Delta/2 = \arccos c$ and the Helstrom bound reads
+
+$$P_H = \tfrac12\left(1 + \sqrt{1 - c^2}\right) = \tfrac12\left(1 + \sin qg_L\right), \qquad 2\sqrt{P_H(1-P_H)} = c .$$
+
+The generalized Kennedy receiver displaces the pulse by $\beta$ and uses an on/off detector; with no click it decides $-\alpha$:
+
+$$P_s(\beta) = \tfrac12\left[1 - e^{-(\alpha+\beta)^2} + e^{-(\beta-\alpha)^2}\right].$$
+
+The detector is one binary variable per hypothesis, with $p_0^{\pm} = e^{-(\beta\pm\alpha)^2}$ and reading $qg_Z^{\pm} = 2p_0^{\pm} - 1$. Then
+
+$$P_s(\beta) = \tfrac12 + \tfrac14\left(qg_Z^{-} - qg_Z^{+}\right),$$
+
+linear in the two readings: a difference of $1\ \text{m-qg}$ is $2.5\cdot 10^{-4}$ of success probability.
+
+### 36.2.3 Numbers ($\alpha = 0.4$)
+
+| Receiver | $P_s$ | From |
+|---|---|---|
+| Kennedy, $\beta = \alpha$ | 0.7364 | $1 - c^2/2$ |
+| Homodyne | 0.7881 | $\tfrac12[1 + \operatorname{erf}(\sqrt2\,\alpha)]$ |
+| Optimized Kennedy, $\beta^{*} = 0.747$ | 0.8091 | maximum of $P_s(\beta)$ |
+| Helstrom | 0.8438 | $\tfrac12(1 + \sin qg_L)$ |
+
+$c = 0.7261$, $\Delta = 241.3$ qga, $qg_L = 120.7$ qga.
+
+### 36.2.4 Without qang vs with qang, and without a model vs with one
+
+| Decision | Without qang | With qang | Difference | Status |
+|---|---|---|---|---|
+| Episodes per arm to separate $\beta^{*}$ from $\beta=\alpha$ at 95% | 253 (Wald in $p$) | 254 ($2(z/h)^2$, $h = 0.1741$ rad) | none | **equivalence, no gain** |
+| Budget formula | depends on each arm's $p$ | $2(z/h)^2$, a single one, with uniform variance $1/n$ | form, not shots | exact |
+| Receiver success | count of correct guesses | $\tfrac12 + \tfrac14(qg_Z^- - qg_Z^+)$ | identity | exact |
+
+The real saving of this section comes from the model, not from the unit:
+
+| Agent (2000 episodes, 200 seeds) | What it knows | Cumulative regret |
+|---|---|---|
+| Model-free: UCB1 over 21 values of $\beta$ | nothing; reward = correct guess | $136.7 \pm 0.5$ |
+| Model-aware: maximum likelihood of $\alpha$, plays $\beta^{*}(\hat\alpha)$ | the law $p_0 = e^{-(\beta\pm\alpha)^2}$ | $0.40 \pm 0.03$ |
+
+The aware agent turns every click into information on one parameter, $\alpha^2 = -\ln\frac{1+qg_Z}{2}$ at $\beta = 0$; the agnostic one spreads its episodes over 21 arms. The other side is the one the talk gives: if the channel cannot be modelled or changes abruptly, the law no longer holds and only the model-free agent keeps learning. That case (an abrupt change of environment) is not simulated here.
+
+```python
+import math
+from qang import proportions
+
+alpha = 0.4
+c = math.exp(-2 * alpha**2)
+delta = proportions.theta_from_proportion(c**2)        # 1.5162 rad = 241.3 qga
+p_helstrom = 0.5 * (1 + math.sin(delta / 2))           # 0.8438
+h = proportions.cohens_h(0.8091, 0.7364)               # 0.1741
+n_per_arm = math.ceil(2 * (proportions.z_value(0.95) / h) ** 2)   # 254
+```
+
+## 36.3 NISQ computing: gradients, plateaus and variable structure
+
+### 36.3.1 What the shift rule is for
+
+On a simulator the state is known and automatic differentiation gives any derivative. On a device there are only expectation values estimated from shots. For a gate $e^{-i\theta P/2}$ the cost is $f(\theta) = a + b\cos\theta + c\sin\theta$ and
+
+$$\partial_\theta f = \tfrac12\left[f(\theta + \tfrac\pi2) - f(\theta - \tfrac\pi2)\right],$$
+
+exact and evaluated with the same circuit. Two evaluations per parameter are needed in any coordinate: `fisher.indistinguishable_pair` builds two costs with the same value at $\theta + s$ and different derivatives.
+
+| Decision | Without qang | With qang | Status |
+|---|---|---|---|
+| Evaluations per parameter | 2 | 2 | **no gain** (§159) |
+| Descent in $qg_Z$ instead of $\theta$ | converges | diverges at the poles | **against** |
+| Barren plateaus after moving to `qga` | the same | the same: every derivative is multiplied by $2\pi/1000$ | **no gain** |
+
+### 36.3.2 VAns and the minimal area
+
+VAns inserts blocks that resolve the identity, optimizes, simplifies, and accepts or rejects. After optimization the angles may lie outside the principal interval. The minimal-area rule (`qang.pulse_area`, §160) moves each rotation to its shortest representative ($R_X$: period 1000 qga; $R_{ZZ}$: 500 qga with virtual $Z$) and removes those left at zero; the unitary does not change.
+
+Constructed example, 9 gates ($R_X$: $2\pi + 0.10$, $-3.50$, $2\pi$, $4.00$, $0.25$; $R_{ZZ}$: $\pi + 0.05$, $2.90$, $\pi$, $-1.70$ rad):
+
+| | Without the rule | With `minimal_area_angle` |
+|---|---|---|
+| Total area | 31.35 rad = 4989 qga | 7.15 rad = 1138 qga |
+| Fractional gates | 9 | 7 |
+
+This is a synthetic example, not a circuit trained by VAns: it fixes the rule, not a measured gain. Whether adding it as a VAns simplification step improves VAns results is **unverified**.
+
+### 36.3.3 Noise-induced plateaus and the sector filter
+
+Under noise the gradient shrinks with depth and the number of shots needed to resolve it grows exponentially. In an ansatz that conserves the Hamming weight, under equal $T_1$ on all qubits, the raw reading shrinks the gradient by $K = (1-\gamma)^{w\,d}$ and the filtered reading returns the noiseless gradient (§112), at the price of keeping a fraction $K$ of the shots:
+
+| Depth $d$ ($\gamma = 0.08$, $w = 1$) | $K$ = `qml.kept_fraction` | Shots $\times\,1/K$ |
+|---|---|---|
+| 3 | 0.779 | 1.28 |
+| 6 | 0.606 | 1.65 |
+| 12 | 0.368 | 2.72 |
+| 24 | 0.135 | 7.40 |
+
+The filter does not remove the plateau: it trades an exponentially small gradient for a post-selection cost exponential in $w\,d$. In §112 it needed fewer shots in 10 of 12 cells and more when $K \lesssim 0.15$. It does not correct dephasing or in-sector errors.
+
+## 36.4 Sensing: deciding on a noisy trajectory
+
+### 36.4.1 Physical picture
+
+A continuously monitored sensor delivers a photocurrent: signal plus white noise. The state conditioned on that signal follows a stochastic equation. The question is which model generated the data, and when there is enough evidence to stop.
+
+### 36.4.2 Formalism for one qubit
+
+With continuous measurement of $\sigma_z$, rate $\kappa$ and efficiency $\eta$, and $k = \sqrt{\eta\kappa}$:
+
+$$d\rho = \kappa\,\mathcal D[\sigma_z]\rho\,dt + k\,\mathcal H[\sigma_z]\rho\,dW, \qquad dy = 2k\,qg_Z\,dt + dW ,$$
+
+$$d\,qg_Z = 2k\left(1 - qg_Z^2\right)dW = \frac{2k}{I_F(qg_Z)}\,dW .$$
+
+The innovation gain is the inverse of the Fisher information of the reading: it vanishes at the poles, where nothing is left to learn. In the angle, by Itô, $d\theta = -2k\sin\theta\,dW - k^2\sin 2\theta\,dt$. For two hypotheses with signals $s_i = 2k\,qg_Z^{(i)}$, each filtered with its own model, the log-likelihood ratio is
+
+$$d\ell = (s_1 - s_0)\left[dy - \tfrac12(s_1 + s_0)\,dt\right],$$
+
+and the sequential test stops when $\ell$ leaves $\left[\ln\frac{\beta}{1-\alpha},\ \ln\frac{1-\beta}{\alpha}\right]$.
+
+Numerical check (4000 trajectories, $t = 4/k^2$, $qg_Z(0) = 0.3$): the mean is conserved, $0.3045 \pm 0.0151$, and 65.2% collapse to $|0\rangle$ (expected $p_0 = 0.65$).
+
+### 36.4.3 Stopping in time: sequential test against fixed $N$
+
+In shots: $H_0: qg_Z = 0$ against $H_1: qg_Z = 0.2$ (200 m-qg), 1% errors.
+
+| | Fixed $N$ | Sequential test (Wald) |
+|---|---|---|
+| Shots | 534 $= \lceil (2z/h)^2\rceil$, $h = 0.2014$ rad $= 32.0$ qga | 225 ($H_0$) and 228 ($H_1$) on average; theory 221 and 224 |
+| Measured errors | 1% nominal | 0.91% and 0.94% |
+| Saving | | 57% |
+
+The saving belongs to Wald's sequential test (1945), not to `qang`: `qang` gives the effect size $h$ that fixes the reference $N$. `qang` 0.14.0 has no sequential-test function; the one in the script is local.
+
+### 36.4.4 What is left out
+
+The Kalman filter of the talk holds for Gaussian continuous-variable systems (optomechanical cavities, atomic sensors in that regime). $qg_Z$ is a qubit unit and does not apply to those quadratures: **not adopted**. The recurrent network that learns the equation of the external signal (`qmon_sindy`) is not reformulated here either.
+
+## 36.5 Proposed entries for Appendix H (`qang.measures`)
+
+| Sub-measure | Definition | Decision | Status | Evidence |
+|---|---|---|---|---|
+| hypothesis separation $qg_L$ | $\arccos\lvert\langle\psi_0\vert\psi_1\rangle\rvert$ | success bound $\tfrac12(1+\sin qg_L)$ | exact | `verify_cap36.py` §36.2 |
+| receiver reading | $\tfrac12 + \tfrac14(qg_Z^- - qg_Z^+)$ | choosing $\beta$ | exact | §36.2 |
+| episodes per arm | $2(z/h)^2$ | agent's budget | no gain | §36.2 (254 vs 253) |
+| area after reduction | $\sum\lvert\theta'\rvert$ | VAns simplification | unverified | §36.3 (synthetic) |
+| innovation gain | $1 - qg_Z^2 = 1/I_F$ | when to stop measuring | exact | §36.4 |
+| sequential $N$ | Wald | stopping earlier | unverified (no function in `qang`) | §36.4 |
+
+The `qang.measures` schema is not in the 0.14.0 release on PyPI; the fields of the table follow the README's description.
+
+## 36.6 Summary
+
+- Two coherent states are a qubit: Helstrom is $\tfrac12(1+\sin qg_L)$ and the displacement receiver is read linearly in $qg_Z$.
+- Knowing the model lowers the regret from 136.7 to 0.40 over 2000 episodes; the unit does not change the number of episodes (254 against 253).
+- In VQAs a change of unit gives no shortcut for the gradient or against plateaus; there is an exact area rule, and a filter that returns the noiseless gradient under $T_1$ at a cost of $1/K$ shots.
+- In sensing, the gain of the quantum filter is $1/I_F(qg_Z)$ and the sequential test saves 57% of the shots in the example.
+
+## References
+
+1. M. Bilkis, *Decision-making in quantum environments: from model-free to model-aware learning of quantum controls*, PhD thesis, Universitat Autònoma de Barcelona (2023). hdl:10803/690744.
+2. M. Bilkis, M. Rosati, R. Morral Yepes, J. Calsamiglia, "Real-time calibration of coherent-state receivers: learning by trial and error", Phys. Rev. Research **2**, 033295 (2020).
+3. M. Bilkis, M. Cerezo, G. Verdon, P. J. Coles, L. Cincio, "A semi-agnostic ansatz with variable structure for quantum machine learning", arXiv:2103.06712.
+4. S. Wang *et al.*, "Noise-induced barren plateaus in variational quantum algorithms", Nat. Commun. **12**, 6961 (2021).
+5. A. Wald, "Sequential tests of statistical hypotheses", Ann. Math. Statist. **16**, 117 (1945).
+6. V. H. Monteverde, *The Qang (qg)*, Zenodo, doi:10.5281/zenodo.22832150.

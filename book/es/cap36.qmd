@@ -1,0 +1,192 @@
+# Toma de decisiones en entornos cuánticos: del aprendizaje *model-free* al *model-aware* {#sec-cap36}
+
+> **Estado**: capítulo propuesto (Parte XIV, nueva). Fuente: M. Bilkis, *Decision-making in quantum environments: from model-free to model-aware learning of quantum controls*, tesis doctoral, UAB (2023), y la presentación «Tres problemas cuánticos».
+> **Verificación**: `python tools/verify_cap36.py` (28 comprobaciones; solo NumPy + `qang` 0.14.0).
+> **Unidades**: los ángulos van en `qga` (1 vuelta = 1000 qga); las lecturas en `qg_Z` o en `m-qg` $= 1000\,qg_Z$. No son intercambiables.
+
+## 36.1 El eje: cuánto sabe el agente
+
+Un agente clásico actúa sobre un sistema cuántico, recibe un resultado de medida y decide la acción siguiente. Los tres problemas de la presentación se ordenan por lo que el agente sabe del sistema:
+
+| | Comunicaciones (36.2) | Cómputo NISQ (36.3) | Sensado (36.4) |
+|---|---|---|---|
+| Conocimiento del modelo | ninguno (*model-free*) | parcial (la forma del circuito, no el ruido) | completo (*model-aware*) |
+| Acción | desplazamiento $\beta$ | parámetros y estructura del ansatz | parar o seguir midiendo; hipótesis elegida |
+| Dato | clic / no clic | valores esperados con ruido de disparo | fotocorriente $dy_t$ |
+| Herramienta | Q-learning, bandidos | *parameter-shift*, VAns | filtro cuántico, cociente de verosimilitud |
+| Qué aporta `qang` | lectura lineal del receptor; tamaño de efecto $h$ | área mínima; filtro de sector bajo $T_1$ | $h$ para el presupuesto de disparos; ganancia $=1/I_F$ |
+
+La presentación los recorre en orden inverso (sensado, NISQ, comunicaciones); aquí se sigue el de la tesis, de menos a más modelo.
+
+**Lo que este capítulo no afirma.** Ninguna de las tres secciones muestra una ventaja nueva de `qang` medida en hardware. Las identidades son exactas, dos ahorros son de estadística conocida (Wald) o de conocer el modelo, y la única ganancia de `qang` citada (36.3.3) es la ya registrada en §112.
+
+## 36.2 Comunicaciones: discriminar $|{+}\alpha\rangle$ de $|{-}\alpha\rangle$
+
+### 36.2.1 Intuición física
+
+Un pulso láser muy atenuado llega como estado coherente $|\pm\alpha\rangle$ con $|\alpha|^2 \lesssim 1$ fotones. Los dos estados no son ortogonales, $c = \langle -\alpha|\alpha\rangle = e^{-2\alpha^2}$, así que ninguna medida los distingue sin error. Dos estados puros generan un subespacio de dimensión 2: el problema es el de un qubit, y la separación entre las hipótesis es un ángulo.
+
+### 36.2.2 Formalismo
+
+En la esfera de Bloch de ese subespacio los dos estados están separados por $\Delta$ con $\cos(\Delta/2) = c$. La distancia geodésica es $qg_L = \Delta/2 = \arccos c$ y la cota de Helstrom queda
+
+$$P_H = \tfrac12\left(1 + \sqrt{1 - c^2}\right) = \tfrac12\left(1 + \sin qg_L\right), \qquad 2\sqrt{P_H(1-P_H)} = c .$$
+
+El receptor de Kennedy generalizado desplaza el pulso en $\beta$ y usa un detector de encendido/apagado; sin clic decide $-\alpha$:
+
+$$P_s(\beta) = \tfrac12\left[1 - e^{-(\alpha+\beta)^2} + e^{-(\beta-\alpha)^2}\right].$$
+
+El detector es una variable binaria por hipótesis, con $p_0^{\pm} = e^{-(\beta\pm\alpha)^2}$ y lectura $qg_Z^{\pm} = 2p_0^{\pm} - 1$. Entonces
+
+$$P_s(\beta) = \tfrac12 + \tfrac14\left(qg_Z^{-} - qg_Z^{+}\right),$$
+
+lineal en las dos lecturas: $1\ \text{m-qg}$ de diferencia son $2.5\cdot 10^{-4}$ de probabilidad de acierto.
+
+### 36.2.3 Números ($\alpha = 0.4$)
+
+| Receptor | $P_s$ | Origen |
+|---|---|---|
+| Kennedy, $\beta = \alpha$ | 0.7364 | $1 - c^2/2$ |
+| Homodino | 0.7881 | $\tfrac12[1 + \operatorname{erf}(\sqrt2\,\alpha)]$ |
+| Kennedy optimizado, $\beta^{*} = 0.747$ | 0.8091 | máximo de $P_s(\beta)$ |
+| Helstrom | 0.8438 | $\tfrac12(1 + \sin qg_L)$ |
+
+$c = 0.7261$, $\Delta = 241.3$ qga, $qg_L = 120.7$ qga.
+
+### 36.2.4 Sin qang vs con qang, y sin modelo vs con modelo
+
+| Decisión | Sin qang | Con qang | Diferencia | Estado |
+|---|---|---|---|---|
+| Episodios por brazo para separar $\beta^{*}$ de $\beta=\alpha$ al 95 % | 253 (Wald en $p$) | 254 ($2(z/h)^2$, $h = 0.1741$ rad) | ninguna | **equivalencia, sin ganancia** |
+| Fórmula del presupuesto | depende de $p$ de cada brazo | $2(z/h)^2$, una sola, con varianza $1/n$ uniforme | forma, no disparos | exacto |
+| Acierto del receptor | conteo de aciertos | $\tfrac12 + \tfrac14(qg_Z^- - qg_Z^+)$ | identidad | exacto |
+
+El ahorro real de esta sección es el del modelo, no el de la unidad:
+
+| Agente (2000 episodios, 200 semillas) | Qué sabe | Arrepentimiento acumulado |
+|---|---|---|
+| *Model-free*: UCB1 sobre 21 valores de $\beta$ | nada; recompensa = acierto | $136.7 \pm 0.5$ |
+| *Model-aware*: máxima verosimilitud de $\alpha$, juega $\beta^{*}(\hat\alpha)$ | la ley $p_0 = e^{-(\beta\pm\alpha)^2}$ | $0.40 \pm 0.03$ |
+
+El agente consciente convierte cada clic en información sobre un único parámetro, $\alpha^2 = -\ln\frac{1+qg_Z}{2}$ a $\beta = 0$; el agnóstico reparte los episodios entre 21 brazos. La contrapartida es la de la presentación: si el canal no se puede modelar o cambia de golpe, la ley deja de valer y solo el agente sin modelo sigue aprendiendo. Ese caso (cambio abrupto del entorno) no está simulado aquí.
+
+```python
+import math
+from qang import proportions
+
+alpha = 0.4
+c = math.exp(-2 * alpha**2)
+delta = proportions.theta_from_proportion(c**2)        # 1.5162 rad = 241.3 qga
+p_helstrom = 0.5 * (1 + math.sin(delta / 2))           # 0.8438
+h = proportions.cohens_h(0.8091, 0.7364)               # 0.1741
+n_por_brazo = math.ceil(2 * (proportions.z_value(0.95) / h) ** 2)   # 254
+```
+
+## 36.3 Cómputo NISQ: gradientes, mesetas y estructura variable
+
+### 36.3.1 Para qué sirve la regla de desplazamiento
+
+En un simulador se conoce el estado y la diferenciación automática da cualquier derivada. En un dispositivo solo hay valores esperados estimados con disparos. Para una compuerta $e^{-i\theta P/2}$ el coste es $f(\theta) = a + b\cos\theta + c\sin\theta$ y
+
+$$\partial_\theta f = \tfrac12\left[f(\theta + \tfrac\pi2) - f(\theta - \tfrac\pi2)\right],$$
+
+exacta y evaluada con el mismo circuito. Hacen falta dos evaluaciones por parámetro en cualquier coordenada: `fisher.indistinguishable_pair` construye dos costes con el mismo valor en $\theta + s$ y derivadas distintas.
+
+| Decisión | Sin qang | Con qang | Estado |
+|---|---|---|---|
+| Evaluaciones por parámetro | 2 | 2 | **sin ganancia** (§159) |
+| Descenso en $qg_Z$ en vez de $\theta$ | converge | diverge en los polos | **en contra** |
+| Mesetas estériles tras pasar a `qga` | las mismas | las mismas: toda derivada se multiplica por $2\pi/1000$ | **sin ganancia** |
+
+### 36.3.2 VAns y el área mínima
+
+VAns inserta bloques que resuelven la identidad, optimiza, simplifica y acepta o rechaza. Tras optimizar, los ángulos pueden quedar fuera del intervalo principal. La regla de área mínima (`qang.pulse_area`, §160) lleva cada rotación a su representante más corto ($R_X$: período 1000 qga; $R_{ZZ}$: 500 qga con $Z$ virtuales) y elimina las que quedan en cero; el unitario no cambia.
+
+Ejemplo construido, 9 compuertas ($R_X$: $2\pi + 0.10$, $-3.50$, $2\pi$, $4.00$, $0.25$; $R_{ZZ}$: $\pi + 0.05$, $2.90$, $\pi$, $-1.70$ rad):
+
+| | Sin regla | Con `minimal_area_angle` |
+|---|---|---|
+| Área total | 31.35 rad = 4989 qga | 7.15 rad = 1138 qga |
+| Compuertas fraccionarias | 9 | 7 |
+
+Es un ejemplo sintético, no un circuito entrenado por VAns: fija la regla, no una ganancia medida. Que añadirla como paso de simplificación de VAns mejore sus resultados está **sin verificar**.
+
+### 36.3.3 Mesetas inducidas por ruido y el filtro de sector
+
+Con ruido, el gradiente se contrae con la profundidad y el número de disparos para resolverlo crece exponencialmente. En un ansatz que conserva el peso de Hamming, bajo $T_1$ igual en todos los qubits, la lectura cruda contrae el gradiente por $K = (1-\gamma)^{w\,d}$ y la lectura filtrada devuelve el gradiente sin ruido (§112), a cambio de conservar una fracción $K$ de los disparos:
+
+| Profundidad $d$ ($\gamma = 0.08$, $w = 1$) | $K$ = `qml.kept_fraction` | Disparos $\times\,1/K$ |
+|---|---|---|
+| 3 | 0.779 | 1.28 |
+| 6 | 0.606 | 1.65 |
+| 12 | 0.368 | 2.72 |
+| 24 | 0.135 | 7.40 |
+
+El filtro no elimina la meseta: cambia un gradiente exponencialmente pequeño por un coste de posselección exponencial en $w\,d$. En §112 necesitó menos disparos en 10 de 12 celdas y más cuando $K \lesssim 0.15$. No corrige desfase ni errores dentro del sector.
+
+## 36.4 Sensado: decidir sobre una trayectoria ruidosa
+
+### 36.4.1 Intuición física
+
+Un sensor monitorizado de forma continua entrega una fotocorriente: señal más ruido blanco. El estado condicionado a esa señal sigue una ecuación estocástica. La pregunta es qué modelo generó los datos y cuándo hay evidencia suficiente para parar.
+
+### 36.4.2 Formalismo para un qubit
+
+Con medida continua de $\sigma_z$, tasa $\kappa$ y eficiencia $\eta$, y $k = \sqrt{\eta\kappa}$:
+
+$$d\rho = \kappa\,\mathcal D[\sigma_z]\rho\,dt + k\,\mathcal H[\sigma_z]\rho\,dW, \qquad dy = 2k\,qg_Z\,dt + dW ,$$
+
+$$d\,qg_Z = 2k\left(1 - qg_Z^2\right)dW = \frac{2k}{I_F(qg_Z)}\,dW .$$
+
+La ganancia de la innovación es la inversa de la información de Fisher de la lectura: se anula en los polos, donde ya no queda nada por aprender. En el ángulo, por Itô, $d\theta = -2k\sin\theta\,dW - k^2\sin 2\theta\,dt$. Para dos hipótesis con señales $s_i = 2k\,qg_Z^{(i)}$, cada una filtrada con su modelo, el logaritmo del cociente de verosimilitud es
+
+$$d\ell = (s_1 - s_0)\left[dy - \tfrac12(s_1 + s_0)\,dt\right],$$
+
+y el test secuencial para cuando $\ell$ sale de $\left[\ln\frac{\beta}{1-\alpha},\ \ln\frac{1-\beta}{\alpha}\right]$.
+
+Comprobación numérica (4000 trayectorias, $t = 4/k^2$, $qg_Z(0) = 0.3$): la media se conserva, $0.3045 \pm 0.0151$, y el 65.2 % colapsa a $|0\rangle$ (previsto $p_0 = 0.65$).
+
+### 36.4.3 Parar a tiempo: test secuencial frente a $N$ fijo
+
+Versión en disparos: $H_0: qg_Z = 0$ contra $H_1: qg_Z = 0.2$ (200 m-qg), errores del 1 %.
+
+| | $N$ fijo | Test secuencial (Wald) |
+|---|---|---|
+| Disparos | 534 $= \lceil (2z/h)^2\rceil$, $h = 0.2014$ rad $= 32.0$ qga | 225 ($H_0$) y 228 ($H_1$) de media; teoría 221 y 224 |
+| Errores medidos | 1 % nominal | 0.91 % y 0.94 % |
+| Ahorro | | 57 % |
+
+El ahorro es del test secuencial de Wald (1945), no de `qang`: `qang` da el tamaño de efecto $h$ con el que se fija el $N$ de referencia. `qang` 0.14.0 no tiene función de test secuencial; el del script es local.
+
+### 36.4.4 Lo que queda fuera
+
+El filtro de Kalman de la presentación vale para sistemas gaussianos de variable continua (cavidades optomecánicas, sensores atómicos en ese régimen). $qg_Z$ es una unidad de qubit y no se aplica a esas cuadraturas: **no adoptado**. La red recurrente que aprende la ecuación de la señal externa (`qmon_sindy`) tampoco se reformula aquí.
+
+## 36.5 Entradas propuestas para el Apéndice H (`qang.measures`)
+
+| Submedida | Definición | Decisión | Estado | Evidencia |
+|---|---|---|---|---|
+| separación de hipótesis $qg_L$ | $\arccos\lvert\langle\psi_0\vert\psi_1\rangle\rvert$ | cota de acierto $\tfrac12(1+\sin qg_L)$ | exact | `verify_cap36.py` §36.2 |
+| lectura del receptor | $\tfrac12 + \tfrac14(qg_Z^- - qg_Z^+)$ | elegir $\beta$ | exact | §36.2 |
+| episodios por brazo | $2(z/h)^2$ | presupuesto del agente | no gain | §36.2 (254 vs 253) |
+| área tras reducción | $\sum\lvert\theta'\rvert$ | simplificación de VAns | unverified | §36.3 (sintético) |
+| ganancia de innovación | $1 - qg_Z^2 = 1/I_F$ | cuándo dejar de medir | exact | §36.4 |
+| $N$ secuencial | Wald | parar antes | unverified (sin función en `qang`) | §36.4 |
+
+El esquema de `qang.measures` no está en la versión 0.14.0 de PyPI; los campos de la tabla siguen la descripción del README.
+
+## 36.6 Resumen
+
+- Dos estados coherentes son un qubit: Helstrom es $\tfrac12(1+\sin qg_L)$ y el receptor con desplazamiento se lee de forma lineal en $qg_Z$.
+- Conocer el modelo reduce el arrepentimiento de 136.7 a 0.40 en 2000 episodios; la unidad no cambia el número de episodios (254 frente a 253).
+- En VQA no hay atajo en el gradiente ni contra las mesetas por cambiar de unidad; hay una regla de área exacta y un filtro que devuelve el gradiente sin ruido bajo $T_1$ pagando $1/K$ disparos.
+- En sensado, la ganancia del filtro cuántico es $1/I_F(qg_Z)$ y el test secuencial ahorra un 57 % de disparos en el ejemplo.
+
+## Referencias
+
+1. M. Bilkis, *Decision-making in quantum environments: from model-free to model-aware learning of quantum controls*, tesis doctoral, Universitat Autònoma de Barcelona (2023). hdl:10803/690744.
+2. M. Bilkis, M. Rosati, R. Morral Yepes, J. Calsamiglia, «Real-time calibration of coherent-state receivers: learning by trial and error», Phys. Rev. Research **2**, 033295 (2020).
+3. M. Bilkis, M. Cerezo, G. Verdon, P. J. Coles, L. Cincio, «A semi-agnostic ansatz with variable structure for quantum machine learning», arXiv:2103.06712.
+4. S. Wang *et al.*, «Noise-induced barren plateaus in variational quantum algorithms», Nat. Commun. **12**, 6961 (2021).
+5. A. Wald, «Sequential tests of statistical hypotheses», Ann. Math. Statist. **16**, 117 (1945).
+6. V. H. Monteverde, *The Qang (qg)*, Zenodo, doi:10.5281/zenodo.22832150.
