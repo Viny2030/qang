@@ -1,6 +1,8 @@
 # Capítulo 26 — Geometría de la información aplicada: núcleos cuánticos en espacio qg, concentración exponencial y el núcleo unario de sector que no se concentra
 # Chapter 26 — Applied Information Geometry: Quantum Kernels in qg Space, Exponential Concentration and the Non-Concentrating Unary Sector Kernel
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 23 sobre la base de Cap. 1–25 (la Fisher/QNG vive en Cap. 9; aquí núcleos y mesetas). Módulo: `qang.qkernels` (JAX, `jax<0.9`; usa `qang.qweightqnn`). Verificación: `tools/verify_cap26.py`. Rol: desarrollador/investigador de código.
 
 ---

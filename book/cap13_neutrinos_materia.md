@@ -1,6 +1,8 @@
 # Capítulo 13 — Efectos de materia (MSW): la resonancia como ecuador, la lectura adiabática como producto de dos qg y el coste de Trotter
 # Chapter 13 — Matter Effects (MSW): Resonance as the Equator, Adiabatic Readout as a Product of Two qg Values, and the Trotter Cost
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 10 sobre la base de Cap. 1–12. Módulo: `qang.qneutrino` (parte materia; JAX, `jax<0.9`). Verificación: `tools/verify_cap13.py`. Oscilaciones colectivas (§156, §163) quedan fuera de este capítulo: estatus `unverified`, sin afirmaciones.
 
 ---

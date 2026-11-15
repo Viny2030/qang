@@ -1,6 +1,8 @@
 # Capítulo 8 — Acoplamiento QAN ↔ distribuciones de probabilidad: momentos qg, truncación k-local, divergencias y presupuesto de disparos
 # Chapter 8 — Coupling QAN to Probability Distributions: qg Moments, k-Local Truncation, Divergences and Shot Budget
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Módulo: `qang.qdist` (JAX, `jax<0.9`; depende de `qang.qan`). Verificación: `tools/verify_cap08.py`. Continúa Cap. 7 (QAN/MI/IQAN); fases geométricas y Fisher pasan a Cap. 9–10 en `BOOK_OUTLINE.md`.
 
 ---

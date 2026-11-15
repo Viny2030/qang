@@ -1,6 +1,8 @@
 # Capítulo 27 — Dinámica de muchos cuerpos en el sector de peso 1: XY como caminata cuántica de compuertas RBS, canales afines de Bloch y varQTE de un parámetro
 # Chapter 27 — Many-Body Dynamics in the Weight-1 Sector: XY as a Quantum Walk of RBS Gates, Affine Bloch Channels and One-Parameter varQTE
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 24 sobre la base de Cap. 1–26 (`qang.channels`, `qang.varqte`; Hubbard/RBM quedan referenciados como `unverified` en este capítulo). Módulo: `qang.qdynamics` (JAX, `jax<0.9`). Verificación: `tools/verify_cap27.py`.
 
 ---

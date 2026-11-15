@@ -1,6 +1,8 @@
 # Capítulo 9 — Información de Fisher en qga: lectura Z frente a Fubini–Study, gradiente natural regularizado y mesetas estériles
 # Chapter 9 — Fisher Information in qga: Z Readout versus Fubini–Study, Regularized Natural Gradient and Barren Plateaus
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Módulo: `qang.qfisher` (JAX, `jax<0.9`; usa `qang.qan`). Verificación: `tools/verify_cap09.py`. Continúa Cap. 7–8; fases geométricas pasan a Cap. 10. Relación con Cap. 23 (QNG, núcleos): este capítulo fija las métricas; Cap. 23 las aplica a QML.
 
 ---

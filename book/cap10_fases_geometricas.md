@@ -1,6 +1,8 @@
 # Capítulo 10 — Fases geométricas y el teorema de Stokes en la esfera: holonomía en qga, invariante de Bargmann y lectura con una sola base
 # Chapter 10 — Geometric Phases and Stokes' Theorem on the Sphere: Holonomy in qga, Bargmann Invariant and Single-Basis Readout
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 7 sobre la base de Cap. 1–9. Módulo: `qang.qgeom` (JAX, `jax<0.9`; alineado con `qang.geometric`, `qang.phase`). Verificación: `tools/verify_cap10.py`.
 
 ---

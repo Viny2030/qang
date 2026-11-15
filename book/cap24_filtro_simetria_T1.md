@@ -1,6 +1,8 @@
 # Capítulo 24 — El filtro de simetría con matrices densidad: exacto bajo relajación $T_1$ uniforme (incluso intra-circuito), cocientes $T_1$, fallo bajo desfase y rescate por ZNE
 # Chapter 24 — The Symmetry Filter with Density Matrices: Exact under Uniform $T_1$ Relaxation (Even Mid-Circuit), $T_1$ Ratios, Failure under Dephasing and ZNE Rescue
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 21 (F5, F6) sobre la base de Cap. 1–23. Módulo: `qang.qsymfilter` (JAX, `jax<0.9`; usa `qang.qweightqnn`). Verificación: `tools/verify_cap24.py` (matrices densidad $16\times16$).
 
 ---

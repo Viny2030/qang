@@ -1,6 +1,8 @@
 # Capítulo 18 — Agujeros negros como scramblers: Hayden–Preskill, la ley $P\cdot F=1/4$ del decodificador de Yoshida–Kitaev, OTOC y por qué $qg_S$ no ve la curva de Page
 # Chapter 18 — Black Holes as Scramblers: Hayden–Preskill, the $P\cdot F=1/4$ Law of the Yoshida–Kitaev Decoder, OTOC and Why $qg_S$ Cannot See the Page Curve
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 15 sobre la base de Cap. 1–17. Módulo: `qang.qscramble` (JAX, `jax<0.9`; §164). Verificación: `tools/verify_cap18.py` (10 qubits en statevector).
 
 ---

@@ -1,6 +1,8 @@
 # Capítulo 11 — Metrología en qga: punto de operación Ramsey, GHZ bajo desfase, termometría $\tanh$ y comparación de relojes
 # Chapter 11 — Metrology in qga: Ramsey Operating Point, GHZ under Dephasing, $\tanh$ Thermometry and Clock Comparison
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 8 sobre la base de Cap. 1–9 (la Fisher general vive ahora en Cap. 9; aquí sólo aplicaciones). Módulo: `qang.qmetro` (JAX, `jax<0.9`; alineado con `qang.fisher`, `qang.clock_comparison`, ejemplos §25, §36, §58, §126). Verificación: `tools/verify_cap11.py`.
 
 ---

@@ -1,6 +1,8 @@
 # Capítulo 12 — Oscilación de sabor en el vacío: un qubit por par de sabores, lectura en m-qg y punto de operación para $\Delta m^2$
 # Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for $\Delta m^2$
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 9 sobre la base de Cap. 1–11. Módulo: `qang.qneutrino` (JAX, `jax<0.9`; alineado con `qang.neutrino`). Verificación: `tools/verify_cap12.py`. Hardware: §165 IQM Garnet (`tested on hardware`).
 
 ---

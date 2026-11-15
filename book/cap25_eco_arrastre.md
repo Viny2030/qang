@@ -1,6 +1,8 @@
 # Capítulo 25 — Calibración por eco y el sesgo de ruido: el arrastre de lectura como mapa afín en m-qg, cuándo **no** invertir (§108) y la lectura sin arrastre
 # Chapter 25 — Echo Calibration and Noise Bias: Readout Drag as an Affine Map in m-qg, When **Not** to Invert (§108) and Drag-Free Readout
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 22 (F7) sobre la base de Cap. 1–24. Módulo: `qang.qecho` (NumPy; compatible con el core). Verificación: `tools/verify_cap25.py`. Prohibición THEORY_CORE §2.2 incorporada como criterio cuantitativo.
 
 ---

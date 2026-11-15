@@ -1,6 +1,8 @@
 # Capítulo 21 — Números aleatorios certificados y auditoría de canal: entropía mínima con intervalo creíble y deriva por bloques en m-qg
 # Chapter 21 — Certified Random Numbers and Channel Audit: Min-Entropy with a Credible Interval and Block Drift in m-qg
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 18 sobre la base de Cap. 1–20 (§31, §41, §42). Módulo: `qang.qrng` (NumPy/SciPy opcional; compatible con el core). Verificación: `tools/verify_cap21.py`.
 
 ---

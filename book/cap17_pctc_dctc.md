@@ -1,6 +1,8 @@
 # Capítulo 17 — Curvas temporales cerradas por postselección (P-CTC) frente a D-CTC: dos mapas, dos lecturas en m-qg y el precio en disparos
 # Chapter 17 — Postselected Closed Timelike Curves (P-CTC) versus D-CTC: Two Maps, Two m-qg Readouts and the Shot Price
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 14 sobre la base de Cap. 1–16. Módulo: `qang.qctc` (JAX, `jax<0.9`; alineado con `qang.postselection`, §164). Verificación: `tools/verify_cap17.py`. Se simulan los **mapas**; la existencia física de CTC es `unverified` y no se afirma.
 
 ---

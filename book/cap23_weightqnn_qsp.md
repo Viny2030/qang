@@ -1,6 +1,8 @@
 # Capítulo 23 — Redes neuronales cuánticas que conservan el peso: cargador unario, compuertas RBS en qga, filtro de simetría bajo $T_1$ y QSP como polinomio de Chebyshev en qg
 # Chapter 23 — Weight-Preserving Quantum Neural Networks: Unary Loader, RBS Gates in qga, Symmetry Filter under $T_1$ and QSP as a Chebyshev Polynomial in qg
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 20 sobre la base de Cap. 1–22 (`WeightQNN`, `MultiClassQNN`, `qang.qsp`). Módulo: `qang.qweightqnn` (JAX, `jax<0.9`). Verificación: `tools/verify_cap23.py`.
 
 ---

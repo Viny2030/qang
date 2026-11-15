@@ -1,6 +1,8 @@
 # Capítulo 15 — Teleportación óptica y el límite del par de Bell: el canal como contracción lineal en m-qg y el umbral de 333 m-qg
 # Chapter 15 — Optical Teleportation and the Bell-Pair Limit: the Channel as a Linear m-qg Contraction and the 333 m-qg Threshold
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 12 sobre la base de Cap. 1–14. Módulo: `qang.qtele` (JAX, `jax<0.9`; alineado con `qang.qpon`, §57, §157). Verificación: `tools/verify_cap15.py`. Doble carril y filtro de sector a larga distancia: Cap. 16.
 
 ---

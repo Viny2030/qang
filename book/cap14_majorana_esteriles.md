@@ -1,6 +1,8 @@
 # Capítulo 14 — Fases de Majorana, $0\nu\beta\beta$, neutrinos estériles en el sector $|11\rangle$ y proyecciones angulares
 # Chapter 14 — Majorana Phases, $0\nu\beta\beta$, Sterile Neutrinos in the $|11\rangle$ Sector and Angular Projections
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 11 sobre la base de Cap. 1–13. Módulo: `qang.qmajorana` (JAX, `jax<0.9`; usa `qang.qneutrino`; alineado con `qang.angular`, §155, §163). Verificación: `tools/verify_cap14.py`.
 
 ---

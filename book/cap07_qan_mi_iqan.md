@@ -1,6 +1,8 @@
 # Capítulo 7 — Redes angulares cuánticas (QAN), información mutua en espacio qang e inversión regularizada (IQAN)
 # Chapter 7 — Quantum Angular Networks (QAN), Mutual Information in qang Space and Regularized Inversion (IQAN)
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Módulo: `qang.qan` (backend JAX opcional, `jax<0.9`; core NumPy intacto). Verificación: `tools/verify_cap07.py`. Posición en `BOOK_OUTLINE.md`: nuevo Cap. 7 (Parte II); fases geométricas y Fisher pasan a 8–9, o fusionar en Cap. 23 (decisión editorial pendiente).
 
 ---

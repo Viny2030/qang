@@ -1,6 +1,8 @@
 # Capítulo 19 — Demarcación: criptografía cuántica (QKD/QRNG) frente a post-cuántica (PQC). Dónde hay un qubit que leer en m-qg y dónde no
 # Chapter 19 — Demarcation: Quantum Cryptography (QKD/QRNG) versus Post-Quantum Cryptography (PQC). Where There Is a Qubit to Read in m-qg and Where There Is None
 
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
 > Reescritura del antiguo Cap. 16 sobre la base de Cap. 1–18. Módulo: `qang.qdemarc` (JAX, `jax<0.9`). Verificación: `tools/verify_cap19.py`. Detalle de BB84 y QRNG: Cap. 20–21.
 
 ---
