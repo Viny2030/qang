@@ -1,0 +1,89 @@
+# Capítulo 23 — Redes neuronales cuánticas que conservan el peso: cargador unario, compuertas RBS en qga, filtro de simetría bajo $T_1$ y QSP como polinomio de Chebyshev en qg
+# Chapter 23 — Weight-Preserving Quantum Neural Networks: Unary Loader, RBS Gates in qga, Symmetry Filter under $T_1$ and QSP as a Chebyshev Polynomial in qg
+
+> Reescritura del antiguo Cap. 20 sobre la base de Cap. 1–22 (`WeightQNN`, `MultiClassQNN`, `qang.qsp`). Módulo: `qang.qweightqnn` (JAX, `jax<0.9`). Verificación: `tools/verify_cap23.py`.
+
+---
+
+## 23.1 Sector de peso 1: cargador unario y compuertas RBS
+
+**ES.** Un vector unitario $x\in\mathbb R^n$ se carga como $|x\rangle=\sum_kx_k|e_k\rangle$ en el sector de peso de Hamming 1 con $n-1$ compuertas RBS (Givens) — exacto a $10^{-13}$, incluido el signo de la última componente. La red es una secuencia de $\mathrm{RBS}(\theta_k)$ con $\theta_k$ en qga sobre pares adyacentes; conserva el peso **exactamente** (masa fuera del sector $=0$ a precisión de máquina) y realiza una rotación $O\in SO(n)$ del sector (universal: 9 RBS en $(0,1),(2,3),(1,2)\times3$ ajustan cualquier $O\in SO(4)$ a $10^{-30}$). Lectura: $y=\sum_{k\in A}p(e_k)-\sum_{k\notin A}p(e_k)=x^\top O^\top DO\,x$, una forma cuadrática con espectro $(\pm1)$ (`exact`). El mismo sector que en Cap. 12 (3 sabores), 14 (estériles) y 16 (doble carril).
+
+**EN.** The unary loader and RBS layers keep the state in the weight-1 sector exactly; the classifier output is a quadratic form read from $n$ probabilities of one $Z$ histogram (`exact`).
+
+## 23.2 Entrenamiento diferenciable en qga
+
+Tarea: etiquetas $\mathrm{sign}(x^\top RDR^\top x)$ con $R$ oculta ($n=4$, 200/400 muestras). Pérdida de correlación $-\langle y\,\ell\rangle$ (la familia es exactamente la del objetivo); `jax.value_and_grad`, 6 semillas, 500 pasos, $\eta=4000$ qga²: exactitud de test $0.982$, margen medio $|y|=0.539$ (óptimo teórico de correlación $0.513$, alcanzado $0.513$). Sin mesetas (9 parámetros; Cap. 9 §4).
+
+## 23.3 Filtro de simetría bajo relajación $T_1$: exacto en margen, ganancia en disparos, `mixed` en exactitud
+
+Relajación $T_1$ uniforme $\gamma$ sobre el histograma: sin filtro $y\to(1-\gamma)y$; con filtro de sector $y$ **exacto** con tasa de aceptación $(1-\gamma)$. Disparos para confirmar el signo a $3\sigma$ (Cap. 1, $N_{\text{signo}}$): $\gamma=0.3$: sin filtro $63$, con filtro $44$ ⇒ $\times1.43=1/(1-\gamma)$ (`exact`). Con $\gamma$ **no uniforme** $(0.05,0.35,0.10,0.30)$ el filtro deja sesgo: exactitud $0.977$ con y sin filtro (limpia $0.982$) — la ganancia es de presupuesto, no de exactitud (`mixed`; coherente con Cap. 21 antiguo, F5).
+
+## 23.4 QSP: $d$ pulsos, polinomio de grado $d$ en la lectura
+
+$U=R_Z(\phi_0)\prod_{k=1}^d W(a)R_Z(\phi_k)$, $W(a)=R_X$ con $\cos(\theta/2)=a$. Con $\phi\equiv0$: $qg_Z=T_d(2a^2-1)$ (Chebyshev, $10^{-12}$ para $d=1,3,7$). Coste: $d$ pulsos físicos $W$ y $d+1$ $R_Z$ virtuales (Cap. 2). Ajuste de $\mathbf 1[|a|>0.5]$ con $d=7$ (fases en qga, JAX): exactitud $1.000$ sobre la malla, MSE $0.107$. Un clasificador escalar de **1 qubit, 0 ancillas, 7 pulsos** (`exact` sim.; hardware `unverified`).
+
+## 23.5 Contraste operativo
+
+| Métrica / Metric | Estándar | `qang` (`qang.qweightqnn` + JAX) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Carga de $x\in\mathbb R^4$ | amplitud general ($2^n$ amplitudes, $O(2^n)$ compuertas) | unario: 3 RBS, exacto | (`exact`) |
+| Lectura del clasificador | observable + tomografía | $n$ probabilidades de 1 histograma | (`exact`) |
+| Disparos bajo $T_1$, $\gamma=0.3$ | 63 | 44 (filtro de sector) | $-30\%$ (`exact`, $1/(1-\gamma)$) |
+| Exactitud bajo $T_1$ no uniforme | 0.977 | 0.977 | `mixed` (sin ganancia) |
+| Clasificador escalar | red clásica / codificación repetida | QSP: 1 qubit, 7 pulsos, $T_d$ | (`exact` sim.) |
+
+## 23.6 Bloque JAX (`qang/qweightqnn.py`)
+
+```python
+def unary_loader(x, n):                 # |x> = Σ x_k |e_k> con n−1 RBS (signo final por arctan2(x_{n-1}, x_{n-2}))
+@partial(jax.jit, static_argnames=("n", "pairs"))
+def weight_qnn(theta_qga, psi_in, n, pairs):   # Π RBS(θ_k·2π/1000) sobre pairs
+def sector_readout(p, n, group_a):      # (Σ_A p(e_k) − Σ_¬A p(e_k)) / Σ p(e_k)   ← filtro de simetría
+def amplitude_damping_probs(p, n, gammas)      # T1 clásico sobre el histograma
+@jax.jit
+def qsp_readout(phis_qga, a):           # qg_Z tras R_Z(φ0) Π W(a) R_Z(φk); φ≡0 → T_d(2a²−1)
+```
+
+## 23.7 Verificación — `tools/verify_cap23.py`
+
+```
+[1] cargador unario: 3 RBS, error 1e-13; red de 9 RBS: peso fuera del sector = 0.0e+00
+[2] WeightQNN 4 qubits/9 RBS: loss=-0.513, exactitud test=0.982, |y| medio=0.539
+[3] γ=0.3: sin filtro y→0.7·y (N_3σ≈63) | con filtro y exacto, tasa 0.7 (N_3σ≈44) → ×1.43 menos disparos
+    γ no uniforme (0.05, 0.35, 0.1, 0.3): exactitud con filtro=0.977, sin filtro=0.977, limpia=0.982 (mixed)
+[4] QSP φ≡0: qg_Z = T_d(2a²−1) a 1e-12 para d=1,3,7
+[4] QSP d=7 ajustado a 1[|a|>0.5]: MSE=0.107, exactitud=1.000
+verify_cap23: OK
+```
+Asserts: loader a $10^{-13}$; masa fuera del sector $<10^{-14}$; exactitud $>0.9$; $y_{\text{sin}}=(1-\gamma)y$ y $y_{\text{con}}=y$ a $10^{-12}$; Chebyshev a $10^{-12}$; QSP exactitud $>0.85$.
+
+### `tests/test_qweightqnn.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qweightqnn import unary_loader, weight_qnn, weight_mask, qsp_readout
+
+def test_loader_signs():
+    x = jnp.array([0.5, -0.5, 0.5, -0.5]); psi = unary_loader(x, 4)
+    assert np.allclose(np.asarray(jnp.real(psi[np.array([8, 4, 2, 1])])), np.asarray(x), atol=1e-13)
+
+def test_weight_conserved():
+    psi = weight_qnn(jnp.array([123., 456., 789.]), unary_loader(jnp.array([1., 0, 0, 0]), 4), 4, ((0, 1), (2, 3), (1, 2)))
+    assert float(jnp.sum(jnp.abs(psi) ** 2 * (~weight_mask(4, 1)))) < 1e-14
+
+def test_qsp_chebyshev():
+    a = 0.3; assert abs(float(qsp_readout(jnp.zeros(4), a)) - np.cos(3 * np.arccos(2 * a * a - 1))) < 1e-12
+```
+
+## 23.8 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `unary_loader_rbs` | QML | $n-1$ RBS, sector peso 1 | `unary_loader` | `exact` |
+| `weightqnn_quadratic_readout` | QML | $y=x^\top O^\top DOx$ | `weight_qnn`, `sector_readout` | `exact` |
+| `symmetry_filter_T1_shots` | QML | $N\times(1-\gamma)$ vs $(1-\gamma)^{-2}$ | `amplitude_damping_probs` | `exact`; exactitud `mixed` |
+| `qsp_chebyshev_qg` | QML | $qg_Z=T_d(2a^2-1)$; $d$ pulsos | `qsp_readout` | `exact` sim. |
+
+`CHANGELOG.md [Unreleased]`: `qang.qweightqnn`; `tools/verify_cap23.py`; `tests/test_qweightqnn.py`.
+Commit: `docs(cap23): WeightQNN/RBS, filtro de simetría T1 y QSP reescritos sobre Cap. 1–22 + qang.qweightqnn + verify_cap23`.

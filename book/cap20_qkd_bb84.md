@@ -1,0 +1,80 @@
+# Capítulo 20 — BB84 en espacio qg: cuatro estados en qga, el QBER como lectura m-qg y el presupuesto de bits tamizados
+# Chapter 20 — BB84 in qg Space: Four States in qga, QBER as an m-qg Readout and the Sifted-Bit Budget
+
+> Reescritura del antiguo Cap. 17 sobre la base de Cap. 1–19 (§40, §43, §44, §49). Módulo: `qang.qkd` (JAX, `jax<0.9`; usa `qang.qdemarc`). Verificación: `tools/verify_cap20.py`.
+
+---
+
+## 20.1 Los cuatro estados y la geometría de las bases
+
+**ES.** $|Z_0\rangle,|Z_1\rangle$ en $0$ y $500$ qga (polos); $|X_0\rangle,|X_1\rangle$ en $250$ qga con $\varphi=0,500$ qga (ecuador). $|\langle Z_0|X_0\rangle|^2=\tfrac12$: bases mutuamente no sesgadas. La preparación es una sola $R_Y$ ($0$, $250$ o $500$ qga) más una $R_Z$ virtual de $500$ qga para $|X_1\rangle$ (Cap. 2): **un pulso físico por estado** (`exact`).
+
+**EN.** BB84 states are two antipodal pairs on the Bloch sphere; each is prepared with one physical $R_Y$ pulse and at most one virtual $R_Z$ (`exact`).
+
+## 20.2 Intercepta-y-reenvía y canal depolarizante en m-qg
+
+Eve mide una fracción $f$ de los pulsos en $Z$ o $X$ al azar y reenvía: $e=f/4$ exacto ($f=1\Rightarrow25\%\Leftrightarrow500$ m-qg). Canal depolarizante $p$ sin Eve: $e=p/2$ ($p=0.04\Rightarrow+960$ m-qg). Información de Eve (IR): $I_E=f/2=2e$. Tasas por bit tamizado:
+$$r_{\text{IR}}=1-h(e)-2e,\qquad r_{\text{colectivo}}=1-2h(e)\ (\text{Cap. 19}),\qquad e^\star_{\text{col}}=0.110\Leftrightarrow780\text{ m-qg}\Leftrightarrow f^\star=0.44 .$$
+Con $f=0.5$: $e=0.125$ ($750$ m-qg), $r_{\text{col}}=-0.087$ → abortar, aunque $r_{\text{IR}}=+0.206$: la cota colectiva es la que decide (`exact`).
+
+## 20.3 Presupuesto de bits tamizados
+
+$N=e(1-e)/\sigma_e^2$; $\sigma_m=2000\,\sigma_e$ en m-qg. Para $\sigma_e=0.005$ ($10$ m-qg): $784$ bits a $e=0.02$, $2\,944$ a $e=0.08$. Lejos del polo ($e\ge0.02$) el método delta y Wilson coinciden; cerca de $e\to0$ usar Wilson/Bayes-Haar (Cap. 4, 21). Con doble carril (Cap. 16) el QBER se estima **dentro del sector de peso 1**, separando pérdida (tasa) de error (fidelidad).
+
+## 20.4 Contraste operativo
+
+| Métrica / Metric | Estándar | `qang` (`qang.qkd` + JAX) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Preparación de los 4 estados | 2–3 rotaciones | 1 $R_Y$ + $R_Z$ virtual | $-1$ a $-2$ pulsos (`exact`) |
+| Decisión abortar/continuar | QBER | $qg_Z>780$ m-qg (colectivo) | (`exact`) |
+| Eve IR $f=1$ | 25 % | $500$ m-qg | (`exact`) |
+| $\sigma_e=0.005$ a $e=0.02$ | — | $784$ bits tamizados | (`exact`) |
+| QBER con pérdida | sesgado por dobles/no-clicks | sector de peso 1 (Cap. 16) | (`exact` modelo) |
+
+## 20.5 Bloque JAX (`qang/qkd.py`)
+
+```python
+BB84 = {("Z",0): ket(0,0), ("Z",1): ket(500,0), ("X",0): ket(250,0), ("X",1): ket(250,500)}   # qga
+
+def intercept_resend(rho, f):              # Eve mide Z/X al azar en fracción f y reenvía
+    out = (1 - f) * rho
+    for basis in ("Z", "X"):
+        for b in (0, 1):
+            P = projector(BB84[(basis, b)]); out = out + (f / 2) * jnp.real(jnp.trace(P @ rho)) * P
+    return out
+
+def qber(f, p):                             # media sobre 4 preparaciones, Bob en la base correcta
+def key_rate_individual(e):                 # 1 − h(e) − 2e
+def sifted_bits_for_qber_sigma(e, s):       # e(1−e)/s²
+```
+
+## 20.6 Verificación — `tools/verify_cap20.py`
+
+```
+[1] IR f=1.0: QBER=0.2500 ⇔ qg_Z=+500 m-qg; r_colectivo=-0.6226, r_IR=-0.3113
+[1] IR f=0.5: QBER=0.1250 ⇔ qg_Z=+750 m-qg; r_colectivo=-0.0871, r_IR=+0.2064
+[2] p=0.04: sin Eve QBER=0.020 (+960 m-qg); con IR f=0.5: QBER=0.1400
+[4] e=0.02: N = 784 bits tamizados para σ_e = 0.005 (σ = 10 m-qg)
+[5] |<Z0|X0>|² = 0.5
+verify_cap20: OK
+```
+Asserts: $e=f/4$ y $e=p/2$ a $10^{-14}$; $N(0.02,0.005)=784$; MUB a $10^{-14}$.
+
+### `tests/test_qkd.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+from qang.qkd import qber, sifted_bits_for_qber_sigma
+def test_ir_quarter(): assert abs(qber(1.0, 0.0) - 0.25) < 1e-14
+def test_budget(): assert abs(sifted_bits_for_qber_sigma(0.02, 0.005) - 784) < 1
+```
+
+## 20.7 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `bb84_states_qga` | criptografía | $\{0,500\}$, $\{250,\varphi=0/500\}$ qga | `BB84` | `exact` |
+| `ir_qber_mqg` | criptografía | $e=f/4$ ⇔ $1000-500f$ m-qg | `intercept_resend`, `qber` | `exact` |
+| `sifted_bits_budget` | estadística | $e(1-e)/\sigma_e^2$ | `sifted_bits_for_qber_sigma` | `exact` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qkd` (`ket`, `BB84`, `intercept_resend`, `depolarize`, `qber`, `eve_info_intercept_resend`, `key_rate_individual`, `sifted_bits_for_qber_sigma`); `tools/verify_cap20.py`; `tests/test_qkd.py`.
+Commit: `docs(cap20): BB84 en espacio qg reescrito sobre Cap. 1–19 + qang.qkd + verify_cap20`.
