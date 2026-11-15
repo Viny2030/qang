@@ -29,6 +29,8 @@ jobs:
         uses: quarto-dev/quarto-actions/setup@v2
         with:
           tinytex: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # evita 403 (rate limit) al resolver rstudio/tinytex-releases
 
       - name: Render the Spanish book
         run: quarto render book/es

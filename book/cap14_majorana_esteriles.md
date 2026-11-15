@@ -1,0 +1,107 @@
+# Capítulo 14 — Fases de Majorana, $0\nu\beta\beta$, neutrinos estériles en el sector $|11\rangle$ y proyecciones angulares
+# Chapter 14 — Majorana Phases, $0\nu\beta\beta$, Sterile Neutrinos in the $|11\rangle$ Sector and Angular Projections
+
+> Reescritura del antiguo Cap. 11 sobre la base de Cap. 1–13. Módulo: `qang.qmajorana` (JAX, `jax<0.9`; usa `qang.qneutrino`; alineado con `qang.angular`, §155, §163). Verificación: `tools/verify_cap14.py`.
+
+---
+
+## 14.1 Fases de Majorana: una $R_Z$ virtual que nunca llega a la lectura
+
+**ES.** $U=U_{\text{PMNS}}\,\mathrm{diag}(1,e^{i\alpha_{21}/2},e^{i\alpha_{31}/2})$. En el lenguaje de Cap. 2 y 12, las fases de Majorana son rotaciones $R_Z$ **en la base de masa**, que conmutan con la propagación $R_Z(\phi_i)$ y se cancelan en $|U_{\beta i}e^{-i\phi_i}U^*_{\alpha i}|^2$. Verificado: $P(\nu_\alpha\to\nu_\beta)$ invariante a $10^{-14}$ para 9 pares $(\alpha_{21},\alpha_{31};L/E)$ (`exact`). Consecuencia operativa: ningún experimento de oscilación, con o sin `qang`, mide $\alpha_{21},\alpha_{31}$; la lectura `m-qg` es ciega a ellas por construcción.
+
+**EN.** Majorana phases are mass-basis virtual $Z$ rotations: they commute with propagation and cancel in every transition probability. Oscillation readouts are blind to them (`exact`).
+
+## 14.2 Masa efectiva de $0\nu\beta\beta$: tres fasores, sin ganancia cuántica
+
+$$|m_{\beta\beta}|=\Big|\sum_iU_{ei}^2m_i\Big|=\big|c_{12}^2c_{13}^2m_1+s_{12}^2c_{13}^2m_2e^{i\alpha_{21}}+s_{13}^2m_3e^{i(\alpha_{31}-2\delta)}\big| .$$
+Rangos (barrido $\alpha_{21},\alpha_{31}\in[0,2\pi)$, $73^2$ puntos): NO con $m_{\text{light}}=0$: $[1.4,3.7]$ meV; NO con $0.05$ eV: $[17.5,50.7]$ meV; IO con $m_{\text{light}}=0$: $[18.8,48.5]$ meV. Es aritmética clásica de tres fasores: estatus `no gain` (análogo a PQC, THEORY_CORE §2.6). `qang` aporta sólo la lectura geométrica (los tres módulos $|U_{ei}|^2m_i$ y sus ángulos en qga), no reducción de recursos.
+
+## 14.3 Estériles $3+1$: el sector $|11\rangle$ cambia de significado
+
+En Cap. 12 la codificación $e,\mu,\tau\mapsto|00\rangle,|01\rangle,|10\rangle$ deja $|11\rangle$ **no físico** y habilita el filtro de sector. Con un cuarto sabor $\nu_s\mapsto|11\rangle$ el peso allí es **señal**: $P(\nu_\alpha\to\nu_s)=p(|11\rangle)$. Regla: **el filtro de sector queda prohibido en $3+1$**; en su lugar el peso en $|11\rangle$ se compara con el fondo espurio $\varepsilon/4$ de la despolarización (Cap. 12, §4). Umbral conservador sin calibración: $P_s>z\varepsilon/4$. Instancia reactor SBL ($L=500$ m, $E=3$ MeV, $\Delta m^2_{41}=1$ eV$^2$, $\sin^2\theta_{14}=0.1$): $\phi_{41}=67\,216$ qga (67.2 vueltas: régimen promediado), $P_s=0.1357$ → $+729$ m-qg en el eje $(e,s)$; detectable a $3\sigma$ para $\varepsilon\le0.10$ (`exact` para el modelo; hardware `unverified`). Coste: 2 qubits para 4 sabores ($-2$ frente a one-hot), igual que Cap. 12 pero sin filtro.
+
+## 14.4 Proyecciones angulares (`qang.angular`): $qg_Z=m/j$
+
+Para espín/momento angular $j$ la lectura natural es $qg_Z^{(j)}=\langle J_z\rangle/j\in\{-1,\dots,+1\}$ con paso $1/j$ ($1000/j$ m-qg): $j=\tfrac12$ es el qubit; $j=1$: $\{-1000,0,+1000\}$; $j=2$: paso $500$ m-qg. QFI del ángulo polar de un estado coherente de espín: $4\,\mathrm{Var}(J_y)=2j$ rad$^{-2}$ ($=2j\cdot3.95\cdot10^{-5}$ qga$^{-2}$), que reduce a 1 para el qubit (Cap. 9). Identidad `exact`; ventaja de qudits en hardware `unverified` (THEORY_CORE §2.7: no se afirma).
+
+## 14.5 Contraste operativo — Sin `qang` vs. con `qang`
+
+| Métrica / Metric | Estándar (sin `qang`) | `qang` (`qang.qmajorana` + JAX) | Ganancia / Estatus |
+| :--- | :--- | :--- | :--- |
+| Sensibilidad de oscilación a $\alpha_{21},\alpha_{31}$ | — | $R_Z$ virtual en base de masa: nula a $10^{-14}$ | ninguna, por construcción (`exact`) |
+| $|m_{\beta\beta}|$ NO/IO | suma de fasores | misma suma; lectura en qga | `no gain` |
+| Qubits para 4 sabores | 4 (one-hot) | 2 ($|11\rangle=\nu_s$) | $-2$ qubits (`exact`) |
+| Diagnóstico de ruido en $|11\rangle$ | — | sólo en 3 sabores; en $3+1$ es señal, umbral $z\varepsilon/4$ | regla (`exact` modelo) |
+| Fisher angular espín $j$ | — | $2j$ rad$^{-2}$ | identidad `exact`; hw `unverified` |
+
+## 14.6 Bloque JAX (`qang/qmajorana.py`)
+
+```python
+def pmns_majorana(t12, t13, t23, delta, a21, a31):      # U · diag(1, e^{iα21/2}, e^{iα31/2})
+    return pmns(t12, t13, t23, delta) @ jnp.diag(jnp.exp(0.5j * jnp.array([0.0, a21, a31])))
+
+@jax.jit
+def m_betabeta(U, m):                                     # |Σ_i U_ei² m_i|
+    return jnp.abs(jnp.sum(U[0, :] ** 2 * m))
+
+def p4_vacuum(U4, m2, L, E, alpha):                       # β = e, μ, τ, s ; p[3] = P(ν_α→ν_s) = p(|11>)
+    ph = jnp.exp(-1j * 2.0 * 1.267 * m2 * L / E)
+    return jnp.abs(U4 @ (ph * jnp.conj(U4)[alpha, :])) ** 2
+
+def sterile_sensitivity_floor(eps, z=3.0):                # P_s > z·ε/4
+    return z * eps / 4.0
+
+@jax.jit
+def qz_spin_projection(m, j):                             # qg_Z^{(j)} = m/j
+    return m / j
+```
+
+## 14.7 Verificación — `tools/verify_cap14.py` (salida reproducible)
+
+```
+[1] P(ν_α→ν_β) independiente de (α21, α31) a 1e-14 en 9 configuraciones
+[2] NO m_light=0.00 eV: |m_ββ| ∈ [1.4, 3.7] meV | NO 0.05 eV: [17.5, 50.7] | IO 0.00 eV: [18.8, 48.5]
+[3] SBL L=500 m, E=3 MeV, Δm²41=1 eV², sin²θ14=0.1: φ41=67216 qga; P(ν_e→ν_s)=P(|11>)=0.1357 → 729 m-qg
+    ε=0.10: fondo espurio |11> = 0.0250; umbral 3σ = 0.0750 → detectable (filtro de sector PROHIBIDO en 3+1)
+[4] j=2.0: qg_Z ∈ [-1000 -500 0 500 1000] m-qg; QFI(θ)=4.0 rad⁻²
+verify_cap14: OK
+```
+
+### `tests/test_qmajorana.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qneutrino import pmns, p3_vacuum
+from qang.qmajorana import pmns_majorana, p4_vacuum, u4_minimal, qz_spin_projection
+
+def test_majorana_phases_invisible():
+    m2 = jnp.array([0.0, 7.42e-5, 2.51e-3])
+    a = p3_vacuum(pmns(0.583, 0.1496, 0.855, 3.4), m2, 1300.0, 2.5, 1)
+    b = p3_vacuum(pmns_majorana(0.583, 0.1496, 0.855, 3.4, 1.0, 2.5), m2, 1300.0, 2.5, 1)
+    assert np.allclose(np.asarray(a), np.asarray(b), atol=1e-14)
+
+def test_four_flavors_unitary():
+    U4 = u4_minimal(pmns(0.583, 0.1496, 0.855, 3.4), 0.3)
+    assert abs(float(p4_vacuum(U4, jnp.array([0.0, 7.42e-5, 2.51e-3, 1.0]), 0.5, 0.003, 0).sum()) - 1) < 1e-12
+
+def test_spin_projection_grid():
+    assert float(qz_spin_projection(1.0, 2.0)) == 0.5
+```
+
+## 14.8 Apéndice H — entradas nuevas en `qang.measures`
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `majorana_virtual_z` | neutrinos | $P$ invariante bajo $\mathrm{diag}(1,e^{i\alpha_{21}/2},e^{i\alpha_{31}/2})$ | `pmns_majorana` | `exact` (nula) |
+| `m_betabeta_phasors` | neutrinos | $|\sum U_{ei}^2m_i|$ | `m_betabeta` | `no gain` |
+| `sterile_sector_signal` | compilación | $p(|11\rangle)=P_s$; umbral $z\varepsilon/4$; filtro prohibido | `p4_vacuum`, `sterile_sensitivity_floor` | `exact` modelo; hw `unverified` |
+| `spin_projection_qz` | angular | $m/j$, paso $1000/j$ m-qg; QFI $2j$ | `qz_spin_projection`, `spin_coherent_qfi_theta` | `exact`; qudits hw `unverified` |
+
+### `CHANGELOG.md` — `[Unreleased]`
+```
+### Added
+- `qang.qmajorana`: `pmns_majorana`, `m_betabeta`, `masses_from_lightest`, `p4_vacuum`, `u4_minimal`,
+  `sterile_sensitivity_floor`, `qz_spin_projection`, `spin_coherent_qfi_theta` (JAX, `jax<0.9`).
+- `tools/verify_cap14.py`, `tests/test_qmajorana.py`; Apéndice H: 4 entradas.
+```
+Commit: `docs(cap14): Majorana, 0νββ, estériles 3+1 y proyecciones angulares reescritos sobre Cap. 1–13 + verify_cap14`.
