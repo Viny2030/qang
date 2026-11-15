@@ -1,0 +1,122 @@
+# Capítulo 11 — Metrología en qga: punto de operación Ramsey, GHZ bajo desfase, termometría $\tanh$ y comparación de relojes
+# Chapter 11 — Metrology in qga: Ramsey Operating Point, GHZ under Dephasing, $\tanh$ Thermometry and Clock Comparison
+
+> Reescritura del antiguo Cap. 8 sobre la base de Cap. 1–9 (la Fisher general vive ahora en Cap. 9; aquí sólo aplicaciones). Módulo: `qang.qmetro` (JAX, `jax<0.9`; alineado con `qang.fisher`, `qang.clock_comparison`, ejemplos §25, §36, §58, §126). Verificación: `tools/verify_cap11.py`.
+
+---
+
+## 11.1 Punto de operación Ramsey en la coordenada de lectura
+
+**ES.** Tras la segunda pulsación $\pi/2$ la lectura es $qg_Z=C\cos\phi$, con $C=e^{-T/T_2}$ el contraste y $\phi=\omega T$. Fisher por disparo (Cap. 9):
+$$I_F(\phi)=\frac{C^2\sin^2\phi}{1-C^2\cos^2\phi}\ \le\ C^2,\qquad \text{igualdad en }\phi=\tfrac\pi2\iff qg_Z=0\ (250\text{ qga}).$$
+Para $C=1$ es uniforme ($I_F\equiv1$, $\sigma_{\text{qga}}=159.15/\sqrt N$); para $C<1$ la ventaja del ecuador es estricta: operar en $\phi=0.2$ rad pierde el 90 % ($C=0.8$) y el 95 % ($C=0.5$) de la información. **Regla `qang`**: fijar el punto de operación por $qg_Z=0$ leído en `m-qg`, no por $\phi$ nominal (`exact`). Tiempo óptimo por unidad de tiempo: $\max_T T e^{-2T/T_2}\Rightarrow T^\star=T_2/2$.
+
+**EN.** With finite contrast the equator ($qg_Z=0$) is the unique optimum; the operating point is set by the readout value, not by the nominal phase (`exact`). Optimal interrogation time per unit time is $T_2/2$.
+
+## 11.2 GHZ frente a producto bajo desfase markoviano: `no gain`
+
+Paridad $\langle X^{\otimes n}\rangle=e^{-nT/T_2}\cos n\phi$:
+$$\frac{I_F^{\text{GHZ}}(\omega)}{T}=n^2Te^{-2nT/T_2},\qquad \frac{I_F^{\text{prod}}(\omega)}{T}=nTe^{-2T/T_2},\qquad \max_T:\ \frac{nT_2}{2e}\ \text{en ambos casos}\ (T^\star_{\text{GHZ}}=\tfrac{T_2}{2n},\ T^\star_{\text{prod}}=\tfrac{T_2}{2}).$$
+Verificado por `optimal_T` (descenso en $\log T$ con `jax.grad`) para $n=2,5,10$ a $10^{-9}$. A $T=T_2/2$ fijo el GHZ de $n=5$ rinde $0.092\times$; sólo gana si $T<T_2\ln n/(2(n-1))$. **Estatus** `no gain` (Huelga et al. 1997 reproducido en coordenadas qg); coherente con THEORY_CORE §2 (no afirmar ventaja Heisenberg bajo ruido markoviano).
+
+## 11.3 Termometría de un qubit: $qg_Z=\tanh(x/2)$
+
+Estado de Gibbs, $x=\hbar\omega/k_BT$: $qg_Z=\tanh(x/2)$ (§25). Fisher por disparo:
+$$I_F(x)=\frac{(\partial_xqg_Z)^2}{1-qg_Z^2}=\tfrac14\operatorname{sech}^2\tfrac x2,\qquad I_F(\ln T)=x^2I_F(x)\ \Rightarrow\ x^\star=2.399,\ qg_Z^\star=0.834\ (834\text{ m-qg}),\ I_F^\star=0.439 .$$
+El sensor óptimo de temperatura relativa se calibra, por tanto, a $834$ m-qg de lectura (`exact`); el método delta en $p_0$ colapsa cerca de ahí ($p_0=0.917$), usar Bayes-Haar (Cap. 8).
+
+## 11.4 Comparación de relojes y corrimiento gravitacional
+
+$$\Delta\phi=\frac{\omega\,T\,g\,\Delta h}{c^2},\qquad N(z\sigma)=\Big(\frac{z}{C\,\Delta\phi}\Big)^2\ \text{(lectura en el ecuador)}.$$
+Reloj de Sr ($\omega=2\pi\cdot429.228$ THz), $T=1$ s, $\Delta h=1$ cm: $\Delta\phi=2.943\cdot10^{-3}$ rad $=0.468$ qga; $N(3\sigma)=1.04\cdot10^6$ disparos con $C=1$, $4.16\cdot10^6$ con $C=0.5$ (`exact`; experimento real §126 referenciado, no reproducido aquí).
+
+## 11.5 Contraste operativo — Sin `qang` vs. con `qang`
+
+| Métrica / Metric | Estándar (sin `qang`) | `qang` (`qang.qmetro` + JAX) | Ganancia / Estatus |
+| :--- | :--- | :--- | :--- |
+| Punto de operación Ramsey, $C=0.8$ | $\phi$ nominal; en $0.2$ rad $I_F=0.066$ | $qg_Z=0$ leído: $I_F=0.64$ | $\times9.8$ información / $-90\%$ disparos (`exact`) |
+| Tiempo de interrogación | heurístico | $T^\star=T_2/2$ (`optimal_T`, `jax.grad`) | (`exact`) |
+| GHZ $n=5$ vs producto, Fisher/tiempo | "ventaja Heisenberg" | iguales ($nT_2/2e$); a $T$ fijo GHZ $0.092\times$ | `no gain` |
+| Termometría, punto de calibración | barrido | $qg_Z^\star=834$ m-qg | (`exact`) |
+| Reloj Sr, $\Delta h=1$ cm a $3\sigma$ | — | $N=1.04\cdot10^6$ ($C=1$) | (`exact`, planificación) |
+
+## 11.6 Bloque JAX (`qang/qmetro.py`)
+
+```python
+@jax.jit
+def ramsey_fisher_phi(phi, C):          # I_F(φ) = C² sin²φ / (1 − C² cos²φ)
+    return C ** 2 * jnp.sin(phi) ** 2 / (1.0 - C ** 2 * jnp.cos(phi) ** 2)
+
+@jax.jit
+def ghz_fisher_omega(n, T, T2):         # n² T² e^{−2nT/T2}
+    return n ** 2 * T ** 2 * jnp.exp(-2.0 * n * T / T2)
+
+@jax.jit
+def product_fisher_omega(n, T, T2):     # n T² e^{−2T/T2}
+    return n * T ** 2 * jnp.exp(-2.0 * T / T2)
+
+def optimal_T(fisher_fn, T2, n):        # max_T I_F(ω)/T por descenso en log T (jax.grad)
+    f = lambda lT: -(fisher_fn(jnp.asarray(n), jnp.exp(lT), jnp.asarray(T2)) / jnp.exp(lT))
+    g = jax.jit(jax.grad(f)); lT = jnp.log(jnp.asarray(T2) / 2.0)
+    for _ in range(2000): lT = lT - 0.1 * g(lT)
+    return float(jnp.exp(lT)), float(-f(lT))
+
+@jax.jit
+def thermal_fisher_x(x):                # ¼ sech²(x/2) vía jax.grad de tanh(x/2)
+    q = jnp.tanh(x / 2); dq = jax.grad(lambda t: jnp.tanh(t / 2))(x)
+    return dq ** 2 / (1.0 - q ** 2)
+
+def shots_to_resolve_height(omega, T, dh, z=3.0, C=1.0, g=9.80665, c=299792458.0):
+    return (z / (C * omega * T * g * dh / c ** 2)) ** 2
+```
+
+## 11.7 Verificación — `tools/verify_cap11.py` (salida reproducible)
+
+```
+[1] C=0.8: I_F máx=0.6400 en φ=π/2 (qg_Z=0, 250 qga); en φ=0.2 rad: 0.0656 → pérdida 90%
+[1] C=0.5: I_F máx=0.2500 en φ=π/2 (qg_Z=0, 250 qga); en φ=0.2 rad: 0.0130 → pérdida 95%
+[2] Ramsey: T* = 0.500000 T2 (I_F(ω)/T máx = 0.183940 T2)
+[3] n= 5: GHZ T*=0.1000 T2, I/T=0.91970 | producto T*=0.5000 T2, I/T=0.91970 → iguales
+    a T=T2/2 fijo, n=5: I_GHZ/I_prod = 0.0916  (GHZ sólo gana si T<0.201 T2 = T2·ln n/(2(n−1)))
+[4] termometría: x*=ħω/kT*=2.399, qg_Z*=0.834 (834 m-qg), I_F(ln T)*=0.4392/disparo
+[5] Δφ = 2.943e-03 rad = 0.468 qga por cm; N(3σ, C=1) = 1.039e+06 disparos; con C=0.5: 4.157e+06
+verify_cap11: OK
+```
+Asserts: máximo de $I_F(\phi)$ en $\pi/2$ con valor $C^2$ ($10^{-6}$); $I_F\equiv1$ para $C=1$ ($10^{-12}$); $T^\star$ a $10^{-6}$; igualdad GHZ/producto a $10^{-9}$ para $n=2,5,10$; $I_F(x)=\tfrac14\operatorname{sech}^2(x/2)$ a $10^{-12}$; $x^\star=2.399\pm0.005$.
+
+### `tests/test_qmetro.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qmetro import ramsey_fisher_phi, ghz_fisher_omega, product_fisher_omega, optimal_T, thermal_fisher_x
+
+def test_equator_optimum():
+    assert abs(float(ramsey_fisher_phi(jnp.pi / 2, 0.7)) - 0.49) < 1e-12
+
+def test_ghz_no_gain_per_time():
+    _, vg = optimal_T(ghz_fisher_omega, 1.0, 4.0); _, vp = optimal_T(product_fisher_omega, 1.0, 4.0)
+    assert abs(vg - vp) < 1e-9
+
+def test_thermal_fisher_closed_form():
+    x = jnp.asarray(1.3)
+    assert abs(float(thermal_fisher_x(x)) - 0.25 / np.cosh(0.65) ** 2) < 1e-12
+```
+
+## 11.8 Apéndice H — entradas nuevas en `qang.measures`
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `ramsey_operating_point` | metrología | $\arg\max I_F(\phi)=\pi/2\iff qg_Z=0$ | `ramsey_fisher_phi` | `exact` |
+| `ramsey_T_opt` | metrología | $T^\star=T_2/2$ | `optimal_T` | `exact` |
+| `ghz_dephasing` | metrología | $\max_T I/T$ igual a producto | `ghz_fisher_omega`, `product_fisher_omega` | `no gain` |
+| `thermal_tanh_fisher` | metrología | $\tfrac14\operatorname{sech}^2(x/2)$; $qg_Z^\star=0.834$ | `thermal_fisher_x`, `thermal_fisher_T` | `exact` |
+| `clock_redshift_shots` | metrología | $N=(z/C\Delta\phi)^2$ | `shots_to_resolve_height` | `exact` (planificación) |
+
+### `CHANGELOG.md` — `[Unreleased]`
+```
+### Added
+- `qang.qmetro`: `ramsey_fisher_phi`, `ramsey_fisher_omega`, `ghz_fisher_omega`, `product_fisher_omega`, `optimal_T`,
+  `thermal_qz`, `thermal_fisher_x`, `thermal_fisher_T`, `clock_redshift_phase`, `shots_to_resolve_height` (JAX, `jax<0.9`).
+- `tools/verify_cap11.py`, `tests/test_qmetro.py`; Apéndice H: 5 entradas.
+```
+Commit: `docs(cap11): metrología en qga reescrita sobre Cap. 1–9 + qang.qmetro + verify_cap11`.
