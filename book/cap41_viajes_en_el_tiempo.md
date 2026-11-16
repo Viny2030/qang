@@ -5,7 +5,7 @@
 
 > Capítulo nuevo, que continúa el Cap. 17 (P-CTC frente a D-CTC con tres interacciones) sin repetirlo. Módulo: `qang.qtimeloop` (NumPy exacto). Verificación: `tools/verify_cap41.py`. **Estado: `exact`** para los mapas; **la existencia física de curvas temporales cerradas es `unverified` y no se afirma**: se simulan mapas, no máquinas del tiempo. Sin hardware.
 >
-> **EN abstract.** For a postselected CTC with $C=2\,\mathrm{diag}(1,a)$, the map $\tan(\theta'/2)=a\tan(\theta/2)$ amplifies angular distinguishability by up to $1/a$ at the south pole, but the success probability there is $a^2$. Counting the success statistics, the total Fisher information per input copy is exactly $1$ for every $(a,\theta)$ (max deviation $8.5\cdot10^{-13}$ over 2000 random cases): the nonlinearity creates no information. At $a=0.5$: amplification 2, $p_{\rm post}=0.25$, ×4 shots. The grandfather paradox ($U=I\otimes X$) has $p_{\rm post}=0$ for P-CTC and the zero-reading fixed point (0, 0, 0 m-qg) for D-CTC, with the CR output equal to its input. A rotation inside the loop has a 3-dimensional fixed set only when the angle is a whole number of turns (0 or 1000 qga) and a 1-dimensional one otherwise (250, 500 qga). Maps only; no claim about physical CTCs.
+> **EN abstract.** For a postselected CTC with $C=2\,\mathrm{diag}(1,a)$, the map $\tan(\theta'/2)=a\tan(\theta/2)$ amplifies angular distinguishability by up to $1/a$ at the south pole, but the success probability there is $a^2$. Counting the success statistics, the total Fisher information per input copy is exactly $1$ for every $(a,\theta)$ (max deviation $8.5\cdot10^{-13}$ over 2000 random cases): the nonlinearity creates no information. At $a=0.5$: amplification 2, $p_\mathrm{post}=0.25$, ×4 shots. The grandfather paradox ($U=I\otimes X$) has $p_\mathrm{post}=0$ for P-CTC and the zero-reading fixed point (0, 0, 0 m-qg) for D-CTC, with the CR output equal to its input. A rotation inside the loop has a 3-dimensional fixed set only when the angle is a whole number of turns (0 or 1000 qga) and a 1-dimensional one otherwise (250, 500 qga). Maps only; no claim about physical CTCs.
 
 ---
 
@@ -17,13 +17,13 @@
 
 ## 41.2 Lo que añade a la nonlinealidad: el balance de información
 
-Sea $U=|0\rangle\langle0|\otimes I+|1\rangle\langle1|\otimes R_y(\alpha)$. Entonces $C=\mathrm{Tr}_{\rm CTC}U=2\,\mathrm{diag}(1,a)$ con $a=\cos(\alpha/2)$, y el mapa P-CTC sobre el ángulo polar es
+Sea $U=|0\rangle\langle0|\otimes I+|1\rangle\langle1|\otimes R_y(\alpha)$. Entonces $C=\mathrm{Tr}_\mathrm{CTC}U=2\,\mathrm{diag}(1,a)$ con $a=\cos(\alpha/2)$, y el mapa P-CTC sobre el ángulo polar es
 
 $$
-\tan\frac{\theta'}2=a\tan\frac\theta2,\qquad p_{\rm post}=\cos^2\frac\theta2+a^2\sin^2\frac\theta2,\qquad \frac{d\theta'}{d\theta}=\frac{a}{p_{\rm post}} .
+\tan\frac{\theta'}2=a\tan\frac\theta2,\qquad p_\mathrm{post}=\cos^2\frac\theta2+a^2\sin^2\frac\theta2,\qquad \frac{d\theta'}{d\theta}=\frac{a}{p_\mathrm{post}} .
 $$
 
-Cerca del polo sur ($\theta=\pi$) la amplificación vale $1/a$: dos estados casi iguales quedan más separados a la salida. Pero ahí $p_{\rm post}=a^2$. Para $a=0{,}5$: amplificación 2, $p_{\rm post}=0{,}25$, **×4 disparos por éxito** (`pctc_amplification`, `pctc_p_post`).
+Cerca del polo sur ($\theta=\pi$) la amplificación vale $1/a$: dos estados casi iguales quedan más separados a la salida. Pero ahí $p_\mathrm{post}=a^2$. Para $a=0{,}5$: amplificación 2, $p_\mathrm{post}=0{,}25$, **×4 disparos por éxito** (`pctc_amplification`, `pctc_p_post`).
 
 **Resultado exacto.** Para una familia de estados puros, la información de Fisher por disparo aceptado es $(d\theta'/d\theta)^2$ y la de la tasa de éxito es $(dp/d\theta)^2/[p(1-p)]$. Su suma ponderada por copia de entrada es
 
@@ -31,11 +31,11 @@ $$
 p\,\Big(\frac{d\theta'}{d\theta}\Big)^2+\frac{(1-a^2)\cos^2(\theta/2)}{p}=\frac{a^2+(1-a^2)\cos^2(\theta/2)}{p}=1 .
 $$
 
-Con 2000 pares $(a,\theta)$ al azar, $|F_{\rm total}-1|\le 8{,}5\cdot10^{-13}$ (`pctc_fisher`). **La postselección no crea información**: la que gana el éxito amplificado la pierde la tasa de fracaso. Sólo en el polo sur el término de éxito vale 1 por sí solo ($p\,F_{\rm acc}=1{,}0000$ con $a=0{,}5$); el resto del círculo reparte el 1 entre el éxito y la probabilidad de éxito.
+Con 2000 pares $(a,\theta)$ al azar, $|F_\mathrm{total}-1|\le 8{,}5\cdot10^{-13}$ (`pctc_fisher`). **La postselección no crea información**: la que gana el éxito amplificado la pierde la tasa de fracaso. Sólo en el polo sur el término de éxito vale 1 por sí solo ($p\,F_\mathrm{acc}=1{,}0000$ con $a=0{,}5$); el resto del círculo reparte el 1 entre el éxito y la probabilidad de éxito.
 
 ## 41.3 La paradoja del abuelo
 
-Con $U=I_{\rm CR}\otimes X_{\rm CTC}$ (el qubit que vuelve al pasado se invierte): P-CTC da $C=\mathrm{Tr}_{\rm CTC}U=0$ y $p_{\rm post}=0$: **la historia nunca ocurre**, no hay disparo aceptado que leer. D-CTC resuelve el punto fijo iterando $\rho_{\rm CTC}\leftarrow\mathrm{Tr}_{\rm CR}[U(\rho\otimes\rho_{\rm CTC})U^\dagger]$ desde $I/2$: el resultado es el estado de lecturas $(0,0,0)$ m-qg (los puntos fijos de $\rho\mapsto X\rho X$ son todos los de $qg_Y=qg_Z=0$; la iteración desde $I/2$ elige el de máxima entropía), y el qubit cronológico sale igual que entró (`deutsch_iterate`; entrada $qg_X=+1000$ m-qg, salida $+1000$ m-qg).
+Con $U=I_\mathrm{CR}\otimes X_\mathrm{CTC}$ (el qubit que vuelve al pasado se invierte): P-CTC da $C=\mathrm{Tr}_\mathrm{CTC}U=0$ y $p_\mathrm{post}=0$: **la historia nunca ocurre**, no hay disparo aceptado que leer. D-CTC resuelve el punto fijo iterando $\rho_\mathrm{CTC}\leftarrow\mathrm{Tr}_\mathrm{CR}[U(\rho\otimes\rho_\mathrm{CTC})U^\dagger]$ desde $I/2$: el resultado es el estado de lecturas $(0,0,0)$ m-qg (los puntos fijos de $\rho\mapsto X\rho X$ son todos los de $qg_Y=qg_Z=0$; la iteración desde $I/2$ elige el de máxima entropía), y el qubit cronológico sale igual que entró (`deutsch_iterate`; entrada $qg_X=+1000$ m-qg, salida $+1000$ m-qg).
 
 ## 41.4 Puntos fijos de una rotación en el bucle, por ángulo en qga
 
@@ -56,9 +56,9 @@ El período es el de qga (1000), no el de qg: sólo a vuelta completa el bucle n
 
 | aspecto | sin qang | con qang | diferencia |
 |---|---|---|---|
-| ¿La postselección amplifica la distinguibilidad? | «sí» por disparo aceptado | ×$1/a$ en el polo sur, pero $p_{\rm post}=a^2$ | Fisher total por copia $=1$ (error $8{,}5\cdot10^{-13}$) |
+| ¿La postselección amplifica la distinguibilidad? | «sí» por disparo aceptado | ×$1/a$ en el polo sur, pero $p_\mathrm{post}=a^2$ | Fisher total por copia $=1$ (error $8{,}5\cdot10^{-13}$) |
 | costo de un éxito en el polo sur, $a=0{,}5$ | no presupuestado | ×4 disparos | 4000 disparos por 1000 éxitos |
-| paradoja del abuelo | discusión cualitativa | P-CTC $p_{\rm post}=0$; D-CTC lecturas $(0,0,0)$ m-qg | CR de salida = entrada |
+| paradoja del abuelo | discusión cualitativa | P-CTC $p_\mathrm{post}=0$; D-CTC lecturas $(0,0,0)$ m-qg | CR de salida = entrada |
 | ¿cuándo un bucle no restringe el estado? | — | $\alpha\equiv0$ (mod 1000 qga) | 3 vs 1 dimensiones |
 
 ## 41.6 Código
@@ -91,9 +91,9 @@ verify_cap41: OK
 
 | id | familia | fórmula | función | estatus |
 |---|---|---|---|---|
-| `pctc_info_balance` | física | $p\,F_{\rm acc}+F_{\rm éxito}=1$ | `qang.qtimeloop.pctc_fisher` | `exact` |
-| `pctc_south_amplification` | física | $d\theta'/d\theta=1/a$, $p_{\rm post}=a^2$ | `qang.qtimeloop.pctc_amplification`, `qang.qtimeloop.pctc_p_post` | `exact` |
-| `grandfather_maps` | física | P-CTC $p_{\rm post}=0$; D-CTC $(0,0,0)$ m-qg | `qang.qtimeloop.pctc_success`, `qang.qtimeloop.deutsch_iterate` | `exact` |
+| `pctc_info_balance` | física | $p\,F_\mathrm{acc}+F_\text{éxito}=1$ | `qang.qtimeloop.pctc_fisher` | `exact` |
+| `pctc_south_amplification` | física | $d\theta'/d\theta=1/a$, $p_\mathrm{post}=a^2$ | `qang.qtimeloop.pctc_amplification`, `qang.qtimeloop.pctc_p_post` | `exact` |
+| `grandfather_maps` | física | P-CTC $p_\mathrm{post}=0$; D-CTC $(0,0,0)$ m-qg | `qang.qtimeloop.pctc_success`, `qang.qtimeloop.deutsch_iterate` | `exact` |
 | `loop_fixed_dimension` | física | $\dim\ker(R-I)$ por ángulo en qga | `qang.qtimeloop.fixed_dimension`, `qang.qtimeloop.bloch_rotation` | `exact` |
 | `physical_ctc_existence` | física | existencia de CTC | — | `unverified` (no se afirma) |
 
