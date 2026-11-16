@@ -249,3 +249,190 @@ def negative_inventory(rows: List[Dict]) -> Dict[str, List[Tuple[int, str]]]:
         if s in inv:
             inv[s].append((r["cap"], r["id"]))
     return inv
+
+
+# ------------------------------------------------------------------ 8. una sola base de lectura: no-go, C_Z, pureza, testigos
+# Todas las bases en bits (log base 2). H_Z en bits; H_Z/n se rotula aparte. Qubit 0 = bit más significativo.
+_I2 = np.eye(2, dtype=complex)
+_PX = np.array([[0, 1], [1, 0]], dtype=complex)
+_PZ = np.diag([1.0, -1.0]).astype(complex)
+HADAMARD = np.array([[1, 1], [1, -1]], dtype=complex) / np.sqrt(2)
+
+
+def _kron(*ops: np.ndarray) -> np.ndarray:
+    out = np.eye(1, dtype=complex)
+    for o in ops:
+        out = np.kron(out, o)
+    return out
+
+
+def shannon_bits(p: np.ndarray) -> float:
+    """H(p) en bits, con 0·log 0 = 0."""
+    q = np.asarray(p, dtype=float)
+    q = q[q > 0]
+    return float(-np.sum(q * np.log2(q)))
+
+
+def h2(x: float) -> float:
+    return shannon_bits(np.array([x, 1.0 - x]))
+
+
+def z_marginals(p: np.ndarray, n: int) -> np.ndarray:
+    """P(bit_i = 0) para cada qubit i."""
+    idx = np.arange(2 ** n)
+    return np.array([float(np.sum(p[bit(idx, q, n) == 0])) for q in range(n)])
+
+
+def total_correlation_z(p: np.ndarray, n: int) -> float:
+    """C_Z = Σ_i H(X_i) − H(X_1..X_n) = KL(p ‖ ∏ p_i), en bits. Es información de resultados, no de entrelazamiento."""
+    return float(sum(h2(m) for m in z_marginals(p, n)) - shannon_bits(p))
+
+
+def diagonal_twin(p: np.ndarray) -> np.ndarray:
+    """σ_p = Σ_x p(x)|x⟩⟨x|: completamente separable y con la misma distribución Z que cualquier estado con diagonal p."""
+    return np.diag(np.asarray(p, dtype=complex))
+
+
+def purity_range_from_z(p: np.ndarray) -> Tuple[float, float]:
+    """Rango exacto de Tr ρ² compatible con la diagonal p: [Σ p², 1] (ambos extremos alcanzables)."""
+    return float(np.sum(np.asarray(p) ** 2)), 1.0
+
+
+def pure_state_from_z(p: np.ndarray) -> np.ndarray:
+    """|ψ_p⟩ = Σ √p(x)|x⟩: estado puro con la diagonal p."""
+    return np.sqrt(np.asarray(p, dtype=complex))
+
+
+def purity(rho: np.ndarray) -> float:
+    return float(np.real(np.trace(rho @ rho)))
+
+
+def von_neumann_bits(rho: np.ndarray) -> float:
+    w = np.linalg.eigvalsh((rho + rho.conj().T) / 2)
+    return shannon_bits(np.clip(w, 0.0, None))
+
+
+def relative_entropy_coherence_z(rho: np.ndarray) -> float:
+    """C_rel,Z = S(Δ_Z ρ) − S(ρ) = H_Z − S(ρ); H_Z = C_rel,Z sólo si ρ es puro."""
+    return shannon_bits(np.real(np.diag(rho))) - von_neumann_bits(rho)
+
+
+def reduced_state(rho: np.ndarray, n: int, keep: Sequence[int]) -> np.ndarray:
+    t = rho.reshape([2] * (2 * n))
+    keep = list(keep)
+    trace_out = [q for q in range(n) if q not in keep]
+    for k, q in enumerate(sorted(trace_out, reverse=True)):
+        m = t.ndim // 2
+        t = np.trace(t, axis1=q, axis2=q + m)
+    d = 2 ** len(keep)
+    return t.reshape(d, d)
+
+
+def local_purities(rho: np.ndarray, n: int) -> List[float]:
+    return [purity(reduced_state(rho, n, [q])) for q in range(n)]
+
+
+def partial_transpose_min_eig(rho: np.ndarray, n: int, n_a: int = 1) -> float:
+    """Menor autovalor de la transpuesta parcial sobre los primeros n_a qubits (Peres): < 0 certifica entrelazamiento."""
+    da, db = 2 ** n_a, 2 ** (n - n_a)
+    t = rho.reshape(da, db, da, db).transpose(2, 1, 0, 3).reshape(2 ** n, 2 ** n)
+    return float(np.min(np.linalg.eigvalsh((t + t.conj().T) / 2)))
+
+
+def cz_matrix(n: int, a: int, b: int) -> np.ndarray:
+    d = 2 ** n
+    idx = np.arange(d)
+    return np.diag(np.where((bit(idx, a, n) & bit(idx, b, n)) == 1, -1.0, 1.0)).astype(complex)
+
+
+def path_graph_state(n: int) -> np.ndarray:
+    """H^n seguido de CZ en el camino 0–1–…–(n−1) (n=2: arista; n=3: camino de 3)."""
+    psi = np.full(2 ** n, 2 ** (-n / 2), dtype=complex)
+    for q in range(n - 1):
+        psi = cz_matrix(n, q, q + 1) @ psi
+    return psi
+
+
+def ghz_state_n(n: int) -> np.ndarray:
+    psi = np.zeros(2 ** n, dtype=complex)
+    psi[0] = psi[-1] = 1 / np.sqrt(2)
+    return psi
+
+
+def apply_local(psi: np.ndarray, n: int, ops: Dict[int, np.ndarray]) -> np.ndarray:
+    return _kron(*[ops.get(q, _I2) for q in range(n)]) @ psi
+
+
+def witness_path(n: int) -> np.ndarray:
+    """W′ = (n−1)·I − Σ_i K_i, K_i = X_i ∏_{j vecino} Z_j, camino de n qubits (Tóth–Gühne, n=2,3)."""
+    W = (n - 1) * np.eye(2 ** n, dtype=complex)
+    for i in range(n):
+        ops = [_I2] * n
+        ops[i] = _PX
+        for j in (i - 1, i + 1):
+            if 0 <= j < n:
+                ops[j] = _PZ
+        W = W - _kron(*ops)
+    return W
+
+
+def witness_value(W: np.ndarray, rho: np.ndarray) -> float:
+    return float(np.real(np.trace(W @ rho)))
+
+
+def witness_radius(m: int, shots: int, delta: float = 0.05) -> float:
+    """Radio conservador m·η, η = √(2 ln(2m/δ)/N): certificar sólo si Ŵ′ + m·η < 0."""
+    return float(m * np.sqrt(2.0 * np.log(2.0 * m / delta) / shots))
+
+
+def hoeffding_shots(eps: float, delta: float, n_means: int = 1) -> int:
+    """N suficiente para |μ̂ − μ| ≤ ε con prob. ≥ 1−δ sobre n_means medias en [−1,1] (N ≥ 2ε⁻² ln(2n/δ))."""
+    return int(np.ceil(2.0 * np.log(2.0 * n_means / delta) / eps ** 2))
+
+
+def _t_for_error(f, eps: float, K: int) -> float:
+    lo, hi = 0.0, 1.0 - 1.0 / K
+    for _ in range(200):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if f(mid) <= eps else (lo, mid)
+    return lo
+
+
+def sufficient_shots_entropy(n: int, eps: float, delta: float, target: str = "H") -> int:
+    """N suficiente (cota distribución-libre, deliberadamente holgada) para |Ĥ_Z − H_Z| ≤ ε o |Ĉ_Z − C_Z| ≤ ε.
+    TV(p, p̂) ≤ t con N ≥ (K ln 2 + ln(1/δ)) / (2t²), K = 2ⁿ; continuidad: h2(t) + t log2(K−1) [H] o (n+1)h2(t) + t log2(K−1) [C]."""
+    K = 2 ** n
+    mult = 1.0 if target == "H" else float(n + 1)
+    t = _t_for_error(lambda x: mult * h2(x) + x * np.log2(K - 1), eps, K)
+    return int(np.ceil((K * np.log(2.0) + np.log(1.0 / delta)) / (2.0 * t ** 2)))
+
+
+def plugin_cz_bias_uniform(n: int, shots: int) -> float:
+    """Sesgo líder del C_Z de plug-in con p uniforme e independiente: (2ⁿ−1−n)/(2N ln 2) > 0 (artefacto estadístico)."""
+    return float((2 ** n - 1 - n) / (2.0 * shots * np.log(2.0)))
+
+
+def plugin_study_uniform(n: int, shots: int, reps: int, seed: int) -> Tuple[float, float]:
+    """(media Ĥ_Z, media Ĉ_Z) en bits sobre `reps` histogramas multinomiales con p uniforme."""
+    rng = np.random.default_rng(seed)
+    K = 2 ** n
+    hs, cs = [], []
+    for _ in range(reps):
+        ph = rng.multinomial(shots, np.full(K, 1.0 / K)) / shots
+        hs.append(shannon_bits(ph))
+        cs.append(total_correlation_z(ph, n))
+    return float(np.mean(hs)), float(np.mean(cs))
+
+
+def dephased_path3(t: float) -> np.ndarray:
+    """ρ_t = (1−t)|G₃⟩⟨G₃| + t·I/8: toda estadística Z queda fija; W′ pasa de −1 a +2."""
+    g = path_graph_state(3)
+    return (1 - t) * np.outer(g, g.conj()) + t * np.eye(8, dtype=complex) / 8
+
+
+def product_amp_damped(gamma: float) -> Dict[str, float]:
+    """diag(γ,1−γ)⊗diag(γ,1−γ): producto en todo γ. H_Z = 2·h2(γ), z = 2γ−1, C_Z = 0, P = [γ²+(1−γ)²]²."""
+    r = np.diag([gamma, 1 - gamma]).astype(complex)
+    rho = np.kron(r, r)
+    p = np.real(np.diag(rho))
+    return {"H_Z": shannon_bits(p), "z": 2 * gamma - 1, "C_Z": total_correlation_z(p, 2), "P": purity(rho)}

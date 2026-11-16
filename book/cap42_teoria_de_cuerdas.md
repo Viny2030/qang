@@ -1,0 +1,126 @@
+# Capítulo 42 — La teoría de cuerdas leída con qang: conteo exacto, el nivel como lectura Z, T-dualidad y el radio de un análogo de red
+# Chapter 42 — String Theory Read with qang: Exact Counting, the Level as a Z Reading, T-Duality and the Radius of a Lattice Analogue
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Capítulo nuevo, que sigue al Cap. 33 (bosón libre $c=1$ y alcance frente a cuerdas) sin repetirlo. Módulo: `qang.qstring` (NumPy; SciPy sólo en §42.5). Verificación: `tools/verify_cap42.py`. **Estado: `exact`** para las identidades del modelo (§42.2–§42.4); **`mixed`** para el radio leído en una cadena XXZ de tamaño finito (§42.5); **que `qang` mide física de cuerdas es `not adopted`**: se leen identidades de un modelo y un análogo de red, no se prueba la teoría. Sin hardware.
+>
+> **EN abstract.** What of string theory can be read and verified with qang? (i) Light-cone bosonic string: level degeneracies $1,24,324,3200,25650,176256$, critical dimension $D=26$, and the closed massless level $576=299+276+1$. (ii) The level $N=\sum_k k\,x_k$ is a weighted Hamming weight, hence a linear single-basis Z reading, $N=\sum_k k(1000-m_k)/2000$ with $m_k$ in m-qg, and its $T_1$ filter keeps exactly $(1-\gamma)^{|x|}$; the level filter and the Hamming-weight filter have complementary blind spots. (iii) T-duality $R\to\alpha'/R$ leaves the level-matched spectrum unchanged at six radii; at the self-dual radius the massless count rises from 576 to 676. (iv) In an XXZ ring of 20 sites, a single Z histogram gives the Luttinger parameter (the compactification radius of the lattice analogue) from the block weight variance within 1.3 % at $\Delta=0$ and 13 % at $\Delta=0.71$. None of this measures string physics.
+
+---
+
+## 42.1 Reglas de lectura
+
+1. Cada resultado entra con su función en `qang.qstring` y su línea en `tools/verify_cap42.py`. Escalas: $m\text{-qg}=1000\,qg_Z$; este capítulo no usa `qga`.
+2. Lo que se calcula es una identidad exacta del modelo (conteo, espectro) o una lectura Z de un análogo en qubits. Ningún número de aquí es una medida de la cuerda física, de $D=26$ como dimensión del espacio-tiempo ni del acoplamiento.
+3. El Cap. 33 ya registró que las lecturas locales $qg_Z$ y $qg_S$ son planas frente a la carga central ($\texttt{against}$). Aquí se muestra qué lecturas sí dependen del parámetro del modelo y cuáles no.
+
+## 42.2 La cuerda bosónica de luz-cono: conteo exacto
+
+Con $d=24$ osciladores transversales, la degeneración del nivel $N$ es el coeficiente de $q^N$ en $\prod_{n\ge1}(1-q^n)^{-24}$ (`colored_partitions`): $1,\,24,\,324,\,3200,\,25650,\,176256$ para $N=0,\dots,5$. La energía del punto cero es $-(D-2)/24$ (`zero_point_energy`); el primer nivel excitado es sin masa sólo si $(D-2)/24=1$, es decir $D=26$ (`critical_dimension`, única en $3\le D<60$). Para la cuerda abierta, $\alpha' M^2=N-1$: $-1$ en $N=0$ (taquión) y $0$ en $N=1$. En la cerrada, el nivel $N=\tilde N=1$ tiene $24\times24=576$ estados, que se descomponen en $299$ (gravitón, simétrico sin traza) $+\,276$ (Kalb–Ramond, antisimétrico) $+\,1$ (dilatón) (`closed_massless_decomposition`).
+
+Costo en qubits de rotular los estados de un nivel (sólo para dimensionar, no se codifica el espectro): $\lceil\log_2 d_N\rceil=5,\,9,\,12,\,15,\,18$ para $N=1,\dots,5$.
+
+## 42.3 El nivel $N$ como lectura Z lineal y su filtro bajo $T_1$
+
+Con un qubit por modo ($k$-ésimo modo $=$ qubit $k-1$, ocupación 0/1: es el caso fermiónico o de «partes distintas», no los 24 osciladores bosónicos), el nivel es el **peso ponderado** $W(x)=\sum_k k\,x_k$. Es lineal en las lecturas: $\langle N\rangle=\sum_k k\,(1000-m_k)/2000$, con $m_k$ la lectura $qg_Z$ del qubit $k-1$ en m-qg (`level_from_z`, `level_from_readings`; diferencia con el histograma $7\cdot10^{-15}$). El tamaño del sector de nivel $N$ con $n=10$ modos es el número de particiones de $N$ en partes distintas: $1,1,1,2,2,3,4,5,6,8,10$ (`level_sector_size`, `distinct_partitions`).
+
+**Presupuesto.** Con $n=6$ y $p$ uniforme, $\mathrm{Var}\,N=22.75$; para $\sigma_N=0.1$ al 95 % hacen falta $8740$ disparos Z (`level_shots`), sin ajustes adicionales.
+
+**Filtro de nivel bajo $T_1$.** Cualquier decaimiento de un modo ocupado baja el nivel, así que el filtro de nivel lo detecta siempre; la retención es exactamente $(1-\gamma)^{|x|}$ (`level_filter_damped`). Para el estado de nivel 14 (modos 1, 3, 4, 6): $\gamma=0.1$ retiene $0.6561=(0.9)^4$; $\gamma=0.3$ retiene $0.2401$ y el nivel medio crudo es $9.80$ frente a $14$.
+
+**Dos puntos ciegos complementarios** (`level_vs_weight_blindness`): el intercambio $\{3\}\leftrightarrow\{1,2\}$ conserva el nivel (3) y cambia el peso ($1\to2$): el filtro de nivel no lo ve. El movimiento $\{1\}\to\{2\}$ conserva el peso y cambia el nivel ($1\to2$): el filtro de peso del Cap. 34 no lo ve. Cada filtro necesita saber qué cantidad conserva el circuito.
+
+## 42.4 T-dualidad del bosón compactado
+
+Con $p_{L,R}=n/R\pm wR/\alpha'$ y $(h,\bar h)=(\alpha' p_L^2/4+N-1,\ \alpha' p_R^2/4+\tilde N-1)$, el emparejamiento de nivel es $nw+N-\tilde N=0$ (`conformal_weights`, `closed_spectrum`). El espectro con $h,\bar h\le2$ y 24 osciladores por lado es idéntico a $R$ y a $\alpha'/R$ (intercambio $n\leftrightarrow w$): comprobado en $R=0.5,\,0.7,\,1,\,1.3,\,2,\,3$ (`t_dual_equal`). Estados sin masa ($h=\bar h=0$, `massless_states`): $R=0.7$ y $1.3$: $576$; $R=0.5$ y $2$: $580$; $R=3$: $578$; **radio autodual $R=\sqrt{\alpha'}$: $676=576+4\cdot24+4$**, con $4\cdot24=96$ estados vectoriales en $(n,w)=(\pm1,\pm1)$ (`massless_breakdown`) y $4$ escalares en $(\pm2,0),(0,\pm2)$. La ampliación de $576$ a $676$ es la simetría extendida del radio autodual.
+
+## 42.5 El radio, leído con una sola base Z: una cadena XXZ
+
+La cadena XXZ $H=\sum_i S^x_iS^x_{i+1}+S^y_iS^y_{i+1}+\Delta S^z_iS^z_{i+1}$ es el análogo de red de un bosón compactado; su parámetro de Luttinger $K=\pi/(2(\pi-\arccos\Delta))$ (`luttinger_k_exact`; $K=1$ en $\Delta=0$, $K=1/2$ en $\Delta=1$) fija el radio, con una identificación $K\leftrightarrow R^2/\alpha'$ que depende de la convención. En el anillo, la varianza del peso de Hamming de un bloque de $\ell$ qubits, leída de **un solo histograma Z**, crece como $(K/\pi^2)\ln[(L/\pi)\sin(\pi\ell/L)]$ (`block_weight_variance`, `luttinger_k_from_variance`; ajuste con $\ell$ pares $\ge4$, porque los $\ell$ impares oscilan).
+
+Anillo de 20 sitios, sector $S^z=0$ (`xxz_ground_distribution`, SciPy):
+
+| $\Delta$ | $K$ exacto | $\hat K$ (una base Z) | error |
+|---|---|---|---|
+| $0$ | $1.000$ | $1.013$ | $1.3\,\%$ |
+| $-0.5$ | $1.500$ | $1.514$ | $0.9\,\%$ |
+| $0.5$ | $0.750$ | $0.811$ | $8.2\,\%$ |
+| $0.7071$ | $0.667$ | $0.756$ | $13.4\,\%$ |
+
+El error crece hacia $\Delta>0$ por correcciones logarítmicas cerca de $\Delta=1$: el estatus es `mixed`. En el continuo, los exponentes de las correlaciones escalonadas son $2K$ (ZZ) y $1/(2K)$ (XX): su producto es $1$ y la T-dualidad $K\to1/K$ los intercambia (`dual_exponents`). El par $K=3/2$ ($\Delta=-0.5$) y $K=2/3$ ($\Delta=\cos\pi/4$) da un producto leído $1.145$ (error $14.5\,\%$, el de la rama $\Delta>0$): la cadena de red no es T-dual de sí misma, sólo lo es su límite al continuo.
+
+## 42.6 Qué no mide
+
+- No mide $D=26$ como dimensión del espacio-tiempo, ni el espectro de masas físico, ni el acoplamiento: son identidades de un modelo.
+- El nivel $W(x)$ con ocupación 0/1 no es el espectro de los 24 osciladores bosónicos; es el caso fermiónico. Las degeneraciones $d_N$ se cuentan, no se codifican en qubits.
+- El radio de la cadena XXZ es el de un análogo de red de tamaño finito; la identificación con $R/\sqrt{\alpha'}$ depende de la convención.
+- Las lecturas locales $qg_Z$ y $qg_S$ siguen sin medir la carga central (Cap. 33, `against`); la varianza de bloque de §42.5 sí depende de $K$ porque usa el histograma conjunto de varios qubits.
+
+## 42.7 Sin qang vs con qang
+
+| aspecto | sin qang | con qang | diferencia |
+|---|---|---|---|
+| Nivel $N$ de un estado en qubits | tomografía o contar pesos a mano | $N=\sum_k k(1000-m_k)/2000$ de un histograma Z | 0 ajustes extra (`exact`) |
+| Detectar decaimientos en el nivel | post-selección ad hoc | filtro de nivel: retención $(1-\gamma)^{|x|}$ | todo decaimiento se detecta (`exact`) |
+| Qué filtro usar | un solo filtro de peso | nivel o peso según lo que conserve el circuito | puntos ciegos complementarios (`exact`) |
+| Radio de un análogo de red | exponentes de correlación en 2 bases (ZZ y XX) | varianza de bloque, 1 base Z | $-1$ base; error $1.3\,\%$ ($\Delta=0$) a $13\,\%$ ($\Delta=0.71$) (`mixed`) |
+| Comprobar T-dualidad | a mano | espectro igual en 6 radios; 576 → 676 en el autodual | (`exact`) |
+
+## 42.8 Código
+
+```python
+from qang.qstring import (colored_partitions, critical_dimension, closed_massless_decomposition, level_from_z,
+                          level_filter_damped, level_vs_weight_blindness, t_dual_equal, massless_states, massless_breakdown,
+                          luttinger_k_exact, luttinger_k_from_variance, xxz_ground_distribution, dual_exponents)
+
+colored_partitions(5, 24)                     # [1, 24, 324, 3200, 25650, 176256]
+critical_dimension()                          # 26
+massless_states(1.0)                          # 676  (576 genéricos a R=1.3)
+level_filter_damped(0b101101, 6, 0.3)["kept"] # 0.2401
+st, p = xxz_ground_distribution(20, 0.0)
+luttinger_k_from_variance(st, p, 20)          # 1.013 (exacto 1.000)
+```
+
+## 42.9 Verificación — `tools/verify_cap42.py`
+
+```
+[1] d_N (24 osciladores), N=0..5: [1, 24, 324, 3200, 25650, 176256]; D crítica = 26 (única en 3..59); α'M²(N=0,1) = -1, 0; cerrada N=Ñ=1: 576 = 299 (gravitón) + 276 (Kalb–Ramond) + 1 (dilatón); qubits para rotular el nivel N=1..5: [5, 9, 12, 15, 18]
+[2] tamaños del sector de nivel N=0..10 (n=10 qubits): [1, 1, 1, 2, 2, 3, 4, 5, 6, 8, 10] = particiones en partes distintas; |⟨N⟩ por modos (m-qg) − ⟨N⟩ por histograma| = 7.1e-15; uniforme n=6: Var N = 22.75, disparos para σ_N=0.1 (95 %): 8740
+[3] estado nivel 14 (modos 1,3,4,6), T1: γ=0.1 retención 0.6561 = (1−γ)⁴; γ=0.3 retención 0.2401; nivel medio crudo 9.80 frente a 14 (todo decaimiento baja el nivel)
+    puntos ciegos: {3}↔{1,2} conserva el nivel 3 y cambia el peso 1→2 (filtro de nivel no lo ve); {1}→{2} conserva el peso y cambia el nivel 1→2 (filtro de peso no lo ve)
+[4] espectro (h, h̄) invariante bajo R → α'/R en R = 0.5, 0.7, 1.0, 1.3, 2.0, 3.0; estados sin masa: R=0.5: 580, R=0.7: 576, R=1.0: 676, R=1.3: 576, R=2.0: 580, R=3.0: 578; en el radio autodual 676 = 576 + 4·24 (vectores, n=±1,w=±1) + 4 (escalares, (±2,0),(0,±2))
+[5] anillo XXZ de 20 sitios, ℓ pares ≥ 4, un histograma Z: Δ=+0.0000: K̂=1.013 (exacto 1.000, error 1.3 %); Δ=-0.5000: K̂=1.514 (exacto 1.500, error 0.9 %); Δ=+0.5000: K̂=0.811 (exacto 0.750, error 8.2 %); Δ=+0.7071: K̂=0.756 (exacto 0.667, error 13.4 %)
+    par T-dual K=3/2 (Δ=−0.5) y K=2/3 (Δ=cos π/4): producto leído 1.145 frente a 1 (exacto en el continuo; exponentes 2K y 1/(2K) → producto 1)
+verify_cap42: OK
+```
+
+### `tests/test_qstring.py`
+
+5 pruebas: conteo y $D=26$; el nivel como lectura Z lineal y tamaños de sector; retención y puntos ciegos; T-dualidad y 576 → 676; fórmulas de Luttinger y cadena pequeña (`importorskip("scipy")`).
+
+## 42.10 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+|---|---|---|---|---|
+| `string_level_degeneracy` | cuerdas | $\prod(1-q^n)^{-24}$: $1,24,324,3200,25650,176256$ | `qang.qstring.colored_partitions` | `exact` |
+| `string_critical_dimension` | cuerdas | $(D-2)/24=1\Rightarrow D=26$ | `qang.qstring.critical_dimension` | `exact` |
+| `closed_massless_split` | cuerdas | $576=299+276+1$ | `qang.qstring.closed_massless_decomposition` | `exact` |
+| `level_linear_reading` | cuerdas | $N=\sum_k k(1000-m_k)/2000$ | `qang.qstring.level_from_z`, `qang.qstring.level_from_readings` | `exact` |
+| `level_filter_t1` | cuerdas | retención $(1-\gamma)^{\lvert x\rvert}$ | `qang.qstring.level_filter_damped` | `exact` |
+| `level_weight_blind_spots` | cuerdas | nivel y peso: puntos ciegos complementarios | `qang.qstring.level_vs_weight_blindness` | `exact` |
+| `t_duality_spectrum` | cuerdas | espectro igual en $R$ y $\alpha'/R$ (6 radios) | `qang.qstring.t_dual_equal`, `qang.qstring.closed_spectrum` | `exact` |
+| `selfdual_massless` | cuerdas | $676=576+96+4$ en $R=\sqrt{\alpha'}$ | `qang.qstring.massless_states`, `qang.qstring.massless_breakdown` | `exact` |
+| `luttinger_block_variance` | cuerdas | $K\simeq\pi^2\,d\,\mathrm{Var}/d\ln(\text{cuerda})$; error $1.3$–$13.4\,\%$ | `qang.qstring.luttinger_k_from_variance`, `qang.qstring.xxz_ground_distribution` | `mixed` |
+| `string_physics_claims` | cuerdas | que `qang` mide física de cuerdas | — | `not adopted` |
+
+## 42.11 CHANGELOG y commit
+
+```markdown
+### Added
+- `qang.qstring` (Cap. 42): light-cone bosonic string counting (d_N, D=26, 576=299+276+1), the level as a weighted Hamming weight with a linear Z reading and its T1 filter, T-duality of the compactified boson (spectrum invariant at six radii; 576 → 676 massless states at the self-dual radius), and the Luttinger parameter of an XXZ ring read from one Z histogram; `tools/verify_cap42.py`; 5 tests.
+```
+
+```text
+feat(book): add Cap. 42 (string theory with qang) with qang.qstring
+```

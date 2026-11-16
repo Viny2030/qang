@@ -1,0 +1,121 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.3cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,array,longtable,ragged2e}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\newcommand{\qgZ}{qg_Z}
+\newcommand{\qgS}{qg_S}
+\newcommand{\mqg}{\text{m-qg}}
+\newcommand{\st}[1]{\texttt{#1}}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\title{Qang 0.16: a refoundation\\
+\large A measurement-level design vocabulary for quantum circuits,\\
+with verified utility by field, recorded negative results and a pre-registered falsification protocol}
+\author{Vicente Humberto Monteverde\\
+\small Universidad del Museo Social Argentino (UMSA), Argentina \quad ORCID 0000-0001-8884-4811}
+\date{\small Version 0.16.0 \quad 16 November 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\noindent Earlier records of this project introduced the Qang ($qg$) coordinates and a reference implementation. This record refounds the work on the complete version~0.16.0 of the open-source library \texttt{qang} and its book (42 chapters, Appendices A--H). The claim is deliberately narrower than in earlier presentations. Qang adds no new physical observable: $\qgZ=\langle\sigma_z\rangle$ and $\qgS=h_2((1+\qgZ)/2)$ are exact functions of one outcome probability. What the library contributes is (i) two explicit scales, the angular \st{qga} (1~turn $=1000$~qga) and the reading \st{m-qg} ($1000\,\qgZ$); (ii) a catalogue of design rules, each tied to one function in \texttt{qang} and one verification script, that reduce measurement settings, ancillas, entangling gates, pulses or shots in the cases where the Z-basis reading is exact; and (iii) a ledger of 179 sub-measures with a status each. In the ledger, 145 are \st{exact}, 5 are \st{tested on hardware} (one device), none is a \st{measured gain}, and 29 are recorded as \st{against}, \st{no gain}, \st{mixed}, \st{not adopted} or \st{unverified}. We summarize the utility field by field, state the structural limits (including a no-go theorem for any statistic of a single product-basis distribution), and give the falsification protocol that would retire each claim.
+
+\medskip\noindent\textbf{Resumen.} Esta refundación reúne la versión 0.16.0 completa de \texttt{qang} y su libro (42 capítulos). Qang no introduce un observable físico nuevo; aporta dos escalas explícitas (\st{qga}, \st{m-qg}), reglas de diseño que reducen ajustes de medida, ancillas, compuertas, pulsos o disparos donde la lectura en base~Z es exacta, y un libro de cuentas de 179 submedidas con estatus. Ninguna figura como \st{measured gain}; sólo cinco están \st{tested on hardware}, en un único dispositivo. Se resumen los usos por campo, los límites estructurales y el protocolo de falsación.
+\end{abstract}
+
+\section{What is being refounded}
+Version 0.15.0 (PyPI, 41 chapters) was the previous release; version 0.16.0 adds Chapter 42 and the single-basis results of Chapter 34. Earlier Zenodo records of this project (10.5281/zenodo.22832150, 10.5281/zenodo.23036963, 10.5281/zenodo.23989993~\cite{z1,z2,z3}) are superseded by this one for the state of the library and the book. Since then three things changed. First, the book was rewritten as verified chapters 7--42: every number in a chapter comes from a function in \texttt{qang} and a script \texttt{tools/verify\_capXX.py}, and the same number is pinned by a test. Second, every sub-measure received a status from a closed vocabulary (\st{exact}, \st{measured gain}, \st{tested on hardware}, \st{mixed}, \st{no gain}, \st{against}, \st{unverified}, \st{not adopted}) in Appendix~H, and negative findings are kept, not removed. Third, the angular scale was separated from the reading scale, so that no result depends on a unit convention.
+
+The refoundation therefore changes the \emph{kind} of claim: from ``a parametrization with advantages'' to ``a measurement-level vocabulary whose each rule says where it is exact, what it saves, and where it must not be used''.
+
+\section{Definitions and scales}
+For a qubit with outcome probabilities $p_0,p_1$: $\qgZ=p_0-p_1=2p_0-1=\cos\theta$ for a pure state with polar angle $\theta$, and $\qgS=h_2(p_0)$ in bits. The exact identity $\qgS=h_2((1+\qgZ)/2)$ holds for every single-qubit state; $\qgS$ fixes $|\qgZ|$ but not its sign, so it carries no independent single-qubit information. The two scales are distinct:
+\begin{itemize}
+\item \st{qga}: angular scale, 1 turn $=2\pi$ rad $=1000$ qga (pole $|0\rangle=0$, equator $=250$, pole $|1\rangle=500$).
+\item \st{m-qg}: reading $m=1000\,\qgZ=2000\,p_0-1000\in[-1000,1000]$, linear in $p_0$ and non-linear in angle.
+\end{itemize}
+For a mixed qubit with Bloch vector $\mathbf r$, $\arccos(\qgZ)$ is an effective population angle, not the geometric polar angle. A readout channel acts as the affine map $m'=(1-e_0-e_1)m+1000(e_1-e_0)$, which is why the same reading can be corrected from two calibration poles (Ch.~35).
+
+\section{Library and book at 0.16.0}
+The core needs only NumPy (Python $\ge3.9$); all SDKs are imported on demand (\texttt{qang.qintegr} audits this: 12 integrations, 3 eager importers guarded by \texttt{require()}, 12/12 extras). Chapters 7--42 cover, in order: reading and information (Ch.~7--9), geometry and metrology (10--11), neutrinos (12--14), communication (15--16, 19--21), postselected time loops and black holes (17--18), networks and QML (22--23, 26), filters and mitigation (24--25, 29--30), dynamics and chemistry (27--28), falsification and the ledger (31--32), field-theory scope (33), structural limits (34), hardware (35), software architecture (36), nano-transport (37), transversal applications (38), integrations (39), matter/antimatter (40), time travel (41) and string theory (42). The ledger counts, by primary status over Ch.~7--42:
+\begin{center}\footnotesize
+\begin{tabular}{@{}lrrrrrrrr@{}}\toprule
+status & exact & unverified & against & tested on hw & no gain & mixed & not adopted & total\\\midrule
+rows & 145 & 14 & 8 & 5 & 3 & 2 & 2 & 179\\\bottomrule\end{tabular}\end{center}
+No row has the status \st{measured gain}. The five \st{tested on hardware} rows are the stored IQM Garnet runs of Ch.~35 (Sec.~\ref{sec:hw}).
+
+\section{Utility by field}
+Each row is one design decision. ``Without'' is the usual alternative; ``with'' is the \texttt{qang} reading. Status is that of Appendix~H; ``sim.'' means exact simulation, not a device run. Values are those printed by the chapter's verifier.
+\begingroup\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}L{2.0cm}L{3.6cm}L{4.9cm}L{3.3cm}L{1.9cm}@{}}
+\toprule
+Field & Decision & Without $\to$ with \texttt{qang} & Function (Ch.) & Status\\\midrule\endhead
+Compilation, VQAs & Which pairs to entangle & all 6 pairs $\to$ 2 with $I_Z\ge\tau$ ($-67\%$ two-qubit gates) & \st{mi\_matrix\_qg} (7) & exact, sim.; hw unverified\\
+ & Natural-gradient metric, $P=8$ & QFI 44 circuits + ancilla $\to$ $F_Z$ 16 circuits, none ($-64\%$); median iterations 58 $\to$ 22 & \st{classical\_fisher\_z} (9) & exact, sim.\\
+Readout & Pair correlator $\langle Z_pZ_q\rangle$ & Hadamard test, 1 ancilla per pair $\to$ 0 ancillas, one histogram & \st{qan\_readout} (7) & exact\\
+ & Describe a distribution, $n=4$ & 15 probabilities $\to$ 10 moments ($-33\%$) & \st{qg\_moments} (8) & exact (truncation bias: mixed)\\
+Metrology & Ramsey operating point, $C=0.8$ & $I_F=0.066\to0.64$ ($\times9.8$, $-90\%$ shots) & \st{optimal\_T} etc.\ (11) & exact\\
+ & GHZ vs product, per time & ``Heisenberg gain'' $\to$ equal Fisher per time & (11) & no gain\\
+Neutrino physics & Three flavours in a register & 3 qubits $\to$ 2 qubits + physical sector ($-1$ qubit); 4 flavours $-2$ qubits & (12, 14) & exact\\
+ & Solar adiabatic $P_{ee}$ & integrate profile ($\ge2000$ pulses) $\to$ product of two readings & (13) & exact, $\gamma\gg1$\\
+ & Error per flavour, device & $0.0615\to0.0386$ ($\times1.59$) at 8$\times$300 shots & sector filter (12, 35) & tested on hardware\\
+Quantum comms & QKD abort rule & QBER $e$ $\to$ $\qgZ=1-2e$, key iff $\qgZ>780$ m-qg & (19, 20) & exact\\
+ & QRNG certification, $N=10^4$ & point $H_{\min}=1.000\to$ certified (99.9\%) $0.956$ & (21) & exact\\
+ & Teleportation resource check & process tomography $\ge5700$ shots $\to$ 475 shots ($-92\%$); Werner test $qg_{ZZ}>333$ m-qg & (15) & exact (non-Werner: mixed)\\
+ & Post-quantum cryptography & --- & (19) & against\\
+Networks, energy & Repeater chain, $V=0.9$ & simulate chain $\to$ $k_{\max}=10$ links ($V^{10}=349$ m-qg) & (22) & exact, Werner\\
+QML & Load $x\in\mathbb R^4$ & amplitude loading $O(2^n)$ $\to$ unary, 3 RBS & (23) & exact\\
+ & Shots under $T_1$, $\gamma=0.3$ & 63 $\to$ 44 ($-30\%$) & sector filter (23) & exact\\
+ & Kernel expressivity & --- & (26) & no gain\\
+Error mitigation, QEC & Uniform $T_1$, $\gamma=0.2$ & $-103\to-393$ m-qg (exact ideal) & sector filter (24) & exact\\
+ & Dephasing & filter does not help; ZNE error $0.0019$ at $3\times$ circuits & (24) & exact, sim.\\
+ & Weight-conserving $T_1$ code, $\gamma=0.01$ & infidelity $3.3\cdot10^{-3}\to2.3\cdot10^{-4}$ ($\div14$), $O(\gamma)\to O(\gamma^2)$ & (29) & exact, sim.\\
+Dynamics, chemistry & Trotter XY, $n=6$ & generic 2Q gates $\to$ 1 RBS per link, exact weight & (27) & exact\\
+ & Electron-loss detection, 4 qubits & energy error $0.1205\to0.0034$ ($\div35$) & parity witness (28) & exact, 4-qubit model\\
+Nano-transport & Tunnelling, Landauer & same $G,S$; angle has linear slope $-\kappa$ & (37) & exact\\
+ & Thermometry & Fermi ML $\pm0.0275$ vs $\mathrm{artanh}$ $\pm0.0366$ & (37) & against\\
+Foundations & Hahn echo, AB phase, fermion sign & $qg_X$ reading of the phase or sign & (38) & exact\\
+ & Dirac qubit (matter/antimatter) & shots to certify the sign: $N=z^2(\gamma^2-1)$ (27 at $\gamma=2$) & \st{qang.qanti} (40) & exact; physical reading unverified\\
+ & Postselected time loops & total Fisher per input copy $=1$ & \st{qang.qtimeloop} (41) & exact; physical CTCs unverified\\
+ & String theory (light-cone, T-duality) & level $N$ as a linear Z reading; filter keeps $(1-\gamma)^{|x|}$; massless states $576\to676$ at the self-dual radius; XXZ radius from one Z histogram within $1.3$--$13\%$ & \st{qang.qstring} (42) & exact; XXZ mixed; string physics not adopted\\
+Software, audit & Qubit order between SDKs & silent offset up to 600 m-qg $\to$ \st{canonical\_counts} & (36) & exact\\
+ & Book--code consistency & manual $\to$ \st{check\_book\_api}: 208 blocks, 1418 calls, 0 mismatches & (32, 36) & exact\\
+\bottomrule\end{longtable}
+\endgroup
+Two properties hold across the table. All savings come from reading in the Z basis where the Z reading is exact, and all are conditional on the model named in the row: a saving of ancillas or gates in simulation is not a device result.
+
+\section{Structural limits and recorded negatives}
+\paragraph{Single-basis no-go.} For any distribution $p$, $\sigma_p=\sum_xp(x)|x\rangle\langle x|$ is fully separable and has exactly that distribution. Hence no rule using only $p$ ($\qgZ$, $\qgS$, joint outcome entropy $H_Z$, Z-basis total correlation $C_Z$, or any learned summary) can certify entanglement, even at infinite shots (Ch.~34, \st{diagonal\_twin}). Verified examples with the same uniform $P_Z$: the product $|{+}{+}\rangle$, the edge graph state and $I/4$; for three qubits, $|{+}{+}{+}\rangle$, the path graph state and $I/8$. $C_Z=0$ occurs with the entangled graph states, and $C_Z=2$ bits (the maximum) with a separable 000/111 mixture. A two-setting witness does certify the three-qubit path: $W'_3=2I-XZI-ZXZ-IZX$ equals $-1$ on the graph state and $+2$ on the product and on $I/8$; with 1000 shots per setting and $\delta=0.05$ the conservative radius is $0.2936$, so the violation is certified (\st{witness\_path}, \st{witness\_radius}). The compatible purity range from a Z distribution is $[\sum_xp^2,1]$. Sufficient (not necessary) shot bounds to estimate $H_Z$ or $C_Z$ within $0.05$ bit at $\delta=0.05$ are $1.3\cdot10^5$--$4.0\cdot10^6$; the plug-in $C_Z$ has bias $(2^n-1-n)/(2N\ln2)$, which is a statistical artefact, not correlation. These identities and numbers are checked in \texttt{tools/verify\_cap34.py}.
+
+\paragraph{Other recorded negatives.} Direct descent in $\qgZ$ does not converge near the poles (0/20) without regularization; the unit change qga does not mitigate barren plateaus or kernel concentration; the Page curve with $\qgS$ is flat; local readings are flat for a free-boson CFT, so $\qgZ$ and $\qgS$ do not measure the central charge (which is recovered only from the full correlation matrix); classical shadows need $3$--$41\times$ more shots than direct Z measurement for the quantities used here; post-quantum cryptography has no qubits to read; and the weight filter does not detect weight-conserving errors (retention $1.0$, shift $-174.7$ m-qg unseen). The relativistic-energy proposal (Appendix~G) and physical closed timelike curves remain \st{unverified}.
+
+\section{Hardware evidence}\label{sec:hw}
+The only runs on a physical device are the stored IQM Garnet experiments of Chapter~35; they were not repeated on a second device. (i) Three-flavour neutrino circuits, $8\times300$ shots: filtered mean error $0.0615\to0.0386$ ($\times1.59$) with the survival minimum recovered at 2.6~GeV. (ii) One-qubit milli-qang scan, $26\times4000$ shots: one X gate costs $1.64$ m-qg ($\chi^2/\mathrm{dof}=0.81$); equator reading $+24.95\to+1.5$ m-qg after correction with the two poles. (iii) A Dirac-qubit state at $0.6c$ read $+759.9\pm14.9$ m-qg against $+800$ predicted; the relativistic interpretation is not adopted as verified. No other chapter claims hardware evidence, and Appendix~H marks every other device statement as simulation, cited or \st{unverified}.
+
+\section{Falsification and reproducibility}
+\paragraph{Pre-registered protocol (Ch.~31).} Thresholds and predictions are fixed before measurement and hashed: all 9 of 9 protocol fields change the hash when altered. Over 20 simultaneous hypotheses the false-positive rate falls from $0.656$ to $0.042$ with Holm control; a smaller effect ($\Delta=0.02$ instead of $0.1$) costs $24.3\times$ more shots. The prior predictions of the research notes (26 of 45 fulfilled, \S157--\S164) are cited, not re-run, and are marked \st{unverified}.
+\paragraph{What would retire a claim.} A claim in a row of Section~4 is retired if (a) its verifier fails or its number moves beyond the stated tolerance; (b) a pre-registered device run on a second backend shows no saving within its stated interval; or (c) a counterexample is added to Ch.~34. This record adopts the following rule: status moves only by that evidence: \st{exact} $\to$ \st{tested on hardware} requires a device run; \st{tested on hardware} $\to$ \st{measured gain} requires replication on a different device against the pre-registered thresholds. No row has been promoted beyond \st{tested on hardware}.
+\paragraph{Reproducibility.} \texttt{pip install qang} (core: NumPy only); \texttt{python tools/verify\_capNN.py} for each chapter; \texttt{pytest} for the suite (SDK tests skip when a package is absent); \texttt{python tools/check\_book\_api.py .} compares every code block of the book with the public API signatures. Extras with incompatible pins (\texttt{iqm}, \texttt{dynamics}, JAX with \texttt{jax<0.9}) live in their own environments.
+
+\section{Open items}
+(1) A replication on a second device and a pre-registered run of the filters of Ch.~12, 23 and 24. (2) Hardware tests of the sector filters beyond the three-flavour case. (3) Closed-form uncertainty for estimating $H_Z$ and $C_Z$ with calibrated multinomial intervals, to replace the loose sufficient bounds. (4) Physical reading of the Dirac-qubit and time-loop chapters. (5) The English edition of the book still follows the earlier numbering and lacks the verified chapters 7--42.
+
+\section{Conclusion}
+Version 0.16.0 is a library of measurement-level design rules with an audit trail. Its utility is concrete and bounded: fewer settings, ancillas, gates or shots in the cases where the Z reading is exact, sector filters for weight-conserving circuits, and planning bounds; its limits are as explicit as its uses. The refoundation consists in treating both with equal weight.
+
+\begin{thebibliography}{99}\footnotesize
+\bibitem{z1} V.~H.~Monteverde, Qang, Zenodo, doi:10.5281/zenodo.22832150.
+\bibitem{z2} V.~H.~Monteverde, Zenodo, doi:10.5281/zenodo.23036963.
+\bibitem{z3} V.~H.~Monteverde, Zenodo, doi:10.5281/zenodo.23989993.
+\bibitem{tg} G.~T\'oth and O.~G\"uhne, Detecting genuine multipartite entanglement with two local measurements, Phys.\ Rev.\ Lett.\ \textbf{94}, 060501 (2005).
+\bibitem{peres} A.~Peres, Separability criterion for density matrices, Phys.\ Rev.\ Lett.\ \textbf{77}, 1413 (1996).
+\bibitem{bcp} T.~Baumgratz, M.~Cramer and M.~B.~Plenio, Quantifying coherence, Phys.\ Rev.\ Lett.\ \textbf{113}, 140401 (2014).
+\bibitem{hkp} H.-Y.~Huang, R.~Kueng and J.~Preskill, Predicting many properties of a quantum system from very few measurements, Nat.\ Phys.\ \textbf{16}, 1050 (2020).
+\bibitem{wat} S.~Watanabe, Information theoretical analysis of multivariate correlation, IBM J.\ Res.\ Dev.\ \textbf{4}, 66 (1960).
+\bibitem{pan} L.~Paninski, Estimation of entropy and mutual information, Neural Comput.\ \textbf{15}, 1191 (2003).
+\end{thebibliography}
+\end{document}

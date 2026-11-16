@@ -377,6 +377,8 @@ DESC = {
                'Audit of `qang.integrations`: lazy imports, extras and tests; SDK-free T1 filter (rewrite, Ch. 39).'),
     'qanti': ('Materia y antimateria: conjugación de carga, Zitterbewegung y creación de pares (cap. 40).',
              'Matter and antimatter: charge conjugation, Zitterbewegung and pair creation (Ch. 40).'),
+    'qstring': ('Teoría de cuerdas leída con qang: conteo exacto, nivel como lectura Z, T-dualidad y radio de un análogo de red (cap. 42).',
+               'String theory read with qang: exact counting, level as a Z reading, T-duality and the radius of a lattice analogue (Ch. 42).'),
     'qtimeloop': ('Viajes en el tiempo como mapas: balance de información de la postselección y paradoja del abuelo (cap. 41).',
                  'Time travel as maps: information balance of postselection and the grandfather paradox (Ch. 41).'),
 }

@@ -19,8 +19,14 @@ single-qubit qg_Z / qg_S when n_qubits == 1:
                              with the per-qubit *von Neumann* marginal
                              entropy (``marginal_von_neumann_entropy``), the
                              gap between them is a direct, quantitative
-                             witness of entanglement between qubits -- see
-                             the Bell-state example in the test suite, where
+                             signature of entanglement between qubits ONLY
+                             when the global state is known to be pure and
+                             the marginal entropies are von Neumann
+                             (local tomography); it is NOT an entanglement
+                             witness computed from Z counts: no function of
+                             the Z distribution can certify entanglement
+                             (qang.qlimits.diagonal_twin, Cap. 34 sec. 34.13).
+                             See the Bell-state example in the test suite, where
                              every single-qubit marginal is maximally mixed
                              (qg_Z = 0) while the joint state is exactly
                              pure (von Neumann entropy 0).
@@ -218,7 +224,8 @@ def marginal_von_neumann_entropy(
     von Neumann entropy of each qubit's own reduced density matrix. For a
     product state this is 0 for every qubit (each qubit is individually
     pure); for an entangled state (e.g. a Bell pair) it is > 0 even when
-    the *global* state is exactly pure -- the standard entanglement witness.
+    the *global* state is exactly pure. Valid as an entanglement signature only
+    for a globally pure state; it needs local tomography, not Z counts alone.
     """
     rho = _as_density(state, n_qubits)
     return [von_neumann_entropy(partial_trace(rho, n_qubits, keep=[i])) for i in range(n_qubits)]
@@ -338,7 +345,9 @@ def qg_correlation(state: Union[np.ndarray, Sequence[complex]], n_qubits: int) -
 
     Always >= 0 (subadditivity of Shannon entropy), exactly 0 for any
     product state, and strictly positive exactly when the qubits' Z-basis
-    measurement outcomes are statistically correlated -- see this module's
+    measurement outcomes are statistically correlated. This is classical
+    outcome dependence, not entanglement: C_Z = 0 occurs for graph states and
+    C_Z = n-1 for separable mixtures (qang.qlimits, Cap. 34 sec. 34.13). See this module's
     docstring for the full derivation and ghz_state for a family of states
     with a known closed-form value (n_qubits - 1 bits, for n_qubits >= 1).
     """

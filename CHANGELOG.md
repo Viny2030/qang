@@ -5,6 +5,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-16
+
+### Added
+- `qang.qstring` (Cap. 42): light-cone bosonic string counting (d_N, D=26, 576=299+276+1), the level as a weighted Hamming weight with a linear Z reading and its T1 filter, T-duality of the compactified boson (spectrum invariant at six radii; 576 -> 676 massless states at the self-dual radius), and the Luttinger parameter of an XXZ ring read from one Z histogram (SciPy lazily); `tools/verify_cap42.py`; 5 tests; 10 Appendix H rows (`mixed`: `luttinger_block_variance`; `not adopted`: `string_physics_claims`).
+- Cap. 34 §34.13 and `qang.qlimits`: single-basis no-go (`diagonal_twin`), purity range from a Z distribution
+  (`purity_range_from_z`), `total_correlation_z`, `relative_entropy_coherence_z`, two-setting witness for the 3-qubit path
+  (`witness_path`, `witness_radius`), shot budgets (`hoeffding_shots`, `sufficient_shots_entropy`), plug-in C_Z bias
+  (`plugin_cz_bias_uniform`, `plugin_study_uniform`), and the dephasing / amplitude-damping counterexamples. Checks in
+  `tools/verify_cap34.py` [8]–[12]; 9 new Appendix H rows (`against`: `cz_not_entanglement`, `hz_not_witness`).
+
+### Changed
+- `qang.multiqubit` docstrings no longer call the joint/marginal entropy gap or C_Z an entanglement witness: it is a signature
+  only for globally pure states with von Neumann marginals; no function of the Z distribution certifies entanglement.
+- CI matrix Python 3.11–3.13 plus a core-only job (3.9/3.10); SDK floors `qiskit>=2.6`, `qiskit-aer>=0.18`, `cirq>=1.7`.
+
 ## [0.15.0] - 2026-11-16
 
 ### Added

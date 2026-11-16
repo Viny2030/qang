@@ -17,25 +17,32 @@ Reference implementation and computational toolkit for:
 - **Polar Bias Qang (qg_Z):** qg_Z(θ) = cos θ = ⟨σ_z⟩ ∈ [−1, 1].
 - **Measurement-Outcome Entropy Qang (qg_S):** qg_S(θ) = H(cos²(θ/2)) ∈ [0, 1] (Shannon entropy of computational-basis outcomes).
 - Native SDK gate classes for **Qiskit**, **Cirq** and **PennyLane** (differentiable in qg_Z), regularized gradient optimizers, shot-noise error propagation, and density matrix/POVM metrics.
-- **Verified chapters, not claims:** the book's chapters 7–41 each come with a module in `qang/`, a verifier in `tools/` and a pytest block, and every sub-measure carries a status (`exact`, `measured gain`, `tested on hardware`, `mixed`, `no gain`, `against`, `unverified`, `not adopted`). The ledger records **no `measured gain`** so far; the only real-device results are the stored IQM Garnet runs.
+- **Verified chapters, not claims:** the book's chapters 7–42 each come with a module in `qang/`, a verifier in `tools/` and a pytest block, and every sub-measure carries a status (`exact`, `measured gain`, `tested on hardware`, `mixed`, `no gain`, `against`, `unverified`, `not adopted`). The ledger records **no `measured gain`** so far; the only real-device results are the stored IQM Garnet runs.
 - qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
 - **IBM Quantum** through IBM Runtime (transpiler pass, calibrated readout correction, qubit selection) and **qiskit-machine-learning** integration.
 - **IQM** devices (`qang.iqm`): readout correction from the two poles or the error profile, qg read-outs of `IQMBackend` counts, chain choice; the project's first real-hardware runs were on IQM Garnet.
 - A bilingual **book**, *Quantum Computing, Information and Physics in qang Space*: [English](https://viny2030.github.io/qang/en/) · [Español](https://viny2030.github.io/qang/es/).
 
+### What's new in 0.16.0 — string theory read with qang, the single-basis no-go, and CI on Python 3.11–3.13
+
+- **`qang.qstring` and book chapter 42:** exact light-cone counting (D=26, 576=299+276+1), the level as a weighted Hamming weight with a linear Z reading and its T1 filter, T-duality (576 → 676 massless states at the self-dual radius) and the Luttinger parameter of an XXZ ring from one Z histogram. Physical string claims stay `not adopted`.
+- **Chapter 34, §34.13, and `qang.qlimits`:** no function of a single Z-basis distribution can certify entanglement; `C_Z` errs in both directions; the two-setting witness `W'_3` does certify the three-qubit path. The docstrings of `qang.multiqubit` no longer call the entropy gap a witness.
+- **Ledger:** 179 sub-measures over chapters 7–42: 145 `exact`, 14 `unverified`, 8 `against`, 5 `tested on hardware`, 3 `no gain`, 2 `mixed`, 2 `not adopted`, no `measured gain`.
+- **Build:** `qiskit>=2.6`, `qiskit-aer>=0.18`, `cirq>=1.7`; `iqm` and `qibo` extras require Python 3.11 / 3.12; CI runs 3.11–3.13 plus a core job on 3.9/3.10; `tools/check_book_api.py` checks every book code block against the public API.
+
 ### What's new in 0.15.0 — the book rewritten as verified chapters (7–41), and new readings of matter, time and the ecosystem
 
-- **Chapters 7–41 rewritten** (Spanish with English abstracts), each with a "without qang vs with qang" table in m-qg, the exact
+- **Chapters 7–42 rewritten** (Spanish with English abstracts), each with a "without qang vs with qang" table in m-qg, the exact
   `qang` function, a verifier `tools/verify_capNN.py` and a pytest block. Every sub-measure carries one of the ledger statuses
   (`exact`, `measured gain`, `tested on hardware`, `mixed`, `no gain`, `against`, `unverified`, `not adopted`). Over the
-  Appendix H rows of chapters 7–41 the ledger counts 160 sub-measures: 130 `exact`, 14 `unverified`, 6 `against`,
-  5 `tested on hardware`, 3 `no gain`, 1 `mixed`, 1 `not adopted`, and **no `measured gain`**.
+  Appendix H rows of chapters 7–42 the ledger counts 179 sub-measures: 145 `exact`, 14 `unverified`, 8 `against`,
+  5 `tested on hardware`, 3 `no gain`, 2 `mixed`, 2 `not adopted`, and **no `measured gain`**.
 - **New modules** (NumPy only unless noted): `qang.qlimits` (structural limits and negative results), `qang.qgarnet` (the IQM
   Garnet runs recomputed from stored data, pre-registrations checked against git), `qang.qarch` (audit of the package: core
   needs only NumPy, extras and test guards), `qang.qnano`, `qang.qtransv`, `qang.qintegr` (audit of the 12 integrations),
   `qang.qanti` (matter and antimatter: charge conjugation as the antipodal map, Zitterbewegung, Landau–Zener pair creation),
   `qang.qtimeloop` (postselected CTC maps: total Fisher information per copy is exactly 1, grandfather paradox, fixed points by
-  angle in qga), `qang.qfalsify`, `qang.qledger`, `qang.qchar`, `qang.qcft`. JAX-based chapter modules need `jax<0.9`.
+  angle in qga), `qang.qstring` (string theory read with qang: exact counting, the level as a Z reading, T-duality, the radius of an XXZ ring from one Z histogram; SciPy only for the XXZ part), `qang.qfalsify`, `qang.qledger`, `qang.qchar`, `qang.qcft`. JAX-based chapter modules need `jax<0.9`.
 - **Fixed:** `qang.qchar` no longer imports SciPy at module level (the core stays NumPy-only).
 - **Appendices A–H** are refreshed by `tools/update_appendices.py` (run after `tools/make_appendices.py`); Appendix H lists the
   rewrite's sub-measures from `qang.qledger`.
@@ -241,6 +248,7 @@ Full list in [CHANGELOG.md](CHANGELOG.md).
 | `qang.qlimits`, `qang.qgarnet`, `qang.qarch` | structural limits and negative results; IQM Garnet runs recomputed from stored data; audit of the package architecture (chapters 34–36; NumPy only) |
 | `qang.qnano`, `qang.qtransv`, `qang.qintegr` | nanoquantum readings, cross-cutting applications, audit of `qang.integrations` (chapters 37–39; NumPy only) |
 | `qang.qanti`, `qang.qtimeloop` | matter and antimatter (charge conjugation, Zitterbewegung, pair creation); time-travel maps (information balance of postselected CTCs, grandfather paradox) (chapters 40–41; NumPy only) |
+| `qang.qstring` | string theory read with qang: light-cone counting (D=26, 576=299+276+1), the level as a weighted Hamming weight and its T1 filter, T-duality (576 → 676 at the self-dual radius), the radius of an XXZ ring from one Z histogram (SciPy lazily) |
 
 Every public name of every module: Appendix D of the book ([English](https://viny2030.github.io/qang/en/), generated from the code).
 
@@ -257,7 +265,7 @@ and qg_S is the entropy of that outcome (`examples/unit_circle_qg.py`).
 ## The book
 
 *Quantum Computing, Information and Physics in qang Space* (in Spanish, *Computación, información y física cuántica en el
-espacio qang*): 41 chapters in thirteen parts (chapters 7–41 are the verified rewrite, in Spanish with English abstracts; the
+espacio qang*): 42 chapters in thirteen parts (chapters 7–42 are the verified rewrite, in Spanish with English abstracts; the
 English edition still follows the earlier numbering), from the unit and the milli-qang to real hardware, cross-domain
 applications and qang as a module of other libraries, plus appendices A–H (Appendix H is the catalogue of sub-measures with their statuses). Every chapter compares the same task without
 qang and with qang and states the difference, and every number in it comes from a script in `tools/` or `examples/`.

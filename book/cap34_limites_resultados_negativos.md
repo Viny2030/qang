@@ -4,7 +4,7 @@
 **Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
 
 > Reescritura del capítulo de límites sobre la base de Cap. 1–33. Módulo: `qang.qlimits` (NumPy exacto). Verificación: `tools/verify_cap34.py`. **Resumen: casi todos los límites tienen una raíz común: qg lee una probabilidad de la base Z ($p_0$), y lo que no está en esa probabilidad no lo ve. Lo que sigue lo demuestra con código donde se puede, y marca como `unverified` lo que sólo se cita de las notas.**
-> **EN abstract.** Almost every limit has the same root: $qg$ reads a Z-basis probability $p_0$, so anything outside it is invisible. This chapter proves the checkable ones with exact code (graph states, $qg_S$ under $T_1$, the $\arccos$ range trap, the weight-preservation analyzer, the weight-1 quadratic form, in-sector errors) and flags the rest as cited, not re-run.
+> **EN abstract.** Almost every limit has the same root: $qg$ reads a Z-basis probability $p_0$, so anything outside it is invisible. This chapter proves the checkable ones with exact code (graph states, $qg_S$ under $T_1$, the $\arccos$ range trap, the weight-preservation analyzer, the weight-1 quadratic form, in-sector errors) and flags the rest as cited, not re-run. A new section (§34.13) proves that no function of a single Z-basis distribution can certify entanglement, that $C_Z$ errs in both directions, and gives the two-setting witness that does certify the 3-qubit path.
 
 ---
 
@@ -110,6 +110,10 @@ def preserves_weight(U, n); weight_breakers(n, gates)
 def weight1_qgz(O, v); simulate_qgz_weight1(n, thetas, v)
 def in_sector_error(eps)                     # retención 1.0, desvío en m-qg
 def negative_inventory(rows)                 # lee qang.qledger
+def diagonal_twin(p); purity_range_from_z(p)  # no-go de una base; rango de pureza
+def total_correlation_z(p, n)                # C_Z en bits (no es entrelazamiento)
+def witness_path(n); witness_radius(m, N, d) # testigo de 2 ajustes y su radio
+def sufficient_shots_entropy(n, eps, d, t)   # cota suficiente; plugin_cz_bias_uniform(n, N)
 ```
 
 ## 34.12 Verificación — `tools/verify_cap34.py`
@@ -123,6 +127,17 @@ def negative_inventory(rows)                 # lee qang.qledger
 [5] cargador unario + red RBS, n=5, 20 redes al azar: |forma cuadrática − simulación completa| ≤ 4.4e-16 (coste O(n²) frente a 2^n)
 [6] RBS(π/2+0.3): retención del filtro 1.0; qg_Z del qubit 0: +1000.0 → +825.3 m-qg (desvío -174.7 m-qg, invisible al filtro)
 [7] libro de cuentas Cap. 7–33: 97 submedidas; against: 4, no gain: 3, mixed: 1, unverified: 1, not adopted: 1; measured gain: 0
+[8] misma P_Z uniforme que |+>^n y I/2^n: arista G2: H_Z=2 bit, C_Z=0, P=1, P_i=0.50; camino G3: H_Z=3 bit, C_Z=0, P=1, P_i=0.50; |+>^n: P_i=1; I/2^n: P=1/2^n; PT mín. G2=-0.500
+    pureza compatible con p=(.6,.15,.2,.05): [0.4250, 1.0], extremos alcanzados por σ_p y |ψ_p⟩
+    sesgado (z=(0.5,0.6)): producto y CZ·producto con la misma P_Z, H_Z=1.533206, C_Z=0; P_i=1 frente a 0.76; PT mín. -0.346410
+[9] GHZ₃ y mezcla 000/111: misma P_Z, C_Z=2 bits (máximo), la mezcla es separable (P=1/2); paridad par: H_Z=2, C_Z=1, información mutua por pares 0.0
+    (I⊗H)|G₂⟩ = Φ⁺: H_Z 2 → 1, C_Z 0 → 1, entrelazamiento y pureza intactos
+    H_Z = coherencia C_rel,Z sólo si es puro: G₂ (puro) 2 = H_Z=2; I/4 (mixto) 0 frente a H_Z=2
+[10] W′₃ = 2I − XZI − ZXZ − IZX: grafo -1, producto +2, I/8 +2; XZX y ZXZ (2 ajustes), 1000 disparos c/u: radio 95 % 0.293556 → certifica (-0.706 < 0)
+     desfase final ρ_t: P_Z fija, W′₃ = -1, 0, +2 en t = 0, 1/3, 1
+[11] producto bajo amortiguación γ=0, ½, 1: H_Z = 0, 2, 0 bits; P = 1.00, 0.25, 1.00; C_Z=0 siempre
+[12] ε=0.05 bit, δ=0.05: una media en [−1,1] N=2952; H_Z n=2/3 N=133966/253199; C_Z n=2/3 N=1346071/3973513 (cotas suficientes, holgadas)
+     n=3, uniforme independiente, 1000 repeticiones, semilla 34 — exacto H_Z=3, C_Z=0: N=100: Ĥ_Z=2.9478, Ĉ_Z=0.0307 (teoría 0.0289); N=10000: Ĥ_Z=2.9995, Ĉ_Z=0.0003 (teoría 0.0003)
 verify_cap34: OK
 ```
 
@@ -146,7 +161,52 @@ def test_in_sector_error_passes_filter():
     r = in_sector_error(0.3); assert abs(r["error_retained"] - 1) < 1e-12 and abs(r["shift_mqg"]) > 100
 ```
 
-## 34.13 Apéndice H
+## 34.13 Una sola base de lectura: no-go, $C_Z$ y pureza
+
+Toda cantidad calculada sólo con la distribución $P_Z$ comparte la raíz de §34.2. Aquí se cierra el caso general, no sólo el grafo. $H_Z$ está en bits; $H_Z/n$ se rotula aparte y nunca entra en $C_Z=\sum_i H(X_i)-H_Z$.
+
+**Teorema del gemelo diagonal.** Para toda $p$, $\sigma_p=\sum_x p(x)|x\rangle\langle x|$ es completamente separable y tiene exactamente esa distribución. Ninguna regla que use sólo $p$ (con $qg_Z$, $qg_S$, $H_Z$, $C_Z$ o cualquier resumen aprendido) puede certificar entrelazamiento, ni con infinitos disparos (`diagonal_twin`). Cuesta menos de lo que parece: sólo hace falta que un estado separable la reproduzca.
+
+Con la misma $P_Z$ uniforme (`path_graph_state`, `local_purities`, `partial_transpose_min_eig`):
+
+| estado | $H_Z$ (bits) | $C_Z$ | $P$ global | $P_i$ local | estatus |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| $\lvert{+}{+}\rangle$ | 2 | 0 | 1 | 1 | producto |
+| grafo $G_2$ (arista) | 2 | 0 | 1 | 0.5 | entrelazado (PT mín. $-0.5$) |
+| $I_4/4$ | 2 | 0 | 0.25 | 0.5 | mezcla producto |
+| $\lvert{+}{+}{+}\rangle$ / grafo $G_3$ (camino) / $I_8/8$ | 3 | 0 | 1 / 1 / 0.125 | 1 / 0.5 / 0.5 | producto / entrelazado / mezcla |
+
+Un sesgo en $z$ no la quita: $\lvert a\rangle\lvert b\rangle$ y $\mathrm{CZ}\lvert a\rangle\lvert b\rangle$, con $z=(0.5,0.6)$, tienen $P_Z=(0.60,0.15,0.20,0.05)$ y $H_Z=1.533206$ bits; $P_i=1$ frente a $0.76$; PT mín. $-0.346410$.
+
+**Pureza.** Con la diagonal $p$, el rango exacto de $\mathrm{Tr}\rho^2$ es $[\sum_x p(x)^2,\,1]$; los extremos son $\sigma_p$ y $\lvert\psi_p\rangle=\sum_x\sqrt{p(x)}\lvert x\rangle$ (`purity_range_from_z`). La probabilidad de colisión $\sum p^2$ es pureza sólo si $\rho$ es diagonal en Z. Para $p=(0.6,0.15,0.2,0.05)$: $[0.4250,1]$.
+
+**$C_Z$ no es entrelazamiento, en los dos sentidos** (`total_correlation_z`):
+
+- *Falso negativo:* $C_Z=0$ en el grafo entrelazado (arista y camino).
+- *Falso positivo:* $\lvert\mathrm{GHZ}_3\rangle$ y la mezcla $\tfrac12(\lvert000\rangle\langle000\rvert+\lvert111\rangle\langle111\rvert)$ tienen la misma $P_Z$ y $C_Z=2$ bits (el máximo); la mezcla es separable ($P=1/2$).
+- *Dependencia de tres cuerpos con pares independientes:* la mezcla uniforme sobre las cadenas de paridad par tiene información mutua por pares $0$, $H_Z=2$ y $C_Z=1$ bit.
+- *El resultado depende de la base de lectura:* $(I\otimes H)\lvert G_2\rangle=\lvert\Phi^+\rangle$ pasa de $H_Z=2$ a $1$ y de $C_Z=0$ a $1$, con entrelazamiento y pureza intactos.
+
+$H_Z=C_{\mathrm{rel},Z}=H_Z-S(\rho)$ sólo si $\rho$ es puro (`relative_entropy_coherence_z`): en $G_2$, $2=2$; en $I_4/4$, $0$ frente a $H_Z=2$. Y $qg_S=h_2((1+qg_Z)/2)$ determina $|qg_Z|$ pero no su signo: no es una segunda lectura independiente.
+
+**Qué sí certifica: un testigo de dos ajustes** (`witness_path`, `witness_radius`). Para el camino de 3 qubits, $W'_3=2I-XZI-ZXZ-IZX$ vale $-1$ en $G_3$ y $+2$ en el producto y en $I/8$. Se estima con XZX (da $K_1$ y $K_3$) y ZXZ (da $K_2$). Con 1000 disparos por ajuste y $\delta=0.05$ el radio conservador es $m\eta=0.293556$ ($m=3$): $-1+0.2936<0$ certifica entrelazamiento genuino tripartito. Un valor no negativo no concluye nada. El testigo sirve para el camino de 3 y para el de 2 qubits; no se generaliza a todo grafo.
+
+**Ruido: dos contraejemplos exactos de monotonía.** (i) Desfase final $\rho_t=(1-t)\lvert G_3\rangle\langle G_3\rvert+t\,I/8$: $P_Z$ queda fija y $\langle W'_3\rangle=-1+3t$ ($-1,\,0,\,+2$ en $t=0,\,\tfrac13,\,1$). (ii) Producto bajo amortiguación de amplitud $\gamma=0,\tfrac12,1$: $H_Z=0,2,0$ bits y $P=1,\tfrac14,1$ con $C_Z=0$ siempre; ni la entropía ni la pureza miden la cantidad de ruido.
+
+**Disparos.** Una media en $[-1,1]$ con $\varepsilon=0.05$ y $\delta=0.05$ necesita $N=2952$ (Hoeffding; `hoeffding_shots`). Para la entropía no hay regla análoga: la cota sin supuestos (`sufficient_shots_entropy`, suficiente, no necesaria, holgada) da $N=133\,966$ ($H_Z$, $n=2$), $253\,199$ ($H_Z$, $n=3$), $1\,346\,071$ ($C_Z$, $n=2$) y $3\,973\,513$ ($C_Z$, $n=3$). Además, el $C_Z$ de plug-in es positivo con $p$ uniforme e independiente: sesgo $\tfrac{2^n-1-n}{2N\ln 2}$ (`plugin_cz_bias_uniform`). Con $n=3$, $N=100$ (1000 repeticiones, semilla 34): $\hat H_Z=2.9478$, $\hat C_Z=0.0307$ (teoría $0.0289$) frente al exacto $3$ y $0$; a $N=10\,000$, $0.0003$. Es sesgo estadístico, no correlación física.
+
+**Contraste operativo.**
+
+| Pregunta | Sin `qang` | Con `qang` (`qang.qlimits`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| ¿La lectura Z certifica entrelazamiento? | $H_Z$ o $C_Z$ "altos" se toman como indicio | no: gemelo diagonal con la misma $P_Z$ | `exact` |
+| ¿Qué certifica el camino de 3 qubits? | $C_Z=0$: nada | $W'_3=-1$ con 2 ajustes y radio $0.2936$ a 1000 disparos | `exact` |
+| ¿Pureza desde $P_Z$? | $\sum p^2$ como "pureza" | sólo el rango $[\sum p^2,1]$ | `exact` |
+| ¿Cuántos disparos para $C_Z$? | "1000 bastan" | $\ge 1.3\cdot10^6$ por la cota sin supuestos ($n=2$); sesgo $+0.03$ bit a $N=100$ ($n=3$) | `exact` (cota suficiente) |
+
+El análisis proviene de una revisión externa; cada cifra de arriba se recalculó con `qang.qlimits` y `tools/verify_cap34.py` [8]–[12]. Las cifras de referencia al benchmark de las publicaciones $Q_1$ y $Q_2$ (por ejemplo $r\approx-0.93$ con 110 puntos) no se re-ejecutaron aquí.
+
+## 34.14 Apéndice H
 
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |
@@ -158,6 +218,15 @@ def test_in_sector_error_passes_filter():
 | `in_sector_error_unseen` | filtro | error que conserva el peso: retención 1 | `in_sector_error` | `exact` |
 | `weight1_quadratic_form` | redes | $qg_Z^{(i)}=1-2(Ov)_i^2$ | `weight1_qgz`, `simulate_qgz_weight1` | `exact` |
 | `negative_inventory_ledger` | auditoría | 0 `measured gain` en Cap. 7–33 | `negative_inventory` | `exact` |
+| `single_basis_no_go` | límites | $\sigma_p$ separable con la misma $P_Z$ | `diagonal_twin`, `path_graph_state` | `exact` |
+| `purity_range_from_z` | límites | $\mathrm{Tr}\rho^2\in[\sum p^2,1]$ | `purity_range_from_z`, `pure_state_from_z` | `exact` |
+| `cz_not_entanglement` | límites | $C_Z=0$ con grafo; $C_Z=2$ con mezcla separable | `total_correlation_z` | `against` |
+| `hz_not_witness` | límites | $H_Z$ y $qg_S$ no certifican; $H_Z=C_{\mathrm{rel},Z}$ sólo si puro | `shannon_bits`, `relative_entropy_coherence_z` | `against` |
+| `pairwise_hidden_dependence` | límites | $C_Z=1$ con información mutua por pares 0 | `total_correlation_z` | `exact` |
+| `path3_two_setting_witness` | límites | $W'_3=-1$ (grafo), $+2$ (producto, $I/8$); radio 0.293556 | `witness_path`, `witness_radius` | `exact` |
+| `product_damping_nonmonotone` | límites | $H_Z=0,2,0$ y $P=1,\tfrac14,1$ con $C_Z=0$ | `product_amp_damped`, `dephased_path3` | `exact` |
+| `cz_plugin_bias` | límites | sesgo $\tfrac{2^n-1-n}{2N\ln 2}$ | `plugin_cz_bias_uniform`, `plugin_study_uniform` | `exact` (numérico) |
+| `entropy_shot_budget` | límites | $N=133\,966\ldots3\,973\,513$ (cota suficiente) | `sufficient_shots_entropy`, `hoeffding_shots` | `exact` |
 | `lih_filter_scope` | filtro | LiH 60 compuertas: 76.6 → 85.0 mHa | — | `unverified` (notas §50) |
 | `natural_gradient_equivalence` | optimización | qg = descenso en $\theta$; 103 pasos frente a 22.5 | — | `unverified` (notas §159) |
 | `prereg_failures_157_164` | metodología | 26 de 45 predicciones cumplidas | — | `unverified` (notas §157–§164) |

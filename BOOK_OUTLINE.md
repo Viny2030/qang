@@ -1,4 +1,4 @@
-# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (41 Capítulos + Apéndices A–H)
+# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (42 Capítulos + Apéndices A–H)
 
 **Título ES**: *Computación, información y física cuántica en el espacio qang* (`qang-libro-es.pdf` / `book/es/`)
 **Título EN**: *Quantum Computing, Information and Physics in qang Space* (`qang-book-en.pdf` / `book/en/`)
@@ -98,6 +98,8 @@
   - *Scripts*: `tools/verify_cap40.py`, `tests/test_qanti.py`, `book/cap40_materia_antimateria.md` (exact; sin hardware; complementa el Apéndice G).
 - **Cap. 41 (Parte XIII, ampliación)**: Viajes en el tiempo: balance de información de la postselección (Fisher total = 1), paradoja del abuelo en P-CTC y D-CTC, puntos fijos por ángulo en qga (`qang.qtimeloop`) — *nuevo*
   - *Scripts*: `tools/verify_cap41.py`, `tests/test_qtimeloop.py`, `book/cap41_viajes_en_el_tiempo.md` (exact para los mapas; CTC físicas `unverified`; continúa el Cap. 17).
+- **Cap. 42 (Parte XIII, ampliación)**: La teoría de cuerdas leída con qang: conteo exacto de la cuerda bosónica (D=26, 576=299+276+1), el nivel como peso ponderado y lectura Z lineal con su filtro bajo T1, T-dualidad (576 → 676 sin masa en el radio autodual) y el radio de una cadena XXZ leído con una base Z (`qang.qstring`) — *nuevo*
+  - *Scripts*: `tools/verify_cap42.py`, `tests/test_qstring.py`, `book/cap42_teoria_de_cuerdas.md` (exact para el modelo; XXZ de tamaño finito `mixed`; física de cuerdas `not adopted`; continúa el Cap. 33).
 
 ### Apéndices (Generados por `tools/make_appendices.py` y `tools/make_apendice_h.py`)
 - **Apéndice A**: Catálogo de las 15 compuertas fundamentales en representación qg.
