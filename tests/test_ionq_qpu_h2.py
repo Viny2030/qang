@@ -35,6 +35,7 @@ def test_verdict():
 
 
 def test_submit_refuses_without_cost_flag(capsys):
+    pytest.importorskip("qiskit")
     import ionq_qpu_h2_qg as Q
 
     assert Q.submit(False) is None

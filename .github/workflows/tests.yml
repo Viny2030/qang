@@ -40,8 +40,8 @@ jobs:
         run: pytest -q --durations=10
 
   core:
-    name: core-only (numpy)
-    runs-on: ubuntu-latest
+    name: core + test deps (no SDKs)
+    runs-on: ubuntu-24.04   # ubuntu-latest is 26.04, which has no Python 3.9 in setup-python
     strategy:
       fail-fast: false
       matrix:
@@ -51,9 +51,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install core only
+      - name: Install core + test dependencies (no quantum SDKs)
         run: |
           python -m pip install --upgrade pip
-          pip install -e . pytest
-      - name: Run tests (SDK tests skip)
+          pip install -e ".[dev]"
+      - name: Run tests (SDK tests skip via importorskip)
         run: pytest -q
