@@ -81,6 +81,7 @@
 - **Cap. 33**: Teoría de cuerdas: alcance y límites de las medidas qang frente a una CFT de 1+1 dimensiones (cadena XX, $c=1$) (`qang.qcft`) — *adición*
   - *Scripts*: `tools/verify_cap33.py`, `tests/test_qcft.py`, `book/cap33_cuerdas_cft.md`.
 - **Cap. 34**: Límites estructurales, equivalencias y resultados negativos
+  - *Reescritura*: `book/cap34_limites_resultados_negativos.md`, `qang.qlimits`, `tools/verify_cap34.py`, `tests/test_qlimits.py` (límites exactos; fallos de §157–§164 y LiH citados, `unverified` en el capítulo).
 - **Cap. 35**: Primer experimento en hardware real: IQM Resonance / Garnet (`qang.iqm`, §165, §168, §170)
 - **Cap. 36**: Arquitectura de software, ecosistema multi-SDK (`qang.interop`) y ejecución física
 
