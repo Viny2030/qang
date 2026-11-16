@@ -17,6 +17,7 @@ Reference implementation and computational toolkit for:
 - **Polar Bias Qang (qg_Z):** qg_Z(θ) = cos θ = ⟨σ_z⟩ ∈ [−1, 1].
 - **Measurement-Outcome Entropy Qang (qg_S):** qg_S(θ) = H(cos²(θ/2)) ∈ [0, 1] (Shannon entropy of computational-basis outcomes).
 - Native SDK gate classes for **Qiskit**, **Cirq** and **PennyLane** (differentiable in qg_Z), regularized gradient optimizers, shot-noise error propagation, and density matrix/POVM metrics.
+- **Verified chapters, not claims:** the book's chapters 7–41 each come with a module in `qang/`, a verifier in `tools/` and a pytest block, and every sub-measure carries a status (`exact`, `measured gain`, `tested on hardware`, `mixed`, `no gain`, `against`, `unverified`, `not adopted`). The ledger records **no `measured gain`** so far; the only real-device results are the stored IQM Garnet runs.
 - qg read-outs from **Qiskit, Cirq, PennyLane, Braket and pytket** results with one qubit order, including the Qiskit V2 primitives.
 - **IBM Quantum** through IBM Runtime (transpiler pass, calibrated readout correction, qubit selection) and **qiskit-machine-learning** integration.
 - **IQM** devices (`qang.iqm`): readout correction from the two poles or the error profile, qg read-outs of `IQMBackend` counts, chain choice; the project's first real-hardware runs were on IQM Garnet.
@@ -211,7 +212,7 @@ Full list in [CHANGELOG.md](CHANGELOG.md).
 | `qang.circuits` | Circuit constructors (Bell, GHZ, W, graph, Dicke) and their readings |
 | `qang.fisher` | Fisher information, shift rules and the natural gradient in qg (§159) |
 | `qang.gradients` | The coordinate singularity at the poles and its regularizations |
-| `qang.integrations` | qang inside other libraries: one submodule per library (Chapter 35) |
+| `qang.integrations` | qang inside other libraries: one submodule per library, each importing its library only when used (book chapter 39; formerly 35) |
 | `qang.iqm` | qg readings on IQM: readout from the poles or the error profile, filter, chain choice (Chapter 31) |
 | `qang.kernels` | Quantum kernels with the qg filter (§161) |
 | `qang.knitting` | Sampling cost of circuit cutting |
@@ -228,6 +229,18 @@ Full list in [CHANGELOG.md](CHANGELOG.md).
 | `qang.qpon` | Teleportation through a passive optical network, discrete variables (§157; Chapters 12–13) |
 | `qang.transformations` | Closed-form transformations between qang-parameterized states |
 | `qang.varqte` | Variational real-time evolution (McLachlan) with a weight-preserving ansatz (§162) |
+| `qang.qan`, `qang.qdist`, `qang.qfisher` | QAN, mutual information and IQAN; QAN on distributions (TV distance, Miller–Madow); regularized quantum natural gradient (chapters 7–9; JAX) |
+| `qang.qgeom`, `qang.qmetro` | geometric phases and Stokes' theorem; Fisher, clocks, gravity and metrology (chapters 10–11; JAX) |
+| `qang.qneutrino`, `qang.qmajorana` | neutrino oscillations in vacuum and matter; Majorana phases, double beta decay, sterile neutrinos (chapters 12–14; JAX) |
+| `qang.qtele`, `qang.qdualrail`, `qang.qctc`, `qang.qscramble` | optical teleportation, dual rail, postselected CTCs versus D-CTC, scrambling and the Yoshida–Kitaev decoder (chapters 15–18; JAX) |
+| `qang.qdemarc`, `qang.qkd`, `qang.qrng`, `qang.qbattery` | quantum versus post-quantum cryptography, BB84, certified random numbers, quantum batteries (chapters 19–22; JAX) |
+| `qang.qweightqnn`, `qang.qsymfilter`, `qang.qecho`, `qang.qkernels`, `qang.qdynamics`, `qang.qchem` | weight-conserving QNNs, the symmetry filter under T1, echo calibration, kernels and plateaus, Hamiltonian dynamics, spectroscopy and chemistry (chapters 23–28; JAX except `qecho`) |
+| `qang.qecc`, `qang.qchar` | error correction, erasure, cutting and ZNE; hardware characterization in qg (chapters 29–30; NumPy only) |
+| `qang.qfalsify`, `qang.qledger` | pre-registered falsification machinery (hash, exact binomial tests, Holm) and the ledger of sub-measures (chapters 31–32; standard library) |
+| `qang.qcft` | XX chain and the c = 1 CFT: scope and limits of qang against string theory (chapter 33; NumPy only) |
+| `qang.qlimits`, `qang.qgarnet`, `qang.qarch` | structural limits and negative results; IQM Garnet runs recomputed from stored data; audit of the package architecture (chapters 34–36; NumPy only) |
+| `qang.qnano`, `qang.qtransv`, `qang.qintegr` | nanoquantum readings, cross-cutting applications, audit of `qang.integrations` (chapters 37–39; NumPy only) |
+| `qang.qanti`, `qang.qtimeloop` | matter and antimatter (charge conjugation, Zitterbewegung, pair creation); time-travel maps (information balance of postselected CTCs, grandfather paradox) (chapters 40–41; NumPy only) |
 
 Every public name of every module: Appendix D of the book ([English](https://viny2030.github.io/qang/en/), generated from the code).
 
@@ -244,8 +257,9 @@ and qg_S is the entropy of that outcome (`examples/unit_circle_qg.py`).
 ## The book
 
 *Quantum Computing, Information and Physics in qang Space* (in Spanish, *Computación, información y física cuántica en el
-espacio qang*): 35 chapters in thirteen parts, from the unit and the milli-qang to real hardware, cross-domain
-applications and qang as a module of other libraries, plus six appendices. Every chapter compares the same task without
+espacio qang*): 41 chapters in thirteen parts (chapters 7–41 are the verified rewrite, in Spanish with English abstracts; the
+English edition still follows the earlier numbering), from the unit and the milli-qang to real hardware, cross-domain
+applications and qang as a module of other libraries, plus appendices A–H (Appendix H is the catalogue of sub-measures with their statuses). Every chapter compares the same task without
 qang and with qang and states the difference, and every number in it comes from a script in `tools/` or `examples/`.
 Read it at [viny2030.github.io/qang](https://viny2030.github.io/qang/) ([Español](https://viny2030.github.io/qang/es/) ·
 [English](https://viny2030.github.io/qang/en/)); the source is in `book/`.
@@ -271,6 +285,7 @@ pip install ".[ml]"       # qiskit-machine-learning integration (qang.qiskit_ml)
 pip install ".[chemistry]" # PySCF/OpenFermion molecules (Linux/macOS or WSL)
 pip install ".[mitiq]"    # qang.integrations: also experiments, dynamics, qutip, stim, sklearn, jax, torch,
                           # qibo, pytket, braket, cudaq, or ".[integrations]" for all that share one environment
+pip install ".[jax]"      # JAX (jax<0.9) + PennyLane: needed by the JAX chapter modules (qan, qdist, qfisher, qctc, ...)
 pip install ".[all]"      # Everything except chemistry (Qiskit, IBM Runtime, IonQ, pymatching, Cirq, PennyLane, SciPy, Pytest, Matplotlib)
 pip install -r requirements.txt  # same as .[all], without installing qang itself
 ```
@@ -508,7 +523,7 @@ Three further notebooks (in Spanish) cover the research notes:
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Viny2030/qang/blob/main/notebooks/qang_criptografia_colab.ipynb)
 
 ## Testing
-The package includes an extensive test suite (1445 tests, run in CI on Python 3.9–3.12; those that need an optional SDK are skipped when it is absent) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
+The package includes an extensive test suite (run in CI on Python 3.9–3.12; those that need an optional SDK are skipped when it is absent) verifying analytical anchors, numerical stability, gradient regularizations, backend fidelity, and every numerical finding quoted in `RESEARCH_NOTES.md`:
 
 ```bash
 pytest -v
