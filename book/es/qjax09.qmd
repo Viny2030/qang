@@ -18,7 +18,7 @@ calculable **sólo con el histograma** y $2P$ circuitos de desplazamiento de par
 
 **EN.** The $Z$-readout Fisher information is constant in qga and divergent in $qg_Z$; the full classical Fisher matrix of a QAN needs only histograms and $2P$ parameter-shift circuits (`exact`).
 
-## 9.2 Métrica de Fubini–Study y cota $F\preceq4g$
+## 9.2 Métrica de Fubini–Study y cota de Fisher por la métrica
 
 $$g_{ij}=\mathrm{Re}\big[\langle\partial_i\psi|\partial_j\psi\rangle-\langle\partial_i\psi|\psi\rangle\langle\psi|\partial_j\psi\rangle\big],\qquad \text{QFI}=4g,\qquad F_Z\preceq4g,$$
 con igualdad para $P=1$ y rotación $R_Y$ leída en $Z$ (meridiano, `exact`). Estimar $g$ en hardware exige $P(P+1)/2+P$ solapamientos con test de Hadamard (1 ancilla, compuertas controladas); $F_Z$ exige $2P$ circuitos y 0 ancillas. Con $P=8$: 44 frente a 16 circuitos.
@@ -73,7 +73,7 @@ def natural_step(params, grad, metric, lr, lam):      # λ > 0 obligatorio
     en rad⁻²:           n=2:1.43e-01, n=3:1.34e-01, n=4:1.36e-01, n=5:1.31e-01, n=6:1.33e-01
 verify_cap09: OK
 ```
-Asserts: $|{\rm QFI}-4\pi^2 10^{-6}|<10^{-15}$ y $|F_Z-{\rm QFI}|<10^{-12}$ en 4 ángulos; $\lambda_{\min}(4g-F_Z)>-10^{-12}$ en 5 muestras; $\mathrm{Var}_{\text{rad}}\cdot(2\pi/1000)^2=\mathrm{Var}_{\text{qga}}$ a $10^{-18}$ para $n=2\ldots6$.
+Asserts: $|\mathrm{QFI}-4\pi^2 10^{-6}|<10^{-15}$ y $|F_Z-\mathrm{QFI}|<10^{-12}$ en 4 ángulos; $\lambda_{\min}(4g-F_Z)>-10^{-12}$ en 5 muestras; $\mathrm{Var}_{\text{rad}}\cdot(2\pi/1000)^2=\mathrm{Var}_{\text{qga}}$ a $10^{-18}$ para $n=2\ldots6$.
 
 ### `tests/test_qfisher.py`
 ```python

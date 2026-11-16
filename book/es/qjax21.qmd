@@ -16,7 +16,7 @@ Presupuesto para certificar $H_{\min}\ge0.99$ ($|qg_Z|\le7.0$ m-qg al $99.9\%$):
 
 **EN.** Point min-entropy overestimates; the certified value uses the $99.9\%$ Bayes-Haar credible interval of $qg_Z$ and is a lower bound (`exact`, i.i.d. model).
 
-## 21.2 Auditoría de canal: estacionariedad de $qg_Z$ por bloques
+## 21.2 Auditoría de canal: estacionariedad de qgZ por bloques
 
 $\chi^2$ de homogeneidad de $p_0$ entre bloques de $10^4$ ($19$ g.d.l.): canal estacionario $27.1$; deriva lineal de $0\to80$ m-qg: $130.7$, con lecturas por bloque $+7,-32,-22,-49,-71$ m-qg. La deriva invalida la hipótesis i.i.d. de §21.1 antes de que el punto lo muestre (`exact` estadístico). Extracción (Toeplitz/Trevisan) y certificación por desigualdades de Bell quedan referenciadas (§41, §42), no reproducidas.
 
@@ -52,6 +52,7 @@ Asserts: cert$(10^6)>0.99$, cert$(10^3)<0.9$; cert $\le$ verdadero con sesgo; $\
 
 ### `tests/test_qrng.py`
 ```python
+import pytest; jax = pytest.importorskip("jax")
 from qang.qrng import certified_min_entropy, point_min_entropy
 def test_cert_below_point(): assert certified_min_entropy(5000, 10000) < point_min_entropy(5000, 10000)
 def test_cert_grows_with_N(): assert certified_min_entropy(500000, 1000000) > certified_min_entropy(5000, 10000)

@@ -31,7 +31,7 @@ $$\text{invertir}\iff \underbrace{b^2+\sigma_m^2}_{\text{MSE}_{\text{raw}}}>\und
 
 Monte Carlo ($4000$ réplicas, fila 1): MSE$_{\text{raw}}=3400$ (teoría 3312), MSE$_{\text{inv}}=4009$ (teoría 3872) (`exact` asintótico). La prohibición de §108 es exactamente la fila 1: sesgo $\lesssim\sigma_m$ ⇒ la inversión empeora.
 
-## 25.3 Lectura sin arrastre (F7): el filtro de sector baja el error de $O(e)$ a $O(e_{01}e_{10})$
+## 25.3 Lectura sin arrastre (F7): el filtro de sector baja el error de O(e) a O(e01e10)
 
 En el sector de peso 1, **un** flip de lectura saca el string del sector (lo elimina el filtro); llegar a **otro** string de peso 1 exige dos flips, probabilidad $e_{10}e_{01}$. Sesgo máximo filtrado: $0.0013$ ($\approx e_{01}e_{10}=0.0012$) frente a $0.060$ de primer orden sin filtro ($\times46$); con $e=0.01$: $\times196$. Combinado con Cap. 24: el filtro elimina $T_1$ exactamente y la lectura a segundo orden **sin calibrar ni invertir** — la "lectura sin arrastre" (`exact` modelo de flips independientes; hardware `unverified`).
 
@@ -68,6 +68,7 @@ Asserts: punto fijo a $10^{-9}$; decisiones de las filas 1, 2 y 4; MC dentro del
 
 ### `tests/test_qecho.py`
 ```python
+import pytest; jax = pytest.importorskip("jax")
 from qang.qecho import readout_affine, drag_free_point, mse_raw_vs_inverted, sector_readout_error_order
 import numpy as np
 def test_fixed_point(): m = drag_free_point(0.02, 0.06); assert abs(readout_affine(m, 0.02, 0.06) - m) < 1e-9
