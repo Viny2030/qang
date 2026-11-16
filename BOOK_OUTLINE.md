@@ -1,4 +1,4 @@
-# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (38 Capítulos + Apéndices A–H)
+# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (39 Capítulos + Apéndices A–H)
 
 **Título ES**: *Computación, información y física cuántica en el espacio qang* (`qang-libro-es.pdf` / `book/es/`)
 **Título EN**: *Quantum Computing, Information and Physics in qang Space* (`qang-book-en.pdf` / `book/en/`)
@@ -71,18 +71,23 @@
 - **Cap. 29**: Corrección de errores (Leung, superficie consciente de $T_1$), qutrits/borrado, *circuit cutting* (`qang.knitting`) y ZNE
   - *Reescritura*: `book/cap29_correccion_errores.md`, `qang.qecc`, `tools/verify_cap29.py`, `tests/test_qecc.py` (cubre código AD, borrado vs bit, rango de Schmidt del corte y coste ZNE; superficie $T_1$-aware, qutrits y RB sin verificar).
 - **Cap. 30**: Caracterización de hardware en qg: protocolo anunciado ($T_1, T_2, T_{\text{eff}}, e_{01}, e_{10}$), XEB/HOP, ZZ estático y cuantización
+  - *Reescritura*: `book/cap30_caracterizacion.md`, `qang.qchar`, `tools/verify_cap30.py`, `tests/test_qchar.py` (simulación; hardware sin verificar).
 
 ### Parte X. Evidencia experimental, hardware real y auditoría de falsación
 - **Cap. 31**: Metodología: el protocolo de falsación pre-registrada (commits y hashes SHA-256)
+  - *Reescritura*: `book/cap31_falsacion.md`, `qang.qfalsify`, `tools/verify_cap31.py`, `tests/test_qfalsify.py` (maquinaria del registro; el registro histórico sigue en el Apéndice E).
 - **Cap. 32**: Las ventajas empíricas confirmadas
-- **Cap. 33**: Límites estructurales, equivalencias y resultados negativos
-- **Cap. 34**: Primer experimento en hardware real: IQM Resonance / Garnet (`qang.iqm`, §165, §168, §170)
-- **Cap. 35**: Arquitectura de software, ecosistema multi-SDK (`qang.interop`) y ejecución física
+  - *Reescritura*: `book/cap32_libro_de_cuentas.md`, `qang.qledger`, `tools/verify_cap32.py`, `tests/test_qledger.py` (auditoría de 90 submedidas de Cap. 7–31; las ventajas medidas en dispositivos siguen en `RESEARCH_NOTES.md`).
+- **Cap. 33**: Teoría de cuerdas: alcance y límites de las medidas qang frente a una CFT de 1+1 dimensiones (cadena XX, $c=1$) (`qang.qcft`) — *adición*
+  - *Scripts*: `tools/verify_cap33.py`, `tests/test_qcft.py`, `book/cap33_cuerdas_cft.md`.
+- **Cap. 34**: Límites estructurales, equivalencias y resultados negativos
+- **Cap. 35**: Primer experimento en hardware real: IQM Resonance / Garnet (`qang.iqm`, §165, §168, §170)
+- **Cap. 36**: Arquitectura de software, ecosistema multi-SDK (`qang.interop`) y ejecución física
 
 ### Partes XI–XIII. Nanocuántica, aplicaciones transversales y ecosistema
-- **Cap. 36 (Parte XI)**: Nanocuántica: efecto túnel, fórmula de Landauer, ruido de partición, bloqueo de Coulomb, puntos cuánticos y centros NV
-- **Cap. 37 (Parte XII)**: Arquitectura angular transversal: química (Jordan-Wigner, UCC, Larmor), materia condensada (Ising, Kitaev, Aharonov-Bohm), relatividad/óptica (Wigner, Fresnel, Unruh), Jarzynski y OTOC
-- **Cap. 38 (Parte XIII)**: `qang` como módulo dentro de otras librerías (`qang.integrations`: mitiq, qiskit-experiments, QuTiP, Stim, sklearn, JAX, PyTorch, Qiskit Dynamics, Qibo, pytket, Braket, CUDA-Q)
+- **Cap. 37 (Parte XI)**: Nanocuántica: efecto túnel, fórmula de Landauer, ruido de partición, bloqueo de Coulomb, puntos cuánticos y centros NV
+- **Cap. 38 (Parte XII)**: Arquitectura angular transversal: química (Jordan-Wigner, UCC, Larmor), materia condensada (Ising, Kitaev, Aharonov-Bohm), relatividad/óptica (Wigner, Fresnel, Unruh), Jarzynski y OTOC
+- **Cap. 39 (Parte XIII)**: `qang` como módulo dentro de otras librerías (`qang.integrations`: mitiq, qiskit-experiments, QuTiP, Stim, sklearn, JAX, PyTorch, Qiskit Dynamics, Qibo, pytket, Braket, CUDA-Q)
 
 ### Apéndices (Generados por `tools/make_appendices.py` y `tools/make_apendice_h.py`)
 - **Apéndice A**: Catálogo de las 15 compuertas fundamentales en representación qg.

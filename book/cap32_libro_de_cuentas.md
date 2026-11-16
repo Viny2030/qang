@@ -1,0 +1,112 @@
+# Capítulo 32 — Qué se confirmó y qué no: el libro de cuentas de 90 submedidas (Cap. 7–31), con su evidencia y sus hallazgos negativos
+# Chapter 32 — What Was Confirmed and What Was Not: the Ledger of 90 Sub-measures (Chapters 7–31), with Evidence and Negative Findings
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Reescritura del antiguo Cap. 29 («ventajas empíricas confirmadas») sobre la base de Cap. 1–31. Módulo: `qang.qledger` (sólo biblioteca estándar). Verificación: `tools/verify_cap32.py`, que **lee las tablas del Apéndice H de los propios capítulos** y comprueba que cada función y cada verificador citados existen. Este capítulo no agrega resultados nuevos: audita los anteriores.
+
+---
+
+## 32.1 El libro de cuentas
+
+**ES.** Cada capítulo 7–31 cierra con una tabla del Apéndice H (id, familia, fórmula, función, estatus). `qang.qledger` las parsea y comprueba cuatro reglas: (1) los estatus pertenecen a la lista de `THEORY_CORE.md`; (2) toda función o `verify_capNN.py` citado existe en `qang/` o `tools/`; (3) cada capítulo tiene su verificador y un bloque de test; (4) los ids son únicos. Resultado (`exact`, auditoría automática):
+
+| concepto | valor |
+|---|---|
+| submedidas | **90** en 25 capítulos |
+| referencias comprobadas (funciones y verificadores) | 106, **0 sin resolver** |
+| estatus principal `exact` | 82 |
+| `against` | 3 |
+| `no gain` | 3 |
+| `mixed` | 1 |
+| `unverified` | 1 |
+| `measured gain` | **0** |
+| `tested on hardware` (estatus principal) | **0** |
+| `exact` **sin ningún matiz** | 64 |
+| filas con matiz (hardware, `mixed`, `against`, `no gain`) | 19 |
+
+**EN.** The ledger is audited automatically from the chapters' own Appendix H tables: 90 sub-measures, 106 references all resolved, 82 `exact`, and **zero** `measured gain`.
+
+## 32.2 Lectura honesta de los números
+
+1. **«Confirmado» aquí significa exacto en análisis o en simulación**, no medido en un dispositivo. Ninguna submedida de los Cap. 7–31 tiene `tested on hardware` como estatus principal. La única fila que cita hardware como matiz es `readout_drag_affine` (Cap. 25, §168 de las notas). Las ventajas medidas en dispositivos del tratado original viven en `RESEARCH_NOTES.md` y no se reproducen ni se amplían aquí.
+2. De las 82 filas `exact`, **18 llevan un matiz** (la mayoría, `hardware unverified`): el resultado es correcto, pero su traslado a un dispositivo no se verificó. Las 64 restantes no tienen matiz, y varias de ellas son identidades (por ejemplo, $F\preceq4g$ con $P=8$, o $N$ mod 4 exacto para $N=2,n=4$).
+3. Cero `measured gain` significa que **ningún capítulo de esta reescritura mide una ganancia frente a un método clásico o estándar en datos reales**; las comparaciones «sin qang vs con qang» son de recursos, de exactitud analítica o de simulaciones.
+
+## 32.3 Qué se ganó, con su cifra y su capítulo
+
+| Cap. | Decisión que mejora | Cifra verificada | Estatus |
+|---|---|---|---|
+| 9 | Optimizar con QNG regularizado | $-62\%$ de iteraciones | `exact` sim.; hardware `unverified` |
+| 15 | Teleportar con par Werner | umbral $qg_{ZZ}=333$ m-qg | `exact` |
+| 20 | Aceptar una clave BB84 | umbral $qg_Z>780$ m-qg | `exact` |
+| 24 | Filtrar $T_1$ uniforme | estado ideal exacto, aun intra-circuito | `exact` |
+| 25 | Leer sin arrastre | error de $O(e)$ a $O(e_{01}e_{10})$ | `exact`; §168 `tested on hardware` |
+| 26 | Estimar un núcleo | 507 frente a $6.4\cdot10^3$ disparos ($n=6$) | `exact` |
+| 28 | Verificar número de electrones | energía $+0.1205\to0$ ($\gamma=0.05$) | `exact` (modelo de 4 qubits) |
+| 29 | Corregir amortiguamiento | infidelidad ÷14, pendiente 1.99 | `exact` sim. |
+| 30 | Elegir el retardo de $T_1$ | información $\times3.6$ en $1.59\,T_1$ | `exact`; hardware `unverified` |
+| 31 | Contrastar varias predicciones | falsos positivos $0.656\to0.042$ | `exact` sim. |
+
+## 32.4 Qué no se ganó (los 8 resultados no positivos)
+
+| Cap. | submedida | estatus | lectura |
+|---|---|---|---|
+| 9 | `plateau_unit_rescale` | `against` | cambiar de unidad no mitiga mesetas |
+| 10 | `holonomic_z_area` | `no gain` | sin ganancia de área |
+| 11 | `ghz_dephasing` | `no gain` | GHZ no mejora bajo desfase markoviano |
+| 13 | `collective_oscillations` | `unverified` | sin verificar |
+| 15 | `one_basis_bias` | `mixed` | cota de una sola base: resultado mixto |
+| 18 | `page_curve_qgS` | `against` | $qg_S$ es plano donde la curva de Page cambia |
+| 19 | `pqc_out_of_scope` | `against` | criptografía poscuántica fuera de alcance |
+| 30 | `control_quantization_unit` | `no gain` | la unidad no cambia el error de redondeo |
+
+A ellos se suman los matices `no gain` de `unary_sector_kernel` (Cap. 26: núcleo clásico) y de `qaoa_exact_k_xy` (Cap. 28: el voraz clásico llega a 0.977 del óptimo). La conclusión metodológica es la del Cap. 31: **registrar las pérdidas junto con las ganancias**.
+
+## 32.5 Contraste operativo
+
+| Métrica / Metric | Sin `qang` | Con `qang` (`qang.qledger`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Consistencia libro–código | revisión manual | 106 referencias comprobadas, 0 sin resolver | `exact` |
+| Cifras sin respaldo | posibles | cada fila cita función o verificador | `exact` |
+| Ganancias en dispositivos | — | 0 con estatus principal `tested on hardware` | `unverified` |
+
+## 32.6 Bloque (`qang/qledger.py`)
+
+```python
+STATUSES = ("exact", "measured gain", "tested on hardware", "mixed", "no gain", "against", "unverified", "not adopted")
+def parse_appendix_h(text, cap)     # filas | id | familia | fórmula | función | estatus |
+def load_ledger(book_dir, first=7, last=31)
+def unresolved(rows, qang_dir, tools_dir)   # funciones o verify_capNN.py inexistentes
+def summarize(rows) / caveats(rows) / clean_exact(rows)
+```
+
+## 32.7 Verificación — `tools/verify_cap32.py`
+
+```
+[1] 90 submedidas en 25 capítulos (7–31); estatus válidos: {'exact': 82, 'against': 3, 'no gain': 3, 'unverified': 1, 'mixed': 1}
+[2] funciones y verificadores citados existen: 106 referencias, 0 sin resolver
+[3] 25/25 capítulos con verify_capNN.py y bloque de test; ids únicos: 90
+[5] resultados `exact` sin matiz: 64; filas con matiz (hardware/mixed/against/no gain): 19
+verify_cap32: OK
+```
+
+### `tests/test_qledger.py`
+```python
+from qang.qledger import parse_appendix_h, primary_status, STATUSES, function_names
+T = "## 9.9 Apéndice H\n\n| id | familia | fórmula | función | estatus |\n| :--- | :--- | :--- | :--- | :--- |\n| `a` | x | y | `f` | `exact`; hw `unverified` |\n| `b` | x | y | `verify_cap09.py` §4 | `no gain` |\n\n## Fin\n"
+def test_parse(): r = parse_appendix_h(T, 9); assert [x["id"] for x in r] == ["a", "b"]
+def test_primary(): r = parse_appendix_h(T, 9); assert primary_status(r[0]["status"]) == "exact" and primary_status(r[1]["status"]) == "no gain"
+def test_names(): assert function_names("`verify_cap09.py` §4") == ["verify_cap09.py"] and function_names("`AffineChannel.then`") == ["then"]
+def test_status_list(): assert "measured gain" in STATUSES and len(STATUSES) == 8
+```
+
+## 32.8 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `ledger_consistency` | metodología | 106/106 referencias resueltas | `unresolved`, `load_ledger` | `exact` |
+| `ledger_evidence_level` | metodología | 0 `measured gain`, 0 `tested on hardware` principal | `summarize` | `exact`; hardware `unverified` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qledger`; `tools/verify_cap32.py`; `tests/test_qledger.py`.
+Commit: `docs(cap32): libro de cuentas de 90 submedidas (Cap. 7–31) + qang.qledger + verify_cap32`.

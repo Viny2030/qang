@@ -1,0 +1,106 @@
+# Capítulo 33 — Teoría de cuerdas: qué pueden y qué no pueden decir las medidas qang (cadena XX como bosón libre de carga central c = 1) {#sec-qjax33 .unnumbered}
+*Chapter 33 — String Theory: What qang Measures Can and Cannot Say (the XX Chain as a c = 1 Free Boson)*
+
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Capítulo añadido sobre la base de Cap. 1–32 (Cap. 5 y 7: $qg_S$ y $mi_Z$ no son medidas de entrelazamiento; Cap. 18: scramblers; Cap. 26 y 27: correlaciones y XY). Módulo: `qang.qcft` (NumPy exacto). Verificación: `tools/verify_cap33.py`. **Respuesta corta a «¿sirven las medidas qang para la teoría de cuerdas?»: no como contraste de la teoría; sí como lenguaje de lectura para un modelo de juguete (una CFT de 1+1 dimensiones, la del bosón libre), y con límites que este capítulo mide.**
+
+---
+
+## 33.1 Alcance: lo único que se afirma
+
+**ES.** Una cuerda bosónica tiene una hoja de mundo descrita por una teoría conforme (CFT) de 1+1 dimensiones; un bosón libre compacto es el bloque básico, con carga central $c=1$. Una cadena de espines XX (o fermiones libres en una red) es una realización de red de ese bosón libre. Eso es **todo** lo que este capítulo toma de la teoría de cuerdas: un modelo de red cuyo límite continuo es una CFT con $c=1$. No se simulan cuerdas, ni gravedad, ni dimensiones extra, ni el espectro, ni la dualidad T, ni AdS/CFT: esas afirmaciones quedan como `not adopted` (§33.7). La cuerda bosónica exige una materia de $c=26$ para anular la anomalía; la cadena con $c=1$ no la cumple ni pretende hacerlo.
+
+**EN.** The only thing taken from string theory is the free-boson worldsheet CFT ($c=1$), realized on a lattice by the XX chain. Strings, gravity, extra dimensions and the spectrum are not simulated.
+
+## 33.2 Modelo
+
+Cadena abierta de $n$ sitios, $H=-\sum_i(c_i^\dagger c_{i+1}+\text{h.c.})$ con $N=n/2$ fermiones (≡ cadena XX por Jordan–Wigner). El estado fundamental es un determinante de Slater y todo sale de $C_{ij}=\langle c_i^\dagger c_j\rangle$. Lecturas qang: $qg_{Z,i}=1-2C_{ii}$ (m-qg $=1000\,qg_Z$) y $qg_{ZZ}$ conexa $=\langle Z_iZ_j\rangle-\langle Z_i\rangle\langle Z_j\rangle=-4C_{ij}^2$ (Wick).
+
+## 33.3 Identidades exactas
+
+Para $n=8$ el estado completo de la cadena XX (256 amplitudes, sector $N=4$) y el cálculo con $C_{ij}$ coinciden: la $qg_{ZZ}$ conexa a $10^{-12}$ en tres pares $(1,2),(2,5),(0,7)$ y la entropía de bloque a $10^{-10}$ para $\ell=2,4$ (`exact`). Ejemplo: $qg_{ZZ}^{c}(1,2)=-244.84$ m-qg y $S(4)=0.8220$ bits.
+
+## 33.4 Carga central: cto1
+
+La entropía de un bloque de $\ell$ sitios en el borde de una cadena abierta es $S(\ell)=\frac c6\log_2\!\big[\tfrac{2n}{\pi}\sin\tfrac{\pi\ell}{n}\big]+s_0$. Ajustando con $\ell$ par entre $n/8$ y $n/2$:
+
+| $n$ | 32 | 64 | 128 | 256 | 512 |
+|---|---|---|---|---|---|
+| $c$ ajustada | 1.1165 | 1.0648 | 1.0337 | 1.0171 | 1.0086 |
+| $\lvert c-1\rvert$ | 0.1165 | 0.0648 | 0.0337 | 0.0171 | 0.0086 |
+
+El error se divide por ~2 al duplicar $n$ (∝ $1/n$): converge a $c=1$ (`exact`, numérico). **Ojo**: la entropía se calcula con la matriz de correlaciones **completa** $C_A$, no con una lectura qang.
+
+## 33.5 Qué sí ve qang: la ley de potencias
+
+La $qg_{ZZ}$ conexa de dos sitios a distancia $r$ impar es $-4/(\pi r)^2$ en la cadena infinita (dimensión de escala 1). En cadenas abiertas la pendiente log-log de $\lvert qg_{ZZ}^c\rvert$ frente a $r\in\{3,\dots,31\}$ es $-1.907$ ($n=400$), $-1.952$ ($800$), $-1.976$ ($1600$), hacia $-2$; en el centro con $r=5$: $-16.37$ m-qg frente a $-4000/(5\pi)^2=-16.21$ m-qg (`exact`; el residuo es de borde y decrece con $n$). Es una **lectura de dos puntos**: cuesta $O(n^2)$ parejas y da sólo $\lvert C_{ij}\rvert$, no la fase.
+
+## 33.6 Qué no ve qang: las lecturas locales
+
+En el centro de la cadena con $n=128$: $\lvert qg_Z\rvert\le1.8\cdot10^{-12}$ m-qg y $qg_S=1.00000$ bits **en todos los sitios** (la simetría partícula-hueco fija $C_{ii}=1/2$). La entropía de bloque, en cambio, crece de 0.773 ($\ell=2$) a 1.575 bits ($\ell=64$). Una lectura local es idéntica para $\ell=2$ y $\ell=64$: **ni $qg_Z$ ni $qg_S$ pueden dar $c$** (`against`, coherente con Cap. 5, 7 y 18: $qg_S$ no es medida de entrelazamiento).
+
+## 33.7 Lo que este capítulo no dice
+
+1. **No contrasta la teoría de cuerdas**: reproducir $c=1$ y un exponente $-2$ en una cadena de espines es una propiedad de la CFT del bosón libre, que también aparece en una cadena de Heisenberg, en un líquido de Luttinger y en muchos modelos sin relación con cuerdas.
+2. **No hay evidencia de que la unidad qg o qga simplifique nada** en teoría de cuerdas: no se encontró ninguna cantidad de la teoría que se exprese mejor en m-qg (`not adopted`).
+3. **AdS/CFT, dualidad T, espectro de cuerdas, compactificación, cuerdas con $c=26$**: `unverified`/`not adopted`; no hay código ni verificador.
+4. La relación con los capítulos 17–18 (agujeros negros como scramblers) es de lenguaje de información cuántica, no una verificación holográfica.
+
+## 33.8 Contraste operativo
+
+| Métrica / Metric | Sin `qang` | Con `qang` (`qang.qcft`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Correlación de dos sitios (cadena XX) | $\langle Z_iZ_j\rangle_c$ | $-4C_{ij}^2$ en m-qg, a $10^{-12}$ del estado completo | `exact` |
+| Exponente de la ley de potencias | $-2$ (teoría) | $-1.976$ ($n=1600$), converge | `exact` (numérico) |
+| Carga central $c$ | de la entropía de bloque | $1.0086$ ($n=512$); **no** la da qang | `exact` (con $C_A$ completa) |
+| Lecturas locales ($qg_Z$, $qg_S$) | — | planas: 0 m-qg, 1.00000 bits | `against` como medida de $c$ |
+| Teoría de cuerdas propiamente dicha | — | no cubierta | `not adopted` / `unverified` |
+
+## 33.9 Bloque (`qang/qcft.py`)
+
+```python
+def correlation_matrix(n, N=None)         # C_ij = <c†_i c_j>, determinante de Slater
+def local_qgz(C):                          return 1.0 - 2.0 * np.diag(C)
+def connected_qgzz(C, i, j):               return -4.0 * C[i, j] ** 2
+def block_entropy_bits(C, l)               # autovalores de C_A
+def fit_central_charge(n, ls=None)         # S = (c/6) log2[(2n/π) sin(π l/n)] + s0
+def zz_power_law_exponent(n, rmin, rmax)   # pendiente log-log de |qg_ZZ conexa|
+def exact_state_xx(n, N=None)              # estado completo, comprobación a n pequeño
+```
+
+## 33.10 Verificación — `tools/verify_cap33.py`
+
+```
+[1] n=8: ⟨ZZ⟩_c = −4C_ij² y S(l) = estado completo a 1e-12/1e-10; qg_ZZ conexa (1,2) = −244.84 m-qg, S(4) = 0.8220 bits
+[2] c ajustada: n=32 1.1165 | 64 1.0648 | 128 1.0337 | 256 1.0171 | 512 1.0086 (error ∝ 1/n)
+[3] pendiente log-log: n=400 −1.907, n=800 −1.952, n=1600 −1.976; r=5: −16.37 m-qg frente a −16.21 m-qg
+[4] n=128: |qg_Z| local ≤ 1.8e-12 m-qg; qg_S local = 1.00000 bits; S(l=2..64) = 0.773 … 1.575 bits
+verify_cap33: OK
+```
+
+### `tests/test_qcft.py`
+```python
+import numpy as np
+from qang.qcft import correlation_matrix, connected_qgzz, exact_state_xx, spin_zz_connected, block_entropy_bits, spin_block_entropy_bits, fit_central_charge, local_qgz
+def test_identities():
+    n = 6; C = correlation_matrix(n); psi = exact_state_xx(n)
+    assert abs(connected_qgzz(C, 1, 3) - spin_zz_connected(psi, n, 1, 3)) < 1e-12
+    assert abs(block_entropy_bits(C, 3) - spin_block_entropy_bits(psi, n, 3)) < 1e-10
+def test_central_charge(): assert abs(fit_central_charge(128)[0] - 1.0) < 0.05
+def test_local_flat(): assert np.max(np.abs(local_qgz(correlation_matrix(64)))) < 1e-10
+```
+
+## 33.11 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `xx_zz_connected` | CFT | $\langle Z_iZ_j\rangle_c=-4C_{ij}^2$ | `connected_qgzz`, `exact_state_xx` | `exact` |
+| `xx_central_charge` | CFT | $S=(c/6)\log_2[\dots]$, $c\to1$ como $1/n$ | `fit_central_charge` | `exact` (numérico) |
+| `xx_zz_power_law` | CFT | $\lvert qg_{ZZ}^c\rvert\propto r^{-2}$ | `zz_power_law_exponent` | `exact` (numérico) |
+| `local_reading_blind_to_c` | CFT | $qg_Z=0$, $qg_S=1$ bit para todo $\ell$ | `local_qgz`, `block_entropy_bits` | `against` |
+| `string_theory_claims` | cuerdas | AdS/CFT, dualidad T, espectro, $c=26$ | — | `not adopted` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qcft`; `tools/verify_cap33.py`; `tests/test_qcft.py`.
+Commit: `docs(cap33): alcance de qang frente a la CFT c=1 y la teoría de cuerdas + qang.qcft + verify_cap33`.
