@@ -83,7 +83,9 @@
 - **Cap. 34**: Límites estructurales, equivalencias y resultados negativos
   - *Reescritura*: `book/cap34_limites_resultados_negativos.md`, `qang.qlimits`, `tools/verify_cap34.py`, `tests/test_qlimits.py` (límites exactos; fallos de §157–§164 y LiH citados, `unverified` en el capítulo).
 - **Cap. 35**: Primer experimento en hardware real: IQM Resonance / Garnet (`qang.iqm`, §165, §168, §170)
+  - *Reescritura*: `book/cap35_hardware_garnet.md`, `qang.qgarnet`, `tools/verify_cap35.py`, `tests/test_qgarnet.py` (`tested on hardware`; recalculado de `examples/data/iqm_*`; pre-registros comprobados contra git; sin réplica).
 - **Cap. 36**: Arquitectura de software, ecosistema multi-SDK (`qang.interop`) y ejecución física
+  - *Reescritura*: `book/cap36_arquitectura_software.md`, `qang.qarch`, `tools/verify_cap36.py`, `tests/test_qarch.py` (auditoría del repositorio; cifras de IBM §137–§150 citadas, `unverified`).
 
 ### Partes XI–XIII. Nanocuántica, aplicaciones transversales y ecosistema
 - **Cap. 37 (Parte XI)**: Nanocuántica: efecto túnel, fórmula de Landauer, ruido de partición, bloqueo de Coulomb, puntos cuánticos y centros NV

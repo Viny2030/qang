@@ -1,4 +1,3 @@
-import pytest; pytest.importorskip("scipy")
 import numpy as np
 from qang.qchar import fit_t1, t1_qz, optimal_delay_ratio, correct_mqg, fidelity_from_hop, zz_phase_qga
 def test_t1_fit(): ts = np.array([20, 60, 120.0]); assert abs(fit_t1(ts, t1_qz(ts, 90.0)) - 90.0) < 1e-9

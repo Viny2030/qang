@@ -1,14 +1,29 @@
 """qang.qchar — Cap. 30: caracterización de hardware en m-qg: T1 por decaimiento (instante óptimo 1.59 T1), calibración de
 lectura (e01, e10) con barras de error, XEB/HOP → fidelidad, desplazamiento ZZ estático en qga y cuantización de control.
-NumPy/SciPy exacto. m-qg = 1000·qg_Z; 1 vuelta = 1000 qga.
+NumPy exacto (sin SciPy). m-qg = 1000·qg_Z; 1 vuelta = 1000 qga.
 """
 from __future__ import annotations
 
 from typing import Sequence, Tuple
 
 import numpy as np
-from scipy.linalg import expm
-from scipy.optimize import minimize_scalar
+
+def _minimize_scalar(f, a: float, b: float, tol: float = 1e-12) -> float:
+    """Mínimo de una función unimodal en [a, b] por sección áurea (sin SciPy: el núcleo de qang sólo exige NumPy)."""
+    g = (np.sqrt(5.0) - 1.0) / 2.0
+    c, d = b - g * (b - a), a + g * (b - a)
+    fc, fd = f(c), f(d)
+    while abs(b - a) > tol:
+        if fc < fd:
+            b, d, fd = d, c, fc
+            c = b - g * (b - a)
+            fc = f(c)
+        else:
+            a, c, fc = c, d, fd
+            d = a + g * (b - a)
+            fd = f(d)
+    return 0.5 * (a + b)
+
 
 # ------------------------------------------------------------------ T1 por decaimiento
 def t1_qz(t, T1):
@@ -34,7 +49,7 @@ def fisher_t1(ts: Sequence[float], T1: float, shots: int) -> float:
 def optimal_delay_ratio() -> float:
     """x = t/T1 que maximiza la información por disparo: x² e^{−x}/(1−e^{−x}); x* = 1.5936."""
     f = lambda x: -(x ** 2 * np.exp(-x) / (1 - np.exp(-x)))
-    return float(minimize_scalar(f, bounds=(0.1, 6.0), method="bounded", options={"xatol": 1e-10}).x)
+    return float(_minimize_scalar(f, 0.1, 6.0, 1e-10))
 
 
 def mle_t1(ts: Sequence[float], ks: Sequence[int], shots: int, T1_max: float = 1e4) -> float:
@@ -46,8 +61,7 @@ def mle_t1(ts: Sequence[float], ks: Sequence[int], shots: int, T1_max: float = 1
         p = np.clip(np.exp(-t / np.exp(logT)), 1e-12, 1 - 1e-12)
         return -np.sum(k * np.log(p) + (shots - k) * np.log(1 - p))
 
-    r = minimize_scalar(nll, bounds=(np.log(1e-2), np.log(T1_max)), method="bounded", options={"xatol": 1e-9})
-    return float(np.exp(r.x))
+    return float(np.exp(_minimize_scalar(nll, np.log(1e-2), np.log(T1_max), 1e-9)))
 
 
 def simulate_t1_std(ts: Sequence[float], T1: float, shots: int, reps: int, seed: int = 0) -> float:
@@ -114,7 +128,7 @@ def zz_ramsey_qgx(zeta: float, t: float, neighbor: int, basis: str = "X") -> flo
     H = zeta / 4.0 * np.kron(Z, Z)
     plus = np.array([1, 1]) / np.sqrt(2)
     b = np.array([1, 0]) if neighbor == 0 else np.array([0, 1])
-    psi = expm(-1j * H * t) @ np.kron(plus, b)
+    psi = np.exp(-1j * np.diag(H) * t) * np.kron(plus, b)   # H es diagonal: expm = fases
     X = np.array([[0, 1], [1, 0]]) if basis == "X" else np.array([[0, -1j], [1j, 0]])
     return float(np.real(psi.conj() @ np.kron(X, np.eye(2)) @ psi))
 

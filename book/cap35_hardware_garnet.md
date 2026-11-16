@@ -1,0 +1,157 @@
+# Capítulo 35 — Primeras corridas en hardware real: IQM Garnet (neutrinos §165, milli-qang §168, E=mc² §170) recalculadas desde los archivos guardados
+# Chapter 35 — First Real-Hardware Runs: IQM Garnet (Neutrinos §165, Milli-qang §168, E=mc² §170) Recomputed from the Stored Files
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Reescritura del capítulo de hardware sobre la base de Cap. 1–34. Módulo: `qang.qgarnet` (NumPy; no hace falta `iqm-client` ni créditos). Verificación: `tools/verify_cap35.py`, que recalcula todo de `examples/data/iqm_*` y compara los pre-registros con la historia de `git`. **Estatus: `tested on hardware`, con el alcance de una sola corrida de un solo día en un chip. No hay réplica.**
+> **EN abstract.** Three pre-registered runs on IQM Garnet are recomputed from the stored counts: the weight filter lowers the three-flavour neutrino error 1.59× and moves the oscillation minimum from 0.8 to 2.6 GeV; the milli-qang run gives a readout from two poles ($e_0=0.0055$, $e_1=0.029$), an X-gate cost of 1.64 m-qg, and one failed prediction (M2). Each pre-registration hash matches the script blob at its commit. Single runs, one day: no replication.
+
+---
+
+## 35.1 Reglas de lectura
+
+1. Todo número sale de un archivo guardado de la corrida y de una función de `qang.qgarnet`. Lo que sólo viene de simulaciones o de las notas se marca `unverified`.
+2. `m-qg` $=1000\,qg_Z$ (lectura); `qga` es la escala angular (1 vuelta = 1000 qga). Aquí sólo hay m-qg.
+3. Una predicción fallada se registra como fallada.
+
+## 35.2 Qué se lleva al chip
+
+La lectura de un qubit real es la del Cap. 1: $qg_Z=2p_0-1$. Cambia lo que la rodea: compilación a compuertas nativas, errores de lectura propios y créditos por disparo. `qang` aporta tres cosas, todas en posprocesamiento: el filtro de peso (si el circuito lo conserva), el testigo (fracción conservada) y la lectura en m-qg. La corrección de lectura es afín:
+
+$$m' = (1-e_0-e_1)\,m + 1000\,(e_1-e_0),\qquad e_0=P(1\mid 0),\ e_1=P(0\mid 1).$$
+
+`predicted_raw_mqg` la aplica y `correct_mqg` la invierte.
+
+## 35.3 Neutrinos de tres sabores (§165)
+
+Circuito del Cap. 12 (ex-9): $\nu_\mu$ inicial, 1300 km, $\delta_{CP}=-\pi/2$, 8 energías de 0.8 a 5 GeV, 3 qubits; trabajo `01a15b04`, 300 disparos por circuito. Pre-registro `b320f51f` antes de enviar nada.
+
+| predicción | resultado recalculado (`neutrino_summary`) |
+| :--- | :--- |
+| I1: error filtrado < crudo | $0.0386<0.0615$ |
+| I2: cociente $\ge1.5$ | $1.593$ (por poco) |
+| I3: mínimo filtrado en 2.6 GeV | sí: filtrado 2.6 GeV; **crudo 0.8 GeV**; exacto 2.6 GeV |
+| I4: se conserva $\ge$ la mitad | $0.880$ (2113 de 2400 disparos) |
+
+- Por sabor (crudo → filtrado): $\nu_e$ $0.054\to0.023$; $\nu_\mu$ $0.069\to0.041$; $\nu_\tau$ $0.062\to0.052$ (casi no cambia).
+- En 2.6 GeV la supervivencia exacta es $0.013$, la cruda $0.173$ y la filtrada $0.101$: **lo que queda es error dentro del sector**, que el filtro no ve (Cap. 34, §34.6).
+
+## 35.4 Milli-qang en un qubit (§168)
+
+Trabajo `01a167ab`, 4000 disparos por circuito, un qubit. Los dos polos dan $e_0=0.0055$, $e_1=0.0290$ y contraste $0.9655$ (`readout_from_poles`, `contrast`).
+
+| objetivo (m-qg) | lectura cruda − predicha (m-qg) | $z$ |
+| :--- | :--- | :--- |
+| +707 | $-15.6$ | $-1.34$ |
+| +500 | $-32.2$ | $-2.29$ |
+| −500 | $-55.2$ | $-3.91$ |
+| −707 | $-27.9$ | $-2.26$ |
+| 0 (ecuador agrupado) | $+1.5$ | $+0.25$ |
+
+- **M1** (al menos 4 de 5 dentro de $3\sigma$): se cumple, **pero no limpiamente**: los cuatro puntos del barrido leen por debajo de la predicción y el de −500 queda a $3.9\sigma$.
+- **M2** (dispersión de las copias del ecuador entre 0.55 y 1.45 del $\sigma$ binomial): **falló**, con $0.500$. Las 10 copias se dispersan la mitad de lo que permite el ruido de disparo. Sigue sin explicación; no se propone una.
+- **M3/M4** (cadenas de $k$ compuertas X): el déficit va de $-2.6$ m-qg ($k=3$) a $+63.2\pm7.7$ m-qg ($k=41$), $8.2\sigma$. La pendiente por compuerta X, ajustada por el origen con $k-1$ compuertas, es **1.64 m-qg** ($\chi^2/\mathrm{gl}=0.81$). M3 pasa, pero el diseño de la predicción la vuelve poco informativa más allá de $k=15$ (registrado así en la corrida).
+
+## 35.5 $E=mc^2$ como lectura (§170)
+
+Trabajo `01a19c58`, 2000 disparos por circuito, 24 circuitos en un qubit. Los polos dan $e_0=0.0030$, $e_1=0.0265$ (contraste $0.9705$). Las 16 lecturas corregidas del barrido se recalculan de los conteos (`correct_mqg`) y coinciden con el análisis guardado; difieren de la curva exacta entre $-78.9$ y $+38.6$ m-qg (mezcla error de compuerta y ruido de disparo, $\sigma$ de 4 a 17 m-qg). El veredicto guardado es 5 de 5. Ese veredicto se lee del archivo; sus umbrales se definen en `examples/iqm_zitterbewegung_qg.py`.
+
+## 35.6 Pre-registro: el hash es del archivo en el commit, no del archivo de hoy
+
+El script actual de neutrinos **no** tiene el hash del pre-registro, porque se le agregaron resultados al docstring después de la corrida. Lo que vale es el contenido en el commit de registro:
+
+| corrida | commit | sha256 del script en ese commit | pre-registro |
+| :--- | :--- | :--- | :--- |
+| neutrinos §165 | `a74c07c` | `b320f51f…` | `b320f51f…` |
+| milli-qang §168 | `32f3645` | `a5de8db2…` | `a5de8db2…` |
+| $E=mc^2$ §170 | `ef41991` | `472cdc16…` | `472cdc16…` |
+
+`blob_hash_at_commit` hace la comprobación con `git show`; necesita la historia completa (un clon superficial como el del CI no la tiene, y la verificación avisa y sigue).
+
+## 35.7 Presupuesto de créditos
+
+Saldo inicial 30. Pruebas $0.50+0.50$; corridas $0.50+16.00$ (el costo de la de neutrinos es la diferencia de dos saldos, no está escrito). Gastado 17.50 (pruebas 3.3 %, corridas 55.0 %), saldo 12.50. La corrida de §170 (≈7.7 créditos, **estimado** con la tarifa de §168) deja ≈4.8. La aritmética es exacta (`budget_summary`); las cifras de créditos vienen de las notas.
+
+## 35.8 Lo que este capítulo no afirma
+
+1. **No hay réplica**: cada corrida es un día, un chip, un qubit (o 3). La réplica en 5 qubits y dos días está preparada (`examples/iqm_milliqang_replication_qg.py`) y sin correr.
+2. **«El chip fue mejor que su modelo»** (error crudo $0.062$ contra $0.126$ del modelo simulado de Garnet; factor $1.59$ contra $2.16$) usa simulaciones que aquí no se re-ejecutaron: `unverified`.
+3. **`qang.iqm`** (corrección de lectura y elección de cadena) se escribió después de las corridas y **no se probó en el chip real**; requiere `iqm-client`. Las corridas se hicieron con los scripts de `examples/` y `qang.interop`.
+4. **La ventaja de compilación de IQM (12 CZ contra 18 compuertas de dos qubits en IBM)** era del nivel de optimización (3 contra 1), no del chip: con el mismo nivel dan lo mismo. Ese recuento requiere Qiskit y no se re-ejecutó aquí (`unverified`).
+
+## 35.9 Contraste operativo: sin `qang` frente a con `qang`
+
+| Acción | Sin `qang` | Con `qang` (`qang.qgarnet`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Error medio de las probabilidades (neutrinos) | $0.0615$ | $0.0386$ (×1.59) | `tested on hardware` |
+| Energía del mínimo de supervivencia | 0.8 GeV | 2.6 GeV (exacto 2.6) | `tested on hardware` |
+| Costo en disparos | 2400 | los mismos; se descarta el 12 % | `tested on hardware` |
+| Lectura en el ecuador (qubit real) | $+24.95$ m-qg crudo (10 copias agrupadas) | $+1.5$ m-qg corregido con los polos | `tested on hardware` |
+| Costo de una X | no medible a ojo | $1.64$ m-qg por compuerta, $\chi^2/\mathrm{gl}=0.81$ | `tested on hardware` |
+| Dispersión del ecuador (M2) | — | $0.50\times$ el $\sigma$ binomial: predicción **fallada** | `against` |
+| Réplica | — | no hay | `unverified` |
+
+## 35.10 Bloque (`qang/qgarnet.py`)
+
+```python
+def readout_from_poles(c0, c1)                  # (e0, e1) desde los circuitos «todo |0>» y «todo |1>»
+def predicted_raw_mqg(target, e0, e1)           # lectura cruda esperada: contraste·m + 1000(e1−e0)
+def correct_mqg(raw, e0, e1)                    # inversión
+def equator_dispersion_ratio(copies)            # M2: desvío observado / σ binomial agrupado
+def chain_shortfall(ck, c_pole1, contrast)      # déficit y σ de una cadena de X
+def fit_slope_origin(x, y, sigma)               # m-qg por X y χ²/gl
+def neutrino_summary(run)                       # errores, cociente, mínimo de supervivencia, fracción conservada
+def blob_hash_at_commit(repo, commit, path)     # sha256 del script en el commit de registro
+def budget_summary(steps, initial, tests)       # aritmética de créditos
+```
+
+## 35.11 Verificación — `tools/verify_cap35.py`
+
+```
+[1] error crudo 0.0615 → filtrado 0.0386 (×1.59); conservado 0.880 (2113 de 2400 disparos)
+    mínimo de supervivencia: crudo 0.8 GeV, filtrado 2.6 GeV, exacto 2.6 GeV
+    por sabor (crudo → filtrado): 0.054→0.023, 0.069→0.041, 0.062→0.052
+    2.6 GeV, supervivencia: exacta 0.013, cruda 0.173, filtrada 0.101
+[2] lectura desde los polos: e0=0.0055, e1=0.0290, contraste 0.9655
+    M1 (lectura cruda − predicha, m-qg): +707: -15.6, +500: -32.2, -500: -55.2, -707: -27.9, +0: +1.5
+    z = [-1.34, -2.29, -3.91, -2.26, 0.25] → dentro de 3σ: 4/5; M2: dispersión / σ binomial = 0.500 (se pedía 0.55–1.45)
+    cadenas de X (k=3..41): déficit -2.6 … +63.2 ± 7.7 m-qg (M4: 8.2σ); pendiente por X = 1.64 m-qg, χ²/gl = 0.81
+    veredicto guardado: {'M1': True, 'M2': False, 'M3': True, 'M4': True} (M2 falló: 0.50 está fuera de 0.55–1.45)
+[3] e0=0.0030, e1=0.0265; 16 puntos: lectura corregida − exacta entre -78.9 y +38.6 m-qg; veredicto guardado {'Z1': True, ..., 'Z5': True}
+[4] neutrinos §165: sha256 del script en a74c07c = b320f51f… = pre-registro b320f51f…
+[4] milli-qang §168: sha256 del script en 32f3645 = a5de8db2… = pre-registro a5de8db2…
+[4] E=mc² §170: sha256 del script en ef41991 = 472cdc16… = pre-registro 472cdc16…
+[5] gastado 17.50 de 30 (pruebas 3.3 %, corridas 55.0 %), saldo 12.50; con §170 (≈7.7, estimado): ≈4.8
+verify_cap35: OK
+```
+
+### `tests/test_qgarnet.py`
+```python
+from qang.qgarnet import readout_from_poles, contrast, predicted_raw_mqg, correct_mqg, fit_slope_origin, neutrino_summary, load
+def test_readout_roundtrip_and_poles():
+    e0, e1 = readout_from_poles({"0": 3978, "1": 22}, {"1": 3884, "0": 116})
+    assert abs(e0 - 0.0055) < 1e-12 and abs(e1 - 0.029) < 1e-12 and abs(contrast(e0, e1) - 0.9655) < 1e-12
+    for t in (-1000.0, -707.0, 0.0, 500.0):
+        assert abs(correct_mqg(predicted_raw_mqg(t, e0, e1), e0, e1) - t) < 1e-9
+def test_stored_neutrino_run():
+    S = neutrino_summary(load("examples/data/iqm_neutrino_qg_run.json"))
+    assert abs(S["factor"] - 1.5929) < 1e-3 and S["emin_filtered"] == 2.6 and S["emin_raw"] == 0.8
+```
+
+## 35.12 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `garnet_neutrino_filter` | hardware | error $0.0615\to0.0386$ ($\times1.59$) | `neutrino_summary` | `tested on hardware` |
+| `garnet_oscillation_peak` | hardware | mínimo de supervivencia 0.8 → 2.6 GeV | `neutrino_summary` | `tested on hardware` |
+| `garnet_readout_poles` | hardware | $m'=(1-e_0-e_1)m+1000(e_1-e_0)$ | `readout_from_poles`, `predicted_raw_mqg`, `correct_mqg` | `tested on hardware` |
+| `garnet_x_gate_cost` | hardware | 1.64 m-qg por X, $\chi^2/\mathrm{gl}=0.81$ | `chain_shortfall`, `fit_slope_origin` | `tested on hardware` |
+| `garnet_equator_dispersion` | hardware | $\sigma_{obs}/\sigma_{bin}=0.50$ (M2 falló) | `equator_dispersion_ratio` | `against` |
+| `garnet_e_mc2_readout` | hardware | 16 lecturas corregidas; veredicto guardado 5/5 | `correct_mqg`, `readout_from_poles` | `tested on hardware` |
+| `prereg_blob_hash` | metodología | sha256(script en el commit) = pre-registro | `blob_hash_at_commit`, `prereg_hash` | `exact` |
+| `iqm_budget_arithmetic` | costos | 17.50 de 30 créditos | `budget_summary` | `exact` |
+| `iqm_chip_better_than_model` | hardware | crudo 0.062 frente a 0.126 simulado | — | `unverified` (modelos simulados no re-ejecutados) |
+| `iqm_module_on_real_chip` | software | `qang.iqm` | — | `unverified` (no probado en el chip) |
+
+`CHANGELOG.md [Unreleased]`: `qang.qgarnet`; `tools/verify_cap35.py`; `tests/test_qgarnet.py`.
+Commit: `docs(cap35): corridas en IQM Garnet recalculadas desde los archivos guardados + qang.qgarnet + verify_cap35`.

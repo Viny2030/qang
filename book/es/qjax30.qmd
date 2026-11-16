@@ -4,7 +4,7 @@
 
 **Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
 
-> Reescritura del antiguo Cap. 27 sobre la base de Cap. 1–29 (lectura afín de Cap. 25 y 27, presupuesto de disparos de Cap. 8, Fisher de Cap. 9). Módulo: `qang.qchar` (NumPy/SciPy exacto). Verificación: `tools/verify_cap30.py`. Todo es **simulación**: ningún número de este capítulo salió de un dispositivo (`tested in simulator`; hardware `unverified`).
+> Reescritura del antiguo Cap. 27 sobre la base de Cap. 1–29 (lectura afín de Cap. 25 y 27, presupuesto de disparos de Cap. 8, Fisher de Cap. 9). Módulo: `qang.qchar` (NumPy exacto, sin SciPy). Verificación: `tools/verify_cap30.py`. Todo es **simulación**: ningún número de este capítulo salió de un dispositivo (`tested in simulator`; hardware `unverified`).
 
 ---
 
@@ -76,7 +76,6 @@ verify_cap30: OK
 
 ### `tests/test_qchar.py`
 ```python
-import pytest; pytest.importorskip("scipy")
 import numpy as np
 from qang.qchar import fit_t1, t1_qz, optimal_delay_ratio, correct_mqg, fidelity_from_hop, zz_phase_qga
 def test_t1_fit(): ts = np.array([20, 60, 120.0]); assert abs(fit_t1(ts, t1_qz(ts, 90.0)) - 90.0) < 1e-9
