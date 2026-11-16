@@ -131,7 +131,7 @@ la del capítulo 26, la reponderación consciente del T1 (2,1 a 2,5 veces), que 
 - **JAX.** Las lecturas y el filtro escritos con `jax.numpy` se pueden pasar por `jit`, `grad` y `vmap`. El gradiente de una
   pérdida filtrada a través de un QNode de PennyLane con `interface="jax"` coincide con diferencias finitas a $2\cdot10^{-10}$.
   Era lo que el capítulo 20 dejaba sin probar. Para lograrlo apareció un conflicto: PennyLane 0.45 usa `jax.core.is_concrete`,
-  que JAX 0.12 eliminó, y funciona sólo con JAX < 0.9.
+  que JAX deprecó en 0.10.0 y eliminó en 0.11.0. El repositorio fija `jax<0.9`, el rango con el que se probó este capítulo.
 - **PyTorch.** `WeightQNNTorch` es un `nn.Module`: una `TorchLayer` de PennyLane con rotaciones `SingleExcitation`, que
   conservan el peso, la lectura filtrada y una capa lineal. Con T1 de 0,1 por capa, la lectura filtrada difiere de la limpia en
   $1{,}2\cdot10^{-16}$ y la cruda en 262,5 m-qg. El gradiente pasa por `backward()`.

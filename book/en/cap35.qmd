@@ -127,8 +127,8 @@ one from Chapter 26, the T1-aware reweighting (2.1 to 2.5 times), which this mod
   can choose `qang=True/False` like any other hyperparameter.
 - **JAX.** The readings and the filter written with `jax.numpy` go through `jit`, `grad` and `vmap`. The gradient of a filtered
   loss through a PennyLane QNode with `interface="jax"` matches finite differences to $2\cdot10^{-10}$. That was what
-  Chapter 20 left untested. Getting there turned up a conflict: PennyLane 0.45 uses `jax.core.is_concrete`, which JAX 0.12
-  removed, and it works only with JAX < 0.9.
+  Chapter 20 left untested. Getting there turned up a conflict: PennyLane 0.45 uses `jax.core.is_concrete`, which JAX deprecated in 0.10.0
+  and removed in 0.11.0. The repository pins `jax<0.9`, the range this chapter was tested with.
 - **PyTorch.** `WeightQNNTorch` is an `nn.Module`: a PennyLane `TorchLayer` with `SingleExcitation` rotations, which conserve
   the weight, the filtered reading and a linear layer. With T1 of 0.1 per layer, the filtered reading differs from the clean
   one by $1.2\cdot10^{-16}$ and the raw one by 262.5 m-qg. The gradient flows through `backward()`.
