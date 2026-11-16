@@ -22,6 +22,26 @@ Reference implementation and computational toolkit for:
 - **IQM** devices (`qang.iqm`): readout correction from the two poles or the error profile, qg read-outs of `IQMBackend` counts, chain choice; the project's first real-hardware runs were on IQM Garnet.
 - A bilingual **book**, *Quantum Computing, Information and Physics in qang Space*: [English](https://viny2030.github.io/qang/en/) · [Español](https://viny2030.github.io/qang/es/).
 
+### What's new in 0.15.0 — the book rewritten as verified chapters (7–41), and new readings of matter, time and the ecosystem
+
+- **Chapters 7–41 rewritten** (Spanish with English abstracts), each with a "without qang vs with qang" table in m-qg, the exact
+  `qang` function, a verifier `tools/verify_capNN.py` and a pytest block. Every sub-measure carries one of the ledger statuses
+  (`exact`, `measured gain`, `tested on hardware`, `mixed`, `no gain`, `against`, `unverified`, `not adopted`). Over the
+  Appendix H rows of chapters 7–41 the ledger counts 160 sub-measures: 130 `exact`, 14 `unverified`, 6 `against`,
+  5 `tested on hardware`, 3 `no gain`, 1 `mixed`, 1 `not adopted`, and **no `measured gain`**.
+- **New modules** (NumPy only unless noted): `qang.qlimits` (structural limits and negative results), `qang.qgarnet` (the IQM
+  Garnet runs recomputed from stored data, pre-registrations checked against git), `qang.qarch` (audit of the package: core
+  needs only NumPy, extras and test guards), `qang.qnano`, `qang.qtransv`, `qang.qintegr` (audit of the 12 integrations),
+  `qang.qanti` (matter and antimatter: charge conjugation as the antipodal map, Zitterbewegung, Landau–Zener pair creation),
+  `qang.qtimeloop` (postselected CTC maps: total Fisher information per copy is exactly 1, grandfather paradox, fixed points by
+  angle in qga), `qang.qfalsify`, `qang.qledger`, `qang.qchar`, `qang.qcft`. JAX-based chapter modules need `jax<0.9`.
+- **Fixed:** `qang.qchar` no longer imports SciPy at module level (the core stays NumPy-only).
+- **Appendices A–H** are refreshed by `tools/update_appendices.py` (run after `tools/make_appendices.py`); Appendix H lists the
+  rewrite's sub-measures from `qang.qledger`.
+- Nothing here claims a hardware advantage: the only real-device results are the stored IQM Garnet runs (`tested on hardware`,
+  one run per day, no replication); simulated or cited vendor figures are marked `unverified`. The physical existence of closed
+  timelike curves and the relativistic-energy proposal of Appendix G remain `unverified`.
+
 ### What's new in 0.14.0 — the angular scale qga, and the book rebuilt on it
 
 - **`qang.qga`**: the thousand-based angle scale of the *Geometric and Dimensional Foundation of the Qang System*,

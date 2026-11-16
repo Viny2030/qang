@@ -5,9 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-16
+
 ### Added
 - Book rewrite, chapters 7–41 (Spanish with English abstracts, `book/cap07_*.md` … `book/cap41_*.md`, each dated), numbering
-  shifted by three from the old outline (new chapters 7–9 inserted; `BOOK_OUTLINE.md` now lists 38 chapters). Each chapter
+  shifted by three from the old outline (new chapters 7–9 inserted; `BOOK_OUTLINE.md` now lists 41 chapters). Each chapter
   has a "sin qang vs con qang" table (m-qg and probabilities), a JAX block (`jax<0.9`), a verifier and its pytest block.
   Modules (JAX, optional, `qang/`): `qan` (7), `qdist` (8), `qfisher` (9), `qgeom` (10), `qmetro` (11), `qneutrino` (12–13),
   `qmajorana` (14), `qtele` (15), `qdualrail` (16), `qctc` (17), `qscramble` (18), `qdemarc` (19), `qkd` (20), `qrng` (21),
