@@ -43,12 +43,12 @@ Anillo de 20 sitios, sector $S^z=0$ (`xxz_ground_distribution`, SciPy):
 
 | $\Delta$ | $K$ exacto | $\hat K$ (una base Z) | error |
 |---|---|---|---|
-| $0$ | $1.000$ | $1.013$ | $1.3\,\%$ |
-| $-0.5$ | $1.500$ | $1.514$ | $0.9\,\%$ |
-| $0.5$ | $0.750$ | $0.811$ | $8.2\,\%$ |
-| $0.7071$ | $0.667$ | $0.756$ | $13.4\,\%$ |
+| $0$ | $1.000$ | $1.013$ | $1.3\%$ |
+| $-0.5$ | $1.500$ | $1.514$ | $0.9\%$ |
+| $0.5$ | $0.750$ | $0.811$ | $8.2\%$ |
+| $0.7071$ | $0.667$ | $0.756$ | $13.4\%$ |
 
-El error crece hacia $\Delta>0$ por correcciones logarítmicas cerca de $\Delta=1$: el estatus es `mixed`. En el continuo, los exponentes de las correlaciones escalonadas son $2K$ (ZZ) y $1/(2K)$ (XX): su producto es $1$ y la T-dualidad $K\to1/K$ los intercambia (`dual_exponents`). El par $K=3/2$ ($\Delta=-0.5$) y $K=2/3$ ($\Delta=\cos\pi/4$) da un producto leído $1.145$ (error $14.5\,\%$, el de la rama $\Delta>0$): la cadena de red no es T-dual de sí misma, sólo lo es su límite al continuo.
+El error crece hacia $\Delta>0$ por correcciones logarítmicas cerca de $\Delta=1$: el estatus es `mixed`. En el continuo, los exponentes de las correlaciones escalonadas son $2K$ (ZZ) y $1/(2K)$ (XX): su producto es $1$ y la T-dualidad $K\to1/K$ los intercambia (`dual_exponents`). El par $K=3/2$ ($\Delta=-0.5$) y $K=2/3$ ($\Delta=\cos\pi/4$) da un producto leído $1.145$ (error $14.5\%$, el de la rama $\Delta>0$): la cadena de red no es T-dual de sí misma, sólo lo es su límite al continuo.
 
 ## 42.6 Qué no mide
 
@@ -64,7 +64,7 @@ El error crece hacia $\Delta>0$ por correcciones logarítmicas cerca de $\Delta=
 | Nivel $N$ de un estado en qubits | tomografía o contar pesos a mano | $N=\sum_k k(1000-m_k)/2000$ de un histograma Z | 0 ajustes extra (`exact`) |
 | Detectar decaimientos en el nivel | post-selección ad hoc | filtro de nivel: retención $(1-\gamma)^{|x|}$ | todo decaimiento se detecta (`exact`) |
 | Qué filtro usar | un solo filtro de peso | nivel o peso según lo que conserve el circuito | puntos ciegos complementarios (`exact`) |
-| Radio de un análogo de red | exponentes de correlación en 2 bases (ZZ y XX) | varianza de bloque, 1 base Z | $-1$ base; error $1.3\,\%$ ($\Delta=0$) a $13\,\%$ ($\Delta=0.71$) (`mixed`) |
+| Radio de un análogo de red | exponentes de correlación en 2 bases (ZZ y XX) | varianza de bloque, 1 base Z | $-1$ base; error $1.3\%$ ($\Delta=0$) a $13\%$ ($\Delta=0.71$) (`mixed`) |
 | Comprobar T-dualidad | a mano | espectro igual en 6 radios; 576 → 676 en el autodual | (`exact`) |
 
 ## 42.8 Código
@@ -111,7 +111,7 @@ verify_cap42: OK
 | `level_weight_blind_spots` | cuerdas | nivel y peso: puntos ciegos complementarios | `qang.qstring.level_vs_weight_blindness` | `exact` |
 | `t_duality_spectrum` | cuerdas | espectro igual en $R$ y $\alpha'/R$ (6 radios) | `qang.qstring.t_dual_equal`, `qang.qstring.closed_spectrum` | `exact` |
 | `selfdual_massless` | cuerdas | $676=576+96+4$ en $R=\sqrt{\alpha'}$ | `qang.qstring.massless_states`, `qang.qstring.massless_breakdown` | `exact` |
-| `luttinger_block_variance` | cuerdas | $K\simeq\pi^2\,d\,\mathrm{Var}/d\ln(\text{cuerda})$; error $1.3$–$13.4\,\%$ | `qang.qstring.luttinger_k_from_variance`, `qang.qstring.xxz_ground_distribution` | `mixed` |
+| `luttinger_block_variance` | cuerdas | $K\simeq\pi^2\,d\,\mathrm{Var}/d\ln(\text{cuerda})$; error $1.3$–$13.4\%$ | `qang.qstring.luttinger_k_from_variance`, `qang.qstring.xxz_ground_distribution` | `mixed` |
 | `string_physics_claims` | cuerdas | que `qang` mide física de cuerdas | — | `not adopted` |
 
 ## 42.11 CHANGELOG y commit
