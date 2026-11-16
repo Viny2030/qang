@@ -110,7 +110,7 @@ def test_haar_posterior_equator():
     assert abs(float(m)) < 1e-14 and abs(float(v) - 1 / 103) < 1e-14
 
 def test_shots_bound():
-    assert shots_tv_bound(8, 36, 0.05) == 3600.0
+    assert abs(shots_tv_bound(8, 36, 0.05) - 3600.0) < 1e-6
 ```
 
 ## 8.8 Apéndice H — entradas nuevas en `qang.measures`

@@ -1,4 +1,4 @@
-# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (35 Capítulos + Apéndices A–H)
+# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (38 Capítulos + Apéndices A–H)
 
 **Título ES**: *Computación, información y física cuántica en el espacio qang* (`qang-libro-es.pdf` / `book/es/`)
 **Título EN**: *Quantum Computing, Information and Physics in qang Space* (`qang-book-en.pdf` / `book/en/`)
@@ -21,60 +21,66 @@
   - *Scripts*: `tools/make_cap05_figures.py`, `tools/verify_cap05.py`, `examples/qg_radius_witness_qg.py` (§98), `examples/complementarity_qg.py` (§127).
 - **Cap. 6**: Polarización óptica y parámetros de Stokes en unidades qg (`qang.polarization`)
   - *Scripts*: `tools/make_cap06_figures.py`, `tools/verify_cap06.py`, `notebooks/qang_optics[_es].ipynb` (§83).
-- **Cap. 7**: Fases geométricas y el teorema de Stokes en la esfera (`qang.geometric`, `qang.phase`)
+- **Cap. 7**: QAN, información mutua y IQAN: diagnóstico y poda de entrelazamiento en medidas qg (`qang.qan`) — *nuevo*
+  - *Scripts*: `tools/verify_cap07.py`, `tests/test_qan.py`, `book/cap07_qan_mi_iqan.md`.
+- **Cap. 8**: QAN sobre distribuciones de probabilidad: distancia TV, disparos y sesgo de Miller–Madow (`qang.qdist`) — *nuevo*
+  - *Scripts*: `tools/verify_cap08.py`, `tests/test_qdist.py`, `book/cap08_qan_distribuciones.md`.
+- **Cap. 9**: Información de Fisher y gradiente natural cuántico (QNG) regularizado en qg (`qang.qfisher`) — *nuevo*
+  - *Scripts*: `tools/verify_cap09.py`, `tests/test_qfisher.py`, `book/cap09_fisher_qng.md`.
+- **Cap. 10**: Fases geométricas y el teorema de Stokes en la esfera (`qang.geometric`, `qang.phase`)
   - *Scripts*: `tools/make_cap07_figures.py`, `tools/verify_cap07.py`, `notebooks/qang_optics[_es].ipynb` (§84).
-- **Cap. 8**: Información de Fisher, relojes, gravedad y metrología (`qang.fisher`, `qang.clock_comparison`)
+- **Cap. 11**: Información de Fisher, relojes, gravedad y metrología (`qang.fisher`, `qang.clock_comparison`)
   - *Scripts*: `tools/verify_cap08.py`, `examples/fisher_natural_gradient_qg.py` (§159), `examples/clock_redshift_qg.py` (§126), `examples/ramsey_qg_operating_point.py` (§36), `examples/ghz_metrology_qg.py` (§58), `examples/thermal_states_qg_tanh.py` (§25).
 
 ### Parte III. Física de neutrinos, oscilaciones y simulación cuántica (`qang.neutrino`)
-- **Cap. 9**: Cinemática cuántica de la oscilación de sabor en el vacío (§151, §165 IQM Garnet)
-- **Cap. 10**: Efectos de materia (MSW), neutrinos solares y oscilaciones colectivas (§152, §154, §156, §163)
-- **Cap. 11**: Fases de Majorana, doble beta sin neutrinos, neutrinos estériles y los cuatro números cuánticos (`qang.angular`, §155, §163)
+- **Cap. 12**: Cinemática cuántica de la oscilación de sabor en el vacío (§151, §165 IQM Garnet)
+- **Cap. 13**: Efectos de materia (MSW), neutrinos solares y oscilaciones colectivas (§152, §154, §156, §163)
+- **Cap. 14**: Fases de Majorana, doble beta sin neutrinos, neutrinos estériles y los cuatro números cuánticos (`qang.angular`, §155, §163)
   - *Notebooks*: `notebooks/qang_neutrinos[_es].ipynb`, `notebooks/qang_quantum_numbers[_es].ipynb`.
 
 ### Parte IV. Teleportación cuántica en redes ópticas (`qang.qpon`)
-- **Cap. 12**: Teleportación óptica y el límite del par de Bell (§57, §157)
-- **Cap. 13**: Doble carril, filtro de sector y fidelidad a larga distancia (§158)
+- **Cap. 15**: Teleportación óptica y el límite del par de Bell (§57, §157)
+- **Cap. 16**: Doble carril, filtro de sector y fidelidad a larga distancia (§158)
   - *Notebooks*: `notebooks/qang_qpon_teleport[_es].ipynb`.
 
 ### Parte V. Relatividad, bucles temporales y agujeros negros (`qang.postselection`)
-- **Cap. 14**: Curvas temporales cerradas posseleccionadas (P-CTC) vs D-CTC (§164)
-- **Cap. 15**: Termodinámica de agujeros negros, caos cuántico, ley $P\cdot F = 1/4$ y decodificador de Yoshida-Kitaev (§164)
+- **Cap. 17**: Curvas temporales cerradas posseleccionadas (P-CTC) vs D-CTC (§164)
+- **Cap. 18**: Termodinámica de agujeros negros, caos cuántico, ley $P\cdot F = 1/4$ y decodificador de Yoshida-Kitaev (§164)
   - *Notebooks*: `notebooks/qang_methods[_es].ipynb`.
 
 ### Parte VI. Ciberseguridad cuántica, generación aleatoria y fronteras post-cuánticas
-- **Cap. 16**: Demarcación: criptografía cuántica (QKD/QRNG) frente a PQC (ML-KEM/ML-DSA/SLH-DSA/HQC)
-- **Cap. 17**: Distribución cuántica de claves (QKD) y BB84 en espacio qg (§40, §43, §44, §49)
-- **Cap. 18**: Números aleatorios certificados (QRNG) y auditoría de canales (§31, §41, §42)
-- **Cap. 19**: Baterías cuánticas y redes (§56, §57)
+- **Cap. 19**: Demarcación: criptografía cuántica (QKD/QRNG) frente a PQC (ML-KEM/ML-DSA/SLH-DSA/HQC)
+- **Cap. 20**: Distribución cuántica de claves (QKD) y BB84 en espacio qg (§40, §43, §44, §49)
+- **Cap. 21**: Números aleatorios certificados (QRNG) y auditoría de canales (§31, §41, §42)
+- **Cap. 22**: Baterías cuánticas y redes (§56, §57)
   - *Notebooks*: `notebooks/qang_criptografia_colab.ipynb`.
 
 ### Parte VII. Aprendizaje automático cuántico (QML) y el filtro de simetría (`qang.qml`)
-- **Cap. 20**: Redes neuronales cuánticas que conservan el peso (`WeightQNN`, `MultiClassQNN`, `qang.qsp`)
-- **Cap. 21**: El filtro de simetría qg y la exactitud bajo relajación $T_1$ (F5 cocientes $T_1$, F6 desfase + ZNE)
-- **Cap. 22**: Calibración por eco y el sesgo de ruido (*pull effect*, F7, lectura sin arrastre)
-- **Cap. 23**: Geometría de la información, gradiente natural (QNG), núcleos (`qang.kernels`) y mesetas estériles
+- **Cap. 23**: Redes neuronales cuánticas que conservan el peso (`WeightQNN`, `MultiClassQNN`, `qang.qsp`)
+- **Cap. 24**: El filtro de simetría qg y la exactitud bajo relajación $T_1$ (F5 cocientes $T_1$, F6 desfase + ZNE)
+- **Cap. 25**: Calibración por eco y el sesgo de ruido (*pull effect*, F7, lectura sin arrastre)
+- **Cap. 26**: Geometría de la información, gradiente natural (QNG), núcleos (`qang.kernels`) y mesetas estériles
   - *Notebooks*: `notebooks/qang_qml[_es].ipynb` (§75–§123).
 
 ### Parte VIII. Dinámica de muchos cuerpos, canales abiertos, materia y química
-- **Cap. 24**: Simulación hamiltoniana (XY, XXZ), caminatas cuánticas, canales afines (`qang.channels`), `qang.varqte`, Hubbard y RBM
-- **Cap. 25**: Espectroscopía cuántica, PCA en sector peso 1, química molecular ($H_2$, LiH), solapamientos y QAOA restringido
+- **Cap. 27**: Simulación hamiltoniana (XY, XXZ), caminatas cuánticas, canales afines (`qang.channels`), `qang.varqte`, Hubbard y RBM
+- **Cap. 28**: Espectroscopía cuántica, PCA en sector peso 1, química molecular ($H_2$, LiH), solapamientos y QAOA restringido
 
 ### Parte IX. Corrección de errores, síndromes continuos y caracterización
-- **Cap. 26**: Corrección de errores (Leung, superficie consciente de $T_1$), qutrits/borrado, *circuit cutting* (`qang.knitting`) y ZNE
-- **Cap. 27**: Caracterización de hardware en qg: protocolo anunciado ($T_1, T_2, T_{\text{eff}}, e_{01}, e_{10}$), XEB/HOP, ZZ estático y cuantización
+- **Cap. 29**: Corrección de errores (Leung, superficie consciente de $T_1$), qutrits/borrado, *circuit cutting* (`qang.knitting`) y ZNE
+- **Cap. 30**: Caracterización de hardware en qg: protocolo anunciado ($T_1, T_2, T_{\text{eff}}, e_{01}, e_{10}$), XEB/HOP, ZZ estático y cuantización
 
 ### Parte X. Evidencia experimental, hardware real y auditoría de falsación
-- **Cap. 28**: Metodología: el protocolo de falsación pre-registrada (commits y hashes SHA-256)
-- **Cap. 29**: Las ventajas empíricas confirmadas
-- **Cap. 30**: Límites estructurales, equivalencias y resultados negativos
-- **Cap. 31**: Primer experimento en hardware real: IQM Resonance / Garnet (`qang.iqm`, §165, §168, §170)
-- **Cap. 32**: Arquitectura de software, ecosistema multi-SDK (`qang.interop`) y ejecución física
+- **Cap. 31**: Metodología: el protocolo de falsación pre-registrada (commits y hashes SHA-256)
+- **Cap. 32**: Las ventajas empíricas confirmadas
+- **Cap. 33**: Límites estructurales, equivalencias y resultados negativos
+- **Cap. 34**: Primer experimento en hardware real: IQM Resonance / Garnet (`qang.iqm`, §165, §168, §170)
+- **Cap. 35**: Arquitectura de software, ecosistema multi-SDK (`qang.interop`) y ejecución física
 
 ### Partes XI–XIII. Nanocuántica, aplicaciones transversales y ecosistema
-- **Cap. 33 (Parte XI)**: Nanocuántica: efecto túnel, fórmula de Landauer, ruido de partición, bloqueo de Coulomb, puntos cuánticos y centros NV
-- **Cap. 34 (Parte XII)**: Arquitectura angular transversal: química (Jordan-Wigner, UCC, Larmor), materia condensada (Ising, Kitaev, Aharonov-Bohm), relatividad/óptica (Wigner, Fresnel, Unruh), Jarzynski y OTOC
-- **Cap. 35 (Parte XIII)**: `qang` como módulo dentro de otras librerías (`qang.integrations`: mitiq, qiskit-experiments, QuTiP, Stim, sklearn, JAX, PyTorch, Qiskit Dynamics, Qibo, pytket, Braket, CUDA-Q)
+- **Cap. 36 (Parte XI)**: Nanocuántica: efecto túnel, fórmula de Landauer, ruido de partición, bloqueo de Coulomb, puntos cuánticos y centros NV
+- **Cap. 37 (Parte XII)**: Arquitectura angular transversal: química (Jordan-Wigner, UCC, Larmor), materia condensada (Ising, Kitaev, Aharonov-Bohm), relatividad/óptica (Wigner, Fresnel, Unruh), Jarzynski y OTOC
+- **Cap. 38 (Parte XIII)**: `qang` como módulo dentro de otras librerías (`qang.integrations`: mitiq, qiskit-experiments, QuTiP, Stim, sklearn, JAX, PyTorch, Qiskit Dynamics, Qibo, pytket, Braket, CUDA-Q)
 
 ### Apéndices (Generados por `tools/make_appendices.py` y `tools/make_apendice_h.py`)
 - **Apéndice A**: Catálogo de las 15 compuertas fundamentales en representación qg.

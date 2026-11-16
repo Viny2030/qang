@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Book rewrite, chapters 7–27 (Spanish with English abstracts, `book/cap07_*.md` … `book/cap27_*.md`, each dated), numbering
+  shifted by three from the old outline (new chapters 7–9 inserted; `BOOK_OUTLINE.md` now lists 38 chapters). Each chapter
+  has a "sin qang vs con qang" table (m-qg and probabilities), a JAX block (`jax<0.9`), a verifier and its pytest block.
+  Modules (JAX, optional, `qang/`): `qan` (7), `qdist` (8), `qfisher` (9), `qgeom` (10), `qmetro` (11), `qneutrino` (12–13),
+  `qmajorana` (14), `qtele` (15), `qdualrail` (16), `qctc` (17), `qscramble` (18), `qdemarc` (19), `qkd` (20), `qrng` (21),
+  `qbattery` (22), `qweightqnn` (23), `qsymfilter` (24), `qecho` (25), `qkernels` (26), `qdynamics` (27). Verifiers
+  `tools/verify_cap07.py` … `tools/verify_cap27.py`; tests `tests/test_qan.py`, `test_qdist.py`, `test_qfisher.py`,
+  `test_qgeom.py`, `test_qmetro.py`, `test_qneutrino_vacuum.py`, `test_qneutrino_matter.py`, `test_qmajorana.py`,
+  `test_qtele.py`, `test_qdualrail.py`, `test_qctc.py`, `test_qscramble.py`, `test_qdemarc.py`, `test_qkd.py`,
+  `test_qrng.py`, `test_qbattery.py`, `test_qweightqnn.py`, `test_qsymfilter.py`, `test_qecho.py`, `test_qkernels.py`,
+  `test_qdynamics.py` (53 tests). Statuses follow `qang.measures`: negative findings kept (GHZ no gain under Markovian
+  dephasing, flat qg_Z descent against, unit change does not mitigate barren plateaus or kernel concentration, PQC out of
+  scope, P-CTC existence unverified).
 - Derived quantities of the reading (book, chapter 1, section "Magnitudes derivadas"), from the author's treatise
   formulation: `qang.probability.quantum_snr` (qg_SNR = |qg_Z|/sqrt(1 - qg_Z^2)), `shots_for_sign`,
   `information_curvature` (qg_kappa = -d^2 qg_S/d qg_Z^2 = 1/(ln 2 (1 - qg_Z^2)), the Fisher information about qg_Z in
@@ -28,6 +41,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   quantities (chapter 1), the capacity curvature and the area-only dissipative deficit of a gate (chapter 2), and the
   geodesic distance, the SNR/curvature table of the Grover trajectory and the visibility limit of amplitude estimation
   read as qg_tau (chapter 3). `tools/verify_cap01.py`, `verify_cap02.py` and `verify_cap03.py` check every new claim.
+
+### Fixed
+- CI (`.github/workflows/book.yml`): `GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` in the "Set up Quarto with TinyTeX" step, so the
+  TinyTeX release lookup no longer fails with HTTP 403.
 
 ## [0.14.0] - 2026-11-02
 
