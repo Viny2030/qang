@@ -1,0 +1,108 @@
+# Capítulo 28 — Química y optimización en el sector de peso: el testigo de electrones en m-qg, verificación por número, PCA con RBS y QAOA «exactamente K»
+# Chapter 28 — Chemistry and Optimization in the Weight Sector: the Electron-Count Witness in m-qg, Number Checks, RBS-Based PCA and "Exactly-K" QAOA
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Reescritura del antiguo Cap. 25 sobre la base de Cap. 1–27 (testigo de Cap. 5 y 7, filtro de sector de Cap. 24, núcleo unario de Cap. 26, RBS de Cap. 23 y 27). Módulo: `qang.qchem` (JAX + SciPy; `jax<0.9`). Verificación: `tools/verify_cap28.py`. El modelo molecular es el **dímero de Hubbard** (4 qubits, 2 electrones, energía analítica), no H$_2$ en STO-3G ni LiH: las cifras de moléculas reales del tratado original siguen en `RESEARCH_NOTES.md` como `tested in simulator` y no se reproducen aquí.
+
+---
+
+## 28.1 Contar electrones con la lectura del registro
+
+**ES.** En Jordan–Wigner el qubit $q$ es un espín-orbital con ocupación $(1-qg_{Z,q})/2$. Para $N$ electrones en $n$ espín-orbitales la lectura media ideal es $\overline{qg_Z}=1-2N/n$ (0 m-qg para $N=2,n=4$). El **testigo** $W=1000(\overline{qg_Z}-(1-2N/n))$ vale 0 si el circuito conservó $N$. Bajo $T_1$ de tasa $\gamma$ sobre un registro con ocupación media 1/2, $W=+1000\gamma$ m-qg exactamente: $+20,+50,+100$ m-qg para $\gamma=0.02,0.05,0.10$ (`exact`). La verificación de simetría es la conocida de la química cuántica; qang aporta la unidad (m-qg) y el testigo de coste cero.
+
+**EN.** The electron count is a direct read-out of the register: the witness is exactly $1000\gamma$ m-qg under $T_1$.
+
+## 28.2 Dímero de Hubbard: qué alcanza cada verificación
+
+$H=-t\sum_\sigma(a^\dagger_{0\sigma}a_{1\sigma}+\text{h.c.})+U\sum_i n_{i\uparrow}n_{i\downarrow}$ conmuta con $N$ y $S_z$ ($0$ a $10^{-12}$) y tiene $E_0=(U-\sqrt{U^2+16t^2})/2=-1.236067977500$ para $t=1,U=2$, reproducida a $10^{-12}$. Se parte del estado fundamental de $N=2$ y se aplica $T_1$ a los cuatro qubits:
+
+| γ | ΔE crudo | ΔE con paridad | ΔE con $N$ mod 4 | disparos conservados |
+|---|---|---|---|---|
+| 0.02 | +0.0489 | +0.00051 | 0 (exacto) | 0.9604 = (1−γ)² |
+| 0.05 | +0.1205 | +0.00341 | 0 (exacto) | 0.9025 |
+| 0.10 | +0.2349 | +0.01507 | 0 (exacto) | 0.8100 |
+
+**Alcance.** El filtro en $Z$ (disparo a disparo) sólo actúa sobre el grupo diagonal ($U\,n_\uparrow n_\downarrow$); los términos de salto (X/Y) se miden después de rotar y no se ven. La verificación **por ancilla** conmuta con todos los términos: paridad = 1 ancilla y 4 CNOT; $N$ mod 4 = 2 ancillas y 8 CNOT. Para $N=2$ en 4 qubits $T_1$ sólo baja $N$, así que $N$ mod 4 deja el estado ideal exactamente (`exact`; es el mismo mecanismo de exactitud de Cap. 24). Límite: es un resultado de un modelo de 4 qubits con $T_1$ uniforme; en moléculas mayores quedan errores que conservan $N$ y ninguna verificación de número los ve (`mixed`, sin hardware).
+
+## 28.3 PCA en el sector de peso 1 con una red de RBS
+
+$\rho=\sum_jw_j|x_j\rangle\langle x_j|$ (vectores cargados con el cargador unario, Cap. 23) se diagonaliza con una red de $n(n-1)/2$ rotaciones adyacentes (RBS, en qga). Para $n=5$ y 16 datos: 10 RBS, ángulos en $[-396.6,\,491.4]$ qga, y la probabilidad de excitación del qubit $k$ es $\lambda_k=(0.694,0.124,0.089,0.060,0.033)$ con error $2.2\cdot10^{-16}$ (`exact`). No es aceleración (la rotación se calcula clásicamente): es un **espectro conocido** contra el que se mide un dispositivo. Todas las compuertas conservan el peso: el filtro de Cap. 24 se aplica.
+
+## 28.4 Solapamientos: inversión frente a swap
+
+$F=(x\cdot y)^2$ (Cap. 26) con el test de inversión (n qubits, 0 ancillas, en el sector) o el swap test ($2n+1$ qubits, 1 ancilla, $P(\text{anc}=0)=(1+F)/2$, fuera del sector). Para $n=5$: 5 contra 11 qubits; ambas fórmulas exactas a $10^{-12}$. El filtro sólo ayuda al test de inversión (la respuesta del swap vive en el ancilla).
+
+## 28.5 QAOA con «exactamente K»
+
+$K$ de $n$ elementos ⇒ $\overline{qg_Z}=1-2K/n$ (250 m-qg para $K=3,n=8$) y sector factible $\binom{8}{3}=56$. Con mezclador XY en anillo desde el estado de Dicke la masa factible es $1.000000$ por construcción. Con penalización y mezclador X desde $|+\rangle^n$:
+
+| p | XY: factible / razón | penalización X: factible / razón (cond.) |
+|---|---|---|
+| 1 | 1.000000 / 0.575 | 0.343 / 0.252 |
+| 2 | 1.000000 / 0.622 | 0.312 / 0.454 |
+
+**El clásico gana**: un voraz de intercambio llega a la razón $0.977$ del óptimo en este caso. Los ingredientes qg mejoran QAOA frente a QAOA, no frente a la optimización clásica (`no gain` contra el estado del arte; instancia única, semilla 7).
+
+## 28.6 Contraste operativo
+
+| Métrica / Metric | Sin `qang` | Con `qang` (`qang.qchem`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Detectar pérdida de electrones | sin diagnóstico | testigo $W=+1000\gamma$ m-qg, 0 compuertas | `exact` |
+| Error de energía, $\gamma=0.05$ | +0.1205 | paridad +0.0034 (÷35); $N$ mod 4: 0 | `exact` (modelo 4 qubits) |
+| Coste de la verificación | — | 1 ancilla/4 CNOT; 2 ancillas/8 CNOT | `exact` |
+| Espectro PCA ($n=5$) | rotación genérica | 10 RBS, error $2\cdot10^{-16}$ | `exact` |
+| Solapamiento $n=5$ | swap: 11 qubits | inversión: 5 qubits, 0 ancillas | −6 qubits, −1 ancilla (`exact`) |
+| QAOA $K=3,n=8$: masa factible | 0.31–0.34 (penalización) | 1.000 (XY) | `exact`; vs. voraz `no gain` |
+| Moléculas reales (H$_2$, LiH) | — | no reproducidas aquí | `tested in simulator` (notas) |
+
+## 28.7 Bloque JAX (`qang/qchem.py`)
+
+```python
+def mean_qz_ideal(n, N):        return 1.0 - 2.0 * N / n
+def witness_mqg(qz, N):         return float(1000.0 * (jnp.mean(qz) - mean_qz_ideal(qz.shape[0], N)))
+def hubbard_dimer(t, U):        # (H, H_Z, H_hop, N, Sz) por Jordan–Wigner, 4 qubits
+def sector_projector(N, keep, mod=0)   # número (mod=0), paridad (mod=2), N mod 4 (mod=4)
+def filtered_energy(rho, H, P):        # (energía, fracción conservada)
+def pca_unary(X, w=None)  ->  (λ, V, ρ);   givens_decomposition(V) -> ([(i, i+1, θ_qga)], D)
+def qaoa_optimize(c, n, K, p, mixer, penalty=0.0)  # mixer = "xy" | "x"
+```
+
+## 28.8 Verificación — `tools/verify_cap28.py`
+
+```
+[1] [H,N]=0 [H,Sz]=0; E0=-1.236067977500 = (U−√(U²+16t²))/2
+[2] T1 γ=0.05: testigo = +50.0 m-qg (= 1000γ)
+[3] γ=0.05 crudo ΔE=+0.1205  paridad +0.00341 (0.905)  N mod4 +0.0e+00 (0.9025)
+[4] PCA n=5: λ=[0.694 0.124 0.089 0.06 0.033], error=2.2e-16, RBS=10
+[5] inversión = (x·y)² a 1e-12; recursos n=5: 5 qubits/0 ancillas vs 11 qubits/1 ancilla
+    p=1: XY factible=1.000000 razón=0.575 | penalización factible=0.343 razón(cond.)=0.252
+    voraz razón = 0.977
+verify_cap28: OK
+```
+
+### `tests/test_qchem.py`
+```python
+import pytest; jax = pytest.importorskip("jax"); pytest.importorskip("scipy")
+import numpy as np
+from qang.qchem import hubbard_dimer, ground_state_sector, witness_mqg, pca_unary, givens_decomposition, apply_givens
+def test_hubbard_energy():
+    H, HZ, Hh, N, Sz = hubbard_dimer(1.0, 2.0); E0, _ = ground_state_sector(H, N, 2)
+    assert abs(E0 - (2 - np.sqrt(20)) / 2) < 1e-12
+def test_witness(): assert abs(witness_mqg(np.array([0.05, 0.05, 0.05, 0.05]), 2) - 50.0) < 1e-9
+def test_pca_rbs():
+    X = np.random.default_rng(3).normal(size=(16, 5)) + 2.0; lam, V, rho = pca_unary(X); r, D = givens_decomposition(V)
+    assert len(r) == 10 and np.max(np.abs(apply_givens(rho, r, D) - np.diag(lam))) < 1e-12
+```
+
+## 28.9 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `electron_witness` | química | $W=1000(\overline{qg_Z}-(1-2N/n))$ | `witness_mqg` | `exact` |
+| `number_check_t1` | química | $N$ mod 4 exacto bajo $T_1$ en $N=2,n=4$ | `sector_projector`, `filtered_energy` | `exact` (modelo); hardware `unverified` |
+| `pca_unary_rbs` | espectroscopía | $p_{\text{exc},k}=\lambda_k$ con $n(n-1)/2$ RBS | `pca_unary`, `givens_decomposition` | `exact` |
+| `qaoa_exact_k_xy` | optimización | masa factible 1 con mezclador XY | `qaoa_optimize` | `exact`; vs. clásico `no gain` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qchem`; `tools/verify_cap28.py`; `tests/test_qchem.py`.
+Commit: `docs(cap28): testigo de electrones, verificación por número, PCA con RBS y QAOA exactamente-K sobre Cap. 1–27 + qang.qchem + verify_cap28`.

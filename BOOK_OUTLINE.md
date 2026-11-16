@@ -65,9 +65,11 @@
 ### Parte VIII. Dinámica de muchos cuerpos, canales abiertos, materia y química
 - **Cap. 27**: Simulación hamiltoniana (XY, XXZ), caminatas cuánticas, canales afines (`qang.channels`), `qang.varqte`, Hubbard y RBM
 - **Cap. 28**: Espectroscopía cuántica, PCA en sector peso 1, química molecular ($H_2$, LiH), solapamientos y QAOA restringido
+  - *Reescritura*: `book/cap28_quimica_qaoa.md`, `qang.qchem`, `tools/verify_cap28.py`, `tests/test_qchem.py` (modelo: dímero de Hubbard de 4 qubits; H$_2$/LiH siguen en `RESEARCH_NOTES.md`).
 
 ### Parte IX. Corrección de errores, síndromes continuos y caracterización
 - **Cap. 29**: Corrección de errores (Leung, superficie consciente de $T_1$), qutrits/borrado, *circuit cutting* (`qang.knitting`) y ZNE
+  - *Reescritura*: `book/cap29_correccion_errores.md`, `qang.qecc`, `tools/verify_cap29.py`, `tests/test_qecc.py` (cubre código AD, borrado vs bit, rango de Schmidt del corte y coste ZNE; superficie $T_1$-aware, qutrits y RB sin verificar).
 - **Cap. 30**: Caracterización de hardware en qg: protocolo anunciado ($T_1, T_2, T_{\text{eff}}, e_{01}, e_{10}$), XEB/HOP, ZZ estático y cuantización
 
 ### Parte X. Evidencia experimental, hardware real y auditoría de falsación

@@ -1,0 +1,120 @@
+# Capítulo 29 — Corrección de errores: el síndrome como lectura qg_ZZZZ, código de amortiguamiento de amplitud, borrado frente a error de bit, rango de Schmidt del corte y coste de ZNE
+# Chapter 29 — Error Correction: the Syndrome as a qg_ZZZZ Reading, the Amplitude-Damping Code, Erasure vs. Bit Error, Schmidt Rank of the Cut and ZNE Cost
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Reescritura del antiguo Cap. 26 sobre la base de Cap. 1–28 (borrado heraldado de Cap. 16, filtro de sector y ZNE de Cap. 24, canales afines de Cap. 27, coste en disparos de Cap. 8 y 25). Módulo: `qang.qecc` (NumPy/SciPy exacto). Verificación: `tools/verify_cap29.py`. Quedan fuera y **sin verificar aquí** (`unverified`): la superficie con decodificador consciente de $T_1$, los qutrits, el benchmarking aleatorizado y el protocolo completo de corte de circuitos de `qang.knitting`.
+
+---
+
+## 29.1 Código de amortiguamiento de amplitud de 4 qubits con síndrome en m-qg
+
+**ES.** $|0_L\rangle=(|0000\rangle+|1111\rangle)/\sqrt2$, $|1_L\rangle=(|0011\rangle+|1100\rangle)/\sqrt2$ (Leung 1997, `exact`: no es invento de qang). El síndrome es la paridad del peso: $ZZZZ=(-1)^{w}$, es decir **la lectura $qg_{ZZZZ}$ en m-qg**: $+1000$ para el código y $1000(1-2P_{\text{impar}})$ tras el ruido ($819.0$ m-qg con $\gamma=0.05$). Con peso par no se hace nada; con peso impar una isometría por qubit saltado devuelve al código ($\sum R^\dagger R=I$ a $10^{-12}$). Resultado con $T_1$ de tasa $\gamma$ por qubit, fidelidad media sobre los 6 autoestados de Pauli:
+
+| γ | infidelidad sin codificar | con código + recuperación | factor |
+|---|---|---|---|
+| 0.001 | $3.33\cdot10^{-4}$ | $2.33\cdot10^{-6}$ | ÷143 |
+| 0.005 | $1.67\cdot10^{-3}$ | $5.80\cdot10^{-5}$ | ÷29 |
+| 0.010 | $3.34\cdot10^{-3}$ | $2.31\cdot10^{-4}$ | ÷14 |
+| 0.020 | $6.68\cdot10^{-3}$ | $9.15\cdot10^{-4}$ | ÷7.3 |
+
+La pendiente log-log es **1.00** sin codificar y **1.99** codificado: el código cancela el orden $\gamma$. Es el mismo mecanismo por el que el filtro de sector es exacto bajo $T_1$ (Cap. 24): el salto cambia el peso. Límites: (i) $P_{\text{impar}}\approx2\gamma$; (ii) sólo ayuda mientras $\gamma<\gamma^*\approx0.177$; (iii) **codificar sin recuperar empeora** ($1.98\cdot10^{-2}$ frente a $3.34\cdot10^{-3}$ con $\gamma=0.01$); (iv) el síndrome exige 1 ancilla y 4 CNOT, no incluidos en el modelo, que sólo contiene $T_1$ (`exact` en simulación; hardware `unverified`).
+
+**EN.** The 4-qubit AD code removes the $O(\gamma)$ term (log-log slope 1.99 vs 1.00) and its syndrome is the $qg_{ZZZZ}$ reading; encoding without recovery is worse than doing nothing.
+
+## 29.2 Repetición: error de bit frente a borrado heraldado
+
+Con $n$ qubits y voto por mayoría, el error lógico bajo error de bit $p$ es $\sum_{k>n/2}\binom nk p^k(1-p)^{n-k}$; bajo **borrado heraldado** (se sabe cuáles se perdieron, Cap. 16) sólo falla si se pierden los $n$: $e^n/2$. Ambas fórmulas coinciden con la enumeración de los $2^n$ patrones a $10^{-14}$. Con tasa física 1 %:
+
+| n | error de bit | borrado | factor |
+|---|---|---|---|
+| 3 | $2.98\cdot10^{-4}$ | $5.00\cdot10^{-7}$ | ÷596 |
+| 5 | $9.85\cdot10^{-6}$ | $5.00\cdot10^{-11}$ | ÷$2\cdot10^{5}$ |
+| 7 | $3.42\cdot10^{-7}$ | $5.00\cdot10^{-15}$ | ÷$7\cdot10^{7}$ |
+
+Esto presupone que la pérdida se hereda (herald) sin falsos positivos; la identificación en hardware (lectura fuera del sector, Cap. 16 y 24) no se verificó aquí (`exact` aritmético; conversión en hardware `unverified`).
+
+## 29.3 Rango de Schmidt en el sector: cuántos cables debe transportar un corte
+
+Un corte de circuito debe transportar al menos $\lceil\log_2\text{rango}\rceil$ cables (cota inferior sobre el estado). Para peso $w$ y corte $m\,|\,n-m$ el rango genérico es $\sum_k\min\big(\binom mk,\binom{n-m}{w-k}\big)$ (verificado con SVD para $n=8$, $m=4$):
+
+| estado | rango | cables | disparos (×16/cable) |
+|---|---|---|---|
+| genérico | 16 | 4 | ×65 536 |
+| peso 1 | 2 | 1 | ×16 |
+| peso 2 | 6 | 3 | ×4 096 |
+| peso 3 | 10 | 4 | ×65 536 |
+| peso 4 | 16 | 4 | ×65 536 |
+
+**Sólo el peso 1 (y en general pesos pequeños) gana**; el peso medio no. Alcance honesto: es una **cota inferior del estado**, no el coste de cortar un circuito concreto; el factor ×16 por cable es el modelo estándar de cuasi-probabilidad (Peng et al.) y **el protocolo de corte no está implementado** en este capítulo (`unverified`).
+
+## 29.4 ZNE: el precio en disparos
+
+Richardson con escalas $\lambda=(1,2,3)$ tiene pesos $(3,-3,1)$ y factor de varianza $\sum c_i^2=19$ (con $(1,2)$: pesos $(2,-1)$, factor 5): **bajar el sesgo cuesta ×19 disparos**. Señal $800\,e^{-a\lambda}$ m-qg:
+
+| a | bruto λ=1 | ZNE 2 pts | ZNE 3 pts | exacto |
+|---|---|---|---|---|
+| 0.05 | 761.0 | 798.1 | 799.9 | 800.0 |
+| 0.20 | 655.0 | 773.7 | 795.2 | 800.0 |
+| 0.50 | 485.2 | 676.1 | 751.3 | 800.0 |
+
+El sesgo residual crece con $a$ (decaimiento exponencial, no polinomial); con $a=0.5$ el ZNE de 3 puntos aún queda 48.7 m-qg por debajo (`exact` para decaimiento exponencial conocido; sin ruido real, `unverified` en hardware).
+
+## 29.5 Contraste operativo
+
+| Métrica / Metric | Sin `qang` | Con `qang` (`qang.qecc`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Infidelidad $T_1$, $\gamma=0.01$ | $3.34\cdot10^{-3}$ | $2.31\cdot10^{-4}$ (÷14) | `exact` (sim.) |
+| Orden del error | $O(\gamma)$ | $O(\gamma^2)$ | `exact` |
+| Síndrome | — | $qg_{ZZZZ}$: $+1000$ m-qg (par) | `exact` |
+| Repetición $n=3$, 1 % | $2.98\cdot10^{-4}$ (bit) | $5.00\cdot10^{-7}$ (borrado) | `exact` aritmético |
+| Corte 4\|4, peso 1 | ×65 536 | ×16 | cota de estado; protocolo `unverified` |
+| ZNE 3 puntos | — | ×19 disparos | `exact` |
+| Superficie $T_1$-aware, qutrits, RB | — | no cubiertos | `unverified` |
+
+## 29.6 Bloque JAX/NumPy (`qang/qecc.py`)
+
+```python
+ZERO_L, ONE_L = (|0000>+|1111>)/√2, (|0011>+|1100>)/√2
+def parity_mqg(rho):                 return 1000.0 * Re tr(rho · ZZZZ)
+def recovery_operators():            # {P_par, R_k}: CPTP, par → identidad, impar → isometría por qubit
+def avg_fidelity_encoded(g, decode=True) / avg_fidelity_bare(g)
+def rep_logical_error_flip(n, p) / rep_logical_error_erasure(n, e)
+def schmidt_rank(psi, n, m) / sector_rank_bound(n, m, w) / wire_cut_shot_overhead(wires)
+def richardson_weights(lams) / zne_variance_factor(lams) / zne_estimate(f, lams)
+```
+
+## 29.7 Verificación — `tools/verify_cap29.py`
+
+```
+[1] CPTP a 1e-12; qg_ZZZZ(código) = 1000 m-qg
+    γ=0.010: sin codificar 3.338e-03 | código AD + recuperación 2.310e-04 (÷14.4); P_impar=0.0196≈2γ
+    pendiente log-log: sin codificar 1.00, codificado 1.99; γ* ≈ 0.177
+[2] repetición 1 %: n=3: bit 2.98e-04 / borrado 5.00e-07 (÷596)
+[3] n=8, corte 4|4: genérico rango 16 → ×65536; w=1: rango 2 → ×16; w=2: 6 → ×4096
+[4] Richardson (1,2,3): [3 −3 1], Σc² = 19.0; a=0.2: bruto 655.0, ZNE 3 pts 795.2
+verify_cap29: OK
+```
+
+### `tests/test_qecc.py`
+```python
+import pytest; pytest.importorskip("scipy")
+import numpy as np
+from qang.qecc import recovery_operators, avg_fidelity_encoded, avg_fidelity_bare, rep_logical_error_flip, rep_logical_error_erasure, richardson_weights, zne_variance_factor
+def test_cptp(): assert np.max(np.abs(sum(r.conj().T @ r for r in recovery_operators()) - np.eye(16))) < 1e-12
+def test_ad_code_helps(): assert 1 - avg_fidelity_encoded(0.01) < (1 - avg_fidelity_bare(0.01)) / 10
+def test_erasure_beats_flip(): assert rep_logical_error_erasure(3, 0.01) < rep_logical_error_flip(3, 0.01) / 100
+def test_zne_cost(): assert abs(zne_variance_factor([1, 2, 3]) - 19.0) < 1e-12 and np.allclose(richardson_weights([1, 2, 3]), [3, -3, 1])
+```
+
+## 29.8 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `ad_code_syndrome_mqg` | corrección de errores | $qg_{ZZZZ}=1000(1-2P_{\text{impar}})$; error $O(\gamma^2)$ | `parity_mqg`, `avg_fidelity_encoded` | `exact` (sim.); hardware `unverified` |
+| `erasure_vs_flip` | corrección de errores | $e^n/2$ frente a $\sum_{k>n/2}\binom nk p^k(1-p)^{n-k}$ | `rep_logical_error_erasure` | `exact` aritmético |
+| `sector_schmidt_cut` | corte | rango $\sum_k\min(\binom mk,\binom{n-m}{w-k})$ | `schmidt_rank` | `exact` (cota de estado); protocolo `unverified` |
+| `zne_variance_cost` | mitigación | $\sum c_i^2=19$ para $(1,2,3)$ | `zne_variance_factor` | `exact` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qecc`; `tools/verify_cap29.py`; `tests/test_qecc.py`.
+Commit: `docs(cap29): código AD con síndrome qg_ZZZZ, borrado vs bit, rango de Schmidt y coste ZNE sobre Cap. 1–28 + qang.qecc + verify_cap29`.
