@@ -1,0 +1,102 @@
+# Capítulo 39 — `qang.integrations`: doce librerías, un solo contrato de lectura, auditado con código
+# Chapter 39 — `qang.integrations`: Twelve Libraries, One Reading Contract, Audited with Code
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Reescritura del capítulo de integraciones sobre la base de Cap. 1–38. Módulos: `qang.integrations.*` (12 adaptadores) y `qang.qintegr` (auditoría, NumPy + biblioteca estándar). Verificación: `tools/verify_cap39.py`. **Estado: `exact` para la auditoría y el filtro bajo T1; `unverified` para toda cifra que exige un SDK** (mitiq, qiskit-experiments, Qiskit Dynamics, QuTiP, Stim, scikit-learn, JAX, PyTorch, Qibo, pytket, Braket, CUDA-Q), porque ninguno se instala en el entorno de verificación de este capítulo. Los resultados numéricos del capítulo anterior se citan, con su fuente, como `unverified` y se reproducen con `pytest` en el entorno de cada extra.
+>
+> **EN abstract.** The twelve adapters are audited statically: nine import their SDK lazily, three (mitiq, qiskit_dynamics, qiskit_experiments) import it at module level but call `require()` first, so a missing library raises an error naming the extra to install (12/12 guards). Each adapter has one `pyproject` extra that requires the package it imports (12/12); ten are bundled in `integrations`, while CUDA-Q and Qiskit Dynamics stay outside (separate environments). All 12 are exercised in `tests/test_integrations.py` and every test is guarded by `importorskip` (0 unguarded, including those guarded through a helper). Without any SDK, the post-selection filter on a 3-qubit W state at $t/T_1=0.6$ turns a raw reading of $+634.1$ m-qg into $+333.333$ m-qg (ideal $+333.333$), keeping $e^{-0.6}=0.5488$ of the shots. No hardware number is claimed.
+
+---
+
+## 39.1 El contrato
+
+Cada adaptador recibe lo mismo: una rotación $R_Y(\arccos qg_Z)$ y una **lectura canónica** en m-qg ($1000\,qg_Z$, no qga), con el filtro de peso de Cap. 1–2 opcional (`_readings.py`). Lo que cambia es el SDK. El contrato evita tres errores de interfaz: unidades (pytket mide en medias vueltas: 500 qga), orden de qubits (Qiskit pone el qubit 0 a la derecha; Cirq, PennyLane, Braket y pytket, a la izquierda) y posición física frente a lógica tras el *layout*.
+
+## 39.2 Auditoría estática
+
+| comprobación | función de `qang.qintegr` | resultado en el repositorio |
+|---|---|---|
+| adaptadores presentes = catálogo | `integration_modules` | 12 = 12 |
+| SDK importado sin guarda | `lazy_report`, `require_guard_report` | 0; 3 de nivel de módulo llaman a `require()` antes |
+| un extra por adaptador con su paquete | `extra_report`, `bundle_libraries` | 12/12; 10 en `integrations` |
+| tests sin `importorskip` | `guard_report` | 0 |
+| adaptadores ejercitados por tests | `modules_with_tests` | 12/12 |
+| error cuando falta la librería | `missing_library_message` | indica `pip install "qang[extra]"` |
+
+Dos hallazgos corrigieron el propio auditor, no el repositorio: los guardas pueden ser una asignación (`mitiq = require(...)`) y los tests de JAX se protegen mediante un ayudante (`_jax64()`).
+
+## 39.3 Filtro bajo T1 sin SDK
+
+Estado W de $n=3$ qubits con amortiguamiento $\gamma=1-e^{-t/T_1}$; la lectura del qubit 1 se calcula sobre las poblaciones de $Z$ (`w_state_t1_readings`). QuTiP reproduce este cálculo en el extra `qutip`.
+
+## 39.4 Sin qang vs con qang
+
+| aspecto | sin qang | con qang | diferencia |
+|---|---|---|---|
+| W de 3 qubits, $t/T_1=0.6$, qubit 1 | $+634.1$ m-qg | $+333.333$ m-qg (ideal $+333.333$) | $-300.8$ m-qg; error residual $<10^{-9}$ |
+| disparos conservados | 100 % | 54.88 % ($e^{-0.6}$) | coste del filtro, sin ocultar |
+| errores de unidades/orden entre SDKs | dos convenciones de ángulo y de orden de bits | una lectura canónica | 0 conversiones manuales |
+| dependencia en `import qang` | — | 0 SDKs importados | núcleo solo NumPy |
+
+El filtro **no ve** los errores dentro del sector (Cap. 34) ni es una ventaja de exactitud en aprendizaje: en las dos lunas, 0.833 ± 0.083 con filtro y 0.842 ± 0.081 sin él (`unverified`, capítulo anterior; no hay diferencia).
+
+## 39.5 Código
+
+```python
+from qang.qintegr import (integration_modules, lazy_report, require_guard_report, extra_report,
+                          bundle_libraries, guard_report, modules_with_tests,
+                          missing_library_message, w_state_t1_readings)
+
+require_guard_report("qang")                       # {'mitiq': True, ..., 'stim': True}
+w_state_t1_readings(0.6)                           # raw 634.1, filtered 333.333, kept 0.5488
+missing_library_message("mitiq")                   # 'pip install "qang[mitiq]"'
+```
+
+## 39.6 Verificación
+
+`tools/verify_cap39.py` (salida real, repositorio del autor):
+
+```text
+[1] 12 integraciones; las 3 que importan su SDK a nivel de módulo (mitiq, qiskit_dynamics, qiskit_experiments) llaman antes a require(); las otras 9 lo importan de forma diferida; guardas correctas: 12/12
+[2] un extra por integración, cada uno con su paquete: 12/12; el extra «integrations» reúne 10 (cudaq, qiskit_dynamics quedan fuera: entornos aparte)
+[3] tests/test_integrations.py ejercita las 12 integraciones; funciones de prueba con un paquete sin importorskip: 0
+[4] mensaje cuando falta la librería: «this qang integration needs 'a_package_that_does_not_exist_xyz'. Install it with `pip install "qang[mitiq]"`.»
+[5] W de 3 qubits, t/T1 = 0.6: lectura cruda +634.1 m-qg, filtrada +333.333 m-qg (ideal +333.333); fracción conservada 0.5488 = e^(−0.6)
+verify_cap39: OK
+```
+
+`tests/test_qintegr.py` (7 pruebas): niveles de importación, extras y mensaje, guardas de tests (directa y por ayudante), guardas `require()` (llamada y asignación), filtro exacto del estado W.
+
+## 39.7 Resultados numéricos con SDK (`unverified`)
+
+Medidos en tres entornos virtuales del capítulo anterior (qang 0.13.0); no se reproducen aquí. Reproducir con `pytest tests/test_integrations.py` en el entorno de cada extra.
+
+| librería | resultado citado | estado |
+|---|---|---|
+| mitiq | T1: 233.2 → 0.0 m-qg; T1 + desfase: 257.9 → 30.3; filtro + ZNE: 1.1 m-qg | `unverified` |
+| QuTiP | W cruda $+634.1$ vs filtrada $+333.333$ (coincide con §39.3) | `exact` en §39.3 |
+| Stim | código de repetición $d=5$: sólo unidad (detectores y lógicos en m-qg) | `unverified` |
+| JAX | gradiente filtrado vs diferencias finitas a $2\cdot10^{-10}$; exige `jax<0.9` | `unverified` |
+| CUDA-Q | simulador de CPU: lectura $-0.5018$ para $-0.5$; el simulador de GPU no arrancó | `unverified` |
+
+Conflictos de entorno documentados: Qiskit Dynamics exige `qiskit<=1.3`; PennyLane 0.45 funciona sólo con `jax<0.9`; amazon-braket-sdk fija `cloudpickle==2.2.1`.
+
+## 39.8 Apéndice H (fila nueva)
+
+| medida | función | estado |
+|---|---|---|
+| auditoría de integraciones | `qang.qintegr.require_guard_report`, `extra_report`, `guard_report` | exact |
+| filtro bajo T1, estado W (sin SDK) | `qang.qintegr.w_state_t1_readings` | exact |
+| ZNE con filtro (mitiq) | `qang.integrations.mitiq.execute_with_filter_zne` | unverified |
+
+## 39.9 CHANGELOG y commit
+
+```markdown
+### Added
+- `qang.qintegr` (Cap. 39): audit of `qang.integrations` (lazy imports, `require()` guards, extras, test guards) and SDK-free T1 filter check; `tools/verify_cap39.py`; 7 tests.
+```
+
+```text
+docs(book): rewrite Cap. 39 (integrations) as a verifiable audit; add qang.qintegr
+```

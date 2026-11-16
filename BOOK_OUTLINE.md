@@ -89,8 +89,11 @@
 
 ### Partes XI–XIII. Nanocuántica, aplicaciones transversales y ecosistema
 - **Cap. 37 (Parte XI)**: Nanocuántica: efecto túnel, fórmula de Landauer, ruido de partición, bloqueo de Coulomb, puntos cuánticos y centros NV
+  - Reescritura (16-nov-2026, Cap. 37): `qang.qnano`, `tools/verify_cap37.py`; túnel, Landauer, ruido binomial estabilizado, Fermi, NV/ODMR (exact; NV con fotones `unverified` en hardware).
 - **Cap. 38 (Parte XII)**: Arquitectura angular transversal: química (Jordan-Wigner, UCC, Larmor), materia condensada (Ising, Kitaev, Aharonov-Bohm), relatividad/óptica (Wigner, Fresnel, Unruh), Jarzynski y OTOC
+  - Reescritura (16-nov-2026, Cap. 38): `qang.qtransv`, `tools/verify_cap38.py`; Jordan–Wigner, eco de Hahn, TFIM, Aharonov–Bohm, Wigner, Fresnel, Unruh (exact).
 - **Cap. 39 (Parte XIII)**: `qang` como módulo dentro de otras librerías (`qang.integrations`: mitiq, qiskit-experiments, QuTiP, Stim, sklearn, JAX, PyTorch, Qiskit Dynamics, Qibo, pytket, Braket, CUDA-Q)
+  - Reescritura (16-nov-2026, Cap. 39): `qang.qintegr`, `tools/verify_cap39.py`; auditoría de `qang.integrations` (12/12 guardas, extras y tests) y filtro T1 sin SDK (exact); cifras con SDK `unverified`.
 
 ### Apéndices (Generados por `tools/make_appendices.py` y `tools/make_apendice_h.py`)
 - **Apéndice A**: Catálogo de las 15 compuertas fundamentales en representación qg.

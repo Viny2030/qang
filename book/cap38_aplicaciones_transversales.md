@@ -1,0 +1,135 @@
+# Capítulo 38 — Aplicaciones transversales leídas con qang: fermiones y Jordan–Wigner, eco de Hahn, Ising transversal, Aharonov–Bohm, Wigner, Fresnel y vacío de Unruh
+# Chapter 38 — Cross-Cutting Applications Read with qang: Fermions and Jordan–Wigner, Hahn Echo, Transverse-Field Ising, Aharonov–Bohm, Wigner, Fresnel and the Unruh Vacuum
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Reescritura parcial del capítulo transversal sobre la base de Cap. 1–37. Módulo: `qang.qtransv` (NumPy exacto). Verificación: `tools/verify_cap38.py`. **Cubre siete de los trece fenómenos del capítulo anterior; los otros (UCC de H₂, cadena de Kitaev, Jarzynski, Fisher de GHZ, Fubini–Study, OTOC, escaleras de niveles) se citan sin re-ejecutar (`unverified`). Todo es fórmula cerrada, diagonalización exacta o álgebra 2×2/4×4: ninguna cifra viene de un experimento.**
+> **EN abstract.** Seven phenomena are recomputed exactly: the fermionic exchange sign is the difference between the two poles of $qg_X$ ($-1000$ vs $+1000$ m-qg); the Hahn echo reads $qg_X=1.000000$ for static detuning and 179 m-qg lower under 10 % drift; the transverse-field Ising peak sits at $\theta=\pi/4$ only in the thermodynamic limit; Aharonov–Bohm gives $qg_Z=\cos(2\pi\Phi/\Phi_0)$; Wigner rotation $18.92^\circ$; Fresnel; and $\theta/2=\operatorname{gd}(r)$ for the Unruh vacuum weight. Six others are cited, not re-run.
+
+---
+
+## 38.1 Reglas de lectura
+
+1. **qg no tiene período.** $qg_Z\in[-1,1]$ y el ángulo $\theta\in[0,\pi]$. Un criterio como «fase $=\pi\equiv0.5$ ciclo qg» se reescribe como lectura (p. ej. $qg_X=-1$, $-1000$ m-qg). `qga` (1 vuelta = 1000 qga) es periódica, pero sigue siendo un ángulo, no una lectura.
+2. **Una fase no cambia $qg_Z$.** Una rotación alrededor de $Z$ (Larmor, Aharonov–Bohm, signo de intercambio) deja intactas las poblaciones: se lee en $qg_X$ o $qg_Y$ (Cap. 10, ex-7).
+3. **Donde hay una probabilidad, hay una lectura:** reflectancia, peso de un estado, ocupación del vacío.
+
+## 38.2 Jordan–Wigner: el signo del intercambio es una lectura
+
+Con $a_j^\dagger=\big(\prod_{k<j}Z_k\big)\sigma_j^+$ (`jw_creation`), las relaciones $\{a_i,a_j^\dagger\}=\delta_{ij}$ y $\{a_i,a_j\}=0$ valen con error **0.0** para 4 modos (`anticommutation_error`). En un test de Hadamard donde un qubit auxiliar controla el intercambio de los modos 0 y 1 ocupados (`exchange_qgx`): con el intercambio fermiónico (SWAP·CZ) el auxiliar lee $qg_X=-1000$ m-qg; con un SWAP de qubits, $+1000$ m-qg. El signo de Pauli es la diferencia entre los polos de $qg_X$. Las $Z$ de la cadena de paridad son exactas: el error de un circuito real viene del ruido, no del mapeo.
+
+## 38.3 Larmor y eco de Hahn
+
+La precesión libre es una rotación alrededor de $Z$: $qg_Z=0$ siempre y $qg_X=\cos\Delta\varphi$. Con desintonía gaussiana $\sigma=2\pi\cdot50$ kHz y $\tau=20$ µs ($\sigma\tau=6.283$), promedio por cuadratura exacta (`hahn_echo_ensemble`, sin Monte Carlo):
+
+| caso | $qg_X$ | pérdida |
+| :--- | :--- | :--- |
+| decaimiento libre ($\pi/2$, espera $\tau$) | $2.7\cdot10^{-9}$ | — |
+| eco, desintonía estática | **1.000000** | 0 |
+| eco, $\pi$ con 2 % de más | 0.99901 | 0.99 m-qg |
+| eco, la desintonía deriva 10 % de $\sigma$ entre mitades | 0.8209 ($=e^{-(0.1\sigma\tau)^2/2}$) | 179 m-qg |
+
+El criterio «$F=1$ independiente de $\Delta\omega$» vale sólo con desintonía estática y pulsos exactos. La calibración del eco con el propio dispositivo es del Cap. 30 (ex-27).
+
+## 38.4 Ising con campo transverso: el pico se corre con el tamaño
+
+$H=-J\sum Z_iZ_{i+1}-g\sum X_i$, cadena abierta; la transición está en $g=J$ ($\theta=\pi/4$) **en el límite termodinámico**. Diagonalización exacta (`tfim_mx_mqg`) de la lectura transversal media en $g=J$:
+
+| $N$ | 2 | 4 | 6 | 8 | 10 | $\infty$ |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| $m_X$ (m-qg) | 894.4 | 810.1 | 771.1 | 747.9 | 732.3 | $2000/\pi=636.6$ |
+
+Baja monótonamente hacia el valor exacto, pero con 10 espines sigue **95.6 m-qg arriba**. El test de hallar la transición con 2 a 4 espines **falla**: lo que da $\theta=\pi/4$ es el límite, no la escala (las posiciones del pico de la entropía de entrelazamiento, 0.33 y 0.65 para $N=2$ y 4, vienen del capítulo anterior y no se re-ejecutaron).
+
+## 38.5 Aharonov–Bohm
+
+$p_0=\cos^2(\pi\Phi/\Phi_0)$ ⇒ $qg_Z=\cos(2\pi\Phi/\Phi_0)$ (`ab_qgz`), con $\theta=2\pi\Phi/\Phi_0$ plegado en $[0,\pi]$: **lo periódico es el flujo, no qg** (período $\Phi_0$ a $2\cdot10^{-15}$). Con 2000 electrones por medición y la distribución binomial exacta, $\sqrt N\,\sigma(\hat\Phi/\Phi_0)=0.1592$–$0.1598$ para $\Phi/\Phi_0\in[0.05,0.45]$, contra la cota $1/2\pi=0.1592$: es la transformación arcoseno del Cap. 1 en un interferómetro. **La lectura no da el signo:** $\Phi$ y $-\Phi$ leen lo mismo; hace falta $qg_Y$.
+
+## 38.6 Rotación de Wigner
+
+Dos impulsos no colineales, $0.6c\,\hat x$ y $0.8c\,\hat y$ (`boost`, `wigner_rotation`): descomposición polar de $\Lambda=B_2B_1$ y fórmula cerrada coinciden a $10^{-14}$: $\Omega_W=0.3303$ rad $=18.92^\circ$; un espín que apuntaba en $x$ lee $qg_X=\cos\Omega_W=+945.9$ m-qg; en qga, $\Omega_W=52.6$ qga. Con impulsos colineales, $\Omega_W=0$. Es estructura del grupo de Lorentz: la escala sólo traduce el ángulo a una lectura de espín.
+
+## 38.7 Fresnel
+
+Aire → vidrio ($n=1.5$) y vidrio → aire (`fresnel`, `tir_phase_difference`):
+
+- **Brewster**, $56.31^\circ$: $r_p=0$ exacto; $R_s=0.148$ (**−704.1 m-qg**). Incidencia normal: $R=0.04$ (**−920 m-qg**).
+- **Reflexión total** (crítico $41.81^\circ$): $|r_s|=|r_p|=1$ a $10^{-14}$; la reflectancia lee $+1000$ m-qg y **no informa nada**: toda la información está en las fases. $|\delta_p-\delta_s|$ llega a $45.24^\circ$ en $51.67^\circ$ y vale $45^\circ$ en $50.23^\circ$ y $53.26^\circ$ (rombo de Fresnel). Con luz lineal a $45^\circ$ incidiendo a $45^\circ$: $qg_Y=\sin|\delta_p-\delta_s|=+600$ m-qg, una lectura de Stokes (Cap. 9, ex-6).
+- **Goos–Hänchen** no es un corrimiento de fase sino un desplazamiento lateral, de la derivada de la fase (no re-ejecutado aquí).
+
+## 38.8 Vacío de Unruh: el medio ángulo es la gudermanniana
+
+Cada modo reducido es térmico con $\tanh^2r=e^{-2\pi\omega c/a}$. El peso del vacío es $p_0=1/\cosh^2r$, y entonces $\theta/2=\operatorname{gd}(r)=\arctan(\sinh r)$ a $2\cdot10^{-16}$ (`vacuum_weight`, `gudermannian`). La entropía cerrada $S=\cosh^2r\ln\cosh^2r-\sinh^2r\ln\sinh^2r$ coincide con la suma sobre números de ocupación a $7\cdot10^{-16}$ hasta $r=1$ y a $2\cdot10^{-6}$ en $r=1.5$ (corte de 80 niveles). Una transformación de $SU(1,1)$ no es una rotación: la identidad vale para el peso del vacío, no para la transformación.
+
+## 38.9 Citado, sin re-ejecutar (`unverified`)
+
+Del capítulo anterior, sin verificador aquí: UCC de H₂ ($t^\ast=-0.1118$ rad, $E=-1.1373060$ Ha = FCI a $5\cdot10^{-14}$, $p_0=0.9876$ o $+975.1$ m-qg); cadena de Kitaev (protección exponencial en la longitud; el trenzado imitado como compuerta tiene infidelidad cuadrática en el error, $6.2\cdot10^{-5}$ con 1 %); Jarzynski, Fisher de GHZ, Fubini–Study, OTOC y estadística de niveles. Cada uno está en `book/es/cap34.qmd` con su script `tools/make_cap34_figures.py`; no se volvieron a correr.
+
+## 38.10 Contraste operativo: sin `qang` frente a con `qang`
+
+| Fenómeno | Sin `qang` | Con `qang` (`qang.qtransv`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Signo del intercambio fermiónico | fase de Pauli | $qg_X$: −1000 frente a +1000 m-qg | `exact` |
+| Eco de Hahn, desintonía estática | $F=1$ | $qg_X=1.000000$; pulso de +2 %: −0.99 m-qg; deriva de 10 %: −179 m-qg | `exact` |
+| Ising, pico a $\theta=\pi/4$ | límite $N\to\infty$ | $m_X=732.3$ en $N=10$ (95.6 m-qg sobre 636.6): falla con $N\le4$ | `exact` |
+| Aharonov–Bohm | franjas por cuanto | $qg_Z=\cos(2\pi\Phi/\Phi_0)$; σ$\sqrt N$=0.1592; sin signo | `exact` |
+| Rotación de Wigner | $\Omega_W$ | $18.92^\circ$; $qg_X=+945.9$ m-qg; 52.6 qga | `exact` |
+| Fresnel | $R_s$, fases | Brewster −704.1 m-qg; TIR +1000 m-qg sin información; $qg_Y=+600$ m-qg | `exact` |
+| Unruh | $S(r)$ | $\theta/2=\operatorname{gd}(r)$ | `exact` |
+| Resto del capítulo anterior | — | sin re-ejecutar | `unverified` |
+
+## 38.11 Bloque (`qang/qtransv.py`)
+
+```python
+def jw_creation(n); anticommutation_error(n); exchange_qgx(fermionic)
+def hahn_echo_ensemble(sigma_tau, eps); hahn_echo_qgx_drift(sigma_tau, drift_frac)
+def tfim_mx_mqg(n, g=1.0)                     # diagonalización exacta
+def ab_qgz(phi_over_phi0)
+def wigner_rotation(v1, v2)                   # (polar numérico, fórmula cerrada) en rad
+def fresnel(n1, n2, ti); tir_phase_difference(n, ti)
+def vacuum_weight(r); gudermannian(r); thermal_entropy_nats(r); thermal_entropy_sum(r)
+```
+
+## 38.12 Verificación — `tools/verify_cap38.py`
+
+```
+[1] anticonmutación (4 modos): error 0.0e+00; test de Hadamard del intercambio: fermiónico qg_X = -1000 m-qg, SWAP de qubits +1000 m-qg
+[2] qg_X: decaimiento libre 2.7e-09; eco estático 1.000000; eco con π de 2 % de más 0.99901 (0.99 m-qg); con deriva de 10 % de σ 0.8209 (179 m-qg)
+[3] m_X(g=J): N=2: 894.4, N=4: 810.1, N=6: 771.1, N=8: 747.9, N=10: 732.3 m-qg; límite 2000/π = 636.6 (N=10 aún 95.6 m-qg arriba)
+[4] qg_Z = cos(2πΦ/Φ0): periodo Φ0 a 2e-15; Φ y −Φ leen lo mismo; √N·σ(Φ̂/Φ0) con 2000 electrones = 0.1592–0.1598 (1/2π = 0.1592)
+[5] Ω_W = 0.3303 rad = 18.92° (fórmula cerrada a 1e-14); qg_X = cos Ω = +945.9 m-qg; 52.6 qga; colineales: 0e+00
+[6] Brewster 56.31°: r_p = 0, R_s = 0.148 (-704.1 m-qg); incidencia normal R = 0.04 (-920 m-qg); crítico 41.81°; |r|=1 a 1e-14; |δp−δs| máx 45.24° en 51.67°, = 45° en 50.23° y 53.26°; a 45° de incidencia qg_Y = sin|δp−δs| = +600 m-qg
+[7] θ/2 = gd(r) = arctan(sinh r) a 2e-16; entropía cerrada − suma: r=0.25: 3e-17, r=0.5: 2e-16, r=1.0: 7e-16, r=1.5: 2e-06 (corte de 80 niveles)
+verify_cap38: OK
+```
+
+### `tests/test_qtransv.py`
+```python
+import math
+from qang.qtransv import anticommutation_error, exchange_qgx, hahn_echo_ensemble, tfim_mx_mqg, wigner_rotation, fresnel
+def test_jw_and_exchange_sign(): assert anticommutation_error(3) < 1e-15 and abs(exchange_qgx(True) + 1) < 1e-15
+def test_hahn_echo(): assert abs(hahn_echo_ensemble(2 * math.pi * 50e3 * 20e-6, 0.02) - 0.99901) < 1e-5
+def test_tfim(): assert abs(tfim_mx_mqg(4) - 810.1) < 0.06
+def test_wigner(): n, f = wigner_rotation([0.6, 0, 0], [0, 0.8, 0]); assert abs(n - f) < 1e-12 and abs(n - 0.3303) < 5e-5
+def test_brewster(): assert abs(fresnel(1.0, 1.5, math.atan(1.5))[1]) < 1e-15
+```
+
+(El resto de las pruebas está en `tests/test_qtransv.py`.)
+
+## 38.13 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `jw_exchange_sign` | transversal | $qg_X=-1$ (fermión) frente a $+1$ (SWAP) | `exchange_qgx`, `anticommutation_error` | `exact` |
+| `hahn_echo_qgx` | transversal | eco estático 1; deriva 10 %: $e^{-(0.1\sigma\tau)^2/2}$ | `hahn_echo_ensemble`, `hahn_echo_qgx_drift` | `exact` |
+| `tfim_finite_size_mx` | transversal | $m_X(g=J)$: 894.4 → 732.3 → 636.6 | `tfim_mx_mqg` | `exact` |
+| `aharonov_bohm_qgz` | transversal | $qg_Z=\cos(2\pi\Phi/\Phi_0)$; sin signo | `ab_qgz` | `exact` |
+| `wigner_rotation_qgx` | transversal | $\Omega_W=0.3303$ rad; $qg_X=+945.9$ m-qg | `wigner_rotation`, `boost` | `exact` |
+| `fresnel_readings` | transversal | Brewster −704.1 m-qg; TIR +1000 m-qg sin información | `fresnel`, `tir_phase_difference` | `exact` |
+| `unruh_gudermannian` | transversal | $\theta/2=\arctan(\sinh r)$ | `vacuum_weight`, `gudermannian`, `thermal_entropy_nats` | `exact` |
+| `ucc_h2_half_angle` | química | $p_0=0.9876$ (+975.1 m-qg) | — | `unverified` (citado, no re-ejecutado) |
+| `kitaev_braid_error` | materia | infidelidad cuadrática en el error de ángulo | — | `unverified` (citado, no re-ejecutado) |
+| `transversal_rest` | transversal | Jarzynski, Fisher de GHZ, Fubini–Study, OTOC | — | `unverified` (citado, no re-ejecutado) |
+
+`CHANGELOG.md [Unreleased]`: `qang.qtransv`; `tools/verify_cap38.py`; `tests/test_qtransv.py`.
+Commit: `docs(cap38): aplicaciones transversales (7 de 13 recalculadas) + qang.qtransv + verify_cap38`.
