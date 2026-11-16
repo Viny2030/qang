@@ -67,6 +67,7 @@ Asserts: punto fijo a $10^{-9}$; decisiones de las filas 1, 2 y 4; MC dentro del
 
 ### `tests/test_qecho.py`
 ```python
+import pytest; jax = pytest.importorskip("jax")
 from qang.qecho import readout_affine, drag_free_point, mse_raw_vs_inverted, sector_readout_error_order
 import numpy as np
 def test_fixed_point(): m = drag_free_point(0.02, 0.06); assert abs(readout_affine(m, 0.02, 0.06) - m) < 1e-9

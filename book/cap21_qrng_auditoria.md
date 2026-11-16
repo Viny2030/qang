@@ -51,6 +51,7 @@ Asserts: cert$(10^6)>0.99$, cert$(10^3)<0.9$; cert $\le$ verdadero con sesgo; $\
 
 ### `tests/test_qrng.py`
 ```python
+import pytest; jax = pytest.importorskip("jax")
 from qang.qrng import certified_min_entropy, point_min_entropy
 def test_cert_below_point(): assert certified_min_entropy(5000, 10000) < point_min_entropy(5000, 10000)
 def test_cert_grows_with_N(): assert certified_min_entropy(500000, 1000000) > certified_min_entropy(5000, 10000)
