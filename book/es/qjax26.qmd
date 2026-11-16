@@ -1,0 +1,78 @@
+# Capítulo 26 — Geometría de la información aplicada: núcleos cuánticos en espacio qg, concentración exponencial y el núcleo unario de sector que no se concentra {#sec-qjax26 .unnumbered}
+*Chapter 26 — Applied Information Geometry: Quantum Kernels in qg Space, Exponential Concentration and the Non-Concentrating Unary Sector Kernel*
+
+
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
+> Reescritura del antiguo Cap. 23 sobre la base de Cap. 1–25 (la Fisher/QNG vive en Cap. 9; aquí núcleos y mesetas). Módulo: `qang.qkernels` (JAX, `jax<0.9`; usa `qang.qweightqnn`). Verificación: `tools/verify_cap26.py`. Rol: desarrollador/investigador de código.
+
+---
+
+## 26.1 Núcleo de fidelidad para mapas producto: forma cerrada en qg
+
+**ES.** Para $|\psi(x)\rangle=\bigotimes_q|\alpha_q,\varphi_q\rangle$ (ángulos en qga) con vectores de Bloch $\mathbf r_q$:
+$$k(x,x')=|\langle\psi(x)|\psi(x')\rangle|^2=\prod_{q=1}^n\frac{1+\mathbf r_q\cdot\mathbf r'_q}{2}\quad(\text{exact, }10^{-13}).$$
+El núcleo **de lectura** $\prod_q(1+qg_Zqg_Z')/2$ (una base) no es la fidelidad: omite $qg_X,qg_Y$. Costes de estimación: test SWAP (1 ancilla, $n$ cSWAP), test de inversión $U(x')^\dagger U(x)$ (0 ancillas, profundidad $2L$, se lee $P(|0\ldots0\rangle)$).
+
+**EN.** The product-map fidelity kernel has a closed form in Bloch vectors; the $Z$-only kernel is a different, classical object (`exact`).
+
+## 26.2 Concentración exponencial: el análogo de la meseta estéril para núcleos
+
+Características de producto aleatorias ($\alpha\sim U[0,500]$, $\varphi\sim U[0,1000]$ qga): $\mathbb E[k]\approx(1/4)^{n/2}$ y $\mathrm{Var}[k]$ cae de $5.5\cdot10^{-2}$ ($n=2$) a $2.1\cdot10^{-5}$ ($n=10$); disparos para $\sigma_k=\mathbb E[k]/10$: $3\cdot10^2\to10^5$. El núcleo es adimensional: la unidad qga **no** interviene (coherente con Cap. 9 §4: `against` como mitigación). Es el mismo fenómeno que la meseta: la información útil se diluye en $2^n$ dimensiones.
+
+## 26.3 Núcleo unario de sector: $(x\cdot x')^2$, polinomial, sin concentración
+
+Con el cargador unario del Cap. 23, $|x\rangle=\sum_kx_k|e_k\rangle$ ⇒ $k_u(x,x')=(x\cdot x')^2$ — polinomial de grado 2, estimable por test de inversión sin ancilla ($2(n-1)$ RBS) con $P(|e_0\rangle)$, exacto a $10^{-12}$. Para vectores unitarios aleatorios: $\mathbb E[k_u]=1/n$ y $\mathrm{Var}[k_u]\sim2/n^2$ ($n=4:6.2\cdot10^{-2}$; $n=16:6.5\cdot10^{-3}$): decaimiento **polinomial**. Disparos a $\sigma=\mathbb E/10$ con $n=6$: $507$ frente a $6.4\cdot10^3$ del mapa producto. Además, el sector de peso 1 habilita el filtro de simetría: $T_1$ exacto (Cap. 24) y lectura a $O(e_{01}e_{10})$ (Cap. 25). Límite honesto: $k_u$ es un núcleo **clásico** (polinomial) — la ventaja es de ingeniería de ruido y presupuesto, no de expresividad (`exact`; ventaja de aprendizaje `no gain`).
+
+## 26.4 Contraste operativo
+
+| Métrica / Metric | Estándar (mapa producto, SWAP) | `qang` (`qang.qkernels`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| Estimar $k$ | 1 ancilla + $n$ cSWAP | inversión: 0 ancillas | $-1$ ancilla, $-n$ cSWAP (`exact`) |
+| $\mathrm{Var}[k]$, $n=10$ vs unario $n=16$ | $2.1\cdot10^{-5}$ | $6.5\cdot10^{-3}$ | polinomial vs exponencial (`exact`) |
+| Disparos $\sigma=\mathbb E/10$, $n=6$ | $6.4\cdot10^3$ | $507$ | $-92\%$ (`exact`) |
+| Mitigación por unidad qga | — | ninguna | `against` |
+| Expresividad del núcleo unario | — | clásica $(x\cdot x')^2$ | `no gain` |
+
+## 26.5 Bloque JAX (`qang/qkernels.py`)
+
+```python
+@jax.jit
+def product_fidelity_kernel(r1, r2):   return jnp.prod((1.0 + jnp.sum(r1 * r2, axis=-1)) / 2.0)
+@jax.jit
+def z_only_kernel(qz1, qz2):           return jnp.prod((1.0 + qz1 * qz2) / 2.0)
+def unary_kernel(x, y):                return jnp.dot(x, y) ** 2
+def unary_inversion_test(x, y, n):     return jnp.abs(jnp.vdot(unary_loader(y, n), unary_loader(x, n))) ** 2
+def kernel_concentration(n, samples, key)   # (Var[k], E[k]) para características aleatorias en qga
+def shots_for_kernel(k, sigma):        return k * (1 - k) / sigma ** 2
+```
+
+## 26.6 Verificación — `tools/verify_cap26.py`
+
+```
+[1] k = Π(1 + r·r')/2 = |<ψ|ψ'>|² a 1e-13
+[2] n=2: Var 5.54e-02 E 2.50e-01 → 3.0e+02 disparos | n=10: Var 2.08e-05 E 9.68e-04 → 1.0e+05
+[3] núcleo unario n=6: (x·y)² = inversión a 1e-12; E[k]=0.165 (=1/n), 507 disparos | n=16: Var 6.46e-03 (polinomial)
+verify_cap26: OK
+```
+Asserts: forma cerrada a $10^{-13}$ (5 casos); $\mathrm{Var}_{n=10}<\mathrm{Var}_{n=2}/50$; test de inversión $=(x\cdot y)^2$ a $10^{-12}$.
+
+### `tests/test_qkernels.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qkernels import product_fidelity_kernel, unary_inversion_test
+def test_same_point_is_one(): r = jnp.array([[0., 0.6, 0.8], [1., 0., 0.]]); assert abs(float(product_fidelity_kernel(r, r)) - 1) < 1e-14
+def test_unary(): x = jnp.array([0.6, 0.8, 0., 0.]); y = jnp.array([0., 0., 1., 0.]); assert float(unary_inversion_test(x, y, 4)) < 1e-14
+```
+
+## 26.7 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `kernel_product_closed_form` | QML | $\prod(1+\mathbf r\cdot\mathbf r')/2$ | `product_fidelity_kernel` | `exact` |
+| `kernel_concentration` | QML | $\mathrm{Var}[k]$ exponencial en $n$ | `kernel_concentration` | `exact`; unidad `against` |
+| `unary_sector_kernel` | QML | $(x\cdot x')^2$, 0 ancillas, $\mathrm{Var}\sim2/n^2$ | `unary_kernel`, `unary_inversion_test` | `exact`; expresividad `no gain` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qkernels`; `tools/verify_cap26.py`; `tests/test_qkernels.py`.
+Commit: `docs(cap26): núcleos en qg, concentración y núcleo unario sobre Cap. 1–25 + qang.qkernels + verify_cap26`.

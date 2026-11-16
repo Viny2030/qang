@@ -1,0 +1,164 @@
+# Capítulo 7 — Redes angulares cuánticas (QAN), información mutua en espacio qang e inversión regularizada (IQAN) {#sec-qjax07 .unnumbered}
+*Chapter 7 — Quantum Angular Networks (QAN), Mutual Information in qang Space and Regularized Inversion (IQAN)*
+
+
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
+> Módulo: `qang.qan` (backend JAX opcional, `jax<0.9`; core NumPy intacto). Verificación: `tools/verify_cap07.py`. Posición en `BOOK_OUTLINE.md`: nuevo Cap. 7 (Parte II); fases geométricas y Fisher pasan a 8–9, o fusionar en Cap. 23 (decisión editorial pendiente).
+
+---
+
+## 7.1 QAN: la red como mapa qga → qg
+
+**ES.** Una QAN es un mapa diferenciable $\Phi:\mathbb{R}^P_{\text{qga}}\to[-1,1]^n\times[-1,1]^{n\times n}$ que envía parámetros angulares (escala `qga`, $\theta=2\pi\,\alpha/1000$) a lecturas proyectivas en una sola base $Z$. Capa canónica:
+$$|\psi(\boldsymbol\alpha,\boldsymbol\beta,\boldsymbol\gamma)\rangle=\Big[\bigotimes_q R_Y(\gamma_q)\Big]\Big[\prod_{(p,q)\in E}R_{ZZ}(\beta_{pq})\Big]\Big[\bigotimes_q R_Y(\alpha_q)\Big]|0\rangle^{\otimes n},\qquad \alpha,\beta,\gamma\ \text{en qga}.$$
+Lectura: $qg_Z^{(q)}=\langle Z_q\rangle$, $qg_{ZZ}^{(pq)}=\langle Z_pZ_q\rangle$, ambas desde el mismo histograma $|\psi|^2$. $R_{ZZ}$ tiene período $500$ qga en la lectura: $R_{ZZ}(\beta+500)=-i\,Z\!\otimes\!Z\,R_{ZZ}(\beta)$ y el factor $Z\!\otimes\!Z$ se absorbe como $R_Z(\pi)$ virtual ($\gamma\to-\gamma$), invisible en $|\psi|^2$ (Cap. 2, `exact`).
+
+**EN.** A QAN is a differentiable map from qga-scaled angles to single-basis $Z$ readouts. Every $qg_Z^{(q)}$ and every pairwise correlator $qg_{ZZ}^{(pq)}$ come from one histogram; no ancilla, no extra two-qubit gate, no basis change. The $500$ qga period of $R_{ZZ}$ holds in the readout up to a virtual $R_Z(\pi)$ (`exact`).
+
+## 7.2 MI en espacio qang
+
+**ES.** La distribución conjunta en $Z$ de un par es la inversión exacta de su expansión de Pauli:
+$$p_{ab}(s,t)=\tfrac14\big(1+s\,qg_Z^{(a)}+t\,qg_Z^{(b)}+st\,qg_{ZZ}^{(ab)}\big),\quad s,t\in\{+1,-1\}.$$
+Información mutua (bits):
+$$I_Z(a;b)=qg_S^{(a)}+qg_S^{(b)}-H(p_{ab}),\qquad qg_S=H\!\big(\tfrac{1+qg_Z}{2}\big),\qquad 0\le I_Z\le\min\big(qg_S^{(a)},qg_S^{(b)}\big)\le1.$$
+Tres números qang ($qg_Z^{(a)},qg_Z^{(b)},qg_{ZZ}^{(ab)}$) determinan $I_Z$. **Límite (THEORY_CORE §2.4, `against`)**: $I_Z$ depende de la base $Z$ y **no** es medida de entrelazamiento (un estado producto rotado puede dar $I_Z=0$ con entrelazamiento máximo y viceversa). Su uso legítimo es *clásico*: decidir qué pares vale la pena acoplar en una capa dada y cuántos disparos cuesta estimarlos.
+
+Presupuesto de disparos (método delta, `exact` asintótico): con $\Sigma=\mathrm{diag}(p)-pp^\top$ y $g=\partial I_Z/\partial p$,
+$$\mathrm{Var}(\hat I_Z)\simeq\frac{g^\top\Sigma g}{N},\qquad N^\star(\sigma_I)=\frac{g^\top\Sigma g}{\sigma_I^2}.$$
+En $I_Z=0$ el gradiente $g$ se anula y el estimador es sesgado a segundo orden ($\mathbb E[\hat I_Z]\approx 1/(2N\ln2)$ bits para la tabla $2\times2$, Miller–Madow): usar umbral $\tau>1/(2N\ln 2)$ en toda poda.
+
+**EN.** $I_Z$ is a closed-form function of three qang numbers; it is $Z$-basis classical mutual information, explicitly **not** an entanglement measure (`against`). Its shot cost is planned by the delta method with $g$ obtained by automatic differentiation; at $I_Z=0$ the first-order variance vanishes and the Miller–Madow bias $1/(2N\ln2)$ bits sets the minimum pruning threshold.
+
+## 7.3 IQAN: inversión regularizada en ángulo
+
+**ES.** Dado un objetivo $(qg_Z^{\star},I^{\star})$, IQAN resuelve
+$$\min_{\boldsymbol\alpha,\boldsymbol\beta,\boldsymbol\gamma\in\text{qga}}\ \mathcal L=\big\|qg_Z-qg_Z^{\star}\big\|_2^2+\lambda\sum_{(p,q)\in E}\big(I_Z^{(pq)}-I^{\star}_{pq}\big)^2+\mu\sum_{(p,q)\in E}\Big(\frac{\beta_{pq}}{500}\Big)^2 .$$
+El descenso es **euclidiano en ángulo** (qga): por THEORY_CORE §2.1 equivale a primer orden al paso amortiguado por $qg_\kappa$ en $qg_Z$ y evita la divergencia polar del descenso plano en $qg_Z$ (0/20, `against`). El término $\mu$ es compilación de mínima área: penaliza $|\beta|$ y, por el período 500 qga, el mínimo de un entrelazador máximo cae en $\beta=250$ qga. Tasa de aprendizaje: $\eta_{\text{qga}}=\eta_{\text{rad}}\,(1000/2\pi)^2$ (reescalado exacto, sin efecto sobre mesetas estériles, §2.1).
+
+**EN.** IQAN is gradient descent in qga, regularized by the $Z$-MI target and by $R_{ZZ}$ pulse area. It is first-order equivalent to the curvature-damped update in $qg_Z$; the qga rescaling of the learning rate is exact and does **not** mitigate barren plateaus (THEORY_CORE §2.1).
+
+## 7.4 Contraste operativo — Sin `qang` vs. con `qang`
+
+Instancia de `tools/verify_cap07.py` §5–§6: capa QAN de 4 qubits en cadena, $\alpha=250$ qga, $\beta=(250,60,250)$ qga, $\gamma=(\mp250)$; umbral $\tau=0.05$ bit.
+
+| Métrica / Metric | Enfoque estándar (sin `qang`) | Enfoque `qang` (QAN / IQAN + JAX) | Ganancia / Estatus (`qang.measures`) |
+| :--- | :--- | :--- | :--- |
+| Correlador por par $\langle Z_pZ_q\rangle$ | Test de Hadamard/SWAP: 1 ancilla, $\ge2$ compuertas 2Q, 1 circuito por par | `qan_readout`: 0 ancillas, 0 compuertas 2Q extra, $\binom n2$ pares de 1 histograma | $-1$ ancilla, $-\binom n2$ circuitos (`exact`) |
+| Bases de medida para $I_Z$ | Tomografía 2Q: 9 bases | 1 base ($Z$) | $-8$ bases por par (`exact`; sólo $I_Z$, no $I$ cuántica) |
+| Entrelazadores $R_{ZZ}$ en la capa siguiente | Todos los pares: 6 | Pares con $I_Z\ge\tau$: 2 (`mi_matrix_qg`) | $-67\%$ compuertas 2Q (`exact` en simulación; hardware `unverified`) |
+| Disparos para $\sigma_I=0.01$ bit en $I_Z=0.346$ | Regla $\varepsilon^{-2}=10^4$ | $N^\star=g^\top\Sigma g/\sigma_I^2=3277$ (`mi_shot_variance_qg`; MC/delta $=1.002$) | $-67\%$ disparos (`exact`) |
+| Inversión a $I^\star=1$ bit, $qg_Z^\star=0$ | Descenso plano en $qg_Z$: 0/20 convergencias (Cap. 30) | IQAN en qga: 7/8 convergencias, $\beta\to250.0$ qga (área mínima), $I=0.9989$ | (`exact` sim.; frente a `against`) |
+
+## 7.5 Bloque JAX (`qang/qan.py`, `jax<0.9`)
+
+```python
+import jax, jax.numpy as jnp
+from functools import partial
+jax.config.update("jax_enable_x64", True)
+RAD_PER_QGA = 2.0 * jnp.pi / 1000.0          # qga -> rad (exact)
+
+def _h2(p):                                   # qg_S en bits, 0·log0 = 0
+    p = jnp.clip(p, 1e-300, 1.0); q = jnp.clip(1.0 - p, 1e-300, 1.0)
+    return -(p * jnp.log2(p) + q * jnp.log2(q))
+
+@jax.jit
+def joint_probs_qg(qz_a, qz_b, qzz):
+    """p(s,t) = (1 + s qz_a + t qz_b + s t qzz)/4, orden 00,01,10,11."""
+    s = jnp.array([1., 1., -1., -1.]); t = jnp.array([1., -1., 1., -1.])
+    return (1.0 + s * qz_a + t * qz_b + s * t * qzz) / 4.0
+
+@jax.jit
+def mutual_information_qg(qz_a, qz_b, qzz):
+    """I_Z(a;b) [bit] = qg_S(a) + qg_S(b) - H(p_ab). Base Z: no mide entrelazamiento."""
+    p = jnp.clip(joint_probs_qg(qz_a, qz_b, qzz), 1e-300, 1.0)
+    return _h2((1 + qz_a) / 2) + _h2((1 + qz_b) / 2) + jnp.sum(p * jnp.log2(p))
+
+@jax.jit
+def mi_shot_variance_qg(qz_a, qz_b, qzz):
+    """N·Var(Î) por método delta: gᵀ(diag p − p pᵀ)g, g = ∂I/∂p vía jax.grad."""
+    def mi_of_p(p):
+        p = jnp.clip(p, 1e-300, 1.0)
+        return _h2(p[0] + p[1]) + _h2(p[0] + p[2]) + jnp.sum(p * jnp.log2(p))
+    p = joint_probs_qg(qz_a, qz_b, qzz); g = jax.grad(mi_of_p)(p)
+    return g @ (jnp.diag(p) - jnp.outer(p, p)) @ g
+
+@partial(jax.jit, static_argnames=("n",))
+def qan_readout(psi, n):
+    """qg_Z[q] y qg_ZZ[q,r] desde |psi|² (una sola base)."""
+    p = jnp.abs(psi) ** 2; idx = jnp.arange(2 ** n)
+    z = jnp.stack([1.0 - 2.0 * ((idx >> (n - 1 - q)) & 1) for q in range(n)])
+    return z @ p, (z * p) @ z.T
+
+@partial(jax.jit, static_argnames=("n",))
+def mi_matrix_qg(qz, qzz, n):
+    f = jax.vmap(jax.vmap(mutual_information_qg, (None, 0, 0)), (0, None, 0))
+    return f(qz, qz, qzz)
+
+def iqan_loss(params, target_qz, target_mi, n, pairs, lam=1.0, mu=1e-3):
+    """||qg_Z−qg_Z*||² + λΣ(I_Z−I*)² + μΣ(β/500)²; gradiente euclidiano en qga."""
+    a, b, g = params[:n], params[n:n + len(pairs)], params[n + len(pairs):]
+    qz, qzz = qan_readout(qan_state(a, b, g, n, pairs), n)
+    loss = jnp.sum((qz - target_qz) ** 2) + mu * jnp.sum((b / 500.0) ** 2)
+    for k, (p, q) in enumerate(pairs):
+        loss += lam * (mutual_information_qg(qz[p], qz[q], qzz[p, q]) - target_mi[k]) ** 2
+    return loss
+
+vg = jax.jit(jax.value_and_grad(iqan_loss), static_argnames=("n", "pairs"))
+# bucle: params -= lr_qga * grad, con lr_qga = lr_rad * (1000/2π)² ≈ 2.5e3 para lr_rad = 0.1
+```
+`qan_state` (RY–RZZ–RY en qga, statevector `jnp.complex128`) e `iqan_fit` en el archivo adjunto `qan_jax.py`.
+
+## 7.6 Verificación — `tools/verify_cap07.py` (salida reproducible)
+
+```
+[2] Bell-equiv: gamma=(+250,-250) qga, qg_ZZ=-1.000, I=1.000000000000 bit
+[4] I=0.3461 bit  sigma_delta=0.00905  sigma_MC=0.00906  ratio=1.002
+    disparos para sigma_I = 0.01 bit: N* = 3277
+[5] MI (bit) por par: (0,1):0.781, (0,2):0.000, (0,3):0.000, (1,2):0.000, (1,3):0.000, (2,3):0.781
+    RZZ all-to-all = 6, retenidos (I>=0.05) = 2 -> -67% compuertas 2Q, 0 ancillas, 1 base de medida
+[6] IQAN (semilla 7): loss=2.51e-04  I=0.9989 bit  qg_Z=[0. -0.]  beta=250.0 qga (piso mu*(250/500)^2 = 2.5e-4)
+    convergencias I>0.99: 7/8
+verify_cap07: OK
+```
+Asserts: $|I_Z(\text{producto})|<10^{-12}$; $|I_Z(\text{Bell})-1|<10^{-10}$; período 500 qga de $R_{ZZ}$ ($\gamma\to-\gamma$) en $|\psi|^2$ a $10^{-12}$; cociente MC/delta $\in(0.85,1.15)$; poda $<6$ pares; $\ge6/8$ convergencias y $|\beta-250|<1$ qga.
+
+### `tests/test_qan.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import jax.numpy as jnp, numpy as np
+from qang.qan import mutual_information_qg, joint_probs_qg, mi_shot_variance_qg, qan_state, qan_readout
+
+def test_product_zero_mi():
+    assert abs(float(mutual_information_qg(0.3, -0.6, -0.18))) < 1e-12
+
+def test_joint_probs_sum_and_marginals():
+    p = np.asarray(joint_probs_qg(0.2, -0.3, 0.5))
+    assert abs(p.sum() - 1) < 1e-15 and abs((p[0]+p[1]) - 0.6) < 1e-15
+
+def test_bell_one_bit():
+    psi = qan_state(jnp.array([250., 250.]), jnp.array([250.]), jnp.array([250., -250.]), 2, ((0, 1),))
+    qz, qzz = qan_readout(psi, 2)
+    assert abs(float(mutual_information_qg(qz[0], qz[1], qzz[0, 1])) - 1) < 1e-10
+
+def test_delta_variance_positive():
+    assert float(mi_shot_variance_qg(0.2, -0.3, 0.5)) > 0
+```
+
+## 7.7 Apéndice H — entradas nuevas en `qang.measures`
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `mi_z` | información | $qg_S^{(a)}+qg_S^{(b)}-H(p_{ab})$ | `qang.qan.mutual_information_qg` | `exact` (no entrelazamiento: `against` como testigo) |
+| `mi_z_shot_var` | estadística | $g^\top\Sigma g/N$, $g=\partial I/\partial p$ | `qang.qan.mi_shot_variance_qg` | `exact` (asintótico; sesgo $1/(2N\ln2)$ en $I=0$) |
+| `qan_pair_prune` | compilación | pares con $I_Z\ge\tau$, $\tau>1/(2N\ln2)$ | `qang.qan.mi_matrix_qg` | `exact` sim. / hardware `unverified` |
+| `iqan_min_area` | compilación | $\arg\min\mathcal L$ en qga, $\mu\sum(\beta/500)^2$ | `qang.qan.iqan_fit` | `exact` sim. (7/8); `unverified` hw |
+
+### `CHANGELOG.md` — `[Unreleased]`
+```
+### Added
+- `qang.qan`: QAN statevector en qga (RY–RZZ–RY), `mutual_information_qg`, `mi_shot_variance_qg`,
+  `mi_matrix_qg`, `iqan_loss`/`iqan_fit` (JAX opcional, `jax<0.9`; `jax.config.update("jax_enable_x64", True)`).
+- `tools/verify_cap07.py`, `tests/test_qan.py`; Apéndice H: `mi_z`, `mi_z_shot_var`, `qan_pair_prune`, `iqan_min_area`.
+```
+Commit: `feat(qan): QAN/MI/IQAN en qga con backend JAX + verify_cap07`.

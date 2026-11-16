@@ -1,0 +1,80 @@
+# Capítulo 24 — El filtro de simetría con matrices densidad: exacto bajo relajación $T_1$ uniforme (incluso intra-circuito), cocientes $T_1$, fallo bajo desfase y rescate por ZNE {#sec-qjax24 .unnumbered}
+*Chapter 24 — The Symmetry Filter with Density Matrices: Exact under Uniform $T_1$ Relaxation (Even Mid-Circuit), $T_1$ Ratios, Failure under Dephasing and ZNE Rescue*
+
+
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
+> Reescritura del antiguo Cap. 21 (F5, F6) sobre la base de Cap. 1–23. Módulo: `qang.qsymfilter` (JAX, `jax<0.9`; usa `qang.qweightqnn`). Verificación: `tools/verify_cap24.py` (matrices densidad $16\times16$).
+
+---
+
+## 24.1 Por qué el filtro es exacto bajo $T_1$ uniforme, también entre compuertas
+
+**ES.** En el sector de peso 1, el operador de Kraus sin salto del amortiguamiento de amplitud, $K_0^{\otimes n}$ con $K_0=\mathrm{diag}(1,\sqrt{1-\gamma})$, multiplica **todo** $|e_k\rangle$ por el mismo $\sqrt{1-\gamma}$ (un solo qubit excitado); el salto $K_1$ envía la masa a $|0\ldots0\rangle$ (peso 0), donde las RBS actúan como identidad y de donde **nunca regresa**. Por tanto, tras $L$ compuertas con $T_1$ uniforme en cada una,
+$$\rho_S^{\text{filtrado}}=\rho_S^{\text{ideal}}\ \ (\text{coherencias incluidas}),\qquad \text{tasa}=(1-\gamma)^L .$$
+Verificado: $\|\rho_S-\rho_S^{\text{ideal}}\|_\infty=1.2\cdot10^{-16}$, tasa $0.7351=(0.95)^6$. Sin filtro la lectura se arrastra: $-393\to-289$ m-qg ($\gamma=0.05$), $\to-103$ m-qg ($\gamma=0.2$) (`exact`). Generaliza el resultado del Cap. 23 (histogramas) a estados con coherencia.
+
+**EN.** Uniform amplitude damping acts on the weight-1 sector as a global scalar plus an irreversible leak to weight 0, so sector postselection restores the exact state mid-circuit (`exact`).
+
+## 24.2 Cocientes $T_1$ (F5): corrección exacta sólo para ruido final
+
+$T_1$ **no uniforme** $\gamma_k$ aplicado al final: $p(e_k)=(1-\gamma_k)\,p^{\text{ideal}}(e_k)$ exacto ⇒ dividir por $(1-\gamma_k)$ (calibrado, Cap. 30) recupera $y=-0.3933$. Aplicado **entre** compuertas, la distorsión no conmuta con las RBS: $y$ filtrado $=+0.0746$ (error $0.468$) y la corrección final **no basta** (`mixed`). Regla: cocientes $T_1$ sólo con tiempos de compuerta $\ll T_1$ de los qubits más lentos; medir $\gamma_k$ por qubit (Cap. 30).
+
+## 24.3 Desfase: el filtro no protege; ZNE sí (F6)
+
+El desfase conserva el peso pero destruye coherencias **dentro** del sector, invisibles al filtro. Con $p=0.02$ por compuerta: error filtrado $0.0551$; Richardson sobre $\lambda\in\{1,2,3\}$ ($y=-0.3382,-0.2939,-0.2584$) extrapola a $-0.3914$ (error $0.0019$, $\times28.7$) al coste de $3\times$ circuitos (`exact` sim.; hardware `unverified`). Combinación recomendada: filtro (elimina $T_1$ y fugas) + ZNE (desfase residual); orden de aplicación: filtrar cada $\lambda$, luego extrapolar.
+
+## 24.4 Contraste operativo
+
+| Métrica / Metric | Estándar | `qang` (`qang.qsymfilter`) | Estatus |
+| :--- | :--- | :--- | :--- |
+| $T_1$ uniforme intra-circuito, $\gamma=0.2$ | $-103$ m-qg (ideal $-393$) | $-393$ m-qg exacto; tasa $0.262$ | `exact` |
+| $T_1$ no uniforme final | sesgado | cocientes $(1-\gamma_k)$: exacto | `exact` |
+| $T_1$ no uniforme intra-circuito | sesgado | filtrado error $0.468$ | `mixed` |
+| Desfase $p=0.02$ | error $0.055$ | filtro no ayuda; ZNE: $0.0019$ ($3\times$ circuitos) | `exact` sim. |
+
+## 24.5 Bloque JAX (`qang/qsymfilter.py`)
+
+```python
+def kraus_amplitude_damping(g): return [diag(1, √(1−g)), [[0, √g],[0, 0]]]
+def kraus_dephasing(p):         return [√(1−p)·I, √p·Z]
+def run_weight_circuit(rho0, theta_qga, pairs, n, noise_after_layer=None)   # RBS + canal tras cada compuerta
+def filtered_sector_state(rho, n, w=1)   # (ρ_S / Tr, tasa)
+def richardson_zne(lams, vals)           # polinomio de grado len−1 evaluado en λ=0
+```
+
+## 24.6 Verificación — `tools/verify_cap24.py`
+
+```
+[1] T1 γ=0.2 intra-circuito: ||ρ_S − ρ_S^ideal||∞=1.1e-16, tasa=0.2621=(1−γ)^6; y sin filtro=-0.1031 vs ideal -0.3933
+[2] T1 no uniforme final: corrección por cocientes recupera y=-0.3933 | intra-circuito: y filtrado=+0.0746 (mixed)
+[3] desfase p=0.02: error filtrado=0.0551, ZNE=-0.3914 (error 0.0019) → ×28.7 mejor
+verify_cap24: OK
+```
+Asserts: $\|\rho_S-\rho_S^{\text{id}}\|<10^{-13}$ y tasa $=(1-\gamma)^6$ a $10^{-13}$; cocientes a $10^{-13}$; error ZNE $<$ error filtrado.
+
+### `tests/test_qsymfilter.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qweightqnn import unary_loader
+from qang.qsymfilter import run_weight_circuit, kraus_amplitude_damping, apply_local_channel, filtered_sector_state
+
+def test_filter_exact_under_uniform_T1():
+    n, pairs = 4, ((0, 1), (2, 3), (1, 2)); th = jnp.array([100., 300., 700.])
+    psi = unary_loader(jnp.array([0.6, 0.0, 0.8, 0.0]), n); rho0 = jnp.outer(psi, jnp.conj(psi))
+    S0, _ = filtered_sector_state(run_weight_circuit(rho0, th, pairs, n), n)
+    S1, acc = filtered_sector_state(run_weight_circuit(rho0, th, pairs, n, lambda r: apply_local_channel(r, kraus_amplitude_damping(0.1), n)), n)
+    assert float(jnp.max(jnp.abs(S0 - S1))) < 1e-13 and abs(float(acc) - 0.9 ** 3) < 1e-13
+```
+
+## 24.7 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `symfilter_T1_exact_midcircuit` | mitigación | $\rho_S$ exacta, tasa $(1-\gamma)^L$ | `filtered_sector_state` | `exact` |
+| `T1_ratio_correction` | mitigación | $p/(1-\gamma_k)$ (ruido final) | `verify_cap24.py` §2 | `exact` final / `mixed` intra |
+| `dephasing_zne_sector` | mitigación | Richardson $\lambda=1,2,3$ | `richardson_zne` | `exact` sim. |
+
+`CHANGELOG.md [Unreleased]`: `qang.qsymfilter`; `tools/verify_cap24.py`; `tests/test_qsymfilter.py`.
+Commit: `docs(cap24): filtro de simetría con matrices densidad, cocientes T1 y ZNE sobre Cap. 1–23 + qang.qsymfilter + verify_cap24`.

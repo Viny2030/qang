@@ -1,0 +1,135 @@
+# Capítulo 8 — Acoplamiento QAN ↔ distribuciones de probabilidad: momentos qg, truncación k-local, divergencias y presupuesto de disparos {#sec-qjax08 .unnumbered}
+*Chapter 8 — Coupling QAN to Probability Distributions: qg Moments, k-Local Truncation, Divergences and Shot Budget*
+
+
+**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+
+> Módulo: `qang.qdist` (JAX, `jax<0.9`; depende de `qang.qan`). Verificación: `tools/verify_cap08.py`. Continúa Cap. 7 (QAN/MI/IQAN); fases geométricas y Fisher pasan a Cap. 9–10 en `BOOK_OUTLINE.md`.
+
+---
+
+## 8.1 Toda distribución de lectura es un vector de momentos qg
+
+**ES.** Para $n$ qubits leídos en $Z$, $p(x)=|\langle x|\psi\rangle|^2$ admite la expansión exacta de Walsh–Hadamard en momentos qang:
+$$p(x)=2^{-n}\sum_{S\subseteq[n]}qg_{Z_S}\,\chi_S(x),\qquad qg_{Z_S}=\langle Z_S\rangle=\sum_x p(x)\chi_S(x),\quad \chi_S(x)=\prod_{i\in S}z_i(x),\ z_i\in\{\pm1\}.$$
+$qg_{Z_\emptyset}=1$; $|S|=1$ son los $qg_Z^{(q)}$ del Cap. 1; $|S|=2$ los $qg_{ZZ}^{(pq)}$ del Cap. 7. Parseval: $\|p-r\|_2^2=2^{-n}\sum_S(\Delta qg_{Z_S})^2$. Convención: qubit $q\leftrightarrow$ bit $n-1-q$ de $x$ y de $S$ (big-endian), idéntica a `qang.qan`.
+
+**EN.** The $Z$-readout distribution is exactly the Walsh transform of its qang moments; first- and second-order moments are the $qg_Z$ and $qg_{ZZ}$ of Chapters 1 and 7. Parseval links $L_2$ error in $p$ to $L_2$ error in moments (`exact`).
+
+## 8.2 Truncación k-local y cota de disparos
+
+**ES.** Retener los $M_k=\sum_{j\le k}\binom nj$ momentos de orden $\le k$ da la proyección $L_2$ $p_{(k)}$ (puede ser negativa si $k<n$: es un *estimador*, no una distribución). Cota de error de muestreo (Cauchy–Schwarz + Parseval, `exact`):
+$$\mathbb E\big[\mathrm{TV}(\hat p,p)\big]\le\tfrac12\sqrt{M/N},\qquad M=\begin{cases}2^n-1&\text{histograma completo}\\ M_k&\text{momentos}\le k\end{cases}$$
+Como cada $\hat{qg}_{Z_S}$ tiene $\mathrm{Var}\le1/N$ uniformemente en $S$, el presupuesto para TV $\le\varepsilon$ es $N^\star=M/(4\varepsilon^2)$: el ahorro frente al histograma es exactamente $1-M_k/(2^n-1)$ y se paga con el sesgo de truncación $\mathrm{TV}(p_{(k)},p)$, que **sí** depende del estado (en `verify_cap08.py` §2: $0.126$ para una capa QAN aleatoria de 4 qubits; `mixed`).
+
+**EN.** Keeping only $k$-local moments trades an exact, state-independent shot saving $1-M_k/(2^n-1)$ for a state-dependent truncation bias; both are reported, neither is hidden (`exact` bound, `mixed` bias).
+
+## 8.3 Divergencias en coordenadas qg
+
+$$D(qg_Z\|qg_Z')=\sum_{s=\pm}\tfrac{1+s\,qg_Z}{2}\log_2\frac{1+s\,qg_Z}{1+s\,qg_Z'}\ \text{[bit]},\qquad H^2(qg_Z,qg_Z')=1-\sqrt{p_0p_0'}-\sqrt{p_1p_1'}=1-\cos qg_L,$$
+con $qg_L=|\theta-\theta'|/2$ la distancia geodésica del Cap. 1 (meridiano común, `exact`). En lectura `m-qg` ambas se evalúan en $m/1000$; la métrica de Fisher de $D$ en $qg_Z$ es $qg_\kappa=1/(\ln2(1-qg_Z^2))$ (Cap. 1), lo que reitera la prohibición de descenso plano en $qg_Z$ (THEORY_CORE §2.1): toda optimización de $D$ o $H^2$ en este capítulo se hace en qga.
+
+## 8.4 Previa de Haar y lectura bayesiana
+
+$p_0\sim\mathrm{Beta}(1,1)\Leftrightarrow qg_Z\sim\mathcal U[-1,1]$ (Cap. 4). Posterior tras $N$ disparos con $k_0$ ceros: $\mathrm{Beta}(1+k_0,\,1+N-k_0)$,
+$$\mathbb E[qg_Z]=\frac{2(1+k_0)}{N+2}-1,\qquad \mathrm{Var}[qg_Z]=\frac{4(1+k_0)(1+N-k_0)}{(N+2)^2(N+3)}.$$
+En el ecuador ($k_0=N/2$): $\sigma=1000/\sqrt{N+3}$ m-qg ($31.58$ m-qg a $N=1000$), sin colapso de cobertura en los polos (`exact`).
+
+## 8.5 Contraste operativo — Sin `qang` vs. con `qang`
+
+| Métrica / Metric | Estándar (sin `qang`) | `qang` (`qang.qdist` + JAX) | Ganancia / Estatus |
+| :--- | :--- | :--- | :--- |
+| Parámetros para describir la lectura, $n=4$ | $2^n-1=15$ probabilidades | $M_2=10$ momentos qg (`qg_moments`) | $-33\%$ (`exact`) |
+| Disparos para $\mathbb E[\mathrm{TV}]\le0.05$, $n=8$ | $N^\star=25\,500$ | $N^\star=3\,600$ (`shots_tv_bound`) | $-86\%$ (`exact`, cota) + sesgo $\mathrm{TV}(p_{(2)},p)$ (`mixed`) |
+| Error MC a $N=2000$, $n=4$ | $\mathbb E[\mathrm{TV}]=0.0249$ (cota $0.0433$) | $0.0246$ (cota $0.0354$) | cotas cumplidas (`exact`) |
+| Ajuste IQAN a distribución objetivo | KL sobre $2^n$ probabilidades | momentos $\le2$ (10 números, 6 semillas): $\mathrm{TV}=0.055$, KL $=0.015$ bit | residuo $<$ sesgo de truncación $0.126$ (`mixed`) |
+| Intervalo de $qg_Z$ en polos | método delta: cobertura $<10\%$ (Cap. 4) | `haar_posterior_qz` | (`exact`) |
+
+## 8.6 Bloque JAX (`qang/qdist.py`)
+
+```python
+@partial(jax.jit, static_argnames=("n",))
+def qg_moments(p, n):               # qg_{Z_S} = Σ_x p(x) χ_S(x), 2^n momentos (exact)
+    return _chi(n) @ p
+
+@partial(jax.jit, static_argnames=("n",))
+def probs_from_moments(q, n):       # inversa exacta de Walsh
+    return (_chi(n).T @ q) / (2 ** n)
+
+@partial(jax.jit, static_argnames=("n", "k"))
+def truncate_k_local(p, n, k):      # proyección L2 a momentos de orden ≤ k
+    q = jnp.where(moment_order(n) <= k, qg_moments(p, n), 0.0)
+    return probs_from_moments(q, n)
+
+@jax.jit
+def hellinger2_qg(qz, qz2):         # 1 − cos(qg_L)
+    p0, p0b = (1 + qz) / 2, (1 + qz2) / 2
+    return 1.0 - jnp.sqrt(p0 * p0b) - jnp.sqrt((1 - p0) * (1 - p0b))
+
+@jax.jit
+def haar_posterior_qz(k0, N):       # (E[qg_Z], Var[qg_Z]) con previa Beta(1,1)
+    a, b = 1.0 + k0, 1.0 + N - k0
+    return 2 * a / (a + b) - 1, 4 * a * b / ((a + b) ** 2 * (a + b + 1))
+
+def shots_tv_bound(n, M, tv):       # N* = M / (4 tv²)
+    return M / (4.0 * tv ** 2)
+
+# IQAN por momentos (verify_cap08 §5): loss = Σ_{|S|≤2} (qg_S(QAN) − qg_S*)², descenso en qga
+vg = jax.jit(jax.value_and_grad(lambda th: loss_moments(th)))
+```
+
+## 8.7 Verificación — `tools/verify_cap08.py` (salida reproducible)
+
+```
+[1] Walsh exacta: 2^n=16 momentos; orden ≤2 = 10 números
+[2] E[TV] histograma=0.0249 (cota 0.0433, M=15); momentos ≤2: 0.0246 (cota 0.0354, M=10)
+    sesgo de truncación 2-local (sin ruido): TV=0.1262
+[3] Hellinger²=0.235158 = 1−cos(qg_L) ✔
+[4] Haar posterior N=1000, k0=500: E[qg_Z]=0, σ=31.58 m-qg
+[5] IQAN momentos ≤2: loss=1.30e-06  TV(p_fit,p)=0.0548  KL=0.0145 bit
+[6] n=8, TV≤0.05: histograma N=25500 (M=255) vs momentos ≤2 N=3600 (M=36) → -86% disparos
+verify_cap08: OK
+```
+Asserts: ida y vuelta Walsh a $10^{-14}$; $q_\emptyset=1$; momentos de orden 1–2 $\equiv$ `qan_readout` a $10^{-13}$; medias MC $\le$ cotas; identidad Hellinger a $10^{-14}$; posterior Haar exacta; pérdida de momentos $<10^{-5}$ y $\mathrm{TV}_{\text{fit}}<\mathrm{TV}_{\text{trunc}}$.
+
+### `tests/test_qdist.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qdist import qg_moments, probs_from_moments, hellinger2_qg, haar_posterior_qz, shots_tv_bound
+
+def test_walsh_roundtrip():
+    p = jnp.array(np.random.default_rng(0).dirichlet(np.ones(8)))
+    assert np.allclose(probs_from_moments(qg_moments(p, 3), 3), p, atol=1e-14)
+
+def test_hellinger_geodesic():
+    th, th2 = 0.3, 1.9
+    assert abs(float(hellinger2_qg(np.cos(th), np.cos(th2))) - (1 - np.cos(abs(th - th2) / 2))) < 1e-14
+
+def test_haar_posterior_equator():
+    m, v = haar_posterior_qz(jnp.array(50.0), jnp.array(100.0))
+    assert abs(float(m)) < 1e-14 and abs(float(v) - 1 / 103) < 1e-14
+
+def test_shots_bound():
+    assert abs(shots_tv_bound(8, 36, 0.05) - 3600.0) < 1e-6
+```
+
+## 8.8 Apéndice H — entradas nuevas en `qang.measures`
+
+| id | familia | fórmula | función | estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| `qg_moments_walsh` | lectura | $qg_{Z_S}=\sum_x p(x)\chi_S(x)$ | `qang.qdist.qg_moments` | `exact` |
+| `k_local_truncation` | compilación | $p_{(k)}$, $N^\star=M_k/(4\varepsilon^2)$ | `truncate_k_local`, `shots_tv_bound` | cota `exact`; sesgo `mixed` |
+| `hellinger_qg` | información | $1-\cos qg_L$ | `hellinger2_qg` | `exact` |
+| `kl_qg` | información | $D(qg_Z\|qg_Z')$ bits | `kl_qg_bits` | `exact` (optimizar sólo en qga) |
+| `haar_posterior` | estadística | Beta$(1+k_0,1+N-k_0)$ | `haar_posterior_qz` | `exact` |
+| `iqan_moment_fit` | compilación | $\min\sum_{|S|\le2}(\Delta qg_{Z_S})^2$ | `verify_cap08.py` §5 | `mixed` (residuo TV $0.055$) |
+
+### `CHANGELOG.md` — `[Unreleased]`
+```
+### Added
+- `qang.qdist`: momentos Walsh `qg_moments`/`probs_from_moments`, `truncate_k_local`, `tv_distance`, `kl_bits`,
+  `hellinger2_qg`, `kl_qg_bits`, `haar_posterior_qz`, `shots_tv_bound`, `n_moments_k_local` (JAX, `jax<0.9`).
+- `tools/verify_cap08.py`, `tests/test_qdist.py`; Apéndice H: 6 entradas (`qg_moments_walsh` … `iqan_moment_fit`).
+```
+Commit: `feat(qdist): momentos Walsh qg, truncación k-local y presupuesto de disparos + verify_cap08`.
