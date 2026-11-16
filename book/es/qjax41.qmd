@@ -1,0 +1,110 @@
+# Capítulo 41 — Viajes en el tiempo leídos con qang: el balance de información de la postselección, la paradoja del abuelo y los puntos fijos por ángulo {#sec-qjax41 .unnumbered}
+*Chapter 41 — Time Travel Read with qang: the Information Balance of Postselection, the Grandfather Paradox and Fixed Points by Angle*
+
+
+**Actualizado:** 16 de noviembre de 2026 · **Updated:** November 16, 2026
+
+> Capítulo nuevo, que continúa el Cap. 17 (P-CTC frente a D-CTC con tres interacciones) sin repetirlo. Módulo: `qang.qtimeloop` (NumPy exacto). Verificación: `tools/verify_cap41.py`. **Estado: `exact`** para los mapas; **la existencia física de curvas temporales cerradas es `unverified` y no se afirma**: se simulan mapas, no máquinas del tiempo. Sin hardware.
+>
+> **EN abstract.** For a postselected CTC with $C=2\,\mathrm{diag}(1,a)$, the map $\tan(\theta'/2)=a\tan(\theta/2)$ amplifies angular distinguishability by up to $1/a$ at the south pole, but the success probability there is $a^2$. Counting the success statistics, the total Fisher information per input copy is exactly $1$ for every $(a,\theta)$ (max deviation $8.5\cdot10^{-13}$ over 2000 random cases): the nonlinearity creates no information. At $a=0.5$: amplification 2, $p_{\rm post}=0.25$, ×4 shots. The grandfather paradox ($U=I\otimes X$) has $p_{\rm post}=0$ for P-CTC and the zero-reading fixed point (0, 0, 0 m-qg) for D-CTC, with the CR output equal to its input. A rotation inside the loop has a 3-dimensional fixed set only when the angle is a whole number of turns (0 or 1000 qga) and a 1-dimensional one otherwise (250, 500 qga). Maps only; no claim about physical CTCs.
+
+---
+
+## 41.1 Reglas de lectura
+
+1. **Se simulan mapas.** Nada aquí afirma que existan curvas temporales cerradas.
+2. **qga no es m-qg.** Los ángulos de rotación del bucle van en qga (1000 = una vuelta); las lecturas, en m-qg.
+3. **Una ventaja por disparo no es una ventaja por copia.** Toda cifra de postselección se contabiliza con su probabilidad de éxito.
+
+## 41.2 Lo que añade a la nonlinealidad: el balance de información
+
+Sea $U=|0\rangle\langle0|\otimes I+|1\rangle\langle1|\otimes R_y(\alpha)$. Entonces $C=\mathrm{Tr}_{\rm CTC}U=2\,\mathrm{diag}(1,a)$ con $a=\cos(\alpha/2)$, y el mapa P-CTC sobre el ángulo polar es
+
+$$
+\tan\frac{\theta'}2=a\tan\frac\theta2,\qquad p_{\rm post}=\cos^2\frac\theta2+a^2\sin^2\frac\theta2,\qquad \frac{d\theta'}{d\theta}=\frac{a}{p_{\rm post}} .
+$$
+
+Cerca del polo sur ($\theta=\pi$) la amplificación vale $1/a$: dos estados casi iguales quedan más separados a la salida. Pero ahí $p_{\rm post}=a^2$. Para $a=0{,}5$: amplificación 2, $p_{\rm post}=0{,}25$, **×4 disparos por éxito** (`pctc_amplification`, `pctc_p_post`).
+
+**Resultado exacto.** Para una familia de estados puros, la información de Fisher por disparo aceptado es $(d\theta'/d\theta)^2$ y la de la tasa de éxito es $(dp/d\theta)^2/[p(1-p)]$. Su suma ponderada por copia de entrada es
+
+$$
+p\,\Big(\frac{d\theta'}{d\theta}\Big)^2+\frac{(1-a^2)\cos^2(\theta/2)}{p}=\frac{a^2+(1-a^2)\cos^2(\theta/2)}{p}=1 .
+$$
+
+Con 2000 pares $(a,\theta)$ al azar, $|F_{\rm total}-1|\le 8{,}5\cdot10^{-13}$ (`pctc_fisher`). **La postselección no crea información**: la que gana el éxito amplificado la pierde la tasa de fracaso. Sólo en el polo sur el término de éxito vale 1 por sí solo ($p\,F_{\rm acc}=1{,}0000$ con $a=0{,}5$); el resto del círculo reparte el 1 entre el éxito y la probabilidad de éxito.
+
+## 41.3 La paradoja del abuelo
+
+Con $U=I_{\rm CR}\otimes X_{\rm CTC}$ (el qubit que vuelve al pasado se invierte): P-CTC da $C=\mathrm{Tr}_{\rm CTC}U=0$ y $p_{\rm post}=0$: **la historia nunca ocurre**, no hay disparo aceptado que leer. D-CTC resuelve el punto fijo iterando $\rho_{\rm CTC}\leftarrow\mathrm{Tr}_{\rm CR}[U(\rho\otimes\rho_{\rm CTC})U^\dagger]$ desde $I/2$: el resultado es el estado de lecturas $(0,0,0)$ m-qg (los puntos fijos de $\rho\mapsto X\rho X$ son todos los de $qg_Y=qg_Z=0$; la iteración desde $I/2$ elige el de máxima entropía), y el qubit cronológico sale igual que entró (`deutsch_iterate`; entrada $qg_X=+1000$ m-qg, salida $+1000$ m-qg).
+
+## 41.4 Puntos fijos de una rotación en el bucle, por ángulo en qga
+
+Una rotación de ángulo $\alpha$ (qga) alrededor de $Z$ dentro del bucle fija el vector de Bloch del CTC sólo si el vector es invariante: el conjunto de puntos fijos es el núcleo de $R-I$ (`bloch_rotation`, `fixed_dimension`).
+
+| $\alpha$ (qga) | vuelta | dimensión del conjunto fijo |
+|---|---|---|
+| 0 | 0 | 3 (toda la esfera) |
+| 250 | ¼ | 1 (el eje $Z$) |
+| 500 | ½ | 1 (el eje $Z$) |
+| 1000 | 1 | 3 (toda la esfera) |
+
+: Puntos fijos de Deutsch de una rotación alrededor de $Z$. {#tbl-c41-fijos}
+
+El período es el de qga (1000), no el de qg: sólo a vuelta completa el bucle no restringe el estado.
+
+## 41.5 Sin qang vs con qang
+
+| aspecto | sin qang | con qang | diferencia |
+|---|---|---|---|
+| ¿La postselección amplifica la distinguibilidad? | «sí» por disparo aceptado | ×$1/a$ en el polo sur, pero $p_{\rm post}=a^2$ | Fisher total por copia $=1$ (error $8{,}5\cdot10^{-13}$) |
+| costo de un éxito en el polo sur, $a=0{,}5$ | no presupuestado | ×4 disparos | 4000 disparos por 1000 éxitos |
+| paradoja del abuelo | discusión cualitativa | P-CTC $p_{\rm post}=0$; D-CTC lecturas $(0,0,0)$ m-qg | CR de salida = entrada |
+| ¿cuándo un bucle no restringe el estado? | — | $\alpha\equiv0$ (mod 1000 qga) | 3 vs 1 dimensiones |
+
+## 41.6 Código
+
+```python
+from qang.qtimeloop import (pctc_p_post, pctc_amplification, pctc_fisher, pctc_theta_out, pctc_success,
+                            deutsch_iterate, bloch_rotation, fixed_dimension, shots_for_successes)
+
+pctc_fisher(0.5, 2.0)[3]                      # 1.0000000000 (Fisher total por copia)
+pctc_amplification(0.5, 3.14159265358979)     # 2.0   ;  pctc_p_post(0.5, pi) = 0.25
+fixed_dimension(bloch_rotation([0, 0, 1], 250))  # 1
+```
+
+## 41.7 Verificación
+
+`tools/verify_cap41.py` (salida real):
+
+```text
+[1] 2000 (a, θ) al azar: |F_total − 1| máx = 8.5e-13. Con a = 0.5: amplificación en el polo sur 2.0000 (=1/a), p_post = 0.2500 (=a²), disparos por éxito ×4.0; Fisher aceptado × p = 1.0000
+[2] θ = 1.90 → θ' = 1.220366 con C = diag(1, 0.5); fórmula 1.220366
+[3] abuelo (U = I⊗X): P-CTC p_post = 0.0 (nunca ocurre); D-CTC: ρ_CTC con lecturas [0. 0. 0.] m-qg, CR de salida = entrada [1000.    0.    0.] m-qg
+[4] rotación alrededor de Z en el bucle: dimensión del conjunto de puntos fijos por ángulo (qga): {0: 3, 250: 1, 500: 1, 1000: 3}
+[5] disparos para 1000 éxitos con p_post = 0.25: 4000
+verify_cap41: OK
+```
+
+`tests/test_qtimeloop.py` (5 pruebas): Fisher total 1, amplificación y costo en el polo sur, mapa de ángulos frente al operador, paradoja del abuelo, dimensión del conjunto fijo y disparos.
+
+## 41.8 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+|---|---|---|---|---|
+| `pctc_info_balance` | física | $p\,F_{\rm acc}+F_{\rm éxito}=1$ | `qang.qtimeloop.pctc_fisher` | `exact` |
+| `pctc_south_amplification` | física | $d\theta'/d\theta=1/a$, $p_{\rm post}=a^2$ | `qang.qtimeloop.pctc_amplification`, `qang.qtimeloop.pctc_p_post` | `exact` |
+| `grandfather_maps` | física | P-CTC $p_{\rm post}=0$; D-CTC $(0,0,0)$ m-qg | `qang.qtimeloop.pctc_success`, `qang.qtimeloop.deutsch_iterate` | `exact` |
+| `loop_fixed_dimension` | física | $\dim\ker(R-I)$ por ángulo en qga | `qang.qtimeloop.fixed_dimension`, `qang.qtimeloop.bloch_rotation` | `exact` |
+| `physical_ctc_existence` | física | existencia de CTC | — | `unverified` (no se afirma) |
+
+## 41.9 CHANGELOG y commit
+
+```markdown
+### Added
+- `qang.qtimeloop` (Cap. 41): information balance of postselected CTCs (total Fisher per copy = 1), grandfather paradox in both models, Deutsch fixed-point dimension by angle in qga; `tools/verify_cap41.py`; 5 tests.
+```
+
+```text
+feat(book): add Cap. 41 (time travel) with qang.qtimeloop
+```

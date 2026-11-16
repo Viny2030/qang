@@ -1,4 +1,4 @@
-# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (40 Capítulos + Apéndices A–H)
+# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (41 Capítulos + Apéndices A–H)
 
 **Título ES**: *Computación, información y física cuántica en el espacio qang* (`qang-libro-es.pdf` / `book/es/`)
 **Título EN**: *Quantum Computing, Information and Physics in qang Space* (`qang-book-en.pdf` / `book/en/`)
@@ -96,6 +96,8 @@
   - Reescritura (16-nov-2026, Cap. 39): `qang.qintegr`, `tools/verify_cap39.py`; auditoría de `qang.integrations` (12/12 guardas, extras y tests) y filtro T1 sin SDK (exact); cifras con SDK `unverified`.
 - **Cap. 40 (Parte XIII, ampliación)**: Materia y antimateria: conjugación de carga como mapa antípoda, Zitterbewegung, creación de pares (Landau–Zener), par en singlete, presupuesto de disparos (`qang.qanti`) — *nuevo*
   - *Scripts*: `tools/verify_cap40.py`, `tests/test_qanti.py`, `book/cap40_materia_antimateria.md` (exact; sin hardware; complementa el Apéndice G).
+- **Cap. 41 (Parte XIII, ampliación)**: Viajes en el tiempo: balance de información de la postselección (Fisher total = 1), paradoja del abuelo en P-CTC y D-CTC, puntos fijos por ángulo en qga (`qang.qtimeloop`) — *nuevo*
+  - *Scripts*: `tools/verify_cap41.py`, `tests/test_qtimeloop.py`, `book/cap41_viajes_en_el_tiempo.md` (exact para los mapas; CTC físicas `unverified`; continúa el Cap. 17).
 
 ### Apéndices (Generados por `tools/make_appendices.py` y `tools/make_apendice_h.py`)
 - **Apéndice A**: Catálogo de las 15 compuertas fundamentales en representación qg.
