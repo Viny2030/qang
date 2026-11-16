@@ -144,3 +144,178 @@ m = measures.find("min_area")
 m.decision[1], m.evidence[1]             # the decision it improves and the evidence, in English
 measures.resolve(m)                      # qang.pulse_area.minimal_area_circuit
 ```
+
+<!-- qang-update-39 -->
+## Update for the rewrite (Chapters 7–39) {#sec-h-act}
+
+The “chapter N” references in this appendix use the numbering of `cap01.qmd`–`cap36.qmd`. The rewrite (Part XV, `qjax07`–`qjax39`) uses the new numbering: 1–6 unchanged; 7–29 shift by +3 (7–9 are new); 30–35 shift by +4; the new 33 is string theory.
+
+Sub-measures from the “Appendix H” tables of the rewritten chapters (`qang.qledger.load_ledger`, 149 rows). Chapter numbers are the new ones. The catalogue above (`qang.measures`) was not modified.
+
+| main status | rows |
+|---|---|
+| exact | 120 |
+| measured gain | 0 |
+| tested on hardware | 5 |
+| mixed | 1 |
+| no gain | 3 |
+| against | 6 |
+| unverified | 13 |
+| not adopted | 1 |
+
+: Status of the sub-measures of Ch. 7–39.
+
+| cap. | id | function | status |
+|---|---|---|---|
+| 7 | `mi_z` | `qang.qan.mutual_information_qg` | `exact` (no entrelazamiento: `against` como testigo) |
+| 7 | `mi_z_shot_var` | `qang.qan.mi_shot_variance_qg` | `exact` (asintótico; sesgo $1/(2N\ln2)$ en $I=0$) |
+| 7 | `qan_pair_prune` | `qang.qan.mi_matrix_qg` | `exact` sim. / hardware `unverified` |
+| 7 | `iqan_min_area` | `qang.qan.iqan_fit` | `exact` sim. (7/8); `unverified` hw |
+| 8 | `qg_moments_walsh` | `qang.qdist.qg_moments` | `exact` |
+| 8 | `k_local_truncation` | `truncate_k_local`, `shots_tv_bound` | cota `exact`; sesgo `mixed` |
+| 8 | `hellinger_qg` | `hellinger2_qg` | `exact` |
+| 8 | `haar_posterior` | `haar_posterior_qz` | `exact` |
+| 9 | `fisher_z_qga` | `QFI_1Q_QGA`, `SIGMA_1Q_QGA` | `exact` |
+| 9 | `cfi_matrix_z` | `classical_fisher_z` | `exact` (2P circuitos, 0 ancillas) |
+| 9 | `ng_cfi_regularized` | `natural_step` | `exact` sim. ($-62\%$ it.); hw `unverified` |
+| 9 | `plateau_unit_rescale` | `gradient_variance` | `against` (sin mitigación) |
+| 10 | `berry_latitude_qz` | `berry_phase_latitude` | `exact` (1 base, 0 ancillas) |
+| 10 | `berry_shots_latitude` | `shots_for_berry_latitude` | `exact` |
+| 10 | `holonomic_z_area` | `verify_cap10.py` §4 | `no gain`; robustez `unverified` |
+| 11 | `ramsey_operating_point` | `ramsey_fisher_phi` | `exact` |
+| 11 | `ramsey_T_opt` | `optimal_T` | `exact` |
+| 11 | `ghz_dephasing` | `ghz_fisher_omega`, `product_fisher_omega` | `no gain` |
+| 11 | `thermal_tanh_fisher` | `thermal_fisher_x`, `thermal_fisher_T` | `exact` |
+| 11 | `clock_redshift_shots` | `shots_to_resolve_height` | `exact` (planificación) |
+| 12 | `osc_phase_qga` | `osc_phase_qga` | `exact` |
+| 12 | `survival_mqg` | `survival_qz` | `exact` |
+| 12 | `dm2_operating_point` | `fisher_phi`, `fisher_theta` | `exact` (por evento) |
+| 13 | `msw_axis_qz` | `cos2theta_m` | `exact` |
+| 13 | `msw_resonance_equator` | `resonance_A` | `exact` |
+| 13 | `adiabatic_two_qg` | `adiabatic_survival_qz` | `exact` si $\gamma\gg1$ |
+| 13 | `trotter_profile_cost` | `trotter_survival_qz` | `exact` sim. |
+| 13 | `collective_oscillations` | — | `unverified` |
+| 14 | `majorana_virtual_z` | `pmns_majorana` | `exact` (nula) |
+| 14 | `spin_projection_qz` | `qz_spin_projection`, `spin_coherent_qfi_theta` | `exact`; qudits hw `unverified` |
+| 15 | `bell_threshold_mqg` | `teleport_fidelity_werner_qzz` | `exact` (modelo) |
+| 15 | `singlet_fraction_3bases` | `singlet_fraction_from_qg` | `exact` |
+| 15 | `teleport_channel_mqg` | `teleport`, `bloch` | `exact` |
+| 15 | `teleport_shots` | `shots_for_fidelity` | `exact` |
+| 15 | `one_basis_bias` | `verify_cap15.py` §5 | `mixed` |
+| 16 | `dual_rail_loss_bias` | `readout_unfiltered` | `exact` |
+| 16 | `dual_rail_sector_filter` | `readout_sector_filtered` | `exact`; hw §158 `mixed` |
+| 16 | `teleport_distance_budget` | `shots_multiplier_two_photons` | `exact` (borrado) |
+| 17 | `pctc_map_mqg` | `pctc_map` | `exact` (mapa); físico `unverified` |
+| 17 | `dctc_fixed_point` | `dctc_map` | `exact` sim. |
+| 17 | `pctc_shot_price` | `shots_multiplier_pctc` | `exact` |
+| 18 | `yk_pf_law` | `yoshida_kitaev` | `exact` |
+| 18 | `yk_fidelity_3qg` | `yoshida_kitaev` | `exact` |
+| 18 | `otoc_qg` | `otoc` | `exact` |
+| 18 | `page_curve_qgS` | `renyi2_subsystem`, `qg_S_mean` | `against` |
+| 19 | `qber_mqg_threshold` | `bb84_rate_from_qz`, `bb84_threshold_qz` | `exact` |
+| 19 | `pqc_out_of_scope` | `shots_to_resolve_bias` | `against` |
+| 20 | `bb84_states_qga` | `BB84` | `exact` |
+| 20 | `ir_qber_mqg` | `intercept_resend`, `qber` | `exact` |
+| 20 | `sifted_bits_budget` | `sifted_bits_for_qber_sigma` | `exact` |
+| 21 | `hmin_certified_haar` | `certified_min_entropy` | `exact` (i.i.d.) |
+| 21 | `hmin_shots` | `shots_for_certified_hmin` | `exact` |
+| 21 | `channel_drift_chi2` | `block_drift_chi2` | `exact` |
+| 22 | `ergotropy_qg` | `ergotropy_qg` | `exact` |
+| 22 | `passive_fraction_qg` | `passive_fraction` | `exact` |
+| 22 | `repeater_visibility` | `swap_visibility`, `max_links` | `exact` (Werner) |
+| 23 | `unary_loader_rbs` | `unary_loader` | `exact` |
+| 23 | `weightqnn_quadratic_readout` | `weight_qnn`, `sector_readout` | `exact` |
+| 23 | `symmetry_filter_T1_shots` | `amplitude_damping_probs` | `exact`; exactitud `mixed` |
+| 23 | `qsp_chebyshev_qg` | `qsp_readout` | `exact` sim. |
+| 24 | `symfilter_T1_exact_midcircuit` | `filtered_sector_state` | `exact` |
+| 24 | `T1_ratio_correction` | `verify_cap24.py` §2 | `exact` final / `mixed` intra |
+| 24 | `dephasing_zne_sector` | `richardson_zne` | `exact` sim. |
+| 25 | `readout_drag_affine` | `readout_affine` | `exact`; §168 `tested on hardware` |
+| 25 | `drag_free_point` | `drag_free_point` | `exact` |
+| 25 | `echo_inversion_rule_108` | `mse_raw_vs_inverted` | `exact` (sustituye la prohibición cualitativa) |
+| 25 | `sector_readout_second_order` | `sector_readout_error_order` | `exact` modelo |
+| 26 | `kernel_product_closed_form` | `product_fidelity_kernel` | `exact` |
+| 26 | `kernel_concentration` | `kernel_concentration` | `exact`; unidad `against` |
+| 26 | `unary_sector_kernel` | `unary_kernel`, `unary_inversion_test` | `exact`; expresividad `no gain` |
+| 27 | `xy_walk_rbs` | `trotter_walk_rbs` | `exact` |
+| 27 | `affine_channel_compose` | `AffineChannel.then` | `exact` |
+| 27 | `varqte_tanh_fixed_point` | `varqte_ry_mclachlan` | `exact` |
+| 28 | `electron_witness` | `witness_mqg` | `exact` |
+| 28 | `number_check_t1` | `sector_projector`, `filtered_energy` | `exact` (modelo); hardware `unverified` |
+| 28 | `pca_unary_rbs` | `pca_unary`, `givens_decomposition` | `exact` |
+| 28 | `qaoa_exact_k_xy` | `qaoa_optimize` | `exact`; vs. clásico `no gain` |
+| 29 | `ad_code_syndrome_mqg` | `parity_mqg`, `avg_fidelity_encoded` | `exact` (sim.); hardware `unverified` |
+| 29 | `erasure_vs_flip` | `rep_logical_error_erasure` | `exact` aritmético |
+| 29 | `sector_schmidt_cut` | `schmidt_rank` | `exact` (cota de estado); protocolo `unverified` |
+| 29 | `zne_variance_cost` | `zne_variance_factor` | `exact` |
+| 30 | `t1_optimal_delay` | `optimal_delay_ratio` | `exact`; hardware `unverified` |
+| 30 | `readout_budget` | `shots_for_error` | `exact` |
+| 30 | `hop_fidelity` | `fidelity_from_hop` | `exact` (despolarizante) |
+| 30 | `zz_phase_qga` | `zz_phase_qga` | `exact` |
+| 30 | `control_quantization_unit` | `rms_quantization_error` | `no gain` |
+| 31 | `prereg_sha256` | `register`, `verify_registration` | `exact` |
+| 31 | `exact_binomial_decision` | `decide` | `exact` |
+| 31 | `holm_fwer` | `holm` | `exact` (sim.) |
+| 31 | `shots_for_power` | `shots_for_power` | `exact` |
+| 32 | `ledger_consistency` | `unresolved`, `load_ledger` | `exact` |
+| 32 | `ledger_evidence_level` | `summarize` | `exact`; hardware `unverified` |
+| 33 | `xx_zz_connected` | `connected_qgzz`, `exact_state_xx` | `exact` |
+| 33 | `xx_central_charge` | `fit_central_charge` | `exact` (numérico) |
+| 33 | `xx_zz_power_law` | `zz_power_law_exponent` | `exact` (numérico) |
+| 33 | `local_reading_blind_to_c` | `local_qgz`, `block_entropy_bits` | `against` |
+| 33 | `string_theory_claims` | — | `not adopted` |
+| 34 | `graph_state_z_blind` | `ring_graph_state`, `stabilizer_expectation` | `exact` |
+| 34 | `qgs_t1_nonmonotone` | `t1_noise_scan`, `damp_distribution` | `exact` (numérico) |
+| 34 | `mean_qgz_t1_monotone` | `mean_qgz`, `t1_noise_scan` | `exact` |
+| 34 | `arccos_range_trap` | `best_cost_clipped` | `exact` |
+| 34 | `weight_preservation_analyzer` | `preserves_weight`, `weight_breakers` | `exact` |
+| 34 | `in_sector_error_unseen` | `in_sector_error` | `exact` |
+| 34 | `weight1_quadratic_form` | `weight1_qgz`, `simulate_qgz_weight1` | `exact` |
+| 34 | `negative_inventory_ledger` | `negative_inventory` | `exact` |
+| 34 | `lih_filter_scope` | — | `unverified` (notas §50) |
+| 34 | `natural_gradient_equivalence` | — | `unverified` (notas §159) |
+| 34 | `prereg_failures_157_164` | — | `unverified` (notas §157–§164) |
+| 35 | `garnet_neutrino_filter` | `neutrino_summary` | `tested on hardware` |
+| 35 | `garnet_oscillation_peak` | `neutrino_summary` | `tested on hardware` |
+| 35 | `garnet_readout_poles` | `readout_from_poles`, `predicted_raw_mqg`, `correct_mqg` | `tested on hardware` |
+| 35 | `garnet_x_gate_cost` | `chain_shortfall`, `fit_slope_origin` | `tested on hardware` |
+| 35 | `garnet_equator_dispersion` | `equator_dispersion_ratio` | `against` |
+| 35 | `garnet_e_mc2_readout` | `correct_mqg`, `readout_from_poles` | `tested on hardware` |
+| 35 | `prereg_blob_hash` | `blob_hash_at_commit`, `prereg_hash` | `exact` |
+| 35 | `iqm_budget_arithmetic` | `budget_summary` | `exact` |
+| 35 | `iqm_chip_better_than_model` | — | `unverified` (modelos simulados no re-ejecutados) |
+| 35 | `iqm_module_on_real_chip` | — | `unverified` (no probado en el chip) |
+| 36 | `core_numpy_only` | `requires`, `group_modules` | `exact` |
+| 36 | `optional_sdk_groups` | `group_modules` | `exact` |
+| 36 | `extras_constraints` | `parse_pyproject`, `check_extras` | `exact` |
+| 36 | `ci_collection_guard` | `unguarded_tests`, `installed_by` | `exact` |
+| 36 | `qubit_order_convention` | `canonical_counts`, `qg_z_profile` | `exact` |
+| 36 | `silent_qubit_swap` | `convention_error_mqg` | `exact` |
+| 36 | `ibm_runtime_readings` | — | `unverified` (citado, no re-ejecutado) |
+| 36 | `static_zz_not_mitigated` | — | `unverified` (citado, no re-ejecutado) |
+| 36 | `zne_with_filter` | — | `unverified` (citado, no re-ejecutado) |
+| 37 | `tunnel_amplitude` | `barrier_T`, `theta_from_p0` | `exact` |
+| 37 | `landauer_qg_identity` | `conductance_from_qg`, `qpc_T` | `exact` |
+| 37 | `two_channel_recovery` | `recover_two_channels` | `exact` |
+| 37 | `arcsine_partition_noise` | `theta_std_sqrtN` | `exact` |
+| 37 | `fermi_qgz_tanh` | `occupancy_qgz` | `exact` |
+| 37 | `thermometry_artanh_loses` | `fit_kT_artanh`, `fit_kT_mle`, `thermometry` | `against` |
+| 37 | `spin_readout_affine` | `readout_affine` | `exact` |
+| 37 | `nv_photon_budget` | `nv_sigma_mqg`, `nv_photons_for` | `exact` |
+| 37 | `odmr_crb` | `odmr_fisher_crb_hz` | `exact` |
+| 38 | `jw_exchange_sign` | `exchange_qgx`, `anticommutation_error` | `exact` |
+| 38 | `hahn_echo_qgx` | `hahn_echo_ensemble`, `hahn_echo_qgx_drift` | `exact` |
+| 38 | `tfim_finite_size_mx` | `tfim_mx_mqg` | `exact` |
+| 38 | `aharonov_bohm_qgz` | `ab_qgz` | `exact` |
+| 38 | `wigner_rotation_qgx` | `wigner_rotation`, `boost` | `exact` |
+| 38 | `fresnel_readings` | `fresnel`, `tir_phase_difference` | `exact` |
+| 38 | `unruh_gudermannian` | `vacuum_weight`, `gudermannian`, `thermal_entropy_nats` | `exact` |
+| 38 | `ucc_h2_half_angle` | — | `unverified` (citado, no re-ejecutado) |
+| 38 | `kitaev_braid_error` | — | `unverified` (citado, no re-ejecutado) |
+| 38 | `transversal_rest` | — | `unverified` (citado, no re-ejecutado) |
+| 39 | `integrations_audit` | `qang.qintegr.require_guard_report`, `qang.qintegr.extra_report`, `qang.qintegr.guard_report` | `exact` |
+| 39 | `w_state_t1_filter` | `qang.qintegr.w_state_t1_readings` | `exact` |
+| 39 | `mitiq_filter_zne` | `qang.integrations.mitiq.execute_with_filter_zne` | `unverified` (citado, requiere mitiq) |
+
+: Rewrite sub-measures, by chapter.
+<!-- /qang-update-39 -->
