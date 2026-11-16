@@ -1,4 +1,4 @@
-# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (39 Capítulos + Apéndices A–H)
+# BOOK_OUTLINE.md — Mapa Maestro del Tratado Bilingüe (40 Capítulos + Apéndices A–H)
 
 **Título ES**: *Computación, información y física cuántica en el espacio qang* (`qang-libro-es.pdf` / `book/es/`)
 **Título EN**: *Quantum Computing, Information and Physics in qang Space* (`qang-book-en.pdf` / `book/en/`)
@@ -94,6 +94,8 @@
   - Reescritura (16-nov-2026, Cap. 38): `qang.qtransv`, `tools/verify_cap38.py`; Jordan–Wigner, eco de Hahn, TFIM, Aharonov–Bohm, Wigner, Fresnel, Unruh (exact).
 - **Cap. 39 (Parte XIII)**: `qang` como módulo dentro de otras librerías (`qang.integrations`: mitiq, qiskit-experiments, QuTiP, Stim, sklearn, JAX, PyTorch, Qiskit Dynamics, Qibo, pytket, Braket, CUDA-Q)
   - Reescritura (16-nov-2026, Cap. 39): `qang.qintegr`, `tools/verify_cap39.py`; auditoría de `qang.integrations` (12/12 guardas, extras y tests) y filtro T1 sin SDK (exact); cifras con SDK `unverified`.
+- **Cap. 40 (Parte XIII, ampliación)**: Materia y antimateria: conjugación de carga como mapa antípoda, Zitterbewegung, creación de pares (Landau–Zener), par en singlete, presupuesto de disparos (`qang.qanti`) — *nuevo*
+  - *Scripts*: `tools/verify_cap40.py`, `tests/test_qanti.py`, `book/cap40_materia_antimateria.md` (exact; sin hardware; complementa el Apéndice G).
 
 ### Apéndices (Generados por `tools/make_appendices.py` y `tools/make_apendice_h.py`)
 - **Apéndice A**: Catálogo de las 15 compuertas fundamentales en representación qg.
