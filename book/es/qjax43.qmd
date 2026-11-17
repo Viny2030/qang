@@ -1,0 +1,210 @@
+# Capítulo 43 — Robótica cuántica y control autónomo leídos con qang: un qubit por articulación, el presupuesto de disparos, el tiempo real y Grover para elegir trayectorias {#sec-qjax43 .unnumbered}
+*Chapter 43 — Quantum Robotics and Autonomous Control Read with qang: One Qubit per Joint, the Shot Budget, Real Time and Grover for Trajectory Selection*
+
+
+**Actualizado:** 17 de noviembre de 2026 · **Updated:** November 17, 2026
+
+> **Resumen.** ¿Qué le aporta qang a un robot, y qué no? Se codifica cada articulación como un qubit, $R_Y(\theta)|0\rangle$, y se leen sus valores qg. Resultados, todos con verificador: (i) la lectura en $Z$ da el ángulo con varianza $1/N$ para todo $\theta$, pero pierde el signo; con dos bases el signo se recupera y la varianza es $(\cos^4\theta+\sin^4\theta)/N$, por encima de la cota de Cramér–Rao $1/(2N)$ salvo a $45^\circ$; (ii) la tolerancia del efector fija los disparos, $N=\lceil z^2\,\mathrm{tr}(JJ^{\mathsf T})/\varepsilon^2\rceil$; (iii) el ciclo de control fija los disparos disponibles, y para un brazo de dos eslabones con tolerancia de $0{,}02$ hacen falta 7225 disparos por articulación: a 100 Hz y 1 ms por disparo caben 10; (iv) una articulación que deriva se sigue con un Kalman escalar cuya varianza estacionaria es cerrada; (v) Grover cuenta consultas con ahorro $\sim(2/\pi)\sqrt N$ en el modelo de oráculo. **Estado: `exact`** para las identidades y presupuestos; no hay ganancia medida. Módulo: `qang.qrobot` (NumPy). Verificación: `tools/verify_cap43.py`.
+>
+> **EN abstract.** What does qang give a robot, and what does it not? Each joint is encoded as a qubit, $R_Y(\theta)|0\rangle$, and its qg values are read. Results, all verified: (i) a $Z$ reading gives the angle with variance $1/N$ for every $\theta$ but loses the sign; with two bases the sign is recovered and the variance is $(\cos^4\theta+\sin^4\theta)/N$, above the Cramér–Rao bound $1/(2N)$ except at $45^\circ$; (ii) the end-effector tolerance fixes the shots, $N=\lceil z^2\,\mathrm{tr}(JJ^{\mathsf T})/\varepsilon^2\rceil$; (iii) the control cycle fixes the available shots: a two-link arm with tolerance $0.02$ needs 7225 shots per joint, while at 100 Hz and 1 ms per shot only 10 fit; (iv) a drifting joint is tracked by a scalar Kalman filter with a closed-form steady-state variance; (v) Grover saves queries by $\sim(2/\pi)\sqrt N$ in the oracle model. **Status: `exact`** for the identities and budgets; no measured gain is claimed.
+
+---
+
+## 43.1 Reglas de lectura
+
+1. Cada resultado entra con su función en `qang.qrobot` y su línea en `tools/verify_cap43.py`. Escalas: $m\text{-qg}=1000\,qg_Z$ (lectura); el ángulo de articulación se da en radianes y, cuando conviene, en qga (1 vuelta $=2\pi$ rad $=1000$ qga; $\pi/2$ rad $=250$ qga).
+2. Se optimiza en $\theta$ (o en qga), nunca en $qg_Z$ sin regularizar: el gradiente plano en $qg_Z$ diverge en los polos (Cap. 34, `THEORY_CORE.md` §2.1).
+3. Un tiempo de disparo, una frecuencia de lazo o un costo de oráculo son **parámetros** del modelo, no mediciones de este libro. Donde aparece un número, es el que sale de la fórmula con ese parámetro.
+4. Ningún estatus `measured gain`: el capítulo no compara contra un robot real ni contra un controlador clásico en datos.
+
+## 43.2 Fundamentación teórica y formulación matemática
+
+**Espacio de estados de una articulación.** Un brazo plano de $n$ eslabones, longitudes $\ell_i$ y ángulos relativos $\theta_i$, tiene efector
+
+$$
+\mathbf p(\boldsymbol\theta)=\Big(\sum_i \ell_i\cos\phi_i,\ \sum_i \ell_i\sin\phi_i\Big),\qquad \phi_i=\sum_{j\le i}\theta_j,
+$$
+
+y jacobiana $J_{\cdot i}=\partial\mathbf p/\partial\theta_i$. Cada articulación se codifica en un qubit, $|\theta\rangle=R_Y(\theta)|0\rangle$, con
+
+$$
+p_0=\cos^2\frac\theta2,\qquad qg_Z=\cos\theta,\qquad qg_X=\sin\theta,\qquad m_Z=1000\cos\theta\ \text{m-qg}.
+$$
+
+El circuito completo es $U(\boldsymbol\theta)=\bigotimes_i R_Y(\theta_i)$, un producto: el estado de decisión es separable y su espacio de parámetros es el toro $[−\pi,\pi]^n$ de las articulaciones.
+
+**La lectura de una articulación.** Con $N$ disparos en $Z$, $\widehat{qg}_Z=2k_0/N-1$ con $\mathrm{Var}(\widehat{qg}_Z)=\sin^2\theta/N$. Propagando por $\hat\theta=\arccos\widehat{qg}_Z$,
+
+$$
+\mathrm{Var}(\hat\theta)\simeq\frac{\sin^2\theta/N}{\sin^2\theta}=\frac1N\quad\text{para todo }\theta\in(0,\pi),
+\qquad \sigma_{\mathrm{qga}}=\frac{1000}{2\pi}\frac1{\sqrt N}=\frac{159{,}15}{\sqrt N}\ \text{qga}.
+$$
+
+Es la información de Fisher constante $I_Z=N$: el error angular no depende de dónde está la articulación (a diferencia del error en $m$-qg, que se anula en los polos; Cap. 1).
+
+**La trampa del signo.** $qg_Z=\cos\theta$ es par: $\theta$ y $-\theta$ dan la misma lectura, y $\arccos$ devuelve $[0,\pi]$ (Cap. 34, `arccos_range_trap`). Una articulación con rango simétrico necesita una segunda base. Con $N$ disparos en $Z$ y $N$ en $X$ ($qg_X=\sin\theta$),
+
+$$
+\hat\theta=\operatorname{atan2}(\widehat{qg}_X,\widehat{qg}_Z),\qquad
+\mathrm{Var}(\hat\theta)\simeq\frac{\cos^4\theta+\sin^4\theta}{N}\ \ge\ \frac1{2N}=\mathrm{CRB}(\theta),
+$$
+
+con igualdad solo en $\theta=45^\circ$ (125 qga). La información de Fisher total es $N+N$, y el estimador $\operatorname{atan2}$ no la satura salvo a $45^\circ$.
+
+**Del eje al efector.** Con errores independientes de $\sigma_\theta=1/\sqrt N$ por articulación, el error cuadrático medio del efector a primer orden es
+
+$$
+\mathrm{RMS}(\mathbf p)=\sqrt{\frac{\mathrm{tr}(JJ^{\mathsf T})}{N}},\qquad
+N(\varepsilon)=\Big\lceil \frac{z^2\,\mathrm{tr}(JJ^{\mathsf T})}{\varepsilon^2}\Big\rceil .
+$$
+
+Es el presupuesto de disparos *antes* de ejecutar la acción: depende de la postura (de $J$), no de la unidad.
+
+**Presupuesto de tiempo real.** Con frecuencia de lazo $f$, tiempo por disparo $t_s$ y sobrecarga $t_0$, los disparos por ciclo son $N_c=\lfloor(1/f-t_0)/t_s\rfloor$ y $\sigma_\theta=1/\sqrt{N_c}$. El lazo cumple la tolerancia solo si $N_c\ge N(\varepsilon)$, es decir, si $f\le 1/(t_0+N(\varepsilon)\,t_s)$.
+
+**Articulación que deriva.** Si $\theta_{t+1}=\theta_t+w$ ($\mathrm{Var}\,w=q$) y cada ciclo entrega $\hat\theta_t$ con varianza $r=1/N$, el filtro de Kalman escalar [@kalman1960] tiene varianza a priori estacionaria $P^-=\tfrac12\big(q+\sqrt{q^2+4qr}\big)$ y a posteriori $P=P^--q$. El aporte de qang es el valor de $r$ ($1/N$, o $(159{,}15)^2/N$ qga²); el filtro es clásico.
+
+**Selección de trayectorias con Grover.** Con $N_c$ candidatas de las cuales $M$ están libres de colisión ($\sin^2\theta_0=M/N_c$), $k$ iteraciones dan éxito $\sin^2\big((2k+1)\theta_0\big)$ (Cap. 3), con $k^\star=\lfloor\pi/(4\theta_0)\rfloor$. La búsqueda clásica sin estructura necesita $(N_c+1)/(M+1)$ evaluaciones esperadas, y $\Omega(\sqrt{N_c/M})$ consultas es cota inferior cuántica en el modelo de oráculo [@bennett1997; @grover1996]. El cociente clásico/cuántico crece como $(2/\pi)\sqrt{N_c}$ para $M=1$.
+
+**Optimización variacional.** Un circuito paramétrico [@kandala2017; @cerezo2021] en cinemática inversa minimiza $C(\boldsymbol\theta)=\lVert\mathbf p(\boldsymbol\theta)-\mathbf p^\star\rVert^2$; el gradiente de cada lectura sale de la regla del desplazamiento, $\partial qg_Z/\partial\theta=[qg_Z(\theta+\pi/2)-qg_Z(\theta-\pi/2)]/2=-\sin\theta$, con desplazamiento de 250 qga. Como $C$ es una función clásica y exacta de $\boldsymbol\theta$, el circuito solo agrega ruido de disparos: ese uso queda `unverified` (§43.7).
+
+## 43.3 Arquitectura híbrida e integración con `qang` v0.16
+
+```text
+ objetivo p*  ──►  [IK clásica: two_link_ik / jacobiana]  ──►  θ_ref
+                                  │
+                                  ▼
+                  [preflight: shots_for_end_effector, shots_per_cycle]   ← qang.qrobot
+                       │ N requerido vs N disponible por ciclo
+              ┌────────┴─────────┐
+        feasible = 1        feasible = 0  ──► bajar f del lazo, subir ε, o ejecutar en simulador
+              │
+              ▼
+   [QPU/simulador]  R_Y(θ_i) por articulación, medida en Z y en X   (Qiskit)
+              │ cuentas
+              ▼
+   [qang: qg_Z, qg_X → atan2 → θ̂_i, σ en qga]  ──►  [Kalman escalar]  ──►  actuador
+```
+
+El flujo es clásico–cuántico–clásico: lo cuántico solo ocurre en el recuadro del medio, y lo que qang agrega es el *chequeo previo* (cuántos disparos, cuánto error, si cabe en el ciclo) y la lectura con su incertidumbre en qga. La cinemática y el filtro son clásicos y no se reemplazan.
+
+## 43.4 Implementación práctica (`qang` + Qiskit)
+
+```python
+import numpy as np
+from qiskit import QuantumCircuit
+from qiskit.primitives import StatevectorSampler          # simulador exacto de Qiskit 2.x
+from qang.qrobot import (two_link_ik, planar_fk, preflight, joint_from_readings, joint_sigma_qga)
+
+LINKS, TARGET = (1.0, 0.8), (1.2, 0.9)
+theta_ref = two_link_ik(TARGET, *LINKS)                   # (0.1279, 1.1796) rad: referencia clásica
+
+# 1. Chequeo previo, antes de tocar el entorno (parámetros ilustrativos: 1 ms por disparo)
+rapido = preflight(theta_ref, LINKS, eps=0.02, rate_hz=100, t_shot_s=1e-3)
+lento = preflight(theta_ref, LINKS, eps=0.02, rate_hz=0.1, t_shot_s=1e-3)
+print(rapido["shots_required"], rapido["shots_available"], rapido["feasible"])   # 7225.0 10.0 0.0
+print(lento["feasible"], round(lento["sigma_theta_qga"], 2))                      # 1.0 1.59
+
+# 2. Lectura por articulación: R_Y(θ)|0>, dos bases para recuperar el signo
+sampler = StatevectorSampler(seed=43)
+
+def read_joint(theta, n):
+    qg = []
+    for basis in ("Z", "X"):
+        qc = QuantumCircuit(1, 1)
+        qc.ry(theta, 0)
+        if basis == "X":
+            qc.h(0)                                       # medir X: H antes de medir
+        qc.measure(0, 0)
+        counts = sampler.run([qc], shots=n).result()[0].data.c.get_counts()
+        qg.append(2 * counts.get("0", 0) / n - 1)
+    return joint_from_readings(*qg)                       # atan2(qg_X, qg_Z)
+
+n = int(lento["shots_required"])
+theta_hat = [read_joint(t, n) for t in theta_ref]
+err = np.linalg.norm(planar_fk(theta_hat, LINKS) - planar_fk(theta_ref, LINKS))
+print(round(err, 3), "frente a la tolerancia 0.02")        # una sola corrida: del orden de 0.02 o menos
+```
+
+**Interpretación.**
+
+- El chequeo previo es determinista y reproducible: para el blanco $(1{,}2;\,0{,}9)$ y $\varepsilon=0{,}02$ hacen falta 7225 disparos por articulación. A 100 Hz y 1 ms por disparo caben 10, $\sigma_\theta=0{,}316$ rad ($18{,}1^\circ$, $50{,}3$ qga) y el error del efector sería $0{,}54$. A $0{,}1$ Hz caben 10 000 disparos, $\sigma_\theta=0{,}01$ rad ($1{,}59$ qga) y el lazo es factible.
+- La lectura en dos bases cuesta $2N$ disparos por articulación; su error esperado es $\le\varepsilon$ (a $45^\circ$ es la mitad de la varianza del caso solo-$Z$). Una corrida suelta fluctúa alrededor de ese RMS: no es una garantía por corrida.
+- Los valores de `print` del paso 2 no son una medición del libro. Qiskit no estaba instalado en el entorno donde se redactó el capítulo; las identidades que lo respaldan (varianzas, RMS y presupuesto) sí se verifican con disparos binomiales de NumPy en `tools/verify_cap43.py`. Quien reproduzca el bloque debe comprobar la salida de Qiskit en su entorno.
+
+**Seguimiento de una articulación que deriva** (verificado en `tools/verify_cap43.py`, §[5]): con $q=4\cdot10^{-4}$ rad² por ciclo y $N=400$ disparos, la varianza a posteriori estacionaria es $8{,}20\cdot10^{-4}$ rad² (simulada: $8{,}21\cdot10^{-4}$), es decir, $\sigma=0{,}029$ rad frente a $0{,}050$ rad sin filtro.
+
+## 43.5 Casos de uso, limitaciones (NISQ frente a simuladores) y líneas futuras
+
+**Casos de uso con respaldo.**
+
+| decisión | cómo ayuda `qang.qrobot` | respaldo |
+|---|---|---|
+| cuántos disparos pedir por articulación para una tolerancia en el efector | $N(\varepsilon)$ según la postura | `shots_for_end_effector` |
+| si un lazo cabe en el ciclo antes de lanzarlo | `preflight` | `shots_per_cycle`, `max_control_rate` |
+| si una articulación con rango simétrico exige dos bases | trampa del signo | `joint_from_readings` |
+| cuánto error de seguimiento deja una deriva | varianza estacionaria cerrada | `steady_state_variance` |
+| cuántas consultas ahorra Grover y hasta qué costo de oráculo empata | $(2/\pi)\sqrt N$ y punto de equilibrio | `grover_query_ratio` |
+
+**Limitaciones.** (i) *Tiempo real*: con tiempos por disparo de milisegundos, una tolerancia de $0{,}01$ rad en una articulación limita el lazo a $0{,}1$ Hz; con el tiempo de cola de un servicio en la nube, peor. Un lazo de control de kHz no se cierra con lecturas cuánticas por disparos hoy. (ii) *NISQ*: el modelo es un qubit por articulación sin ruido; con ruido de lectura hay que calibrar la lectura afín (`qang.qchar`, Cap. 30); el ruido de compuerta de un $R_Y$ es pequeño, pero el de lectura no. (iii) *Grover*: el ahorro es de consultas, y exige un oráculo coherente de colisiones cuyo costo no entra en $(2/\pi)\sqrt N$; el capítulo 3 mide que con ruido leer $qg_Z$ por qubit pierde frente al histograma de cadenas (66 % frente a 91 % en $n=5$). (iv) *Variacional*: la cinemática es una función clásica exacta; un circuito paramétrico no la mejora (§43.7).
+
+**Líneas futuras, sin resultado.** *SLAM cuántico*: no hay en qang una formulación verificada; sería una hipótesis para un experimento pre-registrado (la asociación de datos como búsqueda en un sector de peso sería una hipótesis), `unverified`. *Control óptimo bajo incertidumbre*: el aporte posible es el $r=1/N$ de la medición dentro de un LQG clásico; no se afirma ventaja. *Brazos de más grados de libertad*: $N(\varepsilon)$ crece con $\mathrm{tr}(JJ^{\mathsf T})$, es decir, con el alcance del brazo.
+
+## 43.6 Sin qang y con qang
+
+| acción | sin qang | con qang | diferencia |
+|---|---|---|---|
+| fijar los disparos por articulación | ensayo y error sobre el efector | $N=\lceil z^2\,\mathrm{tr}(JJ^{\mathsf T})/\varepsilon^2\rceil$ antes de correr | **presupuesto previo**; sin ganancia en el error |
+| leer el ángulo de una articulación | $\arccos(\widehat{qg}_Z)$: pierde el signo | $\operatorname{atan2}(\widehat{qg}_X,\widehat{qg}_Z)$ con dos bases | **corrección**; cuesta $2N$ disparos |
+| saber si el lazo es posible | "en tiempo real" sin cuantificar | $N_c$ frente a $N(\varepsilon)$ | **chequeo** exacto, sin ganancia |
+| seguir una deriva | filtro de Kalman con $r$ supuesto | el mismo filtro con $r=1/N$ (o en qga²) | **identificación de $r$**; el filtro es clásico |
+| elegir una trayectoria libre | muestreo clásico, $(N_c+1)/(M+1)$ | Grover, $\sim\sqrt{N_c/M}$ consultas | **ahorro de consultas** en el modelo de oráculo; sin ganancia medida |
+
+**Balance.** qang convierte la pregunta «¿puede un qubit leer el ángulo de una articulación?» en cuentas: cuántos disparos, cuánto error, qué ciclo. La respuesta honesta es que, hoy, el presupuesto de tiempo real impide el lazo rápido, y que la ventaja de Grover es de consultas. No hay `measured gain`.
+
+## 43.7 Verificación — `tools/verify_cap43.py`
+
+```bash
+python tools/verify_cap43.py          # solo NumPy + qang; ~2 min
+pytest tests/test_qrobot.py -q        # 8 pruebas, ~1 s
+```
+
+Siete bloques: [1] cinemática (jacobiana por diferencias finitas, 400 soluciones de IK, blanco fuera de alcance); [2] varianza $1/N$ y $(\cos^4\theta+\sin^4\theta)/N$ con disparos binomiales ($\pm10\%$, 5 ángulos) y cota de Cramér–Rao; [3] RMS del efector ($N=500$ y $4000$, $\pm6\%$) y $N(\varepsilon)=43\,342$ disparos por articulación para $\varepsilon=0{,}01$ con tres eslabones; [4] presupuesto de tiempo real y `preflight` (7225 requeridos, 10 disponibles a 100 Hz); [5] Kalman escalar ($\pm20\%$); [6] Grover: fórmula frente a simulación explícita en cuatro casos, $(N+1)/(M+1)$ clásico simulado y cociente $651\approx(2/\pi)\sqrt{2^{20}}$; [7] desplazamiento de parámetro $-\sin\theta$ con 250 qga.
+
+## 43.8 Apéndice H
+
+| id | familia | fórmula | función | estatus |
+|---|---|---|---|---|
+| `joint_qubit_readings` | robótica | $qg_Z=\cos\theta$, $qg_X=\sin\theta$ | `qang.qrobot.joint_readings` | `exact` |
+| `joint_sign_trap` | robótica | $\arccos$ pierde el signo; $\operatorname{atan2}$ con dos bases lo recupera | `qang.qrobot.joint_from_readings` | `exact` |
+| `joint_variance_z` | robótica | $\mathrm{Var}\,\hat\theta=1/N$ para todo $\theta$ | `qang.qrobot.joint_variance_z`, `qang.qrobot.joint_sigma_qga` | `exact` |
+| `joint_atan2_vs_crb` | robótica | $(\cos^4\theta+\sin^4\theta)/N\ge1/(2N)$ | `qang.qrobot.joint_variance_atan2`, `qang.qrobot.joint_crb_two_bases` | `exact` |
+| `end_effector_rms` | robótica | $\sqrt{\mathrm{tr}(JJ^{\mathsf T})/N}$ | `qang.qrobot.end_effector_rms` | `exact` |
+| `shots_for_end_effector` | robótica | $N=\lceil z^2\,\mathrm{tr}(JJ^{\mathsf T})/\varepsilon^2\rceil$ | `qang.qrobot.shots_for_end_effector` | `exact` |
+| `realtime_budget` | robótica | $N_c=\lfloor(1/f-t_0)/t_s\rfloor$; $f\le1/(t_0+Nt_s)$ | `qang.qrobot.shots_per_cycle`, `qang.qrobot.max_control_rate`, `qang.qrobot.preflight` | `exact` |
+| `drift_kalman_steady` | robótica | $P^-=\tfrac12(q+\sqrt{q^2+4qr})$ | `qang.qrobot.steady_state_variance`, `qang.qrobot.kalman_scalar_track` | `exact` |
+| `parameter_shift_joint` | robótica | $\partial qg_Z/\partial\theta=-\sin\theta$, desplazamiento 250 qga | `qang.qrobot.joint_parameter_shift` | `exact` |
+| `grover_trajectory_queries` | robótica | $\sin^2((2k+1)\theta_0)$; cociente $\sim(2/\pi)\sqrt N$ | `qang.qrobot.grover_success`, `qang.qrobot.grover_query_ratio` | `exact` |
+| `variational_ik_pqc` | robótica | circuito paramétrico para $\min\lVert\mathbf p(\theta)-\mathbf p^\star\rVert^2$ | — | `unverified` |
+| `quantum_slam` | robótica | asociación de datos como búsqueda en un sector de peso | — | `unverified` |
+| `robot_quantum_advantage` | robótica | ventaja medida de qang en un robot real | — | `not adopted` |
+
+## 43.9 Referencias bibliográficas clave
+
+- Siciliano, B., Sciavicco, L., Villani, L., Oriolo, G. (2009). *Robotics: Modelling, Planning and Control*. Springer, London. [@siciliano2009]
+- Kalman, R. E. (1960). A New Approach to Linear Filtering and Prediction Problems. *J. Basic Eng.* 82(1), 35–45. [@kalman1960]
+- Grover, L. K. (1996). A fast quantum mechanical algorithm for database search. *Proc. 28th ACM STOC*. [@grover1996]
+- Bennett, C. H., Bernstein, E., Brassard, G., Vazirani, U. (1997). Strengths and weaknesses of quantum computing. *SIAM J. Comput.* 26(5), 1510–1523. [@bennett1997]
+- Kandala, A. et al. (2017). Hardware-efficient variational quantum eigensolver for small molecules and quantum magnets. *Nature* 549, 242–246. [@kandala2017]
+- Cerezo, M. et al. (2021). Variational quantum algorithms. *Nat. Rev. Phys.* 3, 625–644. [@cerezo2021]
+
+## 43.10 CHANGELOG y commit
+
+```markdown
+### Added
+- `qang.qrobot` (Cap. 43): one qubit per robot joint — joint readings and the sign trap, variance 1/N and (cos⁴+sin⁴)/N vs CRB 1/(2N), end-effector RMS and shot budget N(ε), real-time budget and `preflight`, scalar-Kalman steady state for a drifting joint, parameter-shift in qga, Grover query counting; 8 tests in `tests/test_qrobot.py`; `tools/verify_cap43.py`.
+```
+
+```text
+feat(book): add Cap. 43 (quantum robotics with qang) with qang.qrobot
+```

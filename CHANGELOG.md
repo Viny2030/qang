@@ -5,6 +5,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `qang.qrobot` (Cap. 43): one qubit per robot joint — joint readings and the sign trap, variance 1/N and (cos^4+sin^4)/N vs CRB 1/(2N), end-effector RMS and shot budget N(eps), real-time budget and `preflight`, scalar-Kalman steady state for a drifting joint, parameter-shift in qga, Grover query counting. 8 tests in `tests/test_qrobot.py`; `tools/verify_cap43.py`; chapter `book/cap43_robotica_cuantica.md` -> `book/es/qjax43.qmd` (Part XIV). New bib keys: siciliano2009, kalman1960, bennett1997.
+
 ### Changed
 - Book (ES): chapters 7-42 now follow the verified rewrite (`qjax07`-`qjax42`), grouped in Parts III-XIII; the old text of chapters 7-36 moved to `book/es/_legacy/` (not rendered). Cross-references and `index.qmd` updated.
 - Appendix D regenerated for 0.16.0 (module `qlimits`, `qstring` name lists); `THEORY_CORE.md` extended (single-basis no-go, string chapter, ledger counts).
