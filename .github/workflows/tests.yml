@@ -57,3 +57,31 @@ jobs:
           pip install -e ".[dev]"
       - name: Run tests (SDK tests skip via importorskip)
         run: pytest -q
+
+  adapters:
+    name: adapters (${{ matrix.extra }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        extra: [qiskit, pennylane, cirq, qutip]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[${{ matrix.extra }},dev]"
+      - run: pytest -q tests/test_adapters.py
+
+  invariance:
+    name: backend invariance (qiskit + pennylane + cirq)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[qiskit,pennylane,cirq]"
+      - run: python tools/verify_backend_invariance.py

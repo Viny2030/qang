@@ -372,6 +372,17 @@ penalización $\lambda_r(1-P^2)$ que castiga la despolarización del interferóm
 parte azimutal se atenúa con $P$. Como en los capítulos anteriores, las penalizaciones no están definidas y ninguna de
 las dos propuestas se ha verificado.
 
+## Invariancia del lector $qg_Z$ entre bibliotecas {#sec-invariancia06}
+
+Para compuertas fijas, $qg_Z^{(i)}=1-2P(b_i=1)=\langle Z_i\rangle$ depende sólo del vector de estado y del orden de los qubits; cualquier simulador en doble precisión da el mismo valor. Con $N$ disparos el error estándar es $\sqrt{(1-qg_Z^2)/N}$. Se lee en $qg_Z$ (o en m-qg $=1000\,qg_Z$), no en qga.
+
+| | Sin qang | Con qang |
+|---|---|---|
+| Orden de bits | Qiskit pone el qubit 0 a la derecha; Cirq y PennyLane, primero | `canonical_counts` unifica (qubit 0 primero) |
+| Perfil por qubit | código distinto por biblioteca | `qg_z_profile(counts)` con su error estándar |
+
+Circuito $R_Y(0{,}7)\otimes R_Y(1{,}9)$, CX, $R_Y(0{,}4)$ en el qubit 0: Qiskit, PennyLane y Cirq dan $qg_Z=(0{,}467068;\,-0{,}247265)$; la diferencia exacta es $0$ (Qiskit, PennyLane) y $2\times10^{-16}$ (Cirq, con `complex128`). Estatus: `exact`; verificador `tools/verify_backend_invariance.py`.
+
 ## Sin qang y con qang {#sec-comparacion06}
 
 | acción | sin qang | con qang | diferencia |

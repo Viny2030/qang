@@ -13,9 +13,9 @@ preferably pre-registered (Chapter 28).
 | status | meaning | sub-measures |
 |---|---|---|
 | exact | exact identity: it names or re-scales something; no gain is claimed | 18 |
-| measured gain | tested in simulation or analysis, with a measured gain over the usual practice | 14 |
+| measured gain | tested in simulation or analysis, with a measured gain over the usual practice | 11 |
 | tested on hardware | tested on a real device | 3 |
-| mixed | a gain in some regimes, none or a loss in others | 7 |
+| mixed | a gain in some regimes, none or a loss in others | 10 |
 | no gain | tested: equivalent to the usual practice | 4 |
 | against | tested: worse than the usual practice | 2 |
 | unverified | untested proposal: a candidate for a pre-registered experiment | 3 |
@@ -70,7 +70,7 @@ preferably pre-registered (Chapter 28).
 
 | sub-measure | definition | equals | decision it improves | status | evidence | where |
 |---|---|---|---|---|---|---|
-| minimum area | $\theta\bmod2\pi$; $R_{ZZ}$ with period $\pi$ | shortest representative of the same gate | compile with less pulse area: less error | **measured gain** | 4-qubit QAOA: area 4.4× and error 4.1× lower; the 1.5× prediction for $R_{ZZ}$ failed (1.14×) | ch. 2, §160 |
+| minimum area | $\theta\bmod2\pi$; $R_{ZZ}$ with period $\pi$ | shortest representative of the same gate | compile with less pulse area: less error | **mixed** | 4-qubit QAOA: area 4.4× and error 4.1× lower; the 1.5× prediction for $R_{ZZ}$ failed (1.14×) | ch. 2, §160 |
 | exposure | population outside the sector after each two-qubit gate | noiseless computation on the circuit | choose the compilation before spending shots | **measured gain** | rank correlation 0.80 with T1 leakage; zero exposure removes ≥ 98 % of T1 | ch. 2, §68 |
 | $N$-conserving gates | $[U,\sum_i Z_i]=0$ | compilation within the sector | compile so that the filter removes T1 | **mixed** | the filter removes 99.5 % of T1 against 48.5 % with CNOT; none on ions | ch. 24, §61 |
 | qg grid | equal steps in $qg_Z$ | control quantization | quantize the control angles | **mixed** | probabilities $\pi/2$ times better, 43 of 45 loads; against for fidelity near the poles | ch. 27 |
@@ -85,9 +85,9 @@ preferably pre-registered (Chapter 28).
 | weight filter, $K$ | $K=(1-\gamma)^{kd}$ | post-selection on the Hamming sector | read, train and differentiate under T1 without bias; shot cost known before running | **tested on hardware** | IQM Resonance: error 0.0615 → 0.0386 (1.59×) with 88 % of the shots; simulated: exact to $10^{-12}$ m-qg; against with $K\le0.14$ (2 of 12) and on deep LiH (76.6 → 85.0 mHa) | chs. 20, 21, 23, 30 and 31, §112 |
 | echo, $M^{1/2}$ | echo transfer matrix | correction of errors within the sector | remove what the filter cannot see | **measured gain** | −27 to −62 % of the filtered error, with $\binom nk$ more echo circuits | ch. 22, §106 |
 | $qg_{eq}$, $T_\text{eff}$ | heralded affine readout | readout calibration with repeated measurements | calibrate readout without mistaking temperature for error | **measured gain** | effective temperature to 1 mK; avoids an unsafe certifier and recovers 10–50 % of bits | chs. 18 and 27, §31 |
-| step $\times\lvert\sin\theta\rvert$ | $\theta-\eta\max(\lvert\sin\theta\rvert,\epsilon)\,g$ | trust region near the poles | train with aggressive rates without tuning | **measured gain** | 2.3 to 13 times more successes from rate 2; little or nothing with safe rates | ch. 23 |
+| step $\times\lvert\sin\theta\rvert$ | $\theta-\eta\max(\lvert\sin\theta\rvert,\epsilon)\,g$ | trust region near the poles | train with aggressive rates without tuning | **mixed** | 2.3 to 13 times more successes from rate 2; little or nothing with safe rates | ch. 23 |
 | local cost | $(1-\overline{qg_Z})/2$ | local cost of Cerezo et al. | avoid the barren plateau of a global cost | **mixed** | 470 times more gradient variance with 10 qubits and short circuits; none with deep circuits | ch. 23 |
-| ZNE of the filtered reading | zero-noise extrapolation on the filtered $qg_Z$ | post-selection and ZNE separately (mitiq) | mitigate T1 and dephasing together | **measured gain** | 55.9 → 1.1 m-qg with T1 and dephasing; with few shots ZNE does not pay | chs. 21 and 35 |
+| ZNE of the filtered reading | zero-noise extrapolation on the filtered $qg_Z$ | post-selection and ZNE separately (mitiq) | mitigate T1 and dephasing together | **mixed** | 55.9 → 1.1 m-qg with T1 and dephasing; with few shots ZNE does not pay | chs. 21 and 35 |
 | pair $(qg_S,\overline{qg_Z})$ | entropy and mean reading of the register | XEB or HOP with an ideal simulation | tell T1 from unital noise from counts alone | **mixed** | 0.88–0.91 against 0.70–0.76 with strong noise; chance with realistic noise | chs. 27, 29 and 30 |
 
 : Noise and readout. {#tbl-h-ruido}
@@ -126,8 +126,8 @@ preferably pre-registered (Chapter 28).
 
 ## Balance {#sec-h-balance}
 
-Of 52 sub-measures, 18 are exact identities, 14 have a measured gain in simulation or
-analysis, 3 were tested on a real device (with a mixed result for the milli-qang), 7 are mixed, 4 turned out equivalent to the usual practice, 2 lost to it, 3
+Of 52 sub-measures, 18 are exact identities, 11 have a measured gain in simulation or
+analysis, 3 were tested on a real device (with a mixed result for the milli-qang), 10 are mixed, 4 turned out equivalent to the usual practice, 2 lost to it, 3
 are unverified and 1 was not adopted. The gains do not come from the unit but from the decisions the reading
 allows before spending resources: choosing the minimum-area representative, the compilation of least exposure, the
 code from two readings, or reading only the weight sector that T1 does not contaminate. The unverified sub-measures

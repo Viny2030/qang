@@ -6,11 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `qang.adapters` (`pennylane_adapter.qnode_qg_z`, `cirq_adapter.qg_z_from_result`), `tests/test_adapters.py` and `tools/verify_backend_invariance.py`: the same variational circuit on Qiskit, PennyLane and Cirq gives the same qg_Z (state vectors agree to 1e-12; sampled profiles within 4 standard errors). Status: exact. CI jobs `adapters` and `invariance`.
 - `qang.qrobot` (Cap. 43): one qubit per robot joint — joint readings and the sign trap, variance 1/N and (cos^4+sin^4)/N vs CRB 1/(2N), end-effector RMS and shot budget N(eps), real-time budget and `preflight`, scalar-Kalman steady state for a drifting joint, parameter-shift in qga, Grover query counting. 8 tests in `tests/test_qrobot.py`; `tools/verify_cap43.py`; chapter `book/cap43_robotica_cuantica.md` -> `book/es/qjax43.qmd` (Part XIV). New bib keys: siciliano2009, kalman1960, bennett1997.
 
 - `qang.qagent` (Cap. 44): a two-action agent whose policy is one qubit measurement — Born policy, exact gradient and Fisher information 1, closed-form gradient flow (the angle is the natural gradient of the logit), pole trap and exploration floor, decision reading, Neyman shot allocation across tools. 4 tests in `tests/test_qagent.py`; `tools/verify_cap44.py`; chapter `book/cap44_ia_agentica_cuantica.md` -> `book/es/qjax44.qmd`. New bib keys: jerbi2021, skolik2022, yao2023react, dunjko2016, williams1992, sutton2018.
 
 ### Changed
+- `qang.measures`: `min_area`, `pole_damped` and `filter_zne` reclassified from `ganancia` to `mixta` (their own evidence records a failed prediction, no gain at safe rates, and no payoff at few shots). Catalogue: 11 ganancia, 10 mixta; Appendix H (ES/EN) regenerated.
+- `qutip` extra now `qutip>=5.3; python_version >= "3.11"` (QuTiP 5.3 requires Python 3.11+).
 - Appendices A-H (ES/EN) regenerated for chapters 7-44: ledger now 204 rows (164 exact, 18 unverified, 8 against, 5 tested on hardware, 3 no gain, 2 mixed, 4 not adopted, 0 measured gain); Appendix D lists `qrobot` and `qagent`; `BOOK_OUTLINE.md` rebuilt on the book's 14 parts (44 chapters, Cap. 33 in Part XI); README and `THEORY_CORE.md` counts updated.
 - Book (ES): chapters 7-42 now follow the verified rewrite (`qjax07`-`qjax42`), grouped in Parts III-XIII; the old text of chapters 7-36 moved to `book/es/_legacy/` (not rendered). Cross-references and `index.qmd` updated.
 - Appendix D regenerated for 0.16.0 (module `qlimits`, `qstring` name lists); `THEORY_CORE.md` extended (single-basis no-go, string chapter, ledger counts).

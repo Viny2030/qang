@@ -51,7 +51,7 @@ def test_code_paths_resolve():
 
 def test_lookups():
     assert M.find("qg_kappa").status == "sin_ganancia"
-    assert M.find("min_area").status == "ganancia"
+    assert M.find("min_area").status == "mixta"
     with pytest.raises(KeyError):
         M.find("nope")
     with pytest.raises(ValueError):

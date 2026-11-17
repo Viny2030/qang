@@ -13,9 +13,9 @@ de preferencia pre-registrada (capítulo 28).
 | estado | significado | submedidas |
 |---|---|---|
 | exacta | identidad exacta: nombra o re-escala algo; no se atribuye ganancia | 18 |
-| ganancia medida | probada en simulación o análisis, con ganancia medida frente a la práctica usual | 14 |
+| ganancia medida | probada en simulación o análisis, con ganancia medida frente a la práctica usual | 11 |
 | probada en hardware | probada en un dispositivo real | 3 |
-| mixta | ganancia en algunos regímenes, ninguna o pérdida en otros | 7 |
+| mixta | ganancia en algunos regímenes, ninguna o pérdida en otros | 10 |
 | sin ganancia | probada: equivalente a la práctica usual | 4 |
 | en contra | probada: peor que la práctica usual | 2 |
 | sin verificar | propuesta sin prueba: candidata a un experimento pre-registrado | 3 |
@@ -70,7 +70,7 @@ de preferencia pre-registrada (capítulo 28).
 
 | submedida | definición | equivale a | decisión que mejora | estado | evidencia | dónde |
 |---|---|---|---|---|---|---|
-| área mínima | $\theta\bmod2\pi$; $R_{ZZ}$ de período $\pi$ | representante más corto de la misma compuerta | compilar con menos área de pulso: menos error | **ganancia medida** | QAOA de 4 qubits: área 4,4× y error 4,1× menores; la predicción de 1,5× por $R_{ZZ}$ falló (1,14×) | cap. 2, §160 |
+| área mínima | $\theta\bmod2\pi$; $R_{ZZ}$ de período $\pi$ | representante más corto de la misma compuerta | compilar con menos área de pulso: menos error | **mixta** | QAOA de 4 qubits: área 4,4× y error 4,1× menores; la predicción de 1,5× por $R_{ZZ}$ falló (1,14×) | cap. 2, §160 |
 | exposición | población fuera del sector tras cada compuerta de dos qubits | cálculo sin ruido del circuito | elegir la compilación antes de gastar disparos | **ganancia medida** | correlación de rangos 0,80 con la fuga de T1; exposición nula quita ≥ 98 % del T1 | cap. 2, §68 |
 | compuertas que conservan $N$ | $[U,\sum_i Z_i]=0$ | compilación en el sector | compilar para que el filtro quite el T1 | **mixta** | el filtro quita 99,5 % del T1 frente a 48,5 % con CNOT; ninguna en iones | cap. 24, §61 |
 | grilla en qg | pasos iguales en $qg_Z$ | cuantización del control | cuantizar los ángulos de control | **mixta** | probabilidades $\pi/2$ veces mejores, 43 de 45 cargas; en contra para fidelidad junto a los polos | cap. 27 |
@@ -85,9 +85,9 @@ de preferencia pre-registrada (capítulo 28).
 | filtro de peso, $K$ | $K=(1-\gamma)^{kd}$ | post-selección en el sector de Hamming | leer, entrenar y derivar bajo T1 sin sesgo; costo en disparos conocido antes de correr | **probada en hardware** | IQM Resonance: error 0,0615 → 0,0386 (1,59×) con 88 % de los disparos; simulado: exacto a $10^{-12}$ m-qg; en contra con $K\le0{,}14$ (2 de 12) y en LiH profundo (76,6 → 85,0 mHa) | caps. 20, 21, 23, 30 y 31, §112 |
 | eco, $M^{1/2}$ | matriz de transferencia del eco | corrección de errores dentro del sector | quitar lo que el filtro no ve | **ganancia medida** | −27 a −62 % del error filtrado, con $\binom nk$ circuitos de eco más | cap. 22, §106 |
 | $qg_{eq}$, $T_\text{ef}$ | lectura afín con heraldo | calibración de lectura con mediciones repetidas | calibrar la lectura sin confundir temperatura con error | **ganancia medida** | temperatura efectiva a 1 mK; evita un certificador inseguro y recupera 10–50 % de bits | caps. 18 y 27, §31 |
-| paso $\times\lvert\sin\theta\rvert$ | $\theta-\eta\max(\lvert\sin\theta\rvert,\epsilon)\,g$ | región de confianza junto a los polos | entrenar con tasas agresivas sin ajuste | **ganancia medida** | 2,3 a 13 veces más éxitos desde tasa 2; poco o nada con tasas seguras | cap. 23 |
+| paso $\times\lvert\sin\theta\rvert$ | $\theta-\eta\max(\lvert\sin\theta\rvert,\epsilon)\,g$ | región de confianza junto a los polos | entrenar con tasas agresivas sin ajuste | **mixta** | 2,3 a 13 veces más éxitos desde tasa 2; poco o nada con tasas seguras | cap. 23 |
 | costo local | $(1-\overline{qg_Z})/2$ | costo local de Cerezo et al. | evitar la meseta estéril de un costo global | **mixta** | 470 veces más varianza de gradiente con 10 qubits y circuitos cortos; ninguna con circuitos profundos | cap. 23 |
-| ZNE de la lectura filtrada | extrapolación a ruido cero sobre $qg_Z$ filtrado | post-selección y ZNE por separado (mitiq) | mitigar T1 y desfase juntos | **ganancia medida** | 55,9 → 1,1 m-qg con T1 y desfase; con pocos disparos la ZNE no paga | caps. 21 y 35 |
+| ZNE de la lectura filtrada | extrapolación a ruido cero sobre $qg_Z$ filtrado | post-selección y ZNE por separado (mitiq) | mitigar T1 y desfase juntos | **mixta** | 55,9 → 1,1 m-qg con T1 y desfase; con pocos disparos la ZNE no paga | caps. 21 y 35 |
 | par $(qg_S,\overline{qg_Z})$ | entropía y lectura media del registro | XEB o HOP con simulación ideal | distinguir T1 de ruido unital sólo con conteos | **mixta** | 0,88–0,91 frente a 0,70–0,76 con ruido fuerte; azar con ruido realista | caps. 27, 29 y 30 |
 
 : Ruido y lectura. {#tbl-h-ruido}
@@ -126,8 +126,8 @@ de preferencia pre-registrada (capítulo 28).
 
 ## Balance {#sec-h-balance}
 
-De 52 submedidas, 18 son identidades exactas, 14 tienen una ganancia medida en simulación o
-análisis, 3 se probaron en un dispositivo real (con un resultado mixto en el caso del mili-qang), 7 son mixtas, 4 resultaron equivalentes a la práctica usual, 2 quedaron por debajo de
+De 52 submedidas, 18 son identidades exactas, 11 tienen una ganancia medida en simulación o
+análisis, 3 se probaron en un dispositivo real (con un resultado mixto en el caso del mili-qang), 10 son mixtas, 4 resultaron equivalentes a la práctica usual, 2 quedaron por debajo de
 ella, 3 están sin verificar y 1 no se adoptó. Las ganancias no vienen de la unidad sino de las decisiones que
 la lectura permite tomar antes de gastar recursos: elegir el representante de menor área, la compilación de menor
 exposición, el código según dos lecturas, o leer sólo el sector de peso que el T1 no contamina. Las submedidas sin

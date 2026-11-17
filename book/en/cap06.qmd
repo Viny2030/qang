@@ -367,6 +367,17 @@ $\lambda_r(1-P^2)$ that punishes the depolarization of the interferometer, and a
 is attenuated with $P$. As in the previous chapters, the penalties are not defined and neither proposal has been
 verified.
 
+## Invariance of the $qg_Z$ reading across libraries {#sec-invariance06}
+
+For fixed gates, $qg_Z^{(i)}=1-2P(b_i=1)=\langle Z_i\rangle$ depends only on the state vector and the qubit order; any double-precision simulator returns the same value. With $N$ shots the standard error is $\sqrt{(1-qg_Z^2)/N}$. It is read in $qg_Z$ (or m-qg $=1000\,qg_Z$), not in qga.
+
+| | Without qang | With qang |
+|---|---|---|
+| Bit order | Qiskit puts qubit 0 on the right; Cirq and PennyLane put it first | `canonical_counts` unifies it (qubit 0 first) |
+| Per-qubit profile | different code per library | `qg_z_profile(counts)` with its standard error |
+
+Circuit $R_Y(0.7)\otimes R_Y(1.9)$, CX, $R_Y(0.4)$ on qubit 0: Qiskit, PennyLane and Cirq give $qg_Z=(0.467068,\,-0.247265)$; the exact difference is $0$ (Qiskit, PennyLane) and $2\times10^{-16}$ (Cirq, with `complex128`). Status: `exact`; verifier `tools/verify_backend_invariance.py`.
+
 ## Without qang and with qang {#sec-comparison06}
 
 | action | without qang | with qang | difference |
