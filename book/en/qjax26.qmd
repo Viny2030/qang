@@ -1,0 +1,74 @@
+# Chapter 26 — Applied Information Geometry: Quantum Kernels in qg Space, Exponential Concentration and the Non-Concentrating Unary Sector Kernel {#sec-qjax26 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 23 on the basis of Ch. 1–25 (Fisher/QNG lives in Ch. 9; here, kernels and plateaus). Module: `qang.qkernels` (JAX, `jax<0.9`; uses `qang.qweightqnn`). Verification: `tools/verify_cap26.py`.
+
+---
+
+## 26.1 Fidelity kernel for product maps: closed form in qg
+
+For $|\psi(x)\rangle=\bigotimes_q|\alpha_q,\varphi_q\rangle$ (angles in qga) with Bloch vectors $\mathbf r_q$:
+$$k(x,x')=|\langle\psi(x)|\psi(x')\rangle|^2=\prod_{q=1}^n\frac{1+\mathbf r_q\cdot\mathbf r'_q}{2}\quad(\text{exact, }10^{-13}).$$
+The **readout** kernel $\prod_q(1+qg_Zqg_Z')/2$ (one basis) is not the fidelity: it omits $qg_X,qg_Y$. Estimation costs: SWAP test (1 ancilla, $n$ cSWAP), inversion test $U(x')^\dagger U(x)$ (0 ancillas, depth $2L$, read $P(|0\ldots0\rangle)$). The product-map fidelity kernel has a closed form in Bloch vectors; the $Z$-only kernel is a different, classical object.
+
+## 26.2 Exponential concentration: the kernel analogue of the barren plateau
+
+Random product features ($\alpha\sim U[0,500]$, $\varphi\sim U[0,1000]$ qga): $\mathbb E[k]\approx(1/4)^{n/2}$ and $\mathrm{Var}[k]$ falls from $5.5\cdot10^{-2}$ ($n=2$) to $2.1\cdot10^{-5}$ ($n=10$); shots for $\sigma_k=\mathbb E[k]/10$: $3\cdot10^2\to10^5$. The kernel is dimensionless: the qga unit does **not** intervene (consistent with Ch. 9 §4: `against` as a mitigation). It is the same phenomenon as the plateau: useful information is diluted in $2^n$ dimensions.
+
+## 26.3 Unary sector kernel: (x· x')², polynomial, no concentration
+
+With the unary loader of Ch. 23, $|x\rangle=\sum_kx_k|e_k\rangle$ ⇒ $k_u(x,x')=(x\cdot x')^2$ — polynomial of degree 2, estimable by ancilla-free inversion test ($2(n-1)$ RBS) with $P(|e_0\rangle)$, exact to $10^{-12}$. For random unit vectors: $\mathbb E[k_u]=1/n$ and $\mathrm{Var}[k_u]\sim2/n^2$ ($n=4:6.2\cdot10^{-2}$; $n=16:6.5\cdot10^{-3}$): **polynomial** decay. Shots at $\sigma=\mathbb E/10$ with $n=6$: $507$ versus $6.4\cdot10^3$ for the product map. In addition, the weight-1 sector enables the symmetry filter: exact $T_1$ (Ch. 24) and readout at $O(e_{01}e_{10})$ (Ch. 25). Honest limit: $k_u$ is a **classical** (polynomial) kernel — the advantage is in noise and budget engineering, not expressivity (`exact`; learning advantage `no gain`).
+
+## 26.4 Operational contrast
+
+| Metric | Standard (product map, SWAP) | `qang` (`qang.qkernels`) | Status |
+| :--- | :--- | :--- | :--- |
+| Estimating $k$ | 1 ancilla + $n$ cSWAP | inversion: 0 ancillas | $-1$ ancilla, $-n$ cSWAP (`exact`) |
+| $\mathrm{Var}[k]$, $n=10$ vs unary $n=16$ | $2.1\cdot10^{-5}$ | $6.5\cdot10^{-3}$ | polynomial vs exponential (`exact`) |
+| Shots $\sigma=\mathbb E/10$, $n=6$ | $6.4\cdot10^3$ | $507$ | $-92\%$ (`exact`) |
+| Mitigation by qga unit | — | none | `against` |
+| Expressivity of the unary kernel | — | classical $(x\cdot x')^2$ | `no gain` |
+
+## 26.5 JAX block (`qang/qkernels.py`)
+
+```python
+@jax.jit
+def product_fidelity_kernel(r1, r2):   return jnp.prod((1.0 + jnp.sum(r1 * r2, axis=-1)) / 2.0)
+@jax.jit
+def z_only_kernel(qz1, qz2):           return jnp.prod((1.0 + qz1 * qz2) / 2.0)
+def unary_kernel(x, y):                return jnp.dot(x, y) ** 2
+def unary_inversion_test(x, y, n):     return jnp.abs(jnp.vdot(unary_loader(y, n), unary_loader(x, n))) ** 2
+def kernel_concentration(n, samples, key)   # (Var[k], E[k]) for random features in qga
+def shots_for_kernel(k, sigma):        return k * (1 - k) / sigma ** 2
+```
+
+## 26.6 Verification — `tools/verify_cap26.py`
+
+```
+[1] k = Π(1 + r·r')/2 = |<ψ|ψ'>|² to 1e-13
+[2] n=2: Var 5.54e-02 E 2.50e-01 → 3.0e+02 shots | n=10: Var 2.08e-05 E 9.68e-04 → 1.0e+05
+[3] unary kernel n=6: (x·y)² = inversion to 1e-12; E[k]=0.165 (=1/n), 507 shots | n=16: Var 6.46e-03 (polynomial)
+verify_cap26: OK
+```
+Asserts: closed form to $10^{-13}$ (5 cases); $\mathrm{Var}_{n=10}<\mathrm{Var}_{n=2}/50$; inversion test $=(x\cdot y)^2$ to $10^{-12}$.
+
+### `tests/test_qkernels.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qkernels import product_fidelity_kernel, unary_inversion_test
+def test_same_point_is_one(): r = jnp.array([[0., 0.6, 0.8], [1., 0., 0.]]); assert abs(float(product_fidelity_kernel(r, r)) - 1) < 1e-14
+def test_unary(): x = jnp.array([0.6, 0.8, 0., 0.]); y = jnp.array([0., 0., 1., 0.]); assert float(unary_inversion_test(x, y, 4)) < 1e-14
+```
+
+## 26.7 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `kernel_product_closed_form` | QML | $\prod(1+\mathbf r\cdot\mathbf r')/2$ | `product_fidelity_kernel` | `exact` |
+| `kernel_concentration` | QML | $\mathrm{Var}[k]$ exponential in $n$ | `kernel_concentration` | `exact`; unit `against` |
+| `unary_sector_kernel` | QML | $(x\cdot x')^2$, 0 ancillas, $\mathrm{Var}\sim2/n^2$ | `unary_kernel`, `unary_inversion_test` | `exact`; expressivity `no gain` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qkernels`; `tools/verify_cap26.py`; `tests/test_qkernels.py`.
+Commit: `docs(cap26): qg kernels, concentration and unary kernel rewritten on Ch. 1–25 + qang.qkernels + verify_cap26`.

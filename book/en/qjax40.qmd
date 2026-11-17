@@ -1,0 +1,110 @@
+# Chapter 40 — Matter and Antimatter Read with qang: Charge Conjugation, Zitterbewegung, Pair Creation and the Invisible Pair {#sec-qjax40 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> New chapter, on the basis of Ch. 1–39 and Appendix G. Module: `qang.qanti` (exact NumPy, $c=\hbar=1$). Verification: `tools/verify_cap40.py`. **Status: `exact`** for everything computed; **there is no hardware result** and none of this is a new proposal about physics: they are standard results read in m-qg. What Appendix G already does (⟨β⟩ = cos θ_r, four-component CPT, the "Pythagoras qubit") is not repeated here.
+>
+> **Abstract.** On a 1+1 Dirac qubit $H=p\sigma_x+m\sigma_z$, charge conjugation $\psi\mapsto\sigma_y\psi^*$ maps energy $+E$ to $-E$ and flips all three readings $(qg_X,qg_Y,qg_Z)$: the antipodal map of the Bloch sphere, which no unitary implements. Hence no pure one-qubit state is its own antiparticle (max overlap $7\cdot10^{-17}$ over 2000 random states): a Majorana particle needs a larger space. Zitterbewegung is a Rabi problem: $qg_Z(t)=1/\gamma^2+\beta^2\cos2Et$ (mean 640.0, amplitude 360.0 m-qg at $\gamma=1.25$; error $4.5\cdot10^{-13}$). Pair creation per mode is Landau–Zener, $P=e^{-\pi m^2/eE}$ (numerical propagation agrees within $2\cdot10^{-3}$), read as $qg=1-2P$. A spin singlet pair has local readings $0$ and correlation $-1000$ m-qg: it is invisible to single-qubit $qg_Z$ (Chapter 34). Seeing the sign of $\pm1000/\gamma$ at $3\sigma$ costs $N=9(\gamma^2-1)$ shots: 27 at $\gamma=2$, 443 at $\beta=0.99$. No hardware claim.
+
+---
+
+## 40.1 Reading rules
+
+1. **qga is not m-qg.** The angle is given in qga (1 turn = 1000 qga); the readings, in m-qg ($1000\,qg_Z$).
+2. **The antiparticle is an inverted reading, not an added angle.** $C$ takes $\theta\mapsto\pi-\theta$ at the pole-equator of the Dirac qubit and negates $qg_X,qg_Y,qg_Z$ at once.
+3. **What is claimed here is standard.** Landau–Zener, Zitterbewegung and charge conjugation are known physics; qang contributes the reading scale and the shot budget.
+
+## 40.2 Charge conjugation: the antipodal map
+
+For $H=p\sigma_x+m\sigma_z$, $C\psi=\sigma_y\psi^*$ satisfies $\sigma_yH^*\sigma_y=-H$, so it takes an energy eigenstate $+E$ ($E=\sqrt{p^2+m^2}$) to one of $-E$ (`conjugate`). On the qubit it acts on the three readings as $(qg_X,qg_Y,qg_Z)\mapsto-(qg_X,qg_Y,qg_Z)$: over 500 random eigenstates the error is $1.1\cdot10^{-13}$ m-qg, and $qg_Z=+1000\,m/E$ on the positive branch. That map is **antiunitary**: no gate implements it (the antipode of an unknown state is not obtained with a unitary). Exact consequence: $|\langle\psi|C\psi\rangle|=0$ for every pure one-qubit state (maximum observed $6.8\cdot10^{-17}$ over 2000 states), so **no pure one-qubit state is its own antiparticle**. A Majorana particle needs more space (Ch. 14, ex-11, Majorana phases).
+
+## 40.3 Zitterbewegung as a Rabi problem
+
+A state starting at $|0\rangle$ (the pole, $qg_Z=+1000$ m-qg) under $H$ precesses around $\hat n=(p,0,m)/E$ with frequency $2E$:
+
+$$
+qg_Z(t)=\frac{m^2}{E^2}+\frac{p^2}{E^2}\cos 2Et=\frac1{\gamma^2}+\beta^2\cos2Et .
+$$
+
+With $p/m=0.75$ ($\gamma=1.25$, $\beta=0.6$) the reading oscillates around $640.0$ m-qg with amplitude $360.0$ m-qg; the exact diagonalization (`zb_qgz_mqg`) agrees with the formula (`zb_analytic_mqg`) to $4.5\cdot10^{-13}$ m-qg. It is the same geometry as the area rule of Ch. 2: the detuning is $m$ and the coupling $p$.
+
+## 40.4 Pair creation: Landau–Zener
+
+In a uniform field, each mode is an avoided crossing: with $H=\tfrac{vt}{2}\sigma_z+\tfrac\Delta2\sigma_x$, the probability of staying in the diabatic state is $e^{-\pi\Delta^2/2v}$ (`lz_probability`). With $\Delta=2m$ and $v=2eE$ it gives the Schwinger rate per mode, $P=e^{-\pi m^2/eE}$ (`pair_probability`). Propagating the $2\times2$ system between $\pm250$ (`lz_numeric`), the agreement is $2.0\cdot10^{-3}$ in the worst case (finite window). The vacuum/pair occupation is read as $qg=1-2P$ (`pair_reading_mqg`).
+
+| $m^2/eE$ | $P$ (analytic) | $P$ (numerical) | reading $1-2P$ (m-qg) |
+|---|---|---|---|
+| 0.25 | 0.4559 | 0.4541 | $+88.1$ |
+| 0.64 | 0.1339 | 0.1359 | $+732.2$ |
+| 1.00 | 0.0432 | 0.0429 | $+913.6$ |
+
+: Pair creation per mode ($c=\hbar=1$). {#tbl-c40-pares}
+
+## 40.5 The singlet pair is invisible in local readings
+
+A particle–antiparticle pair in a spin singlet has $qg_Z=0$ on each qubit (0.0 and 0.0 m-qg), but $qg_{ZZ}=-1000$ m-qg (`singlet_readings`). It is the blindness of the $Z$ basis of Ch. 34: the local reading does not see the pair; the correlation does.
+
+## 40.6 How much it costs to see the sign
+
+Distinguishing the $+1000/\gamma$ branch from the $-1000/\gamma$ one at $z$ deviations from zero requires $N=z^2(\gamma^2-1)$ shots (`shots_to_certify_branch`). At $z=3$: 27 shots with $\gamma=2$ and 443 with $\gamma=7.089$ ($\beta=0.99$). The more relativistic the particle, the closer to the equator the reading sits and the more the branch costs.
+
+## 40.7 Without qang vs with qang
+
+| aspect | without qang | with qang | difference |
+|---|---|---|---|
+| conjugating a particle | "sign of the charge" | $(qg_X,qg_Y,qg_Z)\mapsto-(\cdot)$, $\theta\mapsto\pi-\theta$ | error $1.1\cdot10^{-13}$ m-qg; antiunitary map |
+| Can a particle be its own antiparticle with one qubit? | debated | $\lvert\langle\psi\vert C\psi\rangle\rvert=0$ always | $6.8\cdot10^{-17}$ in 2000 states |
+| Zitterbewegung | frequency $2E$ | mean $1000/\gamma^2$, amplitude $1000\beta^2$ m-qg | 640.0 and 360.0 m-qg at $\gamma=1.25$ |
+| certifying the branch at 3σ | no budget | $N=9(\gamma^2-1)$ | 27 ($\gamma=2$) · 443 ($\beta=0.99$) shots |
+| singlet pair | "entangled" | local 0, $qg_{ZZ}=-1000$ m-qg | not seen with local $qg_Z$ |
+
+## 40.8 Code
+
+```python
+from qang.qanti import (dirac_h, eigenstate, conjugate, bloch_mqg, self_conjugate_overlap, gamma_of,
+                        zb_qgz_mqg, zb_analytic_mqg, lz_probability, pair_probability, lz_numeric,
+                        pair_reading_mqg, singlet_readings, shots_to_certify_branch)
+
+psi = eigenstate(0.75, 1.0, +1);  bloch_mqg(conjugate(psi))      # = -bloch_mqg(psi)
+zb_analytic_mqg(0.75, 1.0, 0.7)                                  # 640.0 + 360.0*cos(2Et)
+pair_reading_mqg(pair_probability(0.8, 1.0))                     # +732.2 m-qg
+shots_to_certify_branch(2.0)                                     # 27.0
+```
+
+## 40.9 Verification
+
+`tools/verify_cap40.py` (real output):
+
+```text
+[1] 500 random +E eigenstates: C = σy·conj inverts (qg_X, qg_Y, qg_Z) with error 1.1e-13 m-qg and gives energy −E (error 1.3e-15); reading of qg_Z = +1000·m/E
+[2] 2000 random pure states: max |⟨ψ|Cψ⟩| = 6.8e-17 (the antipodal map has no fixed points)
+[3] p/m = 0.75 (γ = 1.2500, β = 0.6000): mean 640.0 m-qg, amplitude 360.0 m-qg, max |exact − formula| = 4.5e-13 m-qg
+[4] (finite window ±250; max |analytic − numerical| = 2.0e-03) pairs per mode (c=ħ=1): m²/eE=0.25: P=0.4559 (numerical 0.4541), reading +88.1 m-qg; m²/eE=0.64: P=0.1339 (numerical 0.1359), reading +732.2 m-qg; m²/eE=1.00: P=0.0432 (numerical 0.0429), reading +913.6 m-qg
+[5] singlet: local readings 0.0 and 0.0 m-qg; correlation qg_ZZ = -1000.0 m-qg
+[6] shots to see the sign at 3σ: γ=2 → 27; γ=7.089 (β=0.99) → 443
+verify_cap40: OK
+```
+
+`tests/test_qanti.py` (5 tests): conjugation (readings and energy), absence of a self-conjugate state, Zitterbewegung formula, Landau–Zener against Schwinger and numerical, singlet and shots.
+
+## 40.10 Appendix H
+
+| id | family | formula | function | status |
+|---|---|---|---|---|
+| `charge_conj_antipode` | physics | $\psi\mapsto\sigma_y\psi^*$ inverts the three readings | `qang.qanti.conjugate`, `qang.qanti.bloch_mqg` | `exact` |
+| `no_self_conjugate_qubit` | physics | $\lvert\langle\psi\vert C\psi\rangle\rvert=0$ | `qang.qanti.self_conjugate_overlap` | `exact` |
+| `zitterbewegung_qgz` | physics | $qg_Z=1/\gamma^2+\beta^2\cos2Et$ | `qang.qanti.zb_analytic_mqg`, `qang.qanti.zb_qgz_mqg` | `exact` |
+| `pair_creation_lz` | physics | $P=e^{-\pi m^2/eE}$; $qg=1-2P$ | `qang.qanti.pair_probability`, `qang.qanti.pair_reading_mqg`, `qang.qanti.lz_numeric` | `exact` (numerical to $2\cdot10^{-3}$) |
+| `singlet_local_blind` | physics | local $qg_Z=0$, $qg_{ZZ}=-1000$ | `qang.qanti.singlet_readings` | `exact` |
+| `branch_shots` | noise | $N=z^2(\gamma^2-1)$ | `qang.qanti.shots_to_certify_branch` | `exact` |
+
+## 40.11 CHANGELOG and commit
+
+```markdown
+### Added
+- `qang.qanti` (Ch. 40): matter and antimatter read with qang (charge conjugation as the antipodal map, Zitterbewegung, Landau–Zener pair creation, singlet blindness, branch shot budget); `tools/verify_cap40.py`; 5 tests.
+```
+
+```text
+feat(book): add Ch. 40 (matter/antimatter) with qang.qanti
+```

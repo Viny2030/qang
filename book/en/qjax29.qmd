@@ -1,0 +1,117 @@
+# Chapter 29 — Error Correction: the Syndrome as a qg_ZZZZ Reading, the Amplitude-Damping Code, Erasure vs. Bit Error, Schmidt Rank of the Cut and ZNE Cost {#sec-qjax29 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> Rewrite of the old Ch. 26 on the basis of Ch. 1–28 (heralded erasure of Ch. 16, sector filter and ZNE of Ch. 24, affine channels of Ch. 27, shot cost of Ch. 8 and 25). Module: `qang.qecc` (exact NumPy/SciPy). Verification: `tools/verify_cap29.py`. Left out and **unverified here** (`unverified`): the surface code with a $T_1$-aware decoder, qutrits, randomized benchmarking and the full circuit-cutting protocol of `qang.knitting`.
+
+---
+
+## 29.1 Four-qubit amplitude-damping code with syndrome in m-qg
+
+$|0_L\rangle=(|0000\rangle+|1111\rangle)/\sqrt2$, $|1_L\rangle=(|0011\rangle+|1100\rangle)/\sqrt2$ (Leung 1997, `exact`: not a qang invention). The syndrome is the weight parity: $ZZZZ=(-1)^{w}$, that is, **the $qg_{ZZZZ}$ reading in m-qg**: $+1000$ for the code and $1000(1-2P_{\text{odd}})$ after noise ($819.0$ m-qg with $\gamma=0.05$). With even weight nothing is done; with odd weight an isometry per jumped qubit returns to the code ($\sum R^\dagger R=I$ to $10^{-12}$). Result with $T_1$ of rate $\gamma$ per qubit, mean fidelity over the 6 Pauli eigenstates:
+
+| γ | unencoded infidelity | with code + recovery | factor |
+|---|---|---|---|
+| 0.001 | $3.33\cdot10^{-4}$ | $2.33\cdot10^{-6}$ | ÷143 |
+| 0.005 | $1.67\cdot10^{-3}$ | $5.80\cdot10^{-5}$ | ÷29 |
+| 0.010 | $3.34\cdot10^{-3}$ | $2.31\cdot10^{-4}$ | ÷14 |
+| 0.020 | $6.68\cdot10^{-3}$ | $9.15\cdot10^{-4}$ | ÷7.3 |
+
+The log-log slope is **1.00** unencoded and **1.99** encoded: the code cancels the order-$\gamma$ term. It is the same mechanism by which the sector filter is exact under $T_1$ (Ch. 24): the jump changes the weight. Limits: (i) $P_{\text{odd}}\approx2\gamma$; (ii) it only helps while $\gamma<\gamma^*\approx0.177$; (iii) **encoding without recovering is worse** ($1.98\cdot10^{-2}$ versus $3.34\cdot10^{-3}$ with $\gamma=0.01$); (iv) the syndrome requires 1 ancilla and 4 CNOT, not included in the model, which contains only $T_1$ (`exact` in simulation; hardware `unverified`). The 4-qubit AD code removes the $O(\gamma)$ term (log-log slope 1.99 vs 1.00) and its syndrome is the $qg_{ZZZZ}$ reading.
+
+## 29.2 Repetition: bit error versus heralded erasure
+
+With $n$ qubits and majority vote, the logical error under bit error $p$ is $\sum_{k>n/2}\binom nk p^k(1-p)^{n-k}$; under **heralded erasure** (it is known which were lost, Ch. 16) it only fails if all $n$ are lost: $e^n/2$. Both formulas match the enumeration of the $2^n$ patterns to $10^{-14}$. With physical rate 1 %:
+
+| n | bit error | erasure | factor |
+|---|---|---|---|
+| 3 | $2.98\cdot10^{-4}$ | $5.00\cdot10^{-7}$ | ÷596 |
+| 5 | $9.85\cdot10^{-6}$ | $5.00\cdot10^{-11}$ | ÷$2\cdot10^{5}$ |
+| 7 | $3.42\cdot10^{-7}$ | $5.00\cdot10^{-15}$ | ÷$7\cdot10^{7}$ |
+
+This presupposes that the loss is heralded without false positives; identification in hardware (readout outside the sector, Ch. 16 and 24) was not verified here (`exact` arithmetic; hardware conversion `unverified`).
+
+## 29.3 Schmidt rank in the sector: how many wires a cut must carry
+
+A circuit cut must carry at least $\lceil\log_2\text{rank}\rceil$ wires (lower bound on the state). For weight $w$ and cut $m\,|\,n-m$ the generic rank is $\sum_k\min\big(\binom mk,\binom{n-m}{w-k}\big)$ (verified with SVD for $n=8$, $m=4$):
+
+| state | rank | wires | shots (×16/wire) |
+|---|---|---|---|
+| generic | 16 | 4 | ×65 536 |
+| weight 1 | 2 | 1 | ×16 |
+| weight 2 | 6 | 3 | ×4 096 |
+| weight 3 | 10 | 4 | ×65 536 |
+| weight 4 | 16 | 4 | ×65 536 |
+
+**Only weight 1 (and in general small weights) wins**; the middle weight does not. Honest scope: it is a **lower bound of the state**, not the cost of cutting a concrete circuit; the ×16-per-wire factor is the standard quasi-probability model (Peng et al.) and **the cutting protocol is not implemented** in this chapter (`unverified`).
+
+## 29.4 ZNE: the shot price
+
+Richardson with scales $\lambda=(1,2,3)$ has weights $(3,-3,1)$ and variance factor $\sum c_i^2=19$ (with $(1,2)$: weights $(2,-1)$, factor 5): **lowering the bias costs ×19 shots**. Signal $800\,e^{-a\lambda}$ m-qg:
+
+| a | raw λ=1 | ZNE 2 pts | ZNE 3 pts | exact |
+|---|---|---|---|---|
+| 0.05 | 761.0 | 798.1 | 799.9 | 800.0 |
+| 0.20 | 655.0 | 773.7 | 795.2 | 800.0 |
+| 0.50 | 485.2 | 676.1 | 751.3 | 800.0 |
+
+The residual bias grows with $a$ (exponential, not polynomial decay); with $a=0.5$ the 3-point ZNE is still 48.7 m-qg below (`exact` for a known exponential decay; without real noise, `unverified` in hardware).
+
+## 29.5 Operational contrast
+
+| Metric | Without `qang` | With `qang` (`qang.qecc`) | Status |
+| :--- | :--- | :--- | :--- |
+| $T_1$ infidelity, $\gamma=0.01$ | $3.34\cdot10^{-3}$ | $2.31\cdot10^{-4}$ (÷14) | `exact` (sim.) |
+| Error order | $O(\gamma)$ | $O(\gamma^2)$ | `exact` |
+| Syndrome | — | $qg_{ZZZZ}$: $+1000$ m-qg (even) | `exact` |
+| Repetition $n=3$, 1 % | $2.98\cdot10^{-4}$ (bit) | $5.00\cdot10^{-7}$ (erasure) | `exact` arithmetic |
+| Cut 4\|4, weight 1 | ×65 536 | ×16 | state bound; protocol `unverified` |
+| 3-point ZNE | — | ×19 shots | `exact` |
+| $T_1$-aware surface code, qutrits, RB | — | not covered | `unverified` |
+
+## 29.6 JAX/NumPy block (`qang/qecc.py`)
+
+```python
+ZERO_L, ONE_L = (|0000>+|1111>)/√2, (|0011>+|1100>)/√2
+def parity_mqg(rho):                 return 1000.0 * Re tr(rho · ZZZZ)
+def recovery_operators():            # {P_even, R_k}: CPTP, even → identity, odd → per-qubit isometry
+def avg_fidelity_encoded(g, decode=True) / avg_fidelity_bare(g)
+def rep_logical_error_flip(n, p) / rep_logical_error_erasure(n, e)
+def schmidt_rank(psi, n, m) / sector_rank_bound(n, m, w) / wire_cut_shot_overhead(wires)
+def richardson_weights(lams) / zne_variance_factor(lams) / zne_estimate(f, lams)
+```
+
+## 29.7 Verification — `tools/verify_cap29.py`
+
+```
+[1] CPTP to 1e-12; qg_ZZZZ(code) = 1000 m-qg
+    γ=0.010: unencoded 3.338e-03 | AD code + recovery 2.310e-04 (÷14.4); P_odd=0.0196≈2γ
+    log-log slope: unencoded 1.00, encoded 1.99; γ* ≈ 0.177
+[2] repetition 1 %: n=3: bit 2.98e-04 / erasure 5.00e-07 (÷596)
+[3] n=8, cut 4|4: generic rank 16 → ×65536; w=1: rank 2 → ×16; w=2: 6 → ×4096
+[4] Richardson (1,2,3): [3 −3 1], Σc² = 19.0; a=0.2: raw 655.0, 3-pt ZNE 795.2
+verify_cap29: OK
+```
+
+### `tests/test_qecc.py`
+```python
+import pytest; pytest.importorskip("scipy")
+import numpy as np
+from qang.qecc import recovery_operators, avg_fidelity_encoded, avg_fidelity_bare, rep_logical_error_flip, rep_logical_error_erasure, richardson_weights, zne_variance_factor
+def test_cptp(): assert np.max(np.abs(sum(r.conj().T @ r for r in recovery_operators()) - np.eye(16))) < 1e-12
+def test_ad_code_helps(): assert 1 - avg_fidelity_encoded(0.01) < (1 - avg_fidelity_bare(0.01)) / 10
+def test_erasure_beats_flip(): assert rep_logical_error_erasure(3, 0.01) < rep_logical_error_flip(3, 0.01) / 100
+def test_zne_cost(): assert abs(zne_variance_factor([1, 2, 3]) - 19.0) < 1e-12 and np.allclose(richardson_weights([1, 2, 3]), [3, -3, 1])
+```
+
+## 29.8 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `ad_code_syndrome_mqg` | error correction | $qg_{ZZZZ}=1000(1-2P_{\text{odd}})$; error $O(\gamma^2)$ | `parity_mqg`, `avg_fidelity_encoded` | `exact` (sim.); hardware `unverified` |
+| `erasure_vs_flip` | error correction | $e^n/2$ versus $\sum_{k>n/2}\binom nk p^k(1-p)^{n-k}$ | `rep_logical_error_erasure` | `exact` arithmetic |
+| `sector_schmidt_cut` | cutting | rank $\sum_k\min(\binom mk,\binom{n-m}{w-k})$ | `schmidt_rank` | `exact` (state bound); protocol `unverified` |
+| `zne_variance_cost` | mitigation | $\sum c_i^2=19$ for $(1,2,3)$ | `zne_variance_factor` | `exact` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qecc`; `tools/verify_cap29.py`; `tests/test_qecc.py`.
+Commit: `docs(cap29): AD code with qg_ZZZZ syndrome, erasure vs bit, Schmidt rank and ZNE cost rewritten on Ch. 1–28 + qang.qecc + verify_cap29`.

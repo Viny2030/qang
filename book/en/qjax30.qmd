@@ -1,0 +1,95 @@
+# Chapter 30 — Hardware Characterization in m-qg: T1 with Optimal Delay, Read-out Calibration with Error Bars, XEB/HOP, ZZ Shift and Control Quantization {#sec-qjax30 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> Rewrite of the old Ch. 27 on the basis of Ch. 1–29 (affine readout of Ch. 25 and 27, shot budget of Ch. 8, Fisher of Ch. 9). Module: `qang.qchar` (exact NumPy, no SciPy). Verification: `tools/verify_cap30.py`. Everything is **simulation**: no number in this chapter came from a device (`tested in simulator`; hardware `unverified`).
+
+---
+
+## 30.1 T1: where to measure
+
+After waiting $t$ from $|1\rangle$, $qg_Z(t)=1-2e^{-t/T_1}$ (m-qg $=1000\,qg_Z$). The log-linear fit recovers $T_1$ to $10^{-9}$ without noise. With binomial shots, the Fisher information per shot is $x^2e^{-x}/(1-e^{-x})$ with $x=t/T_1$, maximal at $x^*=1.5936$, where $qg_Z=+594$ m-qg. With 2000 shots per point and $T_1=100$ (4 points):
+
+| delay plan | CRB $\sigma_{T_1}$ | simulated (ML) |
+|---|---|---|
+| 4 points at $1.59\,T_1$ | 1.39 | 1.37 |
+| 5 spread points (20–250) | 1.46 | 1.53 |
+| 4 points at $0.2\,T_1$ | 2.63 | 2.55 |
+
+The information at the optimal delay is $\times3.6$ that of the short delay, with the same shots (`exact`; the maximum-likelihood estimator reaches the bound). **The experimental decision**: measure near $1.6\,T_1$, not at short delays; but it requires knowing $T_1$ in advance (two-stage plan). The Fisher information per shot peaks at $t=1.59\,T_1$ ($+594$ m-qg); short delays cost $\times3.6$ in information.
+
+## 30.2 Readout: e01, e10 and their budget
+
+Preparing $|0\rangle$ and $|1\rangle$ gives $e_{01},e_{10}$ with binomial error: with $(40/2000,\,120/2000)$ one gets $e_{01}=0.0200\pm0.0031$ and $e_{10}=0.0600\pm0.0053$. For $\sigma_e=0.002$ with $e=0.02$ one needs $e(1-e)/\sigma^2=4900$ shots (`exact`). The affine readout of Ch. 25 is inverted exactly: $+600\to+592.0$ m-qg measured $\to+600.0$ corrected. Limit (Ch. 25, criterion §108): the correction only holds if $1-e_{01}-e_{10}$ is stable between calibration and use.
+
+## 30.3 XEB / HOP and fidelity
+
+With global depolarizing noise, $\mathrm{HOP}=f\cdot\mathrm{HOP}_{PT}+(1-f)/2$, $\mathrm{HOP}_{PT}=(1+\ln2)/2=0.8466$. For $n=8$ Haar states (300 samples): $f=1.0\to0.8460$, $0.7\to0.7422$ (predicted $0.7426$), $0.3\to0.6038$; the recovered fidelity is $0.998,\,0.699,\,0.299$ (`exact`, simulation). The threshold $\mathrm{HOP}>2/3$ is equivalent to $f\ge0.481$. Limit: HOP is a global output quantity; it does not distinguish between depolarizing and coherent noise, and measures $f$ only under the depolarizing model.
+
+## 30.4 Static ZZ in qga
+
+With $H=\zeta ZZ/4$ qubit 0 rotates $\pm\zeta t/2$ depending on the neighbor: the relative phase is $\zeta t$ rad $=1000\,\zeta t/(2\pi)$ qga. For $\zeta/2\pi=0.2$ MHz and $t=1.3$ µs that is **260.0 qga**. In a Ramsey readout, $qg_X=+684.5$ m-qg in **both** cases (the cosine is even) and $qg_Y=\pm729.0$ m-qg: the shift shows in the $Y$ basis, not in $X$ (`exact`).
+
+## 30.5 Control quantization: changing unit does not help
+
+Rounding to $L=2^b$ levels per turn leaves $\sigma=1/(L\sqrt{12})$ turns: 4.517 qga at 6 bits, 1.125 qga at 8, 0.282 qga at 10; in radians they are the same numbers scaled by $2\pi/1000$ (to $10^{-12}$). It is a property of the grid, not of the unit: **no gain** from choosing qga over radians (`no gain`); a dyadic DAC moreover does not represent the decimal grid of 1000 qga except for $b\le3$.
+
+## 30.6 Operational contrast
+
+| Metric | Without `qang` | With `qang` (`qang.qchar`) | Status |
+| :--- | :--- | :--- | :--- |
+| $\sigma_{T_1}$, 2000 shots×4 | 2.63 (delay $0.2\,T_1$) | 1.39 (delay $1.59\,T_1$) | $-47\%$ (`exact`) |
+| Shots for $\sigma_e=0.002$ | — | 4900 | `exact` |
+| Readout correction | $+592.0$ m-qg | $+600.0$ | `exact` |
+| Fidelity from HOP | — | $f=(\mathrm{HOP}-1/2)/0.3466$ | `exact` (depolarizing model) |
+| ZZ phase | — | 260.0 qga; seen in $qg_Y$, not in $qg_X$ | `exact` |
+| Control quantization | — | $1/(L\sqrt{12})$, same in every unit | `no gain` |
+| Hardware | — | — | `unverified` |
+
+## 30.7 Block (`qang/qchar.py`)
+
+```python
+def t1_qz(t, T1):                   return 1.0 - 2.0 * np.exp(-np.asarray(t) / T1)
+def optimal_delay_ratio():          # 1.5936
+def mle_t1(ts, ks, shots)           # binomial maximum likelihood
+def calibrate_readout(k0, N0, k1, N1) -> (e01, e10, σ01, σ10)
+def correct_mqg(m_read, e01, e10):  return (m_read - 1000*(e10 - e01)) / (1 - e01 - e10)
+def fidelity_from_hop(hop):         return (hop - 0.5) / (HOP_PORTER_THOMAS - 0.5)
+def zz_phase_qga(zeta, t):          return 1000.0 * zeta * t / (2*np.pi)
+```
+
+## 30.8 Verification — `tools/verify_cap30.py`
+
+```
+[1] exact T1 fit to 1e-9; t*/T1 = 1.5936; qg_Z(t*) = +594 m-qg
+    single optimum 1.59·T1: CRB 1.39, simulated 1.37 | all short 0.2·T1: CRB 2.63, simulated 2.55
+[2] e01=0.0200±0.0031, e10=0.0600±0.0053; 4900 shots; +600 → +592.0 → +600.0
+[3] n=8 f=0.7: HOP 0.7422 (predicted 0.7426); recovered fidelity 0.699
+[4] relative phase = 260.0 qga; qg_X = +684.5 m-qg in both; qg_Y = +729.0 / -729.0 m-qg
+[5] 8 bits: σ = 1.1251 qga = 0.00707 rad
+verify_cap30: OK
+```
+
+### `tests/test_qchar.py`
+```python
+import numpy as np
+from qang.qchar import fit_t1, t1_qz, optimal_delay_ratio, correct_mqg, fidelity_from_hop, zz_phase_qga
+def test_t1_fit(): ts = np.array([20, 60, 120.0]); assert abs(fit_t1(ts, t1_qz(ts, 90.0)) - 90.0) < 1e-9
+def test_optimal_delay(): assert abs(optimal_delay_ratio() - 1.5936) < 1e-3
+def test_readout(): m = (1 - 0.02 - 0.06) * 600 + 1000 * (0.06 - 0.02); assert abs(correct_mqg(m, 0.02, 0.06) - 600) < 1e-9
+def test_hop_fidelity(): assert abs(fidelity_from_hop(0.5)) < 1e-15
+def test_zz_qga(): assert abs(zz_phase_qga(2 * np.pi * 0.2, 1.3) - 260.0) < 1e-9
+```
+
+## 30.9 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `t1_optimal_delay` | characterization | $t^*=1.5936\,T_1$, $qg_Z=+594$ m-qg | `optimal_delay_ratio` | `exact`; hardware `unverified` |
+| `readout_budget` | characterization | $n=e(1-e)/\sigma^2$ | `shots_for_error` | `exact` |
+| `hop_fidelity` | characterization | $f=(\mathrm{HOP}-1/2)/(\mathrm{HOP}_{PT}-1/2)$ | `fidelity_from_hop` | `exact` (depolarizing) |
+| `zz_phase_qga` | characterization | $\varphi=1000\zeta t/(2\pi)$ qga | `zz_phase_qga` | `exact` |
+| `control_quantization_unit` | characterization | $\sigma=1/(L\sqrt{12})$ turns, same in every unit | `rms_quantization_error` | `no gain` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qchar`; `tools/verify_cap30.py`; `tests/test_qchar.py`.
+Commit: `docs(cap30): characterization in m-qg (optimal T1, readout, HOP, ZZ, quantization) rewritten on Ch. 1–29 + qang.qchar + verify_cap30`.

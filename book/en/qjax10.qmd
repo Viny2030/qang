@@ -1,0 +1,105 @@
+# Chapter 10 — Geometric Phases and Stokes' Theorem on the Sphere: Holonomy in qga, Bargmann Invariant and Single-Basis Readout {#sec-qjax10 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 7 on the basis of Ch. 1–9. Module: `qang.qgeom` (JAX, `jax<0.9`; aligned with `qang.geometric`, `qang.phase`). Verification: `tools/verify_cap10.py`.
+
+---
+
+## 10.1 Berry curvature as a charge-½ monopole in qga coordinates
+
+With $|\psi(\alpha,\varphi)\rangle=\cos\tfrac\theta2|0\rangle+e^{i\phi}\sin\tfrac\theta2|1\rangle$, $\theta=2\pi\alpha/1000$, $\phi=2\pi\varphi/1000$ (both in qga), the Berry connection and curvature are
+$$A=i\langle\psi|d\psi\rangle=-\sin^2\tfrac\theta2\,d\phi=-\tfrac{1-qg_Z}{2}\,d\phi,\qquad F=dA=\tfrac12\sin\theta\,d\theta\wedge d\phi .$$
+Stokes' theorem: for every closed loop $\mathcal C=\partial\Sigma$,
+$$\gamma=\oint_{\mathcal C}A=-\iint_\Sigma F=-\tfrac12\,\Omega(\Sigma),$$
+with $\Omega$ the oriented solid angle. In the readout coordinate the 1-form is **linear in $qg_Z$**: a latitude loop (one turn in $\varphi$: $1000$ qga) gives
+$$\gamma_{\text{lat}}=-\pi\,(1-qg_Z)\quad\text{[rad]}\qquad(\texttt{berry\_phase\_latitude}),$$
+so the geometric phase is read with **a single basis** ($Z$) and no ancilla (`exact`). Total curvature $\iint_{S^2}F=2\pi$: charge $\tfrac12$ (Ch. 1: the metric curvature of Fubini–Study $=4$ is a different quantity; do not confuse them).
+
+## 10.2 Bargmann invariant and Pancharatnam phase
+
+$$\gamma_{123}=\arg\big(\langle\psi_2|\psi_1\rangle\langle\psi_3|\psi_2\rangle\langle\psi_1|\psi_3\rangle\big)=-\tfrac12\,\Omega(\triangle_{123}),\qquad \Omega=2\arctan\frac{\mathbf r_1\cdot(\mathbf r_3\times\mathbf r_2)}{1+\mathbf r_1\!\cdot\mathbf r_2+\mathbf r_2\!\cdot\mathbf r_3+\mathbf r_3\!\cdot\mathbf r_1}$$
+(Van Oosterom–Strackee; $\mathbf r_k$ = Bloch vectors $(qg_X,qg_Y,qg_Z)$). Gauge invariant to $10^{-12}$ and convergent to the continuum limit as $O(K^{-2})$ for a polygon of $K$ vertices (`exact`). Convention fixed in code: $\gamma=i\oint\langle\psi|d\psi\rangle$; with increasing $\varphi$, $\gamma<0$ and $\Omega>0$.
+
+## 10.3 Geometric Z gate versus virtual Z: a negative area finding
+
+A relative phase $\Omega$ between $|0\rangle$ and $|1\rangle$ ($R_Z(\Omega)$) is obtained (a) **virtually**: $0$ pulses, $0$ qga of area (Ch. 2); (b) **physically**: $1$ pulse, area $\Omega\cdot1000/2\pi$ qga; (c) **geometrically** by the loop pole $\to(\theta,0)\to(\theta,\Delta\phi)\to$ pole: $3$ pulses, area $(2\theta+d)\cdot1000/2\pi$ qga with $d=\arccos(\cos^2\theta+\sin^2\theta\cos\Delta\phi)$. Instance ($\theta=150$ qga, $\Delta\phi=0.6$ rad): $0$ / $39.4$ / $376.8$ qga. **Status**: area `no gain` (×9.6 worse than the physical one); holonomic robustness against amplitude noise stays `unverified` in this treatise (it is not claimed).
+
+## 10.4 Shot budget for measuring γ
+
+Latitude loop: $\sigma_\gamma=\pi\,\sigma_{qg_Z}=\pi\sqrt{(1-qg_Z^2)/N}$ ⇒ $N=\pi^2(1-qg_Z^2)/\sigma_\gamma^2$ (1 basis, 0 ancillas). General 3-state loop: tomography of $\mathbf r_{1,2,3}$, $\ge9$ measurement configurations. Note that the precision **improves toward the poles** ($qg_Z\to\pm1$), unlike the angular estimation of Ch. 9 (uniform in qga): $\gamma$ is linear in $qg_Z$, not in $\alpha$.
+
+## 10.5 Operational contrast — Without `qang` vs. with `qang`
+
+| Metric | Standard (without `qang`) | `qang` (`qang.qgeom` + JAX) | Gain / Status |
+| :--- | :--- | :--- | :--- |
+| Reading $\gamma$ in a latitude loop | interferometry with ancilla or tomography (≥3 bases) | $\gamma=-\pi(1-qg_Z)$: 1 basis, 0 ancillas | $-2$ bases, $-1$ ancilla (`exact`) |
+| Shots for $\sigma_\gamma=0.01$ rad | — | $N=9\,425$ ($\alpha=50$ qga) / $64\,597$ ($150$) / $98\,696$ ($250$) | (`exact`) |
+| Holonomy of a discrete loop of $K$ vertices | product of $K$ unitaries | $\sum$ geodesic triangles (`solid_angle_polygon`), error $2.7\cdot10^{-5}$ at $K=384$ | (`exact`, $O(K^{-2})$) |
+| Geometric vs virtual $R_Z(\Omega)$ | 3 pulses, $376.8$ qga | virtual: $0$ pulses | geometric: `no gain`; robustness `unverified` |
+
+## 10.6 JAX block (`qang/qgeom.py`)
+
+```python
+@jax.jit
+def berry_phase_latitude(qz):            # γ = −π(1 − qg_Z)  [rad], exact Stokes
+    return -jnp.pi * (1.0 - qz)
+
+@jax.jit
+def solid_angle_triangle(r1, r2, r3):    # Van Oosterom–Strackee, increasing φ orientation ⇒ Ω>0
+    num = jnp.dot(r1, jnp.cross(r3, r2))
+    den = 1.0 + jnp.dot(r1, r2) + jnp.dot(r2, r3) + jnp.dot(r3, r1)
+    return 2.0 * jnp.arctan2(num, den)
+
+@jax.jit
+def bargmann_phase(p1, p2, p3):          # arg(<ψ2|ψ1><ψ3|ψ2><ψ1|ψ3>) = −Ω/2
+    return jnp.angle(jnp.vdot(p2, p1) * jnp.vdot(p3, p2) * jnp.vdot(p1, p3))
+
+def shots_for_berry_latitude(qz, sigma_gamma):   # N = π²(1−qg_Z²)/σ_γ²
+    return float(jnp.pi ** 2 * (1.0 - qz ** 2) / sigma_gamma ** 2)
+```
+
+## 10.7 Verification — `tools/verify_cap10.py` (reproducible output)
+
+```
+[1] K= 384: γ_disc=-1.294984  γ_Stokes=-1.295011  |Δ|=2.70e-05
+    Ω polygon=2.589968 = 2π(1−qg_Z)=2.590022  (qg_Z=0.5878, α=150 qga)
+[2] arg(<ψ2|ψ1><ψ3|ψ2><ψ1|ψ3>) = −Ω/2 in 5/5 triangles, gauge invariant to 1e-12
+[3] ∬F = 1.295010823 = −γ ✔ (charge-½ monopole)
+[4] R_Z(Ω=0.2473 rad = 39.4 qga): virtual 0 qga | physical 39.4 qga (1 pulse) | geometric 376.8 qga (3 pulses)
+[5] α= 50 qga (qg_Z=+0.951): N = 9425 ; α=150: 64597 ; α=250: 98696
+verify_cap10: OK
+```
+
+### `tests/test_qgeom.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qgeom import state_from_qga, bloch_from_state, bargmann_phase, solid_angle_triangle, berry_phase_latitude
+
+def test_bargmann_equals_minus_half_solid_angle():
+    ps = [state_from_qga(a, p) for a, p in ((40., 10.), (200., 300.), (330., 700.))]
+    Om = float(solid_angle_triangle(*[bloch_from_state(q) for q in ps]))
+    assert abs(float(bargmann_phase(*ps)) + Om / 2) < 1e-12
+
+def test_latitude_equator():
+    assert abs(float(berry_phase_latitude(0.0)) + np.pi) < 1e-15
+```
+
+## 10.8 Appendix H — new entries in `qang.measures`
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `berry_latitude_qz` | geometry | $\gamma=-\pi(1-qg_Z)$ | `berry_phase_latitude` | `exact` (1 basis, 0 ancillas) |
+| `bargmann_triangle` | geometry | $\arg\prod\langle\psi_{k+1}|\psi_k\rangle=-\Omega/2$ | `bargmann_phase`, `solid_angle_triangle` | `exact` |
+| `berry_shots_latitude` | statistics | $N=\pi^2(1-qg_Z^2)/\sigma_\gamma^2$ | `shots_for_berry_latitude` | `exact` |
+| `holonomic_z_area` | compilation | area $(2\theta+d)$ vs $0$ virtual | `verify_cap10.py` §4 | `no gain`; robustness `unverified` |
+
+### `CHANGELOG.md` — `[Unreleased]`
+```
+### Added
+- `qang.qgeom`: `state_from_qga`, `bloch_from_state`, `berry_phase_latitude`, `solid_angle_triangle`,
+  `solid_angle_polygon`, `bargmann_phase`, `shots_for_berry_latitude` (JAX, `jax<0.9`).
+- `tools/verify_cap10.py`, `tests/test_qgeom.py`; Appendix H: 4 entries.
+```
+Commit: `docs(cap10): geometric phases and Stokes rewritten on Ch. 1–9 + qang.qgeom + verify_cap10`.

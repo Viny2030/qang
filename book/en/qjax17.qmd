@@ -1,0 +1,91 @@
+# Chapter 17 — Postselected Closed Timelike Curves (P-CTC) versus D-CTC: Two Maps, Two m-qg Readouts and the Shot Price {#sec-qjax17 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 14 on the basis of Ch. 1–16. Module: `qang.qctc` (JAX, `jax<0.9`; aligned with `qang.postselection`, §164). Verification: `tools/verify_cap17.py`. The **maps** are simulated; the physical existence of CTCs is `unverified` and is not claimed.
+
+---
+
+## 17.1 The two maps
+
+Let $U$ be the interaction between the chronology-respecting qubit CR and the CTC qubit.
+$$\text{P-CTC (Lloyd):}\quad \rho\mapsto\frac{C\rho C^\dagger}{\mathrm{Tr}(C\rho C^\dagger)},\ \ C=\mathrm{Tr}_{\text{CTC}}U,\ \ p_{\text{post}}=\tfrac14\mathrm{Tr}(C\rho C^\dagger);\qquad \text{D-CTC (Deutsch):}\quad \rho_{\text{CTC}}=\mathrm{Tr}_{\text{CR}}\big[U(\rho\otimes\rho_{\text{CTC}})U^\dagger\big].$$
+P-CTC is the teleportation of Ch. 15 with the Bell measurement **postselected**: it costs one Bell pair (2 qubits) and $\times1/p_{\text{post}}$ shots. D-CTC is a nonlinear fixed point (iteration from $I/2$, maximum-entropy selection) with no single-circuit analogue. Both are simulated as maps and read in m-qg.
+
+## 17.2 Three interactions, read in m-qg
+
+| $U$ | $C=\mathrm{Tr}_{\text{CTC}}U$ | P-CTC | $p_{\text{post}}$ | D-CTC |
+| :--- | :--- | :--- | :--- | :--- |
+| $I$ | $2I$ | identity | $1$ | identity |
+| CNOT (CR controls CTC) | $2|0\rangle\langle0|$ | **projects** to $+1000$ m-qg, any input | $(1+qg_Z)/2$ | keeps $qg_Z$, **erases** $qg_X,qg_Y$ (1 iteration) |
+| SWAP | $I$ | identity | $1/4$ | identity ($\rho_{\text{CTC}}=\rho$) |
+| $(X\otimes I)\,$SWAP | $X$ | $\rho\mapsto X\rho X$ ($qg_Y,qg_Z\to-$) | $1/4$ | — |
+
+CNOT instance: input $-980$ m-qg → P-CTC $+1000$ m-qg with $p_{\text{post}}=0.010$ ($\times100$ shots); D-CTC $-980$ m-qg with $qg_X\to0$. The nonlinearity of P-CTC is paid for in the budget: $N\propto1/p_{\text{post}}=2/(1+qg_Z)$, divergent at the pole $|1\rangle$ (`exact` for the map).
+
+## 17.3 Operational contrast
+
+| Metric | Standard | `qang` (`qang.qctc` + JAX) | Status |
+| :--- | :--- | :--- | :--- |
+| P-CTC resources | — | 1 Bell pair + postselection $\times1/p_{\text{post}}$ | `exact` (count) |
+| D-CTC resources | — | fixed-point iteration (converged in $\le2$ it. in all 3 cases) | `exact` sim. |
+| Discriminating reading | tomography | $qg_Z$ and $qg_X$ of CR: P-CTC moves $qg_Z$, D-CTC kills $qg_X$ | `exact` |
+| Physical CTCs | — | — | `unverified` |
+
+## 17.4 JAX block (`qang/qctc.py`)
+
+```python
+def pctc_operator(U):                            # C = Tr_CTC(U)
+    return U.reshape(2, 2, 2, 2).trace(axis1=1, axis2=3)
+
+def pctc_map(rho, U):                            # (ρ_out, p_post)
+    C = pctc_operator(U); M = C @ rho @ jnp.conj(C).T
+    return M / jnp.trace(M), jnp.real(jnp.trace(M)) / 4.0
+
+def dctc_map(rho, U, iters=200):                 # fixed point from I/2
+    rho_ctc = I2 / 2
+    for k in range(iters):
+        new = ptrace_first(U @ jnp.kron(rho, rho_ctc) @ jnp.conj(U).T)
+        if float(jnp.max(jnp.abs(new - rho_ctc))) < 1e-14: rho_ctc = new; break
+        rho_ctc = new
+    return ptrace_second(U @ jnp.kron(rho, rho_ctc) @ jnp.conj(U).T), rho_ctc, k + 1
+```
+
+## 17.5 Verification — `tools/verify_cap17.py`
+
+```
+[1] U=I: P-CTC and D-CTC = identity; p_post = 1
+[2] input  -980 m-qg: P-CTC → +1000 m-qg, p_post=0.010 (shots ×100.0) | D-CTC → -980 m-qg, qg_X→0, fixed point in 1 it.
+[3] U=SWAP: P-CTC identity with p_post=0.25 (×4 shots) | D-CTC identity, ρ_CTC=ρ in 2 it.
+[4] U=(X⊗I)SWAP: C = X → ρ → XρX, p_post=0.25
+verify_cap17: OK
+```
+Asserts: $C_{\text{CNOT}}=2|0\rangle\langle0|$; P-CTC $qg_Z\to1$ to $10^{-13}$ and $p_{\text{post}}=(1+qg_Z)/2$ to $10^{-14}$; D-CTC keeps $qg_Z$ and nulls $qg_X$ to $10^{-13}$; SWAP: both identity, $p_{\text{post}}=1/4$.
+
+### `tests/test_qctc.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qctc import pctc_map, dctc_map, bloch, state_from_bloch, CNOT, SWAP
+
+def test_cnot_pctc_projects_dctc_decoheres():
+    rho = state_from_bloch(jnp.array([0.4, 0.0, -0.6]))
+    op, p = pctc_map(rho, CNOT); od, _, _ = dctc_map(rho, CNOT)
+    assert abs(float(bloch(op)[2]) - 1) < 1e-13 and abs(float(p) - 0.2) < 1e-14
+    assert abs(float(bloch(od)[2]) + 0.6) < 1e-13 and abs(float(bloch(od)[0])) < 1e-13
+
+def test_swap_identity():
+    rho = state_from_bloch(jnp.array([0.3, -0.4, 0.5])); op, p = pctc_map(rho, SWAP)
+    assert np.allclose(np.asarray(bloch(op)), [0.3, -0.4, 0.5], atol=1e-14) and abs(float(p) - 0.25) < 1e-14
+```
+
+## 17.6 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `pctc_map_mqg` | postselection | $C\rho C^\dagger/\mathrm{Tr}$, $p_{\text{post}}=\mathrm{Tr}(C\rho C^\dagger)/4$ | `pctc_map` | `exact` (map); physical `unverified` |
+| `dctc_fixed_point` | postselection | Deutsch fixed point from $I/2$ | `dctc_map` | `exact` sim. |
+| `pctc_shot_price` | statistics | $N\times1/p_{\text{post}}$ | `shots_multiplier_pctc` | `exact` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qctc` (`pctc_operator`, `pctc_map`, `dctc_map`, `bloch`, `state_from_bloch`, `shots_multiplier_pctc`); `tools/verify_cap17.py`; `tests/test_qctc.py`.
+Commit: `docs(cap17): P-CTC vs D-CTC rewritten on Ch. 1–16 + qang.qctc + verify_cap17`.

@@ -1,0 +1,114 @@
+# Chapter 15 — Optical Teleportation and the Bell-Pair Limit: the Channel as a Linear m-qg Contraction and the 333 m-qg Threshold {#sec-qjax15 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 12 on the basis of Ch. 1–14. Module: `qang.qtele` (JAX, `jax<0.9`; aligned with `qang.qpon`, §57, §157). Verification: `tools/verify_cap15.py`. Dual rail and sector filter at long distance: Ch. 16.
+
+---
+
+## 15.1 The Werner resource read in three correlators
+
+$\rho_V=V|\Phi^+\rangle\langle\Phi^+|+(1-V)\tfrac{I}{4}$ has $qg_{XX}=V$, $qg_{YY}=-V$, $qg_{ZZ}=V$ (Ch. 7: single-basis correlators each, 0 ancillas). Singlet fraction and mean teleportation fidelity (Horodecki):
+$$F_s=\tfrac14\big(1+qg_{XX}-qg_{YY}+qg_{ZZ}\big),\qquad \bar F=\frac{2F_s+1}{3},\qquad \bar F_{\text{Werner}}=\frac{1+V}{2}.$$
+Classical threshold $\bar F=2/3\iff F_s=1/2\iff V=1/3$: **the Bell pair is useful if and only if $qg_{ZZ}>333$ m-qg** under the Werner model (`exact`). For a general resource all 3 bases are needed; the single-basis reading is an upper bound (§15.4). The Werner resource is read as three single-basis correlators; the classical threshold is $qg_{ZZ}=333$ m-qg under the Werner model, and an upper bound otherwise.
+
+## 15.2 The teleportation channel in m-qg: m'=V m
+
+Full teleportation (Bell measurement on input⊗A, Pauli correction on B) with resource $\rho_V$ is the depolarizing channel $\mathbf r\mapsto V\mathbf r$; in readout: $m\text{-qg}'=V\cdot m\text{-qg}$ for any axis, verified to $10^{-13}$ on random inputs. Example: $+600$ m-qg $\to+420$ ($V=0.7$) $\to+200$ ($V=1/3$). The dissipative deficit of the teleported state (Ch. 5) is $qg_\tau=\sqrt{1-V^2r^2}$. The average fidelity over the 2-design of 6 Pauli eigenstates reproduces $(1+V)/2$ to $10^{-13}$ (`exact`).
+
+## 15.3 Shot budget and configurations
+
+From $qg_{ZZ}$: $\sigma_{\bar F}=\tfrac12\sqrt{(1-V^2)/N}$ ⇒ $N=(1-V^2)/(4\sigma_{\bar F}^2)$: $475$ shots ($V=0.9$) or $1\,600$ ($V=0.6$) for $\sigma_{\bar F}=0.01$ in **one** configuration. Process tomography of the channel: 4 inputs $\times$ 3 bases $=12$ configurations, $\ge12N$ shots for the same precision per cell (`exact`, count).
+
+## 15.4 `mixed` finding: the single-basis reading overestimates non-Werner resources
+
+A resource with pure dephasing ($qg_{ZZ}=1$, $qg_{XX}=0.8$): real $\bar F$ (3 bases) $=0.9333$; $\bar F$ assuming Werner from $qg_{ZZ}$ $=1.0000$ (bias $+0.067$). Rule: **certify with 3 bases; plan with 1**. A resource with $qg_{ZZ}>1/3$ but $qg_{XX}+qg_{ZZ}\le1$ is not certified as entangled (2-basis witness, Ch. 5).
+
+## 15.5 Operational contrast — Without `qang` vs. with `qang`
+
+| Metric | Standard (without `qang`) | `qang` (`qang.qtele` + JAX) | Gain / Status |
+| :--- | :--- | :--- | :--- |
+| Decide whether the pair is useful | state tomography (9 bases) | $qg_{ZZ}>333$ m-qg (1 basis, Werner) / $F_s>\tfrac12$ (3 bases) | $-8$ / $-6$ bases (`exact`) |
+| Shots for $\sigma_{\bar F}=0.01$, $V=0.9$ | process: 12 config., $\ge5\,700$ | 1 config., $475$ | $-92\%$ (`exact`) |
+| Prediction of the output | simulate the channel | $m'=V\,m$ on any axis | (`exact`) |
+| Non-Werner resource | — | 1 basis biases $+0.067$; use 3 bases | `mixed` |
+| Optical hardware (§57, §157) | — | referenced, not reproduced here | `unverified` in this ch. |
+
+## 15.6 JAX block (`qang/qtele.py`)
+
+```python
+@jax.jit
+def resource_correlators(rho2):                 # (qg_XX, qg_YY, qg_ZZ)
+    f = lambda P: jnp.real(jnp.trace(rho2 @ jnp.kron(P, P)))
+    return f(X), f(Y), f(Z)
+
+@jax.jit
+def singlet_fraction_from_qg(qxx, qyy, qzz):    # (1 + qg_XX − qg_YY + qg_ZZ)/4
+    return (1.0 + qxx - qyy + qzz) / 4.0
+
+@jax.jit
+def teleport_fidelity_from_singlet(Fs):         # (2F_s + 1)/3 ; threshold 2/3
+    return (2.0 * Fs + 1.0) / 3.0
+
+def teleport(rho_in, rho_res):                  # Bell measurement + Pauli correction, ρ_out 2×2
+    rho = kron(rho_in, rho_res); corr = [I2, Z, X, X @ Z]; out = 0
+    for k, b in enumerate(bell_basis()):
+        M = kron(jnp.outer(b, jnp.conj(b)), I2)
+        rb = jnp.einsum("iaib->ab", (M @ rho @ M).reshape(4, 2, 4, 2))
+        out = out + corr[k] @ rb @ jnp.conj(corr[k]).T
+    return out
+
+def shots_for_fidelity(V, sigma_F):             # (1 − V²)/(4σ_F²)
+    return (1.0 - V ** 2) / (4.0 * sigma_F ** 2)
+```
+
+## 15.7 Verification — `tools/verify_cap15.py` (reproducible output)
+
+```
+[1] Werner: qg_ZZ = V, F_s = (1+3V)/4, F̄ = (2F_s+1)/3 = (1+V)/2  (1e-14)
+[2] V=0.700: input +600 m-qg → output +420 m-qg | V=0.333: → +200 m-qg  (m' = V·m)
+[3] V=0.333 (qg_ZZ=333 m-qg): F̄=0.6667 → classical limit (2/3) | V=0.900: F̄=0.9500 → quantum
+[4] V=0.9: N(σ_F=0.01) = 475 shots in 1 configuration | process tomography: 12 configurations ≥ 5700
+[5] non-Werner: qg_XX=0.80, qg_ZZ=1.00; F̄(3 bases)=0.9333, F̄(1 basis)=1.0000 → bias +0.0667 (mixed)
+verify_cap15: OK
+```
+Asserts: correlators and $F_s$ to $10^{-14}$; output Bloch vector $=V\mathbf r$ to $10^{-13}$ (9 random inputs); $\bar F$ over the 2-design to $10^{-13}$; $\bar F(V=1/3)=2/3$ to $10^{-15}$; $\bar F_{1\text{ basis}}\ge\bar F_{3\text{ bases}}$.
+
+### `tests/test_qtele.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qtele import werner, teleport, bloch, state_from_bloch, teleport_fidelity_werner_qzz, resource_correlators
+
+def test_channel_contracts_bloch():
+    r = jnp.array([0.3, -0.4, 0.5]); out = teleport(state_from_bloch(r), werner(0.7))
+    assert np.allclose(np.asarray(bloch(out)), 0.7 * np.asarray(r), atol=1e-13)
+
+def test_classical_threshold_333_mqg():
+    assert abs(float(teleport_fidelity_werner_qzz(1 / 3)) - 2 / 3) < 1e-15
+
+def test_werner_correlators():
+    qxx, qyy, qzz = resource_correlators(werner(0.5))
+    assert abs(float(qxx) - 0.5) < 1e-14 and abs(float(qyy) + 0.5) < 1e-14 and abs(float(qzz) - 0.5) < 1e-14
+```
+
+## 15.8 Appendix H — new entries in `qang.measures`
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `bell_threshold_mqg` | teleportation | $qg_{ZZ}>1/3$ (333 m-qg) ⇔ $\bar F>2/3$ (Werner) | `teleport_fidelity_werner_qzz` | `exact` (model) |
+| `singlet_fraction_3bases` | teleportation | $(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ | `singlet_fraction_from_qg` | `exact` |
+| `teleport_channel_mqg` | teleportation | $m'=V\,m$ | `teleport`, `bloch` | `exact` |
+| `teleport_shots` | statistics | $N=(1-V^2)/(4\sigma_F^2)$; 1 vs 12 config. | `shots_for_fidelity` | `exact` |
+| `one_basis_bias` | teleportation | $\bar F_{1b}\ge\bar F_{3b}$ | `verify_cap15.py` §5 | `mixed` |
+
+### `CHANGELOG.md` — `[Unreleased]`
+```
+### Added
+- `qang.qtele`: `werner`, `resource_correlators`, `singlet_fraction_from_qg`, `teleport_fidelity_from_singlet`,
+  `teleport_fidelity_werner_qzz`, `teleport`, `bloch`, `state_from_bloch`, `shots_for_fidelity` (JAX, `jax<0.9`).
+- `tools/verify_cap15.py`, `tests/test_qtele.py`; Appendix H: 5 entries.
+### Fixed
+- `.github/workflows/book.yml`: `GH_TOKEN` in `quarto-actions/setup` (403 when resolving TinyTeX).
+```
+Commit: `docs(cap15): teleportation and the Bell-pair limit rewritten on Ch. 1–14 + qang.qtele + verify_cap15`.

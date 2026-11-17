@@ -1,0 +1,78 @@
+# Chapter 19 — Demarcation: Quantum Cryptography (QKD/QRNG) versus Post-Quantum Cryptography (PQC). Where There Is a Qubit to Read in m-qg and Where There Is None {#sec-qjax19 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 16 on the basis of Ch. 1–18. Module: `qang.qdemarc` (JAX, `jax<0.9`). Verification: `tools/verify_cap19.py`. Details of BB84 and QRNG: Ch. 20–21.
+
+---
+
+## 19.1 Demarcation criterion
+
+`qang` measures angles and probabilities of **physical qubits** (Ch. 1). It applies where security rests on a projective readout: QKD (the QBER is a $qg_Z$) and QRNG (the min-entropy is a function of $|qg_Z|$). It **does not apply** to PQC (ML-KEM, ML-DSA, SLH-DSA, HQC): classical arithmetic on lattices/hashes/codes, with no qubit, with security parameters $\delta\le2^{-138.8}$ whose "shot budget" would be $N=(3/2\delta)^2=2^{278.8}$: uncountable (`against`, THEORY_CORE §2.6). A number that cannot be measured with shots is not an `m-qg` reading. `qang` applies where security rests on a projective readout of a physical qubit (QKD, QRNG) and not to PQC, whose security parameters are uncountable in shots.
+
+## 19.2 QKD: the QBER as an m-qg reading and the 780 m-qg threshold
+
+$e\leftrightarrow qg_Z=1-2e$ on the axis of the reconciled basis. Asymptotic BB84 rate (one-way, collective attacks): $r=1-2h(e)>0\iff e<0.1100\iff qg_Z>0.780$ ($780$ m-qg). Table: QBER $0.02\to+960$ m-qg, $r=0.717$; $0.08\to+840$, $r=0.196$; $0.15\to+700$, $r=-0.220$ (abort). Protocol decision = threshold in m-qg, with Wilson/Bayes–Haar intervals (Ch. 4, 8) for coverage near the pole (`exact`).
+
+## 19.3 QRNG: min-entropy from |qgZ|
+
+$H_{\min}=-\log_2\frac{1+|qg_Z|}{2}$: $0$ m-qg → $1.000$ bit; $20$ m-qg → $0.971$; $100$ m-qg → $0.863$; $500$ m-qg → $0.415$. Certifying a bias of $20$ m-qg ($\delta=0.01$) at $3\sigma$ costs $N=22\,500$ shots (`exact`).
+
+## 19.4 Operational contrast
+
+| Domain | Measured object | `qang` reading | Status |
+| :--- | :--- | :--- | :--- |
+| QKD (BB84) | QBER $e$ | $qg_Z=1-2e$; key $\iff qg_Z>780$ m-qg | `exact` |
+| QRNG | bias of a qubit | $H_{\min}(|qg_Z|)$; $N=(z/2\delta)^2$ | `exact` |
+| PQC (ML-KEM/ML-DSA/SLH-DSA/HQC) | $\delta\le2^{-138.8}$ | none: $2^{278.8}$ shots, no qubit | `against` |
+| Quantum batteries/networks (Ch. 22) | $qg_Z$ of cells | applies | see Ch. 22 |
+
+## 19.5 JAX block (`qang/qdemarc.py`)
+
+```python
+@jax.jit
+def bb84_rate_from_qz(qz):            # r = 1 − 2 h((1 − qg_Z)/2)
+    return 1.0 - 2.0 * h2((1.0 - qz) / 2.0)
+
+def bb84_threshold_qz(tol=1e-12):     # bisection: qg_Z* = 0.7799
+    ...
+
+@jax.jit
+def qrng_min_entropy_from_qz(qz):     # −log2((1 + |qg_Z|)/2)
+    return -jnp.log2((1.0 + jnp.abs(qz)) / 2.0)
+
+def shots_to_resolve_bias(delta, z=3.0):   # (z/(2δ))²
+    return (z / (2.0 * delta)) ** 2
+```
+
+## 19.6 Verification — `tools/verify_cap19.py`
+
+```
+[1] BB84: r = 1 − 2h(e) = 0 at e* = 0.1100  ⇔  qg_Z* = 0.7799 (780 m-qg)
+    QBER=0.08 → +840 m-qg → r = +0.1956 (key) | QBER=0.15 → +700 m-qg → r = -0.2197 (abort)
+[2] |qg_Z| = 20 m-qg → H_min = 0.9714 bit; certify δ=0.01 at 3σ: N = 22500 shots
+[3] PQC: δ = 2^-138.8 → N = 2^278.8 'shots' — uncountable; no qubit: qang does not apply (against)
+verify_cap19: OK
+```
+Asserts: $e^\star=0.1100\pm2\cdot10^{-4}$ with $1-2h(e^\star)=0$ to $10^{-9}$; $H_{\min}(0)=1$; $\log_2N_{\text{PQC}}>270$.
+
+### `tests/test_qdemarc.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+from qang.qdemarc import bb84_threshold_qz, qrng_min_entropy_from_qz, shots_to_resolve_bias
+
+def test_bb84_threshold(): assert abs(bb84_threshold_qz() - 0.7799) < 1e-3
+def test_qrng_unbiased(): assert abs(float(qrng_min_entropy_from_qz(0.0)) - 1.0) < 1e-15
+def test_pqc_uncountable(): import math; assert math.log2(shots_to_resolve_bias(2.0 ** -138.8)) > 270
+```
+
+## 19.7 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `qber_mqg_threshold` | cryptography | $qg_Z>0.780$ ⇔ $r>0$ | `bb84_rate_from_qz`, `bb84_threshold_qz` | `exact` |
+| `qrng_hmin_qz` | cryptography | $-\log_2\frac{1+|qg_Z|}{2}$ | `qrng_min_entropy_from_qz` | `exact` |
+| `pqc_out_of_scope` | demarcation | $N=2^{278.8}$, no qubit | `shots_to_resolve_bias` | `against` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qdemarc` (`h2`, `qber_to_qz`, `qz_to_qber`, `bb84_rate_from_qz`, `bb84_threshold_qz`, `qrng_min_entropy_from_qz`, `shots_to_resolve_bias`); `tools/verify_cap19.py`; `tests/test_qdemarc.py`.
+Commit: `docs(cap19): QKD/QRNG vs PQC demarcation rewritten on Ch. 1–18 + qang.qdemarc + verify_cap19`.

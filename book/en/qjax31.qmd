@@ -1,0 +1,74 @@
+# Chapter 31 — Methodology: Pre-Registered Falsification with SHA-256, Exact p-values, Holm Correction and Shot Budget {#sec-qjax31 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> Rewrite of the old Ch. 28 on the basis of Ch. 1–30 (Bayes–Haar intervals of Ch. 4 and 21, budget of Ch. 8 and 30). Module: `qang.qfalsify` (standard library only). Verification: `tools/verify_cap31.py`. The commits and hashes of the repository's historical record (Appendix E) are not reproduced here; this chapter verifies the **machinery** that makes them checkable.
+
+---
+
+## 31.1 Register before measuring
+
+A prediction is a closed dictionary (claim, metric, threshold, direction, $\alpha$, seed, date, script). It is serialized as canonical JSON (sorted keys, no spaces, UTF-8) and its SHA-256 is stored **in a commit prior to the measurement**. Verified with prediction `F-31-01` ("the $N$ mod 4 filter returns the ideal energy under uniform $T_1$", Ch. 28): the hash (`ec1f27a5b1d16582…`) does not depend on key order and **any** change in the 9 fields invalidates it (9/9). This is the part that prevents moving the threshold afterwards (`exact`). Limit: the hash proves that the text did not change, not that the commit predates the data; that is given by the date of the remote commit. The registration is a SHA-256 of a canonical JSON; it detects any later change to the claim, threshold or seed.
+
+## 31.2 Deciding with an exact test
+
+For "$p>p_0$" with $k$ successes in $n$ shots: confirmed if $P(X\ge k)\le\alpha$; refuted if $P(X\le k)\le\alpha$; otherwise **inconclusive** (not interpreted as support). With $p_0=0.5$: $P(X\ge60\mid n=100)=0.02844$ (confirmed), $P(X\ge530\mid n=1000)=0.03101$ (confirmed), $k=40$ (refuted), $k=55$ (inconclusive). The tails match `scipy.stats.binom` to $10^{-12}$ (`exact`).
+
+## 31.3 Several predictions: Holm
+
+With 20 null hypotheses and 3000 repetitions ($n=400$): without correction, $P(\ge1\ \text{false positive})=0.656$; with Holm–Bonferroni, **0.042** ($\le0.05$). This is why the protocol registers the complete **family** of predictions, not only those that turned out well (`exact`, simulation).
+
+## 31.4 Shot budget
+
+Detecting $p=0.6$ against $p_0=0.5$ ($\alpha=0.05$): $n=224$ for power $0.90$ (achieved $0.911$), $n=405$ for $0.99$. Detecting $0.52$: $n=5435$ ($\times24.3\approx(0.10/0.02)^2$): the cost grows as $1/\Delta^2$. A prediction that cannot reach power with the available budget must be registered as **untestable**, not as pending luck (`exact`).
+
+## 31.5 Operational contrast
+
+| Metric | Without `qang` | With `qang` (`qang.qfalsify`) | Status |
+| :--- | :--- | :--- | :--- |
+| Threshold modifiable after measuring | yes | no: 9/9 fields change the hash | `exact` |
+| False positives, 20 hypotheses | 0.656 | 0.042 (Holm) | `exact` (sim.) |
+| Shots, $\Delta=0.1$ vs $0.02$ | 224 | 5435 (×24.3) | `exact` |
+| Hardware evidence | — | not provided by the chapter | `unverified` |
+
+## 31.6 Block (`qang/qfalsify.py`)
+
+```python
+def canonical(pred):                return json.dumps(pred, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+def register(pred):                 return hashlib.sha256(canonical(pred).encode("utf-8")).hexdigest()
+def binom_upper(k, n, p0) / binom_lower(k, n, p0)
+def decide(k, n, p0, alpha=0.05)    # "confirmed" | "refuted" | "inconclusive"
+def holm(pvalues, alpha=0.05)       # Holm–Bonferroni
+def shots_for_power(p0, p1, alpha=0.05, target=0.9)
+```
+
+## 31.7 Verification — `tools/verify_cap31.py`
+
+```
+[1] SHA-256 = ec1f27a5b1d16582…; order-independent; any change in 9/9 fields invalidates it
+[2] P(X≥60 | n=100, p0=0.5) = 0.02844; decisions: confirmed | confirmed | refuted | inconclusive
+[3] 20 nulls, 3000 reps: uncorrected 0.656; with Holm 0.042
+[4] 0.6 vs 0.5: n=224 (power 0.911); n=405 for 0.99; 0.52 vs 0.5: n=5435 (×24.3)
+verify_cap31: OK
+```
+
+### `tests/test_qfalsify.py`
+```python
+from qang.qfalsify import register, verify_registration, binom_upper, decide, holm
+def test_registry(): p = {"a": 1, "b": "x"}; d = register(p); assert verify_registration({"b": "x", "a": 1}, d) and not verify_registration({"a": 2, "b": "x"}, d)
+def test_pvalue(): assert abs(binom_upper(60, 100, 0.5) - 0.02844) < 1e-5
+def test_decide(): assert decide(60, 100, 0.5) == "confirmed" and decide(40, 100, 0.5) == "refuted" and decide(55, 100, 0.5) == "inconclusive"
+def test_holm(): assert holm((0.001, 0.03, 0.04)) == (True, False, False)
+```
+
+## 31.8 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `prereg_sha256` | methodology | SHA-256 of the canonical JSON | `register`, `verify_registration` | `exact` |
+| `exact_binomial_decision` | methodology | confirmed/refuted/inconclusive with $P(X\ge k)\le\alpha$ | `decide` | `exact` |
+| `holm_fwer` | methodology | Holm: 0.042 versus 0.656 | `holm` | `exact` (sim.) |
+| `shots_for_power` | methodology | $n\propto1/\Delta^2$ (224 → 5435) | `shots_for_power` | `exact` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qfalsify`; `tools/verify_cap31.py`; `tests/test_qfalsify.py`.
+Commit: `docs(cap31): pre-registered falsification (SHA-256, exact binomial, Holm, power) rewritten on Ch. 1–30 + qang.qfalsify + verify_cap31`.

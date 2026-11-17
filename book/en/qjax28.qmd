@@ -1,0 +1,105 @@
+# Chapter 28 — Chemistry and Optimization in the Weight Sector: the Electron-Count Witness in m-qg, Number Checks, RBS-Based PCA and "Exactly-K" QAOA {#sec-qjax28 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> Rewrite of the old Ch. 25 on the basis of Ch. 1–27 (witness of Ch. 5 and 7, sector filter of Ch. 24, unary kernel of Ch. 26, RBS of Ch. 23 and 27). Module: `qang.qchem` (JAX + SciPy; `jax<0.9`). Verification: `tools/verify_cap28.py`. The molecular model is the **Hubbard dimer** (4 qubits, 2 electrons, analytic energy), not H$_2$ in STO-3G nor LiH: the real-molecule figures of the original treatise remain in `RESEARCH_NOTES.md` as `tested in simulator` and are not reproduced here.
+
+---
+
+## 28.1 Counting electrons with the register readout
+
+In Jordan–Wigner, qubit $q$ is a spin-orbital with occupation $(1-qg_{Z,q})/2$. For $N$ electrons in $n$ spin-orbitals the ideal mean reading is $\overline{qg_Z}=1-2N/n$ (0 m-qg for $N=2,n=4$). The **witness** $W=1000(\overline{qg_Z}-(1-2N/n))$ is 0 if the circuit conserved $N$. Under $T_1$ of rate $\gamma$ on a register with mean occupation 1/2, $W=+1000\gamma$ m-qg exactly: $+20,+50,+100$ m-qg for $\gamma=0.02,0.05,0.10$ (`exact`). The symmetry check is the familiar one from quantum chemistry; qang contributes the unit (m-qg) and the zero-cost witness. The electron count is a direct readout of the register: the witness is exactly $1000\gamma$ m-qg under $T_1$.
+
+## 28.2 Hubbard dimer: what each check reaches
+
+$H=-t\sum_\sigma(a^\dagger_{0\sigma}a_{1\sigma}+\text{h.c.})+U\sum_i n_{i\uparrow}n_{i\downarrow}$ commutes with $N$ and $S_z$ ($0$ to $10^{-12}$) and has $E_0=(U-\sqrt{U^2+16t^2})/2=-1.236067977500$ for $t=1,U=2$, reproduced to $10^{-12}$. Starting from the $N=2$ ground state and applying $T_1$ to the four qubits:
+
+| γ | raw ΔE | ΔE with parity | ΔE with $N$ mod 4 | shots kept |
+|---|---|---|---|---|
+| 0.02 | +0.0489 | +0.00051 | 0 (exact) | 0.9604 = (1−γ)² |
+| 0.05 | +0.1205 | +0.00341 | 0 (exact) | 0.9025 |
+| 0.10 | +0.2349 | +0.01507 | 0 (exact) | 0.8100 |
+
+**Scope.** The $Z$ filter (shot by shot) only acts on the diagonal group ($U\,n_\uparrow n_\downarrow$); the hopping terms (X/Y) are measured after rotating and are not seen. The **ancilla** check commutes with all terms: parity = 1 ancilla and 4 CNOT; $N$ mod 4 = 2 ancillas and 8 CNOT. For $N=2$ in 4 qubits $T_1$ only lowers $N$, so $N$ mod 4 leaves the ideal state exactly (`exact`; it is the same exactness mechanism as Ch. 24). Limit: this is a result of a 4-qubit model with uniform $T_1$; in larger molecules there remain errors that conserve $N$ and no number check sees them (`mixed`, no hardware).
+
+## 28.3 PCA in the weight-1 sector with an RBS network
+
+$\rho=\sum_jw_j|x_j\rangle\langle x_j|$ (vectors loaded with the unary loader, Ch. 23) is diagonalized with a network of $n(n-1)/2$ adjacent rotations (RBS, in qga). For $n=5$ and 16 data points: 10 RBS, angles in $[-396.6,\,491.4]$ qga, and the excitation probability of qubit $k$ is $\lambda_k=(0.694,0.124,0.089,0.060,0.033)$ with error $2.2\cdot10^{-16}$ (`exact`). It is not a speed-up (the rotation is computed classically): it is a **known spectrum** against which a device is measured. All gates conserve the weight: the filter of Ch. 24 applies.
+
+## 28.4 Overlaps: inversion versus swap
+
+$F=(x\cdot y)^2$ (Ch. 26) with the inversion test (n qubits, 0 ancillas, in the sector) or the swap test ($2n+1$ qubits, 1 ancilla, $P(\text{anc}=0)=(1+F)/2$, outside the sector). For $n=5$: 5 versus 11 qubits; both formulas exact to $10^{-12}$. The filter only helps the inversion test (the swap answer lives in the ancilla).
+
+## 28.5 QAOA with "exactly K"
+
+$K$ of $n$ elements ⇒ $\overline{qg_Z}=1-2K/n$ (250 m-qg for $K=3,n=8$) and feasible sector $\binom{8}{3}=56$. With an XY ring mixer from the Dicke state the feasible mass is $1.000000$ by construction. With penalty and X mixer from $|+\rangle^n$:
+
+| p | XY: feasible / ratio | X penalty: feasible / ratio (cond.) |
+|---|---|---|
+| 1 | 1.000000 / 0.575 | 0.343 / 0.252 |
+| 2 | 1.000000 / 0.622 | 0.312 / 0.454 |
+
+**The classical wins**: a greedy swap reaches ratio $0.977$ of the optimum in this case. The qg ingredients improve QAOA versus QAOA, not versus classical optimization (`no gain` against the state of the art; single instance, seed 7).
+
+## 28.6 Operational contrast
+
+| Metric | Without `qang` | With `qang` (`qang.qchem`) | Status |
+| :--- | :--- | :--- | :--- |
+| Detecting electron loss | no diagnostic | witness $W=+1000\gamma$ m-qg, 0 gates | `exact` |
+| Energy error, $\gamma=0.05$ | +0.1205 | parity +0.0034 (÷35); $N$ mod 4: 0 | `exact` (4-qubit model) |
+| Cost of the check | — | 1 ancilla/4 CNOT; 2 ancillas/8 CNOT | `exact` |
+| PCA spectrum ($n=5$) | generic rotation | 10 RBS, error $2\cdot10^{-16}$ | `exact` |
+| Overlap $n=5$ | swap: 11 qubits | inversion: 5 qubits, 0 ancillas | −6 qubits, −1 ancilla (`exact`) |
+| QAOA $K=3,n=8$: feasible mass | 0.31–0.34 (penalty) | 1.000 (XY) | `exact`; vs. greedy `no gain` |
+| Real molecules (H$_2$, LiH) | — | not reproduced here | `tested in simulator` (notes) |
+
+## 28.7 JAX block (`qang/qchem.py`)
+
+```python
+def mean_qz_ideal(n, N):        return 1.0 - 2.0 * N / n
+def witness_mqg(qz, N):         return float(1000.0 * (jnp.mean(qz) - mean_qz_ideal(qz.shape[0], N)))
+def hubbard_dimer(t, U):        # (H, H_Z, H_hop, N, Sz) via Jordan–Wigner, 4 qubits
+def sector_projector(N, keep, mod=0)   # number (mod=0), parity (mod=2), N mod 4 (mod=4)
+def filtered_energy(rho, H, P):        # (energy, fraction kept)
+def pca_unary(X, w=None)  ->  (λ, V, ρ);   givens_decomposition(V) -> ([(i, i+1, θ_qga)], D)
+def qaoa_optimize(c, n, K, p, mixer, penalty=0.0)  # mixer = "xy" | "x"
+```
+
+## 28.8 Verification — `tools/verify_cap28.py`
+
+```
+[1] [H,N]=0 [H,Sz]=0; E0=-1.236067977500 = (U−√(U²+16t²))/2
+[2] T1 γ=0.05: witness = +50.0 m-qg (= 1000γ)
+[3] γ=0.05 raw ΔE=+0.1205  parity +0.00341 (0.905)  N mod4 +0.0e+00 (0.9025)
+[4] PCA n=5: λ=[0.694 0.124 0.089 0.06 0.033], error=2.2e-16, RBS=10
+[5] inversion = (x·y)² to 1e-12; resources n=5: 5 qubits/0 ancillas vs 11 qubits/1 ancilla
+    p=1: XY feasible=1.000000 ratio=0.575 | penalty feasible=0.343 ratio(cond.)=0.252
+    greedy ratio = 0.977
+verify_cap28: OK
+```
+
+### `tests/test_qchem.py`
+```python
+import pytest; jax = pytest.importorskip("jax"); pytest.importorskip("scipy")
+import numpy as np
+from qang.qchem import hubbard_dimer, ground_state_sector, witness_mqg, pca_unary, givens_decomposition, apply_givens
+def test_hubbard_energy():
+    H, HZ, Hh, N, Sz = hubbard_dimer(1.0, 2.0); E0, _ = ground_state_sector(H, N, 2)
+    assert abs(E0 - (2 - np.sqrt(20)) / 2) < 1e-12
+def test_witness(): assert abs(witness_mqg(np.array([0.05, 0.05, 0.05, 0.05]), 2) - 50.0) < 1e-9
+def test_pca_rbs():
+    X = np.random.default_rng(3).normal(size=(16, 5)) + 2.0; lam, V, rho = pca_unary(X); r, D = givens_decomposition(V)
+    assert len(r) == 10 and np.max(np.abs(apply_givens(rho, r, D) - np.diag(lam))) < 1e-12
+```
+
+## 28.9 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `electron_witness` | chemistry | $W=1000(\overline{qg_Z}-(1-2N/n))$ | `witness_mqg` | `exact` |
+| `number_check_t1` | chemistry | $N$ mod 4 exact under $T_1$ at $N=2,n=4$ | `sector_projector`, `filtered_energy` | `exact` (model); hardware `unverified` |
+| `pca_unary_rbs` | spectroscopy | $p_{\text{exc},k}=\lambda_k$ with $n(n-1)/2$ RBS | `pca_unary`, `givens_decomposition` | `exact` |
+| `qaoa_exact_k_xy` | optimization | feasible mass 1 with XY mixer | `qaoa_optimize` | `exact`; vs. classical `no gain` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qchem`; `tools/verify_cap28.py`; `tests/test_qchem.py`.
+Commit: `docs(cap28): electron witness, number check, RBS PCA and exactly-K QAOA rewritten on Ch. 1–27 + qang.qchem + verify_cap28`.

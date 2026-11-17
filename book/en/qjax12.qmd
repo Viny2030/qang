@@ -1,0 +1,108 @@
+# Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for Δ m² {#sec-qjax12 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 9 on the basis of Ch. 1–11. Module: `qang.qneutrino` (JAX, `jax<0.9`; aligned with `qang.neutrino`). Verification: `tools/verify_cap12.py`. Hardware: §165 IQM Garnet (`tested on hardware`).
+
+---
+
+## 12.1 Two flavors = one qubit: the oscillation phase in qga
+
+The flavor state $|\nu_e\rangle=\cos\theta|\nu_1\rangle+\sin\theta|\nu_2\rangle$ is a qubit whose mass axis forms a Bloch angle $2\theta$ with the flavor axis. Propagation is a rotation $R_Z(\phi)$ in the mass basis,
+$$\phi=2\cdot1.267\,\frac{\Delta m^2[\mathrm{eV^2}]\,L[\mathrm{km}]}{E[\mathrm{GeV}]}\ \text{rad},\qquad \phi_{\text{qga}}=\frac{1000}{2\pi}\phi,\qquad L_{\text{osc}}=\frac{4\pi E}{\Delta m^2}\equiv1000\ \text{qga}.$$
+Exact circuit: $R_Y(-2\theta)\,R_Z(\phi)\,R_Y(2\theta)|0\rangle$ — two physical pulses and one **virtual** $R_Z$ (Ch. 2). Reading:
+$$P(\nu_\alpha\to\nu_\beta)=\sin^22\theta\,\sin^2\tfrac\phi2,\qquad qg_Z=1-2P,\qquad m\text{-qg}=1000-2000P .$$
+All two-flavor phenomenology is therefore an `m-qg` reading of one qubit with a single angular parameter $\phi_{\text{qga}}$ (`exact`). One oscillation length is one qga turn.
+
+## 12.2 Operating point: θ versus Δ m²
+
+Fisher information per event (Ch. 9, via `jax.grad`):
+$$I_F(\theta)=\frac{(\partial_\theta P)^2}{P(1-P)},\quad\max\ \text{at }\phi=\pi\ (\text{oscillation maximum}),\qquad I_F(\phi)=\frac{\sin^22\theta\cos^2\frac\phi2}{1-\sin^22\theta\sin^2\frac\phi2},\quad\text{decreasing on }[0,\pi],\ I_F(\pi)=0 .$$
+**Finding**: the oscillation maximum, optimal for $\theta$ ($16.0$/event for $\theta_{12}$), is the **worst** point for $\Delta m^2$ ($1.4\cdot10^{-6}$/event). At $\phi=\pi/2$ (phase $250$ qga) $I_F(\phi)=0.731$ against $0.444$ at $\phi=0.75\pi$: $\times1.65$ fewer events for the same $\sigma_{\Delta m^2}$ (`exact`, per event; flux and cross section enter separately).
+
+## 12.3 Three flavors in two qubits and the sector filter
+
+Encoding $e,\mu,\tau\mapsto|00\rangle,|01\rangle,|10\rangle$; $|11\rangle$ (Hamming weight 2) is **unphysical**: $P(|11\rangle)=0$ ideally, so any weight there is diagnosable noise and the sector filter (`qang.sectors`) discards it and renormalizes. Under depolarization $\varepsilon$ the mean error per flavor falls $\times1.18$–$1.22$ in simulation; on hardware (IQM Garnet, §165, $8\times300$ shots) it fell $\times1.59$ ($0.062\to0.039$) and recovered the minimum of $P_{\mu e}$ at $2.6$ GeV (`tested on hardware`; THEORY_CORE §3). Reference PMNS: $\theta_{12}=33.4^\circ,\theta_{13}=8.57^\circ,\theta_{23}=49^\circ,\delta=195^\circ$, $\Delta m^2_{21}=7.42\cdot10^{-5}$, $\Delta m^2_{31}=2.51\cdot10^{-3}$ eV$^2$.
+
+## 12.4 Operational contrast — Without `qang` vs. with `qang`
+
+| Metric | Standard (without `qang`) | `qang` (`qang.qneutrino` + JAX) | Gain / Status |
+| :--- | :--- | :--- | :--- |
+| 2-flavor circuit | 3 physical rotations | $R_Y,R_Y$ + virtual $R_Z$: 2 pulses | $-1$ pulse (`exact`) |
+| Reading, DUNE-like ($1300$ km, $2.5$ GeV, atm. sector) | $P_{\mu\tau}=0.9739$ | $\phi=526.4$ qga, $-948$ m-qg | (`exact`) |
+| Events for a given $\sigma_{\Delta m^2}$, $\theta_{12}$ | at $\phi=0.75\pi$: $I_F=0.444$ | at $\phi=\pi/2$: $0.731$ | $\times1.65$ fewer events (`exact`, per event) |
+| Error per flavor, 3 flavors / 2 qubits, $\varepsilon=0.10$ | $0.0371$ | sector filter: $0.0307$ | $\times1.21$ sim.; hw §165 $\times1.59$ (`tested on hardware`) |
+| Qubits for 3 flavors | 3 (one-hot) | 2 + physical sector | $-1$ qubit (`exact`) |
+
+## 12.5 JAX block (`qang/qneutrino.py`)
+
+```python
+@jax.jit
+def osc_phase_qga(dm2, L, E):                # 1000/(2π) · 2·1.267·Δm² L/E
+    return 2.0 * 1.267 * dm2 * L / E / RAD_PER_QGA
+
+@jax.jit
+def survival_qz(theta, phi):                 # qg_Z = 1 − 2 sin²2θ sin²(φ/2)
+    return 1.0 - 2.0 * jnp.sin(2 * theta) ** 2 * jnp.sin(phi / 2) ** 2
+
+@jax.jit
+def fisher_phi(theta, phi):                  # (∂φ P)² / (P(1−P)) via jax.grad
+    p = p_transition(theta, phi); dp = jax.grad(p_transition, argnums=1)(theta, phi)
+    return dp ** 2 / jnp.clip(p * (1 - p), 1e-300)
+
+def p3_vacuum(U, m2, L, E, alpha):           # P(ν_α→ν_β) = |Σ_i U_βi e^{−iφ_i} U*_αi|²
+    ph = jnp.exp(-1j * 2.0 * 1.267 * m2 * L / E)
+    return jnp.abs(U @ (ph * jnp.conj(U)[alpha, :])) ** 2
+
+@jax.jit
+def sector_filter(p4):                       # discards |11>, renormalizes {|00>,|01>,|10>}
+    q = p4.at[3].set(0.0); return q / jnp.sum(q)
+```
+
+## 12.6 Verification — `tools/verify_cap12.py` (reproducible output)
+
+```
+[1] 1-qubit circuit = formula (1e-14); L_osc(Δm²21, 2.5 GeV) = 83543 km ≡ 1000 qga; 2 physical pulses + virtual RZ
+[2] θ12: I_F(θ) max at φ=3.1416 (=π), 16.000/event
+    I_F(φ) per event: φ→0: 0.8448 (=sin²2θ) | φ=π/2 (250 qga): 0.7313 | φ=0.75π: 0.4436 | φ=π: 1.36e-06
+[3] L=1300 km, E=2.5 GeV: φ=3.307 rad = 526.4 qga; P(νμ→ντ)=0.9739; qg_Z=-0.9478 → -948 m-qg
+[4] ε=0.05: 0.0185 → 0.0151 (×1.22) | ε=0.10: 0.0371 → 0.0307 (×1.21) | ε=0.20: 0.0742 → 0.0629 (×1.18)
+    hardware IQM Garnet §165 (8×300 shots): 0.062 → 0.039 (×1.59) [tested on hardware]
+verify_cap12: OK
+```
+
+### `tests/test_qneutrino_vacuum.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qneutrino import osc_phase_qga, survival_qz, pmns, p3_vacuum, sector_filter, embed_two_qubits
+
+def test_one_turn_is_one_oscillation_length():
+    dm2, E = 7.42e-5, 2.5; L = 4 * np.pi * E / (2 * 1.267 * 2 * dm2)
+    assert abs(float(osc_phase_qga(dm2, L, E)) - 1000.0) < 1e-9
+
+def test_unitarity_three_flavors():
+    U = pmns(0.583, 0.1496, 0.855, 3.4); p = p3_vacuum(U, jnp.array([0.0, 7.42e-5, 2.51e-3]), 1300.0, 2.5, 1)
+    assert abs(float(p.sum()) - 1) < 1e-12
+
+def test_sector_filter_removes_11():
+    q = sector_filter(jnp.array([0.4, 0.3, 0.2, 0.1])); assert float(q[3]) == 0.0 and abs(float(q.sum()) - 1) < 1e-15
+```
+
+## 12.7 Appendix H — new entries in `qang.measures`
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `osc_phase_qga` | neutrinos | $\phi_{\text{qga}}=\frac{1000}{2\pi}\cdot2.534\,\Delta m^2L/E$ | `osc_phase_qga` | `exact` |
+| `survival_mqg` | neutrinos | $m=1000-2000P$ | `survival_qz` | `exact` |
+| `dm2_operating_point` | metrology | $I_F(\phi)\downarrow$ on $[0,\pi]$; $I_F(\pi)=0$ | `fisher_phi`, `fisher_theta` | `exact` (per event) |
+| `flavor_sector_filter` | compilation | discard $|11\rangle$ | `sector_filter`, `flavor_error` | sim. `exact`; §165 `tested on hardware` |
+
+### `CHANGELOG.md` — `[Unreleased]`
+```
+### Added
+- `qang.qneutrino` (vacuum part): `osc_phase_rad/qga`, `p_transition`, `survival_qz`, `fisher_phi`, `fisher_theta`,
+  `pmns`, `p3_vacuum`, `embed_two_qubits`, `depolarize`, `sector_filter`, `flavor_error` (JAX, `jax<0.9`).
+- `tools/verify_cap12.py`, `tests/test_qneutrino_vacuum.py`; Appendix H: 4 entries.
+```
+Commit: `docs(cap12): vacuum oscillation rewritten on Ch. 1–11 + qang.qneutrino + verify_cap12`.

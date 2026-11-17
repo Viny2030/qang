@@ -1,0 +1,102 @@
+# Chapter 33 — String Theory: What qang Measures Can and Cannot Say (the XX Chain as a c = 1 Free Boson) {#sec-qjax33 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> Chapter added on the basis of Ch. 1–32 (Ch. 5 and 7: $qg_S$ and $mi_Z$ are not entanglement measures; Ch. 18: scramblers; Ch. 26 and 27: correlations and XY). Module: `qang.qcft` (exact NumPy). Verification: `tools/verify_cap33.py`. **Short answer to "are qang measures useful for string theory?": not as a test of the theory; yes as a readout language for a toy model (a 1+1-dimensional CFT, the free boson), with limits that this chapter measures.**
+
+---
+
+## 33.1 Scope: the only thing claimed
+
+A bosonic string has a worldsheet described by a 1+1-dimensional conformal field theory (CFT); a compact free boson is the basic building block, with central charge $c=1$. An XX spin chain (or free fermions on a lattice) is a lattice realization of that free boson. That is **all** this chapter takes from string theory: a lattice model whose continuum limit is a CFT with $c=1$. No strings, gravity, extra dimensions, spectrum, T-duality or AdS/CFT are simulated: those claims remain `not adopted` (§33.7). The bosonic string requires matter with $c=26$ to cancel the anomaly; the $c=1$ chain neither satisfies it nor pretends to.
+
+## 33.2 Model
+
+Open chain of $n$ sites, $H=-\sum_i(c_i^\dagger c_{i+1}+\text{h.c.})$ with $N=n/2$ fermions (≡ XX chain via Jordan–Wigner). The ground state is a Slater determinant and everything follows from $C_{ij}=\langle c_i^\dagger c_j\rangle$. qang readings: $qg_{Z,i}=1-2C_{ii}$ (m-qg $=1000\,qg_Z$) and connected $qg_{ZZ}=\langle Z_iZ_j\rangle-\langle Z_i\rangle\langle Z_j\rangle=-4C_{ij}^2$ (Wick).
+
+## 33.3 Exact identities
+
+For $n=8$ the full state of the XX chain (256 amplitudes, $N=4$ sector) and the computation with $C_{ij}$ agree: the connected $qg_{ZZ}$ to $10^{-12}$ on three pairs $(1,2),(2,5),(0,7)$ and the block entropy to $10^{-10}$ for $\ell=2,4$ (`exact`). Example: $qg_{ZZ}^{c}(1,2)=-244.84$ m-qg and $S(4)=0.8220$ bits.
+
+## 33.4 Central charge: c → 1
+
+The entropy of a block of $\ell$ sites at the edge of an open chain is $S(\ell)=\frac c6\log_2\!\big[\tfrac{2n}{\pi}\sin\tfrac{\pi\ell}{n}\big]+s_0$. Fitting with even $\ell$ between $n/8$ and $n/2$:
+
+| $n$ | 32 | 64 | 128 | 256 | 512 |
+|---|---|---|---|---|---|
+| fitted $c$ | 1.1165 | 1.0648 | 1.0337 | 1.0171 | 1.0086 |
+| $\lvert c-1\rvert$ | 0.1165 | 0.0648 | 0.0337 | 0.0171 | 0.0086 |
+
+The error halves each time $n$ doubles (∝ $1/n$): it converges to $c=1$ (`exact`, numerical). **Note**: the entropy is computed with the **full** correlation matrix $C_A$, not with a qang reading.
+
+## 33.5 What qang does see: the power law
+
+The connected $qg_{ZZ}$ of two sites at odd distance $r$ is $-4/(\pi r)^2$ in the infinite chain (scaling dimension 1). In open chains the log-log slope of $\lvert qg_{ZZ}^c\rvert$ versus $r\in\{3,\dots,31\}$ is $-1.907$ ($n=400$), $-1.952$ ($800$), $-1.976$ ($1600$), toward $-2$; at the center with $r=5$: $-16.37$ m-qg versus $-4000/(5\pi)^2=-16.21$ m-qg (`exact`; the residual is an edge effect and decreases with $n$). It is a **two-point reading**: it costs $O(n^2)$ pairs and gives only $\lvert C_{ij}\rvert$, not the phase.
+
+## 33.6 What qang does not see: local readings
+
+At the center of the chain with $n=128$: $\lvert qg_Z\rvert\le1.8\cdot10^{-12}$ m-qg and $qg_S=1.00000$ bits **at all sites** (particle-hole symmetry fixes $C_{ii}=1/2$). The block entropy, by contrast, grows from 0.773 ($\ell=2$) to 1.575 bits ($\ell=64$). A local reading is identical for $\ell=2$ and $\ell=64$: **neither $qg_Z$ nor $qg_S$ can give $c$** (`against`, consistent with Ch. 5, 7 and 18: $qg_S$ is not an entanglement measure).
+
+## 33.7 What this chapter does not say
+
+1. **It does not test string theory**: reproducing $c=1$ and an exponent $-2$ in a spin chain is a property of the free-boson CFT, which also appears in a Heisenberg chain, in a Luttinger liquid and in many models unrelated to strings.
+2. **There is no evidence that the qg or qga unit simplifies anything** in string theory: no quantity of the theory was found that is better expressed in m-qg (`not adopted`).
+3. **AdS/CFT, T-duality, string spectrum, compactification, strings with $c=26$**: `unverified`/`not adopted`; there is no code or verifier.
+4. The relation to chapters 17–18 (black holes as scramblers) is one of quantum-information language, not a holographic verification.
+
+## 33.8 Operational contrast
+
+| Metric | Without `qang` | With `qang` (`qang.qcft`) | Status |
+| :--- | :--- | :--- | :--- |
+| Two-site correlation (XX chain) | $\langle Z_iZ_j\rangle_c$ | $-4C_{ij}^2$ in m-qg, to $10^{-12}$ of the full state | `exact` |
+| Power-law exponent | $-2$ (theory) | $-1.976$ ($n=1600$), converges | `exact` (numerical) |
+| Central charge $c$ | from block entropy | $1.0086$ ($n=512$); qang does **not** give it | `exact` (with full $C_A$) |
+| Local readings ($qg_Z$, $qg_S$) | — | flat: 0 m-qg, 1.00000 bits | `against` as a measure of $c$ |
+| String theory proper | — | not covered | `not adopted` / `unverified` |
+
+## 33.9 Block (`qang/qcft.py`)
+
+```python
+def correlation_matrix(n, N=None)         # C_ij = <c†_i c_j>, Slater determinant
+def local_qgz(C):                          return 1.0 - 2.0 * np.diag(C)
+def connected_qgzz(C, i, j):               return -4.0 * C[i, j] ** 2
+def block_entropy_bits(C, l)               # eigenvalues of C_A
+def fit_central_charge(n, ls=None)         # S = (c/6) log2[(2n/π) sin(π l/n)] + s0
+def zz_power_law_exponent(n, rmin, rmax)   # log-log slope of |connected qg_ZZ|
+def exact_state_xx(n, N=None)              # full state, check at small n
+```
+
+## 33.10 Verification — `tools/verify_cap33.py`
+
+```
+[1] n=8: ⟨ZZ⟩_c = −4C_ij² and S(l) = full state to 1e-12/1e-10; connected qg_ZZ (1,2) = −244.84 m-qg, S(4) = 0.8220 bits
+[2] fitted c: n=32 1.1165 | 64 1.0648 | 128 1.0337 | 256 1.0171 | 512 1.0086 (error ∝ 1/n)
+[3] log-log slope: n=400 −1.907, n=800 −1.952, n=1600 −1.976; r=5: −16.37 m-qg versus −16.21 m-qg
+[4] n=128: local |qg_Z| ≤ 1.8e-12 m-qg; local qg_S = 1.00000 bits; S(l=2..64) = 0.773 … 1.575 bits
+verify_cap33: OK
+```
+
+### `tests/test_qcft.py`
+```python
+import numpy as np
+from qang.qcft import correlation_matrix, connected_qgzz, exact_state_xx, spin_zz_connected, block_entropy_bits, spin_block_entropy_bits, fit_central_charge, local_qgz
+def test_identities():
+    n = 6; C = correlation_matrix(n); psi = exact_state_xx(n)
+    assert abs(connected_qgzz(C, 1, 3) - spin_zz_connected(psi, n, 1, 3)) < 1e-12
+    assert abs(block_entropy_bits(C, 3) - spin_block_entropy_bits(psi, n, 3)) < 1e-10
+def test_central_charge(): assert abs(fit_central_charge(128)[0] - 1.0) < 0.05
+def test_local_flat(): assert np.max(np.abs(local_qgz(correlation_matrix(64)))) < 1e-10
+```
+
+## 33.11 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `xx_zz_connected` | CFT | $\langle Z_iZ_j\rangle_c=-4C_{ij}^2$ | `connected_qgzz`, `exact_state_xx` | `exact` |
+| `xx_central_charge` | CFT | $S=(c/6)\log_2[\dots]$, $c\to1$ as $1/n$ | `fit_central_charge` | `exact` (numerical) |
+| `xx_zz_power_law` | CFT | $\lvert qg_{ZZ}^c\rvert\propto r^{-2}$ | `zz_power_law_exponent` | `exact` (numerical) |
+| `local_reading_blind_to_c` | CFT | $qg_Z=0$, $qg_S=1$ bit for all $\ell$ | `local_qgz`, `block_entropy_bits` | `against` |
+| `string_theory_claims` | strings | AdS/CFT, T-duality, spectrum, $c=26$ | — | `not adopted` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qcft`; `tools/verify_cap33.py`; `tests/test_qcft.py`.
+Commit: `docs(cap33): scope of qang versus the c=1 CFT and string theory + qang.qcft + verify_cap33`.

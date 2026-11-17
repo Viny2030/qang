@@ -1,0 +1,137 @@
+# Chapter 37 — Nanoquantum Systems: Tunnelling, Landauer, Partition Noise, Level Occupation, Quantum-Dot Spins and NV Centres Read with the qang Equation {#sec-qjax37 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> Rewrite of the nanoquantum chapter on the basis of Ch. 1–36. Module: `qang.qnano` (NumPy; binomial noise is computed with the exact distribution, no Monte Carlo, except for thermometry). Verification: `tools/verify_cap37.py`. **Everything is calculation and simulation: no figure comes from an experiment. In the only case where `qang` competes as an estimator (thermometry), it loses.**
+> **Abstract.** Transmissions, occupations and spin populations are probabilities, so the qang equation reads them all alike: the half-angle of a tunnelling probability is the transmission amplitude modulus; Landauer's conductance is the mean $qg$ of the channels; partition noise is the binomial variance, stabilised by the angle ($\sqrt N\sigma_\theta\in[1.0005,1.0100]$ for $T\in[0.02,0.98]$). As a thermometer, the artanh line is biased ($-1.9\%$) and noisier than the maximum-likelihood fit. Calculation and simulation only.
+
+---
+
+## 37.1 Reading rules
+
+1. $p_0$ is, depending on the case, the transmission $T$, the occupation $f$ of a level or the population of a spin state. With $p_0$: $\theta=2\arccos\sqrt{p_0}$, $qg_Z=2p_0-1$, m-qg $=1000\,qg_Z$; 1 m-qg is always $\Delta p_0=0.0005$.
+2. `qga` (1 turn = 1000 qga) appears only as the scale of the angle: $\sigma_\theta=1/\sqrt N$ is equivalent to $159.15/\sqrt N$ qga.
+3. Each claim carries its function in `qang.qnano`; the contrast with the usual form goes alongside, and it is stated when `qang` loses.
+
+## 37.2 Tunnelling: the half-angle is the amplitude
+
+Rectangular barrier of 1 eV, electron of 0.5 eV ($\kappa=3.623$ nm⁻¹), exact formula (`barrier_T`):
+
+| width | $T$ | reading | $\theta_T$ |
+| :--- | :--- | :--- | :--- |
+| 0.2 nm | 0.616 | +231.9 m-qg | 76.6° |
+| 0.5 nm | 0.101 | −797.3 m-qg | 142.9° |
+| 1.0 nm | $2.85\cdot10^{-3}$ | −994.3 m-qg | 173.9° |
+| 1.5 nm | $7.62\cdot10^{-5}$ | −999.8 m-qg | 179.0° |
+
+$\cos(\theta_T/2)=\sqrt T=|t|$ to $10^{-15}$: **the half-angle is the modulus of the transmission amplitude**. Without `qang`, $\ln T$ is plotted, with slope $-2\kappa$ ($-7.242$ measured, $-7.245$ expected). With `qang`, the distance to the pole $\pi-\theta_T\approx2|t|$ falls with slope $-\kappa$ ($-3.622$ versus $-3.623$ nm⁻¹): the amplitude instead of the probability, the same information.
+
+## 37.3 Landauer: one channel, one reading
+
+$G/G_0=\sum_nT_n=N/2+\tfrac12\sum_n qg_n$, with the saddle-point model $T_n=1/(1+e^{-2\pi(V-n-1/2)/w})$ ($w=0.45$): identity to $4.4\cdot10^{-16}$ (`conductance_from_qg`). The plateaus are at $V=2,3,4$ with $G/G_0=1,2,3$; each step is a channel crossing the equator. Conductance alone gives $\sum T_n$; with shot noise $S=\sum T_n(1-T_n)$ two simultaneously open channels are recovered (`recover_two_channels`): from $G=1.3747$, $S=0.2682$ come exactly $T=0.9716$ and $0.4031$. It is the usual technique; in qg, conductance reads the mean $qg$ and noise the mean $qg^2$.
+
+## 37.4 Partition noise: the binomial variance, stabilized
+
+$T(1-T)=(1-qg^2)/4=\sin^2\theta/4$. With $N=1000$ electrons per window and the **exact** binomial distribution (`theta_std_sqrtN`):
+
+| $T$ | 0.02 | 0.05 | 0.2 | 0.5 | 0.8 | 0.95 | 0.98 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| $\sqrt N\,\sigma(\hat T)$ | 0.140 | 0.218 | 0.400 | 0.500 | 0.400 | 0.218 | 0.140 |
+| $\sqrt N\,\sigma(\hat\theta)$ | 1.0100 | 1.0038 | 1.0009 | 1.0005 | 1.0009 | 1.0038 | 1.0100 |
+
+The error bar of $\hat T$ depends on what is measured and misleads near the poles; that of $\hat\theta$ is the same over the whole range. It is the arcsine transformation, known in statistics: `qang` does not invent it; it contributes that the stabilized angle is the natural coordinate of the state.
+
+## 37.5 Coulomb blockade: level occupation
+
+$qg_Z=2f-1=-\tanh(x/2)$, with $f=1/(1+e^x)$, $x=\varepsilon/k_BT$ (to $10^{-15}$): the same thermal state as $qg_Z=\tanh(\beta h)$ of Ch. 11 (ex-8), with the sign of the convention. As a thermometer (25 levels, 200 readings per level, 400 repetitions, $k_BT=1$):
+
+| method | estimated $k_BT$ (seed 34) | 4 seeds |
+| :--- | :--- | :--- |
+| Fermi fit by maximum likelihood (without `qang`) | $1.0000\pm0.0275$ | 0.9997–1.0008 |
+| line of $\operatorname{artanh}(qg_Z)$ through the origin (with `qang`) | $0.9808\pm0.0366$ | 0.9805–0.9813 |
+
+**`qang` loses.** The line is closed-form but has a bias of $-1.9\%$ and a $1.3\times$ larger spread: $\operatorname{artanh}$ amplifies noise near $\pm1$ and saturated points must be discarded. The previous version of the chapter gave $+2.9\%$ with another recipe (line with intercept); **the sign and size of the bias depend on the recipe, not the result**: no artanh line beats the Fermi fit. The qg reading serves to see the thermometer, not to estimate with it.
+
+## 37.6 Spin qubits in quantum dots
+
+Charge-sensor readout has errors $e_0=P(1\mid0)$, $e_1=P(0\mid1)$, and the rule of Ch. 30 (ex-27) in m-qg is $m'=(1-e_0-e_1)m+1000(e_1-e_0)$ (`readout_affine`). With $e_0=0.02$, $e_1=0.08$ (illustrative values): $+1000\to960$ and $-1000\to-840$ m-qg, that is, **amplitude 900 m-qg and shift +60 m-qg** (each percentage point of readout error costs 10 m-qg of visibility); correcting amplifies noise by $1/(1-e_0-e_1)=1.11\times$. It is the standard correction written linearly.
+
+## 37.7 NV centres: contrast as a budget
+
+With $n\sim\text{Poisson}(N_b[1-C(1-p_0)])$, the reading of $p_0$ in m-qg has (`nv_sigma_mqg`)
+
+$$\sigma_m=\frac{2000\sqrt{1-C(1-p_0)}}{C\sqrt{N_b}}\ \approx\ \frac{2000}{C\sqrt{N_b}}.$$
+
+With $C=0.3$ and $N_b=444\,444$: the approximation gives **10.00 m-qg** and the exact formula **9.22 m-qg**; for exactly 10 m-qg one needs **377 778 photons** (`nv_photons_for`). The contrast $C=0.3$ costs ≈$1/C^2=11.1\times$ the photons of $C=1$. In ODMR (Lorentzian line of 1 MHz, $C=0.2$, 61 frequencies over $\pm3$ widths, 1.16 M photons), the Cramér–Rao bound of the center is **8.55 kHz = 305 nT** with $\gamma=28$ GHz/T (`odmr_fisher_crb_hz`). The line fit does not change with `qang`; the scale adds the prior count in a unit linear in the population.
+
+## 37.8 Operational contrast: without `qang` versus with `qang`
+
+| Topic | Without `qang` | With `qang` (`qang.qnano`) | Status |
+| :--- | :--- | :--- | :--- |
+| Tunnelling | $\ln T$, slope $-2\kappa$ | $\cos(\theta_T/2)=\lvert t\rvert$; $\pi-\theta_T$ with slope $-\kappa$ | `exact` |
+| Landauer | $G/G_0=\sum T_n$ | $N/2+\sum qg_n/2$; plateaus at the poles | `exact` |
+| Two channels | $G$ and $S$ | the same; recovers 0.9716 and 0.4031 | `exact` |
+| Partition noise | $\hat T$ bar: 0.14 to 0.50 | $\hat\theta$ bar: 1.0005 to 1.0100 | `exact` |
+| Thermometry | Fermi ML: $1.0000\pm0.0275$ | artanh: $0.9808\pm0.0366$ | `against` |
+| Spin readout | 900 m-qg and +60 m-qg uncorrected | corrected with the poles, noise ×1.11 | `exact` |
+| NV | contrast and photons | 377 778 photons for 10 m-qg ($C=0.3$) | `exact` |
+| ODMR | CRB 8.55 kHz | the same (305 nT) | `exact` |
+
+## 37.9 Block (`qang/qnano.py`)
+
+```python
+def barrier_T(a_nm, E_eV=0.5, V_eV=1.0)       # exact transmission
+def conductance_from_qg(T); recover_two_channels(G, S)
+def theta_std_sqrtN(T, N)                      # σ(θ̂)·√N with the exact binomial
+def occupancy_qgz(x)                           # −tanh(x/2)
+def fit_kT_mle(eps, ones, N); fit_kT_artanh(eps, ones, N); thermometry(...)
+def readout_affine(m, e0, e1)
+def nv_sigma_mqg(C, Nb, p0=0.5); nv_photons_for(sigma_mqg, C); odmr_fisher_crb_hz(...)
+```
+
+## 37.10 Verification — `tools/verify_cap37.py`
+
+```
+[1] κ = 3.623 nm⁻¹; 0.2 nm: T=0.616, +231.9 m-qg, θ=76.6°; 0.5 nm: T=0.101, -797.3 m-qg, θ=142.9°; 1.0 nm: T=0.00285, -994.3 m-qg, θ=173.9°; 1.5 nm: T=7.62e-05, -999.8 m-qg, θ=179.0°
+    cos(θ_T/2) = √T = |t| to 1e-15; slope of ln T: -7.242 (−2κ = -7.245); of ln(π−θ_T): -3.622 (−κ = -3.623) nm⁻¹
+[2] G/G0 = N/2 + Σqg/2 to 4.4e-16; plateaus at V=2,3,4: [1.0, 2.0, 3.0]; two channels (G=1.3747, S=0.2682) → T = 0.9716, 0.4031
+[3] √N·σ(θ̂) = [1.01, 1.0038, 1.0009, 1.0005, 1.0009, 1.0038, 1.01] for T=[0.02, 0.05, 0.2, 0.5, 0.8, 0.95, 0.98]; √N·σ(T̂) = [0.14, 0.218, 0.4, 0.5, 0.4, 0.218, 0.14]
+[4] qg_Z = 2f − 1 = −tanh(x/2) to 1e-15
+[5] k_BT: maximum likelihood 1.0000 ± 0.0275; artanh line 0.9808 ± 0.0366 (4 seeds: ML 0.9997–1.0008, artanh 0.9805–0.9813)
+[6] +1000 → 960, −1000 → -840 m-qg: amplitude 900 m-qg, shift +60 m-qg; noise ×1.11 when correcting
+[7] NV C=0.3, Nb=444 444: approximate σ 10.00 m-qg, exact 9.22 m-qg; for exactly 10 m-qg one needs 377,778 photons (C=0.3 asks 11.1× those of C=1); ODMR 1 MHz, C=0.2, 61 points, 1.16 M photons: CRB 8.55 kHz = 305 nT (γ=28 GHz/T)
+verify_cap37: OK
+```
+
+### `tests/test_qnano.py`
+```python
+import numpy as np
+from qang.qnano import barrier_T, theta_from_p0, recover_two_channels, theta_std_sqrtN, thermometry, nv_sigma_mqg, nv_photons_for
+def test_tunnel_amplitude():
+    T = barrier_T(1.0); assert abs(np.cos(theta_from_p0(T) / 2) - np.sqrt(T)) < 1e-15 and abs(T - 2.85e-3) < 1e-5
+def test_two_channels():
+    r = recover_two_channels(0.4031 + 0.9716, 0.4031 * 0.5969 + 0.9716 * 0.0284); assert abs(r[0] - 0.9716) < 1e-12
+def test_arcsine_variance_stabilized(): assert all(1.0 <= theta_std_sqrtN(t, 400) < 1.02 for t in (0.05, 0.3, 0.5, 0.9))
+def test_thermometry_loses():
+    (ml, _), (ar, _) = thermometry(reps=60, seed=5); assert abs(ml - 1) < 0.02 and ar < 0.995
+def test_nv(): assert abs(nv_sigma_mqg(0.3, nv_photons_for(10, 0.3)) - 10) < 1e-9
+```
+
+(The rest, `test_landauer_identity_and_two_channels`, `test_fermi_tanh_and_thermometry_loses` and `test_readout_and_nv`, is in `tests/test_qnano.py`.)
+
+## 37.11 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `tunnel_amplitude` | nano | $\cos(\theta_T/2)=\lvert t\rvert$ | `barrier_T`, `theta_from_p0` | `exact` |
+| `landauer_qg_identity` | nano | $G/G_0=N/2+\sum qg_n/2$ | `conductance_from_qg`, `qpc_T` | `exact` |
+| `two_channel_recovery` | nano | $G=\sum T$, $S=\sum T(1-T)$ → $T_1,T_2$ | `recover_two_channels` | `exact` |
+| `arcsine_partition_noise` | nano | $\sqrt N\sigma_\theta\in[1.0005,1.0100]$ | `theta_std_sqrtN` | `exact` |
+| `fermi_qgz_tanh` | nano | $qg_Z=-\tanh(x/2)$ | `occupancy_qgz` | `exact` |
+| `thermometry_artanh_loses` | nano | artanh $0.9808\pm0.0366$ versus ML $1.0000\pm0.0275$ | `fit_kT_artanh`, `fit_kT_mle`, `thermometry` | `against` |
+| `spin_readout_affine` | nano | $m'=(1-e_0-e_1)m+1000(e_1-e_0)$ | `readout_affine` | `exact` |
+| `nv_photon_budget` | nano | $\sigma_m=2000\sqrt{1-C(1-p_0)}/(C\sqrt{N_b})$ | `nv_sigma_mqg`, `nv_photons_for` | `exact` |
+| `odmr_crb` | nano | CRB 8.55 kHz (305 nT) | `odmr_fisher_crb_hz` | `exact` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qnano`; `tools/verify_cap37.py`; `tests/test_qnano.py`.
+Commit: `docs(cap37): nanoquantum systems read with qang + qang.qnano + verify_cap37`.

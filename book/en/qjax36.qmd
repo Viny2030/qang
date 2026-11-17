@@ -1,0 +1,136 @@
+# Chapter 36 — Software Architecture and the Multi-SDK Ecosystem: What Each Module Requires, What CI Installs, and What a Wrong Qubit Order Costs {#sec-qjax36 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> Rewrite of the architecture chapter on the basis of Ch. 1–35. Module: `qang.qarch` (standard library only; `convention_error_mqg` uses `qang.interop`). Verification: `tools/verify_cap36.py`, which audits the real repository. **Summary: the `qang` core requires only NumPy (40 of 71 modules); the rest is activated by extras; the qubit order across SDKs is unified in `qang.interop`, and getting it wrong costs up to 600 m-qg without raising an error.**
+> **Abstract.** An AST audit of the real repository: 40 of 71 modules need only NumPy; 20 need JAX, 9 Qiskit, 1 Cirq, 1 PennyLane. The CI installs `.[all]`, which includes neither JAX nor Torch, and none of the 192 test files imports a module requiring a missing package without an `importorskip` guard. Reading counts with the wrong qubit-order convention shifts the $qg_Z$ profile by up to 600 m-qg without an error.
+
+---
+
+## 36.1 Reading rules
+
+1. Every claim about the architecture comes from `tools/verify_cap36.py` run on the repository, not from memory. The verifier fails if the repository stops satisfying it.
+2. `m-qg` $=1000\,qg_Z$; `qga` is the angular scale (1 turn = 1000 qga).
+3. What comes from stored IBM runs (§137–§150) is cited and marked `unverified` here: **it was not re-run**.
+
+## 36.2 What each module requires to import
+
+`requires` walks the syntax tree of every `qang` module, takes only the **module-level** imports (deferred ones, inside functions, do not count) and adds those of the `qang` modules it imports, transitively:
+
+| group | modules | packages required |
+| :--- | :--- | :--- |
+| core | 40 | NumPy and standard library |
+| JAX | 20 | `jax`: `qan`, `qbattery`, `qchem`, `qctc`, `qdemarc`, `qdist`, `qdualrail`, `qdynamics`, `qfisher`, `qgeom`, `qkd`, `qkernels`, `qmajorana`, `qmetro`, `qneutrino`, `qrng`, `qscramble`, `qsymfilter`, `qtele`, `qweightqnn` |
+| Qiskit | 9 | `qiskit`: `algorithms`, `ansatze`, `circuits`, `ibm`, `iqm`, `qec`, `qiskit_gate`, `qml`, `sectors` |
+| Cirq | 1 | `cirq_gate` |
+| PennyLane | 1 | `pennylane_gate` |
+
+No module requires SciPy on import. **This was not the case:** `qang.qchar` (Ch. 30) imported `scipy.linalg` and `scipy.optimize` at module level, and SciPy is only in the `examples` and `dev` extras. Ch. 36 detected it and it was fixed: the matrix exponential was a diagonal of phases and the unimodal minimum is solved by golden-section search; `tools/verify_cap30.py` and its 5 tests still pass with the same numbers.
+
+## 36.3 Extras and what CI installs
+
+`parse_pyproject` reads `pyproject.toml` with no external dependencies, and `check_extras` checks the three project rules:
+
+- the core depends only on `numpy`;
+- `iqm` is isolated from `all` (because `iqm-client` pins its own Qiskit);
+- the `jax` extra is bounded to `<0.9`.
+
+CI installs `pip install -e ".[all]"`: 14 packages, among them Qiskit, Cirq, PennyLane, scikit-learn and SciPy, **but not JAX or Torch**. Therefore every test that imports a module of the JAX group must be protected with `pytest.importorskip("jax")`: an unguarded import fails at collection and `pytest` exits with **code 2**, not 1. `unguarded_tests` computes, for each test file, the packages it requires (its own, those of the `qang.x` it imports and those of the `examples/` scripts it imports, transitively) and returns those that are neither installed nor guarded:
+
+- of 192 test files: **0** unprotected.
+
+This result rules out one cause of the Tests failure in CI; it does not identify the real cause. That remains pending from the log of the "Run tests" step.
+
+## 36.4 A single qubit order
+
+Qiskit writes qubit 0 on the **right** of the bit string; Cirq, PennyLane, Braket and pytket write it first. `qang.interop.canonical_counts` brings everything to $\{(b_0,\dots,b_{n-1}):\text{count}\}$. With a product state of $qg_Z=[0.6,-0.2,0.0]$ per qubit (10⁶ exact shots):
+
+- Qiskit (`'001'`-style) and Cirq (`'100'`-style) give **the same** canonical result;
+- reading Qiskit counts as if they were Cirq's shifts the profile by up to **600.0 m-qg** (qubit 0 becomes qubit 2);
+- **with a symmetric register** (`000`/`111`) the shift is **0.0 m-qg**: the error is not seen exactly where everything seems fine. That is why the order is declared with `sdk=` and `canonical_counts` rejects a dictionary without it.
+
+## 36.5 Primitives, compilation, ZZ and ZNE (cited, not re-run)
+
+The following figures are from the stored IBM runs (notes §137–§150) and from the previous version of the chapter; they were not re-run here (`unverified`):
+
+| device (§137, 10 weight-1 circuits, 8000 shots) | raw | readout | filter | filter + readout |
+| :--- | :--- | :--- | :--- | :--- |
+| FakeBrisbane | 0.104 | 0.074 | 0.023 | 0.022 |
+| FakeSherbrooke | 0.065 | 0.038 | 0.019 | 0.016 |
+| FakeTorino | 0.101 | 0.036 | 0.018 | 0.013 |
+
+- `best_chain` keeps between 6 and 17 more points of shots than the default layout (§138); the prediction of the fraction kept orders correctly (Spearman 0.94–0.98) but its values come out low (error 0.08–0.13: the L1 prediction failed).
+- Static ZZ is **simulated, not mitigated** (§150): at 0, 5 and 15 kHz the filter removes between 32 and 60 % of the aggregate error; predictions Z2 and Z3 failed.
+- Filter + ZNE gives 0.011–0.015 versus 0.034–0.085 for ZNE alone (§142); on FakeTorino, adding ZNE to filter + readout worsens from 0.013 to 0.014.
+
+## 36.6 Guidelines by hardware type
+
+- **Superconducting (IBM, IQM):** compile with weight-conserving gates (XX+YY, RBS) and check it with `qang.qlimits.preserves_weight` or the analysis of `qang.ibm`; compare two-qubit gates at the same optimization level (Ch. 35); correct the readout with the calibration or with the two poles.
+- **Ions (IonQ, Braket):** all-to-all connectivity; the bit order is resolved in `qang.interop`. The H₂ run on the real machine was rejected before a job was accepted and was not charged.
+- **On any platform:** rehearse for free, measure the cost with a small test, pre-register before the main job (Ch. 31), read the token from an environment variable and do not spend without an explicit flag.
+
+## 36.7 Operational contrast: without `qang` versus with `qang`
+
+| Action | Without `qang` | With `qang` | Status |
+| :--- | :--- | :--- | :--- |
+| Qubit order across SDKs | silent: up to 600 m-qg shift (example $[0.6,-0.2,0]$) | `canonical_counts(sdk=…)`: same result in Qiskit and Cirq | `exact` |
+| Symmetric register misread | 0.0 m-qg: not noticed | same: the error is invisible; the SDK is declared | `exact` |
+| Core dependencies | unaudited | 40 of 71 modules NumPy only; 0 require SciPy | `exact` |
+| Tests with packages CI does not install | collection error (code 2) | 0 of 192 without `importorskip` | `exact` |
+| Readout correction + filter (IBM, §137) | raw 0.065–0.104 | filter + readout 0.013–0.022 | `unverified` (cited) |
+
+## 36.8 Block (`qang/qarch.py`)
+
+```python
+def requires(qang_dir)                         # {module: {third-party packages on import}}, transitive
+def group_modules(req)                         # 'core' or the extra packages it requires
+def parse_pyproject(text); check_extras(ex)    # core=numpy, iqm isolated, jax<0.9
+def installed_by(ex, "all")                    # what pip install -e ".[all]" installs
+def unguarded_tests(tests, qang, available, local_dirs)   # tests that would fail at collection
+def convention_error_mqg(counts, sdk_true, sdk_wrong)     # qg_Z profile shift in m-qg
+```
+
+## 36.9 Verification — `tools/verify_cap36.py`
+
+```
+[1] 71 qang modules; third-party packages required on import: numpy + ['cirq', 'jax', 'pennylane', 'qiskit']
+    core        40 modules
+    qiskit       9 modules: algorithms, ansatze, circuits, ibm, iqm, qec, qiskit_gate, qml, sectors
+    cirq         1 modules: cirq_gate
+    pennylane    1 modules: pennylane_gate
+    jax         20 modules: qan, qbattery, qchem, qctc, qdemarc, qdist, qdualrail, qdynamics, qfisher, qgeom, qkd, qkernels, qmajorana, qmetro, qneutrino, qrng, qscramble, qsymfilter, qtele, qweightqnn
+[2] pyproject: 26 extras; {'core_is_numpy_only': True, 'iqm_isolated_from_all': True, 'jax_below_0_9': True}; CI installs ".[all]" = 14 packages (jax and torch not included)
+[3] 192 test files; those requiring a package that ".[all]" does not install and not protecting it with importorskip: 0
+[4] prepared qg_Z [0.6, -0.2, 0.0]: qiskit and cirq give the same canonical result; reading "qiskit" as "cirq" shifts up to 600.0 m-qg (qubit 0 ↔ qubit 2); with a symmetric register (000/111) the shift is 0.0 m-qg: it gives no warning
+verify_cap36: OK
+```
+
+### `tests/test_qarch.py`
+```python
+from qang.qarch import parse_pyproject, check_extras, installed_by, requirement_root
+def test_pyproject_and_requirement_roots():
+    t = '[project]\ndependencies = [\n "numpy>=1",\n]\n[project.optional-dependencies]\njax = [\'jax[cpu]>=0.4,<0.9; python_version >= "3.10"\']\n' \
+        'iqm = ["iqm-client[qiskit]>=36"]\nall = ["scikit-learn>=1.2", "qiskit>=1"]\n[project.urls]\nx = "y"\n'
+    e = parse_pyproject(t)
+    assert requirement_root("scikit-learn>=1.2") == "sklearn" and installed_by(e, "all") == {"numpy", "sklearn", "qiskit"}
+    assert all(check_extras(e).values())
+```
+
+(The rest, `test_unguarded_test_detected` and `test_transitive_requirements`, is in `tests/test_qarch.py`.)
+
+## 36.10 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `core_numpy_only` | architecture | 40 of 71 modules require only NumPy; 0 require SciPy | `requires`, `group_modules` | `exact` |
+| `optional_sdk_groups` | architecture | JAX 20, Qiskit 9, Cirq 1, PennyLane 1 | `group_modules` | `exact` |
+| `extras_constraints` | architecture | core=numpy; iqm outside `all`; jax<0.9 | `parse_pyproject`, `check_extras` | `exact` |
+| `ci_collection_guard` | CI | 0 of 192 tests without `importorskip` | `unguarded_tests`, `installed_by` | `exact` |
+| `qubit_order_convention` | interop | Qiskit = Cirq after `canonical_counts` | `canonical_counts`, `qg_z_profile` | `exact` |
+| `silent_qubit_swap` | interop | shift 600.0 m-qg; 0.0 m-qg if the register is symmetric | `convention_error_mqg` | `exact` |
+| `ibm_runtime_readings` | hardware | filter + readout 0.013–0.022 (§137) | — | `unverified` (cited, not re-run) |
+| `static_zz_not_mitigated` | hardware | filter removes 32–60 % of the aggregate ZZ (§150) | — | `unverified` (cited, not re-run) |
+| `zne_with_filter` | hardware | filter + ZNE 0.011–0.015 (§142) | — | `unverified` (cited, not re-run) |
+
+`CHANGELOG.md [Unreleased]`: `qang.qarch`; `tools/verify_cap36.py`; `tests/test_qarch.py`; **Fixed:** `qang.qchar` no longer imports SciPy at module level.
+Commit: `docs(cap36): architecture and multi-SDK audit + qang.qarch + verify_cap36; fix(qchar): no SciPy in the core`.

@@ -1,0 +1,72 @@
+# Chapter 27 — Many-Body Dynamics in the Weight-1 Sector: XY as a Quantum Walk of RBS Gates, Affine Bloch Channels and One-Parameter varQTE {#sec-qjax27 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 24 on the basis of Ch. 1–26 (`qang.channels`, `qang.varqte`; Hubbard/RBM remain referenced as `unverified` in this chapter). Module: `qang.qdynamics` (JAX, `jax<0.9`). Verification: `tools/verify_cap27.py`.
+
+---
+
+## 27.1 XY conserves the weight: the quantum walk is a sequence of RBS
+
+$H_{XY}=J\sum_k(X_kX_{k+1}+Y_kY_{k+1})/2$ commutes with the Hamming weight; in the weight-1 sector it is the adjacency matrix $J A_n$ (continuous-time quantum walk of one exciton). The propagator of one link is exactly an RBS (Givens) gate of angle $Jt$ — the same gate as the unary loader (Ch. 23) — so the even-odd Trotter step is an RBS network with $\Sigma p=1$ **exact**, and the symmetry filter of Ch. 24 applies unchanged to the dynamics. First-order Trotter error ($n=6$, $J=1$, $t=2$): $0.317$ (1 step, RBS of $318$ qga), $0.111$ (4), $0.029$ (16), $0.0073$ (64 steps, RBS of $5.0$ qga) ∝ $dt$ (`exact`). Per-site reading $qg_Z^{(k)}=1-2p_k$: $[998,735,168,366,787,947]$ m-qg at $t=2$. XY dynamics in the weight-1 sector is a Givens/RBS network: weight conservation is exact, the symmetry filter transfers verbatim, and first-order Trotter error scales as $dt$.
+
+## 27.2 Affine Bloch channels: a single calibration (M,c)
+
+Every 1-qubit channel is $\mathbf r\mapsto M\mathbf r+\mathbf c$ (12 numbers). $T_1$: $M=\mathrm{diag}(\sqrt{1-\gamma},\sqrt{1-\gamma},1-\gamma)$, $\mathbf c=(0,0,\gamma)$ (matches Kraus to $10^{-14}$); dephasing: $M=\mathrm{diag}(1-2p,1-2p,1)$; readout (Ch. 25): $M_{zz}=1-e_{01}-e_{10}$, $c_z=e_{10}-e_{01}$. Composition is another pair $(M,\mathbf c)$: $T_1(0.2)\circ\text{dephasing}(0.05)\circ\text{readout}(0.02,0.06)$ takes $(0.6,0,0.5)\to(0.483,0,0.592)$, $+500\to+592$ m-qg, $qg_\tau$ $0.624\to0.645$. **Rule**: calibrate the whole chain as a single affine map (12 parameters) instead of three models, and use $qg_\tau$ (Ch. 5) as the purity invariant (`exact`).
+
+## 27.3 One-qubit varQTE: McLachlan with RY(θ) in qga
+
+$H=\omega Z/2$ from $|+\rangle$: $qg_Z(\tau)=-\tanh(\omega\tau)$ (exact). With the ansatz $R_Y(\theta)|0\rangle$, the McLachlan equation is $\dot\theta=\omega\sin\theta$ (metric $g=1/4$ in rad, $(2\pi/1000)^2/4$ in qga); explicit Euler converges as $1/\text{steps}$: error $9.2\cdot10^{-3}$ (30), $9.2\cdot10^{-5}$ (3000), final $-995$ m-qg. It is the thermal state of Ch. 11 ($qg_Z=\tanh$) as a fixed point: 1 parameter, 0 ancillas, no plateaus ($P=1$). For $P>1$ apply Ch. 9 (regularized $F_Z$ metric), never plain descent in $qg_Z$ (THEORY_CORE §2.1).
+
+## 27.4 Operational contrast
+
+| Metric | Standard | `qang` (`qang.qdynamics`) | Status |
+| :--- | :--- | :--- | :--- |
+| XY Trotter, $n=6$ | generic $e^{-iH dt}$ (CNOT+RZ, $\ge2$ 2Q/link) | 1 RBS/link, exact weight, $T_1$ filter applicable | (`exact`) |
+| Trotter error 64 steps | — | $7.3\cdot10^{-3}$ ∝ $dt$ | (`exact`) |
+| Noise model in a chain | 3 models | 1 affine $(M,\mathbf c)$, $qg_\tau$ invariant | (`exact`) |
+| 1-qubit varQTE | generic optimizer | $\dot\theta=\omega\sin\theta$, error $10^{-4}$ | (`exact`) |
+| Hubbard / RBM | — | referenced | `unverified` here |
+
+## 27.5 JAX block (`qang/qdynamics.py`)
+
+```python
+def xy_sector_hamiltonian(n, J=1.0, periodic=False)   # adjacency J·A_n in the weight-1 sector
+def exact_walk(n, t, start=0, J=1.0)                   # |<e_k|e^{−iHt}|e_start>|²
+def trotter_walk_rbs(n, t, steps, start=0, J=1.0)      # even-odd layers of RBS(J dt); (p_k, angle in qga)
+class AffineChannel:   __call__(r) = M r + c ; then(other) ; depolarizing / amplitude_damping / dephasing / readout
+def imaginary_time_qz_exact(omega, tau):  return -jnp.tanh(omega * tau)
+def varqte_ry_mclachlan(omega, tau_max, steps)         # θ̇ = ω sinθ (Euler), returns qg_Z(τ)
+```
+
+## 27.6 Verification — `tools/verify_cap27.py`
+
+```
+[1] Trotter  64 steps × 5 RBS(5.0 qga): max error=7.31e-03; Σp=1.000000000000
+    per-site m-qg reading (t=2): [998 735 168 366 787 947]
+[2] affine T1 = Kraus to 1e-14; chain → m-qg +500 → +592; qg_τ 0.624 → 0.645
+[3] varQTE Euler 3000 steps: max error in qg_Z = 9.20e-05 (final -995 m-qg vs -995)
+verify_cap27: OK
+```
+Asserts: $e_{64}<10^{-2}$ and $e_{64}<e_{16}/3$; affine $T_1=$ Kraus to $10^{-14}$; composition $=(M,\mathbf c)$ to $10^{-14}$; varQTE error $<2\cdot10^{-3}$.
+
+### `tests/test_qdynamics.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qdynamics import exact_walk, trotter_walk_rbs, AffineChannel, imaginary_time_qz_exact, varqte_ry_mclachlan
+def test_trotter_converges(): assert float(np.max(np.abs(np.asarray(trotter_walk_rbs(4, 1.0, 200)[0]) - np.asarray(exact_walk(4, 1.0))))) < 2e-3
+def test_affine_compose(): ch = AffineChannel.depolarizing(0.5).then(AffineChannel.depolarizing(0.5)); assert np.allclose(np.asarray(ch(jnp.array([1., 0, 0]))), [0.25, 0, 0])
+def test_varqte(): assert abs(float(varqte_ry_mclachlan(1.0, 2.0, 2000)[-1]) - float(imaginary_time_qz_exact(1.0, 2.0))) < 2e-3
+```
+
+## 27.7 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `xy_walk_rbs` | dynamics | $e^{-iH_{XY}t}$ in weight 1 = RBS network | `trotter_walk_rbs` | `exact` |
+| `affine_channel_compose` | channels | $(M_2M_1,\ M_2\mathbf c_1+\mathbf c_2)$ | `AffineChannel.then` | `exact` |
+| `varqte_tanh_fixed_point` | dynamics | $\dot\theta=\omega\sin\theta\Rightarrow qg_Z=-\tanh\omega\tau$ | `varqte_ry_mclachlan` | `exact` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qdynamics`; `tools/verify_cap27.py`; `tests/test_qdynamics.py`.
+Commit: `docs(cap27): XY walk with RBS, affine channels and varQTE rewritten on Ch. 1–26 + qang.qdynamics + verify_cap27`.

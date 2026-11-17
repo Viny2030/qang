@@ -1,0 +1,113 @@
+# Chapter 9 — Fisher Information in qga: Z Readout versus Fubini–Study, Regularized Natural Gradient and Barren Plateaus {#sec-qjax09 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Module: `qang.qfisher` (JAX, `jax<0.9`; uses `qang.qan`). Verification: `tools/verify_cap09.py`. Continues Ch. 7–8; geometric phases move to Ch. 10. Relation to Ch. 23 (QNG, kernels): this chapter fixes the metrics; Ch. 23 applies them to QML.
+
+---
+
+## 9.1 Classical Fisher information of the Z readout in qga
+
+For $\theta=2\pi\alpha/1000$ and $p_0=\cos^2(\theta/2)$:
+$$I_F(\alpha)=\frac{(\partial_\alpha p_0)^2}{p_0(1-p_0)}=\Big(\frac{2\pi}{1000}\Big)^2=4\pi^2\cdot10^{-6}\ \text{qga}^{-2}\quad\forall\alpha,\qquad \sigma_{\text{qga}}(N)=\frac{159.15}{\sqrt N}\ \text{qga}.$$
+It is uniform in the angle; in the readout coordinate, $I_F(qg_Z)=1/(1-qg_Z^2)$ diverges at the poles and $qg_\kappa=I_F/\ln2$ (Ch. 1). For the $P$ parameters of a QAN, the classical Fisher matrix of the Z readout is
+$$F_{ij}=\sum_x\frac{\partial_ip(x)\,\partial_jp(x)}{p(x)},$$
+computable **from the histogram alone** and $2P$ parameter-shift circuits, without an ancilla (`exact`). The $Z$-readout Fisher information is constant in qga and divergent in $qg_Z$; the full classical Fisher matrix of a QAN needs only histograms and $2P$ parameter-shift circuits.
+
+## 9.2 Fubini–Study metric and the Fisher bound by the metric
+
+$$g_{ij}=\mathrm{Re}\big[\langle\partial_i\psi|\partial_j\psi\rangle-\langle\partial_i\psi|\psi\rangle\langle\psi|\partial_j\psi\rangle\big],\qquad \text{QFI}=4g,\qquad F_Z\preceq4g,$$
+with equality for $P=1$ and an $R_Y$ rotation read in $Z$ (meridian, `exact`). Estimating $g$ on hardware requires $P(P+1)/2+P$ overlaps with a Hadamard test (1 ancilla, controlled gates); $F_Z$ requires $2P$ circuits and 0 ancillas. With $P=8$: 44 versus 16 circuits.
+
+## 9.3 Regularized natural gradient in qga
+
+$$\boldsymbol\alpha\leftarrow\boldsymbol\alpha-\eta\,(F_Z+\lambda I)^{-1}\nabla_{\!\boldsymbol\alpha}\mathcal L,\qquad\lambda>0\ \text{mandatory}\ (F_Z\ \text{is singular at the poles and in directions not observable in }Z).$$
+For $P=1$ this reproduces exactly the step damped by $qg_\kappa$ and the Euclidean descent in $\theta$ (THEORY_CORE §2.1). For $P>1$ the preconditioner $F_Z^{-1}$ is **not** a rescaling: it reduces iterations of the IQAN problem of Ch. 7 (median 58 → 22) at the cost of $2P$ extra circuits per iteration (580 → 440 circuits; `exact` sim., hardware `unverified`).
+
+## 9.4 Barren plateaus: a change of unit is not a mitigation
+
+$\mathrm{Var}[\partial_{\alpha}\mathcal L]_{\text{qga}}=(2\pi/1000)^2\,\mathrm{Var}[\partial_\theta\mathcal L]_{\text{rad}}$ for every loss and every $n$ (`exact`). The instance of `verify_cap09.py` §4 (one layer on a chain, observable $Z_0Z_{n-1}$) shows no plateau ($\mathrm{Var}\approx0.13\ \text{rad}^{-2}$ for $n=2\ldots6$): exponential decay is a property of deep/global ansätze (Ch. 23), not of the unit. Status `against` for any claim of mitigation by qga/m-qga.
+
+## 9.5 Operational contrast — Without `qang` vs. with `qang`
+
+| Metric | Standard (without `qang`) | `qang` (`qang.qfisher` + JAX) | Gain / Status |
+| :--- | :--- | :--- | :--- |
+| Metric for natural gradient, $P=8$ | QFI (Fubini–Study): 44 circuits, 1 ancilla, controlled gates | $F_Z$: 16 circuits, 0 ancillas (`classical_fisher_z`) | $-64\%$ circuits, $-1$ ancilla (`exact`) |
+| Angular precision per shot | depends on the parametrization | $\sigma_{\text{qga}}=159.15/\sqrt N$ uniform | (`exact`) |
+| IQAN iterations $n=2$, $\mathcal L<10^{-3}$ | Euclidean in qga: median 58 (8/8) | regularized NG $F_Z$: median 22 (8/8) | $-62\%$ iterations, $-24\%$ circuits (`exact` sim.; hw `unverified`) |
+| Bound $F_Z\preceq4g$ | — | verified 5/5, $P=8$ | (`exact`) |
+| Barren plateaus | — | qga unit: constant rescaling | no gain (`against`) |
+
+## 9.6 JAX block (`qang/qfisher.py`)
+
+```python
+def fubini_study_metric(state_fn, params):            # g_ij, QFI = 4g (qga⁻²)
+    psi = state_fn(params); J = jax.jacfwd(state_fn)(params)
+    b = jnp.conj(J).T @ psi
+    return jnp.real(jnp.conj(J).T @ J - jnp.outer(b, jnp.conj(b)))
+
+def classical_fisher_z(state_fn, params, eps=1e-12):   # F_ij = Σ_x ∂ip ∂jp / p (Z histogram only)
+    p_fn = lambda t: jnp.abs(state_fn(t)) ** 2
+    p, Jp = p_fn(params), jax.jacfwd(p_fn)(params)
+    w = jnp.where(p > eps, 1.0 / jnp.maximum(p, eps), 0.0)
+    return Jp.T @ (w[:, None] * Jp)
+
+def natural_step(params, grad, metric, lr, lam):      # λ > 0 mandatory
+    return params - lr * jnp.linalg.solve(metric + lam * jnp.eye(params.shape[0]), grad)
+
+# IQAN loop (Ch. 7) with NG:  l, g = value_and_grad(iqan_loss)(t);  t = natural_step(t, g, classical_fisher_z(s, t), 0.2, 1e-3*QFI_1Q_QGA)
+```
+
+## 9.7 Verification — `tools/verify_cap09.py` (reproducible output)
+
+```
+[1] CFI_Z = QFI = 3.9478e-05 qga⁻² (uniform in α); σ_qga(N) = 159.15/√N qga; in qg_Z: I_F = 1/(1−qg_Z²) → ∞ at the poles
+[2] QFI − CFI_Z ⪰ 0 in 5/5 samples (P=8); metric circuits: QFI=44 (1 ancilla) vs CFI_Z=16 (0 ancillas)
+[3] iterations to loss<1e-3 (8 seeds): Euclidean qga median=58 conv=8/8 | natural CFI_Z median=22 conv=8/8
+    circuits (parameter shift, P=5): Euclidean 580 | natural 440 (gradient 2P + metric CFI_Z 2P, 0 ancillas)
+[4] Var[∂L/∂α_0] qga⁻²: n=2:5.65e-06, n=3:5.30e-06, n=4:5.39e-06, n=5:5.15e-06, n=6:5.24e-06
+    in rad⁻²:           n=2:1.43e-01, n=3:1.34e-01, n=4:1.36e-01, n=5:1.31e-01, n=6:1.33e-01
+verify_cap09: OK
+```
+Asserts: $|\mathrm{QFI}-4\pi^2 10^{-6}|<10^{-15}$ and $|F_Z-\mathrm{QFI}|<10^{-12}$ at 4 angles; $\lambda_{\min}(4g-F_Z)>-10^{-12}$ in 5 samples; $\mathrm{Var}_{\text{rad}}\cdot(2\pi/1000)^2=\mathrm{Var}_{\text{qga}}$ to $10^{-18}$ for $n=2\ldots6$.
+
+### `tests/test_qfisher.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import jax.numpy as jnp
+from qang.qan import qan_state
+from qang.qfisher import fubini_study_metric, classical_fisher_z, psd_gap, circuits_for_metric, QFI_1Q_QGA
+
+def test_single_qubit_fisher_constant():
+    s = lambda t: qan_state(t, jnp.zeros(0), jnp.zeros(1), 1, ())
+    for a in (10.0, 250.0, 480.0):
+        assert abs(4 * float(fubini_study_metric(s, jnp.array([a]))[0, 0]) - QFI_1Q_QGA) < 1e-15
+        assert abs(float(classical_fisher_z(s, jnp.array([a]))[0, 0]) - QFI_1Q_QGA) < 1e-12
+
+def test_cfi_below_qfi():
+    s = lambda t: qan_state(t[:2], t[2:3], t[3:], 2, ((0, 1),))
+    t = jnp.array([123.0, 77.0, 210.0, 15.0, 399.0])
+    assert psd_gap(4 * fubini_study_metric(s, t), classical_fisher_z(s, t)) > -1e-12
+
+def test_circuit_counts():
+    assert circuits_for_metric(8) == (44, 16)
+```
+
+## 9.8 Appendix H — new entries in `qang.measures`
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `fisher_z_qga` | metrology | $(2\pi/1000)^2$ qga$^{-2}$, $\sigma=159.15/\sqrt N$ | `QFI_1Q_QGA`, `SIGMA_1Q_QGA` | `exact` |
+| `cfi_matrix_z` | metrology | $\sum_x\partial_ip\,\partial_jp/p$ | `classical_fisher_z` | `exact` (2P circuits, 0 ancillas) |
+| `qfi_fubini_study` | metrology | $4\,\mathrm{Re}[\langle\partial\psi|\partial\psi\rangle-|\langle\psi|\partial\psi\rangle|^2]$ | `fubini_study_metric` | `exact` |
+| `ng_cfi_regularized` | optimization | $(F_Z+\lambda I)^{-1}\nabla\mathcal L$ in qga | `natural_step` | `exact` sim. ($-62\%$ it.); hw `unverified` |
+| `plateau_unit_rescale` | optimization | $\mathrm{Var}_{\text{qga}}=(2\pi/1000)^2\mathrm{Var}_{\text{rad}}$ | `gradient_variance` | `against` (no mitigation) |
+
+### `CHANGELOG.md` — `[Unreleased]`
+```
+### Added
+- `qang.qfisher`: `fubini_study_metric`, `classical_fisher_z`, `natural_step`, `psd_gap`, `gradient_variance`,
+  `circuits_for_metric`, constants `QFI_1Q_QGA`/`SIGMA_1Q_QGA` (JAX, `jax<0.9`).
+- `tools/verify_cap09.py`, `tests/test_qfisher.py`; Appendix H: 5 entries (`fisher_z_qga` … `plateau_unit_rescale`).
+```
+Commit: `feat(qfisher): Z Fisher vs Fubini–Study in qga, regularized NG and plateau diagnostics + verify_cap09`.

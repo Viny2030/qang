@@ -1,0 +1,85 @@
+# Chapter 25 — Echo Calibration and Noise Bias: Readout Drag as an Affine Map in m-qg, When **Not** to Invert (§108) and Drag-Free Readout {#sec-qjax25 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 22 (F7) on the basis of Ch. 1–24. Module: `qang.qecho` (NumPy; compatible with the core). Verification: `tools/verify_cap25.py`. The THEORY_CORE §2.2 prohibition is incorporated as a quantitative criterion.
+
+---
+
+## 25.1 Assignment error is an affine map in m-qg
+
+With $e_{01}=P(\text{read }1|0)$, $e_{10}=P(\text{read }0|1)$:
+$$m'=(1-e_{01}-e_{10})\,m+1000\,(e_{10}-e_{01}),\qquad m^\star=\frac{1000\,(e_{10}-e_{01})}{e_{01}+e_{10}}\ \ (\text{fixed point, zero bias}).$$
+Instance $e_{01}=0.02,e_{10}=0.06$: $-1000\to-880$, $0\to+40$, $+1000\to+960$ m-qg; $m^\star=+500$ m-qg. The "pull effect" is the contraction $0.92$ plus the shift $+40$ m-qg; the cost of an $X$ gate measured in §168 ($1.64$ linear m-qg) is this same map with $e\sim10^{-3}$ (`exact`, `tested on hardware` §168). Assignment error is an affine contraction of the m-qg axis with a drag-free fixed point $m^\star$.
+
+## 25.2 Echo inversion: quantitative criterion of §108
+
+Echo calibration (circuits $I$ and $X$, or $XX$ echo) estimates $(e_{01},e_{10})$ with $N_{\text{cal}}$ shots and allows the map to be inverted; inversion amplifies the variance by $(1-e_{01}-e_{10})^{-2}$ and adds the calibration variance. Decision:
+$$\text{invert}\iff \underbrace{b^2+\sigma_m^2}_{\text{MSE}_{\text{raw}}}>\underbrace{\frac{\sigma_m^2}{(1-e_{01}-e_{10})^2}+\mathrm{Var}_{\text{cal}}}_{\text{MSE}_{\text{inv}}},\qquad b=m'-m,\ \ \sigma_m=1000\sqrt{(1-qg_Z'^2)/N}.$$
+
+| $m$ | $N$ | $N_{\text{cal}}$ | bias | $\sigma_m$ | MSE$_{\text{raw}}$ | MSE$_{\text{inv}}$ | decision |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| $+600$ | 200 | 2000 | $-8.0$ | 57.0 | 3312 | 3872 | **do NOT invert** (§108) |
+| $+600$ | 20000 | 2000 | $-8.0$ | 5.7 | 96 | 73 | invert |
+| $+600$ | 20000 | 200 | $-8.0$ | 5.7 | 96 | 388 | do NOT invert (poor calibration) |
+| $+500=m^\star$ | 20000 | 2000 | $0$ | 6.1 | 38 | 79 | do NOT invert (no drag) |
+| $-900$ | 1000 | 1000 | $+112$ | 19.5 | 12923 | 689 | invert |
+
+Monte Carlo ($4000$ replicas, row 1): MSE$_{\text{raw}}=3400$ (theory 3312), MSE$_{\text{inv}}=4009$ (theory 3872) (`exact` asymptotic). The prohibition of §108 is exactly row 1: bias $\lesssim\sigma_m$ ⇒ inversion makes things worse.
+
+## 25.3 Drag-free readout (F7): the sector filter lowers the error from O(e) to O(e01e10)
+
+In the weight-1 sector, **one** readout flip takes the string out of the sector (the filter removes it); reaching **another** weight-1 string requires two flips, probability $e_{10}e_{01}$. Maximum filtered bias: $0.0013$ ($\approx e_{01}e_{10}=0.0012$) versus the first-order $0.060$ without filter ($\times46$); with $e=0.01$: $\times196$. Combined with Ch. 24: the filter removes $T_1$ exactly and the readout to second order **without calibrating or inverting** — the "drag-free readout" (`exact` for the independent-flip model; hardware `unverified`).
+
+## 25.4 Operational contrast
+
+| Metric | Standard (always invert) | `qang` (`qang.qecho`) | Status |
+| :--- | :--- | :--- | :--- |
+| $m=600$, $N=200$ | MSE 3872 | without inverting: 3312 | $-14\%$ (`exact`, §108) |
+| $m=-900$, $N=1000$ | — | invert: 12923 → 689 | $-95\%$ (`exact`) |
+| Operating point | arbitrary | $m^\star=+500$ m-qg: bias 0 | (`exact`) |
+| Readout error in sector | $O(e)$: 0.060 | $O(e_{01}e_{10})$: 0.0013 | $\times46$ (`exact` model) |
+| Hardware | — | §168: $X=1.64$ m-qg | `tested on hardware` |
+
+## 25.5 Block (`qang/qecho.py`)
+
+```python
+def readout_affine(m, e01, e10):  return (1 - e01 - e10) * m + 1000 * (e10 - e01)
+def drag_free_point(e01, e10):    return 1000 * (e10 - e01) / (e01 + e10)
+def invert_readout(m_obs, e01, e10): return (m_obs - 1000 * (e10 - e01)) / (1 - e01 - e10)
+def mse_raw_vs_inverted(m, e01, e10, N, N_cal)   # (MSE_raw, MSE_inv, bias, σ_m) — §108 criterion
+def sector_readout_error_order(p_sector, e01, e10) # (filtered p, max bias, bound e01·e10)
+```
+
+## 25.6 Verification — `tools/verify_cap25.py`
+
+```
+[1] m=-1000 → m'=-880.0 (bias +120) | m=0 → +40.0 | drag-free point m* = +500.0 m-qg
+[2] +600 N=200 N_cal=2000: MSE_raw=3312 MSE_inv=3872 → do NOT invert | +600 N=20000: 96 vs 73 → INVERT
+    MC: MSE_raw=3400 (theory 3312), MSE_inv=4009 (theory 3872)
+[3] e01=0.02, e10=0.06: filtered bias=0.00130 (≈ e01·e10) vs 0.0600 without filter → ×46
+verify_cap25: OK
+```
+Asserts: fixed point to $10^{-9}$; decisions of rows 1, 2 and 4; MC within $15\%$ of theory; filtered bias $<3\,e_{01}e_{10}$.
+
+### `tests/test_qecho.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+from qang.qecho import readout_affine, drag_free_point, mse_raw_vs_inverted, sector_readout_error_order
+import numpy as np
+def test_fixed_point(): m = drag_free_point(0.02, 0.06); assert abs(readout_affine(m, 0.02, 0.06) - m) < 1e-9
+def test_108_rule(): r, i, _, _ = mse_raw_vs_inverted(600, 0.02, 0.06, 200, 2000); assert r < i
+def test_second_order(): _, b, c = sector_readout_error_order(np.array([.5, .3, .15, .05]), 0.02, 0.06); assert b < 3 * c
+```
+
+## 25.7 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `readout_drag_affine` | readout | $m'=(1-e_{01}-e_{10})m+1000(e_{10}-e_{01})$ | `readout_affine` | `exact`; §168 `tested on hardware` |
+| `drag_free_point` | readout | $m^\star=1000(e_{10}-e_{01})/(e_{01}+e_{10})$ | `drag_free_point` | `exact` |
+| `echo_inversion_rule_108` | mitigation | invert ⇔ MSE$_{\text{raw}}>$ MSE$_{\text{inv}}$ | `mse_raw_vs_inverted` | `exact` (replaces the qualitative prohibition) |
+| `sector_readout_second_order` | mitigation | bias $O(e_{01}e_{10})$ | `sector_readout_error_order` | `exact` model |
+
+`CHANGELOG.md [Unreleased]`: `qang.qecho`; `tools/verify_cap25.py`; `tests/test_qecho.py`.
+Commit: `docs(cap25): readout drag, §108 criterion and drag-free readout rewritten on Ch. 1–24 + qang.qecho + verify_cap25`.

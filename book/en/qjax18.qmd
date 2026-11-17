@@ -1,0 +1,81 @@
+# Chapter 18 — Black Holes as Scramblers: Hayden–Preskill, the P·F=1/4 Law of the Yoshida–Kitaev Decoder, OTOC and Why qgS Cannot See the Page Curve {#sec-qjax18 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 15 on the basis of Ch. 1–17. Module: `qang.qscramble` (JAX, `jax<0.9`; §164). Verification: `tools/verify_cap18.py` (10 qubits in statevector).
+
+---
+
+## 18.1 Probabilistic decoder and the identity P_EPR·F_EPR=1/d_A²
+
+Message $A$ ($d_A=2$) entangled with the reference $R$; black hole $B$ ($n_B=3$) maximally entangled with the early radiation $B'$; dynamics $U$ on $AB$; late radiation $D$ ($n_D=2$). The decoder applies $U^*$ on $A'B'$ (with $A'R'$ in EPR) and **projects** $DD'$ onto EPR: success with probability $P_{\text{EPR}}$ and fidelity $F_{\text{EPR}}=\langle\text{EPR}|\rho_{RR'}|\text{EPR}\rangle$. Identity (Yoshida–Kitaev):
+$$P_{\text{EPR}}\cdot F_{\text{EPR}}=\frac1{d_A^2}=\frac14\quad\text{for all }U,$$
+verified to $10^{-12}$ for Haar $U$ and $U=I$. For Haar $U$: $P\approx d_A^{-2}+d_D^{-2}=0.3125$ (measured $0.298\pm0.003$ with finite-size corrections), $F\approx0.84$. The fidelity is read with **three correlators** of $(R,R')$ (Ch. 15): $F=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$, coinciding with the direct projection to $10^{-12}$ (`exact`). Budget: $\times1/P_{\text{EPR}}\approx3.4$ shots per heralded decoding. The probabilistic decoder obeys $P\cdot F=1/d_A^2$ exactly; the fidelity is read from three $(R,R')$ correlators, no tomography.
+
+## 18.2 OTOC as a scrambling diagnostic
+
+$\mathrm{OTOC}=\tfrac1d\mathrm{Re\,Tr}(W^\dagger V_t^\dagger WV_t)$ with $W=Z_A$, $V=Z_{B_3}$: $+1.000$ for $U=I$, $-0.009\approx O(1/d^2)$ for Haar $U$. It is a $qg$ reading of a composite circuit ($U^\dagger VU$ followed by $W$), cost 1 configuration (`exact`).
+
+## 18.3 Negative finding: qgS is flat where the Page curve rises and falls
+
+Haar state of $n=8$ qubits. Rényi-2 of the $k$-qubit subsystem (from the purity, $4^k-1$ correlators): $0.98,1.90,2.61,\mathbf{3.00},2.61,1.89,0.95$ — a Page curve. Mean $qg_S$ (one basis, Ch. 1): $1.00$ for all $k$. **$qg_S$ does not measure entanglement** (THEORY_CORE §2.4, `against`); its use here is only as a readout coordinate, never as an entanglement entropy.
+
+## 18.4 Operational contrast
+
+| Metric | Standard | `qang` (`qang.qscramble` + JAX) | Status |
+| :--- | :--- | :--- | :--- |
+| Decoding fidelity | tomography of $\rho_{RR'}$ (9 bases) | 3 $qg$ correlators | $-6$ bases (`exact`) |
+| Verification of $P\cdot F=1/4$ | — | $10^{-12}$ in 3 $U$; 20 Haar | `exact` |
+| Decoder cost | — | $\times1/P\approx3.4$ shots; 2 copies of the system | `exact` (count) |
+| Scrambling | — | OTOC: 1 configuration | `exact` |
+| Page curve with $qg_S$ | — | flat $1.00$ | `against` |
+
+## 18.5 JAX block (`qang/qscramble.py`, core)
+
+```python
+def yoshida_kitaev(U, nB, nD):          # (P_EPR, F_EPR, F via qg_XX, qg_YY, qg_ZZ of (R,R'))
+    psi = initial_state(nB)             # EPR(R,A) ⊗ EPR(B_i,B'_i) ⊗ EPR(A',R')
+    psi = _apply(psi, U, AB, n); psi = _apply(psi, jnp.conj(U), ABp, n)
+    for j in range(nD): psi = _apply(psi, jnp.outer(EPR, jnp.conj(EPR)), (AB[j], ABp[j]), n)
+    P = ‖psi‖²; rho = ρ_{RR'}(psi/√P)
+    return P, <EPR|rho|EPR>, (1 + qg_XX − qg_YY + qg_ZZ)/4
+
+def otoc(U, W, V):                      # (1/d) Re Tr(W† V_t† W V_t), V_t = U† V U
+def renyi2_subsystem(psi, n, k)         # −log2 Tr ρ_k²
+def qg_S_mean(psi, n, k)                # mean of H((1+qg_Z)/2) over k qubits (Z basis only)
+```
+
+## 18.6 Verification — `tools/verify_cap18.py`
+
+```
+[1] U=Haar #1: P_EPR=0.2964  F_EPR=0.8435  P·F=0.250000  F(qg)=0.8435 → shots ×3.37
+[1] U=I      : P_EPR=0.2500  F_EPR=1.0000  P·F=0.250000  (A ⊂ D: trivially decodable)
+    <P_EPR>_Haar (20 samples) = 0.2980 ± 0.0027  (asymptotic theory 0.3125)
+[2] OTOC(Haar) = -0.0090 | OTOC(I) = +1.0000
+[3] S2(k):  0.98 1.90 2.61 3.00 2.61 1.89 0.95 | qg_S(k): 1.00 × 7
+verify_cap18: OK
+```
+Asserts: $|PF-\tfrac14|<10^{-12}$, $|F-F_{qg}|<10^{-12}$ (3 $U$); $|\langle P\rangle-0.3125|<0.03$; OTOC$(I)=1$; $S_2$ with a central maximum and $\max qg_S-\min qg_S<0.05$.
+
+### `tests/test_qscramble.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import jax.numpy as jnp
+from qang.qscramble import yoshida_kitaev, haar_unitary
+
+def test_pf_law():
+    P, F, Fq = yoshida_kitaev(haar_unitary(jax.random.PRNGKey(0), 16), 3, 2)
+    assert abs(P * F - 0.25) < 1e-12 and abs(F - Fq) < 1e-12
+```
+
+## 18.7 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `yk_pf_law` | scrambling | $P_{\text{EPR}}F_{\text{EPR}}=1/d_A^2$ | `yoshida_kitaev` | `exact` |
+| `yk_fidelity_3qg` | scrambling | $F=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ | `yoshida_kitaev` | `exact` |
+| `otoc_qg` | scrambling | $\tfrac1d\mathrm{Tr}(W^\dagger V_t^\dagger WV_t)$ | `otoc` | `exact` |
+| `page_curve_qgS` | information | $qg_S$ flat vs $S_2$ | `renyi2_subsystem`, `qg_S_mean` | `against` |
+
+`CHANGELOG.md [Unreleased]`: `qang.qscramble` (`haar_unitary`, `initial_state`, `yoshida_kitaev`, `otoc`, `renyi2_subsystem`, `qg_S_mean`); `tools/verify_cap18.py`; `tests/test_qscramble.py`.
+Commit: `docs(cap18): Hayden–Preskill, the P·F=1/4 law and the Page curve rewritten on Ch. 1–17 + qang.qscramble + verify_cap18`.

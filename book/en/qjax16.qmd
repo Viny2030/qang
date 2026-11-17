@@ -1,0 +1,75 @@
+# Chapter 16 — Dual Rail, Loss as Heralded Erasure and Long-Distance Fidelity: Rate and Fidelity Decouple after the Sector Filter {#sec-qjax16 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 13 on the basis of Ch. 1–15. Module: `qang.qdualrail` (JAX, `jax<0.9`; aligned with `qang.qpon`, `qang.sectors`, §158). Verification: `tools/verify_cap16.py`.
+
+---
+
+## 16.1 The dual-rail qubit lives in the Hamming-weight-1 sector
+
+$|0_L\rangle=|10\rangle$, $|1_L\rangle=|01\rangle$ (modes $a,b$). Loss with transmission $\eta=10^{-\alpha L/10}$ ($\alpha=0.2$ dB/km) is amplitude damping independent per mode: weight leaves the sector $\{|10\rangle,|01\rangle\}$ toward the vacuum $|00\rangle$ and **never** mixes inside the sector. Therefore (`exact`):
+$$\text{without herald:}\quad qg_Z'=\eta\,qg_Z+(1-\eta)\ \ (\text{vacuum read as }0_L),\qquad \text{with sector filter:}\quad qg_Z'=qg_Z,\ \ \text{rate}=\eta .$$
+The bias without a filter is $(1-\eta)(1-qg_Z)$: at $50$ km an input of $-600$ m-qg reads $+840$ m-qg; at $200$ km, $+1000$ m-qg (all information destroyed). With the filter the reading is exact at any distance, and so are $qg_X,qg_Y$ (the postselected density matrix is $\rho_L$). Photon loss moves weight out of the Hamming-weight-1 sector without mixing inside it; sector postselection restores the full Bloch vector exactly at rate $\eta$, while unheralded readout is biased by $(1-\eta)(1-qg_Z)$.
+
+## 16.2 Long-distance teleportation: loss costs rate, intra-sector noise costs fidelity
+
+Werner pair $V$ (Ch. 15) with one photon per arm: herald rate $\eta(L/2)^2=\eta(L)$. After the filter, $\bar F=(1+V)/2$ **does not depend on $L$**; the shot budget is multiplied by $1/\eta(L)$: $\times10$ (50 km), $\times100$ (100 km), $\times10^4$ (200 km). The utility criterion remains $qg_{ZZ}>333$ m-qg (Ch. 15) measured **inside the sector**. Design rule: optimize $\eta$ and $V$ separately; there is no trade-off between them after the filter (pure erasure model; dark counts and mode-dependent loss break the separation: `mixed` on hardware, §158).
+
+## 16.3 Operational contrast — Without `qang` vs. with `qang`
+
+| Metric | Standard (without a filter) | `qang` (`qang.qdualrail`, sector filter) | Gain / Status |
+| :--- | :--- | :--- | :--- |
+| Reading at 50 km, input $-600$ m-qg | $+840$ m-qg (bias $+1440$) | $-600$ m-qg | bias removed (`exact`) |
+| Coherences $qg_X,qg_Y$ after loss | attenuated $\times\eta$ | intact | (`exact`) |
+| Teleportation $\bar F$ vs $L$ | decays with $\eta$ | $(1+V)/2$ constant; cost $\times1/\eta$ in shots | (`exact`, erasure) |
+| Diagnosis | mixed | loss ↔ rate; noise ↔ $qg_{ZZ}$ | separable (`exact`); hw `mixed` |
+
+## 16.4 JAX block (`qang/qdualrail.py`)
+
+```python
+def apply_loss(rho4, eta):                       # per-mode damping Kraus operators, product a⊗b
+    K0 = jnp.array([[1, 0], [0, jnp.sqrt(eta)]]); K1 = jnp.array([[0, jnp.sqrt(1 - eta)], [0, 0]])
+    return sum(jnp.kron(Ka, Kb) @ rho4 @ jnp.conj(jnp.kron(Ka, Kb)).T for Ka in (K0, K1) for Kb in (K0, K1))
+
+@jax.jit
+def readout_unfiltered(rho4):                    # qg_Z' = 1 − 2 P(click on b)
+    p = jnp.real(jnp.diag(rho4)); return 1.0 - 2.0 * (p[1] + p[3])
+
+@jax.jit
+def readout_sector_filtered(rho4):               # (qg_Z, rate) postselecting weight 1
+    p = jnp.real(jnp.diag(rho4)); acc = p[1] + p[2]; return (p[2] - p[1]) / acc, acc
+```
+
+## 16.5 Verification — `tools/verify_cap16.py`
+
+```
+[1] L=   50 km η=0.1000: input −600 m-qg → unfiltered +840 m-qg (bias +1440) | filtered −600 m-qg at rate 0.1000
+[1] L=  200 km η=0.0001: input −600 m-qg → unfiltered +1000 m-qg (bias +1600) | filtered −600 m-qg at rate 0.0001
+[2] pure loss: postselected ρ = ρ_L exactly (qg_X, qg_Y, qg_Z intact) → heralded erasure
+[3] L= 100 km: filtered F̄ = 0.950 (V=0.9, no L dependence); output +540 m-qg; shots × 100 per herald
+verify_cap16: OK
+```
+Asserts: bias $=\eta qg_Z+(1-\eta)$ to $10^{-14}$ (12 cases); filtered $qg_Z$ to $10^{-13}$ and rate $=\eta$ to $10^{-14}$; postselected $qg_X$ intact; multiplier $1/\eta(100\text{ km})=100$.
+
+### `tests/test_qdualrail.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+from qang.qdualrail import dual_rail_state, apply_loss, readout_unfiltered, readout_sector_filtered
+
+def test_bias_and_filter():
+    rho = apply_loss(dual_rail_state(-0.6), 0.1)
+    assert abs(float(readout_unfiltered(rho)) - (0.1 * -0.6 + 0.9)) < 1e-14
+    q, acc = readout_sector_filtered(rho); assert abs(float(q) + 0.6) < 1e-13 and abs(float(acc) - 0.1) < 1e-14
+```
+
+## 16.6 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `dual_rail_loss_bias` | optics | $qg_Z'=\eta qg_Z+(1-\eta)$ | `readout_unfiltered` | `exact` |
+| `dual_rail_sector_filter` | compilation | exact $qg_Z$, rate $\eta$ | `readout_sector_filtered` | `exact`; hw §158 `mixed` |
+| `teleport_distance_budget` | statistics | shots $\times1/\eta(L)$, constant $\bar F$ | `shots_multiplier_two_photons` | `exact` (erasure) |
+
+`CHANGELOG.md [Unreleased]`: `qang.qdualrail` (`transmission`, `dual_rail_state`, `apply_loss`, `readout_unfiltered`, `readout_sector_filtered`, `shots_multiplier_two_photons`); `tools/verify_cap16.py`; `tests/test_qdualrail.py`.
+Commit: `docs(cap16): dual rail and sector filter rewritten on Ch. 1–15 + qang.qdualrail + verify_cap16`.

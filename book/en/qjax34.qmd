@@ -1,0 +1,233 @@
+# Chapter 34 — Structural Limits, Equivalences and Negative Results: What the qg Reading Cannot See (and Where the Filter Does Not Reach) {#sec-qjax34 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> Rewrite of the limits chapter on the basis of Ch. 1–33. Module: `qang.qlimits` (exact NumPy). Verification: `tools/verify_cap34.py`. **Summary: almost every limit has a common root: qg reads a Z-basis probability ($p_0$), and what is not in that probability it does not see. What follows proves it with code where possible, and flags as `unverified` what is only cited from the notes.**
+
+---
+
+## 34.1 Reading rules
+
+1. Each limit enters with its function in `qang.qlimits` and its line in `tools/verify_cap34.py`. What comes only from the research notes (§) is marked `unverified` in this chapter: **it was not re-run here**.
+2. `qga` is the angular scale (1 turn = 1000 qga); `m-qg` is the reading $1000\,qg_Z$. None of the limits below changes in passing from one to the other: they are limits on **what** is measured, not on how it is written.
+3. A negative result is not erased: it is recorded in Appendix H with its status.
+
+## 34.2 Blindness of the Z basis: the graph state
+
+A graph state is $H^{\otimes n}$ followed by a CZ per edge. CZ is diagonal: it only changes phases. With the 6-qubit ring (`ring_graph_state`):
+
+- the Z distribution coincides with that of $|+\rangle^{\otimes 6}$ with a difference of **exactly 0**;
+- $qg_Z=0$ m-qg on each qubit and $qg_S=1.00000$, the same as the product state;
+- $\langle X_iZ_{i-1}Z_{i+1}\rangle=+1.0$ on the graph and $+0.0$ on the product (`stabilizer_expectation`): they separate the two, but **in the X basis**.
+
+Without `qang` the same happens: every Z-basis statistic, raw or tomographic, is blind to this entanglement. `qang` inherits the limit, it does not create it.
+
+## 34.3 qgS is not monotone under T1 (but mean qgZ is)
+
+Amplitude damping acts on the Z populations as a Markov chain $1\to0$ with probability $\gamma$ per qubit (`damp_distribution`); coherences do not change the Z distribution. With 24 random 4-qubit states and $\gamma\in[0,0.5]$ (`t1_noise_scan`):
+
+- $qg_S$ **rises and falls in 24/24**. Example (state 0): $0.782\to0.847$ ($\gamma=0.18$) $\to0.736$ ($\gamma=0.50$);
+- the mean $qg_Z$ grows **monotonically in 24/24**, and it is exact: each qubit goes from $1-2P_1$ to $1-2(1-\gamma)P_1$. In the example it goes from $+251$ to $+543$ m-qg;
+- therefore the pair ($qg_S$, mean $qg_Z$) separates "little noise" from "a lot of $T_1$", where $qg_S$ alone cannot.
+
+**Honest scope.** This result is for damping applied to the output state. In circuits with $T_1$ between gates (quantum volume, notes §10.4 D) the mean $qg_Z$ was monotone in 21–23 of 24 circuits: that number is cited, not re-run here (`unverified`).
+
+## 34.4 The arccos range trap
+
+$\theta=\arccos(qg_Z)\in[0,\pi]$. If the bound of a minimum lies at $\theta^*<0$, the update in $qg$ cannot reach it. With $E(\theta)=-\cos(\theta-\theta^*)$ and $\theta^*=-0.5$ (`best_cost_clipped`):
+
+| | minimum value | where |
+| :--- | :--- | :--- |
+| unclipped (descent in $\theta$) | $-1.0000$ | $\theta=-0.5$ |
+| with $\theta\in[0,\pi]$ (via $qg_Z$) | $-0.8776$ | $\theta=0$ |
+
+Loss: $0.1224$ of $E$. The claims that "it converges in qg where $\theta$ does not converge" came from this clipping. Direct optimization in $qg_Z$ without regularization is not proposed.
+
+## 34.5 Weight conservation: where the filter applies and where it does not
+
+The sector filter requires every gate to conserve the Hamming weight. `preserves_weight` decides it on the unitary, and `weight_breakers` counts the guilty gates:
+
+| circuit (4 qubits) | conserves weight? | gates that break it |
+| :--- | :--- | :--- |
+| QFT | no | 4 (the Hadamards) |
+| GHZ | no | 4 (H + 3 CNOT) |
+| RBS ladder (full unitary) | yes | 0 |
+
+The CPhase and SWAP gates of the QFT do conserve the weight; the Hadamards mix all weights. Phase estimation (QPE, and whatever builds on it) falls outside the filter.
+
+## 34.6 Error inside the sector
+
+The filter discards shots outside the sector; an error that **conserves the weight** passes entirely. With ideal RBS of $\pi/2$ versus RBS$(\pi/2+0.3)$ (`in_sector_error`):
+
+- filter retention: **1.0** in both cases;
+- $qg_Z$ of qubit 0: $+1000.0\to+825.3$ m-qg: deviation of $-174.7$ m-qg, **invisible to the filter**.
+
+It is the same mechanism as in LiH (notes §50: the error is in the X/Y groups, out of reach of the Z filter). Those numbers are cited: **LiH, 60 gates: 76.6 mHa raw versus 85.0 mHa with filter** (`unverified` in this chapter).
+
+## 34.7 The weight-1 network is a classical quadratic form
+
+In the single-excitation sector, the RBS network acts as an orthogonal matrix $O$ on the loaded data $v$, and
+
+$$qg_Z^{(i)}=1-2\,(Ov)_i^2 .$$
+
+`weight1_qgz` evaluates it in $O(n^2)$; `simulate_qgz_weight1` simulates the full circuit ($2^n$ amplitudes). With $n=5$ and 20 random networks the maximum deviation is $4.4\cdot10^{-16}$. What the filter protects exactly from $T_1$ is, for that same reason, simulable. No quantum advantage is claimed.
+
+## 34.8 Cited equivalences and failures (not re-run)
+
+These points come from the notes (§) and from the chapters where they were measured; they have **no** verifier in this chapter:
+
+- **Natural gradient in qg = descent in $\theta$** (§159, 20 seeds, 4-qubit Ising): 103 steps (median) in $\theta$; descent in qg never arrived; full natural gradient 22.5 steps; read version from $qg_{YY}$ blocks 79.5 steps ($1.3\times$, not the predicted $1.5\times$: G2 failed). The gain is of the natural gradient, not of `qang`.
+- **Pre-registered predictions §157–§164:** 26 of 45 were met (19 failed, published).
+- **Real hardware (IQM Garnet), §165–§170:** 12 of 13 predictions; the failed one is M2 of §168.
+
+## 34.9 Negative inventory of the ledger
+
+`negative_inventory` reads the Appendix H tables of chapters 7–33 (`qang.qledger`): 97 sub-measures; `against` 4, `no gain` 3, `mixed` 1, `unverified` 1, `not adopted` 1; **0 `measured gain`**. The rows: `plateau_unit_rescale` (Ch. 9), `page_curve_qgS` (18), `pqc_out_of_scope` (19), `local_reading_blind_to_c` (33) as `against`; `holonomic_z_area` (10), `ghz_dephasing` (11), `control_quantization_unit` (30) as `no gain`; `one_basis_bias` (15) `mixed`; `collective_oscillations` (13) `unverified`; `string_theory_claims` (33) `not adopted`.
+
+## 34.10 Operational contrast: without `qang` versus with `qang`
+
+| Limit | Without `qang` | With `qang` (`qang.qlimits`) | Status |
+| :--- | :--- | :--- | :--- |
+| Graph state (ring 6) | $P_Z$ identical to $\lvert+\rangle^{\otimes6}$ | $qg_Z=0$ m-qg, $qg_S=1.00000$; X stabilizer: $+1$ versus $0$ | `exact` |
+| $T_1$ on 4-qubit states | non-monotone $H(p)$ | $qg_S$ non-monotone (24/24); mean $qg_Z$ monotone (24/24) | `exact` |
+| arccos range | min. $-1.0000$ | $-0.8776$ with $\theta\in[0,\pi]$ (loss $0.1224$) | `exact` |
+| QFT / GHZ (4 qubits) | — | do not conserve weight (4 gates each): filter not applicable | `exact` |
+| Error inside the sector | — | retention 1.0; deviation $-174.7$ m-qg undetected | `exact` |
+| Weight-1 network | $2^n$ simulation | $O(n^2)$ quadratic form, error $4.4\cdot10^{-16}$ | `exact` |
+| Measured advantage of the book | — | 0 `measured gain` in 97 sub-measures | `exact` (audit) |
+
+## 34.11 Block (`qang/qlimits.py`)
+
+```python
+def ring_graph_state(n)                      # H^n + CZ on a ring
+def stabilizer_expectation(psi, i, n)        # <X_i Z_{i-1} Z_{i+1}>
+def damp_distribution(p, n, gamma)           # T1 on the Z populations
+def t1_noise_scan(p, n, gammas)              # (qg_S, mean qg_Z) versus gamma
+def best_cost_clipped(theta_star)            # arccos range trap
+def preserves_weight(U, n); weight_breakers(n, gates)
+def weight1_qgz(O, v); simulate_qgz_weight1(n, thetas, v)
+def in_sector_error(eps)                     # retention 1.0, deviation in m-qg
+def negative_inventory(rows)                 # reads qang.qledger
+def diagonal_twin(p); purity_range_from_z(p)  # one-basis no-go; purity range
+def total_correlation_z(p, n)                # C_Z in bits (not entanglement)
+def witness_path(n); witness_radius(m, N, d) # two-setting witness and its radius
+def sufficient_shots_entropy(n, eps, d, t)   # sufficient bound; plugin_cz_bias_uniform(n, N)
+```
+
+## 34.12 Verification — `tools/verify_cap34.py`
+
+```
+[1] ring n=6: |P_Z(graph) − P_Z(product)| = 0.0; mean qg_Z 0 m-qg, qg_S 1.00000; ⟨X_i Z_(i−1) Z_(i+1)⟩ = +1.0 (graph) versus +0.0 (product)
+[2] 24 4-qubit states, γ∈[0,0.5]: qg_S rises and falls in 24/24; mean qg_Z monotone increasing in 24/24 (exact: 1−2(1−γ)P1)
+    example (state 0): qg_S 0.782 → 0.847 (γ=0.18) → 0.736 (γ=0.50); mean qg_Z +251 → +543 m-qg
+[3] E(θ)=−cos(θ−θ*), θ*=−0.5: exact minimum -1.0000 (θ<0); with θ=arccos(qg_Z)∈[0,π] the best value is -0.8776 at θ=0 → loss 0.1224
+[4] QFT 4q: conserves=False, gates that break it=4; GHZ 4q: conserves=False, gates that break it=4; RBS ladder 4q: conserves=True, gates that break it=0
+[5] unary loader + RBS network, n=5, 20 random networks: |quadratic form − full simulation| ≤ 4.4e-16 (cost O(n²) versus 2^n)
+[6] RBS(π/2+0.3): filter retention 1.0; qg_Z of qubit 0: +1000.0 → +825.3 m-qg (deviation -174.7 m-qg, invisible to the filter)
+[7] ledger Ch. 7–33: 97 sub-measures; against: 4, no gain: 3, mixed: 1, unverified: 1, not adopted: 1; measured gain: 0
+[8] same uniform P_Z as |+>^n and I/2^n: edge G2: H_Z=2 bit, C_Z=0, P=1, P_i=0.50; path G3: H_Z=3 bit, C_Z=0, P=1, P_i=0.50; |+>^n: P_i=1; I/2^n: P=1/2^n; PT min. G2=-0.500
+    purity compatible with p=(.6,.15,.2,.05): [0.4250, 1.0], extremes reached by σ_p and |ψ_p⟩
+    biased (z=(0.5,0.6)): product and CZ·product with the same P_Z, H_Z=1.533206, C_Z=0; P_i=1 versus 0.76; PT min. -0.346410
+[9] GHZ₃ and 000/111 mixture: same P_Z, C_Z=2 bits (maximum), the mixture is separable (P=1/2); even parity: H_Z=2, C_Z=1, pairwise mutual information 0.0
+    (I⊗H)|G₂⟩ = Φ⁺: H_Z 2 → 1, C_Z 0 → 1, entanglement and purity intact
+    H_Z = coherence C_rel,Z only if pure: G₂ (pure) 2 = H_Z=2; I/4 (mixed) 0 versus H_Z=2
+[10] W′₃ = 2I − XZI − ZXZ − IZX: graph -1, product +2, I/8 +2; XZX and ZXZ (2 settings), 1000 shots each: 95 % radius 0.293556 → certifies (-0.706 < 0)
+     final dephasing ρ_t: P_Z fixed, W′₃ = -1, 0, +2 at t = 0, 1/3, 1
+[11] product under damping γ=0, ½, 1: H_Z = 0, 2, 0 bits; P = 1.00, 0.25, 1.00; C_Z=0 always
+[12] ε=0.05 bit, δ=0.05: a mean in [−1,1] N=2952; H_Z n=2/3 N=133966/253199; C_Z n=2/3 N=1346071/3973513 (sufficient bounds, loose)
+     n=3, uniform independent, 1000 repetitions, seed 34 — exact H_Z=3, C_Z=0: N=100: Ĥ_Z=2.9478, Ĉ_Z=0.0307 (theory 0.0289); N=10000: Ĥ_Z=2.9995, Ĉ_Z=0.0003 (theory 0.0003)
+verify_cap34: OK
+```
+
+### `tests/test_qlimits.py`
+```python
+import numpy as np
+from qang.qlimits import (ring_graph_state, plus_state, z_distribution, stabilizer_expectation, t1_noise_scan, is_monotone,
+                          best_cost_clipped, qft_gates, circuit_unitary, preserves_weight, weight_breakers, in_sector_error)
+def test_graph_state_blind_in_z():
+    g, p = ring_graph_state(6), plus_state(6)
+    assert np.max(np.abs(z_distribution(g) - z_distribution(p))) == 0.0
+    assert np.allclose([stabilizer_expectation(g, i, 6) for i in range(6)], 1.0)
+def test_t1_mean_qgz_monotone_and_qgs_not():
+    rng = np.random.default_rng(1); psi = rng.normal(size=16) + 1j * rng.normal(size=16)
+    s, z = t1_noise_scan(z_distribution(psi / np.linalg.norm(psi)), 4, np.linspace(0, .5, 51))
+    assert is_monotone(z, True) and not is_monotone(s, True) and not is_monotone(s, False)
+def test_arccos_range_trap(): assert abs(best_cost_clipped(-0.5)[0] + np.cos(0.5)) < 1e-9
+def test_weight_analyzer():
+    assert not preserves_weight(circuit_unitary(4, qft_gates(4)), 4) and len(weight_breakers(4, qft_gates(4))) == 4
+def test_in_sector_error_passes_filter():
+    r = in_sector_error(0.3); assert abs(r["error_retained"] - 1) < 1e-12 and abs(r["shift_mqg"]) > 100
+```
+
+## 34.13 A single readout basis: no-go, $C_Z$ and purity
+
+Every quantity computed only from the distribution $P_Z$ shares the root of §34.2. Here the general case is closed, not just the graph. $H_Z$ is in bits; $H_Z/n$ is labeled separately and never enters $C_Z=\sum_i H(X_i)-H_Z$.
+
+**Diagonal-twin theorem.** For every $p$, $\sigma_p=\sum_x p(x)|x\rangle\langle x|$ is completely separable and has exactly that distribution. No rule that uses only $p$ (with $qg_Z$, $qg_S$, $H_Z$, $C_Z$ or any learned summary) can certify entanglement, even with infinitely many shots (`diagonal_twin`). It costs less than it seems: it only takes a separable state that reproduces it.
+
+With the same uniform $P_Z$ (`path_graph_state`, `local_purities`, `partial_transpose_min_eig`):
+
+| state | $H_Z$ (bits) | $C_Z$ | global $P$ | local $P_i$ | status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| $\lvert{+}{+}\rangle$ | 2 | 0 | 1 | 1 | product |
+| graph $G_2$ (edge) | 2 | 0 | 1 | 0.5 | entangled (PT min. $-0.5$) |
+| $I_4/4$ | 2 | 0 | 0.25 | 0.5 | product mixture |
+| $\lvert{+}{+}{+}\rangle$ / graph $G_3$ (path) / $I_8/8$ | 3 | 0 | 1 / 1 / 0.125 | 1 / 0.5 / 0.5 | product / entangled / mixture |
+
+A bias in $z$ does not remove it: $\lvert a\rangle\lvert b\rangle$ and $\mathrm{CZ}\lvert a\rangle\lvert b\rangle$, with $z=(0.5,0.6)$, have $P_Z=(0.60,0.15,0.20,0.05)$ and $H_Z=1.533206$ bits; $P_i=1$ versus $0.76$; PT min. $-0.346410$.
+
+**Purity.** With the diagonal $p$, the exact range of $\mathrm{Tr}\rho^2$ is $[\sum_x p(x)^2,\,1]$; the extremes are $\sigma_p$ and $\lvert\psi_p\rangle=\sum_x\sqrt{p(x)}\lvert x\rangle$ (`purity_range_from_z`). The collision probability $\sum p^2$ is purity only if $\rho$ is diagonal in Z. For $p=(0.6,0.15,0.2,0.05)$: $[0.4250,1]$.
+
+**$C_Z$ is not entanglement, in both directions** (`total_correlation_z`):
+
+- *False negative:* $C_Z=0$ on the entangled graph state (edge and path).
+- *False positive:* $\lvert\mathrm{GHZ}_3\rangle$ and the mixture $\tfrac12(\lvert000\rangle\langle000\rvert+\lvert111\rangle\langle111\rvert)$ have the same $P_Z$ and $C_Z=2$ bits (the maximum); the mixture is separable ($P=1/2$).
+- *Three-body dependence with independent pairs:* the uniform mixture over even-parity strings has pairwise mutual information $0$, $H_Z=2$ and $C_Z=1$ bit.
+- *The result depends on the readout basis:* $(I\otimes H)\lvert G_2\rangle=\lvert\Phi^+\rangle$ goes from $H_Z=2$ to $1$ and from $C_Z=0$ to $1$, with entanglement and purity intact.
+
+$H_Z=C_{\mathrm{rel},Z}=H_Z-S(\rho)$ only if $\rho$ is pure (`relative_entropy_coherence_z`): in $G_2$, $2=2$; in $I_4/4$, $0$ versus $H_Z=2$. And $qg_S=h_2((1+qg_Z)/2)$ determines $|qg_Z|$ but not its sign: it is not a second independent reading.
+
+**What does certify: a two-setting witness** (`witness_path`, `witness_radius`). For the 3-qubit path, $W'_3=2I-XZI-ZXZ-IZX$ takes the value $-1$ on $G_3$ and $+2$ on the product and on $I/8$. It is estimated with XZX (gives $K_1$ and $K_3$) and ZXZ (gives $K_2$). With 1000 shots per setting and $\delta=0.05$ the conservative radius is $m\eta=0.293556$ ($m=3$): $-1+0.2936<0$ certifies genuine tripartite entanglement. A non-negative value concludes nothing. The witness works for the 3-qubit and the 2-qubit path; it is not generalized to every graph.
+
+**Noise: two exact counterexamples to monotonicity.** (i) Final dephasing $\rho_t=(1-t)\lvert G_3\rangle\langle G_3\rvert+t\,I/8$: $P_Z$ stays fixed and $\langle W'_3\rangle=-1+3t$ ($-1,\,0,\,+2$ at $t=0,\,\tfrac13,\,1$). (ii) Product under amplitude damping $\gamma=0,\tfrac12,1$: $H_Z=0,2,0$ bits and $P=1,\tfrac14,1$ with $C_Z=0$ always; neither entropy nor purity measures the amount of noise.
+
+**Shots.** A mean in $[-1,1]$ with $\varepsilon=0.05$ and $\delta=0.05$ needs $N=2952$ (Hoeffding; `hoeffding_shots`). For the entropy there is no analogous rule: the assumption-free bound (`sufficient_shots_entropy`, sufficient, not necessary, loose) gives $N=133\,966$ ($H_Z$, $n=2$), $253\,199$ ($H_Z$, $n=3$), $1\,346\,071$ ($C_Z$, $n=2$) and $3\,973\,513$ ($C_Z$, $n=3$). In addition, the plug-in $C_Z$ is positive with uniform independent $p$: bias $\tfrac{2^n-1-n}{2N\ln 2}$ (`plugin_cz_bias_uniform`). With $n=3$, $N=100$ (1000 repetitions, seed 34): $\hat H_Z=2.9478$, $\hat C_Z=0.0307$ (theory $0.0289$) versus the exact $3$ and $0$; at $N=10\,000$, $0.0003$. It is statistical bias, not physical correlation.
+
+**Operational contrast.**
+
+| Question | Without `qang` | With `qang` (`qang.qlimits`) | Status |
+| :--- | :--- | :--- | :--- |
+| Does the Z readout certify entanglement? | "high" $H_Z$ or $C_Z$ are taken as a hint | no: diagonal twin with the same $P_Z$ | `exact` |
+| What certifies the 3-qubit path? | $C_Z=0$: nothing | $W'_3=-1$ with 2 settings and radius $0.2936$ at 1000 shots | `exact` |
+| Purity from $P_Z$? | $\sum p^2$ as "purity" | only the range $[\sum p^2,1]$ | `exact` |
+| How many shots for $C_Z$? | "1000 are enough" | $\ge 1.3\cdot10^6$ by the assumption-free bound ($n=2$); bias $+0.03$ bit at $N=100$ ($n=3$) | `exact` (sufficient bound) |
+
+The analysis comes from an external review; every figure above was recomputed with `qang.qlimits` and `tools/verify_cap34.py` [8]–[12]. The reference figures to the benchmark of publications $Q_1$ and $Q_2$ (for example $r\approx-0.93$ with 110 points) were not re-run here.
+
+## 34.14 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `graph_state_z_blind` | limits | $P_Z(\text{graph})=P_Z(\lvert+\rangle^{\otimes n})$ | `ring_graph_state`, `stabilizer_expectation` | `exact` |
+| `qgs_t1_nonmonotone` | limits | $qg_S$ rises and falls under $T_1$ (24/24) | `t1_noise_scan`, `damp_distribution` | `exact` (numerical) |
+| `mean_qgz_t1_monotone` | limits | $1-2(1-\gamma)P_1$ grows with $\gamma$ | `mean_qgz`, `t1_noise_scan` | `exact` |
+| `arccos_range_trap` | limits | reachable min. $-\cos(\theta^*)$ if $\theta^*<0$ | `best_cost_clipped` | `exact` |
+| `weight_preservation_analyzer` | filter | $U$ block-diagonal by weight | `preserves_weight`, `weight_breakers` | `exact` |
+| `in_sector_error_unseen` | filter | error that conserves weight: retention 1 | `in_sector_error` | `exact` |
+| `weight1_quadratic_form` | networks | $qg_Z^{(i)}=1-2(Ov)_i^2$ | `weight1_qgz`, `simulate_qgz_weight1` | `exact` |
+| `negative_inventory_ledger` | audit | 0 `measured gain` in Ch. 7–33 | `negative_inventory` | `exact` |
+| `single_basis_no_go` | limits | $\sigma_p$ separable with the same $P_Z$ | `diagonal_twin`, `path_graph_state` | `exact` |
+| `purity_range_from_z` | limits | $\mathrm{Tr}\rho^2\in[\sum p^2,1]$ | `purity_range_from_z`, `pure_state_from_z` | `exact` |
+| `cz_not_entanglement` | limits | $C_Z=0$ with graph; $C_Z=2$ with separable mixture | `total_correlation_z` | `against` |
+| `hz_not_witness` | limits | $H_Z$ and $qg_S$ do not certify; $H_Z=C_{\mathrm{rel},Z}$ only if pure | `shannon_bits`, `relative_entropy_coherence_z` | `against` |
+| `pairwise_hidden_dependence` | limits | $C_Z=1$ with pairwise mutual information 0 | `total_correlation_z` | `exact` |
+| `path3_two_setting_witness` | limits | $W'_3=-1$ (graph), $+2$ (product, $I/8$); radius 0.293556 | `witness_path`, `witness_radius` | `exact` |
+| `product_damping_nonmonotone` | limits | $H_Z=0,2,0$ and $P=1,\tfrac14,1$ with $C_Z=0$ | `product_amp_damped`, `dephased_path3` | `exact` |
+| `cz_plugin_bias` | limits | bias $\tfrac{2^n-1-n}{2N\ln 2}$ | `plugin_cz_bias_uniform`, `plugin_study_uniform` | `exact` (numerical) |
+| `entropy_shot_budget` | limits | $N=133\,966\ldots3\,973\,513$ (sufficient bound) | `sufficient_shots_entropy`, `hoeffding_shots` | `exact` |
+| `lih_filter_scope` | filter | LiH 60 gates: 76.6 → 85.0 mHa | — | `unverified` (notes §50) |
+| `natural_gradient_equivalence` | optimization | qg = descent in $\theta$; 103 steps versus 22.5 | — | `unverified` (notes §159) |
+| `prereg_failures_157_164` | methodology | 26 of 45 predictions met | — | `unverified` (notes §157–§164) |
+
+`CHANGELOG.md [Unreleased]`: `qang.qlimits`; `tools/verify_cap34.py`; `tests/test_qlimits.py`.
+Commit: `docs(cap34): structural limits and negative results + qang.qlimits + verify_cap34`.

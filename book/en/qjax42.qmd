@@ -1,0 +1,125 @@
+# Chapter 42 — String Theory Read with qang: Exact Counting, the Level as a Z Reading, T-Duality and the Radius of a Lattice Analogue {#sec-qjax42 .unnumbered}
+
+**Updated:** November 16, 2026
+
+> New chapter, following Ch. 33 (free boson $c=1$ and scope with respect to strings) without repeating it. Module: `qang.qstring` (NumPy; SciPy only in §42.5). Verification: `tools/verify_cap42.py`. **Status: `exact`** for the identities of the model (§42.2–§42.4); **`mixed`** for the radius read on a finite-size XXZ chain (§42.5); **that `qang` measures string physics is `not adopted`**: identities of a model and a lattice analogue are read, the theory is not proven. No hardware.
+>
+> **Abstract.** What of string theory can be read and verified with qang? (i) Light-cone bosonic string: level degeneracies $1,24,324,3200,25650,176256$, critical dimension $D=26$, and the closed massless level $576=299+276+1$. (ii) The level $N=\sum_k k\,x_k$ is a weighted Hamming weight, hence a linear single-basis Z reading, $N=\sum_k k(1000-m_k)/2000$ with $m_k$ in m-qg, and its $T_1$ filter keeps exactly $(1-\gamma)^{|x|}$; the level filter and the Hamming-weight filter have complementary blind spots. (iii) T-duality $R\to\alpha'/R$ leaves the level-matched spectrum unchanged at six radii; at the self-dual radius the massless count rises from 576 to 676. (iv) In an XXZ ring of 20 sites, a single Z histogram gives the Luttinger parameter (the compactification radius of the lattice analogue) from the block weight variance within 1.3 % at $\Delta=0$ and 13 % at $\Delta=0.71$. None of this measures string physics.
+
+---
+
+## 42.1 Reading rules
+
+1. Each result enters with its function in `qang.qstring` and its line in `tools/verify_cap42.py`. Scales: $m\text{-qg}=1000\,qg_Z$; this chapter does not use `qga`.
+2. What is computed is an exact identity of the model (counting, spectrum) or a Z reading of a qubit analogue. No number here is a measurement of the physical string, of $D=26$ as the dimension of spacetime, or of the coupling.
+3. Ch. 33 already recorded that the local readings $qg_Z$ and $qg_S$ are flat with respect to the central charge ($\texttt{against}$). Here it is shown which readings do depend on the model parameter and which do not.
+
+## 42.2 The light-cone bosonic string: exact counting
+
+With $d=24$ transverse oscillators, the degeneracy of level $N$ is the coefficient of $q^N$ in $\prod_{n\ge1}(1-q^n)^{-24}$ (`colored_partitions`): $1,\,24,\,324,\,3200,\,25650,\,176256$ for $N=0,\dots,5$. The zero-point energy is $-(D-2)/24$ (`zero_point_energy`); the first excited level is massless only if $(D-2)/24=1$, that is $D=26$ (`critical_dimension`, unique in $3\le D<60$). For the open string, $\alpha' M^2=N-1$: $-1$ at $N=0$ (tachyon) and $0$ at $N=1$. In the closed string, level $N=\tilde N=1$ has $24\times24=576$ states, which decompose into $299$ (graviton, symmetric traceless) $+\,276$ (Kalb–Ramond, antisymmetric) $+\,1$ (dilaton) (`closed_massless_decomposition`).
+
+Cost in qubits to label the states of a level (only to size it, the spectrum is not encoded): $\lceil\log_2 d_N\rceil=5,\,9,\,12,\,15,\,18$ for $N=1,\dots,5$.
+
+## 42.3 The level $N$ as a linear Z reading and its filter under $T_1$
+
+With one qubit per mode ($k$-th mode $=$ qubit $k-1$, occupation 0/1: this is the fermionic or "distinct parts" case, not the 24 bosonic oscillators), the level is the **weighted weight** $W(x)=\sum_k k\,x_k$. It is linear in the readings: $\langle N\rangle=\sum_k k\,(1000-m_k)/2000$, with $m_k$ the $qg_Z$ reading of qubit $k-1$ in m-qg (`level_from_z`, `level_from_readings`; difference with the histogram $7\cdot10^{-15}$). The size of the level-$N$ sector with $n=10$ modes is the number of partitions of $N$ into distinct parts: $1,1,1,2,2,3,4,5,6,8,10$ (`level_sector_size`, `distinct_partitions`).
+
+**Budget.** With $n=6$ and uniform $p$, $\mathrm{Var}\,N=22.75$; for $\sigma_N=0.1$ at 95 % one needs $8740$ Z shots (`level_shots`), with no additional settings.
+
+**Level filter under $T_1$.** Any decay of an occupied mode lowers the level, so the level filter always detects it; the retention is exactly $(1-\gamma)^{|x|}$ (`level_filter_damped`). For the level-14 state (modes 1, 3, 4, 6): $\gamma=0.1$ retains $0.6561=(0.9)^4$; $\gamma=0.3$ retains $0.2401$ and the raw mean level is $9.80$ versus $14$.
+
+**Two complementary blind spots** (`level_vs_weight_blindness`): the exchange $\{3\}\leftrightarrow\{1,2\}$ conserves the level (3) and changes the weight ($1\to2$): the level filter does not see it. The move $\{1\}\to\{2\}$ conserves the weight and changes the level ($1\to2$): the weight filter of Ch. 34 does not see it. Each filter needs to know which quantity the circuit conserves.
+
+## 42.4 T-duality of the compactified boson
+
+With $p_{L,R}=n/R\pm wR/\alpha'$ and $(h,\bar h)=(\alpha' p_L^2/4+N-1,\ \alpha' p_R^2/4+\tilde N-1)$, the level matching is $nw+N-\tilde N=0$ (`conformal_weights`, `closed_spectrum`). The spectrum with $h,\bar h\le2$ and 24 oscillators per side is identical at $R$ and at $\alpha'/R$ (exchange $n\leftrightarrow w$): checked at $R=0.5,\,0.7,\,1,\,1.3,\,2,\,3$ (`t_dual_equal`). Massless states ($h=\bar h=0$, `massless_states`): $R=0.7$ and $1.3$: $576$; $R=0.5$ and $2$: $580$; $R=3$: $578$; **self-dual radius $R=\sqrt{\alpha'}$: $676=576+4\cdot24+4$**, with $4\cdot24=96$ vector states at $(n,w)=(\pm1,\pm1)$ (`massless_breakdown`) and $4$ scalars at $(\pm2,0),(0,\pm2)$. The enlargement from $576$ to $676$ is the extended symmetry of the self-dual radius.
+
+## 42.5 The radius, read with a single Z basis: an XXZ chain
+
+The XXZ chain $H=\sum_i S^x_iS^x_{i+1}+S^y_iS^y_{i+1}+\Delta S^z_iS^z_{i+1}$ is the lattice analogue of a compactified boson; its Luttinger parameter $K=\pi/(2(\pi-\arccos\Delta))$ (`luttinger_k_exact`; $K=1$ at $\Delta=0$, $K=1/2$ at $\Delta=1$) fixes the radius, with an identification $K\leftrightarrow R^2/\alpha'$ that depends on convention. In the ring, the variance of the Hamming weight of a block of $\ell$ qubits, read from **a single Z histogram**, grows as $(K/\pi^2)\ln[(L/\pi)\sin(\pi\ell/L)]$ (`block_weight_variance`, `luttinger_k_from_variance`; fit with even $\ell\ge4$, because odd $\ell$ oscillate).
+
+20-site ring, $S^z=0$ sector (`xxz_ground_distribution`, SciPy):
+
+| $\Delta$ | exact $K$ | $\hat K$ (one Z basis) | error |
+|---|---|---|---|
+| $0$ | $1.000$ | $1.013$ | $1.3\%$ |
+| $-0.5$ | $1.500$ | $1.514$ | $0.9\%$ |
+| $0.5$ | $0.750$ | $0.811$ | $8.2\%$ |
+| $0.7071$ | $0.667$ | $0.756$ | $13.4\%$ |
+
+The error grows toward $\Delta>0$ because of logarithmic corrections near $\Delta=1$: the status is `mixed`. In the continuum, the exponents of the staggered correlations are $2K$ (ZZ) and $1/(2K)$ (XX): their product is $1$ and T-duality $K\to1/K$ exchanges them (`dual_exponents`). The pair $K=3/2$ ($\Delta=-0.5$) and $K=2/3$ ($\Delta=\cos\pi/4$) gives a read product of $1.145$ (error $14.5\%$, that of the $\Delta>0$ branch): the lattice chain is not T-dual to itself, only its continuum limit is.
+
+## 42.6 What it does not measure
+
+- It does not measure $D=26$ as the dimension of spacetime, nor the physical mass spectrum, nor the coupling: they are identities of a model.
+- The level $W(x)$ with 0/1 occupation is not the spectrum of the 24 bosonic oscillators; it is the fermionic case. The degeneracies $d_N$ are counted, not encoded in qubits.
+- The radius of the XXZ chain is that of a finite-size lattice analogue; the identification with $R/\sqrt{\alpha'}$ depends on convention.
+- The local readings $qg_Z$ and $qg_S$ still do not measure the central charge (Ch. 33, `against`); the block variance of §42.5 does depend on $K$ because it uses the joint histogram of several qubits.
+
+## 42.7 Without qang vs with qang
+
+| aspect | without qang | with qang | difference |
+|---|---|---|---|
+| Level $N$ of a state in qubits | tomography or counting weights by hand | $N=\sum_k k(1000-m_k)/2000$ from a Z histogram | 0 extra settings (`exact`) |
+| Detecting decays in the level | ad hoc post-selection | level filter: retention $(1-\gamma)^{|x|}$ | every decay is detected (`exact`) |
+| Which filter to use | a single weight filter | level or weight depending on what the circuit conserves | complementary blind spots (`exact`) |
+| Radius of a lattice analogue | correlation exponents in 2 bases (ZZ and XX) | block variance, 1 Z basis | $-1$ basis; error $1.3\%$ ($\Delta=0$) to $13\%$ ($\Delta=0.71$) (`mixed`) |
+| Checking T-duality | by hand | same spectrum at 6 radii; 576 → 676 at the self-dual radius | (`exact`) |
+
+## 42.8 Code
+
+```python
+from qang.qstring import (colored_partitions, critical_dimension, closed_massless_decomposition, level_from_z,
+                          level_filter_damped, level_vs_weight_blindness, t_dual_equal, massless_states, massless_breakdown,
+                          luttinger_k_exact, luttinger_k_from_variance, xxz_ground_distribution, dual_exponents)
+
+colored_partitions(5, 24)                     # [1, 24, 324, 3200, 25650, 176256]
+critical_dimension()                          # 26
+massless_states(1.0)                          # 676  (576 generic at R=1.3)
+level_filter_damped(0b101101, 6, 0.3)["kept"] # 0.2401
+st, p = xxz_ground_distribution(20, 0.0)
+luttinger_k_from_variance(st, p, 20)          # 1.013 (exact 1.000)
+```
+
+## 42.9 Verification — `tools/verify_cap42.py`
+
+```
+[1] d_N (24 oscillators), N=0..5: [1, 24, 324, 3200, 25650, 176256]; critical D = 26 (unique in 3..59); α'M²(N=0,1) = -1, 0; closed N=Ñ=1: 576 = 299 (graviton) + 276 (Kalb–Ramond) + 1 (dilaton); qubits to label level N=1..5: [5, 9, 12, 15, 18]
+[2] level-N sector sizes N=0..10 (n=10 qubits): [1, 1, 1, 2, 2, 3, 4, 5, 6, 8, 10] = partitions into distinct parts; |⟨N⟩ from modes (m-qg) − ⟨N⟩ from histogram| = 7.1e-15; uniform n=6: Var N = 22.75, shots for σ_N=0.1 (95 %): 8740
+[3] level-14 state (modes 1,3,4,6), T1: γ=0.1 retention 0.6561 = (1−γ)⁴; γ=0.3 retention 0.2401; raw mean level 9.80 versus 14 (every decay lowers the level)
+    blind spots: {3}↔{1,2} conserves level 3 and changes weight 1→2 (level filter does not see it); {1}→{2} conserves weight and changes level 1→2 (weight filter does not see it)
+[4] spectrum (h, h̄) invariant under R → α'/R at R = 0.5, 0.7, 1.0, 1.3, 2.0, 3.0; massless states: R=0.5: 580, R=0.7: 576, R=1.0: 676, R=1.3: 576, R=2.0: 580, R=3.0: 578; at the self-dual radius 676 = 576 + 4·24 (vectors, n=±1,w=±1) + 4 (scalars, (±2,0),(0,±2))
+[5] 20-site XXZ ring, even ℓ ≥ 4, one Z histogram: Δ=+0.0000: K̂=1.013 (exact 1.000, error 1.3 %); Δ=-0.5000: K̂=1.514 (exact 1.500, error 0.9 %); Δ=+0.5000: K̂=0.811 (exact 0.750, error 8.2 %); Δ=+0.7071: K̂=0.756 (exact 0.667, error 13.4 %)
+    T-dual pair K=3/2 (Δ=−0.5) and K=2/3 (Δ=cos π/4): read product 1.145 versus 1 (exact in the continuum; exponents 2K and 1/(2K) → product 1)
+verify_cap42: OK
+```
+
+### `tests/test_qstring.py`
+
+5 tests: counting and $D=26$; the level as a linear Z reading and sector sizes; retention and blind spots; T-duality and 576 → 676; Luttinger formulas and a small chain (`importorskip("scipy")`).
+
+## 42.10 Appendix H
+
+| id | family | formula | function | status |
+|---|---|---|---|---|
+| `string_level_degeneracy` | strings | $\prod(1-q^n)^{-24}$: $1,24,324,3200,25650,176256$ | `qang.qstring.colored_partitions` | `exact` |
+| `string_critical_dimension` | strings | $(D-2)/24=1\Rightarrow D=26$ | `qang.qstring.critical_dimension` | `exact` |
+| `closed_massless_split` | strings | $576=299+276+1$ | `qang.qstring.closed_massless_decomposition` | `exact` |
+| `level_linear_reading` | strings | $N=\sum_k k(1000-m_k)/2000$ | `qang.qstring.level_from_z`, `qang.qstring.level_from_readings` | `exact` |
+| `level_filter_t1` | strings | retention $(1-\gamma)^{\lvert x\rvert}$ | `qang.qstring.level_filter_damped` | `exact` |
+| `level_weight_blind_spots` | strings | level and weight: complementary blind spots | `qang.qstring.level_vs_weight_blindness` | `exact` |
+| `t_duality_spectrum` | strings | same spectrum at $R$ and $\alpha'/R$ (6 radii) | `qang.qstring.t_dual_equal`, `qang.qstring.closed_spectrum` | `exact` |
+| `selfdual_massless` | strings | $676=576+96+4$ at $R=\sqrt{\alpha'}$ | `qang.qstring.massless_states`, `qang.qstring.massless_breakdown` | `exact` |
+| `luttinger_block_variance` | strings | $K\simeq\pi^2\,d\,\mathrm{Var}/d\ln(\text{chord})$; error $1.3$–$13.4\%$ | `qang.qstring.luttinger_k_from_variance`, `qang.qstring.xxz_ground_distribution` | `mixed` |
+| `string_physics_claims` | strings | that `qang` measures string physics | — | `not adopted` |
+
+## 42.11 CHANGELOG and commit
+
+```markdown
+### Added
+- `qang.qstring` (Ch. 42): light-cone bosonic string counting (d_N, D=26, 576=299+276+1), the level as a weighted Hamming weight with a linear Z reading and its T1 filter, T-duality of the compactified boson (spectrum invariant at six radii; 576 → 676 massless states at the self-dual radius), and the Luttinger parameter of an XXZ ring read from one Z histogram; `tools/verify_cap42.py`; 5 tests.
+```
+
+```text
+feat(book): add Ch. 42 (string theory with qang) with qang.qstring
+```

@@ -1,0 +1,76 @@
+# Chapter 24 — The Symmetry Filter with Density Matrices: Exact under Uniform T1 Relaxation (Even Mid-Circuit), T1 Ratios, Failure under Dephasing and ZNE Rescue {#sec-qjax24 .unnumbered}
+
+**Updated:** November 15, 2026
+
+> Rewrite of the old Ch. 21 (F5, F6) on the basis of Ch. 1–23. Module: `qang.qsymfilter` (JAX, `jax<0.9`; uses `qang.qweightqnn`). Verification: `tools/verify_cap24.py` ($16\times16$ density matrices).
+
+---
+
+## 24.1 Why the filter is exact under uniform T1, also between gates
+
+In the weight-1 sector, the no-jump Kraus operator of amplitude damping, $K_0^{\otimes n}$ with $K_0=\mathrm{diag}(1,\sqrt{1-\gamma})$, multiplies **every** $|e_k\rangle$ by the same $\sqrt{1-\gamma}$ (a single excited qubit); the jump $K_1$ sends the mass to $|0\ldots0\rangle$ (weight 0), where the RBS act as the identity and from where it **never returns**. Therefore, after $L$ gates with uniform $T_1$ in each,
+$$\rho_S^{\text{filtered}}=\rho_S^{\text{ideal}}\ \ (\text{coherences included}),\qquad \text{rate}=(1-\gamma)^L .$$
+Verified: $\|\rho_S-\rho_S^{\text{ideal}}\|_\infty=1.2\cdot10^{-16}$, rate $0.7351=(0.95)^6$. Without the filter the reading drifts: $-393\to-289$ m-qg ($\gamma=0.05$), $\to-103$ m-qg ($\gamma=0.2$) (`exact`). It generalizes the result of Ch. 23 (histograms) to states with coherence. Uniform amplitude damping acts on the weight-1 sector as a global scalar plus an irreversible leak to weight 0, so sector postselection restores the exact state mid-circuit.
+
+## 24.2 T1 ratios (F5): exact correction only for final noise
+
+**Non-uniform** $T_1$ $\gamma_k$ applied at the end: $p(e_k)=(1-\gamma_k)\,p^{\text{ideal}}(e_k)$ exactly ⇒ dividing by $(1-\gamma_k)$ (calibrated, Ch. 30) recovers $y=-0.3933$. Applied **between** gates, the distortion does not commute with the RBS: filtered $y=+0.0746$ (error $0.468$) and the final correction is **not enough** (`mixed`). Rule: $T_1$ ratios only with gate times $\ll T_1$ of the slowest qubits; measure $\gamma_k$ per qubit (Ch. 30).
+
+## 24.3 Dephasing: the filter does not protect; ZNE does (F6)
+
+Dephasing conserves the weight but destroys coherences **inside** the sector, invisible to the filter. With $p=0.02$ per gate: filtered error $0.0551$; Richardson over $\lambda\in\{1,2,3\}$ ($y=-0.3382,-0.2939,-0.2584$) extrapolates to $-0.3914$ (error $0.0019$, $\times28.7$) at the cost of $3\times$ circuits (`exact` sim.; hardware `unverified`). Recommended combination: filter (removes $T_1$ and leaks) + ZNE (residual dephasing); order of application: filter each $\lambda$, then extrapolate.
+
+## 24.4 Operational contrast
+
+| Metric | Standard | `qang` (`qang.qsymfilter`) | Status |
+| :--- | :--- | :--- | :--- |
+| Uniform $T_1$ mid-circuit, $\gamma=0.2$ | $-103$ m-qg (ideal $-393$) | $-393$ m-qg exact; rate $0.262$ | `exact` |
+| Non-uniform final $T_1$ | biased | ratios $(1-\gamma_k)$: exact | `exact` |
+| Non-uniform mid-circuit $T_1$ | biased | filtered error $0.468$ | `mixed` |
+| Dephasing $p=0.02$ | error $0.055$ | filter does not help; ZNE: $0.0019$ ($3\times$ circuits) | `exact` sim. |
+
+## 24.5 JAX block (`qang/qsymfilter.py`)
+
+```python
+def kraus_amplitude_damping(g): return [diag(1, √(1−g)), [[0, √g],[0, 0]]]
+def kraus_dephasing(p):         return [√(1−p)·I, √p·Z]
+def run_weight_circuit(rho0, theta_qga, pairs, n, noise_after_layer=None)   # RBS + channel after each gate
+def filtered_sector_state(rho, n, w=1)   # (ρ_S / Tr, rate)
+def richardson_zne(lams, vals)           # polynomial of degree len−1 evaluated at λ=0
+```
+
+## 24.6 Verification — `tools/verify_cap24.py`
+
+```
+[1] T1 γ=0.2 mid-circuit: ||ρ_S − ρ_S^ideal||∞=1.1e-16, rate=0.2621=(1−γ)^6; y without filter=-0.1031 vs ideal -0.3933
+[2] non-uniform final T1: ratio correction recovers y=-0.3933 | mid-circuit: filtered y=+0.0746 (mixed)
+[3] dephasing p=0.02: filtered error=0.0551, ZNE=-0.3914 (error 0.0019) → ×28.7 better
+verify_cap24: OK
+```
+Asserts: $\|\rho_S-\rho_S^{\text{id}}\|<10^{-13}$ and rate $=(1-\gamma)^6$ to $10^{-13}$; ratios to $10^{-13}$; ZNE error $<$ filtered error.
+
+### `tests/test_qsymfilter.py`
+```python
+import pytest; jax = pytest.importorskip("jax")
+import numpy as np, jax.numpy as jnp
+from qang.qweightqnn import unary_loader
+from qang.qsymfilter import run_weight_circuit, kraus_amplitude_damping, apply_local_channel, filtered_sector_state
+
+def test_filter_exact_under_uniform_T1():
+    n, pairs = 4, ((0, 1), (2, 3), (1, 2)); th = jnp.array([100., 300., 700.])
+    psi = unary_loader(jnp.array([0.6, 0.0, 0.8, 0.0]), n); rho0 = jnp.outer(psi, jnp.conj(psi))
+    S0, _ = filtered_sector_state(run_weight_circuit(rho0, th, pairs, n), n)
+    S1, acc = filtered_sector_state(run_weight_circuit(rho0, th, pairs, n, lambda r: apply_local_channel(r, kraus_amplitude_damping(0.1), n)), n)
+    assert float(jnp.max(jnp.abs(S0 - S1))) < 1e-13 and abs(float(acc) - 0.9 ** 3) < 1e-13
+```
+
+## 24.7 Appendix H
+
+| id | family | formula | function | status |
+| :--- | :--- | :--- | :--- | :--- |
+| `symfilter_T1_exact_midcircuit` | mitigation | exact $\rho_S$, rate $(1-\gamma)^L$ | `filtered_sector_state` | `exact` |
+| `T1_ratio_correction` | mitigation | $p/(1-\gamma_k)$ (final noise) | `verify_cap24.py` §2 | `exact` final / `mixed` mid-circuit |
+| `dephasing_zne_sector` | mitigation | Richardson $\lambda=1,2,3$ | `richardson_zne` | `exact` sim. |
+
+`CHANGELOG.md [Unreleased]`: `qang.qsymfilter`; `tools/verify_cap24.py`; `tests/test_qsymfilter.py`.
+Commit: `docs(cap24): density-matrix symmetry filter, T1 ratios and ZNE rewritten on Ch. 1–23 + qang.qsymfilter + verify_cap24`.
