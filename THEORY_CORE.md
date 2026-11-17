@@ -1,4 +1,4 @@
-# THEORY_CORE.md — Núcleo Matemático, Evidencia y Límites (`qang` v0.14.0+)
+# THEORY_CORE.md — Núcleo Matemático, Evidencia y Límites (`qang` v0.16.0+)
 
 ## 1. Definiciones Canónicas y Escalas
 - **Sesgo Polar (`qg_Z`)**: $qg_Z(\theta) = \langle\sigma_z\rangle = p_0 - p_1 = 2p_0 - 1 = \cos\theta \in [-1, 1]$, con $p_0 = \cos^2(\theta/2) = (1 + qg_Z)/2$.
@@ -30,6 +30,9 @@
 8. **Entrenamiento calibrado en IBM con ruido realista (Cap. 21.6 / §119–§120)**: Entrenar sin ruido + filtro de simetría supera al entrenamiento calibrado con $T_1/T_2$ o datos del dispositivo.
 9. **Propuestas explícitamente marcadas como SIN VERIFICAR**: Extensión relativista/antimateria en `qga` (Cap. 1.4.1 / Apéndice G; 3 errores de la fuente original corregidos: $p_0=0.5$ en $250\text{ qga}$, curvatura $K=4$, factor $2$ en $P_{\text{reposo}}$); energía variacional regularizada $E_{\text{total}}$; función de radiación $R(\theta,\varphi)$; compilación por $\kappa_{qg}$ contra mesetas estériles.
 
+10. **Entrelazamiento desde una sola base (Cap. 34 §34.13, `qang.qlimits`)**: la distribución $P_Z$ no determina la pureza (rango $[\sum p^2,1]$) y $\sigma_p=\sum_x p(x)|x\rangle\langle x|$ es separable con la misma $P_Z$. $C_Z=\sum_i H(X_i)-H_Z$ **no** es medida de entrelazamiento (falsos negativos: estados de grafo; falsos positivos: mezclas separables tipo GHZ); $H_Z=C_{\mathrm{rel},Z}$ solo en estados puros. Un testigo exige dos ajustes, p. ej. $W'_3=2I-XZI-ZXZ-IZX$ ($-1$ en el grafo, $+2$ en producto). Sesgo plug-in de $C_Z$: $(2^n-1-n)/(2N\ln 2)$.
+11. **Teoría de cuerdas (Cap. 42, `qang.qstring`)**: el conteo de particiones coloreadas y $D=26$ son exactos; el nivel es una lectura lineal en $m$-qg. El filtro de nivel y el de peso tienen puntos ciegos complementarios. La varianza por bloques del anillo XXZ da el parámetro de Luttinger $K$ con errores 1,3 %, 0,9 %, 8,2 % y 13,4 % (estatus `mixed`). No se afirma ventaja sobre el método estándar.
+
 ## 3. Restricciones Técnicas, Entorno y Hardware (`pyproject.toml`)
 - **Core**: Python $\ge 3.9$, únicamente `numpy>=1.24`. Todos los SDKs (`qiskit`, `cirq`, `pennylane`, etc.) se importan bajo demanda.
 - **Entornos aislados**: `qang[iqm]` (`iqm-client` fija su versión de Qiskit), `qang[dynamics]` (`qiskit<=1.3`), `jax<0.9` con `pennylane>=0.42`, `amazon-braket-sdk` fija `cloudpickle==2.2.1`, `cudaq` y `chemistry` (`pyscf`) solo Linux/macOS/WSL.
@@ -37,3 +40,4 @@
   - §165 (neutrinos 3 sabores, $8\times 300$ shots): filtro baja error $1.59\times$ ($0.062 \to 0.039$) y recupera mínimo en $2.6\text{ GeV}$.
   - §168 (milli-qang, 1 qubit, $26\times 4000$ shots): compuerta X cuesta $1.64\text{ m-qg}$ lineales; ángulos intermedios sesgados $16\text{–}55\text{ m-qg}$; predicción M2 (dispersión sub-binomial en ecuador) fallida/abierta.
   - §170 (Apéndice G, Dirac $E=mc^2$ en 1 qubit): autoestado a $0.6c$ leyó $+759.9\pm 14.9\text{ m-qg}$ (previsto $+800$), Zitterbewegung a $0.44\%$.
+- **Ledger (Cap. 7–42, `qang.qledger`)**: 179 filas; 145 `exact`, 14 `unverified`, 8 `against`, 5 `tested on hardware` (IQM Garnet, Cap. 35), 3 `no gain`, 2 `mixed`, 2 `not adopted`, 0 `measured gain`.

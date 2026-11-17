@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Book (ES): chapters 7-42 now follow the verified rewrite (`qjax07`-`qjax42`), grouped in Parts III-XIII; the old text of chapters 7-36 moved to `book/es/_legacy/` (not rendered). Cross-references and `index.qmd` updated.
+- Appendix D regenerated for 0.16.0 (module `qlimits`, `qstring` name lists); `THEORY_CORE.md` extended (single-basis no-go, string chapter, ledger counts).
+- EN Cap. 36: `qang.measures` note corrected (present since 0.15.0).
+
 ## [0.16.0] - 2026-11-16
 
 ### Added
