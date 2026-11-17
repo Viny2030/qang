@@ -61,7 +61,19 @@ def test_decide(): assert decide(60, 100, 0.5) == "confirmed" and decide(40, 100
 def test_holm(): assert holm((0.001, 0.03, 0.04)) == (True, False, False)
 ```
 
-## 31.8 Appendix H
+## 31.8 2026 context: certified shot windows
+
+Status: `unverified` (read from the arXiv abstract only; nothing re-run). @finiteshot2026 compares symmetry verification and virtual distillation by finite-shot mean squared error with an explicit non-asymptotic remainder, and reports that no method wins in every regime.
+
+| Question | Without `qang` | With `qang` |
+|---|---|---|
+| How many shots to decide? | rule of thumb | budget of §31.4 (`qang.qfalsify`), exact for the binomial test |
+| Which mitigation method to pick? | compare by infinite-shot bias | unresolved: `qang` offers no certified window |
+| Is the decision registered before measuring? | not necessarily | yes: SHA-256 and Holm (§31.1, §31.3) |
+
+Scope: the `qang` budget answers how many shots decide a registered hypothesis, not which mitigation estimator to use; these are different questions and no gain over that work is claimed.
+
+## 31.9 Appendix H
 
 | id | family | formula | function | status |
 | :--- | :--- | :--- | :--- | :--- |
