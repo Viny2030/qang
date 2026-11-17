@@ -1,0 +1,198 @@
+# Chapter 44 — Quantum Agentic AI Read with qang: Born Policies, the Angle as Natural Gradient, the Decision Reading and Shot Allocation Across Tools {#sec-qjax44 .unnumbered}
+
+**Updated:** November 17, 2026
+
+> **Abstract.** What does qang give a hybrid autonomous agent, and what does it not? The minimal agent: two actions whose policy is the measurement of one qubit, $\pi(0)=\cos^2(\theta/2)$. Results, all with a verifier: (i) the policy's Fisher information is 1 for every $\theta$, and the gradient flow in $\theta$ is *exactly* the natural-gradient flow of the logit, $\phi_t=\phi_0+\eta\Delta t$ with $\Delta=r_0-r_1$: the worse action falls to $1\%$ in $4.6/(\eta\Delta)$ steps, against $108/(\eta\Delta)$ for plain gradient in the logit ($23.5\times$); (ii) near a pole the gradient vanishes and its variance does not, so the gradient sign costs 100 times more episodes at $\theta=0.05$ than at the equator, and an agent at the pole never moves without an exploration floor; (iii) the decision reading ($qg_Z$, $qg_S$, $qg_{SNR}$, shots for the sign) is computed before acting; (iv) splitting the shots among $K$ readings with $n_i\propto\sin\theta_i$ lowers the sum of variances by the factor $K\sum\sin^2\theta_i/(\sum\sin\theta_i)^2$. **Status: `exact`**; no measured gain is claimed, and a single-qubit policy is indistinguishable from a classical biased coin. Module: `qang.qagent` (NumPy). Verification: `tools/verify_cap44.py`.
+
+---
+
+## 44.1 Reading rules
+
+1. Every result comes with its function in `qang.qagent` and its line in `tools/verify_cap44.py`. Scales: $m\text{-qg}=1000\,qg_Z$ (reading); $\theta$ in radians, with $\pi/2$ rad $=250$ qga and 1 turn $=1000$ qga.
+2. We optimize in $\theta$, never in $qg_Z$ without regularization: the flat gradient in $qg_Z$ diverges at the poles (Ch. 34, `THEORY_CORE.md` §2.1). That negative result is respected here and explained with a formula (§44.2).
+3. Rewards, steps and the exploration floor are **parameters** of the model, not measurements. Where a number appears, it comes from the formula with that parameter.
+4. No `measured gain` status: the chapter does not compare against a classical agent trained in a real environment, and does not repeat hypotheses already refuted in the book (Ch. 3, Ch. 34).
+
+## 44.2 Theoretical foundations and mathematical formulation
+
+**The minimal agent.** A two-action agent prepares $R_Y(\theta)|0\rangle$ and measures in $Z$; the action is the outcome. Then
+
+$$
+\pi(0|\theta)=\cos^2\frac\theta2=p_0,\qquad \pi(1|\theta)=\sin^2\frac\theta2,\qquad qg_Z=\cos\theta=\pi(0)-\pi(1),
+$$
+
+and the decision state is the point on the Bloch sphere; the policy is a meridian. With mean rewards $r_0,r_1$ and $\Delta=r_0-r_1$, the expected return is $J(\theta)=r_0\pi(0)+r_1\pi(1)$ and
+
+$$
+\partial_\theta J=-\frac{\Delta\sin\theta}{2},\qquad
+\partial_\theta\log\pi(0)=-\tan\frac\theta2,\qquad \partial_\theta\log\pi(1)=\cot\frac\theta2 .
+$$
+
+**Fisher information.** $I(\theta)=\pi(0)\tan^2\tfrac\theta2+\pi(1)\cot^2\tfrac\theta2=\sin^2\tfrac\theta2+\cos^2\tfrac\theta2=1$ for every $\theta$: it is the Fubini–Study metric on the meridian (Ch. 9). In $qg_Z$ the same information is $1/(1-qg_Z^2)$, which diverges at the poles; that is why the flat gradient in $qg_Z$ is useless and the natural one in $qg_Z$ coincides with the Euclidean one in $\theta$ (Ch. 34).
+
+**The gradient flow.** With the exact gradient, $\dot\theta=\eta\,\partial_\theta J=-\tfrac{\eta\Delta}{2}\sin\theta$, which integrates in closed form:
+
+$$
+\tan\frac{\theta_t}{2}=\tan\frac{\theta_0}{2}\,e^{-\eta\Delta t/2}.
+$$
+
+With the logit $\phi=\ln\frac{\pi(0)}{\pi(1)}=2\ln\cot\frac\theta2$ this is $\phi_t=\phi_0+\eta\Delta t$: **plain gradient descent in $\theta$ is the natural gradient in the logit**, because the Fisher information of the logit is $\pi_0\pi_1$ and $F^{-1}\partial_\phi J=\Delta$. The time for the worse action to fall to $\pi_\ast$ is
+
+$$
+T_\theta=\frac{\ln\frac{1-\pi_\ast}{\pi_\ast}-\phi_0}{\eta\Delta},\qquad
+T_{\text{flat logit}}=\frac{F(\phi_\ast)-F(\phi_0)}{\eta\Delta},\quad F(\phi)=2\sinh\phi+2\phi,
+$$
+
+and $T_\theta\propto\ln(1/\pi_\ast)$ versus $T_{\text{flat logit}}\propto1/\pi_\ast$. The difference is not an intrinsic quantum advantage: it is the choice of the metric (of a preconditioner). The natural gradient in the logit gives the same curve as the plain one in $\theta$.
+
+**The pole.** The REINFORCE estimator [@williams1992] $g=r_a\,\partial_\theta\log\pi(a)$ is unbiased, with
+
+$$
+\mathbb E[g]=-\frac{\Delta\sin\theta}{2},\qquad
+\mathbb E[g^2]=r_0^2\sin^2\tfrac\theta2+r_1^2\cos^2\tfrac\theta2 ,
+$$
+
+so near a pole the mean vanishes as $\sin\theta$ and the variance stays at $r_1^2$ (or $r_0^2$): the episodes needed to resolve the sign, $z^2\mathrm{Var}(g)/\mathbb E[g]^2$, diverge as $1/\sin^2\theta$. And at $\theta=0$ or $\pi$ the gradient is exactly zero: an agent that reaches a bad pole does not leave it. The way out is an *exploration floor*: $\theta\in[\theta_{\min},\pi-\theta_{\min}]$ with $\theta_{\min}=2\arcsin\sqrt{p_{\min}}$ guarantees $\pi(a)\ge p_{\min}$.
+
+**The decision reading.** Before acting, the qang measures say how decided the policy is: $qg_Z$ and its reading $m_Z$ in m-qg, the entropy $qg_S=H(p_0)$ in bits, $qg_{SNR}=|\cot\theta|$ and the shots for the sign of $qg_Z$ to be $z$ deviations away, $(z/qg_{SNR})^2$ (Ch. 1). At the equator $qg_S=1$ bit and the sign cannot be decided with any number of shots.
+
+**Tool orchestration: shot allocation.** If an agent queries $K$ readings $qg_{Z,i}$ (one per tool or subroutine) with a budget $B$, the sum of variances is $\sum_i\sin^2\theta_i/n_i$, and with $\sum n_i=B$ the minimum is $n_i\propto\sin\theta_i$:
+
+$$
+\frac{V_{\text{uniform}}}{V_{\text{optimal}}}=\frac{K\sum_i\sin^2\theta_i}{\big(\sum_i\sin\theta_i\big)^2}\ \ge1\quad\text{(Cauchy–Schwarz)},
+$$
+
+with equality only if all the $\sin\theta_i$ coincide. What qang contributes is that $\sin\theta_i=\sqrt{1-qg_{Z,i}^2}$ is known from a pilot reading.
+
+**What is not there.** A one-qubit policy has the same distribution as a classical coin of bias $p_0$: quantum hardware changes neither the policy nor its learning. The learning advantages documented for quantum policies [@jerbi2021; @dunjko2016; @skolik2022] refer to models with several qubits and entanglement, or to quantum access to the environment, and this chapter neither reproduces nor claims them.
+
+## 44.3 Hybrid architecture and integration with `qang` v0.16
+
+```text
+ environment ──obs──► [PERCEPTION: state qubit(s) → qg_Z, qg_X]            (Qiskit)
+                         │ readings with intervals (qang.probability, qang.statistics)
+                         ▼
+              [classical REASONING]  ◄── qang.qagent: decision_report, time_to_wrong_probability,
+                         │                 episodes_for_gradient_sign, neyman_allocation
+                         │ plan: shots per tool, step η, floor p_min
+                         ▼
+              [tool ORCHESTRATOR]  (deterministic planner; an LLM can take this place [@yao2023react])
+                         │ calls: simulator/QPU · Grover (Ch. 43) · qg_Z estimator
+                         ▼
+              [ACTION: one shot of the policy qubit] ──► environment ──reward R──┐
+                         ▲                                                       │
+                         └──────── REINFORCE update in θ (with floor) ◄──────────┘
+```
+
+The quantum part happens in two boxes, perception (optional) and action; reasoning, the orchestrator and the update are classical. What qang adds to the reasoning is a *pre-check*: how much the policy trusts its action, how many steps the flow predicts, how many episodes the gradient sign costs and how to split the shots.
+
+## 44.4 Practical implementation (`qang` + Qiskit)
+
+```python
+import numpy as np
+from qiskit import QuantumCircuit
+from qiskit.primitives import StatevectorSampler          # exact Qiskit 2.x simulator
+from qang.qagent import (decision_report, exploration_floor, score, time_to_wrong_probability,
+                         neyman_allocation, uniform_to_neyman_ratio)
+
+MEANS, ETA, P_FLOOR, STEPS = (0.7, 0.3), 0.05, 0.01, 400    # Bernoulli environment and agent parameters
+LO = exploration_floor(P_FLOOR)                              # θ_min = 0.2003 rad
+sampler = StatevectorSampler(seed=44)
+rng = np.random.default_rng(44)
+
+# 1. Prior REASONING: what the flow predicts and how decided the policy is
+print(round(time_to_wrong_probability(np.pi / 2, ETA, MEANS[0] - MEANS[1], 0.05), 1))   # 147.2 steps for π(worse) ≤ 5 %
+d = decision_report(0.4)
+print(round(d["qg_Z"], 3), round(d["m_Z"]), round(d["qg_S"], 3), d["shots_for_sign"])    # 0.921 921 0.24 2.0
+
+# 2. ACTION: one shot of the policy qubit
+def act(theta):
+    qc = QuantumCircuit(1, 1)
+    qc.ry(theta, 0)
+    qc.measure(0, 0)
+    counts = sampler.run([qc], shots=1).result()[0].data.c.get_counts()
+    return int(next(iter(counts)))                           # 0 or 1
+
+# 3. Perception-reasoning-action loop: REINFORCE in θ with an exploration floor
+theta = np.pi / 2
+for _ in range(STEPS):
+    a = act(theta)
+    r = float(rng.random() < MEANS[a])                       # Bernoulli reward from the environment
+    theta = float(np.clip(theta + ETA * r * score(a, theta), LO, np.pi - LO))
+print(round(float(np.sin(theta / 2) ** 2), 3))               # π(worse action): of the order of 0.01–0.02 (floor 0.01)
+
+# 4. Orchestration: split B shots among K=4 pilot readings
+thetas = [0.2, 1.0, np.pi / 2, 2.9]
+print(np.round(neyman_allocation(thetas, 4000)).astype(int).tolist(), round(uniform_to_neyman_ratio(thetas), 3))
+# [349, 1477, 1755, 420] 1.389
+```
+
+**Interpretation.**
+
+- The values of steps 1 and 4 are deterministic and reproducible. The flow predicts 147.2 steps to bring the worse action down to $5\%$ with $\eta=0.05$ and $\Delta=0.4$; the policy at $\theta=0.4$ reads $qg_Z=0.921$ (921 m-qg), $qg_S=0.240$ bits and needs 2 shots to fix the sign at $3\sigma$. The optimal allocation for $\theta=(0.2,\,1.0,\,\pi/2,\,2.9)$ gives $(349,\,1477,\,1755,\,420)$ and lowers the sum of variances by $1.389$ with respect to the uniform split.
+- Step 3 is stochastic. With the same loop in NumPy (`tools/verify_cap44.py` uses `run_bandit`, which draws the action with the same probability $\cos^2(\theta/2)$), 300 runs of 400 steps give a mean $\pi(\text{worse})$ of $0.020$ and a median of $0.010$ (the floor). A single run with Qiskit varies; the printed value is an order of magnitude, not a guarantee.
+- Qiskit was not installed in the environment where the chapter was written: the block was not executed, and its step-3 output remains to be checked in the reader's environment. The identities behind it are verified with NumPy sampling.
+- Agreement with the flow (verified): with $\eta=0.02$ and 100 steps, 400 Bernoulli runs give $\pi(\text{worse})=0.316$ against $0.310$ predicted by the closed flow.
+
+## 44.5 Use cases, limitations (NISQ versus simulators) and future directions
+
+**Use cases with support.**
+
+| agent decision | how `qang.qagent` helps | support |
+|---|---|---|
+| how many steps learning predicts before running it | closed-form flow time in $\theta$ | `time_to_wrong_probability`, `flow_theta` |
+| whether the policy already decides its action | $qg_Z$, $qg_S$, $qg_{SNR}$, shots for the sign | `decision_report` |
+| how many episodes the gradient sign costs (and whether there is a pole) | $z^2\mathrm{Var}(g)/\mathbb E[g]^2$ | `episodes_for_gradient_sign` |
+| how to avoid the bad pole | exploration floor $\theta_{\min}$ | `exploration_floor`, `run_bandit` |
+| how to split the shots among quantum tools | $n_i\propto\sin\theta_i$ | `neyman_allocation`, `uniform_to_neyman_ratio` |
+
+**Limitations.** (i) *Latency*: an action is one shot, and the time per shot plus the queue of a cloud service make an interactive loop of hundreds of steps on a QPU unviable; on a simulator there is no problem, but there is no advantage either. (ii) *Classical equivalence*: a one-qubit policy is a biased coin; the benefit of the $\theta$ parametrization is a choice of metric that a classical natural gradient reproduces. (iii) *Several qubits*: the advantages in the literature require entanglement or quantum access to the environment; qang has no verified result there, and `THEORY_CORE.md` (§2) recalls that reading $qg_Z$ per qubit loses against the string histogram (Ch. 3). (iv) *Noise*: the model is ideal; with readout noise the affine readout must be calibrated (Ch. 30) before using $qg_Z$ as a policy.
+
+**Future directions, without result.** *Orchestration by a language model*: a ReAct-type agent [@yao2023react] could call the functions of `qang.qagent` as tools; there is no experiment in this book, `unverified`. *Multi-qubit policies and quantum Q-learning* [@skolik2022]: the qang metric for several qubits (Ch. 5, local radius) is a starting point, `unverified`. *Natural gradient with a floor*: test with a pre-registered experiment whether the optimal exploration floor $p_{\min}$ depends on $\Delta$.
+
+## 44.6 Without qang and with qang
+
+| action | without qang | with qang | difference |
+|---|---|---|---|
+| forecast the learning speed | run and look at the curve | $T_\theta=(\ln\frac{1-\pi_\ast}{\pi_\ast}-\phi_0)/(\eta\Delta)$ | **prior calculation**; no gain in learning |
+| choose the parametrization | logit with flat gradient ($\propto1/\pi_\ast$) | angle $\theta$ ($\propto\ln(1/\pi_\ast)$) | **choice of metric**: the classical natural gradient gives the same |
+| detect the pole | the agent stops learning | zero gradient, $1/\sin^2\theta$ episodes, floor $\theta_{\min}$ | exact **diagnosis** |
+| know whether the policy already decides | sample until it shows | $qg_Z$, $qg_{SNR}$, shots for the sign | prior **check** |
+| split shots among $K$ tools | uniform | $n_i\propto\sin\theta_i$ | **up to $K\sum\sin^2/(\sum\sin)^2$** less variance (1.389 in the example) |
+
+**Balance.** qang does not make the agent smarter: it gives exact accounts of its policy (how much it trusts, how long it takes to learn, where it gets stuck, how to spend the shots). A one-qubit policy is a biased coin, and the quantum learning advantage stays outside what this book verifies. There is no `measured gain`.
+
+## 44.7 Verification — `tools/verify_cap44.py`
+
+```bash
+python tools/verify_cap44.py          # NumPy + qang only; ~1 min
+pytest tests/test_qagent.py -q        # 4 tests, ~1 s
+```
+
+Five blocks: [1] gradient, variance and Fisher information with $4\cdot10^5$ samples at four angles; [2] closed flow versus Euler integration, $\phi_t=\phi_0+\eta\Delta t$, times $4.595$ and $108.2$ (ratio $23.5$; at $0.1\%$, $147\times$) and Bernoulli REINFORCE versus the flow ($0.316$ versus $0.310$); [3] episodes for the sign ($15$ at the equator, $1542$ at $\theta=0.05$), immobile pole, and escape from the bad pole with a floor in $200$ of $200$ runs (median of $227$ steps); [4] decision reading versus `qang.probability`; [5] shot allocation ($1.389$ computed, $1.376$ simulated).
+
+## 44.8 Appendix H
+
+| id | family | formula | function | status |
+|---|---|---|---|---|
+| `born_policy_gradient` | agents | $\partial_\theta J=-\Delta\sin\theta/2$; $\mathbb E[g^2]=r_0^2\sin^2\frac\theta2+r_1^2\cos^2\frac\theta2$ | `qang.qagent.expected_gradient`, `qang.qagent.gradient_variance` | `exact` |
+| `policy_fisher_one` | agents | $I(\theta)=1$ for every $\theta$ | `qang.qagent.score` | `exact` |
+| `policy_flow_closed` | agents | $\tan\frac{\theta_t}2=\tan\frac{\theta_0}2e^{-\eta\Delta t/2}$ | `qang.qagent.flow_theta` | `exact` |
+| `theta_is_natural_logit` | agents | plain gradient in $\theta$ ⇔ natural in the logit, $\phi_t=\phi_0+\eta\Delta t$ | `qang.qagent.logit_of`, `qang.qagent.time_to_wrong_probability` | `exact` |
+| `logit_vanilla_slowdown` | agents | $T\propto1/\pi_\ast$ (flat logit) versus $\ln(1/\pi_\ast)$ | `qang.qagent.logit_vanilla_time` | `exact` |
+| `pole_gradient_trap` | agents | episodes $\propto1/\sin^2\theta$; zero gradient at the pole | `qang.qagent.episodes_for_gradient_sign` | `exact` |
+| `exploration_floor` | agents | $\theta_{\min}=2\arcsin\sqrt{p_{\min}}$ | `qang.qagent.exploration_floor`, `qang.qagent.run_bandit` | `exact` |
+| `decision_reading` | agents | $qg_Z$, $qg_S$, $qg_{SNR}$, $(z/qg_{SNR})^2$ | `qang.qagent.decision_report` | `exact` |
+| `neyman_shot_allocation` | agents | $n_i\propto\sin\theta_i$; ratio $K\sum\sin^2/(\sum\sin)^2$ | `qang.qagent.neyman_allocation`, `qang.qagent.uniform_to_neyman_ratio` | `exact` |
+| `llm_tool_orchestration` | agents | a ReAct-type agent calling `qang.qagent` as a tool | — | `unverified` |
+| `multiqubit_quantum_policy` | agents | entangled multi-qubit policy with the `qang` metric | — | `unverified` |
+| `agent_learning_advantage` | agents | learning advantage attributed to qang | — | `not adopted` |
+
+## 44.9 Key references
+
+- Williams, R. J. (1992). Simple statistical gradient-following algorithms for connectionist reinforcement learning. *Machine Learning* 8(3–4), 229–256. [@williams1992]
+- Sutton, R. S., Barto, A. G. (2018). *Reinforcement Learning: An Introduction*, 2nd ed. MIT Press. [@sutton2018]
+- Jerbi, S., Gyurik, C., Marshall, S. C., Briegel, H. J., Dunjko, V. (2021). Parametrized quantum policies for reinforcement learning. *NeurIPS 34*; arXiv:2103.05577. [@jerbi2021]
+- Skolik, A., Jerbi, S., Dunjko, V. (2022). Quantum agents in the Gym: a variational quantum algorithm for deep Q-learning. *Quantum* 6, 720. [@skolik2022]
+- Dunjko, V., Taylor, J. M., Briegel, H. J. (2016). Quantum-enhanced machine learning. *Phys. Rev. Lett.* 117, 130501. [@dunjko2016]
+- Yao, S. et al. (2023). ReAct: Synergizing reasoning and acting in language models. *ICLR 2023*; arXiv:2210.03629. [@yao2023react]
