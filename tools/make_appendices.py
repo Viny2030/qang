@@ -379,6 +379,10 @@ DESC = {
              'Matter and antimatter: charge conjugation, Zitterbewegung and pair creation (Ch. 40).'),
     'qstring': ('Teoría de cuerdas leída con qang: conteo exacto, nivel como lectura Z, T-dualidad y radio de un análogo de red (cap. 42).',
                'String theory read with qang: exact counting, level as a Z reading, T-duality and the radius of a lattice analogue (Ch. 42).'),
+    'qrobot': ('Robótica cuántica: un qubit por articulación, presupuesto de disparos, tiempo real, Kalman y Grover (cap. 43).',
+              'Quantum robotics: one qubit per joint, shot budget, real time, Kalman and Grover (Ch. 43).'),
+    'qagent': ('IA agéntica cuántica: política de Born, flujo del gradiente, polo, lectura de decisión y reparto de disparos (cap. 44).',
+              'Quantum agentic AI: Born policy, gradient flow, pole, decision reading and shot allocation (Ch. 44).'),
     'qtimeloop': ('Viajes en el tiempo como mapas: balance de información de la postselección y paradoja del abuelo (cap. 41).',
                  'Time travel as maps: information balance of postselection and the grandfather paradox (Ch. 41).'),
 }

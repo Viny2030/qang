@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `qang.qagent` (Cap. 44): a two-action agent whose policy is one qubit measurement — Born policy, exact gradient and Fisher information 1, closed-form gradient flow (the angle is the natural gradient of the logit), pole trap and exploration floor, decision reading, Neyman shot allocation across tools. 4 tests in `tests/test_qagent.py`; `tools/verify_cap44.py`; chapter `book/cap44_ia_agentica_cuantica.md` -> `book/es/qjax44.qmd`. New bib keys: jerbi2021, skolik2022, yao2023react, dunjko2016, williams1992, sutton2018.
 
 ### Changed
+- Appendices A-H (ES/EN) regenerated for chapters 7-44: ledger now 204 rows (164 exact, 18 unverified, 8 against, 5 tested on hardware, 3 no gain, 2 mixed, 4 not adopted, 0 measured gain); Appendix D lists `qrobot` and `qagent`; `BOOK_OUTLINE.md` rebuilt on the book's 14 parts (44 chapters, Cap. 33 in Part XI); README and `THEORY_CORE.md` counts updated.
 - Book (ES): chapters 7-42 now follow the verified rewrite (`qjax07`-`qjax42`), grouped in Parts III-XIII; the old text of chapters 7-36 moved to `book/es/_legacy/` (not rendered). Cross-references and `index.qmd` updated.
 - Appendix D regenerated for 0.16.0 (module `qlimits`, `qstring` name lists); `THEORY_CORE.md` extended (single-basis no-go, string chapter, ledger counts).
 - EN Cap. 36: `qang.measures` note corrected (present since 0.15.0).

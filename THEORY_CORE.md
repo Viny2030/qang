@@ -40,4 +40,4 @@
   - §165 (neutrinos 3 sabores, $8\times 300$ shots): filtro baja error $1.59\times$ ($0.062 \to 0.039$) y recupera mínimo en $2.6\text{ GeV}$.
   - §168 (milli-qang, 1 qubit, $26\times 4000$ shots): compuerta X cuesta $1.64\text{ m-qg}$ lineales; ángulos intermedios sesgados $16\text{–}55\text{ m-qg}$; predicción M2 (dispersión sub-binomial en ecuador) fallida/abierta.
   - §170 (Apéndice G, Dirac $E=mc^2$ en 1 qubit): autoestado a $0.6c$ leyó $+759.9\pm 14.9\text{ m-qg}$ (previsto $+800$), Zitterbewegung a $0.44\%$.
-- **Ledger (Cap. 7–42, `qang.qledger`)**: 179 filas; 145 `exact`, 14 `unverified`, 8 `against`, 5 `tested on hardware` (IQM Garnet, Cap. 35), 3 `no gain`, 2 `mixed`, 2 `not adopted`, 0 `measured gain`.
+- **Ledger (Cap. 7–44, `qang.qledger`)**: 204 filas; 164 `exact`, 18 `unverified`, 8 `against`, 5 `tested on hardware` (IQM Garnet, Cap. 35), 3 `no gain`, 2 `mixed`, 4 `not adopted`, 0 `measured gain`.
