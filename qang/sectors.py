@@ -203,3 +203,48 @@ def unmix_sector(probs, M, n_qubits: int, weight: int, power: float = 0.5) -> np
     out = np.zeros(2**n_qubits)
     out[states] = x / x.sum() if x.sum() > 0 else 1.0 / len(states)
     return out
+
+
+def stabilizer_shot_budget(detected_weight, cost, budget: int, exact_max_n: int = 20):
+    """0/1 knapsack sobre estabilizadores candidatos: cuales agregar a un circuito dado su peso de
+    error detectado y su costo en disparos/profundidad, bajo un presupuesto fijo -- la optimizacion
+    discreta de arXiv:2607.01072 ("Optimizing Symmetry Informed Probabilistic Error Cancellation"),
+    leida en el vocabulario propio de qang (detected_weight ~ peso de error removido / ganancia de
+    kept_fraction; cost ~ disparos o profundidad extra que consume la comprobacion).
+
+    Estatus en qang.measures: `sin_verificar` -- RESEARCH_NOTES no la ha comparado aun contra un
+    modelo de ruido de dispositivo; qang no aporta fisica nueva aqui, solo lee el mismo presupuesto
+    como una decision de diseno qg. DP exacta 0/1-knapsack, costos enteros, hasta `exact_max_n`
+    candidatos.
+
+    Returns
+    -------
+    (chosen, total_weight) : indices (0-index) elegidos y su detected_weight sumado.
+    """
+    w = np.asarray(detected_weight, dtype=float)
+    c = np.asarray(cost, dtype=int)
+    n = len(w)
+    if len(c) != n:
+        raise ValueError("detected_weight and cost must have the same length.")
+    if budget < 0:
+        raise ValueError("budget must be >= 0.")
+    if np.any(c < 0):
+        raise ValueError("cost must be >= 0.")
+    if n > exact_max_n:
+        raise ValueError(f"exact DP supports at most {exact_max_n} candidate checks; got {n}.")
+
+    dp = np.zeros((n + 1, budget + 1))
+    for i in range(1, n + 1):
+        wi, ci = w[i - 1], c[i - 1]
+        for b in range(budget + 1):
+            dp[i, b] = dp[i - 1, b]
+            if ci <= b and dp[i - 1, b - ci] + wi > dp[i, b]:
+                dp[i, b] = dp[i - 1, b - ci] + wi
+
+    chosen, b = [], budget
+    for i in range(n, 0, -1):
+        if dp[i, b] != dp[i - 1, b]:
+            chosen.append(i - 1)
+            b -= c[i - 1]
+    chosen.reverse()
+    return chosen, float(dp[n, budget])
