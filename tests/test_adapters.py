@@ -44,3 +44,16 @@ def test_tensorcircuit_adapter_real():
     c = tc.Circuit(2)
     c.ry(0, theta=0.7)
     assert np.allclose(qg_z_from_circuit(c), [np.cos(0.7), 1.0], atol=1e-6)
+
+
+def test_dynamics_adapter_numpy():
+    from qang.adapters.dynamics_adapter import qg_z_from_state
+    th = 0.7
+    q0 = np.array([np.cos(th / 2), np.sin(th / 2)])      # R_Y(th)|0>
+    ket = np.kron(q0, [1.0, 0.0])                         # qubit 0 = most significant
+    assert np.allclose(qg_z_from_state(ket), [np.cos(th), 1.0])
+    rho = np.outer(ket, ket)
+    assert np.allclose(qg_z_from_state(rho), [np.cos(th), 1.0])
+    assert np.allclose(qg_z_from_state(ket[:, None]), [np.cos(th), 1.0])
+    with pytest.raises(ValueError):
+        qg_z_from_state(np.ones(3))

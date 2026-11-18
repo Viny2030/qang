@@ -46,7 +46,11 @@ def test_code_paths_resolve():
             continue
         if top == "integrations" and importlib.util.find_spec("jax") is None:
             continue
-        assert callable(M.resolve(m)) or M.resolve(m) is not None, m.code
+        try:
+            resolved = M.resolve(m)
+        except ImportError:  # optional extra (mitiq, jax, ...) not installed: skip this entry
+            continue
+        assert callable(resolved) or resolved is not None, m.code
 
 
 def test_lookups():

@@ -85,3 +85,15 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -e ".[qiskit,pennylane,cirq]"
       - run: python tools/verify_backend_invariance.py
+
+  tensorcircuit:
+    name: adapters (tensorcircuit)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[tensorcircuit,dev]"
+      - run: pytest -q tests/test_adapters.py
