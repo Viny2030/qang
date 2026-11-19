@@ -1,0 +1,28 @@
+# Normalización de fin de línea: todo el texto se guarda en el índice y en el
+# working tree con LF, para que el mismo fichero dé el mismo hash en Windows,
+# macOS y Linux. Sincronizado con el .gitignore en UTF-8 (antes el bloque final
+# del .gitignore estaba en UTF-16LE y sus reglas no se aplicaban).
+* text=auto eol=lf
+
+# El archivo histórico del libro (capítulos retirados, "not rendered") se
+# congela tal cual: -text deja los bytes intactos y evita que su contenido
+# cambie al normalizar. Si algún día se restaura, se le quita esta regla.
+book/*/_legacy/** -text
+
+# Binarios: nunca se normalizan.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.zip binary
+*.bbl binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+
+# JSON y notebooks son texto con estructura: LF explícito.
+*.ipynb text eol=lf
+*.json text eol=lf
