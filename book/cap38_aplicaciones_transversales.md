@@ -63,7 +63,7 @@ Cada modo reducido es térmico con $\tanh^2r=e^{-2\pi\omega c/a}$. El peso del v
 
 ## 38.9 Citado, sin re-ejecutar (`unverified`)
 
-Del capítulo anterior, sin verificador aquí: UCC de H₂ ($t^\ast=-0.1118$ rad, $E=-1.1373060$ Ha = FCI a $5\cdot10^{-14}$, $p_0=0.9876$ o $+975.1$ m-qg); cadena de Kitaev (protección exponencial en la longitud; el trenzado imitado como compuerta tiene infidelidad cuadrática en el error, $6.2\cdot10^{-5}$ con 1 %); Jarzynski, Fisher de GHZ, Fubini–Study, OTOC y estadística de niveles. Cada uno está en `book/es/cap34.qmd` con su script `tools/make_cap34_figures.py`; no se volvieron a correr.
+Del capítulo anterior, sin verificador aquí: UCC de H₂ ($t^\ast=-0.1118$ rad, $E=-1.1373060$ Ha = FCI a $5\cdot10^{-14}$, $p_0=0.9876$ o $+975.1$ m-qg); cadena de Kitaev (protección exponencial en la longitud; el trenzado imitado como compuerta tiene infidelidad cuadrática en el error, $6.2\cdot10^{-5}$ con 1 %); Jarzynski, Fisher de GHZ, Fubini–Study, OTOC y estadística de niveles. Cada uno está en `book/es/qjax34.qmd` con su script `tools/make_cap34_figures.py`; no se volvieron a correr.
 
 ## 38.10 Contraste operativo: sin `qang` frente a con `qang`
 
