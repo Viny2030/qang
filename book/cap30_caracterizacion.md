@@ -21,7 +21,7 @@ La información con el retardo óptimo es $\times3.6$ la del retardo corto, con 
 
 **EN.** The Fisher information per shot peaks at $t=1.59\,T_1$ ($+594$ m-qg); short delays cost $\times3.6$ in information.
 
-## 30.2 Lectura: $e_{01}$, $e_{10}$ y su presupuesto
+## 30.2 Lectura: e01, e10 y su presupuesto
 
 Preparar $|0\rangle$ y $|1\rangle$ da $e_{01},e_{10}$ con error binomial: con $(40/2000,\,120/2000)$ se obtiene $e_{01}=0.0200\pm0.0031$ y $e_{10}=0.0600\pm0.0053$. Para $\sigma_e=0.002$ con $e=0.02$ hacen falta $e(1-e)/\sigma^2=4900$ disparos (`exact`). La lectura afín del Cap. 25 se invierte exactamente: $+600\to+592.0$ m-qg medido $\to+600.0$ corregido. Límite (Cap. 25, criterio §108): la corrección sólo vale si $1-e_{01}-e_{10}$ es estable entre calibración y uso.
 

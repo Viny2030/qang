@@ -13,11 +13,11 @@
 
 **EN.** XY dynamics in the weight-1 sector is a Givens/RBS network: weight conservation is exact, the symmetry filter transfers verbatim, and first-order Trotter error scales as $dt$ (`exact`).
 
-## 27.2 Canales afines de Bloch: una sola calibración $(M,\mathbf c)$
+## 27.2 Canales afines de Bloch: una sola calibración (M,c)
 
 Todo canal de 1 qubit es $\mathbf r\mapsto M\mathbf r+\mathbf c$ (12 números). $T_1$: $M=\mathrm{diag}(\sqrt{1-\gamma},\sqrt{1-\gamma},1-\gamma)$, $\mathbf c=(0,0,\gamma)$ (coincide con Kraus a $10^{-14}$); desfase: $M=\mathrm{diag}(1-2p,1-2p,1)$; lectura (Cap. 25): $M_{zz}=1-e_{01}-e_{10}$, $c_z=e_{10}-e_{01}$. La composición es otro par $(M,\mathbf c)$: $T_1(0.2)\circ\text{desfase}(0.05)\circ\text{lectura}(0.02,0.06)$ lleva $(0.6,0,0.5)\to(0.483,0,0.592)$, $+500\to+592$ m-qg, $qg_\tau$ $0.624\to0.645$. **Regla**: calibrar la cadena completa como un solo afín (12 parámetros) en lugar de tres modelos, y usar $qg_\tau$ (Cap. 5) como invariante de pureza (`exact`).
 
-## 27.3 varQTE de un qubit: McLachlan con $R_Y(\theta)$ en qga
+## 27.3 varQTE de un qubit: McLachlan con RY(θ) en qga
 
 $H=\omega Z/2$ desde $|+\rangle$: $qg_Z(\tau)=-\tanh(\omega\tau)$ (exact). Con el ansatz $R_Y(\theta)|0\rangle$, la ecuación de McLachlan es $\dot\theta=\omega\sin\theta$ (métrica $g=1/4$ en rad, $(2\pi/1000)^2/4$ en qga); Euler explícito converge como $1/\text{pasos}$: error $9.2\cdot10^{-3}$ (30), $9.2\cdot10^{-5}$ (3000), final $-995$ m-qg. Es el estado térmico del Cap. 11 ($qg_Z=\tanh$) como punto fijo: 1 parámetro, 0 ancillas, sin mesetas ($P=1$). Para $P>1$ aplicar Cap. 9 (métrica $F_Z$ regularizada), nunca descenso plano en $qg_Z$ (THEORY_CORE §2.1).
 

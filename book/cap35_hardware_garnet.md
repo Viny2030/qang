@@ -52,7 +52,7 @@ Trabajo `01a167ab`, 4000 disparos por circuito, un qubit. Los dos polos dan $e_0
 - **M2** (dispersión de las copias del ecuador entre 0.55 y 1.45 del $\sigma$ binomial): **falló**, con $0.500$. Las 10 copias se dispersan la mitad de lo que permite el ruido de disparo. Sigue sin explicación; no se propone una.
 - **M3/M4** (cadenas de $k$ compuertas X): el déficit va de $-2.6$ m-qg ($k=3$) a $+63.2\pm7.7$ m-qg ($k=41$), $8.2\sigma$. La pendiente por compuerta X, ajustada por el origen con $k-1$ compuertas, es **1.64 m-qg** ($\chi^2/\mathrm{gl}=0.81$). M3 pasa, pero el diseño de la predicción la vuelve poco informativa más allá de $k=15$ (registrado así en la corrida).
 
-## 35.5 $E=mc^2$ como lectura (§170)
+## 35.5 E=mc² como lectura (§170)
 
 Trabajo `01a19c58`, 2000 disparos por circuito, 24 circuitos en un qubit. Los polos dan $e_0=0.0030$, $e_1=0.0265$ (contraste $0.9705$). Las 16 lecturas corregidas del barrido se recalculan de los conteos (`correct_mqg`) y coinciden con el análisis guardado; difieren de la curva exacta entre $-78.9$ y $+38.6$ m-qg (mezcla error de compuerta y ruido de disparo, $\sigma$ de 4 a 17 m-qg). El veredicto guardado es 5 de 5. Ese veredicto se lee del archivo; sus umbrales se definen en `examples/iqm_zitterbewegung_qg.py`.
 

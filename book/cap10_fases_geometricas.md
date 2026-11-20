@@ -28,7 +28,7 @@ $$\gamma_{123}=\arg\big(\langle\psi_2|\psi_1\rangle\langle\psi_3|\psi_2\rangle\l
 
 Una fase relativa $\Omega$ entre $|0\rangle$ y $|1\rangle$ ($R_Z(\Omega)$) se obtiene (a) **virtual**: $0$ pulsos, $0$ qga de área (Cap. 2); (b) **física**: $1$ pulso, área $\Omega\cdot1000/2\pi$ qga; (c) **geométrica** por el lazo polo $\to(\theta,0)\to(\theta,\Delta\phi)\to$ polo: $3$ pulsos, área $(2\theta+d)\cdot1000/2\pi$ qga con $d=\arccos(\cos^2\theta+\sin^2\theta\cos\Delta\phi)$. Instancia ($\theta=150$ qga, $\Delta\phi=0.6$ rad): $0$ / $39.4$ / $376.8$ qga. **Estatus**: área `no gain` (×9.6 peor que la física); la robustez holonómica frente a ruido de amplitud queda `unverified` en este tratado (no se afirma).
 
-## 10.4 Presupuesto de disparos para medir $\gamma$
+## 10.4 Presupuesto de disparos para medir γ
 
 Lazo de latitud: $\sigma_\gamma=\pi\,\sigma_{qg_Z}=\pi\sqrt{(1-qg_Z^2)/N}$ ⇒ $N=\pi^2(1-qg_Z^2)/\sigma_\gamma^2$ (1 base, 0 ancillas). Lazo general de 3 estados: tomografía de $\mathbf r_{1,2,3}$, $\ge9$ configuraciones de medida. Nótese que la precisión **mejora hacia los polos** ($qg_Z\to\pm1$), al contrario que la estimación angular del Cap. 9 (uniforme en qga): $\gamma$ es lineal en $qg_Z$, no en $\alpha$.
 

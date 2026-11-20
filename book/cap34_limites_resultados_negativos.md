@@ -24,7 +24,7 @@ Un estado de grafo es $H^{\otimes n}$ seguido de una CZ por arista. La CZ es dia
 
 Sin `qang` ocurre lo mismo: toda estadística de la base Z, cruda o tomográfica, es ciega a este entrelazamiento. `qang` hereda el límite, no lo crea.
 
-## 34.3 $qg_S$ no es monótona bajo $T_1$ (pero $qg_Z$ medio sí)
+## 34.3 qgS no es monótona bajo T1 (pero qgZ medio sí)
 
 El amortiguamiento de amplitud actúa sobre las poblaciones de Z como una cadena de Markov $1\to0$ con probabilidad $\gamma$ por qubit (`damp_distribution`); las coherencias no cambian la distribución en Z. Con 24 estados aleatorios de 4 qubits y $\gamma\in[0,0.5]$ (`t1_noise_scan`):
 
@@ -206,7 +206,19 @@ $H_Z=C_{\mathrm{rel},Z}=H_Z-S(\rho)$ sólo si $\rho$ es puro (`relative_entropy_
 
 El análisis proviene de una revisión externa; cada cifra de arriba se recalculó con `qang.qlimits` y `tools/verify_cap34.py` [8]–[12]. Las cifras de referencia al benchmark de las publicaciones $Q_1$ y $Q_2$ (por ejemplo $r\approx-0.93$ con 110 puntos) no se re-ejecutaron aquí.
 
-## 34.14 Apéndice H
+## 34.14 Contexto 2026: verificación de simetría en la literatura reciente
+
+Estado: `sin_verificar` (comparación leída solo desde los resúmenes de arXiv; no se re-ejecutó nada). Tres trabajos de 2026 estudian la verificación de simetría (SV) por postselección: @schwinger2026sv concluye que, dentro del bucle variacional, la SV puede mejorar la energía aparente sin mejorar el estado preparado; @finiteshot2026 compara SV y destilación virtual con ventanas certificadas de disparos finitos y no encuentra un ganador universal; @pecqed2026 combina detección de errores por simetría con cancelación probabilística (PEC).
+
+| Pregunta | Sin `qang` | Con `qang` |
+|---|---|---|
+| ¿Cuándo el filtro de peso 1 es exacto? | criterio caso por caso | exacto bajo T1 uniforme; falla con error dentro del sector (§34.6) |
+| ¿Mejora aparente o del estado? | no se separa | se reporta qgZ y la fidelidad por separado (estatus `mixta`) |
+| ¿Cuántos disparos? | regla empírica | planificación de disparos de `qang` (Cap. 31), sin ventana certificada |
+
+Alcance: coincidencia cualitativa con §34.5–34.6; no hay ganancia medida. Los números del libro siguen respaldados solo por `tools/verify_cap34.py`.
+
+## 34.15 Apéndice H
 
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |

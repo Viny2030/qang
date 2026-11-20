@@ -1,5 +1,5 @@
-# Capítulo 12 — Oscilación de sabor en el vacío: un qubit por par de sabores, lectura en m-qg y punto de operación para $\Delta m^2$
-# Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for $\Delta m^2$
+# Capítulo 12 — Oscilación de sabor en el vacío: un qubit por par de sabores, lectura en m-qg y punto de operación para Δ m²
+# Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for Δ m²
 
 **Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
 
@@ -17,7 +17,7 @@ Toda la fenomenología de dos sabores es, por tanto, una lectura `m-qg` de un qu
 
 **EN.** Two-flavor oscillation is one qubit: mass axis tilted by $2\theta$, propagation a virtual $R_Z(\phi)$, and the transition probability an m-qg readout. One oscillation length is one qga turn (`exact`).
 
-## 12.2 Punto de operación: $\theta$ frente a $\Delta m^2$
+## 12.2 Punto de operación: θ frente a Δ m²
 
 Fisher por evento (Cap. 9, vía `jax.grad`):
 $$I_F(\theta)=\frac{(\partial_\theta P)^2}{P(1-P)},\quad\max\ \text{en }\phi=\pi\ (\text{máximo de oscilación}),\qquad I_F(\phi)=\frac{\sin^22\theta\cos^2\frac\phi2}{1-\sin^22\theta\sin^2\frac\phi2},\quad\text{decreciente en }[0,\pi],\ I_F(\pi)=0 .$$

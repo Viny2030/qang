@@ -1,5 +1,5 @@
-# Capítulo 22 — Baterías cuánticas y redes: ergotropía como $(r-qg_Z)/2$ y cadenas de pares con visibilidad $V^k$
-# Chapter 22 — Quantum Batteries and Networks: Ergotropy as $(r-qg_Z)/2$ and Repeater Chains with Visibility $V^k$
+# Capítulo 22 — Baterías cuánticas y redes: ergotropía como (r-qgZ)/2 y cadenas de pares con visibilidad V^k
+# Chapter 22 — Quantum Batteries and Networks: Ergotropy as (r-qgZ)/2 and Repeater Chains with Visibility V^k
 
 **Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
 

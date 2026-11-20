@@ -64,7 +64,19 @@ def test_decide(): assert decide(60, 100, 0.5) == "confirmada" and decide(40, 10
 def test_holm(): assert holm((0.001, 0.03, 0.04)) == (True, False, False)
 ```
 
-## 31.8 Apéndice H
+## 31.8 Contexto 2026: ventanas certificadas de disparos
+
+Estado: `sin_verificar` (leído solo del resumen de arXiv; nada re-ejecutado). @finiteshot2026 compara verificación de simetría y destilación virtual por su error cuadrático medio a disparos finitos, con resto no asintótico explícito, y reporta que ningún método gana en todos los regímenes.
+
+| Pregunta | Sin `qang` | Con `qang` |
+|---|---|---|
+| ¿Cuántos disparos para decidir? | regla empírica | presupuesto de §31.4 (`qang.qfalsify`), exacto para la prueba binomial |
+| ¿Qué método de mitigación elegir? | comparación por sesgo con infinitos disparos | no resuelto: `qang` no ofrece ventana certificada |
+| ¿Se registra la decisión antes de medir? | no necesariamente | sí: SHA-256 y Holm (§31.1, §31.3) |
+
+Alcance: el presupuesto de `qang` responde cuántos disparos decidir una hipótesis registrada, no qué estimador de mitigación conviene; son preguntas distintas y no se afirma ganancia frente a ese trabajo.
+
+## 31.9 Apéndice H
 
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |

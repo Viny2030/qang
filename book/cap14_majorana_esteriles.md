@@ -1,5 +1,5 @@
-# Capítulo 14 — Fases de Majorana, $0\nu\beta\beta$, neutrinos estériles en el sector $|11\rangle$ y proyecciones angulares
-# Chapter 14 — Majorana Phases, $0\nu\beta\beta$, Sterile Neutrinos in the $|11\rangle$ Sector and Angular Projections
+# Capítulo 14 — Fases de Majorana, 0νββ, neutrinos estériles en el sector |11⟩ y proyecciones angulares
+# Chapter 14 — Majorana Phases, 0νββ, Sterile Neutrinos in the |11⟩ Sector and Angular Projections
 
 **Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
 
@@ -7,22 +7,22 @@
 
 ---
 
-## 14.1 Fases de Majorana: una $R_Z$ virtual que nunca llega a la lectura
+## 14.1 Fases de Majorana: una RZ virtual que nunca llega a la lectura
 
 **ES.** $U=U_{\text{PMNS}}\,\mathrm{diag}(1,e^{i\alpha_{21}/2},e^{i\alpha_{31}/2})$. En el lenguaje de Cap. 2 y 12, las fases de Majorana son rotaciones $R_Z$ **en la base de masa**, que conmutan con la propagación $R_Z(\phi_i)$ y se cancelan en $|U_{\beta i}e^{-i\phi_i}U^*_{\alpha i}|^2$. Verificado: $P(\nu_\alpha\to\nu_\beta)$ invariante a $10^{-14}$ para 9 pares $(\alpha_{21},\alpha_{31};L/E)$ (`exact`). Consecuencia operativa: ningún experimento de oscilación, con o sin `qang`, mide $\alpha_{21},\alpha_{31}$; la lectura `m-qg` es ciega a ellas por construcción.
 
 **EN.** Majorana phases are mass-basis virtual $Z$ rotations: they commute with propagation and cancel in every transition probability. Oscillation readouts are blind to them (`exact`).
 
-## 14.2 Masa efectiva de $0\nu\beta\beta$: tres fasores, sin ganancia cuántica
+## 14.2 Masa efectiva de 0νββ: tres fasores, sin ganancia cuántica
 
 $$|m_{\beta\beta}|=\Big|\sum_iU_{ei}^2m_i\Big|=\big|c_{12}^2c_{13}^2m_1+s_{12}^2c_{13}^2m_2e^{i\alpha_{21}}+s_{13}^2m_3e^{i(\alpha_{31}-2\delta)}\big| .$$
 Rangos (barrido $\alpha_{21},\alpha_{31}\in[0,2\pi)$, $73^2$ puntos): NO con $m_{\text{light}}=0$: $[1.4,3.7]$ meV; NO con $0.05$ eV: $[17.5,50.7]$ meV; IO con $m_{\text{light}}=0$: $[18.8,48.5]$ meV. Es aritmética clásica de tres fasores: estatus `no gain` (análogo a PQC, THEORY_CORE §2.6). `qang` aporta sólo la lectura geométrica (los tres módulos $|U_{ei}|^2m_i$ y sus ángulos en qga), no reducción de recursos.
 
-## 14.3 Estériles $3+1$: el sector $|11\rangle$ cambia de significado
+## 14.3 Estériles 3+1: el sector |11⟩ cambia de significado
 
 En Cap. 12 la codificación $e,\mu,\tau\mapsto|00\rangle,|01\rangle,|10\rangle$ deja $|11\rangle$ **no físico** y habilita el filtro de sector. Con un cuarto sabor $\nu_s\mapsto|11\rangle$ el peso allí es **señal**: $P(\nu_\alpha\to\nu_s)=p(|11\rangle)$. Regla: **el filtro de sector queda prohibido en $3+1$**; en su lugar el peso en $|11\rangle$ se compara con el fondo espurio $\varepsilon/4$ de la despolarización (Cap. 12, §4). Umbral conservador sin calibración: $P_s>z\varepsilon/4$. Instancia reactor SBL ($L=500$ m, $E=3$ MeV, $\Delta m^2_{41}=1$ eV$^2$, $\sin^2\theta_{14}=0.1$): $\phi_{41}=67\,216$ qga (67.2 vueltas: régimen promediado), $P_s=0.1357$ → $+729$ m-qg en el eje $(e,s)$; detectable a $3\sigma$ para $\varepsilon\le0.10$ (`exact` para el modelo; hardware `unverified`). Coste: 2 qubits para 4 sabores ($-2$ frente a one-hot), igual que Cap. 12 pero sin filtro.
 
-## 14.4 Proyecciones angulares (`qang.angular`): $qg_Z=m/j$
+## 14.4 Proyecciones angulares (`qang.angular`): qgZ=m/j
 
 Para espín/momento angular $j$ la lectura natural es $qg_Z^{(j)}=\langle J_z\rangle/j\in\{-1,\dots,+1\}$ con paso $1/j$ ($1000/j$ m-qg): $j=\tfrac12$ es el qubit; $j=1$: $\{-1000,0,+1000\}$; $j=2$: paso $500$ m-qg. QFI del ángulo polar de un estado coherente de espín: $4\,\mathrm{Var}(J_y)=2j$ rad$^{-2}$ ($=2j\cdot3.95\cdot10^{-5}$ qga$^{-2}$), que reduce a 1 para el qubit (Cap. 9). Identidad `exact`; ventaja de qudits en hardware `unverified` (THEORY_CORE §2.7: no se afirma).
 

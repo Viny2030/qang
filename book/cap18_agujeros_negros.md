@@ -1,5 +1,5 @@
-# Capítulo 18 — Agujeros negros como scramblers: Hayden–Preskill, la ley $P\cdot F=1/4$ del decodificador de Yoshida–Kitaev, OTOC y por qué $qg_S$ no ve la curva de Page
-# Chapter 18 — Black Holes as Scramblers: Hayden–Preskill, the $P\cdot F=1/4$ Law of the Yoshida–Kitaev Decoder, OTOC and Why $qg_S$ Cannot See the Page Curve
+# Capítulo 18 — Agujeros negros como scramblers: Hayden–Preskill, la ley P· F=1/4 del decodificador de Yoshida–Kitaev, OTOC y por qué qgS no ve la curva de Page
+# Chapter 18 — Black Holes as Scramblers: Hayden–Preskill, the P· F=1/4 Law of the Yoshida–Kitaev Decoder, OTOC and Why qgS Cannot See the Page Curve
 
 **Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
 
@@ -7,7 +7,7 @@
 
 ---
 
-## 18.1 Decodificador probabilístico y la identidad $P_{\text{EPR}}F_{\text{EPR}}=1/d_A^2$
+## 18.1 Decodificador probabilístico y la identidad PEPRFEPR=1/dA²
 
 **ES.** Mensaje $A$ ($d_A=2$) entrelazado con la referencia $R$; agujero negro $B$ ($n_B=3$) maximalmente entrelazado con la radiación temprana $B'$; dinámica $U$ en $AB$; radiación tardía $D$ ($n_D=2$). El decodificador aplica $U^*$ sobre $A'B'$ (con $A'R'$ en EPR) y **proyecta** $DD'$ sobre EPR: éxito con probabilidad $P_{\text{EPR}}$ y fidelidad $F_{\text{EPR}}=\langle\text{EPR}|\rho_{RR'}|\text{EPR}\rangle$. Identidad (Yoshida–Kitaev):
 $$P_{\text{EPR}}\cdot F_{\text{EPR}}=\frac1{d_A^2}=\frac14\quad\text{para toda }U,$$
@@ -19,7 +19,7 @@ verificada a $10^{-12}$ para $U$ Haar y $U=I$. Para $U$ Haar: $P\approx d_A^{-2}
 
 $\mathrm{OTOC}=\tfrac1d\mathrm{Re\,Tr}(W^\dagger V_t^\dagger WV_t)$ con $W=Z_A$, $V=Z_{B_3}$: $+1.000$ para $U=I$, $-0.009\approx O(1/d^2)$ para $U$ Haar. Es una lectura $qg$ de un circuito compuesto ($U^\dagger VU$ seguido de $W$), coste 1 configuración (`exact`).
 
-## 18.3 Hallazgo negativo: $qg_S$ es plano donde la curva de Page sube y baja
+## 18.3 Hallazgo negativo: qgS es plano donde la curva de Page sube y baja
 
 Estado Haar de $n=8$ qubits. Rényi-2 del subsistema de $k$ qubits (desde la pureza, $4^k-1$ correladores): $0.98,1.90,2.61,\mathbf{3.00},2.61,1.89,0.95$ — curva de Page. Media de $qg_S$ (una base, Cap. 1): $1.00$ para todo $k$. **$qg_S$ no mide entrelazamiento** (THEORY_CORE §2.4, `against`); su uso aquí es sólo como coordenada de lectura, nunca como entropía de entrelazamiento.
 

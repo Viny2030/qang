@@ -1,5 +1,5 @@
-# Capítulo 24 — El filtro de simetría con matrices densidad: exacto bajo relajación $T_1$ uniforme (incluso intra-circuito), cocientes $T_1$, fallo bajo desfase y rescate por ZNE
-# Chapter 24 — The Symmetry Filter with Density Matrices: Exact under Uniform $T_1$ Relaxation (Even Mid-Circuit), $T_1$ Ratios, Failure under Dephasing and ZNE Rescue
+# Capítulo 24 — El filtro de simetría con matrices densidad: exacto bajo relajación T1 uniforme (incluso intra-circuito), cocientes T1, fallo bajo desfase y rescate por ZNE
+# Chapter 24 — The Symmetry Filter with Density Matrices: Exact under Uniform T1 Relaxation (Even Mid-Circuit), T1 Ratios, Failure under Dephasing and ZNE Rescue
 
 **Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
 
@@ -7,7 +7,7 @@
 
 ---
 
-## 24.1 Por qué el filtro es exacto bajo $T_1$ uniforme, también entre compuertas
+## 24.1 Por qué el filtro es exacto bajo T1 uniforme, también entre compuertas
 
 **ES.** En el sector de peso 1, el operador de Kraus sin salto del amortiguamiento de amplitud, $K_0^{\otimes n}$ con $K_0=\mathrm{diag}(1,\sqrt{1-\gamma})$, multiplica **todo** $|e_k\rangle$ por el mismo $\sqrt{1-\gamma}$ (un solo qubit excitado); el salto $K_1$ envía la masa a $|0\ldots0\rangle$ (peso 0), donde las RBS actúan como identidad y de donde **nunca regresa**. Por tanto, tras $L$ compuertas con $T_1$ uniforme en cada una,
 $$\rho_S^{\text{filtrado}}=\rho_S^{\text{ideal}}\ \ (\text{coherencias incluidas}),\qquad \text{tasa}=(1-\gamma)^L .$$
@@ -15,7 +15,7 @@ Verificado: $\|\rho_S-\rho_S^{\text{ideal}}\|_\infty=1.2\cdot10^{-16}$, tasa $0.
 
 **EN.** Uniform amplitude damping acts on the weight-1 sector as a global scalar plus an irreversible leak to weight 0, so sector postselection restores the exact state mid-circuit (`exact`).
 
-## 24.2 Cocientes $T_1$ (F5): corrección exacta sólo para ruido final
+## 24.2 Cocientes T1 (F5): corrección exacta sólo para ruido final
 
 $T_1$ **no uniforme** $\gamma_k$ aplicado al final: $p(e_k)=(1-\gamma_k)\,p^{\text{ideal}}(e_k)$ exacto ⇒ dividir por $(1-\gamma_k)$ (calibrado, Cap. 30) recupera $y=-0.3933$. Aplicado **entre** compuertas, la distorsión no conmuta con las RBS: $y$ filtrado $=+0.0746$ (error $0.468$) y la corrección final **no basta** (`mixed`). Regla: cocientes $T_1$ sólo con tiempos de compuerta $\ll T_1$ de los qubits más lentos; medir $\gamma_k$ por qubit (Cap. 30).
 
