@@ -105,8 +105,10 @@ que el instrumento entrega los datos.
 
 ### Resolución por disparos
 
-Con $N$ disparos, $\widehat{qg}_Z$ tiene varianza $\sin^2\theta/N$ (lo derivamos en la sección del arcoseno), de
-modo que la desviación estándar de la lectura en mili-qang es
+Con $N$ disparos, el estimador $\hat p_0$ es binomial, con $\operatorname{Var}(\hat p_0)=p_0(1-p_0)/N$. Como
+$\widehat{qg}_Z=2\hat p_0-1$, la regla de la cadena da $\operatorname{Var}(\widehat{qg}_Z)=4p_0(1-p_0)/N=\sin^2\theta/N$,
+al usar $p_0=\cos^2(\theta/2)$ (el mismo resultado se recupera en la @sec-arcoseno). Por tanto la desviación estándar
+de la lectura en mili-qang es
 
 $$
 \sigma_m = \frac{1000\,\sin\theta}{\sqrt N}\ \text{m-qg},
@@ -252,10 +254,23 @@ ds^2 = \tfrac14\left(d\theta^2+\sin^2\theta\,d\varphi^2\right)
 I_F(\theta) = 1\ \text{rad}^{-2} = 4\pi^2\cdot10^{-6}\ \text{qga}^{-2}.
 $$
 
-La segunda es la estabilización de la sección del arcoseno dicha en otra unidad: la desviación estándar del ángulo
-qang es $159{,}15/\sqrt N$ qga en todo el círculo ($5{,}03$ qga con 1000 disparos). La curvatura de Berry,
-$F=\tfrac12\sin\theta\,d\theta\wedge d\varphi$, integrada sobre la esfera ($\theta$ abarca 500 qga y $\varphi$, 1000)
-da $2\pi$, es decir, número de Chern 1.
+El factor $\tfrac14$ fija la **convención de normalización** de la métrica. Con él, $ds^2$ es la métrica de una esfera
+de radio $1/2$, cuya curvatura gaussiana es $K=4$; otras convenciones escriben $ds^2_\mathrm{FS}=4\,ds^2$ y obtienen
+la esfera de radio 1 con $K=1$. Ambas describen la misma geometría: se conserva $\tfrac14$ porque es la normalización
+que hace coincidir la distancia geodésica con la distancia estadística de Wootters de la @sec-ecuacion,
+$\arccos\lvert\langle\psi|\psi'\rangle\rvert=|\theta-\theta'|/2$. La información de Fisher se verifica directamente
+con la regla de la cadena,
+
+$$
+I_F(\theta)=\frac{(dp_0/d\theta)^2}{p_0(1-p_0)}
+=\frac{\sin^2\theta/4}{\cos^2(\theta/2)\sin^2(\theta/2)}=1\ \text{rad}^{-2},
+$$
+
+para todo $\theta\in(0,\pi)$: es la estabilización de la sección del arcoseno dicha en otra unidad. La desviación
+estándar del ángulo qang es $159{,}15/\sqrt N$ qga en todo el círculo ($5{,}03$ qga con 1000 disparos). La curvatura
+de Berry, $F=\tfrac12\sin\theta\,d\theta\wedge d\varphi$, integrada sobre la esfera ($\theta$ abarca 500 qga y
+$\varphi$, 1000) da $2\pi$, es decir, número de Chern $C=1$ con la orientación y la rama elegidas (el autoestado
+ortogonal da $C=-1$; el valor absoluto es el invariante topológico).
 
 **Correcciones a la Fundamentación.** Tres afirmaciones del documento fuente no se adoptan, porque sus propias
 fórmulas las contradicen:
@@ -387,7 +402,7 @@ $$
 Los factores $\sin^2\theta$ se cancelan exactamente: **la incertidumbre del ángulo qang no depende del estado**
 (§5), que es la línea punteada horizontal de la @fig-ruido. No es una coincidencia. Como $p_0=\cos^2(\theta/2)$, el
 ángulo qang es, salvo la reflexión $\theta\to\pi-\theta$, la clásica transformación arcoseno de una proporción,
-$\phi=2\arcsin\sqrt p$, introducida por @bartlett1947, @anscombe1948 y @freeman1950 precisamente para
+$\phi=2\arcsin\sqrt p$, introducida por @bartlett1947, @anscombe1948 y Freeman–Tukey [@freeman1950] precisamente para
 estabilizar la varianza (§125).
 
 La afirmación se verificó con sumas binomiales exactas, sin simulación: con $n=100$, $(n+\tfrac12)\operatorname{Var}
@@ -654,4 +669,9 @@ que se compara la curvatura de información $qg_\kappa$, es el de @amari1998. La
 numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de
 la unidad qang, en @monteverde2026. La escala angular qga y la propuesta relativista vienen del documento de trabajo
 @monteverde2026fund; el espinor de Dirac libre y sus componentes están en cualquier texto de mecánica cuántica
-relativista.
+relativista. **Contraste bibliográfico verificado en línea:** la distancia estadística y su identificación con el
+ángulo en el espacio de Hilbert están en el trabajo original de Wootters (DOI 10.1103/PhysRevD.23.357); la estabilización
+de la varianza binomial, en Anscombe (DOI 10.1093/biomet/35.3-4.246) y en Freeman–Tukey (DOI
+10.1214/aoms/1177729756); la derivación de la métrica de Fubini–Study del qubit y la convención de normalización se
+contrastan con la forma $ds^2=\tfrac14(d\theta^2+\sin^2\theta\,d\varphi^2)$, geometría de una esfera de radio
+$1/2$.
