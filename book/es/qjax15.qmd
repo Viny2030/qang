@@ -116,3 +116,18 @@ def test_werner_correlators():
 - `.github/workflows/book.yml`: `GH_TOKEN` en `quarto-actions/setup` (403 al resolver TinyTeX).
 ```
 Commit: `docs(cap15): teleportación y límite del par de Bell reescritos sobre Cap. 1–14 + qang.qtele + verify_cap15`.
+
+## 15.9 Contraste bibliográfico y precisiones de revisión (2026-11-21)
+
+La relación $\bar F=(2F_s+1)/3$ es el caso $d=2$ del teorema de Horodecki $f_{\max}=(F_{\max}d+1)/(d+1)$ para teleportación óptima con operaciones locales y comunicación clásica. El umbral $\bar F=2/3$ equivale a $F_s=1/2$ y, para el recurso de Werner, a $V=1/3$ (`exact`, Cap. 1–14 + literatura).
+
+Precisiones que delimitan las cifras:
+
+1. $qg_{ZZ}=1/3$ (333 m-qg) marca el límite de teleportación mejor que clásica y, en el modelo de Werner, el límite de entangledo. No marca violación de Bell: la familia de Werner viola CHSH sólo para $V>1/\sqrt2$. No confundir los tres umbrales.
+2. $F_s=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ es la fracción de singlete respecto de $|\Psi^-\rangle$; el recurso $\rho_V$ se escribió como mezcla con $|\Phi^+\rangle$, así que los correladores son $(+V,-V,+V)$. El convenio Bell elegido no cambia $\bar F$, pero sí el signo de $qg_{YY}$; no hay cambio en la lectura.
+3. $m\text{-qg}'=V\,m\text{-qg}$ es la contracción del canal depolarizante inducido por teleportación imperfecta, verificada sobre 9 entradas aleatorias a $10^{-13}$. No implica atenuación física del fotón ni pérdida; es el promedio sobre el recurso mixto.
+4. El presupuesto $N=(1-V^2)/(4\sigma_{\bar F}^2)$ supone disparos independientes, estimador de $qg_{ZZ}$ sin error de lectura, sin fondos oscuros y con la forma Werner conocida. Da $475$ y $1\,600$ disparos para $V=0.9$ y $0.6$; la comparación con $12N$ es a igual $\sigma$ **por celda** de tomografía, no a igual información global: una sola base no reconstruye el proceso completo.
+5. La cota $\bar F_{1\text{ base}}\ge\bar F_{3\text{ bases}}$ se verificó en el estado no Werner construido en `verify_cap15.py` §5. La regla operativa `planificar con 1, certificar con 3` es conservadora; el capítulo no la presenta como teorema general para todo estado de dos qubits.
+6. La implementación óptica se cita como antecedente experimental, no se reproduce: el hardware queda `unverified` en este capítulo. En particular, el protocolo aquí verificado usa medición de Bell y correcciones de Pauli ideales en simulación.
+
+**Fuentes contrastadas:** Bennett et al. 1993, *Phys. Rev. Lett.* 70, 1895–1899 (DOI `10.1103/PhysRevLett.70.1895`, `https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.70.1895`); Werner 1989, *Phys. Rev. A* 40, 4277–4281 (DOI `10.1103/PhysRevA.40.4277`, `https://journals.aps.org/pra/abstract/10.1103/PhysRevA.40.4277`); Horodecki, Horodecki y Horodecki 1999, *Phys. Rev. A* 60, 1888 (DOI `10.1103/PhysRevA.60.1888`, `https://arxiv.org/html/quant-ph/9807091v2`); Bouwmeester et al. 1997, *Nature* 390, 575–579 (DOI `10.1038/37539`, `https://www.nature.com/articles/37539`); Boschi et al. 1998, *Phys. Rev. Lett.* 80, 1121 (DOI `10.1103/PhysRevLett.80.1121`, `https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.80.1121`).
