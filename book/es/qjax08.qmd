@@ -133,3 +133,22 @@ def test_shots_bound():
 - `tools/verify_cap08.py`, `tests/test_qdist.py`; Apéndice H: 6 entradas (`qg_moments_walsh` … `iqan_moment_fit`).
 ```
 Commit: `feat(qdist): momentos Walsh qg, truncación k-local y presupuesto de disparos + verify_cap08`.
+
+## 8.9 Contraste bibliográfico y precisiones de revisión (2026-11-21)
+
+La expansión de Walsh–Hadamard de la sección 8.1 es la transformada de Fourier del grupo Booliano $(\mathbb Z_2)^n$: los caracteres $\chi_S(x)=(-1)^{S\cdot x}$ son ortonormales bajo el producto interno $2^{-n}\sum_x f(x)g(x)$, de modo que $qg_{Z_S}=\langle p,\chi_S\rangle$ y Parseval da $\|p-r\|_2^2=2^{-n}\sum_S(\Delta qg_{Z_S})^2$. Ésta es la misma identidad que subyace a los análisis de Fourier sobre el cubo Booliano; la convención big-endian es sólo una elección de índices y no altera la transformada.
+
+La cota $\mathbb E[\mathrm{TV}(\hat p,p)]\le\frac12\sqrt{M/N}$ es una aplicación directa de Cauchy–Schwarz a un vector de $M$ momentos estimados, cada uno con varianza $O(1/N)$: $\|\Delta qg\|_1\le\sqrt M\,\|\Delta qg\|_2$ y Parseval convierte $\|\Delta qg\|_2$ en error $L_2$ de probabilidades. Por eso el ahorro $1-M_k/(2^n-1)$ es independiente del estado, mientras que el sesgo de truncación $\mathrm{TV}(p_{(k)},p)$ no lo es: $p_{(k)}$ puede tener entradas negativas y debe interpretarse como proyector $L_2$, no como distribución física.
+
+La identidad $H^2=1-\cos qg_L$ se confirma para dos qubit puros en el mismo meridiano. Con $p_0=(1+\cos\theta)/2=\cos^2(\theta/2)$ y $p_1=\sin^2(\theta/2)$, el coeficiente de Bhattacharyya es $\cos(\theta/2)\cos(\theta'/2)+\sin(\theta/2)\sin(\theta'/2)=\cos((\theta-\theta')/2)$; por tanto $H^2=1-\mathrm{BC}$. En terminología de Bloch, $p_0=(1+r_z)/2$, congruente con la parametrización estándar $|\psi(\theta,\phi)\rangle=\cos(\theta/2)|0\rangle+e^{i\phi}\operatorname{sen}(\theta/2)|1\rangle$.
+
+La actualización bayesiana de la sección 8.4 es conjugación Beta–Bernoulli: si $p_0\sim\mathrm{Beta}(1,1)$ y se observan $k_0$ ceros en $N$ disparos, el posterior es $\mathrm{Beta}(1+k_0,1+N-k_0)$. Con $qg_Z=2p_0-1$, media y varianza se transforman como en el texto; en el ecuador $k_0=N/2$ se obtiene $\mathrm{Var}[qg_Z]=1/(N+3)$, luego $\sigma=1000/\sqrt{N+3}$ m-qg. El resultado refleja la geometría del qubit: para una medida $Z$, $p_0=(1+r_z)/2$ y la previa uniforme en $p_0$ equivale a $qg_Z\sim\mathcal U[-1,1]$.
+
+**Fuentes contrastadas:**
+
+- R. de Wolf, “A Brief Introduction to Fourier Analysis on the Boolean Cube”, *Theory of Computing Graduate Surveys* 1 (2008), §§1–3: <http://theoryofcomputing.org/articles/gs001/gs001.pdf>.
+- M. Ozols, “Geometry of a qubit”, §3.1: <http://home.lu.lv/~sd20008/papers/essays/Geometry%20%5Bpaper%5D.pdf>.
+- MIT OCW 18.05, “Conjugate priors: Beta and normal”, §§3–5: <https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/mit18_05_s22_class15-prep.pdf>.
+- Definición estándar de distancia de Hellinger y coeficiente de Bhattacharyya: <https://en.wikipedia.org/wiki/Hellinger_distance#Examples>.
+
+**Validación de esta revisión:** `tools/verify_cap08.py` reproduce `verify_cap08: OK` con Walsh exacta, cotas TV cumplidas, identidad Hellinger, posterior de Haar y reducción del 86 % de disparos; `tests/test_qdist.py` pasa junto con la suite unitaria relacionada del capítulo.
