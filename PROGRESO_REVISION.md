@@ -61,7 +61,7 @@
 |---|----------|------------------|------------------|-------------------|----------------|-----|
 | 1 | `book/es/qjax07.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 2 | `book/es/qjax08.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 3 | `book/es/qjax09.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 3 | `book/es/qjax09.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 4 | `book/es/qjax10.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 5 | `book/es/qjax11.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 6 | `book/es/qjax12.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
@@ -83,7 +83,7 @@
 - [x] **Setup y descubrimiento** (hecho: ruta real del libro, rama, inventario de capítulos y tests).
 - [x] **qjax07** (cap07) — revisión, fuentes, `verify_cap07.py`, `tests/test_qan.py` (4 passed) y commit.
 - [x] **qjax08** (cap08) — revisión, fuentes, `verify_cap08.py`, `tests/test_qdist.py` (4 passed) y commit.
-- [ ] **qjax09** (cap09).
+- [x] **qjax09** (cap09) — revisión, fuentes, `verify_cap09.py`, `tests/test_qfisher.py` (3 passed) y commit.
 - [ ] **qjax10** (cap10).
 - [ ] **qjax11** (cap11).
 - [ ] **qjax12** (cap12).
