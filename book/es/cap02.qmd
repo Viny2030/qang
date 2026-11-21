@@ -76,10 +76,15 @@ compuerta de un qubit sobre las poblaciones queda fijada por **un solo número**
 Hadamard en $0$ (las iguala). Las fases $\varphi$ y $\lambda$ no aparecen: son invisibles para una medición en $Z$ y
 solo se revelan al componer compuertas, como muestra el capítulo 3. Sobre una entrada con coherencias, la
 fórmula completa es $p_0'=T(q)\,p-\sqrt{1-q^2}\,\operatorname{Re}(e^{-i\lambda}\rho_{01})$: la Hadamard sobre
-$|+\rangle$ da $p_0=1$, no el $0{,}5$ que daría $T(0)$.
+$|+\rangle$ da $p_0=1$, no el $0{,}5$ que daría $T(0)$. El término se obtiene de
+$p_0'=|U_{00}|^2p_0+|U_{01}|^2p_1+2\operatorname{Re}(U_{00}U_{01}^*\rho_{01})$, pues
+$U_{00}U_{01}^*=-\tfrac12\sqrt{1-q^2}\,e^{-i\lambda}$. Para la Hadamard sobre $|+\rangle$ ($q=0$, $\lambda=\pi$,
+$\rho_{01}=1/2$) ese término vale $+1/2$ y corrige la lectura de $0{,}5$ a $1$.
 
 La lectura entrópica también tiene su versión para operaciones. La capacidad del canal binario simétrico de
-parámetro $(1-q)/2$ es $1-H\big((1-q)/2\big)$, y como $H$ es simétrica, $H\big((1-q)/2\big)=H(p_0)=qg_S$:
+parámetro $(1-q)/2$ es $1-H\big((1-q)/2\big)$ [@shannon1948]: la entropía condicional $H(Y|X)=H\big((1-q)/2\big)$
+no depende de la distribución de entrada y una entrada uniforme alcanza el máximo $H(Y)=1$. Como $H$ es simétrica,
+$H\big((1-q)/2\big)=H(p_0)=qg_S$:
 
 $$
 C = 1-qg_S .
@@ -131,6 +136,10 @@ poblaciones y las determinan:
 $$
 p=\frac1d+\frac12\sum_{k=1}^{d-1}\langle\lambda_k\rangle\,\operatorname{diag}(\lambda_k).
 $$
+
+Esta expresión es la parte diagonal de la descomposición de Bloch completa
+$\rho=\frac1d I+\frac12\sum_{k=1}^{d^2-1}\langle\Lambda_k\rangle\Lambda_k$: los $d^2-d$ generadores restantes son
+fuera de diagonal y codifican las coherencias, que no afectan a las poblaciones medidas en la base computacional.
 
 Para $d=2$ queda una sola matriz, $\lambda_1=\sigma_z$, su valor esperado es $qg_Z$ y la fórmula se reduce a
 $p_0=\tfrac12+\tfrac12\,qg_Z$: la ecuación de probabilidad del capítulo 1. Esta es la generalización natural de la
@@ -186,7 +195,9 @@ nombre de la formulación describe una de sus causas, no la única.
 ![Error en mili-qang de $R_x(\theta)$ con un error de amplitud aleatorio $\sigma=0{,}05$: el ángulo tal como se pide frente al representante de área mínima. Por debajo de $180^\circ$ coinciden; por encima, el representante corto evita el error que, en los múltiplos de $\pi$, crece con el cuadrado del ángulo.](figuras/cap02_area.png){#fig-area width=90%}
 
 Más interesante: $R_{ZZ}(\theta+\pi)=R_{ZZ}(\theta)\,(-i\,Z\otimes Z)$, y $Z\otimes Z$ son dos rotaciones $R_Z(\pi)$
-virtuales, sin costo en los procesadores superconductores. Así $R_{ZZ}$ tiene período $\pi$ (500 qga) y su área
+virtuales, sin costo en los procesadores superconductores. La identidad se verifica con
+$\exp[-i(\theta+\pi)Z\otimes Z/2]=R_{ZZ}(\theta)\exp(-i\pi Z\otimes Z/2)$ y $\exp(-i\pi Z\otimes Z/2)=-i\,Z\otimes Z$.
+Así $R_{ZZ}$ tiene período $\pi$ (500 qga) y su área
 nunca necesita superar $\pi/2$ (250 qga). La función `minimal_area_circuit` reescribe un circuito con esos representantes y conserva el
 unitario exactamente, fase global incluida.
 
@@ -295,4 +306,8 @@ La universalidad de las compuertas de un qubit más un entrelazador está en @ba
 descomposición de Cartan de $SU(2^n)$, en @khaneja2001. Los kits contra los que se verifica la compuerta son Qiskit
 [@javadiabhari2024], PennyLane [@bergholm2018], Cirq [@cirq] y Amazon Braket [@braket]. Las notas de investigación
 numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de
-la unidad qang, en @monteverde2026.
+la unidad qang, en @monteverde2026. **Contraste bibliográfico verificado en línea:** la capacidad $C=1-h(p)$ del
+canal binario simétrico, alcanzada con entrada uniforme, se contrasta con la formulación original de Shannon (DOI
+10.1002/j.1538-7305.1948.tb01338.x); la normalización $\operatorname{Tr}(\Lambda_j\Lambda_k)=2\delta_{jk}$ y la
+reconstrucción $\rho=\frac1d I+\frac12\sum_k\langle\Lambda_k\rangle\Lambda_k$ de los generadores generalizados de
+Gell-Mann se contrastan con la literatura de tomografía de qudits.

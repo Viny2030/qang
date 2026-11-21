@@ -9,7 +9,7 @@
 | # | Capítulo | Revisión teórica | Fuentes en línea | Validación código | `[x]` y commit | Min |
 |---|----------|------------------|------------------|-------------------|----------------|-----|
 | 1 | `book/es/cap01.qmd` | [x] | [x] | [x] | [x] | 35 |
-| 2 | `book/es/cap02.qmd` | [ ] | [ ] | [ ] | [ ] | 22 |
+| 2 | `book/es/cap02.qmd` | [x] | [x] | [x] | [x] | 22 |
 | 3 | `book/es/cap03.qmd` | [ ] | [ ] | [ ] | [ ] | 22 |
 | 4 | `book/es/cap04.qmd` | [ ] | [ ] | [ ] | [ ] | 22 |
 | 5 | `book/es/cap05.qmd` | [ ] | [ ] | [ ] | [ ] | 22 |
@@ -31,7 +31,7 @@
 
 - [x] **Setup y descubrimiento** (hecho: ruta real del libro, rama, inventario de capítulos y tests).
 - [x] **cap01** — commit `docs: revisión teórica y validación cap 1`.
-- [ ] **cap02** — commit `docs: revisión teórica y validación cap 2`.
+- [x] **cap02** — commit `docs: revisión teórica y validación cap 2`.
 - [ ] **cap03** — commit `docs: revisión teórica y validación cap 3`.
 - [ ] **cap04** — commit `docs: revisión teórica y validación cap 4`.
 - [ ] **cap05** — commit `docs: revisión teórica y validación cap 5`.
