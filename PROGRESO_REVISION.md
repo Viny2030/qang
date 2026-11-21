@@ -14,7 +14,7 @@
 | 4 | `book/es/cap04.qmd` | [x] | [x] | [x] | [x] | 22 |
 | 5 | `book/es/cap05.qmd` | [x] | [x] | [x] | [x] | 22 |
 | 6 | `book/es/cap06.qmd` | [x] | [x] | [x] | [x] | 25 |
-| 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
+| 7 | Reporte final y estado de Git | [x] | — | — | [x] | 10 |
 
 **Total estimado:** 158 min (2 h 38 min), con ~22 min de margen.
 
@@ -36,4 +36,13 @@
 - [x] **cap04** — commit `docs: revisión teórica y validación cap 4`.
 - [x] **cap05** — commit `docs: revisión teórica y validación cap 5`.
 - [x] **cap06** — commit `docs: revisión teórica y validación cap 6`.
-- [ ] **Reporte final**.
+- [x] **Reporte final**.
+
+## Reporte final
+
+- **Commits:** `e4a2ece` (cap01), `14fbd0a` (cap02), `3a9b9e8` (cap03), `7a7d3e3` (cap04), `52dbb4a` (cap05), `ff3718e` (cap06).
+- **Validación pytest:** todas las corridas parciales pasaron (cap01 52, cap02 87, cap03 43, cap04 54, cap05 83, cap06 38 pruebas); la suite consolidada final pasó 213 pruebas en 23,17 s.
+- **Verificadores:** `tools/verify_cap06_expansion.py` pasó 12/12; `verify_cap01.py`–`verify_cap06.py` quedan bloqueados por `ModuleNotFoundError: No module named 'qutip'`.
+- **No disponible:** render Quarto (`quarto` no instalado).
+- **Fuentes en línea contrastadas:** Wootters 1981 (DOI `10.1103/PhysRevD.23.357`), Anscombe 1948 (`10.1093/biomet/35.3-4.246`), Freeman–Tukey 1950 (`10.1214/aoms/1177729756`), Shannon 1948 (`10.1002/j.1538-7305.1948.tb01338.x`), Suzuki 2019 (`10.1007/s11128-019-2565-2`), Berta 2010 (`10.1038/nphys1734`), Coles 2014 (`10.1038/ncomms6814`), Goldberg 2020 (`10.1364/aop.404175`), más documentación de PennyLane, Wikipedia y PDG.
+- **Estado Git:** `main` con 7 commits de trabajo; `.venv_clean/` permanece sin trackear y no se incluyó en ningún commit.
