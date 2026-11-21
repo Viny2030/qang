@@ -116,7 +116,7 @@
 | 2 | `book/es/qjax14.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 3 | `book/es/qjax15.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 4 | `book/es/qjax16.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 5 | `book/es/qjax17.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 5 | `book/es/qjax17.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 6 | `book/es/qjax18.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
 
@@ -138,6 +138,6 @@
 - [x] **qjax14** (cap14) — revisión, fuentes, `verify_cap14.py`, `tests/test_qmajorana.py` (3 passed), sección 14.9 y commit.
 - [x] **qjax15** (cap15) — revisión, fuentes, `verify_cap15.py`, `tests/test_qtele.py` (3 passed), sección 15.9 y commit.
 - [x] **qjax16** (cap16) — revisión, fuentes, `verify_cap16.py`, `tests/test_qdualrail.py` (1 passed), sección 16.7 y commit.
-- [ ] **qjax17** (cap17) — revisión, fuentes, `verify_cap17.py`, `tests/test_qctc.py` y commit.
+- [x] **qjax17** (cap17) — revisión, fuentes, `verify_cap17.py`, `tests/test_qctc.py` (2 passed), sección 17.7 y commit.
 - [ ] **qjax18** (cap18) — revisión, fuentes, `verify_cap18.py`, `tests/test_qscramble.py` y commit.
 - [ ] **Reporte final (bloque 3)**.
