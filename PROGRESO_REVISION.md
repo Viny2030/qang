@@ -65,7 +65,7 @@
 | 4 | `book/es/qjax10.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 5 | `book/es/qjax11.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 6 | `book/es/qjax12.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
+| 7 | Reporte final y estado de Git | [x] | — | — | [x] | 10 |
 
 **Total estimado:** 180 min.
 
@@ -87,4 +87,15 @@
 - [x] **qjax10** (cap10) — revisión, fuentes, `verify_cap10.py`, `tests/test_qgeom.py` (2 passed) y commit.
 - [x] **qjax11** (cap11) — revisión, fuentes, `verify_cap11.py`, `tests/test_qmetro.py` (3 passed) y commit.
 - [x] **qjax12** (cap12) — revisión, fuentes, `verify_cap12.py`, `tests/test_qneutrino_vacuum.py` (3 passed) y commit.
-- [ ] **Reporte final (bloque 2)**.
+- [x] **Reporte final (bloque 2)**.
+
+## Reporte final (bloque 2)
+
+- **Commits:** `684667d` (cap07), `fe1ddf3` (cap08), `2928be3` (cap09), `996501c` (cap10), `d379873` (cap11), `dddd9b0` (cap12); cierre de reporte en `docs: reporte final bloque 2`.
+- **Verificadores:** `tools/verify_cap07.py`–`tools/verify_cap12.py` pasan los seis con `verify_capNN: OK`.
+- **Pytest del bloque:** `tests/test_qan.py`, `test_qdist.py`, `test_qfisher.py`, `test_qgeom.py`, `test_qmetro.py` y `test_qneutrino_vacuum.py`: `19 passed in 14.45 s`.
+- **Pytest global:** la suite completa se interrumpió por tiempo límite (600 s, ~61% recorrido, sin fallos observados hasta ese punto); no se reporta un total global nuevo. La cifra consolidada anterior sigue siendo `213 passed in 23,17 s` del bloque 1.
+- **Render:** `quarto` no está disponible en el entorno; no se renderizó el libro.
+- **Fuentes contrastadas por capítulo:** cap07 Paninski (NYU PDF), Wu–Poulsen–Mølmer (`10.1103/PhysRevA.80.032319`) y Miller et al. (PMC2677320); cap08 de Wolf (`gs001`), Ozols, MIT OCW y Hellinger; cap09 Braunstein–Caves (`10.1103/PhysRevLett.72.3439`), Barndorff-Nielsen–Gill (`quant-ph/9808009`), Schuld et al. (`10.1103/PhysRevA.99.032331`) y McClean et al. (`10.1038/s41467-018-07090-4`); cap10 Berry (`10.1098/rspa.1984.0543`), revisión de fase geométrica (IAS/IntechOpen), Van Oosterom–Strackee (`10.1109/TBME.1983.325207`) y PRX Quantum 2, 030333; cap11 Huelga (`10.1103/PhysRevLett.79.3865`), Degen (`10.1103/RevModPhys.89.035002`), Kaubruegger (`10.1103/PhysRevX.11.041045`) y Bothwell (`10.1038/s41586-021-04349-7`); cap12 Argüelles–Jones (`10.1103/PhysRevResearch.1.033176`), virtual-Z/DAE 68, PDG 2024 (`10.1103/PhysRevD.110.030001`), NuFIT 6.0 (`10.1007/JHEP12(2024)216`), Nogueira et al. (`1610.05388`) y Chundawat–Li (`2602.07991`).
+- **Resultados destacados:** cap10 fija `∬F = 1.295010823 = −γ`, `no gain` y `robustez unverified`; cap11 acota `no gain` de GHZ a desfase markoviano independiente + paridad y documenta `T*=T2/2`; cap12 aclara unidades de `L_osc`, deriva `I_F(θ)`/`I_F(φ)`, la regla de la cadena a `Δm²` y el alcance del filtro de sector.
+- **Estado Git:** `main` con los seis commits de revisión del bloque 2 más el cierre; `.venv_clean/` permanece sin trackear y no se incluyó en ningún commit.
