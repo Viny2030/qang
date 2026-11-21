@@ -134,7 +134,10 @@ $$
 F_m=\frac{m^2}{1-qg_0^2}:
 $$
 
-la profundidad multiplica por $m^2$ la información qg del capítulo 1, de manera uniforme a lo largo de la franja. Es
+en efecto, para un disparo a profundidad $m$,
+$I=(\partial qg_k/\partial qg_0)^2/(1-qg_k^2)=m^2U_{m-1}^2/[(1-qg_0^2)U_{m-1}^2]$: el factor $U_{m-1}$ se cancela
+por completo. La profundidad multiplica por $m^2$ la información qg del capítulo 1, de manera uniforme a lo largo de
+la franja. Es
 la forma qg del conocido factor $4m^2$ para el ángulo [@suzuki2020]. En la escala del mili-qang, la
 resolución sobre $qg_0$ con $N$ disparos a profundidad $m$ es $1000\sqrt{1-qg_0^2}/(m\sqrt N)$ m-qg: con $a=0{,}1$ y
 100 disparos, 60 m-qg sin iterar y 12 m-qg a profundidad $m=5$. Respecto del ángulo inicial de la bandera, la
@@ -165,7 +168,9 @@ carga. Como afirmación física **no se adopta**: los subespacios marcado y no m
 antipartícula. Lo que sí es exacto es más modesto. La oscilación de un mesón neutro entre su estado de partícula y el de
 antipartícula es también una rotación de dos niveles, y su asimetría de mezcla
 $(N_\text{sin mezclar}-N_\text{mezclados})/(N_\text{sin mezclar}+N_\text{mezclados})=\cos(\Delta m\,t)$, válida cuando
-las dos anchuras son iguales [@pdg2024], es un $qg_Z$: tiene ángulo qang $\Delta m\,t$ y barra de error uniforme en ese
+las dos anchuras son iguales [@pdg2024], es un $qg_Z$: con $g_\pm(t)\propto e^{-\Gamma t/2}[\cosh(\Delta\Gamma t/2)\pm
+\cos(\Delta m t)]$, la asimetría es $\cos(\Delta m t)/\cosh(\Delta\Gamma t/2)$ y se reduce a $\cos(\Delta m t)$ cuando
+$\Delta\Gamma=0$. Tiene ángulo qang $\Delta m\,t$ y barra de error uniforme en ese
 ángulo, como cualquier lectura del capítulo 1. Grover y el mesón comparten la cinemática, un coseno, y nada más: el
 mesón además decae. El apéndice G (@sec-apendice-g) da la lectura correcta de la conjugación de carga, que invierte
 el valor esperado de la matriz $\beta$ de Dirac.
@@ -217,7 +222,10 @@ qubits, con cada Z multicontrolada compilada en 14, 36 y 84 CNOT y ruido despola
   4 a 1 y el costo por éxito verificado sube de 6,1 a 27,6 llamadas al oráculo, frente a 32 de la búsqueda clásica.
 - **La fórmula qg falla bajo ruido de compuerta.** Si los resultados no buscados fueran uniformes, cada qubit
   tendría $qg_{Z,i}=\pm(NP-1)/(N-1)$, y los signos darían la respuesta y la magnitud la probabilidad de éxito sin
-  conocerla. El ruido despolarizante no es uniforme tras el difusor, y la estimación sin etiquetas resultó peor que
+  conocerla. El valor se obtiene de que, con probabilidad $P$ para el resultado marcado y $(1-P)/(N-1)$ para cada uno
+de los otros, la probabilidad de que el bit $i$ coincida con el marcado es
+$P+\tfrac{N/2-1}{N-1}(1-P)=\tfrac{N(P+1)/2-1}{N-1}$, de modo que $qg_{Z,i}=2p_\text{coinc}-1=(NP-1)/(N-1)$. El
+ruido despolarizante no es uniforme tras el difusor, y la estimación sin etiquetas resultó peor que
   la frecuencia del resultado más común en todos los casos.
 - **Leer la respuesta por signos pierde.** Con $n=5$, 100 disparos encuentran el elemento marcado el 66% de las veces
   con los signos qg y el 91% con la cadena de bits más frecuente.
@@ -317,4 +325,8 @@ El reflector es el de @householder1958. La búsqueda de Grover es @grover1996, y
 amplitud, @brassard2002; la estimación por máxima verosimilitud sin estimación de fase es @suzuki2020. La probabilidad
 de transición entre estados qg es la distancia de @wootters1981. Las notas de investigación numeradas (§) que cita el
 capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en
-@monteverde2026.
+@monteverde2026. **Contraste bibliográfico verificado en línea:** la amplificación $\sin^2((2m+1)\theta_a)$ y la
+información de Fisher $\mathscr I(a)=\sum_k N_k(2m_k+1)^2/[a(1-a)]$ de Suzuki et al. (DOI
+10.1007/s11128-019-2565-2) respaldan el factor $m^2$ de la @sec-chebyshev; la forma $|g_\pm(t)|^2\propto
+\cosh(\Delta\Gamma t/2)\pm\cos(\Delta m t)$ de la revisión del Particle Data Group respalda la lectura de la
+asimetría de mezcla.
