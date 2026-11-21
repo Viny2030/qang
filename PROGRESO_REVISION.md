@@ -99,3 +99,45 @@
 - **Fuentes contrastadas por capítulo:** cap07 Paninski (NYU PDF), Wu–Poulsen–Mølmer (`10.1103/PhysRevA.80.032319`) y Miller et al. (PMC2677320); cap08 de Wolf (`gs001`), Ozols, MIT OCW y Hellinger; cap09 Braunstein–Caves (`10.1103/PhysRevLett.72.3439`), Barndorff-Nielsen–Gill (`quant-ph/9808009`), Schuld et al. (`10.1103/PhysRevA.99.032331`) y McClean et al. (`10.1038/s41467-018-07090-4`); cap10 Berry (`10.1098/rspa.1984.0543`), revisión de fase geométrica (IAS/IntechOpen), Van Oosterom–Strackee (`10.1109/TBME.1983.325207`) y PRX Quantum 2, 030333; cap11 Huelga (`10.1103/PhysRevLett.79.3865`), Degen (`10.1103/RevModPhys.89.035002`), Kaubruegger (`10.1103/PhysRevX.11.041045`) y Bothwell (`10.1038/s41586-021-04349-7`); cap12 Argüelles–Jones (`10.1103/PhysRevResearch.1.033176`), virtual-Z/DAE 68, PDG 2024 (`10.1103/PhysRevD.110.030001`), NuFIT 6.0 (`10.1007/JHEP12(2024)216`), Nogueira et al. (`1610.05388`) y Chundawat–Li (`2602.07991`).
 - **Resultados destacados:** cap10 fija `∬F = 1.295010823 = −γ`, `no gain` y `robustez unverified`; cap11 acota `no gain` de GHZ a desfase markoviano independiente + paridad y documenta `T*=T2/2`; cap12 aclara unidades de `L_osc`, deriva `I_F(θ)`/`I_F(φ)`, la regla de la cadena a `Δm²` y el alcance del filtro de sector.
 - **Estado Git:** `main` con los seis commits de revisión del bloque 2 más el cierre; `.venv_clean/` permanece sin trackear y no se incluyó en ningún commit.
+
+---
+
+# Bloque 3 — revisión teórica y validación — capítulos `qjax13`–`qjax18`
+
+**Repositorio:** `C:\Users\ASUS\qang_repo` · **Rama:** `main` (sin crear ramas nuevas).
+**Alcance acordado:** capítulos `book/es/qjax13.qmd`–`book/es/qjax18.qmd` (equivalentes a cap13–cap18 en la numeración del usuario).
+**Límite de tiempo:** 3 horas (180 min). **Inicio:** 2026-11-21.
+
+## Checklist por capítulo (bloque 3)
+
+| # | Capítulo | Revisión teórica | Fuentes en línea | Validación código | `[x]` y commit | Min |
+|---|----------|------------------|------------------|-------------------|----------------|-----|
+| 1 | `book/es/qjax13.qmd` | [x] | [x] | [x] | [x] | 30 |
+| 2 | `book/es/qjax14.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 3 | `book/es/qjax15.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 4 | `book/es/qjax16.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 5 | `book/es/qjax17.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 6 | `book/es/qjax18.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
+
+**Total estimado:** 180 min.
+
+## Reglas de ejecución (bloque 3)
+
+1. Leer el capítulo completo antes de tocar nada; conservar **toda** la información técnica original.
+2. Contrastar cada afirmación clave con literatura/documentación en línea; anotar la fuente en el reporte.
+3. Ejecutar el script `tools/verify_capNN.py` correspondiente y los tests unitarios relacionados.
+4. Marcar `[x]` en este archivo y hacer `git add` + `git commit` **antes** de pasar al siguiente capítulo.
+5. No crear ramas, no borrar archivos, no añadir `.venv_clean/` ni otros artefactos al commit.
+6. Si se agota el tiempo, entregar el reporte con lo completado y lo pendiente.
+
+## Registro de avance (bloque 3)
+
+- [x] **Setup y descubrimiento** (hecho: ruta real del libro, rama, inventario de capítulos, verificadores y tests).
+- [x] **qjax13** (cap13) — revisión, fuentes, `verify_cap13.py`, `tests/test_qneutrino_matter.py` (2 passed) y commit.
+- [ ] **qjax14** (cap14) — revisión, fuentes, `verify_cap14.py`, `tests/test_qmajorana.py` y commit.
+- [ ] **qjax15** (cap15) — revisión, fuentes, `verify_cap15.py`, `tests/test_qtele.py` y commit.
+- [ ] **qjax16** (cap16) — revisión, fuentes, `verify_cap16.py`, `tests/test_qdualrail.py` y commit.
+- [ ] **qjax17** (cap17) — revisión, fuentes, `verify_cap17.py`, `tests/test_qctc.py` y commit.
+- [ ] **qjax18** (cap18) — revisión, fuentes, `verify_cap18.py`, `tests/test_qscramble.py` y commit.
+- [ ] **Reporte final (bloque 3)**.
