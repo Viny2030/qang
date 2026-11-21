@@ -77,3 +77,19 @@ def test_bias_and_filter():
 
 `CHANGELOG.md [Unreleased]`: `qang.qdualrail` (`transmission`, `dual_rail_state`, `apply_loss`, `readout_unfiltered`, `readout_sector_filtered`, `shots_multiplier_two_photons`); `tools/verify_cap16.py`; `tests/test_qdualrail.py`.
 Commit: `docs(cap16): doble carril y filtro de sector reescritos sobre Cap. 1–15 + qang.qdualrail + verify_cap16`.
+
+## 16.7 Contraste bibliográfico y precisiones de revisión (2026-11-21)
+
+La codificación $|10\rangle,|01\rangle$ es el código de doble carril estándar: un fotón en dos modos, con pérdida detectada porque el estado sale al vacío $|00\rangle$, ortogonal al subespacio lógico. La literatura lo describe como error de borrado (*erasure*) con postselección: se detecta, no se corrige. Esto coincide con el modelo `exact` del capítulo.
+
+Precisiones que delimitan las cifras:
+
+1. $qg_Z'=\eta qg_Z+(1-\eta)$ es el resultado de un lector binario **naive** que asigna el vacío $0_L$. Un detector con resolución de número de fotones no lee el vacío como $0_L$: marca pérdida y descarta el evento. El sesgo reportado es de lectura, no de evolución dentro del sector.
+2. $qg_X,qg_Y$ quedan intactos **después** de postseleccionar el sector de peso 1; sin postselección las coherencias se atenúan con $\eta$. La afirmación `exact` es condicional a que la detección anuncie pérdida sin error y a que la pérdida sea independiente por modo.
+3. La atenuación $\alpha=0.2$ dB/km es el valor típico de fibra monomodo a 1550 nm, no una constante universal. Con ese valor, $\eta(50)=10^{-1}$, $\eta(100)=10^{-2}$ y $\eta(200)=10^{-4}$; el producto $\eta(L/2)^2=\eta(L)$ vale para cualquier reparto de los $L$ km totales entre los dos brazos, porque las pérdidas en dB se suman.
+4. $\bar F=(1+V)/2$ independiente de $L$ vale en el modelo de borrado puro. Cuentas oscuras, detectores no ideales, pérdida dependiente del modo, multirruido y fuentes multiphotónicas rompen la separación pérdida↔tasa / ruido↔fidelidad; por eso el estatus en hardware es `mixed` (§158), no `exact`.
+5. El multiplicador $1/\eta$ es el sobregiro **medio** de disparos. El número realizado en una sesión es aleatorio; a 200 km el promedio es $10^4$, con dispersión propia del proceso de anuncio.
+6. El umbral $qg_{ZZ}>333$ m-qg se mide dentro del sector postseleccionado y hereda las salvedades del Cap. 15: supone el modelo de Werner y lectura sin errores de detector.
+7. La teleportación a larga distancia se cita como marco de referencia, no se reproduce: aquí no se modelan amplificación heralizada, purificación ni corrección de errores, que en experimentos reales son necesarios para superar la transmisión directa.
+
+**Fuentes contrastadas:** Error Correction Zoo, *Dual-rail quantum code* (`https://errorcorrectionzoo.org/c/dual_rail`): borrado por pérdida de un fotón y postselección; Kok et al. 2007, *Rev. Mod. Phys.* 79, 135 (DOI `10.1103/RevModPhys.79.135`, `https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.79.135`); guía de pruebas de fibra de VIAVI, atenuación típica $0.20$ dB/km a 1550 nm (`https://www.normann-engineering.com/support/white_papers/fiberguide1-bk-fop-tm-ae.pdf`); Wei et al. 2022, *Quantum channel correction outperforming direct transmission* (`https://pmc.ncbi.nlm.nih.gov/articles/PMC8983674`); Zhou et al. 2023, *Hertz-rate metropolitan quantum teleportation* (`https://www.nature.com/articles/s41377-023-01158-7`); implementación reciente con ventaja incondicional sobre transmisión directa en canal con pérdida, *Nature Physics* 2026 (`https://www.nature.com/articles/s41567-026-03348-7`).
