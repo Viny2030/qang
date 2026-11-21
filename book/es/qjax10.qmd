@@ -107,3 +107,30 @@ def test_latitude_equator():
 - `tools/verify_cap10.py`, `tests/test_qgeom.py`; Apéndice H: 4 entradas.
 ```
 Commit: `docs(cap10): fases geométricas y Stokes reescritos sobre Cap. 1–9 + qang.qgeom + verify_cap10`.
+
+## 10.9 Contraste bibliográfico y precisiones de revisión (2026-11-21)
+
+La familia $|\psi(\theta,\varphi)\rangle=\cos\tfrac\theta2|0\rangle+e^{i\varphi}\sin\tfrac\theta2|1\rangle$ es la rama "spin arriba" del problema de spin-½ en un campo direccional. En la gauge del polo norte, $A=i\langle\psi|d\psi\rangle=-\sin^2(\theta/2)\,d\varphi$, por lo que un lazo de latitud da $\oint A=-2\pi\sin^2(\theta/2)=-\pi(1-\cos\theta)=-\Omega/2$. Este es el resultado canónico $\gamma_\pm=\mp\Omega/2$ con $\Omega=2\pi(1-\cos\theta)$; la coordenada qga sólo reescala $\theta$ y $\varphi$ y no cambia la fase física en radián.
+
+Hay una precisión de signo que conviene explicar. Con la definición $A=i\langle\psi|d\psi\rangle$ de esta sección, $dA=-\tfrac12\sin\theta\,d\theta\wedge d\varphi$ y Stokes da $\gamma=\iint dA=-\Omega/2$. El capítulo y `verify_cap10.py` escriben en cambio $F_{\mathrm{cap}}=\tfrac12\sin\theta\,d\theta\wedge d\varphi=-dA$ y $\gamma=-\iint F_{\mathrm{cap}}$; es la misma convención con la 2-forma y la orientación invertidas. En ambos casos el flujo sobre $S^2$ es $2\pi$, es decir un monopolo de carga $+\tfrac12$ para $F_{\mathrm{cap}}$ (o $-\tfrac12$ para $dA$), y no debe confundirse con la curvatura métrica de Fubini–Study $g=4$ del Cap. 1.
+
+El invariante de Bargmann de tres vértices es gauge-invariante porque cada estado aparece una vez como bra y una como ket. El producto usado en el código, $\langle\psi_2|\psi_1\rangle\langle\psi_3|\psi_2\rangle\langle\psi_1|\psi_3\rangle$, es el conjugado del producto $\langle\psi_1|\psi_2\rangle\langle\psi_2|\psi_3\rangle\langle\psi_3|\psi_1\rangle$ que suele aparecer en la literatura; por eso $\Phi_g=-\arg\prod\langle\psi_k|\psi_{k+1}\rangle=\arg\prod\langle\psi_{k+1}|\psi_k\rangle=-\Omega/2$. La descomposición de un polígono geodésico en triángulos y el límite continuo explican la convergencia observada: el error de la aproximación por $K$ arcos cae como $O(K^{-2})$, de $6.93\times10^{-3}$ en $K=24$ a $2.70\times10^{-5}$ en $K=384$.
+
+La fórmula de Van Oosterom–Strackee se evalúa con `atan2` para preservar el cuadrante del ángulo sólido orientado. El numerador $\mathbf r_1\cdot(\mathbf r_3\times\mathbf r_2)$ y el denominador $1+\mathbf r_1\cdot\mathbf r_2+\mathbf r_2\cdot\mathbf r_3+\mathbf r_3\cdot\mathbf r_1$ requieren estados no antipodales; si se invierte el orden del lazo cambia $\Omega$ y, por tanto, el signo de $\gamma$. En el código, $\varphi$ creciente fija $\Omega>0$ y $\gamma<0$, consistente con el lazo de latitud.
+
+La lectura con una sola base no es un atajo universal para cualquier fase: es consecuencia de que, para esta familia de un parámetro, $qg_Z=\cos\theta$ y $\gamma=-\pi(1-qg_Z)$. Con $N$ disparos en $Z$, $\operatorname{Var}(qg_Z)=(1-qg_Z^2)/N$ y $\sigma_\gamma=\pi\sqrt{(1-qg_Z^2)/N}$, de donde sale el presupuesto $N=\pi^2(1-qg_Z^2)/\sigma_\gamma^2$. La divergencia de $I_F(z)$ en los polos vista en el Cap. 9 no contradice esto: para estimar $\gamma=f(z)$ con $f'(z)=-\pi$, $I_F(\gamma)=I_F(z)/\pi^2$, que mejora hacia $|z|\to1$. La afirmación "1 base, 0 ancillas" se refiere a este parámetro y a esta parametrización.
+
+Finalmente, la literatura de computación geométrica/holonómica respalda la cautela del §10.3: la robustez es frente a errores que deforman poco la trayectoria geométrica o cambian la velocidad de recorrido, pero el ruido transverso, la descoherencia o errores que desplazan el lazo pueden destruirla. Por eso el hecho de que el lazo geométrico use $376.8$ qga frente a $39.4$ qga de la puerta física no se compensa automáticamente; el estatus `no gain` y `robustez unverified` es el correcto hasta que se simule un modelo de ruido concreto.
+
+**Fuentes contrastadas:**
+
+- M. V. Berry, "Quantal phase factors accompanying adiabatic changes", *Proc. R. Soc. A* 392, 45–57 (1984), DOI `10.1098/rspa.1984.0543`: <https://doi.org/10.1098/rspa.1984.0543>.
+- Apuntes de QM: spin-½, conexión $-\sin^2(\theta/2)d\varphi$, carga monopolar $-\tfrac12$ y $\Phi_{\rm Berry}=-\Omega_{\rm solid}/2$: <https://everettyou.github.io/teaching/PHYS130B/notes/ch4_phase-and-gauge/4-2-1-berry-phase.html>.
+- Apuntes de topological insulators: $\gamma_\pm(C)=\mp\tfrac12\Omega(C)$ con $\Omega=2\pi(1-\cos\theta)$: <https://phy.ntnu.edu.tw/~changmc/Teach/Topo/latex/2023/02.pdf>.
+- "Pancharatnam–Berry Phase in Quantum Optics", *Resonance* 28(11), 1669–1683 (2023): invariantes de Bargmann y $\phi_g=-\tfrac12\Omega_P$: <https://www.ias.ac.in/public/Volumes/reso/028/11/1669-1683.pdf>.
+- "The Pancharatnam–Berry Phase: Theoretical and Experimental Aspects", *IntechOpen* (2018): $\Phi_g=-\arg\prod\langle\psi_k|\psi_{k+1}\rangle$, $\Phi_\triangle=-\Omega_\triangle/2$ y triangulación: <https://cdn.intechopen.com/pdfs/29588.pdf>.
+- A. van Oosterom y J. Strackee, "The Solid Angle of a Plane Triangle", *IEEE Trans. Biomed. Eng.* 30(2), 125–126 (1983), DOI `10.1109/TBME.1983.325207`: <https://ieeexplore.ieee.org/iel5/10/4121572/04121581.pdf>.
+- "Geometric and holonomic quantum computation", *Physics Reports* (2023): robustez de compuertas geométricas/holonómicas frente a ciertas perturbaciones, no frente a todas: <https://www.sciencedirect.com/science/article/pii/S0370157323002065>.
+- W. Dong, F. Zhuang, S. E. Economou y E. Barnes, "Doubly Geometric Quantum Control", *PRX Quantum* 2, 030333 (2021): la fase geométrica es insensible a errores paralelos pero sensible a ruido transverso: <https://journals.aps.org/prxquantum/pdf/10.1103/PRXQuantum.2.030333>.
+
+**Validación de esta revisión:** `tools/verify_cap10.py` reproduce `verify_cap10: OK` con error de discretización $2.70\times10^{-5}$ en $K=384$, invariante de gauge a $10^{-12}$, flujo $\iint F=1.295010823=-\gamma$, comparación de área $0/39.4/376.8$ qga y presupuestos $9425/64597/98696$ disparos; `tests/test_qgeom.py` pasa con `2 passed`.
