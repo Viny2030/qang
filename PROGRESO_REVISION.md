@@ -12,7 +12,7 @@
 | 2 | `book/es/cap02.qmd` | [x] | [x] | [x] | [x] | 22 |
 | 3 | `book/es/cap03.qmd` | [x] | [x] | [x] | [x] | 22 |
 | 4 | `book/es/cap04.qmd` | [x] | [x] | [x] | [x] | 22 |
-| 5 | `book/es/cap05.qmd` | [ ] | [ ] | [ ] | [ ] | 22 |
+| 5 | `book/es/cap05.qmd` | [x] | [x] | [x] | [x] | 22 |
 | 6 | `book/es/cap06.qmd` | [ ] | [ ] | [ ] | [ ] | 25 |
 | 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
 
@@ -34,6 +34,6 @@
 - [x] **cap02** — commit `docs: revisión teórica y validación cap 2`.
 - [x] **cap03** — commit `docs: revisión teórica y validación cap 3`.
 - [x] **cap04** — commit `docs: revisión teórica y validación cap 4`.
-- [ ] **cap05** — commit `docs: revisión teórica y validación cap 5`.
+- [x] **cap05** — commit `docs: revisión teórica y validación cap 5`.
 - [ ] **cap06** — commit `docs: revisión teórica y validación cap 6`.
 - [ ] **Reporte final**.

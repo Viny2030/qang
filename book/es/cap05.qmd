@@ -27,8 +27,8 @@ $$
 r^2=qg_X^2+qg_Y^2+qg_Z^2=\frac{m_X^2+m_Y^2+m_Z^2}{10^6}=2\operatorname{Tr}\rho^2-1 .
 $$
 
-El radio es lineal en la pureza $\operatorname{Tr}\rho^2$: vale 1 en la superficie (estado puro) y 0 en el centro
-(estado máximamente mezclado). La esfera de radio $r$ tiene área $4\pi r^2$, y el **déficit de superficie**
+El radio cuadrado es lineal en la pureza, $r^2=2\operatorname{Tr}\rho^2-1$ (el radio es su raíz): vale 1 en la
+superficie (estado puro) y 0 en el centro (estado máximamente mezclado). La esfera de radio $r$ tiene área $4\pi r^2$, y el **déficit de superficie**
 $4\pi(1-r^2)$ es el área que el qubit perdió; la biblioteca trabaja con $1-r^2$, que lleva la misma información.
 
 ## El déficit como medida de entrelazamiento {#sec-deficit}
@@ -115,7 +115,8 @@ $$
 \theta=\operatorname{atan2}\!\left(\sqrt{qg_X^2+qg_Y^2},\,qg_Z\right)=\arccos\frac{qg_Z}{r}.
 $$
 
-Un estado a $30^\circ$ acortado a $r=0{,}8$ por ruido despolarizante tiene $qg_Z=0{,}693$: $\arccos(qg_Z)$ lee
+La expresión exige $r>0$: en el centro de la bola no hay dirección que recuperar. Un estado a $30^\circ$ acortado a
+$r=0{,}8$ por ruido despolarizante tiene $qg_Z=0{,}693$: $\arccos(qg_Z)$ lee
 $46{,}1^\circ$, y el ángulo separado lee los $30^\circ$ verdaderos. La @fig-direccion muestra el efecto para varios
 radios: el ángulo ingenuo se aplana hacia $90^\circ$, y el separado no depende de $r$.
 
@@ -164,12 +165,15 @@ $P^2+V^2=0{,}81$. Se verificó en 2000 estados aleatorios con una desviación m�
 
 ![Dualidad onda–partícula en unidades qg: cada estado es un punto del cuarto de disco, a distancia $r$ del origen. Los estados puros están sobre el arco $r=1$.](figuras/cap05_dualidad.png){#fig-dualidad width=60%}
 
-La versión entrópica usa la dispersión $qg_S$ del capítulo 1 en dos bases. La relación de Maassen–Uffink, con la
+La versión entrópica usa la dispersión $qg_S$ del capítulo 1 en dos bases. Para $Z$ y $X$ el solapamiento máximo es
+$c=\max_{x,z}\lvert\langle x_Z|x_X\rangle\rvert^2=1/2$, luego $-\log_2 c=1$; la relación de Maassen–Uffink, con la
 corrección de Berta y colaboradores para estados mixtos, dice
 
 $$
-qg_S(Z)+qg_S(X)\ \ge\ 1+S(\rho),\qquad S(\rho)=H\!\left(\frac{1+r}{2}\right).
+qg_S(Z)+qg_S(X)\ \ge\ 1+S(\rho),\qquad S(\rho)=H\!\left(\frac{1+r}{2}\right),
 $$
+
+donde los autovalores de $\rho$ son $(1\pm r)/2$ y su entropía de von Neumann es esa $H$ binaria.
 
 Para el estado anterior la suma vale 1,349 y la cota 1,286. La cota es ajustada: el estado $|0\rangle$ la alcanza con
 igualdad. De ahí sale una advertencia práctica. Con estimadores directos de la entropía (sin corregir), un estado puro
@@ -227,7 +231,8 @@ $$
 N_\text{signo}=z^2\,\frac{1-r^2\cos^2\theta}{r^2\cos^2\theta}.
 $$
 
-A $60^\circ$ y 3σ son 27 disparos con $r=1$, 36 con $r=0{,}9$, 48 con $r=0{,}8$ y 135 con $r=0{,}5$. El presupuesto
+Sale de exigir $\lvert qg_Z\rvert\ge z\sqrt{(1-qg_Z^2)/N}$ y despejar $N$, con $qg_Z=r\cos\theta$. A $60^\circ$ y 3σ
+son 27 disparos con $r=1$, 36 con $r=0{,}9$, 48 con $r=0{,}8$ y 135 con $r=0{,}5$. El presupuesto
 de disparos se planifica con el radio esperado del dispositivo, no con el estado ideal.
 
 **La distancia geodésica ve sólo una parte del acortamiento.** $qg_L$ compara dos lecturas en $Z$ con el ángulo qang
@@ -235,7 +240,7 @@ $\arccos qg_Z$, no con el ángulo polar de Bloch. En el ejemplo de la @sec-direc
 estado acortado a $r=0{,}8$ están a $qg_L=0{,}141$ rad (22,4 qga). Su distancia como estados cuánticos es el ángulo de
 Bures, $\arccos\sqrt F=0{,}322$ rad con $F=(1+r)/2=0{,}9$, y como una medición no aumenta la distinguibilidad
 [@nielsen2010], $qg_L$ es siempre una cota inferior: aquí ve el 44 %. Las dos coinciden si el estado está en un polo,
-y en el ecuador $qg_L=0$ para cualquier radio. Con el ángulo de referencia conocido, $\widehat{qg}_L$ tiene desviación
+porque $\arccos r=2\arccos\sqrt{(1+r)/2}$ y $qg_L$ toma la mitad, y en el ecuador $qg_L=0$ para cualquier radio. Con el ángulo de referencia conocido, $\widehat{qg}_L$ tiene desviación
 $1/(2\sqrt N)$, y ver ese acortamiento a 3σ pide $N=(z/2qg_L)^2=114$ disparos en $Z$. De ahí la decisión: un estado de
 calibración cerca de un polo delata el acortamiento sin medir tres bases; cerca del ecuador hacen falta las tres.
 
@@ -307,6 +312,9 @@ Las figuras se generan con `tools/make_cap05_figures.py`.
 
 El *one-tangle* y la concurrencia son de @coffman2000, y el entrelazamiento global, de @meyer2002. La dualidad
 onda–partícula es @greenberger1988 y @englert1996, y su extensión con la concurrencia, @jakob2010; la incertidumbre entrópica, @maassen1988 y, con memoria cuántica,
-@berta2010. Los algoritmos de Deutsch–Jozsa, Bernstein–Vazirani, Simon y Grover son @deutsch1992, @bernstein1997,
-@simon1997 y @grover1996. Las notas de investigación numeradas (§) que cita el capítulo y los scripts que lo verifican
-están en el repositorio [@qangrepo]; la definición de la unidad qang, en @monteverde2026.
+@berta2010 (DOI `10.1038/nphys1734`). La forma $P=|\rho_{11}-\rho_{22}|$, $V=2|\rho_{12}|$ y la cota
+$H(X)+H(Z)\ge\log_2(1/c)+S(\rho)$ con $c=1/2$ coincide con las formulaciones revisadas de la dualidad y de la
+incertidumbre entrópica; la equivalencia entre ambas se expone en Coles, Kaniewski y Wehner, *Nature Communications*
+5, 5814 (2014), DOI `10.1038/ncomms6814`. Los algoritmos de Deutsch–Jozsa, Bernstein–Vazirani, Simon y Grover son
+@deutsch1992, @bernstein1997, @simon1997 y @grover1996. Las notas de investigación numeradas (§) que cita el capítulo y
+los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en @monteverde2026.
