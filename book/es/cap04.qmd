@@ -39,6 +39,11 @@ $$
 \;\le\;\frac{1}{N\sin^2\theta}.
 $$
 
+La derivación es directa: con $X=\sin\theta\cos\varphi$ e $Y=\sin\theta\sin\varphi$,
+$\partial\varphi/\partial X=-Y/(X^2+Y^2)=-\sin\varphi/\sin\theta$ y
+$\partial\varphi/\partial Y=X/(X^2+Y^2)=\cos\varphi/\sin\theta$; como las dos bases se miden en copias distintas,
+$\operatorname{Cov}(\widehat{qg}_X,\widehat{qg}_Y)=0$ y la fórmula sale de sumar
+$\sin^2\varphi\,(1-\sin^2\theta\cos^2\varphi)/N$ y $\cos^2\varphi\,(1-\sin^2\theta\sin^2\varphi)/N$.
 La cota de la derecha, que es la que usa la versión de trabajo del autor, es exacta sobre los ejes ($\varphi$ múltiplo
 de $90^\circ$) y cerca de los polos, pero en el ecuador a $\varphi=45^\circ$ duplica la varianza real. Lo esencial no
 cambia: la fase se vuelve inobservable al acercarse a un polo, donde $\sin\theta\to0$. En la escala angular del
@@ -51,7 +56,9 @@ $(1-qg_X^2)/N\le1/N$, por la misma razón que la de $\widehat{qg}_Z$.
 ¿Qué se sabe de un qubit antes de medirlo? Si su estado es "cualquiera", la distribución natural es la medida de
 Haar, la única invariante ante rotaciones. En unidades qg tiene una forma notable: **$qg_Z$ es uniforme en
 $[-1,1]$**. Es el teorema de la caja de sombrero de Arquímedes: el área de una franja de la esfera entre dos
-latitudes es proporcional a la diferencia de alturas, no de ángulos. Se comprobó con 200 000 estados de Haar (§15).
+latitudes es proporcional a la diferencia de alturas, no de ángulos. En coordenadas esféricas,
+$dA=\sin\theta\,d\theta\,d\varphi=d(\cos\theta)\,d\varphi$, luego la densidad de $qg_Z=\cos\theta$ es
+$1/2$ en todo $[-1,1]$. Se comprobó con 200 000 estados de Haar (§15).
 
 La consecuencia estadística es directa. Una previa uniforme en $qg_Z$ equivale a $p_0\sim\mathrm{Beta}(1,1)$, y con
 $k_0$ ceros en $N$ disparos la posterior es
@@ -101,8 +108,10 @@ el intervalo.
 
 ## Estimadores insesgados de segundo orden {#sec-qg2}
 
-Las cantidades cuadráticas tienen un sesgo sistemático. El estimador directo $\widehat{qg}^{\,2}$ sobreestima $qg^2$ en
-$(1-qg^2)/N$, porque el ruido de disparo siempre suma varianza. La corrección es exacta:
+Las cantidades cuadráticas tienen un sesgo sistemático. Si $\widehat{qg}=qg+\varepsilon$ con
+$\mathbb E\varepsilon=0$ y $\operatorname{Var}\varepsilon=(1-qg^2)/N$, entonces
+$\mathbb E[\widehat{qg}^{\,2}]=qg^2+(1-qg^2)/N$: el estimador directo sobreestima $qg^2$ porque el ruido de disparo
+siempre suma varianza. Despejando $qg^2=\bigl[N\,\mathbb E(\widehat{qg}^{\,2})-1\bigr]/(N-1)$ sale la corrección exacta:
 
 $$
 \widehat{qg^2}=\frac{N\,\widehat{qg}^{\,2}-1}{N-1},\qquad \mathbb E\big[\widehat{qg^2}\big]=qg^2 ,
@@ -173,10 +182,12 @@ a álgebra lineal (apéndice F).
 La aplicación es inmediata. $\rho\mapsto qg_Z(\rho)=\operatorname{Tr}(\rho\,\sigma_z)$ es lineal en $\rho$, así que tiene un
 único representante, $\sigma_z$. Toda lectura lineal de un estado (un valor esperado, una población, un promedio por
 disparo) es de esa forma, y $qg_Z$ es aquella cuyo representante es el observable $Z$. En cambio
-$qg_S(\rho)=H(\langle0|\rho|0\rangle)$ es estrictamente cóncava en $\rho$: no hay operador que la represente. De ese
-hecho estructural se siguen dos propiedades ya vistas: los funcionales lineales tienen estimadores insesgados por
-promedio muestral y la entropía no (desigualdad de Jensen), y la identidad $qg_S=H((1+qg_Z)/2)$ muestra que $qg_S$ no
-contiene información sobre el estado que el representante de $qg_Z$ no extraiga ya.
+$qg_S(\rho)=H(\langle0|\rho|0\rangle)$ es cóncava en $\rho$ —estricta como función de $p_0$, pero plana a lo largo de
+las direcciones que conservan $p_0$— y no lineal: no hay operador que la represente. De ese hecho estructural se
+siguen dos propiedades ya vistas: los funcionales lineales tienen estimadores insesgados por promedio muestral y la
+entropía no (desigualdad de Jensen), y la identidad $qg_S=H((1+qg_Z)/2)$ muestra que $qg_S$ no contiene información
+sobre el estado que el representante de $qg_Z$ no extraiga ya, aunque $qg_S$ no determine $qg_Z$ por la simetría
+$p_0\leftrightarrow1-p_0$.
 
 El mili-qang hereda esta propiedad: $m(\rho)=1000\,\operatorname{Tr}(\rho\,\sigma_z)$ también es lineal, con representante
 $1000\,\sigma_z$, y por eso su estimador es el promedio de los disparos, sin sesgo. Es la razón de fondo por la que el
@@ -217,9 +228,11 @@ $$
 $$
 
 sin depender de dónde estén los dos estados. Es la mitad de la $h$ de Cohen, el tamaño de efecto clásico para
-comparar dos proporciones, así que la prueba no es de qang: qang le da el nombre de distancia. Con 750 y
-700 ceros en 1000 disparos cada una, $\widehat{qg}_L=0{,}056$ rad (8,9 qga) con error estándar $0{,}0224$: una
-diferencia de 2,5σ. Vale lo dicho en el capítulo 1: en un meridiano común es la distancia de Fubini–Study; con
+comparar dos proporciones, así que la prueba no es de qang: qang le da el nombre de distancia. La transformación
+arcseno $\phi=2\arcsin\sqrt p$ estabiliza la varianza binomial, $\operatorname{Var}(\hat\phi)\approx1/N$, de modo que
+$\operatorname{Var}(h)\approx1/N_1+1/N_2$ y $\operatorname{Var}(\widehat{qg}_L)=\tfrac14\operatorname{Var}(h)$.
+Con 750 y 700 ceros en 1000 disparos cada una, $\widehat{qg}_L=0{,}056$ rad (8,9 qga) con error estándar
+$0{,}0224$: una diferencia de 2,5σ. Vale lo dicho en el capítulo 1: en un meridiano común es la distancia de Fubini–Study; con
 azimutes distintos, una cota inferior.
 
 **El déficit disipativo desde conteos.** $qg_\tau=\sqrt{1-r^2}$ es una cantidad cuadrática, y hereda el sesgo de la
@@ -229,13 +242,14 @@ $$
 \mathbb E\big[\hat r^{\,2}\big]=r^2+\frac{3-r^2}{N},
 $$
 
-de modo que el ruido de disparo hace parecer al estado más puro de lo que es. Un estado puro medido con 100 disparos
+que sale de sumar las tres varianzas $\operatorname{Var}(\widehat{qg}_a)=(1-qg_a^2)/N$, $a=X,Y,Z$, de modo que el
+ruido de disparo hace parecer al estado más puro de lo que es. Un estado puro medido con 100 disparos
 por eje promedia $\hat r^{\,2}=1{,}02$, fuera de la esfera. Un estado con $r=0{,}9$ ($qg_\tau=0{,}436$) promedia
 $\hat r^{\,2}=0{,}832$ con el estimador directo y $0{,}810$ con el corregido, que es el valor verdadero. La raíz, en
 cambio, no queda insesgada ni siquiera con la corrección: $\widehat{qg}_\tau$ promedia $0{,}376$ con el radio directo y
 $0{,}404$ con el corregido, los dos por debajo de $0{,}436$, porque la raíz es cóncava y se recorta en cero. La
-formulación propone $\sqrt{\max(0,1-\hat r^{\,2})}$ como estimador insesgado; el corregido reduce el sesgo a la mitad,
-no lo elimina.
+formulación propone $\sqrt{\max(0,1-\hat r^{\,2})}$; esa raíz no es insesgada: con el $r^2$ corregido el sesgo baja a la
+mitad, pero no se elimina.
 
 ## Sin qang y con qang {#sec-comparacion04}
 
@@ -292,6 +306,9 @@ probability.shots_for_resolution(20, math.pi / 2)   # 2500 disparos para 20 m-qg
 
 La cota de Cramér–Rao está en @cramer1946 y @rao1945, y la previa invariante, en @jeffreys1946. El intervalo de puntaje
 es @wilson1927. Para muestrear la medida de Haar, véase @mezzadri2007; las sombras clásicas son @huang2020. El teorema
-de representación de Riesz–Fréchet es @riesz1907 y @frechet1907. Las notas de investigación numeradas (§) que cita el
-capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en
-@monteverde2026.
+de representación de Riesz–Fréchet es @riesz1907 y @frechet1907. La uniformidad de $qg_Z$ bajo Haar y el argumento
+del área igual por franjas de altura coinciden con la exposición de la medida de Haar para qubits de PennyLane y con la
+entrada *Bloch sphere* de Wikipedia; la transformación arcseno de Cohen y su varianza asintótica $\approx1/N$ aparecen
+en la documentación de *Cohen's h* y en implementaciones estadísticas estándar (consulta de noviembre de 2026). Las
+notas de investigación numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio
+[@qangrepo]; la definición de la unidad qang, en @monteverde2026.
