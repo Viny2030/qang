@@ -152,3 +152,43 @@
 - **Fuentes contrastadas por capítulo:** cap13 oscilaciones en materia y MSW; cap14 0νββ, fases de Majorana y codificación 3+1; cap15 teleportación, cota Horodecki y presupuesto de disparos; cap16 doble carril, borrado por pérdida y atenuación de fibra; cap17 P-CTC/D-CTC, Deutsch y Lloyd; cap18 Hayden–Preskill, Yoshida–Kitaev, OTOC y curva de Page.
 - **Resultados destacados:** cap13 cierra el filtro de sector; cap14 distingue fase de Majorana y filtro one-hot; cap15 acota $qg_{ZZ}>333$ m-qg bajo Werner; cap16 separa sesgo de lectura y pérdida; cap17 cuantifica $N\propto1/p_{\text{post}}$ y conservación/dephasing de D-CTC; cap18 verifica $P\cdot F=1/4$ y documenta $qg_S$ como coordenada, no entropía.
 - **Estado Git:** `main` con los ocho commits del bloque 3; `.venv_clean/` permanece sin trackear y no se incluyó en ningún commit.
+
+---
+
+# Bloque 4 — revisión teórica y validación — capítulos `qjax19`–`qjax24`
+
+**Repositorio:** `C:\Users\ASUS\qang_repo` · **Rama:** `main` (sin crear ramas nuevas).
+**Alcance acordado:** capítulos `book/es/qjax19.qmd`–`book/es/qjax24.qmd` (equivalentes a cap19–cap24 en la numeración del usuario).
+**Inicio:** 2026-11-21.
+
+## Checklist por capítulo (bloque 4)
+
+| # | Capítulo | Revisión teórica | Fuentes en línea | Validación código | `[x]` y commit | Min |
+|---|----------|------------------|------------------|-------------------|----------------|-----|
+| 1 | `book/es/qjax19.qmd` | [x] | [x] | [x] | [x] | 30 |
+| 2 | `book/es/qjax20.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 3 | `book/es/qjax21.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 4 | `book/es/qjax22.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 5 | `book/es/qjax23.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 6 | `book/es/qjax24.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
+
+## Reglas de ejecución (bloque 4)
+
+1. Leer el capítulo completo antes de tocar nada; conservar **toda** la información técnica original.
+2. Contrastar cada afirmación clave con literatura/documentación en línea; anotar la fuente en el reporte.
+3. Ejecutar el script `tools/verify_capNN.py` correspondiente y los tests unitarios relacionados.
+4. Marcar `[x]` en este archivo y hacer `git add` + `git commit` **antes** de pasar al siguiente capítulo.
+5. No crear ramas, no borrar archivos, no añadir `.venv_clean/` ni otros artefactos al commit.
+6. Si se agota el tiempo, entregar el reporte con lo completado y lo pendiente.
+
+## Registro de avance (bloque 4)
+
+- [x] **Setup y descubrimiento** (hecho: capítulo activo, verificador, tests y módulo localizados).
+- [x] **qjax19** (cap19) — revisión, fuentes, `verify_cap19.py` (`verify_cap19: OK`), `tests/test_qdemarc.py` (3 passed), sección 19.8 y commit.
+- [ ] **qjax20** (cap20).
+- [ ] **qjax21** (cap21).
+- [ ] **qjax22** (cap22).
+- [ ] **qjax23** (cap23).
+- [ ] **qjax24** (cap24).
+- [ ] **Reporte final (bloque 4)**.
