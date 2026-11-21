@@ -25,6 +25,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Appendix D regenerated for 0.16.0 (module `qlimits`, `qstring` name lists); `THEORY_CORE.md` extended (single-basis no-go, string chapter, ledger counts).
 - EN Cap. 36: `qang.measures` note corrected (present since 0.15.0).
 - ES Cap. 21: credible interval relabelled as `q=0.999` equal-tailed (`0.1%` per tail, `99.8%` central) instead of `99.9%`; `shots_for_certified_hmin` formula written as `N=(z/q_max)^2` with `q_max=2·2^-h−1`; new §21.8 contrasting NIST TN 2119, SP 800-90B, IR 8446 and NIST/SEMATECH §7.4.6. `tools/verify_cap21.py` labels updated to match.
+- ES Cap. 22: new §22.7 on ergotropy/passive energy, Bloch-radius versus Z-only readout, Werner `V^k` composition, the `V>1/3` classical-teleportation threshold and loss versus visibility; sources Allahverdyan 2004, Campaioli 2018, Bennett 1993/1996/1998, Horodecki 1999 and Massar–Popescu 1995.
 
 ## [0.16.0] - 2026-11-16
 
