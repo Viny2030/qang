@@ -166,7 +166,7 @@
 | # | Capítulo | Revisión teórica | Fuentes en línea | Validación código | `[x]` y commit | Min |
 |---|----------|------------------|------------------|-------------------|----------------|-----|
 | 1 | `book/es/qjax19.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 2 | `book/es/qjax20.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 2 | `book/es/qjax20.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 3 | `book/es/qjax21.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 4 | `book/es/qjax22.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 5 | `book/es/qjax23.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
@@ -186,7 +186,7 @@
 
 - [x] **Setup y descubrimiento** (hecho: capítulo activo, verificador, tests y módulo localizados).
 - [x] **qjax19** (cap19) — revisión, fuentes, `verify_cap19.py` (`verify_cap19: OK`), `tests/test_qdemarc.py` (3 passed), sección 19.8 y commit.
-- [ ] **qjax20** (cap20).
+- [x] **qjax20** (cap20) — revisión, fuentes, `verify_cap20.py` (`verify_cap20: OK`), `tests/test_qkd.py` (2 passed), sección 20.8 y commit.
 - [ ] **qjax21** (cap21).
 - [ ] **qjax22** (cap22).
 - [ ] **qjax23** (cap23).
