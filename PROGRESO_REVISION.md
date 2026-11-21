@@ -113,7 +113,7 @@
 | # | Capítulo | Revisión teórica | Fuentes en línea | Validación código | `[x]` y commit | Min |
 |---|----------|------------------|------------------|-------------------|----------------|-----|
 | 1 | `book/es/qjax13.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 2 | `book/es/qjax14.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 2 | `book/es/qjax14.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 3 | `book/es/qjax15.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 4 | `book/es/qjax16.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 5 | `book/es/qjax17.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
@@ -135,7 +135,7 @@
 
 - [x] **Setup y descubrimiento** (hecho: ruta real del libro, rama, inventario de capítulos, verificadores y tests).
 - [x] **qjax13** (cap13) — revisión, fuentes, `verify_cap13.py`, `tests/test_qneutrino_matter.py` (2 passed) y commit.
-- [ ] **qjax14** (cap14) — revisión, fuentes, `verify_cap14.py`, `tests/test_qmajorana.py` y commit.
+- [x] **qjax14** (cap14) — revisión, fuentes, `verify_cap14.py`, `tests/test_qmajorana.py` (3 passed), sección 14.9 y commit.
 - [ ] **qjax15** (cap15) — revisión, fuentes, `verify_cap15.py`, `tests/test_qtele.py` y commit.
 - [ ] **qjax16** (cap16) — revisión, fuentes, `verify_cap16.py`, `tests/test_qdualrail.py` y commit.
 - [ ] **qjax17** (cap17) — revisión, fuentes, `verify_cap17.py`, `tests/test_qctc.py` y commit.

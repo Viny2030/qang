@@ -108,3 +108,18 @@ def test_spin_projection_grid():
 - `tools/verify_cap14.py`, `tests/test_qmajorana.py`; Apéndice H: 4 entradas.
 ```
 Commit: `docs(cap14): Majorana, 0νββ, estériles 3+1 y proyecciones angulares reescritos sobre Cap. 1–13 + verify_cap14`.
+
+## 14.9 Contraste bibliográfico y precisiones de revisión (2026-11-21)
+
+La separación entre fases de Majorana y oscilaciones es la esperada: $U_{\text{PMNS}}\mathrm{diag}(1,e^{i\alpha_{21}/2},e^{i\alpha_{31}/2})$ difiere de $U_{\text{PMNS}}$ por una matriz diagonal en la base de masa, que conmuta con las fases de propagación y se cancela en $U_{\beta i}e^{-i\phi_i}U^*_{\alpha i}$. La misma fase sí entra en $m_{\beta\beta}=|\sum_iU_{ei}^2m_i|$, como señalan el PDG y las revisiones de $0\nu\beta\beta$.
+
+Precisiones que delimitan los resultados:
+
+1. Los rangos $[1.4,3.7]$ meV (NO, $m_{\text{light}}=0$), $[17.5,50.7]$ meV (NO, $0.05$ eV) e $[18.8,48.5]$ meV (IO, $m_{\text{light}}=0$) son barridos de $\alpha_{21},\alpha_{31}$ con los parámetros fijos del verificador. No son intervalos de confianza ni incluyen incertidumbre de oscilación, elementos de matriz nucleares ni $g_A$; por eso el estatus es `no gain`, no determinación de masa.
+2. La rejilla $73^2$ en $[0,2\pi)$ incluye dos veces el extremo $\alpha=0\equiv2\pi$; esto no cambia los extremos reportados, pero debe leerse como muestreo periódico con duplicado de borde.
+3. La regla "filtro de sector prohibido en $3+1$" es específica de esta codificación de 2 qubits: $e,\mu,\tau,s\mapsto|00\rangle,|01\rangle,|10\rangle,|11\rangle$, donde $|11\rangle$ es señal y descartarlo destruiría $P_s$. La ganancia $5.5\times$ registrada en $\S163$ / `RESEARCH_NOTES.md` corresponde a otro experimento: `sterile_circuit` usa **4 qubits one-hot**, mantiene el sector de peso 1 y se evaluó solo con modelos de ruido simulados. No hay contradicción: codificaciones y canales son distintos.
+4. La instancia SBL ($L=500$ m, $E=3$ MeV, $\Delta m^2_{41}=1$ eV², $\sin^2\theta_{14}=0.1$) es ilustrativa y está en régimen promediado: $\phi_{41}=422.3$ rad $=67\,216$ qga ($\approx67.2$ vueltas). $P_s=0.1357$ se compara con el fondo de despolarización modelo $\varepsilon/4$, no con un fondo medido. Los ajustes globales y STEREO/PROSPECT limitan fuertemente la explicación estéril de la anomalía reactoria, así que no se afirma existencia de $\nu_s$.
+5. Los imports `embed_two_qubits`, `depolarize` y `sector_filter` en `tools/verify_cap14.py` no se usan; no afectan a los cuatro bloques validados.
+6. $QFI(\theta)=4\,\mathrm{Var}(J_y)=2j$ rad$^{-2}$ y $\mathrm{RAD\_PER\_QGA}^2=(2\pi/1000)^2=3.948\cdot10^{-5}$ dan $1.579\cdot10^{-4}$ qga$^{-2}$ para $j=2$. La identidad es `exact`; la ventaja de qudits en hardware sigue `unverified`.
+
+**Fuentes contrastadas:** Majorana 1937, *Nuovo Cim.* 14, 171–184 (DOI `10.1007/BF02961314`, `https://link.springer.com/article/10.1007/BF02961314`); PDG 2024, *Neutrinoless Double-β Decay* (`https://pdg.lbl.gov/2024/reviews/rpp2024-rev-neutrinoless-double-beta-decay.pdf`); Agostini et al. 2023, *Rev. Mod. Phys.* 95, 025002 (`https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.95.025002`); Mention et al. 2011, *The Reactor Antineutrino Anomaly* (`https://arxiv.org/abs/1101.2755`); STEREO/PROSPECT 2021 (`https://arxiv.org/html/2105.13776v1`); revisión de anomalías en reactores 2021 (`https://arxiv.org/html/2109.13541v1`). Para el contraste interno del filtro: `RESEARCH_NOTES.md` §163 y `README.md` (codificación one-hot de 4 qubits).
