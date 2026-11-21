@@ -63,7 +63,7 @@
 | 2 | `book/es/qjax08.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 3 | `book/es/qjax09.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 4 | `book/es/qjax10.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 5 | `book/es/qjax11.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 5 | `book/es/qjax11.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 6 | `book/es/qjax12.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
 
@@ -85,6 +85,6 @@
 - [x] **qjax08** (cap08) — revisión, fuentes, `verify_cap08.py`, `tests/test_qdist.py` (4 passed) y commit.
 - [x] **qjax09** (cap09) — revisión, fuentes, `verify_cap09.py`, `tests/test_qfisher.py` (3 passed) y commit.
 - [x] **qjax10** (cap10) — revisión, fuentes, `verify_cap10.py`, `tests/test_qgeom.py` (2 passed) y commit.
-- [ ] **qjax11** (cap11).
+- [x] **qjax11** (cap11) — revisión, fuentes, `verify_cap11.py`, `tests/test_qmetro.py` (3 passed) y commit.
 - [ ] **qjax12** (cap12).
 - [ ] **Reporte final (bloque 2)**.
