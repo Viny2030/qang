@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Capítulo 34 — Límites estructurales, equivalencias y resultados negativos: qué no puede ver la lectura qg (y dónde el filtro no llega) – Computación, información y física cuántica en el espacio qang</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./qjax35.html" rel="next">
+<link href="./qjax33.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-06d6bd6e489181030889a02c125f20ad.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Saltar al contenido principal</a>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" aria-label="Barra de herramientas">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="Hilo de Ariadna"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./qjax33.html">XI. Alcance, límites, hardware real y arquitectura</a></li><li class="breadcrumb-item"><a href="./qjax34.html">Capítulo 34 — Límites estructurales, equivalencias y resultados negativos: qué no puede ver la lectura qg (y dónde el filtro no llega)</a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Sitio web">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Computación, información y física cuántica en el espacio qang</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="./../en/" title="English edition" class="quarto-navigation-tool px-1" aria-label="English edition"><i class="bi bi-"></i></a>
+    <a href="https://github.com/Viny2030/qang/tree/main/book/es/" title="Ejecutar el código" class="quarto-navigation-tool px-1" aria-label="Ejecutar el código"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Descargar" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Descargar"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-libro-es.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Descargar PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-libro-es.docx">
+              <i class="bi bi-file-word pe-1"></i>
+            Descargar Docx
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefacio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">I. Fundamentos: la métrica angular-probabilística (la unidad qang)</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">La unidad qang: definición, mili-qang y la ecuación de probabilidad</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Compuertas nativas, álgebra cerrada y el operador universal</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Reflexiones, Householder y la dinámica de Grover</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Estadística de muestreo, inferencia bayesiana y la distribución de Haar</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label">II. Geometría local y óptica cuántica</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">El radio local de Bloch como medida de pureza y entrelazamiento</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Polarización óptica y parámetros de Stokes en unidades qg</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label">III. QAN, información y geometría de la información (<code>qang.qan</code>, <code>qang.qdist</code>, <code>qang.qfisher</code>)</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 7 — Redes angulares cuánticas (QAN), información mutua en espacio qang e inversión regularizada (IQAN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 8 — Acoplamiento QAN ↔︎ distribuciones de probabilidad: momentos qg, truncación k-local, divergencias y presupuesto de disparos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 9 — Información de Fisher en qga: lectura Z frente a Fubini–Study, gradiente natural regularizado y mesetas estériles</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label">IV. Fases geométricas y metrología</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 10 — Fases geométricas y el teorema de Stokes en la esfera: holonomía en qga, invariante de Bargmann y lectura con una sola base</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 11 — Metrología en qga: punto de operación Ramsey, GHZ bajo desfase, termometría tanh y comparación de relojes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label">V. Neutrinos: oscilación, materia y Majorana</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax12.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 12 — Oscilación de sabor en el vacío: un qubit por par de sabores, lectura en m-qg y punto de operación para Δ m²</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax13.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 13 — Efectos de materia (MSW): la resonancia como ecuador, la lectura adiabática como producto de dos qg y el coste de Trotter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax14.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 14 — Fases de Majorana, 0νββ, neutrinos estériles en el sector |11⟩ y proyecciones angulares</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label">VI. Teleportación, bucles temporales y agujeros negros</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax15.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 15 — Teleportación óptica y el límite del par de Bell: el canal como contracción lineal en m-qg y el umbral de 333 m-qg</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax16.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 16 — Doble carril, pérdida como borrado anunciado y fidelidad a larga distancia: tasa y fidelidad se separan tras el filtro de sector</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax17.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 17 — Curvas temporales cerradas por postselección (P-CTC) frente a D-CTC: dos mapas, dos lecturas en m-qg y el precio en disparos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax18.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 18 — Agujeros negros como scramblers: Hayden–Preskill, la ley P· F=1/4 del decodificador de Yoshida–Kitaev, OTOC y por qué qgS no ve la curva de Page</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label">VII. Criptografía y números aleatorios certificados</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax19.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 19 — Demarcación: criptografía cuántica (QKD/QRNG) frente a post-cuántica (PQC). Dónde hay un qubit que leer en m-qg y dónde no</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax20.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 20 — BB84 en espacio qg: cuatro estados en qga, el QBER como lectura m-qg y el presupuesto de bits tamizados</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax21.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 21 — Números aleatorios certificados y auditoría de canal: entropía mínima con intervalo creíble y deriva por bloques en m-qg</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-controls="quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-8-label">VIII. Baterías, aprendizaje cuántico y filtro de simetría</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-8" aria-labelledby="quarto-sidebar-section-8-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax22.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 22 — Baterías cuánticas y redes: ergotropía como (r-qgZ)/2 y cadenas de pares con visibilidad V^k</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax23.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 23 — Redes neuronales cuánticas que conservan el peso: cargador unario, compuertas RBS en qga, filtro de simetría bajo T1 y QSP como polinomio de Chebyshev en qg</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax24.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 24 — El filtro de simetría con matrices densidad: exacto bajo relajación T1 uniforme (incluso intra-circuito), cocientes T1, fallo bajo desfase y rescate por ZNE</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax25.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 25 — Calibración por eco y el sesgo de ruido: el arrastre de lectura como mapa afín en m-qg, cuándo <strong>no</strong> invertir (§108) y la lectura sin arrastre</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax26.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 26 — Geometría de la información aplicada: núcleos cuánticos en espacio qg, concentración exponencial y el núcleo unario de sector que no se concentra</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-controls="quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-9-label">IX. Dinámica de muchos cuerpos, química y corrección de errores</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-9" aria-labelledby="quarto-sidebar-section-9-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax27.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 27 — Dinámica de muchos cuerpos en el sector de peso 1: XY como caminata cuántica de compuertas RBS, canales afines de Bloch y varQTE de un parámetro</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax28.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 28 — Química y optimización en el sector de peso: el testigo de electrones en m-qg, verificación por número, PCA con RBS y QAOA «exactamente K»</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax29.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 29 — Corrección de errores: el síndrome como lectura qg_ZZZZ, código de amortiguamiento de amplitud, borrado frente a error de bit, rango de Schmidt del corte y coste de ZNE</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-controls="quarto-sidebar-section-10" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-10-label">X. Caracterización, método y libro de cuentas</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-10" aria-labelledby="quarto-sidebar-section-10-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax30.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 30 — Caracterización de hardware en m-qg: T1 con retardo óptimo, calibración de lectura con barras de error, XEB/HOP, desplazamiento ZZ y cuantización del control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax31.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 31 — Metodología: la falsación pre-registrada con SHA-256, p-valores exactos, corrección de Holm y presupuesto de disparos</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax32.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 32 — Qué se confirmó y qué no: el libro de cuentas de 90 submedidas (Cap. 7–31), con su evidencia y sus hallazgos negativos</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" aria-controls="quarto-sidebar-section-11" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-11-label">XI. Alcance, límites, hardware real y arquitectura</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-11" aria-labelledby="quarto-sidebar-section-11-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax33.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 33 — Teoría de cuerdas: qué pueden y qué no pueden decir las medidas qang (cadena XX como bosón libre de carga central c = 1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax34.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Capítulo 34 — Límites estructurales, equivalencias y resultados negativos: qué no puede ver la lectura qg (y dónde el filtro no llega)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax35.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 35 — Primeras corridas en hardware real: IQM Garnet (neutrinos §165, milli-qang §168, E=mc² §170) recalculadas desde los archivos guardados</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax36.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 36 — Arquitectura de software y ecosistema multi-SDK: qué exige importar cada módulo, qué instala el CI y qué pasa si se lee con el orden de qubits equivocado</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" aria-controls="quarto-sidebar-section-12" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-12-label">XII. Nanocuántica, aplicaciones transversales e integraciones</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-12" aria-labelledby="quarto-sidebar-section-12-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax37.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 37 — Nanocuántica: túnel, Landauer, ruido de partición, ocupación de un nivel, espines en puntos cuánticos y centros NV leídos con la ecuación de qang</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax38.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 38 — Aplicaciones transversales leídas con qang: fermiones y Jordan–Wigner, eco de Hahn, Ising transversal, Aharonov–Bohm, Wigner, Fresnel y vacío de Unruh</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax39.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 39 — <code>qang.integrations</code>: doce librerías, un solo contrato de lectura, auditado con código</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" aria-controls="quarto-sidebar-section-13" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-13-label">XIII. Física extendida: materia y antimateria, viajes en el tiempo y cuerdas</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-13" aria-labelledby="quarto-sidebar-section-13-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax40.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 40 — Materia y antimateria leídas con qang: conjugación de carga, Zitterbewegung, creación de pares y el par invisible</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax41.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 41 — Viajes en el tiempo leídos con qang: el balance de información de la postselección, la paradoja del abuelo y los puntos fijos por ángulo</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax42.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 42 — La teoría de cuerdas leída con qang: conteo exacto, el nivel como lectura Z, T-dualidad y el radio de un análogo de red</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" aria-controls="quarto-sidebar-section-14" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-14-label">XIV. Sistemas autónomos: robótica e IA agéntica cuánticas</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-14" aria-labelledby="quarto-sidebar-section-14-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax43.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 43 — Robótica cuántica y control autónomo leídos con qang: un qubit por articulación, el presupuesto de disparos, el tiempo real y Grover para elegir trayectorias</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax44.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 44 — IA agéntica cuántica leída con qang: políticas de Born, el ángulo como gradiente natural, la lectura de decisión y el reparto de disparos entre herramientas</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bibliografia.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bibliografía</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" aria-controls="quarto-sidebar-section-15" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-15-label">Apéndices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-15" aria-labelledby="quarto-sidebar-section-15-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Catálogo de las 15 compuertas fundamentales en representación qg</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Fórmulas de transición, matrices de Gell-Mann y polinomios de Chebyshev</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_c.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Protocolo de calibración por eco e inversión en sectores de Hamming (§105–§108)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Referencia rápida de la API de qang 0.16.0</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_e.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Registro de falsación: las predicciones que el repositorio permite comprobar</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_f.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Fundamento de análisis funcional: Riesz–Fréchet</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_g.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">La energía relativista y la antimateria como lecturas qang</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./apendice_h.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Catálogo de submedidas qang</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#reglas-de-lectura" id="toc-reglas-de-lectura" class="nav-link active" data-scroll-target="#reglas-de-lectura">34.1 Reglas de lectura</a></li>
+  <li><a href="#ceguera-de-la-base-z-el-estado-de-grafo" id="toc-ceguera-de-la-base-z-el-estado-de-grafo" class="nav-link" data-scroll-target="#ceguera-de-la-base-z-el-estado-de-grafo">34.2 Ceguera de la base Z: el estado de grafo</a></li>
+  <li><a href="#qgs-no-es-monótona-bajo-t1-pero-qgz-medio-sí" id="toc-qgs-no-es-monótona-bajo-t1-pero-qgz-medio-sí" class="nav-link" data-scroll-target="#qgs-no-es-monótona-bajo-t1-pero-qgz-medio-sí">34.3 qgS no es monótona bajo T1 (pero qgZ medio sí)</a></li>
+  <li><a href="#la-trampa-del-rango-de-arccos" id="toc-la-trampa-del-rango-de-arccos" class="nav-link" data-scroll-target="#la-trampa-del-rango-de-arccos">34.4 La trampa del rango de arccos</a></li>
+  <li><a href="#conservación-de-peso-dónde-el-filtro-se-aplica-y-dónde-no" id="toc-conservación-de-peso-dónde-el-filtro-se-aplica-y-dónde-no" class="nav-link" data-scroll-target="#conservación-de-peso-dónde-el-filtro-se-aplica-y-dónde-no">34.5 Conservación de peso: dónde el filtro se aplica y dónde no</a></li>
+  <li><a href="#error-dentro-del-sector" id="toc-error-dentro-del-sector" class="nav-link" data-scroll-target="#error-dentro-del-sector">34.6 Error dentro del sector</a></li>
+  <li><a href="#la-red-de-peso-1-es-una-forma-cuadrática-clásica" id="toc-la-red-de-peso-1-es-una-forma-cuadrática-clásica" class="nav-link" data-scroll-target="#la-red-de-peso-1-es-una-forma-cuadrática-clásica">34.7 La red de peso 1 es una forma cuadrática clásica</a></li>
+  <li><a href="#equivalencias-y-fallos-citados-sin-re-ejecutar" id="toc-equivalencias-y-fallos-citados-sin-re-ejecutar" class="nav-link" data-scroll-target="#equivalencias-y-fallos-citados-sin-re-ejecutar">34.8 Equivalencias y fallos citados (sin re-ejecutar)</a></li>
+  <li><a href="#inventario-de-negativos-del-libro-de-cuentas" id="toc-inventario-de-negativos-del-libro-de-cuentas" class="nav-link" data-scroll-target="#inventario-de-negativos-del-libro-de-cuentas">34.9 Inventario de negativos del libro de cuentas</a></li>
+  <li><a href="#contraste-operativo-sin-qang-frente-a-con-qang" id="toc-contraste-operativo-sin-qang-frente-a-con-qang" class="nav-link" data-scroll-target="#contraste-operativo-sin-qang-frente-a-con-qang">34.10 Contraste operativo: sin <code>qang</code> frente a con <code>qang</code></a></li>
+  <li><a href="#bloque-qangqlimits.py" id="toc-bloque-qangqlimits.py" class="nav-link" data-scroll-target="#bloque-qangqlimits.py">34.11 Bloque (<code>qang/qlimits.py</code>)</a></li>
+  <li><a href="#verificación-toolsverify_cap34.py" id="toc-verificación-toolsverify_cap34.py" class="nav-link" data-scroll-target="#verificación-toolsverify_cap34.py">34.12 Verificación — <code>tools/verify_cap34.py</code></a>
+  <ul class="collapse">
+  <li><a href="#teststest_qlimits.py" id="toc-teststest_qlimits.py" class="nav-link" data-scroll-target="#teststest_qlimits.py"><code>tests/test_qlimits.py</code></a></li>
+  </ul></li>
+  <li><a href="#una-sola-base-de-lectura-no-go-c_z-y-pureza" id="toc-una-sola-base-de-lectura-no-go-c_z-y-pureza" class="nav-link" data-scroll-target="#una-sola-base-de-lectura-no-go-c_z-y-pureza">34.13 Una sola base de lectura: no-go, <span class="math inline">\(C_Z\)</span> y pureza</a></li>
+  <li><a href="#contexto-2026-verificación-de-simetría-en-la-literatura-reciente" id="toc-contexto-2026-verificación-de-simetría-en-la-literatura-reciente" class="nav-link" data-scroll-target="#contexto-2026-verificación-de-simetría-en-la-literatura-reciente">34.14 Contexto 2026: verificación de simetría en la literatura reciente</a></li>
+  <li><a href="#apéndice-h" id="toc-apéndice-h" class="nav-link" data-scroll-target="#apéndice-h">34.15 Apéndice H</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Informar sobre problema</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Hilo de Ariadna"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./qjax33.html">XI. Alcance, límites, hardware real y arquitectura</a></li><li class="breadcrumb-item"><a href="./qjax34.html">Capítulo 34 — Límites estructurales, equivalencias y resultados negativos: qué no puede ver la lectura qg (y dónde el filtro no llega)</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-qjax34" class="quarto-section-identifier">Capítulo 34 — Límites estructurales, equivalencias y resultados negativos: qué no puede ver la lectura qg (y dónde el filtro no llega)</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em>Chapter 34 — Structural Limits, Equivalences and Negative Results: What the qg Reading Cannot See (and Where the Filter Does Not Reach)</em></p>
+<p><strong>Actualizado:</strong> 16 de noviembre de 2026 · <strong>Updated:</strong> November 16, 2026</p>
+<blockquote class="blockquote">
+<p>Reescritura del capítulo de límites sobre la base de Cap. 1–33. Módulo: <code>qang.qlimits</code> (NumPy exacto). Verificación: <code>tools/verify_cap34.py</code>. <strong>Resumen: casi todos los límites tienen una raíz común: qg lee una probabilidad de la base Z (<span class="math inline">\(p_0\)</span>), y lo que no está en esa probabilidad no lo ve. Lo que sigue lo demuestra con código donde se puede, y marca como <code>unverified</code> lo que sólo se cita de las notas.</strong> <strong>EN abstract.</strong> Almost every limit has the same root: <span class="math inline">\(qg\)</span> reads a Z-basis probability <span class="math inline">\(p_0\)</span>, so anything outside it is invisible. This chapter proves the checkable ones with exact code (graph states, <span class="math inline">\(qg_S\)</span> under <span class="math inline">\(T_1\)</span>, the <span class="math inline">\(\arccos\)</span> range trap, the weight-preservation analyzer, the weight-1 quadratic form, in-sector errors) and flags the rest as cited, not re-run. A new section (§34.13) proves that no function of a single Z-basis distribution can certify entanglement, that <span class="math inline">\(C_Z\)</span> errs in both directions, and gives the two-setting witness that does certify the 3-qubit path.</p>
+</blockquote>
+<hr>
+<section id="reglas-de-lectura" class="level2">
+<h2 class="anchored" data-anchor-id="reglas-de-lectura">34.1 Reglas de lectura</h2>
+<ol type="1">
+<li>Cada límite entra con su función en <code>qang.qlimits</code> y su línea en <code>tools/verify_cap34.py</code>. Lo que sólo viene de las notas de investigación (§) se marca <code>unverified</code> en este capítulo: <strong>aquí no se re-ejecutó</strong>.</li>
+<li><code>qga</code> es la escala angular (1 vuelta = 1000 qga); <code>m-qg</code> es la lectura <span class="math inline">\(1000\,qg_Z\)</span>. Ninguno de los límites de abajo cambia al pasar de una a otra: son límites de <strong>qué</strong> se mide, no de cómo se escribe.</li>
+<li>Un resultado negativo no se borra: se registra en el Apéndice H con su estatus.</li>
+</ol>
+</section>
+<section id="ceguera-de-la-base-z-el-estado-de-grafo" class="level2">
+<h2 class="anchored" data-anchor-id="ceguera-de-la-base-z-el-estado-de-grafo">34.2 Ceguera de la base Z: el estado de grafo</h2>
+<p>Un estado de grafo es <span class="math inline">\(H^{\otimes n}\)</span> seguido de una CZ por arista. La CZ es diagonal: sólo cambia fases. Con el anillo de 6 qubits (<code>ring_graph_state</code>):</p>
+<ul>
+<li>la distribución en Z coincide con la de <span class="math inline">\(|+\rangle^{\otimes 6}\)</span> con diferencia <strong>exactamente 0</strong>;</li>
+<li><span class="math inline">\(qg_Z=0\)</span> m-qg en cada qubit y <span class="math inline">\(qg_S=1.00000\)</span>, igual que el estado producto;</li>
+<li><span class="math inline">\(\langle X_iZ_{i-1}Z_{i+1}\rangle=+1.0\)</span> en el grafo y <span class="math inline">\(+0.0\)</span> en el producto (<code>stabilizer_expectation</code>): lo separan, pero <strong>en base X</strong>.</li>
+</ul>
+<p>Sin <code>qang</code> ocurre lo mismo: toda estadística de la base Z, cruda o tomográfica, es ciega a este entrelazamiento. <code>qang</code> hereda el límite, no lo crea.</p>
+</section>
+<section id="qgs-no-es-monótona-bajo-t1-pero-qgz-medio-sí" class="level2">
+<h2 class="anchored" data-anchor-id="qgs-no-es-monótona-bajo-t1-pero-qgz-medio-sí">34.3 qgS no es monótona bajo T1 (pero qgZ medio sí)</h2>
+<p>El amortiguamiento de amplitud actúa sobre las poblaciones de Z como una cadena de Markov <span class="math inline">\(1\to0\)</span> con probabilidad <span class="math inline">\(\gamma\)</span> por qubit (<code>damp_distribution</code>); las coherencias no cambian la distribución en Z. Con 24 estados aleatorios de 4 qubits y <span class="math inline">\(\gamma\in[0,0.5]\)</span> (<code>t1_noise_scan</code>):</p>
+<ul>
+<li><span class="math inline">\(qg_S\)</span> <strong>sube y baja en 24/24</strong>. Ejemplo (estado 0): <span class="math inline">\(0.782\to0.847\)</span> (<span class="math inline">\(\gamma=0.18\)</span>) <span class="math inline">\(\to0.736\)</span> (<span class="math inline">\(\gamma=0.50\)</span>);</li>
+<li>el <span class="math inline">\(qg_Z\)</span> medio crece <strong>monótono en 24/24</strong>, y es exacto: cada qubit pasa de <span class="math inline">\(1-2P_1\)</span> a <span class="math inline">\(1-2(1-\gamma)P_1\)</span>. En el ejemplo va de <span class="math inline">\(+251\)</span> a <span class="math inline">\(+543\)</span> m-qg;</li>
+<li>por eso el par (<span class="math inline">\(qg_S\)</span>, <span class="math inline">\(qg_Z\)</span> medio) separa «poco ruido» de «mucho <span class="math inline">\(T_1\)</span>», donde <span class="math inline">\(qg_S\)</span> sola no puede.</li>
+</ul>
+<p><strong>Alcance honesto.</strong> Este resultado es para amortiguamiento aplicado al estado de salida. En circuitos con <span class="math inline">\(T_1\)</span> entre compuertas (volumen cuántico, notas §10.4 D) el <span class="math inline">\(qg_Z\)</span> medio fue monótono en 21–23 de 24 circuitos: ese número se cita, no se re-ejecuta aquí (<code>unverified</code>).</p>
+</section>
+<section id="la-trampa-del-rango-de-arccos" class="level2">
+<h2 class="anchored" data-anchor-id="la-trampa-del-rango-de-arccos">34.4 La trampa del rango de arccos</h2>
+<p><span class="math inline">\(\theta=\arccos(qg_Z)\in[0,\pi]\)</span>. Si la cota de un mínimo está en <span class="math inline">\(\theta^*&lt;0\)</span>, la actualización en <span class="math inline">\(qg\)</span> no puede llegar. Con <span class="math inline">\(E(\theta)=-\cos(\theta-\theta^*)\)</span> y <span class="math inline">\(\theta^*=-0.5\)</span> (<code>best_cost_clipped</code>):</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">valor mínimo</th>
+<th style="text-align: left;">dónde</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">sin recorte (descenso en <span class="math inline">\(\theta\)</span>)</td>
+<td style="text-align: left;"><span class="math inline">\(-1.0000\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\theta=-0.5\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">con <span class="math inline">\(\theta\in[0,\pi]\)</span> (vía <span class="math inline">\(qg_Z\)</span>)</td>
+<td style="text-align: left;"><span class="math inline">\(-0.8776\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\theta=0\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Pérdida: <span class="math inline">\(0.1224\)</span> de <span class="math inline">\(E\)</span>. Las afirmaciones de que «converge en qg donde <span class="math inline">\(\theta\)</span> no converge» venían de este recorte. No se propone optimización directa en <span class="math inline">\(qg_Z\)</span> sin regularización.</p>
+</section>
+<section id="conservación-de-peso-dónde-el-filtro-se-aplica-y-dónde-no" class="level2">
+<h2 class="anchored" data-anchor-id="conservación-de-peso-dónde-el-filtro-se-aplica-y-dónde-no">34.5 Conservación de peso: dónde el filtro se aplica y dónde no</h2>
+<p>El filtro de sector exige que cada compuerta conserve el peso de Hamming. <code>preserves_weight</code> lo decide sobre la unitaria, y <code>weight_breakers</code> cuenta las compuertas culpables:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">circuito (4 qubits)</th>
+<th style="text-align: left;">¿conserva el peso?</th>
+<th style="text-align: left;">compuertas que lo rompen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">QFT</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">4 (las Hadamard)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GHZ</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">4 (H + 3 CNOT)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">escalera RBS (unitaria completa)</td>
+<td style="text-align: left;">sí</td>
+<td style="text-align: left;">0</td>
+</tr>
+</tbody>
+</table>
+<p>Las CPhase y SWAP de la QFT sí conservan el peso; las Hadamard mezclan todos los pesos. La estimación de fase (QPE, y lo que se apoya en ella) queda fuera del filtro.</p>
+</section>
+<section id="error-dentro-del-sector" class="level2">
+<h2 class="anchored" data-anchor-id="error-dentro-del-sector">34.6 Error dentro del sector</h2>
+<p>El filtro descarta disparos fuera del sector; un error que <strong>conserva el peso</strong> pasa entero. Con RBS ideal de <span class="math inline">\(\pi/2\)</span> frente a RBS<span class="math inline">\((\pi/2+0.3)\)</span> (<code>in_sector_error</code>):</p>
+<ul>
+<li>retención del filtro: <strong>1.0</strong> en los dos casos;</li>
+<li><span class="math inline">\(qg_Z\)</span> del qubit 0: <span class="math inline">\(+1000.0\to+825.3\)</span> m-qg: desvío de <span class="math inline">\(-174.7\)</span> m-qg, <strong>invisible al filtro</strong>.</li>
+</ul>
+<p>Es el mismo mecanismo que en LiH (notas §50: el error está en los grupos X/Y, fuera del alcance del filtro en Z). Esos números se citan: <strong>LiH, 60 compuertas: 76.6 mHa crudo frente a 85.0 mHa con filtro</strong> (<code>unverified</code> en este capítulo).</p>
+</section>
+<section id="la-red-de-peso-1-es-una-forma-cuadrática-clásica" class="level2">
+<h2 class="anchored" data-anchor-id="la-red-de-peso-1-es-una-forma-cuadrática-clásica">34.7 La red de peso 1 es una forma cuadrática clásica</h2>
+<p>En el sector de una excitación, la red RBS actúa como una matriz ortogonal <span class="math inline">\(O\)</span> sobre los datos cargados <span class="math inline">\(v\)</span>, y</p>
+<p><span class="math display">\[qg_Z^{(i)}=1-2\,(Ov)_i^2 .\]</span></p>
+<p><code>weight1_qgz</code> la evalúa en <span class="math inline">\(O(n^2)\)</span>; <code>simulate_qgz_weight1</code> simula el circuito completo (<span class="math inline">\(2^n\)</span> amplitudes). Con <span class="math inline">\(n=5\)</span> y 20 redes al azar el desvío máximo es <span class="math inline">\(4.4\cdot10^{-16}\)</span>. Lo que el filtro protege exactamente del <span class="math inline">\(T_1\)</span> es, por ese mismo motivo, simulable. No se afirma ventaja cuántica.</p>
+</section>
+<section id="equivalencias-y-fallos-citados-sin-re-ejecutar" class="level2">
+<h2 class="anchored" data-anchor-id="equivalencias-y-fallos-citados-sin-re-ejecutar">34.8 Equivalencias y fallos citados (sin re-ejecutar)</h2>
+<p>Estos puntos vienen de las notas (§) y de los capítulos donde se midieron; <strong>no</strong> tienen verificador en este capítulo:</p>
+<ul>
+<li><strong>Gradiente natural en qg = descenso en <span class="math inline">\(\theta\)</span></strong> (§159, 20 semillas, Ising de 4 qubits): 103 pasos (mediana) en <span class="math inline">\(\theta\)</span>; el descenso en qg no llegó nunca; gradiente natural completo 22.5 pasos; versión leída de bloques <span class="math inline">\(qg_{YY}\)</span> 79.5 pasos (<span class="math inline">\(1.3\times\)</span>, no los <span class="math inline">\(1.5\times\)</span> predichos: G2 falló). La ganancia es del gradiente natural, no de <code>qang</code>.</li>
+<li><strong>Predicciones pre-registradas §157–§164:</strong> se cumplieron 26 de 45 (19 falladas, publicadas).</li>
+<li><strong>Hardware real (IQM Garnet), §165–§170:</strong> 12 de 13 predicciones; la fallada es M2 de §168.</li>
+</ul>
+</section>
+<section id="inventario-de-negativos-del-libro-de-cuentas" class="level2">
+<h2 class="anchored" data-anchor-id="inventario-de-negativos-del-libro-de-cuentas">34.9 Inventario de negativos del libro de cuentas</h2>
+<p><code>negative_inventory</code> lee las tablas del Apéndice H de los capítulos 7–33 (<code>qang.qledger</code>): 97 submedidas; <code>against</code> 4, <code>no gain</code> 3, <code>mixed</code> 1, <code>unverified</code> 1, <code>not adopted</code> 1; <strong>0 <code>measured gain</code></strong>. Las filas: <code>plateau_unit_rescale</code> (Cap. 9), <code>page_curve_qgS</code> (18), <code>pqc_out_of_scope</code> (19), <code>local_reading_blind_to_c</code> (33) como <code>against</code>; <code>holonomic_z_area</code> (10), <code>ghz_dephasing</code> (11), <code>control_quantization_unit</code> (30) como <code>no gain</code>; <code>one_basis_bias</code> (15) <code>mixed</code>; <code>collective_oscillations</code> (13) <code>unverified</code>; <code>string_theory_claims</code> (33) <code>not adopted</code>.</p>
+</section>
+<section id="contraste-operativo-sin-qang-frente-a-con-qang" class="level2">
+<h2 class="anchored" data-anchor-id="contraste-operativo-sin-qang-frente-a-con-qang">34.10 Contraste operativo: sin <code>qang</code> frente a con <code>qang</code></h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Límite</th>
+<th style="text-align: left;">Sin <code>qang</code></th>
+<th style="text-align: left;">Con <code>qang</code> (<code>qang.qlimits</code>)</th>
+<th style="text-align: left;">Estatus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Estado de grafo (anillo 6)</td>
+<td style="text-align: left;"><span class="math inline">\(P_Z\)</span> idéntica a <span class="math inline">\(\lvert+\rangle^{\otimes6}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(qg_Z=0\)</span> m-qg, <span class="math inline">\(qg_S=1.00000\)</span>; estabilizador en X: <span class="math inline">\(+1\)</span> frente a <span class="math inline">\(0\)</span></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(T_1\)</span> sobre estados de 4 qubits</td>
+<td style="text-align: left;"><span class="math inline">\(H(p)\)</span> no monótona</td>
+<td style="text-align: left;"><span class="math inline">\(qg_S\)</span> no monótona (24/24); <span class="math inline">\(qg_Z\)</span> medio monótono (24/24)</td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Rango de arccos</td>
+<td style="text-align: left;">mín. <span class="math inline">\(-1.0000\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(-0.8776\)</span> con <span class="math inline">\(\theta\in[0,\pi]\)</span> (pérdida <span class="math inline">\(0.1224\)</span>)</td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">QFT / GHZ (4 qubits)</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">no conservan el peso (4 compuertas cada una): filtro no aplicable</td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Error dentro del sector</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">retención 1.0; desvío <span class="math inline">\(-174.7\)</span> m-qg sin detectar</td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Red de peso 1</td>
+<td style="text-align: left;">simulación <span class="math inline">\(2^n\)</span></td>
+<td style="text-align: left;">forma cuadrática <span class="math inline">\(O(n^2)\)</span>, error <span class="math inline">\(4.4\cdot10^{-16}\)</span></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ventaja medida del libro</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">0 <code>measured gain</code> en 97 submedidas</td>
+<td style="text-align: left;"><code>exact</code> (auditoría)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bloque-qangqlimits.py" class="level2">
+<h2 class="anchored" data-anchor-id="bloque-qangqlimits.py">34.11 Bloque (<code>qang/qlimits.py</code>)</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ring_graph_state(n)                      <span class="co"># H^n + CZ en anillo</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stabilizer_expectation(psi, i, n)        <span class="co"># &lt;X_i Z_{i-1} Z_{i+1}&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> damp_distribution(p, n, gamma)           <span class="co"># T1 sobre las poblaciones de Z</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> t1_noise_scan(p, n, gammas)              <span class="co"># (qg_S, qg_Z medio) frente a gamma</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> best_cost_clipped(theta_star)            <span class="co"># trampa del rango de arccos</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> preserves_weight(U, n)<span class="op">;</span> weight_breakers(n, gates)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> weight1_qgz(O, v)<span class="op">;</span> simulate_qgz_weight1(n, thetas, v)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> in_sector_error(eps)                     <span class="co"># retención 1.0, desvío en m-qg</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> negative_inventory(rows)                 <span class="co"># lee qang.qledger</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diagonal_twin(p)<span class="op">;</span> purity_range_from_z(p)  <span class="co"># no-go de una base; rango de pureza</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> total_correlation_z(p, n)                <span class="co"># C_Z en bits (no es entrelazamiento)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> witness_path(n)<span class="op">;</span> witness_radius(m, N, d) <span class="co"># testigo de 2 ajustes y su radio</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sufficient_shots_entropy(n, eps, d, t)   <span class="co"># cota suficiente; plugin_cz_bias_uniform(n, N)</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="verificación-toolsverify_cap34.py" class="level2">
+<h2 class="anchored" data-anchor-id="verificación-toolsverify_cap34.py">34.12 Verificación — <code>tools/verify_cap34.py</code></h2>
+<pre><code>[1] anillo n=6: |P_Z(grafo) − P_Z(producto)| = 0.0; qg_Z medio 0 m-qg, qg_S 1.00000; ⟨X_i Z_(i−1) Z_(i+1)⟩ = +1.0 (grafo) frente a +0.0 (producto)
+[2] 24 estados de 4 qubits, γ∈[0,0.5]: qg_S sube y baja en 24/24; qg_Z medio monótono creciente en 24/24 (exacto: 1−2(1−γ)P1)
+    ejemplo (estado 0): qg_S 0.782 → 0.847 (γ=0.18) → 0.736 (γ=0.50); qg_Z medio +251 → +543 m-qg
+[3] E(θ)=−cos(θ−θ*), θ*=−0.5: mínimo exacto -1.0000 (θ&lt;0); con θ=arccos(qg_Z)∈[0,π] el mejor valor es -0.8776 en θ=0 → pérdida 0.1224
+[4] QFT 4q: conserva=False, compuertas que lo rompen=4; GHZ 4q: conserva=False, compuertas que lo rompen=4; RBS escalera 4q: conserva=True, compuertas que lo rompen=0
+[5] cargador unario + red RBS, n=5, 20 redes al azar: |forma cuadrática − simulación completa| ≤ 4.4e-16 (coste O(n²) frente a 2^n)
+[6] RBS(π/2+0.3): retención del filtro 1.0; qg_Z del qubit 0: +1000.0 → +825.3 m-qg (desvío -174.7 m-qg, invisible al filtro)
+[7] libro de cuentas Cap. 7–33: 97 submedidas; against: 4, no gain: 3, mixed: 1, unverified: 1, not adopted: 1; measured gain: 0
+[8] misma P_Z uniforme que |+&gt;^n y I/2^n: arista G2: H_Z=2 bit, C_Z=0, P=1, P_i=0.50; camino G3: H_Z=3 bit, C_Z=0, P=1, P_i=0.50; |+&gt;^n: P_i=1; I/2^n: P=1/2^n; PT mín. G2=-0.500
+    pureza compatible con p=(.6,.15,.2,.05): [0.4250, 1.0], extremos alcanzados por σ_p y |ψ_p⟩
+    sesgado (z=(0.5,0.6)): producto y CZ·producto con la misma P_Z, H_Z=1.533206, C_Z=0; P_i=1 frente a 0.76; PT mín. -0.346410
+[9] GHZ₃ y mezcla 000/111: misma P_Z, C_Z=2 bits (máximo), la mezcla es separable (P=1/2); paridad par: H_Z=2, C_Z=1, información mutua por pares 0.0
+    (I⊗H)|G₂⟩ = Φ⁺: H_Z 2 → 1, C_Z 0 → 1, entrelazamiento y pureza intactos
+    H_Z = coherencia C_rel,Z sólo si es puro: G₂ (puro) 2 = H_Z=2; I/4 (mixto) 0 frente a H_Z=2
+[10] W′₃ = 2I − XZI − ZXZ − IZX: grafo -1, producto +2, I/8 +2; XZX y ZXZ (2 ajustes), 1000 disparos c/u: radio 95 % 0.293556 → certifica (-0.706 &lt; 0)
+     desfase final ρ_t: P_Z fija, W′₃ = -1, 0, +2 en t = 0, 1/3, 1
+[11] producto bajo amortiguación γ=0, ½, 1: H_Z = 0, 2, 0 bits; P = 1.00, 0.25, 1.00; C_Z=0 siempre
+[12] ε=0.05 bit, δ=0.05: una media en [−1,1] N=2952; H_Z n=2/3 N=133966/253199; C_Z n=2/3 N=1346071/3973513 (cotas suficientes, holgadas)
+     n=3, uniforme independiente, 1000 repeticiones, semilla 34 — exacto H_Z=3, C_Z=0: N=100: Ĥ_Z=2.9478, Ĉ_Z=0.0307 (teoría 0.0289); N=10000: Ĥ_Z=2.9995, Ĉ_Z=0.0003 (teoría 0.0003)
+verify_cap34: OK</code></pre>
+<section id="teststest_qlimits.py" class="level3">
+<h3 class="anchored" data-anchor-id="teststest_qlimits.py"><code>tests/test_qlimits.py</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qang.qlimits <span class="im">import</span> (ring_graph_state, plus_state, z_distribution, stabilizer_expectation, t1_noise_scan, is_monotone,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                          best_cost_clipped, qft_gates, circuit_unitary, preserves_weight, weight_breakers, in_sector_error)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_graph_state_blind_in_z():</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    g, p <span class="op">=</span> ring_graph_state(<span class="dv">6</span>), plus_state(<span class="dv">6</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(z_distribution(g) <span class="op">-</span> z_distribution(p))) <span class="op">==</span> <span class="fl">0.0</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.allclose([stabilizer_expectation(g, i, <span class="dv">6</span>) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>)], <span class="fl">1.0</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_t1_mean_qgz_monotone_and_qgs_not():</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)<span class="op">;</span> psi <span class="op">=</span> rng.normal(size<span class="op">=</span><span class="dv">16</span>) <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> rng.normal(size<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    s, z <span class="op">=</span> t1_noise_scan(z_distribution(psi <span class="op">/</span> np.linalg.norm(psi)), <span class="dv">4</span>, np.linspace(<span class="dv">0</span>, <span class="fl">.5</span>, <span class="dv">51</span>))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> is_monotone(z, <span class="va">True</span>) <span class="kw">and</span> <span class="kw">not</span> is_monotone(s, <span class="va">True</span>) <span class="kw">and</span> <span class="kw">not</span> is_monotone(s, <span class="va">False</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_arccos_range_trap(): <span class="cf">assert</span> <span class="bu">abs</span>(best_cost_clipped(<span class="op">-</span><span class="fl">0.5</span>)[<span class="dv">0</span>] <span class="op">+</span> np.cos(<span class="fl">0.5</span>)) <span class="op">&lt;</span> <span class="fl">1e-9</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_weight_analyzer():</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="kw">not</span> preserves_weight(circuit_unitary(<span class="dv">4</span>, qft_gates(<span class="dv">4</span>)), <span class="dv">4</span>) <span class="kw">and</span> <span class="bu">len</span>(weight_breakers(<span class="dv">4</span>, qft_gates(<span class="dv">4</span>))) <span class="op">==</span> <span class="dv">4</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_in_sector_error_passes_filter():</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> in_sector_error(<span class="fl">0.3</span>)<span class="op">;</span> <span class="cf">assert</span> <span class="bu">abs</span>(r[<span class="st">"error_retained"</span>] <span class="op">-</span> <span class="dv">1</span>) <span class="op">&lt;</span> <span class="fl">1e-12</span> <span class="kw">and</span> <span class="bu">abs</span>(r[<span class="st">"shift_mqg"</span>]) <span class="op">&gt;</span> <span class="dv">100</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="una-sola-base-de-lectura-no-go-c_z-y-pureza" class="level2">
+<h2 class="anchored" data-anchor-id="una-sola-base-de-lectura-no-go-c_z-y-pureza">34.13 Una sola base de lectura: no-go, <span class="math inline">\(C_Z\)</span> y pureza</h2>
+<p>Toda cantidad calculada sólo con la distribución <span class="math inline">\(P_Z\)</span> comparte la raíz de §34.2. Aquí se cierra el caso general, no sólo el grafo. <span class="math inline">\(H_Z\)</span> está en bits; <span class="math inline">\(H_Z/n\)</span> se rotula aparte y nunca entra en <span class="math inline">\(C_Z=\sum_i H(X_i)-H_Z\)</span>.</p>
+<p><strong>Teorema del gemelo diagonal.</strong> Para toda <span class="math inline">\(p\)</span>, <span class="math inline">\(\sigma_p=\sum_x p(x)|x\rangle\langle x|\)</span> es completamente separable y tiene exactamente esa distribución. Ninguna regla que use sólo <span class="math inline">\(p\)</span> (con <span class="math inline">\(qg_Z\)</span>, <span class="math inline">\(qg_S\)</span>, <span class="math inline">\(H_Z\)</span>, <span class="math inline">\(C_Z\)</span> o cualquier resumen aprendido) puede certificar entrelazamiento, ni con infinitos disparos (<code>diagonal_twin</code>). Cuesta menos de lo que parece: sólo hace falta que un estado separable la reproduzca.</p>
+<p>Con la misma <span class="math inline">\(P_Z\)</span> uniforme (<code>path_graph_state</code>, <code>local_purities</code>, <code>partial_transpose_min_eig</code>):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">estado</th>
+<th style="text-align: left;"><span class="math inline">\(H_Z\)</span> (bits)</th>
+<th style="text-align: left;"><span class="math inline">\(C_Z\)</span></th>
+<th style="text-align: left;"><span class="math inline">\(P\)</span> global</th>
+<th style="text-align: left;"><span class="math inline">\(P_i\)</span> local</th>
+<th style="text-align: left;">estatus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\lvert{+}{+}\rangle\)</span></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">producto</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">grafo <span class="math inline">\(G_2\)</span> (arista)</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">entrelazado (PT mín. <span class="math inline">\(-0.5\)</span>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(I_4/4\)</span></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0.25</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">mezcla producto</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(\lvert{+}{+}{+}\rangle\)</span> / grafo <span class="math inline">\(G_3\)</span> (camino) / <span class="math inline">\(I_8/8\)</span></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1 / 1 / 0.125</td>
+<td style="text-align: left;">1 / 0.5 / 0.5</td>
+<td style="text-align: left;">producto / entrelazado / mezcla</td>
+</tr>
+</tbody>
+</table>
+<p>Un sesgo en <span class="math inline">\(z\)</span> no la quita: <span class="math inline">\(\lvert a\rangle\lvert b\rangle\)</span> y <span class="math inline">\(\mathrm{CZ}\lvert a\rangle\lvert b\rangle\)</span>, con <span class="math inline">\(z=(0.5,0.6)\)</span>, tienen <span class="math inline">\(P_Z=(0.60,0.15,0.20,0.05)\)</span> y <span class="math inline">\(H_Z=1.533206\)</span> bits; <span class="math inline">\(P_i=1\)</span> frente a <span class="math inline">\(0.76\)</span>; PT mín. <span class="math inline">\(-0.346410\)</span>.</p>
+<p><strong>Pureza.</strong> Con la diagonal <span class="math inline">\(p\)</span>, el rango exacto de <span class="math inline">\(\mathrm{Tr}\rho^2\)</span> es <span class="math inline">\([\sum_x p(x)^2,\,1]\)</span>; los extremos son <span class="math inline">\(\sigma_p\)</span> y <span class="math inline">\(\lvert\psi_p\rangle=\sum_x\sqrt{p(x)}\lvert x\rangle\)</span> (<code>purity_range_from_z</code>). La probabilidad de colisión <span class="math inline">\(\sum p^2\)</span> es pureza sólo si <span class="math inline">\(\rho\)</span> es diagonal en Z. Para <span class="math inline">\(p=(0.6,0.15,0.2,0.05)\)</span>: <span class="math inline">\([0.4250,1]\)</span>.</p>
+<p><strong><span class="math inline">\(C_Z\)</span> no es entrelazamiento, en los dos sentidos</strong> (<code>total_correlation_z</code>):</p>
+<ul>
+<li><em>Falso negativo:</em> <span class="math inline">\(C_Z=0\)</span> en el grafo entrelazado (arista y camino).</li>
+<li><em>Falso positivo:</em> <span class="math inline">\(\lvert\mathrm{GHZ}_3\rangle\)</span> y la mezcla <span class="math inline">\(\tfrac12(\lvert000\rangle\langle000\rvert+\lvert111\rangle\langle111\rvert)\)</span> tienen la misma <span class="math inline">\(P_Z\)</span> y <span class="math inline">\(C_Z=2\)</span> bits (el máximo); la mezcla es separable (<span class="math inline">\(P=1/2\)</span>).</li>
+<li><em>Dependencia de tres cuerpos con pares independientes:</em> la mezcla uniforme sobre las cadenas de paridad par tiene información mutua por pares <span class="math inline">\(0\)</span>, <span class="math inline">\(H_Z=2\)</span> y <span class="math inline">\(C_Z=1\)</span> bit.</li>
+<li><em>El resultado depende de la base de lectura:</em> <span class="math inline">\((I\otimes H)\lvert G_2\rangle=\lvert\Phi^+\rangle\)</span> pasa de <span class="math inline">\(H_Z=2\)</span> a <span class="math inline">\(1\)</span> y de <span class="math inline">\(C_Z=0\)</span> a <span class="math inline">\(1\)</span>, con entrelazamiento y pureza intactos.</li>
+</ul>
+<p><span class="math inline">\(H_Z=C_{\mathrm{rel},Z}=H_Z-S(\rho)\)</span> sólo si <span class="math inline">\(\rho\)</span> es puro (<code>relative_entropy_coherence_z</code>): en <span class="math inline">\(G_2\)</span>, <span class="math inline">\(2=2\)</span>; en <span class="math inline">\(I_4/4\)</span>, <span class="math inline">\(0\)</span> frente a <span class="math inline">\(H_Z=2\)</span>. Y <span class="math inline">\(qg_S=h_2((1+qg_Z)/2)\)</span> determina <span class="math inline">\(|qg_Z|\)</span> pero no su signo: no es una segunda lectura independiente.</p>
+<p><strong>Qué sí certifica: un testigo de dos ajustes</strong> (<code>witness_path</code>, <code>witness_radius</code>). Para el camino de 3 qubits, <span class="math inline">\(W'_3=2I-XZI-ZXZ-IZX\)</span> vale <span class="math inline">\(-1\)</span> en <span class="math inline">\(G_3\)</span> y <span class="math inline">\(+2\)</span> en el producto y en <span class="math inline">\(I/8\)</span>. Se estima con XZX (da <span class="math inline">\(K_1\)</span> y <span class="math inline">\(K_3\)</span>) y ZXZ (da <span class="math inline">\(K_2\)</span>). Con 1000 disparos por ajuste y <span class="math inline">\(\delta=0.05\)</span> el radio conservador es <span class="math inline">\(m\eta=0.293556\)</span> (<span class="math inline">\(m=3\)</span>): <span class="math inline">\(-1+0.2936&lt;0\)</span> certifica entrelazamiento genuino tripartito. Un valor no negativo no concluye nada. El testigo sirve para el camino de 3 y para el de 2 qubits; no se generaliza a todo grafo.</p>
+<p><strong>Ruido: dos contraejemplos exactos de monotonía.</strong> (i) Desfase final <span class="math inline">\(\rho_t=(1-t)\lvert G_3\rangle\langle G_3\rvert+t\,I/8\)</span>: <span class="math inline">\(P_Z\)</span> queda fija y <span class="math inline">\(\langle W'_3\rangle=-1+3t\)</span> (<span class="math inline">\(-1,\,0,\,+2\)</span> en <span class="math inline">\(t=0,\,\tfrac13,\,1\)</span>). (ii) Producto bajo amortiguación de amplitud <span class="math inline">\(\gamma=0,\tfrac12,1\)</span>: <span class="math inline">\(H_Z=0,2,0\)</span> bits y <span class="math inline">\(P=1,\tfrac14,1\)</span> con <span class="math inline">\(C_Z=0\)</span> siempre; ni la entropía ni la pureza miden la cantidad de ruido.</p>
+<p><strong>Disparos.</strong> Una media en <span class="math inline">\([-1,1]\)</span> con <span class="math inline">\(\varepsilon=0.05\)</span> y <span class="math inline">\(\delta=0.05\)</span> necesita <span class="math inline">\(N=2952\)</span> (Hoeffding; <code>hoeffding_shots</code>). Para la entropía no hay regla análoga: la cota sin supuestos (<code>sufficient_shots_entropy</code>, suficiente, no necesaria, holgada) da <span class="math inline">\(N=133\,966\)</span> (<span class="math inline">\(H_Z\)</span>, <span class="math inline">\(n=2\)</span>), <span class="math inline">\(253\,199\)</span> (<span class="math inline">\(H_Z\)</span>, <span class="math inline">\(n=3\)</span>), <span class="math inline">\(1\,346\,071\)</span> (<span class="math inline">\(C_Z\)</span>, <span class="math inline">\(n=2\)</span>) y <span class="math inline">\(3\,973\,513\)</span> (<span class="math inline">\(C_Z\)</span>, <span class="math inline">\(n=3\)</span>). Además, el <span class="math inline">\(C_Z\)</span> de plug-in es positivo con <span class="math inline">\(p\)</span> uniforme e independiente: sesgo <span class="math inline">\(\tfrac{2^n-1-n}{2N\ln 2}\)</span> (<code>plugin_cz_bias_uniform</code>). Con <span class="math inline">\(n=3\)</span>, <span class="math inline">\(N=100\)</span> (1000 repeticiones, semilla 34): <span class="math inline">\(\hat H_Z=2.9478\)</span>, <span class="math inline">\(\hat C_Z=0.0307\)</span> (teoría <span class="math inline">\(0.0289\)</span>) frente al exacto <span class="math inline">\(3\)</span> y <span class="math inline">\(0\)</span>; a <span class="math inline">\(N=10\,000\)</span>, <span class="math inline">\(0.0003\)</span>. Es sesgo estadístico, no correlación física.</p>
+<p><strong>Contraste operativo.</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Pregunta</th>
+<th style="text-align: left;">Sin <code>qang</code></th>
+<th style="text-align: left;">Con <code>qang</code> (<code>qang.qlimits</code>)</th>
+<th style="text-align: left;">Estatus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">¿La lectura Z certifica entrelazamiento?</td>
+<td style="text-align: left;"><span class="math inline">\(H_Z\)</span> o <span class="math inline">\(C_Z\)</span> “altos” se toman como indicio</td>
+<td style="text-align: left;">no: gemelo diagonal con la misma <span class="math inline">\(P_Z\)</span></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">¿Qué certifica el camino de 3 qubits?</td>
+<td style="text-align: left;"><span class="math inline">\(C_Z=0\)</span>: nada</td>
+<td style="text-align: left;"><span class="math inline">\(W'_3=-1\)</span> con 2 ajustes y radio <span class="math inline">\(0.2936\)</span> a 1000 disparos</td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">¿Pureza desde <span class="math inline">\(P_Z\)</span>?</td>
+<td style="text-align: left;"><span class="math inline">\(\sum p^2\)</span> como “pureza”</td>
+<td style="text-align: left;">sólo el rango <span class="math inline">\([\sum p^2,1]\)</span></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">¿Cuántos disparos para <span class="math inline">\(C_Z\)</span>?</td>
+<td style="text-align: left;">“1000 bastan”</td>
+<td style="text-align: left;"><span class="math inline">\(\ge 1.3\cdot10^6\)</span> por la cota sin supuestos (<span class="math inline">\(n=2\)</span>); sesgo <span class="math inline">\(+0.03\)</span> bit a <span class="math inline">\(N=100\)</span> (<span class="math inline">\(n=3\)</span>)</td>
+<td style="text-align: left;"><code>exact</code> (cota suficiente)</td>
+</tr>
+</tbody>
+</table>
+<p>El análisis proviene de una revisión externa; cada cifra de arriba se recalculó con <code>qang.qlimits</code> y <code>tools/verify_cap34.py</code> [8]–[12]. Las cifras de referencia al benchmark de las publicaciones <span class="math inline">\(Q_1\)</span> y <span class="math inline">\(Q_2\)</span> (por ejemplo <span class="math inline">\(r\approx-0.93\)</span> con 110 puntos) no se re-ejecutaron aquí.</p>
+</section>
+<section id="contexto-2026-verificación-de-simetría-en-la-literatura-reciente" class="level2">
+<h2 class="anchored" data-anchor-id="contexto-2026-verificación-de-simetría-en-la-literatura-reciente">34.14 Contexto 2026: verificación de simetría en la literatura reciente</h2>
+<p>Estado: <code>sin_verificar</code> (comparación leída solo desde los resúmenes de arXiv; no se re-ejecutó nada). Tres trabajos de 2026 estudian la verificación de simetría (SV) por postselección: <span class="citation" data-cites="schwinger2026sv"><em>Symmetry Constrained Quantum Error Mitigation for the Schwinger Model</em> (<a href="bibliografia.html#ref-schwinger2026sv" role="doc-biblioref">2026</a>)</span> concluye que, dentro del bucle variacional, la SV puede mejorar la energía aparente sin mejorar el estado preparado; <span class="citation" data-cites="finiteshot2026"><em>Certified Finite-Shot Operating Windows for Virtual Distillation and Symmetry Verification</em> (<a href="bibliografia.html#ref-finiteshot2026" role="doc-biblioref">2026</a>)</span> compara SV y destilación virtual con ventanas certificadas de disparos finitos y no encuentra un ganador universal; <span class="citation" data-cites="pecqed2026"><em>Optimizing Symmetry Informed Probabilistic Error Cancellation</em> (<a href="bibliografia.html#ref-pecqed2026" role="doc-biblioref">2026</a>)</span> combina detección de errores por simetría con cancelación probabilística (PEC).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pregunta</th>
+<th>Sin <code>qang</code></th>
+<th>Con <code>qang</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>¿Cuándo el filtro de peso 1 es exacto?</td>
+<td>criterio caso por caso</td>
+<td>exacto bajo T1 uniforme; falla con error dentro del sector (§34.6)</td>
+</tr>
+<tr class="even">
+<td>¿Mejora aparente o del estado?</td>
+<td>no se separa</td>
+<td>se reporta qgZ y la fidelidad por separado (estatus <code>mixta</code>)</td>
+</tr>
+<tr class="odd">
+<td>¿Cuántos disparos?</td>
+<td>regla empírica</td>
+<td>planificación de disparos de <code>qang</code> (Cap. 31), sin ventana certificada</td>
+</tr>
+</tbody>
+</table>
+<p>Alcance: coincidencia cualitativa con §34.5–34.6; no hay ganancia medida. Los números del libro siguen respaldados solo por <code>tools/verify_cap34.py</code>.</p>
+</section>
+<section id="apéndice-h" class="level2">
+<h2 class="anchored" data-anchor-id="apéndice-h">34.15 Apéndice H</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">id</th>
+<th style="text-align: left;">familia</th>
+<th style="text-align: left;">fórmula</th>
+<th style="text-align: left;">función</th>
+<th style="text-align: left;">estatus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>graph_state_z_blind</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(P_Z(\text{grafo})=P_Z(\lvert+\rangle^{\otimes n})\)</span></td>
+<td style="text-align: left;"><code>ring_graph_state</code>, <code>stabilizer_expectation</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>qgs_t1_nonmonotone</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(qg_S\)</span> sube y baja bajo <span class="math inline">\(T_1\)</span> (24/24)</td>
+<td style="text-align: left;"><code>t1_noise_scan</code>, <code>damp_distribution</code></td>
+<td style="text-align: left;"><code>exact</code> (numérico)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>mean_qgz_t1_monotone</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(1-2(1-\gamma)P_1\)</span> crece con <span class="math inline">\(\gamma\)</span></td>
+<td style="text-align: left;"><code>mean_qgz</code>, <code>t1_noise_scan</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>arccos_range_trap</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;">mín. alcanzable <span class="math inline">\(-\cos(\theta^*)\)</span> si <span class="math inline">\(\theta^*&lt;0\)</span></td>
+<td style="text-align: left;"><code>best_cost_clipped</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>weight_preservation_analyzer</code></td>
+<td style="text-align: left;">filtro</td>
+<td style="text-align: left;"><span class="math inline">\(U\)</span> diagonal por bloques de peso</td>
+<td style="text-align: left;"><code>preserves_weight</code>, <code>weight_breakers</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>in_sector_error_unseen</code></td>
+<td style="text-align: left;">filtro</td>
+<td style="text-align: left;">error que conserva el peso: retención 1</td>
+<td style="text-align: left;"><code>in_sector_error</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>weight1_quadratic_form</code></td>
+<td style="text-align: left;">redes</td>
+<td style="text-align: left;"><span class="math inline">\(qg_Z^{(i)}=1-2(Ov)_i^2\)</span></td>
+<td style="text-align: left;"><code>weight1_qgz</code>, <code>simulate_qgz_weight1</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>negative_inventory_ledger</code></td>
+<td style="text-align: left;">auditoría</td>
+<td style="text-align: left;">0 <code>measured gain</code> en Cap. 7–33</td>
+<td style="text-align: left;"><code>negative_inventory</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>single_basis_no_go</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(\sigma_p\)</span> separable con la misma <span class="math inline">\(P_Z\)</span></td>
+<td style="text-align: left;"><code>diagonal_twin</code>, <code>path_graph_state</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>purity_range_from_z</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(\mathrm{Tr}\rho^2\in[\sum p^2,1]\)</span></td>
+<td style="text-align: left;"><code>purity_range_from_z</code>, <code>pure_state_from_z</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>cz_not_entanglement</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(C_Z=0\)</span> con grafo; <span class="math inline">\(C_Z=2\)</span> con mezcla separable</td>
+<td style="text-align: left;"><code>total_correlation_z</code></td>
+<td style="text-align: left;"><code>against</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>hz_not_witness</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(H_Z\)</span> y <span class="math inline">\(qg_S\)</span> no certifican; <span class="math inline">\(H_Z=C_{\mathrm{rel},Z}\)</span> sólo si puro</td>
+<td style="text-align: left;"><code>shannon_bits</code>, <code>relative_entropy_coherence_z</code></td>
+<td style="text-align: left;"><code>against</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>pairwise_hidden_dependence</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(C_Z=1\)</span> con información mutua por pares 0</td>
+<td style="text-align: left;"><code>total_correlation_z</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>path3_two_setting_witness</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(W'_3=-1\)</span> (grafo), <span class="math inline">\(+2\)</span> (producto, <span class="math inline">\(I/8\)</span>); radio 0.293556</td>
+<td style="text-align: left;"><code>witness_path</code>, <code>witness_radius</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>product_damping_nonmonotone</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(H_Z=0,2,0\)</span> y <span class="math inline">\(P=1,\tfrac14,1\)</span> con <span class="math inline">\(C_Z=0\)</span></td>
+<td style="text-align: left;"><code>product_amp_damped</code>, <code>dephased_path3</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>cz_plugin_bias</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;">sesgo <span class="math inline">\(\tfrac{2^n-1-n}{2N\ln 2}\)</span></td>
+<td style="text-align: left;"><code>plugin_cz_bias_uniform</code>, <code>plugin_study_uniform</code></td>
+<td style="text-align: left;"><code>exact</code> (numérico)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>entropy_shot_budget</code></td>
+<td style="text-align: left;">límites</td>
+<td style="text-align: left;"><span class="math inline">\(N=133\,966\ldots3\,973\,513\)</span> (cota suficiente)</td>
+<td style="text-align: left;"><code>sufficient_shots_entropy</code>, <code>hoeffding_shots</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>lih_filter_scope</code></td>
+<td style="text-align: left;">filtro</td>
+<td style="text-align: left;">LiH 60 compuertas: 76.6 → 85.0 mHa</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>unverified</code> (notas §50)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>natural_gradient_equivalence</code></td>
+<td style="text-align: left;">optimización</td>
+<td style="text-align: left;">qg = descenso en <span class="math inline">\(\theta\)</span>; 103 pasos frente a 22.5</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>unverified</code> (notas §159)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>prereg_failures_157_164</code></td>
+<td style="text-align: left;">metodología</td>
+<td style="text-align: left;">26 de 45 predicciones cumplidas</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>unverified</code> (notas §157–§164)</td>
+</tr>
+</tbody>
+</table>
+<p><code>CHANGELOG.md [Unreleased]</code>: <code>qang.qlimits</code>; <code>tools/verify_cap34.py</code>; <code>tests/test_qlimits.py</code>. Commit: <code>docs(cap34): límites estructurales y resultados negativos + qang.qlimits + verify_cap34</code>.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-finiteshot2026" class="csl-entry" role="listitem">
+<em>Certified Finite-Shot Operating Windows for Virtual Distillation and Symmetry Verification</em>. 2026. <a href="https://arxiv.org/abs/2606.15464">https://arxiv.org/abs/2606.15464</a>.
+</div>
+<div id="ref-pecqed2026" class="csl-entry" role="listitem">
+<em>Optimizing Symmetry Informed Probabilistic Error Cancellation</em>. 2026. <a href="https://arxiv.org/abs/2607.01072">https://arxiv.org/abs/2607.01072</a>.
+</div>
+<div id="ref-schwinger2026sv" class="csl-entry" role="listitem">
+<em>Symmetry Constrained Quantum Error Mitigation for the Schwinger Model</em>. 2026. <a href="https://arxiv.org/abs/2608.21103">https://arxiv.org/abs/2608.21103</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Código desplazable","output":"Salida desplazable"};
+  </script>
+<nav class="page-navigation" aria-label="Página">
+  <div class="nav-page nav-page-previous">
+      <a href="./qjax33.html" class="pagination-link" aria-label="Capítulo 33 — Teoría de cuerdas: qué pueden y qué no pueden decir las medidas qang (cadena XX como bosón libre de carga central c = 1)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Capítulo 33 — Teoría de cuerdas: qué pueden y qué no pueden decir las medidas qang (cadena XX como bosón libre de carga central c = 1)</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./qjax35.html" class="pagination-link" aria-label="Capítulo 35 — Primeras corridas en hardware real: IQM Garnet (neutrinos §165, milli-qang §168, E=mc² §170) recalculadas desde los archivos guardados">
+        <span class="nav-page-text">Capítulo 35 — Primeras corridas en hardware real: IQM Garnet (neutrinos §165, milli-qang §168, E=mc² §170) recalculadas desde los archivos guardados</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Informar sobre problema</a></li></ul></div></div></div></footer></body></html>
