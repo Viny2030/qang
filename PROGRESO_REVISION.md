@@ -118,7 +118,7 @@
 | 4 | `book/es/qjax16.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 5 | `book/es/qjax17.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 6 | `book/es/qjax18.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
+| 7 | Reporte final y estado de Git | [x] | — | — | [x] | 10 |
 
 **Total estimado:** 180 min.
 
@@ -140,4 +140,15 @@
 - [x] **qjax16** (cap16) — revisión, fuentes, `verify_cap16.py`, `tests/test_qdualrail.py` (1 passed), sección 16.7 y commit.
 - [x] **qjax17** (cap17) — revisión, fuentes, `verify_cap17.py`, `tests/test_qctc.py` (2 passed), sección 17.7 y commit.
 - [x] **qjax18** (cap18) — revisión, fuentes, `verify_cap18.py`, `tests/test_qscramble.py` (1 passed), sección 18.8 y commit.
-- [ ] **Reporte final (bloque 3)**.
+- [x] **Reporte final (bloque 3)**.
+
+## Reporte final (bloque 3)
+
+- **Commits:** `558a18c` (cap13), `2249b68` (fallback `\tfrac` para PDF), `ec9f79d` (cap14), `7459d98` (cap15), `05456a2` (cap16), `c463ef6` (cap17), `77c1c53` (reemplazo de `\rm` por `\mathrm`), `2ba3bca` (cap18).
+- **Verificadores:** `tools/verify_cap13.py`–`tools/verify_cap18.py` pasan los seis con `verify_capNN: OK`.
+- **Pytest del bloque:** `test_qneutrino_matter.py` (2 passed), `test_qmajorana.py` (3 passed), `test_qtele.py` (3 passed), `test_qdualrail.py` (1 passed), `test_qctc.py` (2 passed) y `test_qscramble.py` (1 passed): 12 pruebas dirigidas, todas verde; no se reporta una suite global nueva.
+- **Render:** `quarto` no está disponible localmente. El CI detectó dos fallos LaTeX: `\tfrac` sin definir y, tras corregirlo, `\rm` obsoleto en `qjax10`, `qjax11` y `qjax12`. Ambos quedaron corregidos: `\providecommand{\tfrac}[2]{\frac{#1}{#2}}` en la configuración PDF ES/EN y sustitución de todas las ocurrencias de `\rm{...}` por `\mathrm{...}`. Queda pendiente el rerun de CI.
+- **Warnings no bloqueantes:** crossrefs `@sec-qjax26`, `@sec-qjax23`, `@sec-qjax34`, `@sec-qjax10` y `@sec-qjax31` sin resolver en el render.
+- **Fuentes contrastadas por capítulo:** cap13 oscilaciones en materia y MSW; cap14 0νββ, fases de Majorana y codificación 3+1; cap15 teleportación, cota Horodecki y presupuesto de disparos; cap16 doble carril, borrado por pérdida y atenuación de fibra; cap17 P-CTC/D-CTC, Deutsch y Lloyd; cap18 Hayden–Preskill, Yoshida–Kitaev, OTOC y curva de Page.
+- **Resultados destacados:** cap13 cierra el filtro de sector; cap14 distingue fase de Majorana y filtro one-hot; cap15 acota $qg_{ZZ}>333$ m-qg bajo Werner; cap16 separa sesgo de lectura y pérdida; cap17 cuantifica $N\propto1/p_{\text{post}}$ y conservación/dephasing de D-CTC; cap18 verifica $P\cdot F=1/4$ y documenta $qg_S$ como coordenada, no entropía.
+- **Estado Git:** `main` con los ocho commits del bloque 3; `.venv_clean/` permanece sin trackear y no se incluyó en ningún commit.
