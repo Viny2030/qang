@@ -13,7 +13,7 @@
 | 3 | `book/es/cap03.qmd` | [x] | [x] | [x] | [x] | 22 |
 | 4 | `book/es/cap04.qmd` | [x] | [x] | [x] | [x] | 22 |
 | 5 | `book/es/cap05.qmd` | [x] | [x] | [x] | [x] | 22 |
-| 6 | `book/es/cap06.qmd` | [ ] | [ ] | [ ] | [ ] | 25 |
+| 6 | `book/es/cap06.qmd` | [x] | [x] | [x] | [x] | 25 |
 | 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
 
 **Total estimado:** 158 min (2 h 38 min), con ~22 min de margen.
@@ -35,5 +35,5 @@
 - [x] **cap03** — commit `docs: revisión teórica y validación cap 3`.
 - [x] **cap04** — commit `docs: revisión teórica y validación cap 4`.
 - [x] **cap05** — commit `docs: revisión teórica y validación cap 5`.
-- [ ] **cap06** — commit `docs: revisión teórica y validación cap 6`.
+- [x] **cap06** — commit `docs: revisión teórica y validación cap 6`.
 - [ ] **Reporte final**.

@@ -148,11 +148,12 @@ y la esfera de Poincaré es la esfera de Bloch:
 
 : Los parámetros de Stokes normalizados como valores qg (§83). {#tbl-stokes}
 
-La primera fila es la ecuación de probabilidad del capítulo 1. La segunda es la @eq-malus-general evaluada en
-$\vartheta=\pm45^\circ$: $p_D-p_A=qg_X$. La tercera necesita la base circular, y la convención de la circular derecha
-cambia de un texto a otro; aquí $|R\rangle=(|H\rangle+i|V\rangle)/\sqrt2$, de modo que $S_3>0$ significa $qg_Y>0$ (la
-biblioteca acepta la convención opuesta con `circular_sign=-1`). Como cada parámetro es $2p_0-1$ en su propia base,
-cada uno se expresa en mili-qang con la ecuación del capítulo 1.
+La primera fila es la ecuación de probabilidad del capítulo 1. En efecto, $I_a/S_0=p_a$ y $p_H+p_V=1$, luego
+$(I_H-I_V)/S_0=2p_H-1=qg_Z$; los otros dos pares dan lo mismo en sus propias bases. La segunda fila es la
+@eq-malus-general evaluada en $\vartheta=\pm45^\circ$: $p_D-p_A=qg_X$. La tercera necesita la base circular, y la
+convención de la circular derecha cambia de un texto a otro; aquí $|R\rangle=(|H\rangle+i|V\rangle)/\sqrt2$, de modo
+que $S_3>0$ significa $qg_Y>0$ (la biblioteca acepta la convención opuesta con `circular_sign=-1`). Como cada parámetro
+es $2p_0-1$ en su propia base, cada uno se expresa en mili-qang con la ecuación del capítulo 1.
 
 ### La elipse de polarización {#sec-elipse}
 
@@ -203,8 +204,9 @@ $$
 $$
 
 una fracción $P$ de luz totalmente polarizada en la dirección $\mathbf n$ y una fracción $1-P$ de luz no polarizada.
-Es la descomposición clásica de la óptica, y aquí es la lectura de $r$ como radio: la luz no polarizada está en el
-centro de la esfera, la totalmente polarizada en su superficie.
+Como los autovalores son $(1\pm P)/2$, también $P=\sqrt{1-4\det\rho}$, la forma usual del grado de polarización en
+términos de la matriz de coherencia. Es la descomposición clásica de la óptica, y aquí es la lectura de $r$ como radio:
+la luz no polarizada está en el centro de la esfera, la totalmente polarizada en su superficie.
 
 ### El despolarizador separa dirección y radio {#sec-despolarizador}
 
@@ -280,7 +282,9 @@ U(\delta,\varphi)=\exp\!\left(-\,i\,\frac{\delta}{2}\,\mathbf n\cdot\boldsymbol\
 $$
 
 y por lo tanto **gira el vector qg un ángulo $\delta$ alrededor del eje $\mathbf n$**, que es el punto de la esfera que
-corresponde a la polarización lineal del eje rápido. Las láminas de onda son compuertas de un qubit, y el capítulo 2 se
+corresponde a la polarización lineal del eje rápido. La forma exponencial es la cubierta doble $SU(2)\to SO(3)$: el eje
+lleva $2\varphi$ y la rotación en la esfera es $\delta$, la misma duplicación de @sec-foton-qubit que hace que una
+lámina media gire la polarización lineal $2\varphi$. Las láminas de onda son compuertas de un qubit, y el capítulo 2 se
 aplica tal cual (@sec-compuerta-probabilidad):
 
 | elemento | acción sobre el vector qg | ejemplo |
@@ -346,7 +350,7 @@ es máximo donde menos conviene: en $qg=0$. Con pocos fotones, la luz no polariz
 
 Para luz no polarizada el efecto se calcula en forma cerrada. Cada $\widehat{qg}$ es aproximadamente normal de media
 cero y varianza $1/N$, de modo que $\hat P\sqrt N$ es la longitud de un vector gaussiano de tres componentes y sigue
-la distribución de Maxwell:
+la distribución de Maxwell: su media es $\sqrt2\,\Gamma(2)/\Gamma(3/2)=\sqrt{8/\pi}$, y por tanto
 
 $$
 E\big[\hat P\big]\approx\sqrt{\frac{8}{\pi N}}\approx\frac{1{,}6}{\sqrt N}.
@@ -462,7 +466,11 @@ Stokes, y muestra cómo un interferómetro la convierte en una probabilidad, es 
 ## Notas bibliográficas {.unnumbered}
 
 Los parámetros de polarización son los de @stokes1852. La ley de Malus, la esfera de Poincaré y el cálculo de Mueller
-siguen el tratamiento clásico de @bornwolf1999. La dualidad onda–partícula es @greenberger1988 y @englert1996; la
-incertidumbre entrópica, @maassen1988 y, con la corrección por la entropía del estado, @berta2010. Las notas de
-investigación numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio [@qangrepo];
-la definición de la unidad qang, en @monteverde2026.
+siguen el tratamiento clásico de @bornwolf1999. La correspondencia $S_\mu=\tfrac12\operatorname{Tr}(J\sigma_\mu)$ entre
+la matriz de coherencia y los Stokes, la descomposición en luz polarizada y no polarizada y $P=\sqrt{1-4\det J}$ se
+repiten en la revisión de Goldberg y colaboradores, *Advances in Optics and Photonics* 12, 683 (2020), DOI
+`10.1364/aop.404175`; la acción $SU(2)$ de las láminas y la duplicación de ángulos aparecen también en las entradas
+*Stokes parameters* de Wikipedia y *Jones calculus* de physics2u (consulta de noviembre de 2026). La dualidad
+onda–partícula es @greenberger1988 y @englert1996; la incertidumbre entrópica, @maassen1988 y, con la corrección por la
+entropía del estado, @berta2010. Las notas de investigación numeradas (§) que cita el capítulo y los scripts que lo
+verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en @monteverde2026.
