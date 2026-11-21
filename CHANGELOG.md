@@ -24,6 +24,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Book (ES): chapters 7-42 now follow the verified rewrite (`qjax07`-`qjax42`), grouped in Parts III-XIII; the old text of chapters 7-36 moved to `book/es/_legacy/` (not rendered). Cross-references and `index.qmd` updated.
 - Appendix D regenerated for 0.16.0 (module `qlimits`, `qstring` name lists); `THEORY_CORE.md` extended (single-basis no-go, string chapter, ledger counts).
 - EN Cap. 36: `qang.measures` note corrected (present since 0.15.0).
+- ES Cap. 21: credible interval relabelled as `q=0.999` equal-tailed (`0.1%` per tail, `99.8%` central) instead of `99.9%`; `shots_for_certified_hmin` formula written as `N=(z/q_max)^2` with `q_max=2·2^-h−1`; new §21.8 contrasting NIST TN 2119, SP 800-90B, IR 8446 and NIST/SEMATECH §7.4.6. `tools/verify_cap21.py` labels updated to match.
 
 ## [0.16.0] - 2026-11-16
 

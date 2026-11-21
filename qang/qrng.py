@@ -36,7 +36,7 @@ def point_min_entropy(k0: int, N: int) -> float:
 
 
 def shots_for_certified_hmin(h_target: float, z: float = 3.09) -> float:
-    """Con qg_Z verdadero = 0: qmax ≈ z/√N ⇒ N = (z / (2(2^{1−h}) − 1))²  … resuelto por qmax = 2·2^{−h} − 1."""
+    """Con qg_Z verdadero = 0: qmax ≈ z/√N y qmax = 2·2^{−h} − 1, por tanto N = (z/qmax)²."""
     qmax = 2 * 2 ** (-h_target) - 1
     return (z / qmax) ** 2
 

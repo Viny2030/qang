@@ -7,9 +7,9 @@ for N in (1_000, 10_000, 100_000, 1_000_000):
     k0 = N // 2
     lo, hi = posterior_qz_quantiles(k0, N)
     print(f"[1] N={N:>9d}, k0=N/2: H_min punto = {point_min_entropy(k0, N):.4f} | "
-          f"intervalo 99.9% qg_Z = [{1000*lo:+.1f}, {1000*hi:+.1f}] m-qg | H_min cert = {certified_min_entropy(k0, N):.4f} bit")
+          f"intervalo 99.8% central qg_Z = [{1000*lo:+.1f}, {1000*hi:+.1f}] m-qg | H_min cert = {certified_min_entropy(k0, N):.4f} bit")
 assert certified_min_entropy(500_000, 1_000_000) > 0.99 and certified_min_entropy(500, 1000) < 0.9
-# 2. Presupuesto para certificar H_min ≥ 0.99 (|qg_Z| ≤ 13.9 m-qg al 99.9%)
+# 2. Presupuesto para certificar H_min ≥ 0.99 (|qg_Z| ≤ 7.0 m-qg, cola 0.1% por lado)
 N99 = shots_for_certified_hmin(0.99)
 print(f"[2] H_min ≥ 0.99 certificado: |qg_Z| ≤ {1000*(2*2**-0.99-1):.1f} m-qg ⇒ N ≈ {N99:.0f} disparos")
 # 3. Sesgo real de 30 m-qg: el punto sobreestima; el certificado acota

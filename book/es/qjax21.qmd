@@ -10,11 +10,11 @@
 
 ## 21.1 Punto frente a certificado
 
-**ES.** $H_{\min}=-\log_2\frac{1+|qg_Z|}{2}$ (Cap. 19) evaluada en el **punto** $\hat{qg}_Z=2k_0/N-1$ sobreestima: con $k_0=N/2$ da $1.000$ bit para cualquier $N$. La versión certificada toma el máximo de $|qg_Z|$ sobre el intervalo creíble al $99.9\%$ del posterior Bayes-Haar $\mathrm{Beta}(1+k_0,1+N-k_0)$ (Cap. 8):
+**ES.** $H_{\min}=-\log_2\frac{1+|qg_Z|}{2}$ (Cap. 19) evaluada en el **punto** $\hat{qg}_Z=2k_0/N-1$ sobreestima: con $k_0=N/2$ da $1.000$ bit para cualquier $N$. La versión certificada toma el máximo de $|qg_Z|$ sobre el intervalo creíble de cola $0.1\%$ por lado — masa central $99.8\%$ — del posterior Bayes-Haar $\mathrm{Beta}(1+k_0,1+N-k_0)$ (Cap. 8):
 $$H_{\min}^{\text{cert}}=-\log_2\frac{1+\max(|qg_Z^{\text{lo}}|,|qg_Z^{\text{hi}}|)}{2}:\quad N=10^3\to0.866,\ 10^4\to0.956,\ 10^5\to0.986,\ 10^6\to0.9955\ \text{bit}.$$
-Presupuesto para certificar $H_{\min}\ge0.99$ ($|qg_Z|\le7.0$ m-qg al $99.9\%$): $N\approx1.97\cdot10^5$ disparos (`exact` para el modelo i.i.d.). Con sesgo real de $30$ m-qg ($N=2\cdot10^5$): punto $0.9528$, certificado $0.9431$, verdadero $0.9574$ — el certificado es cota inferior.
+Presupuesto para certificar $H_{\min}\ge0.99$ ($|qg_Z|\le7.0$ m-qg con cola $0.1\%$ por lado): $N\approx1.97\cdot10^5$ disparos (`exact` para el modelo i.i.d.). Con sesgo real de $30$ m-qg ($N=2\cdot10^5$): punto $0.9528$, certificado $0.9431$, verdadero $0.9574$ — el certificado es cota inferior.
 
-**EN.** Point min-entropy overestimates; the certified value uses the $99.9\%$ Bayes-Haar credible interval of $qg_Z$ and is a lower bound (`exact`, i.i.d. model).
+**EN.** Point min-entropy overestimates; the certified value uses the equal-tailed Bayes-Haar credible interval of $qg_Z$ with $0.1\%$ tails ($99.8\%$ central mass) and is a lower bound (`exact`, i.i.d. model).
 
 ## 21.2 Auditoría de canal: estacionariedad de qgZ por bloques
 
@@ -24,7 +24,7 @@ $\chi^2$ de homogeneidad de $p_0$ entre bloques de $10^4$ ($19$ g.d.l.): canal e
 
 | Métrica / Metric | Estándar | `qang` (`qang.qrng`) | Estatus |
 | :--- | :--- | :--- | :--- |
-| $H_{\min}$, $N=10^4$, sin sesgo | punto: $1.000$ | certificado $99.9\%$: $0.956$ | cota honesta (`exact`) |
+| $H_{\min}$, $N=10^4$, sin sesgo | punto: $1.000$ | certificado cola $0.1\%$: $0.956$ | cota honesta (`exact`) |
 | Disparos para $H_{\min}\ge0.99$ | — | $1.97\cdot10^5$ | (`exact`) |
 | Sesgo oculto de $30$ m-qg | punto $0.953>$ verdadero | cert $0.943<$ verdadero | (`exact`) |
 | Deriva de canal | — | $\chi^2$ $27\to131$; bloques en m-qg | (`exact`) |
@@ -33,8 +33,8 @@ $\chi^2$ de homogeneidad de $p_0$ entre bloques de $10^4$ ($19$ g.d.l.): canal e
 ## 21.4 Bloque (`qang/qrng.py`)
 
 ```python
-def posterior_qz_quantiles(k0, N, q=0.999):   # cuantiles de Beta(1+k0, 1+N−k0) → qg_Z = 2p0 − 1
-def certified_min_entropy(k0, N, q=0.999):    # −log2((1 + max|qg_Z| en el intervalo)/2)
+def posterior_qz_quantiles(k0, N, q=0.999):   # cuantiles [1−q, q] = [0.001, 0.999]: cola 0.1% por lado
+def certified_min_entropy(k0, N, q=0.999):    # −log2((1 + max|qg_Z| en el intervalo central 99.8%)/2)
 def shots_for_certified_hmin(h, z=3.09):      # q_max = 2·2^−h − 1 ; N = (z/q_max)²
 def block_drift_chi2(bits, block):            # χ² de homogeneidad; devuelve qg_Z por bloque en m-qg
 ```
@@ -42,7 +42,7 @@ def block_drift_chi2(bits, block):            # χ² de homogeneidad; devuelve q
 ## 21.5 Verificación — `tools/verify_cap21.py`
 
 ```
-[1] N=    10000, k0=N/2: H_min punto = 1.0000 | intervalo 99.9% qg_Z = [-30.9, +30.9] m-qg | H_min cert = 0.9561 bit
+[1] N=    10000, k0=N/2: H_min punto = 1.0000 | intervalo 99.8% central qg_Z = [-30.9, +30.9] m-qg | H_min cert = 0.9561 bit
 [2] H_min ≥ 0.99 certificado: |qg_Z| ≤ 7.0 m-qg ⇒ N ≈ 197358 disparos
 [3] sesgo real 30 m-qg, N=2e5: H_min punto=0.9528, cert=0.9431, verdadero=0.9574
 [4] χ²(19 g.d.l.): estacionario 27.1 | deriva 130.7
@@ -63,8 +63,23 @@ def test_cert_grows_with_N(): assert certified_min_entropy(500000, 1000000) > ce
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |
 | `hmin_certified_haar` | criptografía | intervalo creíble Beta → $H_{\min}$ | `certified_min_entropy` | `exact` (i.i.d.) |
-| `hmin_shots` | estadística | $N=(z/(2\cdot2^{-h}-1))^2$ | `shots_for_certified_hmin` | `exact` |
+| `hmin_shots` | estadística | $N=(z/q_{\max})^2$, $q_{\max}=2\cdot2^{-h}-1$ | `shots_for_certified_hmin` | `exact` |
 | `channel_drift_chi2` | auditoría | $\chi^2$ por bloques en m-qg | `block_drift_chi2` | `exact` |
 
 `CHANGELOG.md [Unreleased]`: `qang.qrng`; `tools/verify_cap21.py`; `tests/test_qrng.py`.
 Commit: `docs(cap21): QRNG certificado y auditoría de canal reescritos sobre Cap. 1–20 + qang.qrng + verify_cap21`.
+
+## 21.8 Contraste bibliográfico y precisiones de revisión (2026-11-21)
+
+El capítulo usa la misma coordenada física que Caps. 19–20: $qg_Z=2p_0-1$. El intervalo se construye sobre $p_0$ con el posterior $\mathrm{Beta}(1+k_0,1+N-k_0)$ y se transforma a $qg_Z$; es un intervalo creíble de colas iguales (*equal-tailed*), no un intervalo de confianza frecuentista ni una cota de cumplimiento sobre el dispositivo físico.
+
+Precisiones que delimitan el cómputo:
+
+1. La etiqueta correcta del código con `q=0.999` es **cola $0.1\%$ por lado / masa central $99.8\%$**, no “$99.9\%$”. Un intervalo central $99.9\%$ exigiría cuantiles $0.0005$ y $0.9995$; cambiar `q` alteraría todos los números de este capítulo ($0.866$, $0.956$, $0.986$, $0.9955$ y $N\approx197358$). NIST TN 2119, §4.5, define el intervalo creíble *equal-tailed* precisamente como los cuantiles $\alpha/2$ y $1-\alpha/2$ del posterior (aquí $\alpha=0.002$).
+2. $H_{\min}^{\mathrm{cert}}=-\log_2((1+\max|qg_Z|)/2)$ toma el peor extremo del intervalo, por lo que es cota inferior del parámetro dentro del modelo i.i.d. Solo es válida bajo muestreo independiente y modelo Beta-Bernoulli con previa uniforme/Bayes-Haar. La deriva detectada en §21.2 rompe esa hipótesis: el certificado de §21.1 debe recalcularse por bloques o tras eliminar la no estacionariedad.
+3. $N=(z/q_{\max})^2$ con $q_{\max}=2\cdot2^{-h}-1$ invierte la aproximación normal $|qg_Z|\le z/\sqrt{N}$ alrededor de $qg_Z=0$; no es una cota exacta en colas pequeñas. Con $z=3.09$ se usa el cuantil normal $0.999$, coherente con la cola $0.1\%$ por lado, y da $|qg_Z|\le7.0$ m-qg y $N\approx197358$ para $h=0.99$.
+4. La auditoría $\chi^2$ de homogeneidad de una tabla $2\times B$ tiene $B-1$ grados de libertad; con $B=20$ bloques son $19$. Rechazar homogeneidad ($130.7$ frente a $27.1$) indica que el proceso no es i.i.d., pero no identifica la causa ni certifica aleatoriedad criptográfica: solo diagnostica deriva en la frecuencia de ceros.
+5. NIST SP 800-90B evalúa la entropía de la fuente de ruido y las pruebas de salud (*health tests*) de la implementación, no únicamente un intervalo sobre una salida idealizada. Por eso la extracción (Toeplitz/Trevisan) y la certificación por desigualdades de Bell (§41–42) permanecen referenciadas y marcadas `unverified` aquí.
+6. NIST IR 8446 compara SP 800-90B con AIS 20/31 y separa la estimación de entropía de la calidad estadística de la salida. El estatus `exact` de esta sección significa exactitud algebraica **dentro del modelo**, no acreditación normativa ni evidencia de resistencia a atacantes con acceso a la fuente.
+
+**Fuentes contrastadas:** NIST TN 2119 (*Estimating Instrument Performance: with Confidence Intervals and Confidence Bounds*, DOI `10.6028/NIST.TN.2119`; `https://nvlpubs.nist.gov/nistpubs/TechnicalNotes/NIST.TN.2119.pdf`): intervalo creíble *equal-tailed* y §4.5; NIST SP 800-90B (*Recommendation for the Entropy Sources Used for Random Bit Generation*, DOI `10.6028/NIST.SP.800-90B`; `https://csrc.nist.gov/pubs/sp/800/90/b/final`): estimación de entropía y health tests; NIST IR 8446 (*Bridging the Gap Between Standards on Random Number Generation*, DOI `10.6028/NIST.IR.8446`; `https://nvlpubs.nist.gov/nistpubs/ir/2026/NIST.IR.8446.pdf`): comparación SP 800-90B/AIS 20/31; NIST/SEMATECH *e-Handbook of Statistical Methods*, §7.4.6 (`https://www.itl.nist.gov/div898/handbook/prc/section4/prc46.htm`): $\chi^2$ de homogeneidad con $(2-1)(B-1)$ grados de libertad.
