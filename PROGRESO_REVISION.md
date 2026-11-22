@@ -170,8 +170,8 @@
 | 3 | `book/es/qjax21.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 4 | `book/es/qjax22.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 5 | `book/es/qjax23.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 6 | `book/es/qjax24.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
-| 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
+| 6 | `book/es/qjax24.qmd` | [x] | [x] | [x] | [x] | 30 |
+| 7 | Reporte final y estado de Git | [x] | - | - | [x] | 10 |
 
 ## Reglas de ejecución (bloque 4)
 
@@ -190,5 +190,5 @@
 - [x] **qjax21** (cap21) — revisión, fuentes, `verify_cap21.py` (`verify_cap21: OK`), `tests/test_qrng.py` (2 passed), sección 21.8 y commit; etiqueta `q=0.999` corregida a cola `0.1%`/central `99.8%`.
 - [x] **qjax22** (cap22) — revisión, fuentes, `verify_cap22.py` (`verify_cap22: OK`), `tests/test_qbattery.py` (3 passed), sección 22.7 y commit.
 - [x] **qjax23** (cap23) - §23.9 (5 precisiones, arXiv:2405.20237, PRX Quantum 2/040203, PRA 100/010302(R)), `verify_cap23.py` (`verify_cap23: OK` con PYTHONPATH), `tests/test_qweightqnn.py` (3 passed), CHANGELOG/PROGRESO actualizados y commit.
-- [ ] **qjax24** (cap24).
-- [ ] **Reporte final (bloque 4)**.
+- [x] **qjax24** (cap24). Contraste bibliográfico/precisiones §24.8 (Bonet-Monroig 2018 PRA 98/062339/arXiv:1807.10050; Temme-Bravyi-Gambetta 2017 PRL 119/180509/arXiv:1612.02058; contexto Cai 2023 RMP 95/045005). Validación: `tools/verify_cap24.py` => `verify_cap24: OK`; `pytest tests/test_qsymfilter.py -q` => `1 passed`; `git diff --check` limpio.
+- [x] **Reporte final (bloque 4)**. Bloque 4 cerrado (qjax19-qjax24 + reporte).
