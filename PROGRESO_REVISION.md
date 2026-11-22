@@ -186,3 +186,4 @@
 **Repositorio:** `C:\Users\ASUS\PycharmProjects\qang` · **Rama:** `main`.
 
 - [x] **cap01** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_probability.py -q` => 12 passed; `verify_cap01.py` bloqueado (`qiskit` ausente); `git diff --check` limpio.
+- [x] **cap02** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_algebra.py tests/test_pulse_area.py -q` => 15 passed, 2 skipped; `verify_cap02.py` bloqueado (`cirq` ausente); `git diff --check` limpio.
