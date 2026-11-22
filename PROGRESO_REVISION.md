@@ -38,7 +38,7 @@
 - [x] **cap06** - commit `docs: revisi�n te�rica y validaci�n cap 6`. Reestructurado 2026-11-22 (Sin/Con qang con estatus, ES/EN); `pytest tests/test_polarization.py -q` 12 passed; `verify_cap06.py` bloqueado por qutip ausente.
 - [x] **qjax07** - commit `chore(book): actualiza fecha y referencias cap. 7-18`. Reestructurado 2026-11-22 (Sin/Con qang con estatus, fecha normalizada, ES/EN); `verify_cap07.py` OK; `pytest tests/test_qan.py -q` 4 passed.
 - [x] **qjax08** - commit `chore(book): actualiza fecha y referencias cap. 7-18`. Reestructurado 2026-11-22 (Sin/Con qang con estatus, ES/EN); `verify_cap08.py` OK; `pytest tests/test_qdist.py -q` 4 passed.
-- [x] **qjax09** (cap09) — revisión, fuentes, `verify_cap09.py`, `tests/test_qfisher.py` (3 passed) y commit.
+- [x] **qjax09** - commit `chore(book): actualiza fecha y referencias cap. 7-18`. Reestructurado 2026-11-22 (Sin/Con qang con estatus, ES/EN); `verify_cap09.py` OK; `pytest tests/test_qfisher.py -q` 3 passed.
 - [x] **qjax10** (cap10) — revisión, fuentes, `verify_cap10.py`, `tests/test_qgeom.py` (2 passed) y commit.
 - [x] **qjax11** (cap11) — revisión, fuentes, `verify_cap11.py`, `tests/test_qmetro.py` (3 passed) y commit.
 - [x] **qjax12** (cap12) — revisión, fuentes, `verify_cap12.py`, `tests/test_qneutrino_vacuum.py` (3 passed) y commit.

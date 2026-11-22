@@ -2,7 +2,7 @@
 *Chapter 9 — Fisher Information in qga: Z Readout versus Fubini–Study, Regularized Natural Gradient and Barren Plateaus*
 
 
-**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
 
 > Módulo: `qang.qfisher` (JAX, `jax<0.9`; usa `qang.qan`). Verificación: `tools/verify_cap09.py`. Continúa Cap. 7–8; fases geométricas pasan a Cap. 10. Relación con Cap. 23 (QNG, núcleos): este capítulo fija las métricas; Cap. 23 las aplica a QML.
 
@@ -32,15 +32,16 @@ Para $P=1$ esto reproduce exactamente el paso amortiguado por $qg_\kappa$ y el d
 
 $\mathrm{Var}[\partial_{\alpha}\mathcal L]_{\text{qga}}=(2\pi/1000)^2\,\mathrm{Var}[\partial_\theta\mathcal L]_{\text{rad}}$ para toda pérdida y todo $n$ (`exact`). La instancia de `verify_cap09.py` §4 (una capa en cadena, observable $Z_0Z_{n-1}$) no presenta meseta ($\mathrm{Var}\approx0.13\ \text{rad}^{-2}$ para $n=2\ldots6$): el decaimiento exponencial es propiedad de ansätze profundos/globales (Cap. 23), no de la unidad. Estatus `against` para cualquier afirmación de mitigación por qga/m-qga.
 
-## 9.5 Contraste operativo — Sin `qang` vs. con `qang`
+## 9.5 Contraste operativo: Sin qang vs. Con qang
 
-| Métrica / Metric | Estándar (sin `qang`) | `qang` (`qang.qfisher` + JAX) | Ganancia / Estatus |
-| :--- | :--- | :--- | :--- |
-| Métrica para gradiente natural, $P=8$ | QFI (Fubini–Study): 44 circuitos, 1 ancilla, controladas | $F_Z$: 16 circuitos, 0 ancillas (`classical_fisher_z`) | $-64\%$ circuitos, $-1$ ancilla (`exact`) |
-| Precisión angular por disparo | depende de la parametrización | $\sigma_{\text{qga}}=159.15/\sqrt N$ uniforme | (`exact`) |
-| Iteraciones IQAN $n=2$, $\mathcal L<10^{-3}$ | euclid en qga: mediana 58 (8/8) | NG $F_Z$ regularizado: mediana 22 (8/8) | $-62\%$ iteraciones, $-24\%$ circuitos (`exact` sim.; hw `unverified`) |
-| Cota $F_Z\preceq4g$ | — | verificada 5/5, $P=8$ | (`exact`) |
-| Mesetas estériles | — | unidad qga: reescalado constante | sin ganancia (`against`) |
+Instancia de `tools/verify_cap09.py`.
+
+| Métrica / criterio | Sin qang (baseline estándar) | Con qang (qg/m-qg/qga) | Delta | Estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| Fisher de lectura Z | $F_\theta$ en radianes | $F_{\mathrm{qga}}=F_\theta (2\pi/1000)^2$, $F_{\mathrm{qg}_Z}=1/(1-qg_Z^2)$ | Misma información, unidades qang | `exact` |
+| Cota de Cramér-Rao | $\sigma_\theta\ge1/\sqrt{N F_\theta}$ | $\sigma_{\mathrm{qga}}\ge1/\sqrt{N F_{\mathrm{qga}}}$; $F_{\mathrm{qga}}\le 4F^{FS}$ | Misma cota, escala operativa | `exact` |
+| Precondicionamiento | Gradiente euclidiano en rad | Gradiente natural regularizado en qga + $\lambda\mathbb I$ | Más estable cerca de polos; no cambia meseta | `mixed` |
+| Meseta estéril | Varianza exponencialmente pequeña | Igual en qga: reescalado unitario no mitiga | Ninguna ganancia | `no gain` / `against` |
 
 ## 9.6 Bloque JAX (`qang/qfisher.py`)
 
@@ -115,22 +116,3 @@ def test_circuit_counts():
 - `tools/verify_cap09.py`, `tests/test_qfisher.py`; Apéndice H: 5 entradas (`fisher_z_qga` … `plateau_unit_rescale`).
 ```
 Commit: `feat(qfisher): Fisher Z vs Fubini–Study en qga, NG regularizado y diagnóstico de mesetas + verify_cap09`.
-
-## 9.9 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-La Fisher clásica de la sección 9.1 puede derivarse sin aproximación: con $p_0=\cos^2(\theta/2)$, $\partial_\theta p_0=-\tfrac12\sin\theta$, y $p_0(1-p_0)=\tfrac14\sin^2\theta$, luego $I_F(\theta)=1$; el cambio de coordenada $\theta=2\pi\alpha/1000$ multiplica por $(2\pi/1000)^2$ y da $I_F(\alpha)=4\pi^2\times10^{-6}$ qga$^{-2}$. La cota de Cramér–Rao $\sigma_\alpha\ge1/\sqrt{N I_F}$ produce $1000/(2\pi\sqrt N)=159.15/\sqrt N$ qga. En coordenada de lectura $z=\cos\theta$, $I_F(z)=1/(1-z^2)$, que diverge en los polos porque la derivada de la probabilidad respecto de $z$ no contiene la desaparición del jacobiano angular.
-
-La desigualdad $F_Z\preceq$ QFI $=4g$ es la monotonicidad de la información de Fisher bajo medidas: la información clásica obtenida de cualquier POVM no puede exceder la información cuántica óptima. Braunstein y Caves definen la métrica de distinguibilidad cuántica precisamente como la Fisher máxima sobre medidas, y muestran que para estados puros es la métrica de Fubini–Study; Barndorff-Nielsen y Gill aclaran que, aunque la medida óptima pueda depender del estado verdadero, el régimen asintótico óptimo se alcanza con medidas adaptativas. Para $P=1$, $R_Y$ leído en $Z$ es una medida óptima, de ahí la igualdad verificada.
-
-El conteo de circuitos es coherente con la regla de desplazamiento de parámetro: un generador con dos autovalores (como $Y/2$) permite derivadas exactas con dos ejecuciones desplazadas $\theta\pm\pi/2$, es decir $\alpha\pm250$ qga, sin ancilla; por cada parámetro se requieren $2P$ circuitos para gradiente y, con la misma regla aplicada a la matriz, $2P$ adicionales para $F_Z$. El test de Hadamard para $\mathrm{Re}[\langle\partial_i\psi|\partial_j\psi\rangle-\langle\partial_i\psi|\psi\rangle\langle\psi|\partial_j\psi\rangle]$ necesita $P(P+1)/2$ solapamientos más $P$ normalizaciones, que suman $P(P+3)/2=44$ para $P=8$.
-
-La regularización $\lambda I$ no es cosmética: $F_Z$ es singular cuando una dirección no cambia la distribución observada en $Z$ (polos o parámetros no observables en esa base), y el paso natural $(F_Z+\lambda I)^{-1}\nabla\mathcal L$ es el análogo clásico del gradiente natural amortiguado. La mejora observada en iteraciones es propiedad del precondicionador, no de la unidad angular. Finalmente, las mesetas estériles de McClean et al. se probaron para ansätze aleatorios suficientemente profundos que forman 2-diseños: un reescalado global $\theta\mapsto2\pi\alpha/1000$ transforma $\mathrm{Var}[\partial_\alpha\mathcal L]=(2\pi/1000)^2\mathrm{Var}[\partial_\theta\mathcal L]$ y no puede crear ni eliminar el decaimiento exponencial con $n$.
-
-**Fuentes contrastadas:**
-
-- S. L. Braunstein y C. M. Caves, “Statistical distance and the geometry of quantum states”, *Phys. Rev. Lett.* 72, 3439–3443 (1994), DOI `10.1103/PhysRevLett.72.3439`: <https://harvest.aps.org/v2/journals/articles/10.1103/PhysRevLett.72.3439/fulltext>.
-- O. E. Barndorff-Nielsen y R. D. Gill, “Fisher information in quantum statistics”, *J. Phys. A* 33, 4481–4490 (2000), DOI `10.1088/0305-4470/33/24/306`: <https://arxiv.org/abs/quant-ph/9808009v4>.
-- M. Schuld, V. Bergholm, C. Gogolin, J. Izaac y N. Killoran, “Evaluating analytic gradients on quantum hardware”, *Phys. Rev. A* 99, 032331 (2019), DOI `10.1103/PhysRevA.99.032331`: <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.99.032331>.
-- J. R. McClean et al., “Barren plateaus in quantum neural network training landscapes”, *Nature Communications* 9, 4812 (2018), DOI `10.1038/s41467-018-07090-4`: <https://www.nature.com/articles/s41467-018-07090-4>.
-
-**Validación de esta revisión:** `tools/verify_cap09.py` reproduce `verify_cap09: OK` con igualdad CFI/QFI para un qubit, brecha PSD en 5/5 muestras, reducción mediana 58→22 iteraciones y reescalado exacto de la varianza; `tests/test_qfisher.py` pasa junto con la suite unitaria relacionada del capítulo.

@@ -1,6 +1,6 @@
 # Chapter 9 — Fisher Information in qga: Z Readout versus Fubini–Study, Regularized Natural Gradient and Barren Plateaus {#sec-qjax09 .unnumbered}
 
-**Updated:** November 15, 2026
+**Updated:** November 22, 2026
 
 > Module: `qang.qfisher` (JAX, `jax<0.9`; uses `qang.qan`). Verification: `tools/verify_cap09.py`. Continues Ch. 7–8; geometric phases move to Ch. 10. Relation to Ch. 23 (QNG, kernels): this chapter fixes the metrics; Ch. 23 applies them to QML.
 
@@ -28,15 +28,16 @@ For $P=1$ this reproduces exactly the step damped by $qg_\kappa$ and the Euclide
 
 $\mathrm{Var}[\partial_{\alpha}\mathcal L]_{\text{qga}}=(2\pi/1000)^2\,\mathrm{Var}[\partial_\theta\mathcal L]_{\text{rad}}$ for every loss and every $n$ (`exact`). The instance of `verify_cap09.py` §4 (one layer on a chain, observable $Z_0Z_{n-1}$) shows no plateau ($\mathrm{Var}\approx0.13\ \text{rad}^{-2}$ for $n=2\ldots6$): exponential decay is a property of deep/global ansätze (Ch. 23), not of the unit. Status `against` for any claim of mitigation by qga/m-qga.
 
-## 9.5 Operational contrast — Without `qang` vs. with `qang`
+## 9.5 Operational contrast: Without qang vs. With qang
 
-| Metric | Standard (without `qang`) | `qang` (`qang.qfisher` + JAX) | Gain / Status |
-| :--- | :--- | :--- | :--- |
-| Metric for natural gradient, $P=8$ | QFI (Fubini–Study): 44 circuits, 1 ancilla, controlled gates | $F_Z$: 16 circuits, 0 ancillas (`classical_fisher_z`) | $-64\%$ circuits, $-1$ ancilla (`exact`) |
-| Angular precision per shot | depends on the parametrization | $\sigma_{\text{qga}}=159.15/\sqrt N$ uniform | (`exact`) |
-| IQAN iterations $n=2$, $\mathcal L<10^{-3}$ | Euclidean in qga: median 58 (8/8) | regularized NG $F_Z$: median 22 (8/8) | $-62\%$ iterations, $-24\%$ circuits (`exact` sim.; hw `unverified`) |
-| Bound $F_Z\preceq4g$ | — | verified 5/5, $P=8$ | (`exact`) |
-| Barren plateaus | — | qga unit: constant rescaling | no gain (`against`) |
+`tools/verify_cap09.py` instance.
+
+| Metric / criterion | Without qang (standard baseline) | With qang (qg/m-qg/qga) | Delta | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| Z-readout Fisher | $F_\theta$ in radians | $F_{\mathrm{qga}}=F_\theta (2\pi/1000)^2$, $F_{\mathrm{qg}_Z}=1/(1-qg_Z^2)$ | Same information, qang units | `exact` |
+| Cramér-Rao bound | $\sigma_\theta\ge1/\sqrt{N F_\theta}$ | $\sigma_{\mathrm{qga}}\ge1/\sqrt{N F_{\mathrm{qga}}}$; $F_{\mathrm{qga}}\le 4F^{FS}$ | Same bound, operational scale | `exact` |
+| Preconditioning | Euclidean gradient in rad | Regularized natural gradient in qga + $\lambda\mathbb I$ | More stable near poles; does not change plateau | `mixed` |
+| Barren plateau | Exponentially small variance | Same in qga: unit rescaling does not mitigate | No gain | `no gain` / `against` |
 
 ## 9.6 JAX block (`qang/qfisher.py`)
 

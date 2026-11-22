@@ -6,6 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `book/es/qjax09.qmd` + `book/en/qjax09.qmd` (reestructura 2026-11-22): fecha normalizada; §9.5 Sin/Con qang con estatus; §9.9 bibliográfica anexa eliminada. Validación: `verify_cap09.py` => OK; `pytest tests/test_qfisher.py -q` => 3 passed.
 - `book/es/qjax08.qmd` + `book/en/qjax08.qmd` (reestructura 2026-11-22): fecha normalizada; §8.5 Sin/Con qang con estatus; §8.9 bibliográfica anexa eliminada. Validación: `verify_cap08.py` => OK; `pytest tests/test_qdist.py -q` => 4 passed.
 - `book/es/qjax07.qmd` + `book/en/qjax07.qmd` (reestructura 2026-11-22): fecha normalizada; §7.4 convertido a tabla Sin/Con qang con estatus; preservado contenido técnico y Apéndice H. Validación: `verify_cap07.py` => OK; `pytest tests/test_qan.py -q` => 4 passed.
 - `book/es/cap06.qmd` + `book/en/cap06.qmd` (reestructura 2026-11-22): fecha actualizada; contraste Sin/Con qang con estatus; preservada identidad Stokes/qg y Malus. Validación: `pytest tests/test_polarization.py -q` => 12 passed; `verify_cap06.py` bloqueado por qutip ausente.
