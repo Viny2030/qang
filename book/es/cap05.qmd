@@ -1,6 +1,6 @@
 # El radio local de Bloch como medida de pureza y entrelazamiento {#sec-cap05}
 
-**Actualizado:** 13 de noviembre de 2026 · **Updated:** November 13, 2026
+**Actualizado:** 13 de noviembre de 2026 · **Updated:** November 22, 2026
 
 La Parte I trató al qubit como un punto de la superficie de la esfera: un estado puro, una probabilidad $p_0$ y sus
 cuatro lecturas. Un qubit que forma parte de un registro casi nunca es puro: está mezclado por el ruido o por su
@@ -250,21 +250,19 @@ $\hat r^{\,2}$ es 0,055 con todos en $Z$ y 0,098 repartidos en tres bases (sumas
 veces mayor, y al menos 3 veces en los casos comprobados (de 0 a 990 m-qg). La ganancia es de la simetría de peso, que anula $qg_X$ y $qg_Y$; la ecuación
 de probabilidad la vuelve una lectura.
 
-## Sin qang y con qang {#sec-comparacion05}
+## Contraste operativo: Sin qang vs. Con qang {#sec-comparacion05}
 
-| acción | sin qang | con qang | diferencia |
-|---|---|---|---|
-| medir la pureza local | tomografía en tres bases y $\operatorname{Tr}\rho^2$ | $r^2=qg_X^2+qg_Y^2+qg_Z^2$; en peso definido, $1-r^2=4p_0(1-p_0)$ desde **una sola base** | **a favor**: una base en lugar de tres, gracias a la ecuación de probabilidad junto con el peso definido |
-| medir entrelazamiento de un registro puro | one-tangle y Meyer–Wallach por su definición | el déficit $1-r^2$, promediado | **ninguna en el valor**; con estado global mixto el déficit mezcla entrelazamiento y ruido, igual que el one-tangle |
-| dirección de un estado con ruido | $\theta=\arccos qg_Z$ | $\theta=\arccos(qg_Z/r)$ | **a favor** con ruido despolarizante; **en contra** con desfase puro |
-| dualidad onda–partícula | visibilidad y predictibilidad por separado | $P^2+V^2=r^2$ | **reformulación**: misma relación |
-| disparos para el déficit en peso definido | $N$ repartidos en tres bases | $N$ en $Z$ | **a favor**: varianza unas 3 veces menor (3,1 a 800 m-qg con 300 disparos); la ganancia es de la simetría de peso |
-| entrelazamiento de un par puro | concurrencia por su definición | $qg_\tau$ de un qubit; en peso definido, $\sqrt{1-qg_Z^2}$ | **ninguna en el valor**; una base en peso definido |
-| dualidad con entrelazamiento | $P^2+V^2+C^2=1$ | $P^2+V^2+qg_\tau^2=1$ | **reformulación**; el tercer término es entrelazamiento sólo si el estado global es puro |
-| disparos para un signo con ruido | varianza binomial del estado ruidoso | $N_\text{signo}$ con $qg_Z=r\cos\theta$ | **equivalente**; a $60^\circ$, 27 → 36 → 48 disparos con $r=1$, 0,9 y 0,8 |
-| detectar que el vector se acortó | ángulo de Bures, con tomografía | $qg_L$ entre dos lecturas en $Z$ | **limitada**: exacta en un polo, 44 % a $30^\circ$, ciega en el ecuador |
+| Métrica / acción | Sin qang (baseline estándar) | Con qang (qg/m-qg) | Diferencia | Estatus |
+|---|---|---|---|---|
+| Pureza local | Tomografía en 3 bases y $\operatorname{Tr}\rho^2$ | $r^2=qg_X^2+qg_Y^2+qg_Z^2$; en peso definido, $1-r^2=4p_0(1-p_0)$ desde $Z$ | 1 base en lugar de 3 en peso definido; ganancia por simetría | `exact` |
+| Entrelazamiento de registro puro | One-tangle/Meyer-Wallach | Déficit $1-r^2$ promediado | Mismo valor; con estado global mixto mezcla ent. y ruido | `exact` |
+| Dirección con ruido | $\theta=\arccos qg_Z$ | $\theta=\arccos(qg_Z/r)$ | Gana con despolarizante; pierde con desfase puro | `exact` / condicional |
+| Dualidad onda-partícula | $P,V$ por separado | $P^2+V^2=r^2$ | Reformulación equivalente | `exact` |
+| Disparos para déficit en peso definido | $N$ en 3 bases | $N$ en $Z$ | Varianza ~3× menor; ganancia por simetría de peso | `tested` (simulación) |
+| Concurrencia de par puro | Definición estándar | $qg_\tau$ de un qubit; en peso definido $\sqrt{1-qg_Z^2}$ | Mismo valor; una base en peso definido | `exact` |
+| Detectar acortamiento de vector | Ángulo de Bures con tomografía | $qg_L$ entre lecturas en $Z$ | Cota inferior: exacta en polo, 44% a 30°, ciega en ecuador | `exact` / limitado |
 
-: Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion05}
+: Contraste operativo Sin qang vs. Con qang. {#tbl-comparacion05}
 
 **Balance.** La diferencia práctica es leer la pureza en peso definido con una sola base de medición, que además
 baja la varianza unas 3 veces con los mismos disparos. El resto son identidades conocidas escritas en la escala
