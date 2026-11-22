@@ -1,6 +1,6 @@
 # Reflexiones, Householder y la dinámica de Grover {#sec-cap03}
 
-**Actualizado:** 12 de noviembre de 2026 · **Updated:** November 12, 2026
+**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
 
 El algoritmo de Grover es, en el fondo, una sucesión de reflexiones. Escrito en unidades qg, cada reflexión es una
 matriz algebraica en el sesgo polar, la trayectoria del algoritmo es un polinomio de Chebyshev y la información que
@@ -265,18 +265,18 @@ En el simulador con ruido calibrado de IonQ (3 qubits, $a=0{,}3$, 36 000 consult
 error cuadrático medio de 0,0005–0,0015 y visibilidad ajustada de 0,965–0,985 por iteración, y entre 7 y 30 veces mejor
 que un Monte Carlo realista, cuyo circuito de profundidad cero está sesgado por el ruido del dispositivo (§39).
 
-## Sin qang y con qang {#sec-comparacion03}
+## Contraste operativo: Sin qang vs. Con qang {#sec-comparacion03}
 
-| acción | sin qang | con qang | diferencia |
-|---|---|---|---|
-| probabilidad de transición entre dos estados | $\lvert\langle\psi\vert\phi\rangle\rvert^2$ | $(1+\mathbf r_1\cdot\mathbf r_2)/2$, con ángulo qang igual al ángulo entre los estados y lectura $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg | **ninguna en el valor**; qang lo vuelve geométrico |
-| trayectoria de Grover | $\sin^2((2k+1)\theta_0)$ | $qg_k=T_{2k+1}(qg_0)$, éxito en $-1000$ m-qg | **equivalente**; la forma de Chebyshev muestra que la resolución en m-qg mejora un factor $m$ con la profundidad |
-| distancia entre dos estados | $\arccos\lvert\langle\psi\vert\phi\rangle\rvert$ | $qg_L=\gamma/2$, que en un meridiano común sale de dos histogramas en $Z$ | **conveniencia**; con azimutes distintos la lectura en $Z$ no basta |
-| decidir cuándo dejar de iterar | $k^\ast$ por la fórmula | umbral sobre $qg_{SNR}$ o $qg_\kappa$ | **ninguna**: son funciones de $\lvert qg_k\rvert$ y no ven si se pasó el polo; la fórmula de $k^\ast$ sí |
-| leer la búsqueda con ruido | histograma de cadenas de bits | lectura qg por qubit | **en contra**: la lectura qg pierde frente al histograma |
-| estimar una amplitud con ruido | máxima verosimilitud sobre conteos | la misma, con el ruido escrito en la verosimilitud qg | **a favor** hasta una profundidad cercana a $1/p$, no más allá |
+| Métrica / acción | Sin qang (baseline estándar) | Con qang (qg/m-qg/qga) | Diferencia | Estatus |
+|---|---|---|---|---|
+| Probabilidad de transición entre estados | $\lvert\langle\psi\vert\phi\rangle\rvert^2$ | $(1+\mathbf r_1\cdot\mathbf r_2)/2$; ángulo qang $\gamma$, lectura $1000\,\mathbf r_1\cdot\mathbf r_2$ m-qg | Mismo valor; lectura geométrica en m-qg | `exact` |
+| Trayectoria de Grover | $\sin^2((2k+1)\theta_0)$ | $qg_k=T_{2k+1}(qg_0)$, éxito en $-1000$ m-qg | Equivalente; Chebyshev expone factor $m$ en resolución | `exact` |
+| Distancia entre estados | $\arccos\lvert\langle\psi\vert\phi\rangle\rvert$ | $qg_L=\gamma/2$; en meridiano común sale de dos histogramas Z | Conveniente en meridiano; Z no basta con azimutes distintos | `exact` |
+| Criterio de parada | $k^\ast$ por fórmula | Umbral sobre $qg_{SNR}$ o $qg_\kappa$ | No ven sobrepaso del polo; $k^\ast$ sigue necesario | `exact` / `no gain` |
+| Búsqueda con ruido | Histograma de cadenas de bits | Lectura qg por qubit | Histograma gana en los casos ruidosos probados | `against` (ruido simulado) |
+| Estimación de amplitud con ruido | MLE sobre conteos | Misma MLE con ruido en verosimilitud qg; límite $qg_\tau=\sqrt{1-V^{2k}}$ | Ventaja hasta $\sim1/p$; luego desaparece | `exact` modelo / `hardware unverified` |
 
-: Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion03}
+: Contraste operativo Sin qang vs. Con qang. {#tbl-comparacion03}
 
 **Balance.** Las identidades del capítulo son exactas, pero ninguna da un número que no se obtenga con la amplitud
 habitual. La única comparación con ruido real del capítulo es desfavorable para la lectura qg, y queda escrita así.
@@ -325,8 +325,4 @@ El reflector es el de @householder1958. La búsqueda de Grover es @grover1996, y
 amplitud, @brassard2002; la estimación por máxima verosimilitud sin estimación de fase es @suzuki2020. La probabilidad
 de transición entre estados qg es la distancia de @wootters1981. Las notas de investigación numeradas (§) que cita el
 capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de la unidad qang, en
-@monteverde2026. **Contraste bibliográfico verificado en línea:** la amplificación $\sin^2((2m+1)\theta_a)$ y la
-información de Fisher $\mathscr I(a)=\sum_k N_k(2m_k+1)^2/[a(1-a)]$ de Suzuki et al. (DOI
-10.1007/s11128-019-2565-2) respaldan el factor $m^2$ de la @sec-chebyshev; la forma $|g_\pm(t)|^2\propto
-\cosh(\Delta\Gamma t/2)\pm\cos(\Delta m t)$ de la revisión del Particle Data Group respalda la lectura de la
-asimetría de mezcla.
+@monteverde2026.
