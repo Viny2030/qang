@@ -169,7 +169,7 @@
 | 2 | `book/es/qjax20.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 3 | `book/es/qjax21.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 4 | `book/es/qjax22.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 5 | `book/es/qjax23.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 5 | `book/es/qjax23.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 6 | `book/es/qjax24.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 7 | Reporte final y estado de Git | [ ] | — | — | [ ] | 10 |
 
@@ -189,6 +189,6 @@
 - [x] **qjax20** (cap20) — revisión, fuentes, `verify_cap20.py` (`verify_cap20: OK`), `tests/test_qkd.py` (2 passed), sección 20.8 y commit.
 - [x] **qjax21** (cap21) — revisión, fuentes, `verify_cap21.py` (`verify_cap21: OK`), `tests/test_qrng.py` (2 passed), sección 21.8 y commit; etiqueta `q=0.999` corregida a cola `0.1%`/central `99.8%`.
 - [x] **qjax22** (cap22) — revisión, fuentes, `verify_cap22.py` (`verify_cap22: OK`), `tests/test_qbattery.py` (3 passed), sección 22.7 y commit.
-- [ ] **qjax23** (cap23).
+- [x] **qjax23** (cap23) - §23.9 (5 precisiones, arXiv:2405.20237, PRX Quantum 2/040203, PRA 100/010302(R)), `verify_cap23.py` (`verify_cap23: OK` con PYTHONPATH), `tests/test_qweightqnn.py` (3 passed), CHANGELOG/PROGRESO actualizados y commit.
 - [ ] **qjax24** (cap24).
 - [ ] **Reporte final (bloque 4)**.
