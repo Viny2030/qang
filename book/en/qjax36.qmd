@@ -1,6 +1,6 @@
 # Chapter 36 — Software Architecture and the Multi-SDK Ecosystem: What Each Module Requires, What CI Installs, and What a Wrong Qubit Order Costs {#sec-qjax36 .unnumbered}
 
-**Updated:** November 16, 2026
+**Updated:** November 22, 2026
 
 > Rewrite of the architecture chapter on the basis of Ch. 1–35. Module: `qang.qarch` (standard library only; `convention_error_mqg` uses `qang.interop`). Verification: `tools/verify_cap36.py`, which audits the real repository. **Summary: the `qang` core requires only NumPy (40 of 71 modules); the rest is activated by extras; the qubit order across SDKs is unified in `qang.interop`, and getting it wrong costs up to 600 m-qg without raising an error.**
 > **Abstract.** An AST audit of the real repository: 40 of 71 modules need only NumPy; 20 need JAX, 9 Qiskit, 1 Cirq, 1 PennyLane. The CI installs `.[all]`, which includes neither JAX nor Torch, and none of the 192 test files imports a module requiring a missing package without an `importorskip` guard. Reading counts with the wrong qubit-order convention shifts the $qg_Z$ profile by up to 600 m-qg without an error.
