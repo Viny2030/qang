@@ -64,7 +64,17 @@ def test_affine_compose(): ch = AffineChannel.depolarizing(0.5).then(AffineChann
 def test_varqte(): assert abs(float(varqte_ry_mclachlan(1.0, 2.0, 2000)[-1]) - float(imaginary_time_qz_exact(1.0, 2.0))) < 2e-3
 ```
 
-## 27.7 Apéndice H
+## 27.7 Contraste bibliográfico y precisiones de revisión (2026-11-22)
+
+1. **Caminata cuántica continua y XY en grafo/línea.** La dinámica continua $i\dot q = H q$ con Hamiltoniano derivado de la adyacencia/Laplaciano es la definición estándar de caminata cuántica continua; en grafos regulares la elección $A$ vs $L$ difiere por una fase/constante global (Childs & Goldstone, *Phys. Rev. A* 70, 022314, 2004, DOI `10.1103/PhysRevA.70.022314`; arXiv:quant-ph/0306054). El caso XY en sector de peso 1 es equivalente a una caminata continua sobre la cadena, y su Trotterización por capas par-impar produce error de primer orden en $dt$, consistente con la simulación numérica del capítulo.
+2. **Canales de qubit como mapas afines en Bloch.** La representación $\mathbf r\mapsto M\mathbf r+\mathbf c$ es la forma estándar de canales CPTP de qubit en la base de Pauli/Bloch (Ruskai, Szarek & Werner, *Linear Algebra Appl.* 347, 159–187, 2002, DOI `10.1016/S0024-3795(01)00547-X`; arXiv:quant-ph/0101003; King & Ruskai, *IEEE Trans. Inf. Theory* 47, 192–209, 2001, DOI `10.1109/18.904522`). La composición afín de §27.2 es exacta; la identificación de un canal físico real con un único $(M,c)$ requiere calibración en el régimen de validez del modelo (Markoviano/CP, sin deriva no modelada).
+3. **varQTE y principio de McLachlan.** La evolución imaginaria variacional con principio de McLachlan produce la ecuación $A\dot\theta=C$ y es un método híbrido estándar para aproximar estados fundamentales/térmicos con ansatz parametrizados (McArdle *et al.*, *npj Quantum Inf.* 5, 75, 2019, DOI `10.1038/s41534-019-0187-2`). El ejemplo de 1 qubit es `exact` para el ansatz $R_Y$; para $P>1$ la métrica $A$ puede volverse singular y requiere regularización/Tikhonov, como advierte el capítulo y la literatura.
+4. **Conservación de peso y filtro de simetría en dinámica.** La conservación exacta de excitaciones por XY es algebraica; su utilidad bajo ruido depende de que el ruido viole o preserve el sector. El filtro de simetría del Cap. 24 se transfiere sólo cuando la postselección se aplica en un punto donde el estado ideal permanece en el sector.
+5. **Alcance de Hubbard/RBM.** El capítulo marca Hubbard/RBM como `unverified` aquí: no se validan en `verify_cap27.py` ni se reclaman como resultado numérico certificado de este capítulo.
+
+**Fuentes contrastadas:** Childs & Goldstone 2004, *Phys. Rev. A* 70, 022314, DOI `10.1103/PhysRevA.70.022314` (quantum walk continua, Hamiltoniano de grafo). Ruskai, Szarek & Werner 2002, *Linear Algebra Appl.* 347, 159–187, DOI `10.1016/S0024-3795(01)00547-X` (geometría de canales CPTP de qubit, forma afín de Bloch). McArdle *et al.* 2019, *npj Quantum Inf.* 5, 75, DOI `10.1038/s41534-019-0187-2` (variational imaginary time evolution, McLachlan). Contexto: King & Ruskai 2001, *IEEE Trans. Inf. Theory* 47, 192–209, DOI `10.1109/18.904522`.
+
+## 27.8 Apéndice H
 
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |
@@ -73,4 +83,4 @@ def test_varqte(): assert abs(float(varqte_ry_mclachlan(1.0, 2.0, 2000)[-1]) - f
 | `varqte_tanh_fixed_point` | dinámica | $\dot\theta=\omega\sin\theta\Rightarrow qg_Z=-\tanh\omega\tau$ | `varqte_ry_mclachlan` | `exact` |
 
 `CHANGELOG.md [Unreleased]`: `qang.qdynamics`; `tools/verify_cap27.py`; `tests/test_qdynamics.py`.
-Commit: `docs(cap27): XY/caminata con RBS, canales afines y varQTE sobre Cap. 1–26 + qang.qdynamics + verify_cap27`.
+Commit: `docs(cap27): XY/caminata con RBS, canales afines y varQTE sobre Cap. 1-26 + qang.qdynamics + verify_cap27`.

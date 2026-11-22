@@ -207,7 +207,7 @@
 |---|----------|------------------|------------------|-------------------|----------------|-----|
 | 1 | `book/es/qjax25.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 2 | `book/es/qjax26.qmd` | [x] | [x] | [x] | [x] | 30 |
-| 3 | `book/es/qjax27.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 3 | `book/es/qjax27.qmd` | [x] | [x] | [x] | [x] | 30 |
 | 4 | `book/es/qjax28.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 5 | `book/es/qjax29.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
 | 6 | `book/es/qjax30.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
@@ -218,7 +218,7 @@
 - [x] **Setup y descubrimiento** (Bloque 5: qjax25-qjax30, verificadores/tests localizados).
 - [x] **qjax25** (cap25). §25.7 contraste/precisiones (Nachman 2020 npjQI 6:84 DOI 10.1038/s41534-020-00309-7; Bravyi 2021 PRA 103:042605 DOI 10.1103/PhysRevA.103.042605; Nation 2021 PRXQ 2:040326 DOI 10.1103/PRXQuantum.2.040326; contexto Maciejewski 2020 Quantum 4:257). Validación: `tools/verify_cap25.py` => `verify_cap25: OK`; `pytest tests/test_qecho.py -q` => `3 passed`; `git diff --check` limpio.
 - [x] **qjax26** (cap26). §26.7 contraste/precisiones (Havlíček 2019 Nature 567:209 DOI 10.1038/s41586-019-0980-2; Thanasilp 2024 Nat. Commun. 15:5200 DOI 10.1038/s41467-024-49287-w; contexto Schuld-Killoran 2019 PRL 122:040504 DOI 10.1103/PhysRevLett.122.040504). Validación: `tools/verify_cap26.py` => `verify_cap26: OK`; `pytest tests/test_qkernels.py -q` => `2 passed`; `git diff --check` limpio.
-- [ ] **qjax27** (cap27).
+- [x] **qjax27** (cap27). §27.7 contraste/precisiones (Childs-Goldstone 2004 PRA 70:022314 DOI 10.1103/PhysRevA.70.022314; Ruskai-Szarek-Werner 2002 LAA 347:159 DOI 10.1016/S0024-3795(01)00547-X; King-Ruskai 2001 IEEE TIT 47:192 DOI 10.1109/18.904522; McArdle 2019 npjQI 5:75 DOI 10.1038/s41534-019-0187-2). Validación: `tools/verify_cap27.py` => `verify_cap27: OK`; `pytest tests/test_qdynamics.py -q` => `3 passed`; `git diff --check` limpio.
 - [ ] **qjax28** (cap28).
 - [ ] **qjax29** (cap29).
 - [ ] **qjax30** (cap30).
