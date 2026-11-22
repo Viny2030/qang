@@ -387,16 +387,16 @@ Para compuertas fijas, $qg_Z^{(i)}=1-2P(b_i=1)=\langle Z_i\rangle$ depende sólo
 
 Circuito $R_Y(0{,}7)\otimes R_Y(1{,}9)$, CX, $R_Y(0{,}4)$ en el qubit 0: Qiskit, PennyLane y Cirq dan $qg_Z=(0{,}467068;\,-0{,}247265)$; la diferencia exacta es $0$ (Qiskit, PennyLane) y $2\times10^{-16}$ (Cirq, con `complex128`). Estatus: `exact`; verificador `tools/verify_backend_invariance.py`.
 
-## Sin qang y con qang {#sec-comparacion06}
+## Contraste operativo: Sin qang vs. Con qang {#sec-comparacion06}
 
-| acción | sin qang | con qang | diferencia |
-|---|---|---|---|
-| transmisión de un polarizador | ley de Malus, $I=I_0\cos^2\Delta$ | $p_0=\cos^2\Delta$ con $\theta=2\Delta$; lectura $1000\,\mathbf r\cdot\mathbf a$ m-qg | **ninguna en el valor**; qang la une a la probabilidad de transición del capítulo 3 |
-| describir la polarización | parámetros de Stokes $S_1,S_2,S_3$ normalizados | son $qg_Z$, $qg_X$, $qg_Y$ | **identidad**: mismos números con otro nombre |
-| grado de polarización con pocos fotones | $\sqrt{S_1^2+S_2^2+S_3^2}$: sesgado hacia arriba | cuadrados insesgados del capítulo 4 | **a favor**: el sesgo baja unas tres veces, sin desaparecer |
-| láminas de onda | matrices de Mueller | la regla de compuertas $qg'_P=qg_{U^\dagger PU}$ | **reformulación** |
+| Métrica / acción | Sin qang (baseline estándar) | Con qang (qg/m-qg) | Diferencia | Estatus |
+|---|---|---|---|---|
+| Transmisión de polarizador | Ley de Malus $I=I_0\cos^2\Delta$ | $p_0=\cos^2\Delta$, $\theta=2\Delta$; lectura $1000\,\mathbf r\cdot\mathbf a$ m-qg | Mismo valor; unifica con transición del cap. 3 | `exact` |
+| Describir polarización | Stokes $S_1,S_2,S_3$ normalizados | Son $qg_Z,qg_X,qg_Y$ | Identidad de coordenadas | `exact` |
+| Grado de polarización con pocos fotones | $\sqrt{S_1^2+S_2^2+S_3^2}$ sesgado arriba | Cuadrados insesgados del cap. 4 | Sesgo baja ~3×, no desaparece | `exact` |
+| Láminas de onda | Matrices de Mueller | Regla de compuertas $qg'_P=qg_{U^\dagger PU}$ | Reformulación equivalente | `exact` |
 
-: Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion06}
+: Contraste operativo Sin qang vs. Con qang. {#tbl-comparacion06}
 
 **Balance.** La óptica de polarización ya trabaja con valores qg bajo otro nombre (Stokes). La diferencia medible es
 estadística: la corrección de los cuadrados reduce el sesgo del grado de polarización con pocos fotones. Todo lo

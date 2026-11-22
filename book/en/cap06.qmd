@@ -378,16 +378,16 @@ For fixed gates, $qg_Z^{(i)}=1-2P(b_i=1)=\langle Z_i\rangle$ depends only on the
 
 Circuit $R_Y(0.7)\otimes R_Y(1.9)$, CX, $R_Y(0.4)$ on qubit 0: Qiskit, PennyLane and Cirq give $qg_Z=(0.467068,\,-0.247265)$; the exact difference is $0$ (Qiskit, PennyLane) and $2\times10^{-16}$ (Cirq, with `complex128`). Status: `exact`; verifier `tools/verify_backend_invariance.py`.
 
-## Without qang and with qang {#sec-comparison06}
+## Operational contrast: Without qang vs. With qang {#sec-comparison06}
 
-| action | without qang | with qang | difference |
-|---|---|---|---|
-| transmission of a polarizer | Malus's law, $I=I_0\cos^2\Delta$ | $p_0=\cos^2\Delta$ with $\theta=2\Delta$; reading $1000\,\mathbf r\cdot\mathbf a$ m-qg | **none in the value**; qang ties it to the transition probability of Chapter 3 |
-| describing the polarization | normalized Stokes parameters $S_1,S_2,S_3$ | they are $qg_Z$, $qg_X$, $qg_Y$ | **identity**: same numbers under another name |
-| degree of polarization with few photons | $\sqrt{S_1^2+S_2^2+S_3^2}$: biased upward | unbiased squares of Chapter 4 | **in favor**: the bias drops about threefold, without vanishing |
-| wave plates | Mueller matrices | the gate rule $qg'_P=qg_{U^\dagger PU}$ | **reformulation** |
+| Metric / action | Without qang (standard baseline) | With qang (qg/m-qg) | Difference | Status |
+|---|---|---|---|---|
+| Polarizer transmission | Malus law $I=I_0\cos^2\Delta$ | $p_0=\cos^2\Delta$, $\theta=2\Delta$; reading $1000\,\mathbf r\cdot\mathbf a$ m-qg | Same value; unifies with Ch. 3 transition | `exact` |
+| Describe polarization | Normalized Stokes $S_1,S_2,S_3$ | Are $qg_Z,qg_X,qg_Y$ | Coordinate identity | `exact` |
+| Degree of polarization with few photons | $\sqrt{S_1^2+S_2^2+S_3^2}$ biased upward | Unbiased squares from Ch. 4 | Bias ~3× lower, not eliminated | `exact` |
+| Wave plates | Mueller matrices | Gate rule $qg'_P=qg_{U^\dagger PU}$ | Equivalent reformulation | `exact` |
 
-: The chapter's actions without the qang scale and with it. {#tbl-comparison06}
+: Operational contrast Without qang vs. With qang. {#tbl-comparison06}
 
 **Balance.** Polarization optics already works with qg values under another name (Stokes). The measurable difference is
 statistical: the squares correction reduces the bias of the degree of polarization with few photons. Everything else is
