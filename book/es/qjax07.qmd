@@ -2,7 +2,7 @@
 *Chapter 7 — Quantum Angular Networks (QAN), Mutual Information in qang Space and Regularized Inversion (IQAN)*
 
 
-**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
 
 > Módulo: `qang.qan` (backend JAX opcional, `jax<0.9`; core NumPy intacto). Verificación: `tools/verify_cap07.py`. Posición en `BOOK_OUTLINE.md`: nuevo Cap. 7 (Parte II); fases geométricas y Fisher pasan a 8–9, o fusionar en Cap. 23 (decisión editorial pendiente).
 
@@ -38,17 +38,17 @@ El descenso es **euclidiano en ángulo** (qga): por THEORY_CORE §2.1 equivale a
 
 **EN.** IQAN is gradient descent in qga, regularized by the $Z$-MI target and by $R_{ZZ}$ pulse area. It is first-order equivalent to the curvature-damped update in $qg_Z$; the qga rescaling of the learning rate is exact and does **not** mitigate barren plateaus (THEORY_CORE §2.1).
 
-## 7.4 Contraste operativo — Sin `qang` vs. con `qang`
+## 7.4 Contraste operativo: Sin qang vs. Con qang
 
-Instancia de `tools/verify_cap07.py` §5–§6: capa QAN de 4 qubits en cadena, $\alpha=250$ qga, $\beta=(250,60,250)$ qga, $\gamma=(\mp250)$; umbral $\tau=0.05$ bit.
+Instancia de `tools/verify_cap07.py` §§5-6: capa QAN de 4 qubits en cadena, $\alpha=250$ qga, $\beta=(250,60,250)$ qga, $\gamma=(\mp250)$; umbral $\tau=0.05$ bit.
 
-| Métrica / Metric | Enfoque estándar (sin `qang`) | Enfoque `qang` (QAN / IQAN + JAX) | Ganancia / Estatus (`qang.measures`) |
-| :--- | :--- | :--- | :--- |
-| Correlador por par $\langle Z_pZ_q\rangle$ | Test de Hadamard/SWAP: 1 ancilla, $\ge2$ compuertas 2Q, 1 circuito por par | `qan_readout`: 0 ancillas, 0 compuertas 2Q extra, $\binom n2$ pares de 1 histograma | $-1$ ancilla, $-\binom n2$ circuitos (`exact`) |
-| Bases de medida para $I_Z$ | Tomografía 2Q: 9 bases | 1 base ($Z$) | $-8$ bases por par (`exact`; sólo $I_Z$, no $I$ cuántica) |
-| Entrelazadores $R_{ZZ}$ en la capa siguiente | Todos los pares: 6 | Pares con $I_Z\ge\tau$: 2 (`mi_matrix_qg`) | $-67\%$ compuertas 2Q (`exact` en simulación; hardware `unverified`) |
-| Disparos para $\sigma_I=0.01$ bit en $I_Z=0.346$ | Regla $\varepsilon^{-2}=10^4$ | $N^\star=g^\top\Sigma g/\sigma_I^2=3277$ (`mi_shot_variance_qg`; MC/delta $=1.002$) | $-67\%$ disparos (`exact`) |
-| Inversión a $I^\star=1$ bit, $qg_Z^\star=0$ | Descenso plano en $qg_Z$: 0/20 convergencias (Cap. 30) | IQAN en qga: 7/8 convergencias, $\beta\to250.0$ qga (área mínima), $I=0.9989$ | (`exact` sim.; frente a `against`) |
+| Métrica / criterio | Sin qang (baseline estándar) | Con qang (qg/m-qg/qga) | Delta | Estatus |
+| :--- | :--- | :--- | :--- | :--- |
+| Correlador por par $\langle Z_pZ_q\rangle$ | Hadamard/SWAP: 1 ancilla, $\ge2$ compuertas 2Q, 1 circuito/par | `qan_readout`: 0 ancillas, 0 compuertas 2Q extra, $\binom n2$ pares de 1 histograma | $-1$ ancilla, $-\binom n2$ circuitos | `exact` |
+| Bases de medida para $I_Z$ | Tomografía 2Q: 9 bases | 1 base ($Z$) | $-8$ bases/par | `exact` (solo $I_Z$) |
+| Entrelazadores $R_{ZZ}$ siguiente capa | Todos los pares: 6 | Pares con $I_Z\ge\tau$: 2 (`mi_matrix_qg`) | $-67\%$ compuertas 2Q | `exact` sim. / `hardware unverified` |
+| Disparos para $\sigma_I=0.01$ bit en $I_Z=0.346$ | Regla $\varepsilon^{-2}=10^4$ | $N^\star=g^\top\Sigma g/\sigma_I^2=3277$; MC/delta $=1.002$ | $-67\%$ disparos | `exact` |
+| Inversión a $I^\star=1$ bit, $qg_Z^\star=0$ | Descenso plano en $qg_Z$: 0/20 | IQAN en qga: 7/8, $\beta\to250.0$ qga, $I=0.9989$ | Convergencia recuperada | `exact` sim. / `against` baseline plano |
 
 ## 7.5 Bloque JAX (`qang/qan.py`, `jax<0.9`)
 
@@ -162,21 +162,3 @@ def test_delta_variance_positive():
 - `tools/verify_cap07.py`, `tests/test_qan.py`; Apéndice H: `mi_z`, `mi_z_shot_var`, `qan_pair_prune`, `iqan_min_area`.
 ```
 Commit: `feat(qan): QAN/MI/IQAN en qga con backend JAX + verify_cap07`.
-
-## 7.8 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-La inversión de la distribución conjunta de la sección 7.2 es la identidad de Pauli para dos qubits, $p(s,t)=\frac14\sum_{P\in\{I,Z\}^{\otimes2}}\langle P\rangle\,\mathrm{Tr}(P\,|st\rangle\langle st|)$: los tres números qang $qg_Z^{(a)},qg_Z^{(b)},qg_{ZZ}^{(ab)}$ son suficientes porque $Z_a$ y $Z_b$ conmutan y pueden estimarse del mismo histograma. La cota $I_Z\le\min(qg_S^{(a)},qg_S^{(b)})$ es la desigualdad clásica $I(X;Y)=H(X)-H(X|Y)\le H(X)$ aplicada a los resultados de medida.
-
-El presupuesto de disparos por método delta es el régimen asintótico estándar de estimadores plug-in: si $\hat p$ es multinomial con covarianza $\Sigma/N=\big(\mathrm{diag}(p)-pp^\top\big)/N$, entonces $\mathrm{Var}[\hat I_Z]\simeq g^\top\Sigma g/N$ con $g=\partial I_Z/\partial p$. Paninski deriva expansions locales análogas para entropía e información mutua discretas y advierte que la aproximación $1/N$ pierde precisión cuando $N$ es comparable al número de celdas; por eso el umbral de poda debe tomarse con margen, no exactamente en la corrección teórica.
-
-En el independiente $2\times2$, la corrección de Miller–Madow para la entropía de $m$ celdas es $-(m-1)/(2N)$ nats. Aplicada a $I_Z=H(Z_a)+H(Z_b)-H(Z_a,Z_b)$ da $-1/(2N)-1/(2N)+3/(2N)=+1/(2N)$ nats, es decir $1/(2N\ln2)$ bits de sesgo positivo; ésta es la justificación cuantitativa de $\tau>1/(2N\ln2)$ en la sección 7.2. La misma referencia muestra que no existe estimador insesgado universal para entropía o información mutua discreta, por lo que la corrección es una aproximación asintótica y no una garantía exacta a bajo $N$.
-
-La distinción entre $I_Z$ e información mutua cuántica/entrelazamiento es esencial. Wu, Poulsen y Mølmer comparan la información mutua cuántica $S(\rho_A)+S(\rho_B)-S(\rho_{AB})$ con la información clásica máxima accesible por medidas locales, y muestran que el valor clásico depende de la base y no coincide en general con el cuántico. Por tanto $I_Z=0$ en una base no implica producto ni ausencia de entrelazamiento, y $I_Z>0$ puede existir sin entrelazamiento; el uso de $I_Z$ en IQAN es exclusivamente compilación clásica dentro de la base $Z$.
-
-**Fuentes contrastadas:**
-
-- L. Paninski, “Estimation of entropy and mutual information”, *Neural Computation* 15, 1191–1254 (2003), especially §§3–4 and Appendix A.2: <https://www.cns.nyu.edu/pub/lcv/paninski-infoEst-2003.pdf>. doi:`10.1162/089976603321780317`.
-- S. Wu, U. V. Poulsen y K. Mølmer, “Correlations in local measurements on a quantum state, and complementarity as an explanation of nonclassicality”, *Physical Review A* 80, 032319 (2009): <https://harvest.aps.org/v2/journals/articles/10.1103/PhysRevA.80.032319/fulltext>. doi:`10.1103/PhysRevA.80.032319`.
-- G. A. Miller, “Note on the bias of information estimates”, en H. Quastler (ed.), *Information Theory in Psychology*, 95–100 (1955), citada y reformulada por Paninski (2003) y por <https://pmc.ncbi.nlm.nih.gov/articles/PMC2677320>.
-
-**Validación de esta revisión:** `tools/verify_cap07.py` reproduce `verify_cap07: OK` con los valores de la sección 7.6; `tests/test_qan.py` pasa junto con la suite unitaria relacionada del capítulo.

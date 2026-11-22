@@ -1,6 +1,6 @@
 # Chapter 7 — Quantum Angular Networks (QAN), Mutual Information in qang Space and Regularized Inversion (IQAN) {#sec-qjax07 .unnumbered}
 
-**Updated:** November 15, 2026
+**Updated:** November 22, 2026
 
 > Module: `qang.qan` (optional JAX backend, `jax<0.9`; NumPy core untouched). Verification: `tools/verify_cap07.py`. Position in `BOOK_OUTLINE.md`: new Ch. 7 (Part II); geometric phases and Fisher information move to 8–9, or merge into Ch. 23 (editorial decision pending).
 
@@ -30,17 +30,17 @@ Given a target $(qg_Z^{\star},I^{\star})$, IQAN solves
 $$\min_{\boldsymbol\alpha,\boldsymbol\beta,\boldsymbol\gamma\in\text{qga}}\ \mathcal L=\big\|qg_Z-qg_Z^{\star}\big\|_2^2+\lambda\sum_{(p,q)\in E}\big(I_Z^{(pq)}-I^{\star}_{pq}\big)^2+\mu\sum_{(p,q)\in E}\Big(\frac{\beta_{pq}}{500}\Big)^2 .$$
 The descent is **Euclidean in angle** (qga): by THEORY_CORE §2.1 it is first-order equivalent to the step damped by $qg_\kappa$ in $qg_Z$ and avoids the polar divergence of flat descent in $qg_Z$ (0/20, `against`). The $\mu$ term is minimum-area compilation: it penalizes $|\beta|$ and, because of the 500 qga period, the minimum of a maximal entangler falls at $\beta=250$ qga. Learning rate: $\eta_{\text{qga}}=\eta_{\text{rad}}\,(1000/2\pi)^2$ (exact rescaling, no effect on barren plateaus, §2.1).
 
-## 7.4 Operational contrast — Without `qang` vs. with `qang`
+## 7.4 Operational contrast: Without qang vs. With qang
 
-Instance of `tools/verify_cap07.py` §5–§6: 4-qubit QAN layer on a chain, $\alpha=250$ qga, $\beta=(250,60,250)$ qga, $\gamma=(\mp250)$; threshold $\tau=0.05$ bit.
+`tools/verify_cap07.py` §§5-6 instance: 4-qubit chain QAN, $\alpha=250$ qga, $\beta=(250,60,250)$ qga, $\gamma=(\mp250)$; threshold $\tau=0.05$ bit.
 
-| Metric | Standard approach (without `qang`) | `qang` approach (QAN / IQAN + JAX) | Gain / Status (`qang.measures`) |
-| :--- | :--- | :--- | :--- |
-| Per-pair correlator $\langle Z_pZ_q\rangle$ | Hadamard/SWAP test: 1 ancilla, $\ge2$ 2Q gates, 1 circuit per pair | `qan_readout`: 0 ancillas, 0 extra 2Q gates, $\binom n2$ pairs from 1 histogram | $-1$ ancilla, $-\binom n2$ circuits (`exact`) |
-| Measurement bases for $I_Z$ | 2Q tomography: 9 bases | 1 basis ($Z$) | $-8$ bases per pair (`exact`; only $I_Z$, not quantum $I$) |
-| $R_{ZZ}$ entanglers in the next layer | All pairs: 6 | Pairs with $I_Z\ge\tau$: 2 (`mi_matrix_qg`) | $-67\%$ 2Q gates (`exact` in simulation; hardware `unverified`) |
-| Shots for $\sigma_I=0.01$ bit at $I_Z=0.346$ | Rule $\varepsilon^{-2}=10^4$ | $N^\star=g^\top\Sigma g/\sigma_I^2=3277$ (`mi_shot_variance_qg`; MC/delta $=1.002$) | $-67\%$ shots (`exact`) |
-| Inversion to $I^\star=1$ bit, $qg_Z^\star=0$ | Flat descent in $qg_Z$: 0/20 convergences (Ch. 30) | IQAN in qga: 7/8 convergences, $\beta\to250.0$ qga (minimum area), $I=0.9989$ | (`exact` sim.; against `against`) |
+| Metric / criterion | Without qang (standard baseline) | With qang (qg/m-qg/qga) | Delta | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| Pair correlator $\langle Z_pZ_q\rangle$ | Hadamard/SWAP: 1 ancilla, $\ge2$ 2Q gates, 1 circuit/pair | `qan_readout`: 0 ancillas, 0 extra 2Q gates, $\binom n2$ pairs from 1 histogram | $-1$ ancilla, $-\binom n2$ circuits | `exact` |
+| Measurement bases for $I_Z$ | 2Q tomography: 9 bases | 1 basis ($Z$) | $-8$ bases/pair | `exact` ($I_Z$ only) |
+| Next-layer $R_{ZZ}$ entanglers | All pairs: 6 | Pairs with $I_Z\ge\tau$: 2 (`mi_matrix_qg`) | $-67\%$ 2Q gates | `exact` sim. / `hardware unverified` |
+| Shots for $\sigma_I=0.01$ bit at $I_Z=0.346$ | $\varepsilon^{-2}=10^4$ rule | $N^\star=g^\top\Sigma g/\sigma_I^2=3277$; MC/delta $=1.002$ | $-67\%$ shots | `exact` |
+| Inversion to $I^\star=1$ bit, $qg_Z^\star=0$ | Flat descent in $qg_Z$: 0/20 | IQAN in qga: 7/8, $\beta\to250.0$ qga, $I=0.9989$ | Convergence recovered | `exact` sim. / `against` flat baseline |
 
 ## 7.5 JAX block (`qang/qan.py`, `jax<0.9`)
 
