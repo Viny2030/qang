@@ -195,3 +195,4 @@
 - [x] **qjax08** — cabecera exacta ES/EN; sin anexo residual; `PYTHONPATH=. tools/verify_cap08.py` => `verify_cap08: OK`; `pytest tests/test_qdist.py -q` => 4 passed; `git diff --check` limpio.
 - [x] **qjax09** — cabecera exacta ES/EN; sin anexo residual; `PYTHONPATH=. tools/verify_cap09.py` => `verify_cap09: OK`; `pytest tests/test_qfisher.py -q` => 3 passed; `git diff --check` limpio.
 - [x] **qjax25** — cabecera exacta ES/EN; sin anexo residual (25.7 integrada); `PYTHONPATH=. tools/verify_cap25.py` => `verify_cap25: OK`; `pytest tests/test_qecho.py -q` => 3 passed; `git diff --check` limpio.
+- [x] **qjax10** — cabecera exacta ES/EN; §10.1–§10.4 integradas (convención de signo, gauge, $O(K^{-2})$, tabla y disparos); §10.7 con validación; §10.9 eliminada; `PYTHONPATH=. tools/verify_cap10.py` => `verify_cap10: OK`; `pytest tests/test_qgeom.py -q` => 2 passed; `git diff --check` limpio.

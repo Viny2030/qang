@@ -1,6 +1,6 @@
 # Chapter 10 — Geometric Phases and Stokes' Theorem on the Sphere: Holonomy in qga, Bargmann Invariant and Single-Basis Readout {#sec-qjax10 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Analysis and update date:** November 22, 2026
 
 > Rewrite of the old Ch. 7 on the basis of Ch. 1–9. Module: `qang.qgeom` (JAX, `jax<0.9`; aligned with `qang.geometric`, `qang.phase`). Verification: `tools/verify_cap10.py`.
 
@@ -16,18 +16,44 @@ with $\Omega$ the oriented solid angle. In the readout coordinate the 1-form is 
 $$\gamma_{\text{lat}}=-\pi\,(1-qg_Z)\quad\text{[rad]}\qquad(\texttt{berry\_phase\_latitude}),$$
 so the geometric phase is read with **a single basis** ($Z$) and no ancilla (`exact`). Total curvature $\iint_{S^2}F=2\pi$: charge $\tfrac12$ (Ch. 1: the metric curvature of Fubini–Study $=4$ is a different quantity; do not confuse them).
 
+This family is the spin-up branch of the spin-½ problem in a directional field. In the north-pole gauge, $A=i\langle\psi|d\psi\rangle=-\sin^2(\theta/2)\,d\varphi$, so a latitude loop gives $\oint A=-2\pi\sin^2(\theta/2)=-\pi(1-\cos\theta)=-\Omega/2$. This is the canonical result $\gamma_\pm=\mp\Omega/2$ with $\Omega=2\pi(1-\cos\theta)$; the qga coordinate only rescales $\theta$ and $\varphi$ and does not change the physical phase in radians.
+
+There is a sign convention worth stating. With the definition $A=i\langle\psi|d\psi\rangle$ of this section, $dA=-\tfrac12\sin\theta\,d\theta\wedge d\varphi$ and Stokes gives $\gamma=\iint dA=-\Omega/2$. The chapter and `verify_cap10.py` instead write $F_{\mathrm{cap}}=\tfrac12\sin\theta\,d\theta\wedge d\varphi=-dA$ and $\gamma=-\iint F_{\mathrm{cap}}$; this is the same convention with the 2-form and the orientation reversed. In both cases the flux over $S^2$ is $2\pi$, i.e. a charge-$+\tfrac12$ monopole for $F_{\mathrm{cap}}$ (or $-\tfrac12$ for $dA$), and it must not be confused with the Fubini–Study metric curvature $g=4$ of Ch. 1.
+
+**Sources for this section.** M. V. Berry, “Quantal phase factors accompanying adiabatic changes”, *Proc. R. Soc. A* 392, 45–57 (1984), DOI `10.1098/rspa.1984.0543`; spin-½ notes with connection $-\sin^2(\theta/2)d\varphi$ and $\Phi_{\mathrm{Berry}}=-\Omega_{\mathrm{solid}}/2$ (<https://everettyou.github.io/teaching/PHYS130B/notes/ch4_phase-and-gauge/4-2-1-berry-phase.html>); topological-insulator notes with $\gamma_\pm(C)=\mp\tfrac12\Omega(C)$ and $\Omega=2\pi(1-\cos\theta)$ (<https://phy.ntnu.edu.tw/~changmc/Teach/Topo/latex/2023/02.pdf>).
+
 ## 10.2 Bargmann invariant and Pancharatnam phase
 
 $$\gamma_{123}=\arg\big(\langle\psi_2|\psi_1\rangle\langle\psi_3|\psi_2\rangle\langle\psi_1|\psi_3\rangle\big)=-\tfrac12\,\Omega(\triangle_{123}),\qquad \Omega=2\arctan\frac{\mathbf r_1\cdot(\mathbf r_3\times\mathbf r_2)}{1+\mathbf r_1\!\cdot\mathbf r_2+\mathbf r_2\!\cdot\mathbf r_3+\mathbf r_3\!\cdot\mathbf r_1}$$
 (Van Oosterom–Strackee; $\mathbf r_k$ = Bloch vectors $(qg_X,qg_Y,qg_Z)$). Gauge invariant to $10^{-12}$ and convergent to the continuum limit as $O(K^{-2})$ for a polygon of $K$ vertices (`exact`). Convention fixed in code: $\gamma=i\oint\langle\psi|d\psi\rangle$; with increasing $\varphi$, $\gamma<0$ and $\Omega>0$.
 
+The three-vertex Bargmann invariant is gauge invariant because each state appears once as a bra and once as a ket. The product used in the code, $\langle\psi_2|\psi_1\rangle\langle\psi_3|\psi_2\rangle\langle\psi_1|\psi_3\rangle$, is the conjugate of the product $\langle\psi_1|\psi_2\rangle\langle\psi_2|\psi_3\rangle\langle\psi_3|\psi_1\rangle$ that usually appears in the literature; hence $\Phi_g=-\arg\prod\langle\psi_k|\psi_{k+1}\rangle=\arg\prod\langle\psi_{k+1}|\psi_k\rangle=-\Omega/2$. The decomposition of a geodesic polygon into triangles and the continuum limit explain the observed convergence: the error of the $K$-arc approximation falls as $O(K^{-2})$, from $6.93\times10^{-3}$ at $K=24$ to $2.70\times10^{-5}$ at $K=384$.
+
+The Van Oosterom–Strackee formula is evaluated with `atan2` to preserve the quadrant of the oriented solid angle. The numerator $\mathbf r_1\cdot(\mathbf r_3\times\mathbf r_2)$ and the denominator $1+\mathbf r_1\cdot\mathbf r_2+\mathbf r_2\cdot\mathbf r_3+\mathbf r_3\cdot\mathbf r_1$ require non-antipodal states; reversing the loop order changes $\Omega$ and therefore the sign of $\gamma$. In the code, increasing $\varphi$ fixes $\Omega>0$ and $\gamma<0$, consistent with the latitude loop.
+
+**Sources for this section.** “Pancharatnam–Berry Phase in Quantum Optics”, *Resonance* 28(11), 1669–1683 (2023), <https://www.ias.ac.in/public/Volumes/reso/028/11/1669-1683.pdf>; “The Pancharatnam–Berry Phase: Theoretical and Experimental Aspects”, *IntechOpen* (2018), <https://cdn.intechopen.com/pdfs/29588.pdf>; A. van Oosterom and J. Strackee, “The Solid Angle of a Plane Triangle”, *IEEE Trans. Biomed. Eng.* 30(2), 125–126 (1983), DOI `10.1109/TBME.1983.325207`.
+
 ## 10.3 Geometric Z gate versus virtual Z: a negative area finding
 
 A relative phase $\Omega$ between $|0\rangle$ and $|1\rangle$ ($R_Z(\Omega)$) is obtained (a) **virtually**: $0$ pulses, $0$ qga of area (Ch. 2); (b) **physically**: $1$ pulse, area $\Omega\cdot1000/2\pi$ qga; (c) **geometrically** by the loop pole $\to(\theta,0)\to(\theta,\Delta\phi)\to$ pole: $3$ pulses, area $(2\theta+d)\cdot1000/2\pi$ qga with $d=\arccos(\cos^2\theta+\sin^2\theta\cos\Delta\phi)$. Instance ($\theta=150$ qga, $\Delta\phi=0.6$ rad): $0$ / $39.4$ / $376.8$ qga. **Status**: area `no gain` (×9.6 worse than the physical one); holonomic robustness against amplitude noise stays `unverified` in this treatise (it is not claimed).
 
+| Strategy | Pulses | Area (qga) | Status |
+| :--- | :---: | :---: | :--- |
+| Virtual (without `qang`) | 0 | 0 | `exact` |
+| Physical (baseline) | 1 | 39.4 | `exact` |
+| Geometric (`qang`) | 3 | 376.8 | `no gain`; robustness `hardware unverified` |
+
+Finally, the geometric/holonomic-computation literature supports the caution of this section: robustness holds against errors that only slightly deform the geometric trajectory or change the traversal speed, but transverse noise, decoherence or errors that displace the loop can destroy it. Therefore the fact that the geometric loop uses $376.8$ qga versus $39.4$ qga for the physical gate is not automatically compensated; the `no gain` and `robustness unverified` status is the correct one until a concrete noise model is simulated.
+
+**Sources for this section.** “Geometric and holonomic quantum computation”, *Physics Reports* (2023), <https://www.sciencedirect.com/science/article/pii/S0370157323002065>; W. Dong, F. Zhuang, S. E. Economou and E. Barnes, “Doubly Geometric Quantum Control”, *PRX Quantum* 2, 030333 (2021), <https://journals.aps.org/prxquantum/pdf/10.1103/PRXQuantum.2.030333>.
+
 ## 10.4 Shot budget for measuring γ
 
 Latitude loop: $\sigma_\gamma=\pi\,\sigma_{qg_Z}=\pi\sqrt{(1-qg_Z^2)/N}$ ⇒ $N=\pi^2(1-qg_Z^2)/\sigma_\gamma^2$ (1 basis, 0 ancillas). General 3-state loop: tomography of $\mathbf r_{1,2,3}$, $\ge9$ measurement configurations. Note that the precision **improves toward the poles** ($qg_Z\to\pm1$), unlike the angular estimation of Ch. 9 (uniform in qga): $\gamma$ is linear in $qg_Z$, not in $\alpha$.
+
+Single-basis readout is not a universal shortcut for any phase: it follows from the fact that, for this one-parameter family, $qg_Z=\cos\theta$ and $\gamma=-\pi(1-qg_Z)$. With $N$ shots in $Z$, $\operatorname{Var}(qg_Z)=(1-qg_Z^2)/N$ and $\sigma_\gamma=\pi\sqrt{(1-qg_Z^2)/N}$, which gives the budget $N=\pi^2(1-qg_Z^2)/\sigma_\gamma^2$. The divergence of $I_F(z)$ at the poles seen in Ch. 9 does not contradict this: to estimate $\gamma=f(z)$ with $f'(z)=-\pi$, $I_F(\gamma)=I_F(z)/\pi^2$, which improves as $|z|\to1$. The “1 basis, 0 ancillas” statement refers to this parameter and this parametrization.
+
+**Without qang vs. with qang.** Tomography of a general three-state loop requires $\ge9$ measurement configurations, and ancilla interferometry adds one ancilla; qang's latitude readout uses a single basis ($Z$), zero ancillas and the shot budget $N=\pi^2(1-qg_Z^2)/\sigma_\gamma^2$ of Table §10.5. The bound is `exact` for the measurement model described; hardware validation remains `unverified`.
 
 ## 10.5 Operational contrast — Without `qang` vs. with `qang`
 
@@ -70,6 +96,8 @@ def shots_for_berry_latitude(qz, sigma_gamma):   # N = π²(1−qg_Z²)/σ_γ²
 [5] α= 50 qga (qg_Z=+0.951): N = 9425 ; α=150: 64597 ; α=250: 98696
 verify_cap10: OK
 ```
+
+The reproducible validation of this review is `verify_cap10: OK` with discretization error $2.70\times10^{-5}$ at $K=384$, gauge invariance to $10^{-12}$, flux $\iint F=1.295010823=-\gamma$, area comparison $0/39.4/376.8$ qga and shot budgets $9425/64597/98696$; `tests/test_qgeom.py` passes with `2 passed`.
 
 ### `tests/test_qgeom.py`
 ```python
