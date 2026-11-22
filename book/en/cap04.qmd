@@ -1,6 +1,6 @@
 # Sampling statistics, Bayesian inference and the Haar distribution {#sec-ch04}
 
-**Actualizado:** 12 de noviembre de 2026 · **Updated:** November 12, 2026
+**Actualizado:** 12 de noviembre de 2026 · **Updated:** November 22, 2026
 
 Every number a quantum processor delivers is an estimate made from a finite number of shots. This chapter gathers
 the statistical tools of the qg unit: how shot noise propagates, which prior is the natural one for an unknown qubit,
@@ -228,19 +228,19 @@ unbiased even with the correction: $\widehat{qg}_\tau$ averages $0.376$ with the
 corrected one, both below $0.436$, because the root is concave and is clipped at zero. The formulation proposes
 $\sqrt{\max(0,1-\hat r^{\,2})}$ as an unbiased estimator; the corrected one halves the bias, it does not remove it.
 
-## Without qang and with qang {#sec-comparison04}
+## Operational contrast: Without qang vs. With qang {#sec-comparison04}
 
-| action | without qang | with qang | difference |
-|---|---|---|---|
-| confidence interval near a pole | delta method: coverage below 10% | Bayes–Haar, $\mathrm{Beta}(1,1)$: uniform in m-qg, nominal coverage | **in favour of the method, not only of qang**: the Wilson interval, without qang, also recovers it; qang justifies the prior (Haar is uniform in m-qg) |
-| quadratic quantities (radii, $qg^2$) | square the estimate: biased upward | $(N\widehat{qg}^{\,2}-1)/(N-1)$ | the **standard unbiased estimator**; qang packages it and applies it in every chapter |
-| how many shots to take | binomial variance of the state | $N=(1000\sin\theta/\delta)^2$ to resolve $\delta$ m-qg | **equivalent**; the m-qg formula is the one used for planning |
-| compare two readings | Cohen's $h$ | $qg_L=h/2$, with variance $\tfrac14(1/N_1+1/N_2)$ over the whole circle | **none**: it is the same test, with the name of a distance |
-| estimate the lack of purity | $1-\operatorname{Tr}\rho^2$ with tomography | $qg_\tau$ with unbiased squares | the bias of $\hat r^{\,2}$ disappears; that of $\widehat{qg}_\tau$ is halved, **not removed** |
-| measure qang quantities | classical shadows | direct $Z$ measurement | 3–41 times fewer shots, but it is a **measurement choice**, not an effect of the unit |
-| justify the reading | — | Riesz–Fréchet: $qg_Z$ is the canonical linear reading | **in favour**: explains why $qg_Z$ is averaged and not the angle |
+| Metric / action | Without qang (standard baseline) | With qang (qg/m-qg) | Difference | Status |
+|---|---|---|---|---|
+| Interval near a pole | Delta method: coverage <10% | Bayes-Haar, $\mathrm{Beta}(1,1)$: uniform in m-qg, nominal coverage | Improvement comes from method; qang justifies uniform-in-m-qg prior | `exact` / method |
+| Quadratic quantities ($qg^2$, radii) | Squaring estimate: bias $(1-qg^2)/N$ | $(N\widehat{qg}^{\,2}-1)/(N-1)$ unbiased | Standard unbiased estimator, packaged in qang | `exact` |
+| Shot planning | Binomial variance of state | $N=(1000\sin\theta/\delta)^2$ to resolve $\delta$ m-qg | Equivalent; direct m-qg formula | `exact` |
+| Comparing two readings | Cohen's $h$ | $qg_L=h/2$, variance $\tfrac14(1/N_1+1/N_2)$ | Same test, distance name | `exact` |
+| Estimating purity deficit | $1-\operatorname{Tr}\rho^2$ with tomography | $qg_\tau$ with unbiased squares | $\hat r^2$ bias removed; $\widehat{qg}_\tau$ bias only halved | `exact` / `partial` |
+| Measuring qang quantities | Classical shadows | Direct $Z$ measurement | 3-41× fewer shots; measurement choice, not unit effect | `tested` (simulation) |
+| Justifying the reading | — | Riesz-Fréchet: $qg_Z$ is canonical linear readout | Explains what to average; does not change data | `exact` |
 
-: The chapter's actions without the qang scale and with it. {#tbl-comparison04}
+: Operational contrast Without qang vs. With qang. {#tbl-comparison04}
 
 **Balance.** The chapter's statistics are the classical statistics of proportions. qang contributes the choice of
 coordinate (uniform under Haar, linear by Riesz–Fréchet) that says which prior to use and what to average; the
