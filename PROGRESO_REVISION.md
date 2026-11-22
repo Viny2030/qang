@@ -189,3 +189,4 @@
 - [x] **cap02** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_algebra.py tests/test_pulse_area.py -q` => 15 passed, 2 skipped; `verify_cap02.py` bloqueado (`cirq` ausente); `git diff --check` limpio.
 - [x] **cap03** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_algebra.py tests/test_algorithms.py tests/test_amplitude_estimation_chebyshev_qg.py -q` => 17 passed, 3 skipped; `verify_cap03.py` bloqueado (`qutip` ausente); `git diff --check` limpio.
 - [x] **cap04** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_probability.py -q` => 12 passed; `verify_cap04.py` bloqueado (`qutip` ausente); `git diff --check` limpio.
+- [x] **cap05** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_qg_radius_hardware_qg.py tests/test_qg_radius_witness_qg.py -q` => 3 passed, 2 skipped; `verify_cap05.py` bloqueado (`qutip` ausente); `git diff --check` limpio.
