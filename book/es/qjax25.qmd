@@ -2,7 +2,7 @@
 *Chapter 25 — Echo Calibration and Noise Bias: Readout Drag as an Affine Map in m-qg, When **Not** to Invert (§108) and Drag-Free Readout*
 
 
-**Actualizado:** 15 de noviembre de 2026 · **Updated:** November 15, 2026
+**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
 
 > Reescritura del antiguo Cap. 22 (F7) sobre la base de Cap. 1–24. Módulo: `qang.qecho` (NumPy; compatible con el core). Verificación: `tools/verify_cap25.py`. Prohibición THEORY_CORE §2.2 incorporada como criterio cuantitativo.
 
@@ -10,16 +10,20 @@
 
 ## 25.1 El error de asignación es un mapa afín en m-qg
 
-**ES.** Con $e_{01}=P(\text{leer }1|0)$, $e_{10}=P(\text{leer }0|1)$:
+**ES.** Con $e_{01}=P(\text{leer }1|0)$, $e_{10}=P(\text{leer }0|1)$, la lectura ruidosa es un mapa afín en el eje m-qg:
 $$m'=(1-e_{01}-e_{10})\,m+1000\,(e_{10}-e_{01}),\qquad m^\star=\frac{1000\,(e_{10}-e_{01})}{e_{01}+e_{10}}\ \ (\text{punto fijo, sesgo cero}).$$
-Instancia $e_{01}=0.02,e_{10}=0.06$: $-1000\to-880$, $0\to+40$, $+1000\to+960$ m-qg; $m^\star=+500$ m-qg. El "arrastre" (*pull effect*) es la contracción $0.92$ más el desplazamiento $+40$ m-qg; el coste de una compuerta $X$ medido en §168 ($1.64$ m-qg lineales) es este mismo mapa con $e\sim10^{-3}$ (`exact`, `tested on hardware` §168).
+Instancia $e_{01}=0.02,e_{10}=0.06$: $-1000\to-880$, $0\to+40$, $+1000\to+960$ m-qg; $m^\star=+500$ m-qg. El “arrastre” (*pull effect*) es la contracción $0.92$ más el desplazamiento $+40$ m-qg; el coste de una compuerta $X$ medido en §168 ($1.64$ m-qg lineales) es este mismo mapa con $e\sim10^{-3}$ (`exact`, `tested on hardware` §168).
+
+**Demostración integrada (confusión de lectura).** La forma escalar es la proyección en m-qg de la matriz de asignación clásica $p'=Rp$ para un qubit, con $R_{1|0}=e_{01}$, $R_{0|1}=e_{10}$. La inversión matricial o por pseudoinversa es el punto de partida estándar de mitigación de lectura, pero amplifica fluctuaciones estadísticas cuando $R$ está mal condicionada o tiene componentes fuera de diagonal grandes; por ello se acompaña de restricciones/regularización en el caso multiqubit (Nachman *et al.*, *npj Quantum Inf.* 6, 84, 2020, DOI `10.1038/s41534-020-00309-7`; Bravyi *et al.*, *Phys. Rev. A* 103, 042605, 2021, DOI `10.1103/PhysRevA.103.042605`).
 
 **EN.** Assignment error is an affine contraction of the m-qg axis with a drag-free fixed point $m^\star$ (`exact`).
 
 ## 25.2 Inversión por eco: criterio cuantitativo de §108
 
-La calibración por eco (circuitos $I$ y $X$, o eco $XX$) estima $(e_{01},e_{10})$ con $N_{\text{cal}}$ disparos y permite invertir el mapa; la inversión amplifica la varianza por $(1-e_{01}-e_{10})^{-2}$ y añade la varianza de calibración. Decisión:
+La calibración por eco (circuitos $I$ y $X$, o eco $XX$) estima $(e_{01},e_{10})$ con $N_{\text{cal}}$ disparos y permite invertir el mapa. Su coste entra en $N_{\mathrm{cal}}$ y en $\mathrm{Var}_{\mathrm{cal}}$; la inversa calibrada no se extrapola fuera del régimen donde la matriz es estable y la deriva temporal es despreciable. La inversión elimina sesgo en el modelo, pero amplifica la varianza por $(1-e_{01}-e_{10})^{-2}$ y añade la varianza de calibración. Decisión:
 $$\text{invertir}\iff \underbrace{b^2+\sigma_m^2}_{\text{MSE}_{\text{raw}}}>\underbrace{\frac{\sigma_m^2}{(1-e_{01}-e_{10})^2}+\mathrm{Var}_{\text{cal}}}_{\text{MSE}_{\text{inv}}},\qquad b=m'-m,\ \ \sigma_m=1000\sqrt{(1-qg_Z'^2)/N}.$$
+
+**Demostración integrada (overhead y alcance).** Este trade-off local cuantifica §108: no es una prohibición general de corregir lectura, sino una regla MSE. El overhead es coherente con el factor $\Gamma^2$ de estimadores no sesgados de mitigación de medición (Bravyi *et al.*, 2021) y con el overhead/muestreo de métodos escalables de mitigación de lectura (Nation *et al.*, *PRX Quantum* 2, 040326, 2021, DOI `10.1103/PRXQuantum.2.040326`). En distribuciones multiqubit, la inversión ingenua puede producir cuasiprobabilidades negativas u oscilaciones; IBU/least-squares/no negatividad son respuestas usuales (Nachman 2020). El criterio aquí cubre el caso escalar/un qubit o eje m-qg, donde la comparación MSE es cerrada y auditable.
 
 | $m$ | $N$ | $N_{\text{cal}}$ | sesgo | $\sigma_m$ | MSE$_{\text{raw}}$ | MSE$_{\text{inv}}$ | decisión |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -33,17 +37,19 @@ Monte Carlo ($4000$ réplicas, fila 1): MSE$_{\text{raw}}=3400$ (teoría 3312), 
 
 ## 25.3 Lectura sin arrastre (F7): el filtro de sector baja el error de O(e) a O(e01e10)
 
-En el sector de peso 1, **un** flip de lectura saca el string del sector (lo elimina el filtro); llegar a **otro** string de peso 1 exige dos flips, probabilidad $e_{10}e_{01}$. Sesgo máximo filtrado: $0.0013$ ($\approx e_{01}e_{10}=0.0012$) frente a $0.060$ de primer orden sin filtro ($\times46$); con $e=0.01$: $\times196$. Combinado con Cap. 24: el filtro elimina $T_1$ exactamente y la lectura a segundo orden **sin calibrar ni invertir** — la "lectura sin arrastre" (`exact` modelo de flips independientes; hardware `unverified`).
+En el sector de peso 1, **un** flip de lectura saca el string del sector (lo elimina el filtro); llegar a **otro** string de peso 1 exige dos flips, probabilidad $e_{10}e_{01}$. Sesgo máximo filtrado: $0.0013$ ($\approx e_{01}e_{10}=0.0012$) frente a $0.060$ de primer orden sin filtro ($\times46$); con $e=0.01$: $\times196$. Combinado con Cap. 24: el filtro elimina $T_1$ exactamente y la lectura a segundo orden **sin calibrar ni invertir** — la “lectura sin arrastre” (`exact` modelo de flips independientes; `hardware unverified`).
 
-## 25.4 Contraste operativo
+**Demostración integrada (alcance del orden).** El resultado $O(e_{01}e_{10})$ supone flips de lectura independientes y postselección al sector de peso 1. Es una propiedad del código/sector, no del hardware físico: correlaciones de lectura, crosstalk o leakage rompen la hipótesis independiente y deben medirse antes de declarar el orden. La ganancia $\times46$ reportada es `exact` bajo ese modelo; en hardware permanece `unverified`.
 
-| Métrica / Metric | Estándar (invertir siempre) | `qang` (`qang.qecho`) | Estatus |
+## 25.4 Contraste operativo: Sin qang vs. Con qang
+
+| Métrica / Metric | Sin qang (baseline estándar) | Con qang (`qang.qecho`, m-qg/MSE) | Estatus |
 | :--- | :--- | :--- | :--- |
-| $m=600$, $N=200$ | MSE 3872 | sin invertir: 3312 | $-14\%$ (`exact`, §108) |
-| $m=-900$, $N=1000$ | — | invertir: 12923 → 689 | $-95\%$ (`exact`) |
-| Punto de operación | arbitrario | $m^\star=+500$ m-qg: sesgo 0 | (`exact`) |
-| Error de lectura en sector | $O(e)$: 0.060 | $O(e_{01}e_{10})$: 0.0013 | $\times46$ (`exact` modelo) |
-| Hardware | — | §168: $X=1.64$ m-qg | `tested on hardware` |
+| $m=600$, $N=200$, $N_{\text{cal}}=2000$ | Invertir siempre: MSE$_{\text{inv}}=3872$ m-qg$^2$ | No invertir: MSE$_{\text{raw}}=3312$ m-qg$^2$ | $-14\%$ MSE (`exact`, §108) |
+| $m=-900$, $N=1000$, $N_{\text{cal}}=1000$ | Lectura cruda: MSE $12923$ m-qg$^2$ | Invertir: MSE $689$ m-qg$^2$ | $-95\%$ MSE (`exact`) |
+| Punto de operación | Arbitrario, sesgo dependiente de $m$ | $m^\star=+500$ m-qg: sesgo 0 m-qg | `exact` |
+| Error de lectura en sector peso 1 | Sin filtro: $O(e)$, sesgo máx. 0.060 | Con filtro: $O(e_{01}e_{10})$, sesgo máx. 0.0013 | $\times46$ (`exact` modelo; `hardware unverified`) |
+| Calibración por eco / hardware | Corrección genérica sin criterio MSE local | Criterio §108 + mapa afín m-qg; $X=1.64$ m-qg (§168) | `tested on hardware` (§168) |
 
 ## 25.5 Bloque (`qang/qecho.py`)
 
@@ -51,7 +57,7 @@ En el sector de peso 1, **un** flip de lectura saca el string del sector (lo eli
 def readout_affine(m, e01, e10):  return (1 - e01 - e10) * m + 1000 * (e10 - e01)
 def drag_free_point(e01, e10):    return 1000 * (e10 - e01) / (e01 + e10)
 def invert_readout(m_obs, e01, e10): return (m_obs - 1000 * (e10 - e01)) / (1 - e01 - e10)
-def mse_raw_vs_inverted(m, e01, e10, N, N_cal)   # (MSE_raw, MSE_inv, sesgo, σ_m) — criterio §108
+def mse_raw_vs_inverted(m, e01, e10, N, N_cal)   # (MSE_raw, MSE_inv, sesgo, s_m) - criterio §108
 def sector_readout_error_order(p_sector, e01, e10) # (p filtrada, sesgo máx., cota e01·e10)
 ```
 
@@ -61,7 +67,7 @@ def sector_readout_error_order(p_sector, e01, e10) # (p filtrada, sesgo máx., c
 [1] m=-1000 → m'=-880.0 (sesgo +120) | m=0 → +40.0 | punto sin arrastre m* = +500.0 m-qg
 [2] +600 N=200 N_cal=2000: MSE_raw=3312 MSE_inv=3872 → NO invertir | +600 N=20000: 96 vs 73 → INVERTIR
     MC: MSE_raw=3400 (teoría 3312), MSE_inv=4009 (teoría 3872)
-[3] e01=0.02, e10=0.06: sesgo filtrado=0.00130 (≈ e01·e10) vs 0.0600 sin filtro → ×46
+[3] e01=0.02, e10=0.06: sesgo filtrado=0.00130 (~ e01·e10) vs 0.0600 sin filtro → ×46
 verify_cap25: OK
 ```
 Asserts: punto fijo a $10^{-9}$; decisiones de las filas 1, 2 y 4; MC dentro del $15\%$ de la teoría; sesgo filtrado $<3\,e_{01}e_{10}$.
@@ -76,24 +82,14 @@ def test_108_rule(): r, i, _, _ = mse_raw_vs_inverted(600, 0.02, 0.06, 200, 2000
 def test_second_order(): _, b, c = sector_readout_error_order(np.array([.5, .3, .15, .05]), 0.02, 0.06); assert b < 3 * c
 ```
 
-## 25.7 Contraste bibliográfico y precisiones de revisión (2026-11-22)
-
-1. **Mapa afín / matriz de confusión de lectura.** El modelo $m'=(1-e_{01}-e_{10})m+1000(e_{10}-e_{01})$ es la forma escalar en m-qg de la matriz de asignación clásica $p'=Rp$ para un qubit, con $R_{1|0}=e_{01}$, $R_{0|1}=e_{10}$. La inversión matricial/por pseudoinversa es el punto de partida estándar de mitigación de lectura, pero amplifica fluctuaciones estadísticas cuando $R$ tiene componentes fuera de diagonal grandes o está mal condicionada; por eso la corrección se suele acompañar de restricciones o regularización (Nachman *et al.*, *npj Quantum Inf.* 6, 84, 2020, DOI `10.1038/s41534-020-00309-7`; Bravyi *et al.*, *Phys. Rev. A* 103, 042605, 2021, DOI `10.1103/PhysRevA.103.042605`).
-2. **Amplificación de varianza y overhead.** La regla de §25.2 cuantifica el trade-off local de §108: invertir elimina sesgo en el modelo pero multiplica la varianza por $(1-e_{01}-e_{10})^{-2}$ y añade incertidumbre de calibración. Este coste es coherente con el overhead de mitigación formalizado como factor $\Gamma^2$ en el estimador no sesgado de Bravyi *et al.* (2021) y con el overhead/muestreo en métodos de mitigación de lectura escalables (Nation *et al.*, *PRX Quantum* 2, 040326, 2021, DOI `10.1103/PRXQuantum.2.040326`). La decisión "no invertir" es por tanto estadística, no una prohibición general de la corrección de lectura.
-3. **Regularización/no negatividad.** En distribuciones multiqubit, la inversión ingenua puede producir cuasiprobabilidades negativas u oscilaciones; IBU/least-squares/no negatividad son respuestas usuales (Nachman 2020). El criterio de §25.2 no reemplaza esos métodos: cubre el caso escalar/un qubit o eje m-qg donde la comparación MSE es cerrada y auditable.
-4. **Lectura sin arrastre por filtro de sector.** El resultado $O(e_{01}e_{10})$ supone flips de lectura independientes y postselección al sector de peso 1. Es una propiedad del código/sector, no del hardware físico: correlaciones de lectura, crosstalk o leakage rompen la hipótesis independiente y deben medirse antes de declarar el orden. La ganancia $\times46$ reportada es `exact` bajo ese modelo; en hardware es `unverified`.
-5. **Calibración por eco.** Los circuitos $I/X$ o eco $XX$ para estimar $e_{01},e_{10}$ son instancias de calibración de respuesta; su costo entra en $N_{\mathrm{cal}}$ y en $\mathrm{Var}_{\mathrm{cal}}$. No se debe extrapolar la inversa calibrada fuera del régimen donde la matriz es estable y la deriva temporal es despreciable.
-
-**Fuentes contrastadas:** Nachman *et al.* 2020, *npj Quantum Inf.* 6, 84, DOI `10.1038/s41534-020-00309-7` (unfolding/inversión de lectura, inestabilidad estadística, IBU). Bravyi *et al.* 2021, *Phys. Rev. A* 103, 042605, DOI `10.1103/PhysRevA.103.042605` (mitigación de errores de medición, estimador no sesgado, overhead $\Gamma^2$). Nation *et al.* 2021, *PRX Quantum* 2, 040326, DOI `10.1103/PRXQuantum.2.040326` (mitigación escalable de errores de medición, overhead). Contexto: Maciejewski *et al.* 2020, *Quantum* 4, 257, DOI `10.22331/q-2020-04-24-257`.
-
-## 25.8 Apéndice H
+## 25.7 Apéndice H
 
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |
 | `readout_drag_affine` | lectura | $m'=(1-e_{01}-e_{10})m+1000(e_{10}-e_{01})$ | `readout_affine` | `exact`; §168 `tested on hardware` |
 | `drag_free_point` | lectura | $m^\star=1000(e_{10}-e_{01})/(e_{01}+e_{10})$ | `drag_free_point` | `exact` |
 | `echo_inversion_rule_108` | mitigación | invertir $\iff$ MSE$_{\text{raw}}>$ MSE$_{\text{inv}}$ | `mse_raw_vs_inverted` | `exact` (sustituye la prohibición cualitativa) |
-| `sector_readout_second_order` | mitigación | sesgo $O(e_{01}e_{10})$ | `sector_readout_error_order` | `exact` modelo |
+| `sector_readout_second_order` | mitigación | sesgo $O(e_{01}e_{10})$ | `sector_readout_error_order` | `exact` modelo; `hardware unverified` |
 
 `CHANGELOG.md [Unreleased]`: `qang.qecho`; `tools/verify_cap25.py`; `tests/test_qecho.py`.
 Commit: `docs(cap25): arrastre de lectura, criterio §108 y lectura sin arrastre sobre Cap. 1-24 + qang.qecho + verify_cap25`.
