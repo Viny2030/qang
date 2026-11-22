@@ -566,18 +566,18 @@ is still pending.
   $\kappa_{qg}$ and initialization with the branch sign have not been tested
   against plateaus.
 
-## Without qang and with qang {#sec-comparison01}
+## Operational contrast: Without qang vs. With qang {#sec-comparison01}
 
-| action | without qang | with qang | difference |
-|---|---|---|---|
-| describe the outcome of a qubit | the probability $p_0$ (or $\langle Z\rangle$) | $qg_Z$, the angle $\theta$, $m$ and $qg_S$, all exact functions of $p_0$ | **none in content**: the same information; qang gives it a working scale from $-1000$ to $+1000$ |
-| error bar of a reading | $\sqrt{p_0(1-p_0)/N}$, different for each state | the angle has variance $1/N$ for every state; in m-qg, $1000\sin\theta/\sqrt N$ | **convenience**: the variance-stabilized coordinate of classical statistics (the arcsine) is the gate parameter |
-| compare a gate error with shot noise | infidelity on one side, binomial deviation on the other, in different units | both in m-qg (on Garnet, 1.64 m-qg per $X$ gate against the run's shot noise) | **in favour**: one scale for the error budget |
-| decide how many shots the sign of a reading needs | binomial test or normal approximation | $N=(z/qg_{SNR})^2$, with $qg_{SNR}=\lvert\cot\theta\rvert$ | **convenience**: it is the normal approximation written with the reading |
-| express a gate or phase angle | radians, with factors of $\pi$ | qga: 1000 per turn ($X$ = 500 qga, equator = 250 qga) | **convenience**: the same information without factors of $\pi$; it changes neither gradients nor plateaus |
-| improve the device | — | — | **none**: the scale measures, it does not correct; prediction M2 of §168 failed |
+| Metric / action | Without qang (standard baseline) | With qang (qg/m-qg/qga) | Difference | Status |
+|---|---|---|---|---|
+| Describe 1-qubit outcome | Probability $p_0$ (or $\langle Z\rangle$) | $qg_Z$, $\theta$, $m=1000\,qg_Z$ m-qg and $qg_S$, exact functions of $p_0$ | Same information; operational scale $[-1000,+1000]$ m-qg | `exact` |
+| Readout error bar | $\sigma_{p_0}=\sqrt{p_0(1-p_0)/N}$, state-dependent | Angle: $\operatorname{Var}(\hat\theta)\approx1/N$; m-qg: $\sigma_m=1000\sin\theta/\sqrt N$ | Variance-stabilized (arcsine) coordinate = gate parameter | `exact` (asymptotic) |
+| Gate error vs. shot noise | Infidelity and binomial deviation in different units | Both in m-qg; Garnet: 1.64 m-qg per $X$ vs. run shot noise | Single error-budget scale | `tested on hardware` (§168, 1 qubit) |
+| Shots for reading sign | Binomial test/normal approximation | $N=(z/qg_{SNR})^2$, $qg_{SNR}=\lvert\cot\theta\rvert$ | Normal approximation written in qg reading | `exact` |
+| Gate/phase angle | Radians with $\pi$ factors | qga: 1000 per turn ($X=500$ qga, equator $250$ qga) | Same information; no gradient/plateau change | `exact` (convention) |
+| Improve device | — | — | Scale measures, does not correct; M2 prediction failed | `hardware unverified` / `no gain` |
 
-: The chapter's actions without the qang scale and with it. {#tbl-comparison01}
+: Operational contrast Without qang vs. With qang. {#tbl-comparison01}
 
 **Balance.** The base adds no information to $p_0$: it reorganizes it. What it gains is a uniform error bar in the
 angle and a common unit for gate errors and shot noise, which are exactly the two things the rest of the book uses.

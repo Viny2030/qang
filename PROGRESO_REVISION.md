@@ -30,7 +30,7 @@
 ## Registro de avance
 
 - [x] **Setup y descubrimiento** (hecho: ruta real del libro, rama, inventario de capítulos y tests).
-- [x] **cap01** — commit `docs: revisión teórica y validación cap 1`.
+- [x] **cap01** - commit `docs: revisi�n te�rica y validaci�n cap 1`. Reestructurado 2026-11-22 (Sin/Con qang, demos integradas, ES/EN); `pytest tests/test_probability.py -q` 12 passed; `verify_cap01.py` bloqueado por SDKs ausentes en `.venv`.
 - [x] **cap02** — commit `docs: revisión teórica y validación cap 2`.
 - [x] **cap03** — commit `docs: revisión teórica y validación cap 3`.
 - [x] **cap04** — commit `docs: revisión teórica y validación cap 4`.

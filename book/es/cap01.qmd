@@ -203,7 +203,7 @@ d(p,q) = \arccos\sum_k\sqrt{p_k\,q_k}.
 $$
 
 Para dos resultados, la distancia entre $(p_0,1-p_0)$ y el polo $(1,0)$ es $\arccos\sqrt{p_0}=\theta/2$: el ángulo
-qang es, salvo el factor 2, la distancia estadística entre lo que se mide y el estado de referencia. Con tres
+qang es, salvo el factor 2, la distancia estadística entre lo que se mide y el estado de referencia. Esta identificación con el ángulo en el espacio de Hilbert sigue a Wootters (DOI `10.1103/PhysRevD.23.357`). Con tres
 resultados, por ejemplo, $p=(0{,}5;\,0{,}3;\,0{,}2)$ y $q=(0{,}4;\,0{,}4;\,0{,}2)$ están a $0{,}113$ rad. Esta es la
 puerta por la que la unidad sale del qubit: la Parte II la usa para la información de Fisher y la métrica de
 Fubini–Study, y la misma geometría vale para cualquier proporción medida, cuántica o no.
@@ -586,18 +586,18 @@ dos pruebas son en un solo qubit: la replicación sigue pendiente.
   (@sec-qjax26). La compilación por $\kappa_{qg}$ y la
   inicialización con signo de rama no se han probado contra las mesetas.
 
-## Sin qang y con qang {#sec-comparacion01}
+## Contraste operativo: Sin qang vs. Con qang {#sec-comparacion01}
 
-| acción | sin qang | con qang | diferencia |
-|---|---|---|---|
-| describir el resultado de un qubit | la probabilidad $p_0$ (o $\langle Z\rangle$) | $qg_Z$, el ángulo $\theta$, $m$ y $qg_S$, todos funciones exactas de $p_0$ | **ninguna en contenido**: es la misma información; qang le da una escala de trabajo de $-1000$ a $+1000$ |
-| barra de error de una lectura | $\sqrt{p_0(1-p_0)/N}$, distinta en cada estado | el ángulo tiene varianza $1/N$ para todo estado; en m-qg, $1000\sin\theta/\sqrt N$ | **conveniencia**: la coordenada estabilizada de la estadística clásica (el arcoseno) coincide con el parámetro de la compuerta |
-| comparar un error de compuerta con el ruido de disparo | infidelidad por un lado, desvío binomial por otro, en unidades distintas | los dos en m-qg (en Garnet, 1,64 m-qg por compuerta $X$ frente al ruido de disparo de la corrida) | **a favor**: una sola escala para el presupuesto de errores |
-| decidir cuántos disparos pide el signo de una lectura | prueba binomial o aproximación normal | $N=(z/qg_{SNR})^2$, con $qg_{SNR}=\lvert\cot\theta\rvert$ | **conveniencia**: es la aproximación normal escrita con la lectura |
-| expresar un ángulo de compuerta o de fase | radianes, con factores $\pi$ | qga: 1000 por vuelta ($X$ = 500 qga, ecuador = 250 qga) | **conveniencia**: la misma información sin factores $\pi$; no cambia gradientes ni mesetas |
-| mejorar el dispositivo | — | — | **ninguna**: la escala mide, no corrige; la predicción M2 de §168 falló |
+| Métrica / acción | Sin qang (baseline estándar) | Con qang (qg/m-qg/qga) | Diferencia | Estatus |
+|---|---|---|---|---|
+| Describir resultado de 1 qubit | Probabilidad $p_0$ (o $\langle Z\rangle$) | $qg_Z$, $\theta$, $m=1000\,qg_Z$ m-qg y $qg_S$, funciones exactas de $p_0$ | Misma información; escala operativa $[-1000,+1000]$ m-qg | `exact` |
+| Barra de error de lectura | $\sigma_{p_0}=\sqrt{p_0(1-p_0)/N}$, depende del estado | Ángulo: $\operatorname{Var}(\hat\theta)\approx1/N$; m-qg: $\sigma_m=1000\sin\theta/\sqrt N$ | Coordenada estabilizada (arcoseno) = parámetro de compuerta | `exact` (asintótico) |
+| Error de compuerta vs. ruido de disparo | Infidelidad y desvío binomial en unidades distintas | Ambos en m-qg; Garnet: 1.64 m-qg por $X$ vs. ruido de disparo de la corrida | Presupuesto en una sola escala | `tested on hardware` (§168, 1 qubit) |
+| Disparos para signo de lectura | Prueba binomial/aproximación normal | $N=(z/qg_{SNR})^2$, $qg_{SNR}=\lvert\cot\theta\rvert$ | Misma aproximación normal escrita en lectura qg | `exact` |
+| Ángulo de compuerta/fase | Radianes con factores $\pi$ | qga: 1000 por vuelta ($X=500$ qga, ecuador $250$ qga) | Misma información; no cambia gradientes/mesetas | `exact` (convención) |
+| Mejora del dispositivo | — | — | La escala mide, no corrige; predicción M2 falló | `hardware unverified` / `no gain` |
 
-: Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion01}
+: Contraste operativo Sin qang vs. Con qang. {#tbl-comparacion01}
 
 **Balance.** La base no agrega información a $p_0$: la reorganiza. Lo que gana es una barra de error uniforme en el
 ángulo y una unidad común para errores de compuerta y ruido de disparo, que son exactamente las dos cosas que se
@@ -669,9 +669,4 @@ que se compara la curvatura de información $qg_\kappa$, es el de @amari1998. La
 numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de
 la unidad qang, en @monteverde2026. La escala angular qga y la propuesta relativista vienen del documento de trabajo
 @monteverde2026fund; el espinor de Dirac libre y sus componentes están en cualquier texto de mecánica cuántica
-relativista. **Contraste bibliográfico verificado en línea:** la distancia estadística y su identificación con el
-ángulo en el espacio de Hilbert están en el trabajo original de Wootters (DOI 10.1103/PhysRevD.23.357); la estabilización
-de la varianza binomial, en Anscombe (DOI 10.1093/biomet/35.3-4.246) y en Freeman–Tukey (DOI
-10.1214/aoms/1177729756); la derivación de la métrica de Fubini–Study del qubit y la convención de normalización se
-contrastan con la forma $ds^2=\tfrac14(d\theta^2+\sin^2\theta\,d\varphi^2)$, geometría de una esfera de radio
-$1/2$.
+relativista.
