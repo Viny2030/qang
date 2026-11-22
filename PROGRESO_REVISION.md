@@ -178,3 +178,11 @@
 - [ ] **qjax29** (cap29).
 - [ ] **qjax30** (cap30).
 - [ ] **Reporte final (bloque 5)**.
+
+---
+
+# Auditoría y normalización de cabeceras (2026-11-22)
+
+**Repositorio:** `C:\Users\ASUS\PycharmProjects\qang` · **Rama:** `main`.
+
+- [x] **cap01** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_probability.py -q` => 12 passed; `verify_cap01.py` bloqueado (`qiskit` ausente); `git diff --check` limpio.

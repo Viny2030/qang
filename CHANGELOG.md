@@ -6,6 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `book/es/cap01.qmd` + `book/en/cap01.qmd` (normalización 2026-11-22): cabecera con `> **Día de análisis y actualización:** 22 de noviembre de 2026` / `> **Analysis and update date:** November 22, 2026`; sin sección anexa. Validación: `pytest tests/test_probability.py -q` => 12 passed; `tools/verify_cap01.py` bloqueado por `qiskit` ausente en `.venv`; `git diff --check` limpio.
 - `book/es/qjax09.qmd` + `book/en/qjax09.qmd` (reestructura 2026-11-22): fecha normalizada; §9.5 Sin/Con qang con estatus; §9.9 bibliográfica anexa eliminada. Validación: `verify_cap09.py` => OK; `pytest tests/test_qfisher.py -q` => 3 passed.
 - `book/es/qjax08.qmd` + `book/en/qjax08.qmd` (reestructura 2026-11-22): fecha normalizada; §8.5 Sin/Con qang con estatus; §8.9 bibliográfica anexa eliminada. Validación: `verify_cap08.py` => OK; `pytest tests/test_qdist.py -q` => 4 passed.
 - `book/es/qjax07.qmd` + `book/en/qjax07.qmd` (reestructura 2026-11-22): fecha normalizada; §7.4 convertido a tabla Sin/Con qang con estatus; preservado contenido técnico y Apéndice H. Validación: `verify_cap07.py` => OK; `pytest tests/test_qan.py -q` => 4 passed.
