@@ -192,3 +192,34 @@
 - [x] **qjax23** (cap23) - §23.9 (5 precisiones, arXiv:2405.20237, PRX Quantum 2/040203, PRA 100/010302(R)), `verify_cap23.py` (`verify_cap23: OK` con PYTHONPATH), `tests/test_qweightqnn.py` (3 passed), CHANGELOG/PROGRESO actualizados y commit.
 - [x] **qjax24** (cap24). Contraste bibliográfico/precisiones §24.8 (Bonet-Monroig 2018 PRA 98/062339/arXiv:1807.10050; Temme-Bravyi-Gambetta 2017 PRL 119/180509/arXiv:1612.02058; contexto Cai 2023 RMP 95/045005). Validación: `tools/verify_cap24.py` => `verify_cap24: OK`; `pytest tests/test_qsymfilter.py -q` => `1 passed`; `git diff --check` limpio.
 - [x] **Reporte final (bloque 4)**. Bloque 4 cerrado (qjax19-qjax24 + reporte).
+
+---
+
+# Bloque 5 - revisión teórica y validación - capítulos `qjax25`-`qjax30`
+
+**Repositorio:** `C:\Users\ASUS\PycharmProjects\qang` · **Rama:** `main` (sin crear ramas nuevas).
+**Alcance acordado:** capítulos `book/es/qjax25.qmd`-`book/es/qjax30.qmd`.
+**Inicio:** 2026-11-22.
+
+## Checklist por capítulo (bloque 5)
+
+| # | Capítulo | Revisión teórica | Fuentes en línea | Validación código | `[x]` y commit | Min |
+|---|----------|------------------|------------------|-------------------|----------------|-----|
+| 1 | `book/es/qjax25.qmd` | [x] | [x] | [x] | [x] | 30 |
+| 2 | `book/es/qjax26.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 3 | `book/es/qjax27.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 4 | `book/es/qjax28.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 5 | `book/es/qjax29.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 6 | `book/es/qjax30.qmd` | [ ] | [ ] | [ ] | [ ] | 30 |
+| 7 | Reporte final y estado de Git | [ ] | - | - | [ ] | 10 |
+
+## Registro de avance (bloque 5)
+
+- [x] **Setup y descubrimiento** (Bloque 5: qjax25-qjax30, verificadores/tests localizados).
+- [x] **qjax25** (cap25). §25.7 contraste/precisiones (Nachman 2020 npjQI 6:84 DOI 10.1038/s41534-020-00309-7; Bravyi 2021 PRA 103:042605 DOI 10.1103/PhysRevA.103.042605; Nation 2021 PRXQ 2:040326 DOI 10.1103/PRXQuantum.2.040326; contexto Maciejewski 2020 Quantum 4:257). Validación: `tools/verify_cap25.py` => `verify_cap25: OK`; `pytest tests/test_qecho.py -q` => `3 passed`; `git diff --check` limpio.
+- [ ] **qjax26** (cap26).
+- [ ] **qjax27** (cap27).
+- [ ] **qjax28** (cap28).
+- [ ] **qjax29** (cap29).
+- [ ] **qjax30** (cap30).
+- [ ] **Reporte final (bloque 5)**.

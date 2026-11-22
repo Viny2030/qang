@@ -76,14 +76,24 @@ def test_108_rule(): r, i, _, _ = mse_raw_vs_inverted(600, 0.02, 0.06, 200, 2000
 def test_second_order(): _, b, c = sector_readout_error_order(np.array([.5, .3, .15, .05]), 0.02, 0.06); assert b < 3 * c
 ```
 
-## 25.7 Apéndice H
+## 25.7 Contraste bibliográfico y precisiones de revisión (2026-11-22)
+
+1. **Mapa afín / matriz de confusión de lectura.** El modelo $m'=(1-e_{01}-e_{10})m+1000(e_{10}-e_{01})$ es la forma escalar en m-qg de la matriz de asignación clásica $p'=Rp$ para un qubit, con $R_{1|0}=e_{01}$, $R_{0|1}=e_{10}$. La inversión matricial/por pseudoinversa es el punto de partida estándar de mitigación de lectura, pero amplifica fluctuaciones estadísticas cuando $R$ tiene componentes fuera de diagonal grandes o está mal condicionada; por eso la corrección se suele acompañar de restricciones o regularización (Nachman *et al.*, *npj Quantum Inf.* 6, 84, 2020, DOI `10.1038/s41534-020-00309-7`; Bravyi *et al.*, *Phys. Rev. A* 103, 042605, 2021, DOI `10.1103/PhysRevA.103.042605`).
+2. **Amplificación de varianza y overhead.** La regla de §25.2 cuantifica el trade-off local de §108: invertir elimina sesgo en el modelo pero multiplica la varianza por $(1-e_{01}-e_{10})^{-2}$ y añade incertidumbre de calibración. Este coste es coherente con el overhead de mitigación formalizado como factor $\Gamma^2$ en el estimador no sesgado de Bravyi *et al.* (2021) y con el overhead/muestreo en métodos de mitigación de lectura escalables (Nation *et al.*, *PRX Quantum* 2, 040326, 2021, DOI `10.1103/PRXQuantum.2.040326`). La decisión "no invertir" es por tanto estadística, no una prohibición general de la corrección de lectura.
+3. **Regularización/no negatividad.** En distribuciones multiqubit, la inversión ingenua puede producir cuasiprobabilidades negativas u oscilaciones; IBU/least-squares/no negatividad son respuestas usuales (Nachman 2020). El criterio de §25.2 no reemplaza esos métodos: cubre el caso escalar/un qubit o eje m-qg donde la comparación MSE es cerrada y auditable.
+4. **Lectura sin arrastre por filtro de sector.** El resultado $O(e_{01}e_{10})$ supone flips de lectura independientes y postselección al sector de peso 1. Es una propiedad del código/sector, no del hardware físico: correlaciones de lectura, crosstalk o leakage rompen la hipótesis independiente y deben medirse antes de declarar el orden. La ganancia $\times46$ reportada es `exact` bajo ese modelo; en hardware es `unverified`.
+5. **Calibración por eco.** Los circuitos $I/X$ o eco $XX$ para estimar $e_{01},e_{10}$ son instancias de calibración de respuesta; su costo entra en $N_{\mathrm{cal}}$ y en $\mathrm{Var}_{\mathrm{cal}}$. No se debe extrapolar la inversa calibrada fuera del régimen donde la matriz es estable y la deriva temporal es despreciable.
+
+**Fuentes contrastadas:** Nachman *et al.* 2020, *npj Quantum Inf.* 6, 84, DOI `10.1038/s41534-020-00309-7` (unfolding/inversión de lectura, inestabilidad estadística, IBU). Bravyi *et al.* 2021, *Phys. Rev. A* 103, 042605, DOI `10.1103/PhysRevA.103.042605` (mitigación de errores de medición, estimador no sesgado, overhead $\Gamma^2$). Nation *et al.* 2021, *PRX Quantum* 2, 040326, DOI `10.1103/PRXQuantum.2.040326` (mitigación escalable de errores de medición, overhead). Contexto: Maciejewski *et al.* 2020, *Quantum* 4, 257, DOI `10.22331/q-2020-04-24-257`.
+
+## 25.8 Apéndice H
 
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |
 | `readout_drag_affine` | lectura | $m'=(1-e_{01}-e_{10})m+1000(e_{10}-e_{01})$ | `readout_affine` | `exact`; §168 `tested on hardware` |
 | `drag_free_point` | lectura | $m^\star=1000(e_{10}-e_{01})/(e_{01}+e_{10})$ | `drag_free_point` | `exact` |
-| `echo_inversion_rule_108` | mitigación | invertir ⇔ MSE$_{\text{raw}}>$ MSE$_{\text{inv}}$ | `mse_raw_vs_inverted` | `exact` (sustituye la prohibición cualitativa) |
+| `echo_inversion_rule_108` | mitigación | invertir $\iff$ MSE$_{\text{raw}}>$ MSE$_{\text{inv}}$ | `mse_raw_vs_inverted` | `exact` (sustituye la prohibición cualitativa) |
 | `sector_readout_second_order` | mitigación | sesgo $O(e_{01}e_{10})$ | `sector_readout_error_order` | `exact` modelo |
 
 `CHANGELOG.md [Unreleased]`: `qang.qecho`; `tools/verify_cap25.py`; `tests/test_qecho.py`.
-Commit: `docs(cap25): arrastre de lectura, criterio §108 y lectura sin arrastre sobre Cap. 1–24 + qang.qecho + verify_cap25`.
+Commit: `docs(cap25): arrastre de lectura, criterio §108 y lectura sin arrastre sobre Cap. 1-24 + qang.qecho + verify_cap25`.
