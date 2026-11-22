@@ -58,51 +58,13 @@ $$
 T(q)=\begin{pmatrix}\tfrac{1+q}{2}&\tfrac{1-q}{2}\\[0.5ex]\tfrac{1-q}{2}&\tfrac{1+q}{2}\end{pmatrix},
 $$
 
-doblemente estocástica, racional en $q$ e independiente de las fases. Desde el punto de vista de la medición en la
-base computacional y para entradas sin coherencias, toda compuerta de un qubit es un canal binario simétrico de
-parámetro $(1-q)/2$.
-
-## La compuerta como ecuación de probabilidad {#sec-compuerta-probabilidad}
-
-La matriz de transición es la ecuación de probabilidad del capítulo 1 escrita para una operación. Con
-$p_0=(1+q)/2$,
+doblemente estocástica: cada fila y cada columna suman 1. Su acción sobre $(p_0,1-p_0)$ es
 
 $$
-T=\begin{pmatrix}p_0&1-p_0\\1-p_0&p_0\end{pmatrix},\qquad p_0=\frac{1000+m}{2000}:
+p_0^{(\text{salida})} = p_0^{(\text{entrada})}\,p_0(q) + \bigl(1-p_0^{(\text{entrada})}\bigr)\bigl(1-p_0(q)\bigr).
 $$
 
-sobre una entrada sin coherencias ($|0\rangle$, $|1\rangle$ o una mezcla clásica de ellos), la acción de cualquier
-compuerta de un qubit sobre las poblaciones queda fijada por **un solo número**, su lectura en m-qg. La identidad y $Z$ están en $+1000$ m-qg (no mueven poblaciones), $X$ en $-1000$ (las intercambia) y la
-Hadamard en $0$ (las iguala). Las fases $\varphi$ y $\lambda$ no aparecen: son invisibles para una medición en $Z$ y
-solo se revelan al componer compuertas, como muestra el capítulo 3. Sobre una entrada con coherencias, la
-fórmula completa es $p_0'=T(q)\,p-\sqrt{1-q^2}\,\operatorname{Re}(e^{-i\lambda}\rho_{01})$: la Hadamard sobre
-$|+\rangle$ da $p_0=1$, no el $0{,}5$ que daría $T(0)$. El término se obtiene de
-$p_0'=|U_{00}|^2p_0+|U_{01}|^2p_1+2\operatorname{Re}(U_{00}U_{01}^*\rho_{01})$, pues
-$U_{00}U_{01}^*=-\tfrac12\sqrt{1-q^2}\,e^{-i\lambda}$. Para la Hadamard sobre $|+\rangle$ ($q=0$, $\lambda=\pi$,
-$\rho_{01}=1/2$) ese término vale $+1/2$ y corrige la lectura de $0{,}5$ a $1$.
-
-La lectura entrópica también tiene su versión para operaciones. La capacidad del canal binario simétrico de
-parámetro $(1-q)/2$ es $1-H\big((1-q)/2\big)$ [@shannon1948]: la entropía condicional $H(Y|X)=H\big((1-q)/2\big)$
-no depende de la distribución de entrada y una entrada uniforme alcanza el máximo $H(Y)=1$. Como $H$ es simétrica,
-$H\big((1-q)/2\big)=H(p_0)=qg_S$:
-
-$$
-C = 1-qg_S .
-$$
-
-Una compuerta en un polo ($qg_S=0$) transmite un bit completo por cada uso; la Hadamard ($qg_S=1$) no transmite nada
-de la base computacional a sí misma.
-
-La curvatura de información del capítulo 1 (@sec-derivadas) tiene aquí una lectura directa. Como $C=1-qg_S$,
-
-$$
-\frac{d^2C}{dq^2}=qg_\kappa=\frac{1}{\ln2\,(1-q^2)} :
-$$
-
-la capacidad es convexa en el sesgo de la compuerta, con su mínimo en la Hadamard, y se curva cada vez más junto a los
-polos. Apartarse lo mismo de un polo o del ecuador no cuesta lo mismo: una compuerta a $+990$ m-qg, 10 m-qg por debajo
-del polo, transmite $0{,}955$ bits, ya $0{,}045$ menos que la identidad; una a $+10$ m-qg, 10 m-qg por encima del
-ecuador, transmite $7\cdot10^{-5}$ bits, casi lo mismo que la Hadamard.
+**Demostración integrada (canal y capacidad).** La única lectura que importa es $q$: las fases no entran en las poblaciones. Con $p=1-p_0(q)=(1-q)/2$, $T(q)$ es un canal binario simétrico de cruce $p$; su capacidad es $C(q)=1-H(p_0(q))=1-qg_S(q)$, alcanzada con entrada uniforme (Shannon, DOI `10.1002/j.1538-7305.1948.tb01338.x`; §164), y su curvatura $d^2C/dq^2=-qg_\kappa(q)$ es la información de Fisher sobre $qg_Z$ en bits. La compuerta actúa así sobre poblaciones de entrada sin coherencias; para entradas coherentes las fases vuelven a importar en los términos fuera de la diagonal del estado de salida, pero las poblaciones quedan fijadas por $q$.
 
 ## Verificación contra las bibliotecas estándar {#sec-verificacion}
 
@@ -249,17 +211,17 @@ $\log_2 3/3$), igual en los tres. En mili-qang, las lecturas van de 316 a 343 m-
 20 000 disparos la resolución es $\sigma_m=1000\sin\theta/\sqrt N=6{,}7$ m-qg, de modo que la mayor desviación
 ($-17$ m-qg) está a unos 2,6σ: es ruido de disparo, no una diferencia entre kits.
 
-## Sin qang y con qang {#sec-comparacion02}
+## Contraste operativo: Sin qang vs. Con qang {#sec-comparacion02}
 
-| acción | sin qang | con qang | diferencia |
-|---|---|---|---|
-| preparar un estado con una probabilidad dada | calcular $\theta=2\arccos\sqrt{p_0}$ y aplicar $R_Y(\theta)$ | la compuerta $R_{qg}$ recibe directamente la lectura objetivo, en qg o en m-qg | **conveniencia**: la compuerta física es la misma |
-| describir la acción de una compuerta sobre las poblaciones | la matriz unitaria completa, con fases | una matriz de transición doblemente estocástica fijada por un número en m-qg, con capacidad $1-qg_S$ | **conveniencia** para poblaciones, con entradas sin coherencias; **en contra** para fases, que la descripción pierde (capítulo 3) |
-| presupuestar el error de una compuerta fraccionaria | fidelidad de proceso | error en m-qg: de $-31{,}7$ a $-0{,}4$ m-qg para $R_X(324^\circ)$ con el representante de área mínima | la mejora es del **principio de área mínima**; el m-qg la vuelve comparable con el ruido de disparo |
-| ver el área de un pulso en el ecuador | fidelidad de proceso o tomografía | $qg_\tau=\sqrt{1-e^{-\theta^2\sigma^2}}$, que crece con el área aunque la lectura en m-qg no se corra | **conveniencia**: es la pureza del estado tomográfico, con nombre qg |
-| generalizar a qudits | matrices de Gell-Mann | la subálgebra de Cartan como identidad qg | **ninguna demostrada**: no se encontró ventaja en leer más niveles |
+| Métrica / acción | Sin qang (baseline estándar) | Con qang (qg/m-qg) | Diferencia | Estatus |
+|---|---|---|---|---|
+| Preparar estado con probabilidad objetivo | Calcular $\theta=2\arccos\sqrt{p_0}$ y aplicar $R_Y(\theta)$ | $R_{qg}$ recibe lectura objetivo en qg/m-qg | Misma compuerta física; interfaz directa en lectura | `exact` |
+| Acción sobre poblaciones | Matriz unitaria completa con fases | $T(q)$ doblemente estocástica fijada por $q$; capacidad $1-qg_S$ | Conveniente para poblaciones; pierde fases coherentes | `exact` |
+| Error de compuerta fraccionaria | Fidelidad de proceso | Error en m-qg; $R_X(324^\circ)$: $-31.7$ a $-0.4$ m-qg con área mínima | Mejora del principio de área mínima; m-qg la compara con shot noise | `exact` modelo / `hardware unverified` |
+| Área de pulso en ecuador | Fidelidad/tomografía | $qg_\tau=\sqrt{1-e^{-\theta^2\sigma^2}}$ | Pureza/defecto disipativo en la misma escala | `exact` |
+| Generalizar a qudits | Matrices de Gell-Mann | Subálgebra de Cartan como identidad qg | Sin ventaja demostrada | `no gain` / `unverified` |
 
-: Las acciones del capítulo sin la escala qang y con ella. {#tbl-comparacion02}
+: Contraste operativo Sin qang vs. Con qang. {#tbl-comparacion02}
 
 **Balance.** En compuertas, qang es una forma compacta de escribir lo que pasa con las poblaciones, y el m-qg es la
 unidad en la que el error de pulso y el ruido de disparo se comparan. La ganancia medida, la del área mínima, es del
@@ -306,8 +268,4 @@ La universalidad de las compuertas de un qubit más un entrelazador está en @ba
 descomposición de Cartan de $SU(2^n)$, en @khaneja2001. Los kits contra los que se verifica la compuerta son Qiskit
 [@javadiabhari2024], PennyLane [@bergholm2018], Cirq [@cirq] y Amazon Braket [@braket]. Las notas de investigación
 numeradas (§) que cita el capítulo y los scripts que lo verifican están en el repositorio [@qangrepo]; la definición de
-la unidad qang, en @monteverde2026. **Contraste bibliográfico verificado en línea:** la capacidad $C=1-h(p)$ del
-canal binario simétrico, alcanzada con entrada uniforme, se contrasta con la formulación original de Shannon (DOI
-10.1002/j.1538-7305.1948.tb01338.x); la normalización $\operatorname{Tr}(\Lambda_j\Lambda_k)=2\delta_{jk}$ y la
-reconstrucción $\rho=\frac1d I+\frac12\sum_k\langle\Lambda_k\rangle\Lambda_k$ de los generadores generalizados de
-Gell-Mann se contrastan con la literatura de tomografía de qudits.
+la unidad qang, en @monteverde2026.

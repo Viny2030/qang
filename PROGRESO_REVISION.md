@@ -31,7 +31,7 @@
 
 - [x] **Setup y descubrimiento** (hecho: ruta real del libro, rama, inventario de capítulos y tests).
 - [x] **cap01** - commit `docs: revisi�n te�rica y validaci�n cap 1`. Reestructurado 2026-11-22 (Sin/Con qang, demos integradas, ES/EN); `pytest tests/test_probability.py -q` 12 passed; `verify_cap01.py` bloqueado por SDKs ausentes en `.venv`.
-- [x] **cap02** — commit `docs: revisión teórica y validación cap 2`.
+- [x] **cap02** - commit `docs: revisi�n te�rica y validaci�n cap 2`. Reestructurado 2026-11-22 (Sin/Con qang, demo canal/capacidad integrada, ES/EN); `pytest tests/test_algebra.py tests/test_pulse_area.py -q` 15 passed,2 skipped; `verify_cap02.py` bloqueado por cirq ausente.
 - [x] **cap03** — commit `docs: revisión teórica y validación cap 3`.
 - [x] **cap04** — commit `docs: revisión teórica y validación cap 4`.
 - [x] **cap05** — commit `docs: revisión teórica y validación cap 5`.
