@@ -1,6 +1,6 @@
 # Chapter 13 — Matter Effects (MSW): Resonance as the Equator, Adiabatic Readout as a Product of Two qg Values, and the Trotter Cost {#sec-qjax13 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Analysis and update date:** November 22, 2026
 
 > Rewrite of the old Ch. 10 on the basis of Ch. 1–12. Module: `qang.qneutrino` (matter part; JAX, `jax<0.9`). Verification: `tools/verify_cap13.py`. Collective oscillations (§156, §163) are outside this chapter: status `unverified`, no claims.
 
@@ -11,6 +11,10 @@
 In matter with electron density $N_e$ the potential $A=2\sqrt2G_FN_eE$ ($=1.52\cdot10^{-4}\,\mathrm{eV^2}\cdot(N_e/N_A\,\mathrm{cm^{-3}})\cdot E[\mathrm{GeV}]$) tilts the effective mass axis:
 $$\cos2\theta_m=\frac{\cos2\theta-A/\Delta m^2}{\sqrt{(\cos2\theta-A/\Delta m^2)^2+\sin^22\theta}},\qquad \sin^22\theta_m=\frac{\sin^22\theta}{(\cos2\theta-A/\Delta m^2)^2+\sin^22\theta}.$$
 $\cos2\theta_m$ **is** the $qg_Z$ of the effective axis. The resonance $A_{\text{res}}=\Delta m^2\cos2\theta$ is equivalent to $\theta_m=\pi/4$: the effective axis crosses the **equator** ($qg_Z=0$, $250$ qga). For $\theta_{12}$: $2\theta_m$ goes from $185.6$ qga (vacuum) to $250.0$ qga (resonance); $E_{\text{res}}=1.92$ MeV at $N_e=100N_A$ cm$^{-3}$ (`exact`). The MSW resonance is the equator crossing of the effective mass axis; $\cos2\theta_m$ is literally the $qg_Z$ of that axis.
+
+The derivation matches the standard MSW formulation: Wolfenstein introduced coherent forward scattering and mixing in matter; Mikheyev and Smirnov identified the resonance and adiabatic conversion as the solution of the solar problem (Smirnov's historical review and the PDG reproduce it). The chapter convention is $A=2\sqrt2G_FN_eE=2E\lambda$ with $\lambda=\sqrt2G_FN_e$; literature writing $\lambda=\Delta m^2\cos2\theta/(2E)$ is using half of $A$, and the equivalent resonance is $A_{\text{res}}=\Delta m^2\cos2\theta$. At resonance $x=\cos2\theta-A/\Delta m^2=0$, hence $\cos2\theta_m=0$ ($250$ qga) and $\sin^22\theta_m=1$; in vacuum $2\theta=185.6$ qga for the verifier's $\theta_{12}$.
+
+**Sources for this section.** L. Wolfenstein, *Phys. Rev. D* 17, 2369 (1978), DOI `10.1103/PhysRevD.17.2369`; S. P. Mikheyev and A. Yu. Smirnov, *Sov. J. Nucl. Phys.* 42, 913 (1985), DOI `10.1007/BF02508049`; A. Yu. Smirnov, *Phys. Scr.* T121, 57 (2005), <https://iopscience.iop.org/article/10.1088/0031-8949/2005/T121/008>; A. Yu. Smirnov, historical review of MSW (2019), <https://arxiv.org/html/1901.11473v2>; PDG 2025, §14.5.1, <https://ccwww.kek.jp/pdg/2025/reviews/rpp2025-rev-neutrino-mixing.pdf>.
 
 ## 13.2 Adiabatic readout: a product of two qg values
 
@@ -26,6 +30,8 @@ a **product of two qg readings** of the effective axis. Solar neutrinos ($N_e^{\
 
 Limits reproduced: $P_{ee}\to1-\tfrac12\sin^22\theta$ (vacuum average) at low $E$ and $P_{ee}\to\sin^2\theta$ at high $E$ (`exact` under adiabaticity, $\gamma_{\text{res}}\approx2.7\cdot10^3\gg1$).
 
+$P_{ee}=\tfrac12(1+\cos2\theta_m^{\text{prod}}\cos2\theta)$ is the adiabatic identity ($qg_Z^{\text{axis}}(A_{\text{prod}})\,qg_Z^{\text{axis}}(0)$). The `exact` label means an algebraic identity **within the adiabatic approximation**, not exact quantum evolution for any profile; for abrupt profiles or supernovae ($\gamma\lesssim1$) the formula does not replace direct integration.
+
 ## 13.3 Cost of simulating the profile: Trotter versus the two-qg formula
 
 Piecewise evolution with $H(L)\propto\big[-\cos2\theta+A(L)/\Delta m^2,\ \sin2\theta\big]$ over $N_e(r)=100N_A\,e^{-r/r_0}$, $r_0=R_\odot/10.54$: each segment is a rotation about an arbitrary axis (2 $R_Y$ pulses + virtual $R_Z$). Convergence to $\langle P_{ee}\rangle$ ($\pm10\%$ band in $E$, which washes out the vacuum phase):
@@ -39,6 +45,12 @@ Piecewise evolution with $H(L)\propto\big[-\cos2\theta+A(L)/\Delta m^2,\ \sin2\t
 | adiabatic | **0** (2 qg values) | 0.3278 | — |
 
 When $\gamma\gg1$, the two-qg reading replaces $\ge2000$ pulses with an algebraic identity (`exact`); when $\gamma\lesssim1$ (abrupt profiles, supernovae) the formula fails and Trotter is mandatory — the decision is made with $\gamma$, not blindly.
+
+With $\Delta m^2$ in eV², $E$ in GeV and lengths in km, $\gamma_{\text{res}}=2\kappa\,\Delta m^2\sin^22\theta\,r_0/(E\cos2\theta)$ with $\kappa=1.267$; equivalently $\Delta m^2\sin^22\theta/(2E\cos2\theta)\,(n_e^{-1}dn_e/dr)^{-1}$. The verifier obtains $\gamma=2661\gg1$. $P_{LZ}\approx e^{-\pi\gamma/2}$ is the jump probability for an approximately linear crossing; it is negligible here, but abrupt or nonlinear profiles require direct integration.
+
+Each segment of `trotter_survival_qz` is a rotation about an arbitrary axis: $2$ $R_Y$ pulses plus a virtual $R_Z$ (frame change, not counted as a physical pulse). The table is not monotone ($0.0092$, $0.0124$, $0.0012$, $0.0015$) because $\langle P_{ee}\rangle$ is averaged over an energy band with finite sampling; the verifier's only assertion is $|\langle P_{ee}\rangle_{N=4000}-P_{\text{ad}}|<0.01$, so uniform convergence in $N$ is not claimed.
+
+**Sources for this section.** Review of the Landau–Zener probability, <https://arxiv.org/html/0806.0794v2>.
 
 ## 13.4 Operational contrast — Without `qang` vs. with `qang`
 
@@ -83,7 +95,12 @@ def trotter_survival_qz(theta, dm2, E, A_profile, dL_km):   # lax.scan of arbitr
     γ_adiab(res) = 2661 ≫ 1 → P_LZ ≈ e^(−πγ/2) ≈ 0
 verify_cap13: OK
 ```
+
+The reproducible validation of this review is `verify_cap13: OK`: $\cos2\theta_m(A_{\text{res}})=0$ and $\sin^22\theta_m=1$ to $10^{-14}$; pp/$^8$B limits to $0.02/0.03$; $|\langle P_{ee}\rangle_{N=4000}-P_{\text{ad}}|<0.01$; $\gamma_{\text{res}}=2661\gg1$; `tests/test_qneutrino_matter.py` passes with `2 passed`.
+
 Asserts: $\cos2\theta_m(A_{\text{res}})=0$ and $\sin^22\theta_m=1$ to $10^{-14}$; pp/$^8$B limits to $0.02/0.03$; $|\langle P_{ee}\rangle_{N=4000}-P_{\text{ad}}|<0.01$.
+
+Note: in `tools/verify_cap13.py` the auxiliary function `mass1_population()` is unused; it is not part of the validated result.
 
 ### `tests/test_qneutrino_matter.py`
 ```python

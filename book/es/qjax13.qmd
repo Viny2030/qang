@@ -2,7 +2,7 @@
 *Chapter 13 — Matter Effects (MSW): Resonance as the Equator, Adiabatic Readout as a Product of Two qg Values, and the Trotter Cost*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 22 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 10 sobre la base de Cap. 1–12. Módulo: `qang.qneutrino` (parte materia; JAX, `jax<0.9`). Verificación: `tools/verify_cap13.py`. Oscilaciones colectivas (§156, §163) quedan fuera de este capítulo: estatus `unverified`, sin afirmaciones.
 
@@ -13,6 +13,10 @@
 **ES.** En materia con densidad electrónica $N_e$ el potencial $A=2\sqrt2G_FN_eE$ ($=1.52\cdot10^{-4}\,\mathrm{eV^2}\cdot(N_e/N_A\,\mathrm{cm^{-3}})\cdot E[\mathrm{GeV}]$) inclina el eje de masa efectivo:
 $$\cos2\theta_m=\frac{\cos2\theta-A/\Delta m^2}{\sqrt{(\cos2\theta-A/\Delta m^2)^2+\sin^22\theta}},\qquad \sin^22\theta_m=\frac{\sin^22\theta}{(\cos2\theta-A/\Delta m^2)^2+\sin^22\theta}.$$
 $\cos2\theta_m$ **es** el $qg_Z$ del eje efectivo. La resonancia $A_{\text{res}}=\Delta m^2\cos2\theta$ equivale a $\theta_m=\pi/4$: el eje efectivo cruza el **ecuador** ($qg_Z=0$, $250$ qga). Para $\theta_{12}$: $2\theta_m$ va de $185.6$ qga (vacío) a $250.0$ qga (resonancia); $E_{\text{res}}=1.92$ MeV a $N_e=100N_A$ cm$^{-3}$ (`exact`).
+
+La derivación coincide con la formulación estándar del efecto MSW: Wolfenstein introdujo la dispersión coherente hacia adelante y la mezcla en materia; Mikheyev y Smirnov identificaron la resonancia y la conversión adiabática como solución del problema solar (revisión histórica de Smirnov y PDG). La convención del capítulo es $A=2\sqrt2G_FN_eE=2E\lambda$ con $\lambda=\sqrt2G_FN_e$; la literatura que escribe $\lambda=\Delta m^2\cos2\theta/(2E)$ está usando la mitad de $A$, y la resonancia equivalente es $A_{\text{res}}=\Delta m^2\cos2\theta$. En resonancia $x=\cos2\theta-A/\Delta m^2=0$, por tanto $\cos2\theta_m=0$ ($250$ qga) y $\sin^22\theta_m=1$; en vacío $2\theta=185.6$ qga para $\theta_{12}$ del verificador.
+
+**Fuentes de la sección.** L. Wolfenstein, *Phys. Rev. D* 17, 2369 (1978), DOI `10.1103/PhysRevD.17.2369`; S. P. Mikheyev y A. Yu. Smirnov, *Sov. J. Nucl. Phys.* 42, 913 (1985), DOI `10.1007/BF02508049`; A. Yu. Smirnov, *Phys. Scr.* T121, 57 (2005), <https://iopscience.iop.org/article/10.1088/0031-8949/2005/T121/008>; A. Yu. Smirnov, revisión histórica del MSW (2019), <https://arxiv.org/html/1901.11473v2>; PDG 2025, §14.5.1, <https://ccwww.kek.jp/pdg/2025/reviews/rpp2025-rev-neutrino-mixing.pdf>.
 
 **EN.** The MSW resonance is the equator crossing of the effective mass axis; $\cos2\theta_m$ is literally the $qg_Z$ of that axis (`exact`).
 
@@ -30,6 +34,8 @@ un **producto de dos lecturas qg** del eje efectivo. Neutrinos solares ($N_e^{\t
 
 Límites reproducidos: $P_{ee}\to1-\tfrac12\sin^22\theta$ (promedio de vacío) a baja $E$ y $P_{ee}\to\sin^2\theta$ a alta $E$ (`exact` bajo adiabaticidad, $\gamma_{\text{res}}\approx2.7\cdot10^3\gg1$).
 
+$P_{ee}=\tfrac12(1+\cos2\theta_m^{\text{prod}}\cos2\theta)$ es la identidad adiabática ($qg_Z^{\text{eje}}(A_{\text{prod}})\,qg_Z^{\text{eje}}(0)$). El rótulo `exact` significa identidad algebraica **dentro de la aproximación adiabática**, no evolución cuántica exacta para cualquier perfil; en perfiles abruptos o supernovas ($\gamma\lesssim1$) la fórmula no sustituye a la integración.
+
 ## 13.3 Coste de simular el perfil: Trotter frente a la fórmula de dos qg
 
 Evolución por tramos con $H(L)\propto\big[-\cos2\theta+A(L)/\Delta m^2,\ \sin2\theta\big]$ sobre $N_e(r)=100N_A\,e^{-r/r_0}$, $r_0=R_\odot/10.54$: cada tramo es una rotación de eje arbitrario (2 pulsos $R_Y$ + $R_Z$ virtual). Convergencia a $\langle P_{ee}\rangle$ (banda $\pm10\%$ en $E$, que lava la fase de vacío):
@@ -43,6 +49,12 @@ Evolución por tramos con $H(L)\propto\big[-\cos2\theta+A(L)/\Delta m^2,\ \sin2\
 | adiabático | **0** (2 valores qg) | 0.3278 | — |
 
 Cuando $\gamma\gg1$, la lectura de dos qg sustituye $\ge2000$ pulsos por una identidad algebraica (`exact`); cuando $\gamma\lesssim1$ (perfiles abruptos, supernovas) la fórmula falla y el Trotter es obligatorio — la decisión se toma con $\gamma$, no a ciegas.
+
+Con $\Delta m^2$ en eV², $E$ en GeV y longitudes en km, $\gamma_{\text{res}}=2\kappa\,\Delta m^2\sin^22\theta\,r_0/(E\cos2\theta)$ con $\kappa=1.267$; equivale a $\Delta m^2\sin^22\theta/(2E\cos2\theta)\,(n_e^{-1}dn_e/dr)^{-1}$. El verificador obtiene $\gamma=2661\gg1$. $P_{LZ}\approx e^{-\pi\gamma/2}$ es la probabilidad de salto para un cruce aproximadamente lineal; aquí es despreciable, pero perfiles abruptos o no lineales requieren integración directa.
+
+Cada tramo de `trotter_survival_qz` es una rotación de eje arbitrario: $2$ pulsos $R_Y$ más un $R_Z$ virtual (cambio de marco, no cuenta como pulso físico). La tabla no es monótona ($0.0092$, $0.0124$, $0.0012$, $0.0015$) porque $\langle P_{ee}\rangle$ se promedia sobre una banda de energía con muestreo finito; el único aserto del verificador es $|\langle P_{ee}\rangle_{N=4000}-P_{\text{ad}}|<0.01$, así que no se afirma convergencia uniforme en $N$.
+
+**Fuentes de la sección.** Revisión de la probabilidad de Landau–Zener, <https://arxiv.org/html/0806.0794v2>.
 
 ## 13.4 Contraste operativo — Sin `qang` vs. con `qang`
 
@@ -87,7 +99,12 @@ def trotter_survival_qz(theta, dm2, E, A_profile, dL_km):   # lax.scan de rotaci
     γ_adiab(res) = 2661 ≫ 1 → P_LZ ≈ e^(−πγ/2) ≈ 0
 verify_cap13: OK
 ```
+
+La validación reproducible de esta revisión es `verify_cap13: OK`: $\cos2\theta_m(A_{\text{res}})=0$ y $\sin^22\theta_m=1$ a $10^{-14}$; límites pp/$^8$B a $0.02/0.03$; $|\langle P_{ee}\rangle_{N=4000}-P_{\text{ad}}|<0.01$; $\gamma_{\text{res}}=2661\gg1$; `tests/test_qneutrino_matter.py` pasa con `2 passed`.
+
 Asserts: $\cos2\theta_m(A_{\text{res}})=0$ y $\sin^22\theta_m=1$ a $10^{-14}$; límites pp/$^8$B a $0.02/0.03$; $|\langle P_{ee}\rangle_{N=4000}-P_{\text{ad}}|<0.01$.
+
+Nota: en `tools/verify_cap13.py` la función auxiliar `mass1_population()` no se usa; no forma parte del resultado validado.
 
 ### `tests/test_qneutrino_matter.py`
 ```python
@@ -122,18 +139,3 @@ def test_vacuum_limit():
 - `tools/verify_cap13.py`, `tests/test_qneutrino_matter.py`; Apéndice H: 5 entradas.
 ```
 Commit: `docs(cap13): efectos de materia MSW reescritos sobre Cap. 1–12 + verify_cap13`.
-
-## 13.8 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-La derivación coincide con la formulación estándar del efecto MSW: Wolfenstein introdujo la dispersión coherente hacia adelante y la mezcla en materia; Mikheyev y Smirnov identificaron la resonancia y la conversión adiabática como solución del problema solar. La revisión histórica de Smirnov y la revisión del PDG reproducen la condición de resonancia, la forma de la probabilidad de supervivencia adiabática y el parámetro de adiabaticidad usados aquí.
-
-Precisiones que fijan el alcance de los rótulos `exact`/`unverified`:
-
-1. La convención del capítulo es $A=2\sqrt2G_FN_eE=2E\lambda$, con $\lambda=\sqrt2G_FN_e$. La literatura que escribe $\lambda=\Delta m^2\cos2\theta/(2E)$ está usando la mitad de $A$; la resonancia equivalente es $A_{\text{res}}=\Delta m^2\cos2\theta$.
-2. $\cos2\theta_m$ es literalmente el $qg_Z$ del eje de masa efectivo. En resonancia $x=\cos2\theta-A/\Delta m^2=0$, por tanto $\cos2\theta_m=0$ ($250$ qga) y $\sin^22\theta_m=1$; en vacío $2\theta=185.6$ qga para $\theta_{12}$ del verificador.
-3. $P_{ee}=\tfrac12(1+\cos2\theta_m^{\text{prod}}\cos2\theta)$ es la identidad adiabática ($qg_Z^{\text{eje}}(A_{\text{prod}})\,qg_Z^{\text{eje}}(0)$). El rótulo `exact` significa identidad algebraica **dentro de la aproximación adiabática**, no evolución cuántica exacta para cualquier perfil.
-4. Con $\Delta m^2$ en eV², $E$ en GeV y longitudes en km, $\gamma_{\text{res}}=2\kappa\,\Delta m^2\sin^22\theta\,r_0/(E\cos2\theta)$ con $\kappa=1.267$; equivale a $\Delta m^2\sin^22\theta/(2E\cos2\theta)\,(n_e^{-1}dn_e/dr)^{-1}$. El verificador obtiene $\gamma=2661\gg1$. $P_{LZ}\approx e^{-\pi\gamma/2}$ es la probabilidad de salto para un cruce aproximadamente lineal; aquí es despreciable, pero perfiles abruptos o no lineales requieren integración directa.
-5. Cada tramo de `trotter_survival_qz` es una rotación de eje arbitrario: $2$ pulsos $R_Y$ más un $R_Z$ virtual (cambio de marco, no cuenta como pulso físico). La tabla no es monótona ($0.0092$, $0.0124$, $0.0012$, $0.0015$) porque $\langle P_{ee}\rangle$ se promedia sobre una banda de energía con muestreo finito; el único aserto del verificador es $|\langle P_{ee}\rangle_{N=4000}-P_{\text{ad}}|<0.01$, así que no se afirma convergencia uniforme en $N$.
-6. En `tools/verify_cap13.py` la función auxiliar `mass1_population()` no se usa; no forma parte del resultado validado.
-
-**Fuentes contrastadas:** Wolfenstein 1978, *Phys. Rev. D* 17, 2369 (DOI `10.1103/PhysRevD.17.2369`); Mikheyev y Smirnov 1985, *Sov. J. Nucl. Phys.* 42, 913 (DOI `10.1007/BF02508049` para el artículo de 1986); Smirnov 2005, *Phys. Scr.* T121, 57 (`https://iopscience.iop.org/article/10.1088/0031-8949/2005/T121/008`); Smirnov 2019, revisión histórica del MSW (`https://arxiv.org/html/1901.11473v2`); PDG 2025, §14.5.1 (`https://ccwww.kek.jp/pdg/2025/reviews/rpp2025-rev-neutrino-mixing.pdf`); revisión de la probabilidad de Landau–Zener (`https://arxiv.org/html/0806.0794v2`).
