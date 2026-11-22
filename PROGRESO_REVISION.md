@@ -192,3 +192,4 @@
 - [x] **cap05** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_qg_radius_hardware_qg.py tests/test_qg_radius_witness_qg.py -q` => 3 passed, 2 skipped; `verify_cap05.py` bloqueado (`qutip` ausente); `git diff --check` limpio.
 - [x] **cap06** — cabecera exacta ES/EN; sin anexo residual; `pytest tests/test_polarization.py -q` => 12 passed; `verify_cap06.py` bloqueado (`qutip` ausente); `git diff --check` limpio.
 - [x] **qjax07** — cabecera exacta ES/EN; sin anexo residual; `PYTHONPATH=. tools/verify_cap07.py` => `verify_cap07: OK`; `pytest tests/test_qan.py -q` => 4 passed; `git diff --check` limpio.
+- [x] **qjax08** — cabecera exacta ES/EN; sin anexo residual; `PYTHONPATH=. tools/verify_cap08.py` => `verify_cap08: OK`; `pytest tests/test_qdist.py -q` => 4 passed; `git diff --check` limpio.
