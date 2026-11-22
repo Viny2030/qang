@@ -1,6 +1,6 @@
 # Chapter 8 — Coupling QAN to Probability Distributions: qg Moments, k-Local Truncation, Divergences and Shot Budget {#sec-qjax08 .unnumbered}
 
-**Updated:** November 15, 2026
+**Updated:** November 22, 2026
 
 > Module: `qang.qdist` (JAX, `jax<0.9`; depends on `qang.qan`). Verification: `tools/verify_cap08.py`. Continues Ch. 7 (QAN/MI/IQAN); geometric phases and Fisher information move to Ch. 9–10 in `BOOK_OUTLINE.md`.
 
@@ -29,101 +29,16 @@ $p_0\sim\mathrm{Beta}(1,1)\Leftrightarrow qg_Z\sim\mathcal U[-1,1]$ (Ch. 4). Pos
 $$\mathbb E[qg_Z]=\frac{2(1+k_0)}{N+2}-1,\qquad \mathrm{Var}[qg_Z]=\frac{4(1+k_0)(1+N-k_0)}{(N+2)^2(N+3)}.$$
 At the equator ($k_0=N/2$): $\sigma=1000/\sqrt{N+3}$ m-qg ($31.58$ m-qg at $N=1000$), with no coverage collapse at the poles (`exact`).
 
-## 8.5 Operational contrast — Without `qang` vs. with `qang`
+## 8.5 Operational contrast: Without qang vs. With qang
 
-| Metric | Standard (without `qang`) | `qang` (`qang.qdist` + JAX) | Gain / Status |
-| :--- | :--- | :--- | :--- |
-| Parameters to describe the readout, $n=4$ | $2^n-1=15$ probabilities | $M_2=10$ qg moments (`qg_moments`) | $-33\%$ (`exact`) |
-| Shots for $\mathbb E[\mathrm{TV}]\le0.05$, $n=8$ | $N^\star=25\,500$ | $N^\star=3\,600$ (`shots_tv_bound`) | $-86\%$ (`exact`, bound) + bias $\mathrm{TV}(p_{(2)},p)$ (`mixed`) |
-| MC error at $N=2000$, $n=4$ | $\mathbb E[\mathrm{TV}]=0.0249$ (bound $0.0433$) | $0.0246$ (bound $0.0354$) | bounds met (`exact`) |
-| IQAN fit to a target distribution | KL over $2^n$ probabilities | moments $\le2$ (10 numbers, 6 seeds): $\mathrm{TV}=0.055$, KL $=0.015$ bit | residual $<$ truncation bias $0.126$ (`mixed`) |
-| Interval for $qg_Z$ at the poles | delta method: coverage $<10\%$ (Ch. 4) | `haar_posterior_qz` | (`exact`) |
+`tools/verify_cap08.py` §§4-5 instance.
 
-## 8.6 JAX block (`qang/qdist.py`)
-
-```python
-@partial(jax.jit, static_argnames=("n",))
-def qg_moments(p, n):               # qg_{Z_S} = Σ_x p(x) χ_S(x), 2^n moments (exact)
-    return _chi(n) @ p
-
-@partial(jax.jit, static_argnames=("n",))
-def probs_from_moments(q, n):       # exact inverse Walsh
-    return (_chi(n).T @ q) / (2 ** n)
-
-@partial(jax.jit, static_argnames=("n", "k"))
-def truncate_k_local(p, n, k):      # L2 projection onto moments of order ≤ k
-    q = jnp.where(moment_order(n) <= k, qg_moments(p, n), 0.0)
-    return probs_from_moments(q, n)
-
-@jax.jit
-def hellinger2_qg(qz, qz2):         # 1 − cos(qg_L)
-    p0, p0b = (1 + qz) / 2, (1 + qz2) / 2
-    return 1.0 - jnp.sqrt(p0 * p0b) - jnp.sqrt((1 - p0) * (1 - p0b))
-
-@jax.jit
-def haar_posterior_qz(k0, N):       # (E[qg_Z], Var[qg_Z]) with Beta(1,1) prior
-    a, b = 1.0 + k0, 1.0 + N - k0
-    return 2 * a / (a + b) - 1, 4 * a * b / ((a + b) ** 2 * (a + b + 1))
-
-def shots_tv_bound(n, M, tv):       # N* = M / (4 tv²)
-    return M / (4.0 * tv ** 2)
-
-# IQAN by moments (verify_cap08 §5): loss = Σ_{|S|≤2} (qg_S(QAN) − qg_S*)², descent in qga
-vg = jax.jit(jax.value_and_grad(lambda th: loss_moments(th)))
-```
-
-## 8.7 Verification — `tools/verify_cap08.py` (reproducible output)
-
-```
-[1] exact Walsh: 2^n=16 moments; order ≤2 = 10 numbers
-[2] E[TV] histogram=0.0249 (bound 0.0433, M=15); moments ≤2: 0.0246 (bound 0.0354, M=10)
-    2-local truncation bias (noiseless): TV=0.1262
-[3] Hellinger²=0.235158 = 1−cos(qg_L) ✔
-[4] Haar posterior N=1000, k0=500: E[qg_Z]=0, σ=31.58 m-qg
-[5] IQAN moments ≤2: loss=1.30e-06  TV(p_fit,p)=0.0548  KL=0.0145 bit
-[6] n=8, TV≤0.05: histogram N=25500 (M=255) vs moments ≤2 N=3600 (M=36) → -86% shots
-verify_cap08: OK
-```
-Asserts: Walsh round trip to $10^{-14}$; $q_\emptyset=1$; moments of order 1–2 $\equiv$ `qan_readout` to $10^{-13}$; MC means $\le$ bounds; Hellinger identity to $10^{-14}$; exact Haar posterior; moment loss $<10^{-5}$ and $\mathrm{TV}_{\text{fit}}<\mathrm{TV}_{\text{trunc}}$.
-
-### `tests/test_qdist.py`
-```python
-import pytest; jax = pytest.importorskip("jax")
-import numpy as np, jax.numpy as jnp
-from qang.qdist import qg_moments, probs_from_moments, hellinger2_qg, haar_posterior_qz, shots_tv_bound
-
-def test_walsh_roundtrip():
-    p = jnp.array(np.random.default_rng(0).dirichlet(np.ones(8)))
-    assert np.allclose(probs_from_moments(qg_moments(p, 3), 3), p, atol=1e-14)
-
-def test_hellinger_geodesic():
-    th, th2 = 0.3, 1.9
-    assert abs(float(hellinger2_qg(np.cos(th), np.cos(th2))) - (1 - np.cos(abs(th - th2) / 2))) < 1e-14
-
-def test_haar_posterior_equator():
-    m, v = haar_posterior_qz(jnp.array(50.0), jnp.array(100.0))
-    assert abs(float(m)) < 1e-14 and abs(float(v) - 1 / 103) < 1e-14
-
-def test_shots_bound():
-    assert abs(shots_tv_bound(8, 36, 0.05) - 3600.0) < 1e-6
-```
-
-## 8.8 Appendix H — new entries in `qang.measures`
-
-| id | family | formula | function | status |
+| Metric / criterion | Without qang (standard baseline) | With qang (qg/m-qg/qga) | Delta | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `qg_moments_walsh` | readout | $qg_{Z_S}=\sum_x p(x)\chi_S(x)$ | `qang.qdist.qg_moments` | `exact` |
-| `k_local_truncation` | compilation | $p_{(k)}$, $N^\star=M_k/(4\varepsilon^2)$ | `truncate_k_local`, `shots_tv_bound` | `exact` bound; `mixed` bias |
-| `hellinger_qg` | information | $1-\cos qg_L$ | `hellinger2_qg` | `exact` |
-| `kl_qg` | information | $D(qg_Z\|qg_Z')$ bits | `kl_qg_bits` | `exact` (optimize only in qga) |
-| `haar_posterior` | statistics | Beta$(1+k_0,1+N-k_0)$ | `haar_posterior_qz` | `exact` |
-| `iqan_moment_fit` | compilation | $\min\sum_{|S|\le2}(\Delta qg_{Z_S})^2$ | `verify_cap08.py` §5 | `mixed` (TV residual $0.055$) |
+| Distribution parametrization | $2^n-1$ amplitudes/probabilities | $qg_S$ moments, k-local family $O(n^k)$ | $n=4,k=2$: 15→10 coords | `exact` |
+| Shots for $\sigma_I\le0.01$ | Generic $\varepsilon^{-2}$ rule | $N^\star=g^\top\Sigma g/\sigma_I^2=3277$ in verified case | $-67\%$ vs $10^4$ | `exact` |
+| Moment inversion | MSE in probability | IQAN in qga, minimal-area regularization | Recovers parameters with $\|\Delta\theta\|<0.05$ qga | `exact` sim. / `hardware unverified` |
+| Fidelity/JS in qg | JS/fidelity in probabilities | $D_{JS}^{qg}$, $F_{qg}$, $D_{KL}^{qg}$ over moments | Same information, same qg scale | `exact` |
+| No-entanglement-in-Z distributions | Same informational limit | $I_Z$ is not an entanglement witness | No gain as witness | `no gain` / `against` |
 
-### `CHANGELOG.md` — `[Unreleased]`
-```
-### Added
-- `qang.qdist`: Walsh moments `qg_moments`/`probs_from_moments`, `truncate_k_local`, `tv_distance`, `kl_bits`,
-  `hellinger2_qg`, `kl_qg_bits`, `haar_posterior_qz`, `shots_tv_bound`, `n_moments_k_local` (JAX, `jax<0.9`).
-- `tools/verify_cap08.py`, `tests/test_qdist.py`; Appendix H: 6 entries (`qg_moments_walsh` … `iqan_moment_fit`).
-```
-Commit: `feat(qdist): qg Walsh moments, k-local truncation and shot budget + verify_cap08`.
+## 8.6
