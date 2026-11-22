@@ -1,6 +1,6 @@
 # Chapter 11 — Metrology in qga: Ramsey Operating Point, GHZ under Dephasing, tanh Thermometry and Clock Comparison {#sec-qjax11 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Analysis and update date:** November 22, 2026
 
 > Rewrite of the old Ch. 8 on the basis of Ch. 1–9 (general Fisher information now lives in Ch. 9; here only applications). Module: `qang.qmetro` (JAX, `jax<0.9`; aligned with `qang.fisher`, `qang.clock_comparison`, examples §25, §36, §58, §126). Verification: `tools/verify_cap11.py`.
 
@@ -12,11 +12,19 @@ After the second $\pi/2$ pulse the reading is $qg_Z=C\cos\phi$, with $C=e^{-T/T_
 $$I_F(\phi)=\frac{C^2\sin^2\phi}{1-C^2\cos^2\phi}\ \le\ C^2,\qquad \text{equality at }\phi=\tfrac\pi2\iff qg_Z=0\ (250\text{ qga}).$$
 For $C=1$ it is uniform ($I_F\equiv1$, $\sigma_{\text{qga}}=159.15/\sqrt N$); for $C<1$ the equator advantage is strict: operating at $\phi=0.2$ rad loses 90 % ($C=0.8$) and 95 % ($C=0.5$) of the information. **`qang` rule**: fix the operating point by $qg_Z=0$ read in `m-qg`, not by the nominal $\phi$ (`exact`). Optimal time per unit time: $\max_T T e^{-2T/T_2}\Rightarrow T^\star=T_2/2$. With finite contrast the equator ($qg_Z=0$) is the unique optimum; the operating point is set by the readout value, not by the nominal phase.
 
+For $C=1$ the expression is identically $1$: the equator gains no local information and `verify_cap11.py` reports `loss -0%`; for $C<1$ the maximum is strict at $qg_Z=0$, where $|dqg_Z/d\phi|=C$ is maximal. The statement is **local**: it optimizes the Fisher information for a known $\phi$; with finite priors or Bayesian risk the optimum can shift (variational Ramsey/clock optimization). The optimal time $T^\star=T_2/2$ assumes Markovian dephasing with $C=e^{-T/T_2}$ and the per-unit-time metric $I_F(\omega)/T=T e^{-2T/T_2}$ at the equator; with dead time, non-Markovian laser noise or a broad-prior Bayesian estimator, $T^\star$ is not given by this closed form.
+
+**Sources for this section.** S. F. Huelga et al., “Improvement of Frequency Standards with Quantum Entanglement”, *Phys. Rev. Lett.* 79, 3865 (1997), DOI `10.1103/PhysRevLett.79.3865`, <https://arxiv.org/abs/quant-ph/9707014>; “Quantum Fisher information measurement and verification of the quantum Cramér–Rao bound in a solid-state qubit”, *npj Quantum Information* (2022), <https://www.nature.com/articles/s41534-022-00547-x>; R. Kaubruegger et al., “Quantum Variational Optimization of Ramsey Interferometry and Atomic Clocks”, *Phys. Rev. X* 11, 041045 (2021), <https://journals.aps.org/prx/pdf/10.1103/PhysRevX.11.041045>.
+
 ## 11.2 GHZ versus product under Markovian dephasing: `no gain`
 
 Parity $\langle X^{\otimes n}\rangle=e^{-nT/T_2}\cos n\phi$:
 $$\frac{I_F^{\text{GHZ}}(\omega)}{T}=n^2Te^{-2nT/T_2},\qquad \frac{I_F^{\text{prod}}(\omega)}{T}=nTe^{-2T/T_2},\qquad \max_T:\ \frac{nT_2}{2e}\ \text{in both cases}\ (T^\star_{\text{GHZ}}=\tfrac{T_2}{2n},\ T^\star_{\text{prod}}=\tfrac{T_2}{2}).$$
 Verified by `optimal_T` (descent in $\log T$ with `jax.grad`) for $n=2,5,10$ to $10^{-9}$. At fixed $T=T_2/2$ the $n=5$ GHZ yields $0.092\times$; it wins only if $T<T_2\ln n/(2(n-1))$. **Status** `no gain` (Huelga et al. 1997 reproduced in qg coordinates); consistent with THEORY_CORE §2 (do not claim a Heisenberg advantage under Markovian noise).
+
+The Fisher information computed is that of the parity measurement $\langle X^{\otimes n}\rangle=e^{-nT/T_2}\cos(n\phi)$, not the QCRB of an arbitrary measurement. The `no gain` is therefore bounded to independent Markovian dephasing and parity readout: Degen et al. and the measurement of GHZ decoherence in superconducting qubits support the mechanism that the decoherence rate grows linearly with $n$ and offsets the phase gain. It must not be generalized to any noise: with spontaneous decay and a correlated measurement with a nonlinear estimator, Kielinski et al. show that GHZ/heralded-uGHZ protocols can beat the SQL (1.8 dB and 2.25 dB); ordinary parity does not saturate the QCRB in that model.
+
+**Sources for this section.** C. L. Degen, F. Reinhard and P. Cappellaro, “Quantum sensing”, *Rev. Mod. Phys.* 89, 035002 (2017), <https://dspace.mit.edu/bitstream/handle/1721.1/124553/RevModPhys.89.035002.pdf?isAllowed=y&sequence=2>; A. Ozaeta and P. L. McMahon, “Decoherence of up to 8-qubit entangled states in a 16-qubit superconducting quantum processor” (2018), <https://arxiv.org/html/1712.07080v2>; T. Kielinski, P. O. Schmidt and K. Hammerer, “GHZ protocols enhance frequency metrology despite spontaneous decay”, *Sci. Adv.* 10, eadr1439 (2024), <https://pmc.ncbi.nlm.nih.gov/articles/PMC11639174>.
 
 ## 11.3 One-qubit thermometry: qg_Z=tanh(x/2)
 
@@ -24,10 +32,18 @@ Gibbs state, $x=\hbar\omega/k_BT$: $qg_Z=\tanh(x/2)$ (§25). Fisher information 
 $$I_F(x)=\frac{(\partial_xqg_Z)^2}{1-qg_Z^2}=\tfrac14\operatorname{sech}^2\tfrac x2,\qquad I_F(\ln T)=x^2I_F(x)\ \Rightarrow\ x^\star=2.399,\ qg_Z^\star=0.834\ (834\text{ m-qg}),\ I_F^\star=0.439 .$$
 The optimal sensor of relative temperature is therefore calibrated at a reading of $834$ m-qg (`exact`); the delta method in $p_0$ collapses near there ($p_0=0.917$), so use Bayes–Haar (Ch. 8).
 
+For thermal states the energy-basis measurement commutes with $\rho$ and attains the QFI, equivalent to $\operatorname{Var}(H)/T^4$; the delta-method warning is practical: with $p_1\simeq0.083$, the Gaussian approximation needs $Np_1\gg1$ and a Bayes–Haar interval is safer for small samples.
+
+**Sources for this section.** “Quantum Fisher information matrix and multiparameter estimation” (2019), <https://arxiv.org/pdf/1907.08037>; UMBC thesis on quantum thermometry, $q=\tanh(\Delta/2T)$ and uniqueness of the optimal $T$, <https://api.mdsoar.org/server/api/core/bitstreams/2a193f11-5911-4759-928c-1354294bd751/content>.
+
 ## 11.4 Clock comparison and gravitational shift
 
 $$\Delta\phi=\frac{\omega\,T\,g\,\Delta h}{c^2},\qquad N(z\sigma)=\Big(\frac{z}{C\,\Delta\phi}\Big)^2\ \text{(reading at the equator)}.$$
 Sr clock ($\omega=2\pi\cdot429.228$ THz), $T=1$ s, $\Delta h=1$ cm: $\Delta\phi=2.943\cdot10^{-3}$ rad $=0.468$ qga; $N(3\sigma)=1.04\cdot10^6$ shots with $C=1$, $4.16\cdot10^6$ with $C=0.5$ (`exact`; the real experiment §126 is referenced, not reproduced here).
+
+With equator readout and $N$ independent shots, $\sigma_\phi=1/(C\sqrt N)$ and $N=(z/(C\Delta\phi))^2$. The estimate is a planning one, with constant $g$ and no dead time; Bothwell et al. measured the gradient within a millimetre-scale Sr sample with fractional uncertainty $7.6\times10^{-21}$, but that experimental result is not reproduced here.
+
+**Sources for this section.** T. Bothwell et al., “Resolving the gravitational redshift across a millimetre-scale atomic sample”, *Nature* 602, 420–424 (2022), <https://www.nature.com/articles/s41586-021-04349-7>.
 
 ## 11.5 Operational contrast — Without `qang` vs. with `qang`
 
@@ -81,6 +97,9 @@ def shots_to_resolve_height(omega, T, dh, z=3.0, C=1.0, g=9.80665, c=299792458.0
 [5] Δφ = 2.943e-03 rad = 0.468 qga per cm; N(3σ, C=1) = 1.039e+06 shots; with C=0.5: 4.157e+06
 verify_cap11: OK
 ```
+
+The reproducible validation of this review is `verify_cap11: OK`: $I_F$ maximum $1.0000/0.6400/0.2500$ for $C=1.0/0.8/0.5$, $T^\star=0.500000T_2$, GHZ and product equal for $n=2,5,10$, GHZ/product ratio $0.0916$ at $T=T_2/2$, $x^\star=2.399$ with $qg_Z^\star=0.834$, and $\Delta\phi=2.943\times10^{-3}$ rad per cm with $N(3\sigma)=1.039\times10^6$ ($C=1$) and $4.157\times10^6$ ($C=0.5$); `tests/test_qmetro.py` passes with `3 passed`.
+
 Asserts: maximum of $I_F(\phi)$ at $\pi/2$ with value $C^2$ ($10^{-6}$); $I_F\equiv1$ for $C=1$ ($10^{-12}$); $T^\star$ to $10^{-6}$; GHZ/product equality to $10^{-9}$ for $n=2,5,10$; $I_F(x)=\tfrac14\operatorname{sech}^2(x/2)$ to $10^{-12}$; $x^\star=2.399\pm0.005$.
 
 ### `tests/test_qmetro.py`
