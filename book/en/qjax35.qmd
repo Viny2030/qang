@@ -1,6 +1,8 @@
 # Chapter 35 — First Real-Hardware Runs: IQM Garnet (Neutrinos §165, Milli-qang §168, E=mc² §170) Recomputed from the Stored Files {#sec-qjax35 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the hardware chapter on the basis of Ch. 1–34. Module: `qang.qgarnet` (NumPy; neither `iqm-client` nor credits are needed). Verification: `tools/verify_cap35.py`, which recomputes everything from `examples/data/iqm_*` and compares the pre-registrations with the `git` history. **Status: `tested on hardware`, with the scope of a single run on a single day on one chip. There is no replication.**
 > **Abstract.** Three pre-registered runs on IQM Garnet are recomputed from the stored counts: the weight filter lowers the three-flavour neutrino error 1.59× and moves the oscillation minimum from 0.8 to 2.6 GeV; the milli-qang run gives a readout from two poles ($e_0=0.0055$, $e_1=0.029$), an X-gate cost of 1.64 m-qg, and one failed prediction (M2). Each pre-registration hash matches the script blob at its commit. Single runs, one day: no replication.
@@ -123,6 +125,7 @@ def budget_summary(steps, initial, tests)       # credit arithmetic
 [5] spent 17.50 of 30 (tests 3.3 %, runs 55.0 %), balance 12.50; with §170 (≈7.7, estimated): ≈4.8
 verify_cap35: OK
 ```
+The reproducible validation of this review is `verify_cap35: OK`: neutrino error $0.0615\to0.0386$ (factor $>1.5$), filtered minimum $2.6$ GeV versus raw $0.8$ GeV and $2113/2400$ shots kept; poles $e_0=0.0055$, $e_1=0.0290$, contrast $0.9655$; M1 $4/5$ within $3\sigma$ and M2 $0.500$ outside $[0.55,1.45]$; slope per X $1.64$ m-qg with $\chi^2/\mathrm{dof}=0.81$ and verdict M1/M3/M4 true, M2 false; pre-registration hashes and budget $17.50/12.50$ verified; `tests/test_qgarnet.py` passes with `5 passed`.
 
 ### `tests/test_qgarnet.py`
 ```python

@@ -1,9 +1,11 @@
 # Chapter 36 — Software Architecture and the Multi-SDK Ecosystem: What Each Module Requires, What CI Installs, and What a Wrong Qubit Order Costs {#sec-qjax36 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
-> Rewrite of the architecture chapter on the basis of Ch. 1–35. Module: `qang.qarch` (standard library only; `convention_error_mqg` uses `qang.interop`). Verification: `tools/verify_cap36.py`, which audits the real repository. **Summary: the `qang` core requires only NumPy (40 of 71 modules); the rest is activated by extras; the qubit order across SDKs is unified in `qang.interop`, and getting it wrong costs up to 600 m-qg without raising an error.**
-> **Abstract.** An AST audit of the real repository: 40 of 71 modules need only NumPy; 20 need JAX, 9 Qiskit, 1 Cirq, 1 PennyLane. The CI installs `.[all]`, which includes neither JAX nor Torch, and none of the 192 test files imports a module requiring a missing package without an `importorskip` guard. Reading counts with the wrong qubit-order convention shifts the $qg_Z$ profile by up to 600 m-qg without an error.
+> **Analysis and update date:** November 23, 2026
+
+> Rewrite of the architecture chapter on the basis of Ch. 1–35. Module: `qang.qarch` (standard library only; `convention_error_mqg` uses `qang.interop`). Verification: `tools/verify_cap36.py`, which audits the real repository. **Summary: the `qang` core requires only NumPy (48 of 79 modules); the rest is activated by extras; the qubit order across SDKs is unified in `qang.interop`, and getting it wrong costs up to 600 m-qg without raising an error.**
+> **Abstract.** An AST audit of the real repository: 48 of 79 modules need only NumPy; 20 need JAX, 9 Qiskit, 1 Cirq, 1 PennyLane. The CI installs `.[all]`, which includes neither JAX nor Torch, and none of the 203 test files imports a module requiring a missing package without an `importorskip` guard. Reading counts with the wrong qubit-order convention shifts the $qg_Z$ profile by up to 600 m-qg without an error.
 
 ---
 
@@ -19,7 +21,7 @@
 
 | group | modules | packages required |
 | :--- | :--- | :--- |
-| core | 40 | NumPy and standard library |
+| core | 48 | NumPy and standard library |
 | JAX | 20 | `jax`: `qan`, `qbattery`, `qchem`, `qctc`, `qdemarc`, `qdist`, `qdualrail`, `qdynamics`, `qfisher`, `qgeom`, `qkd`, `qkernels`, `qmajorana`, `qmetro`, `qneutrino`, `qrng`, `qscramble`, `qsymfilter`, `qtele`, `qweightqnn` |
 | Qiskit | 9 | `qiskit`: `algorithms`, `ansatze`, `circuits`, `ibm`, `iqm`, `qec`, `qiskit_gate`, `qml`, `sectors` |
 | Cirq | 1 | `cirq_gate` |
@@ -37,7 +39,7 @@ No module requires SciPy on import. **This was not the case:** `qang.qchar` (Ch.
 
 CI installs `pip install -e ".[all]"`: 14 packages, among them Qiskit, Cirq, PennyLane, scikit-learn and SciPy, **but not JAX or Torch**. Therefore every test that imports a module of the JAX group must be protected with `pytest.importorskip("jax")`: an unguarded import fails at collection and `pytest` exits with **code 2**, not 1. `unguarded_tests` computes, for each test file, the packages it requires (its own, those of the `qang.x` it imports and those of the `examples/` scripts it imports, transitively) and returns those that are neither installed nor guarded:
 
-- of 192 test files: **0** unprotected.
+- of 203 test files: **0** unprotected.
 
 This result rules out one cause of the Tests failure in CI; it does not identify the real cause. That remains pending from the log of the "Run tests" step.
 
@@ -75,8 +77,8 @@ The following figures are from the stored IBM runs (notes §137–§150) and fro
 | :--- | :--- | :--- | :--- |
 | Qubit order across SDKs | silent: up to 600 m-qg shift (example $[0.6,-0.2,0]$) | `canonical_counts(sdk=…)`: same result in Qiskit and Cirq | `exact` |
 | Symmetric register misread | 0.0 m-qg: not noticed | same: the error is invisible; the SDK is declared | `exact` |
-| Core dependencies | unaudited | 40 of 71 modules NumPy only; 0 require SciPy | `exact` |
-| Tests with packages CI does not install | collection error (code 2) | 0 of 192 without `importorskip` | `exact` |
+| Core dependencies | unaudited | 48 of 79 modules NumPy only; 0 require SciPy | `exact` |
+| Tests with packages CI does not install | collection error (code 2) | 0 of 203 without `importorskip` | `exact` |
 | Readout correction + filter (IBM, §137) | raw 0.065–0.104 | filter + readout 0.013–0.022 | `unverified` (cited) |
 
 ## 36.8 Block (`qang/qarch.py`)
@@ -93,17 +95,18 @@ def convention_error_mqg(counts, sdk_true, sdk_wrong)     # qg_Z profile shift i
 ## 36.9 Verification — `tools/verify_cap36.py`
 
 ```
-[1] 71 qang modules; third-party packages required on import: numpy + ['cirq', 'jax', 'pennylane', 'qiskit']
-    core        40 modules
+[1] 79 qang modules; third-party packages required on import: numpy + ['cirq', 'jax', 'pennylane', 'qiskit']
+    core        48 modules
     qiskit       9 modules: algorithms, ansatze, circuits, ibm, iqm, qec, qiskit_gate, qml, sectors
     cirq         1 modules: cirq_gate
     pennylane    1 modules: pennylane_gate
     jax         20 modules: qan, qbattery, qchem, qctc, qdemarc, qdist, qdualrail, qdynamics, qfisher, qgeom, qkd, qkernels, qmajorana, qmetro, qneutrino, qrng, qscramble, qsymfilter, qtele, qweightqnn
-[2] pyproject: 26 extras; {'core_is_numpy_only': True, 'iqm_isolated_from_all': True, 'jax_below_0_9': True}; CI installs ".[all]" = 14 packages (jax and torch not included)
-[3] 192 test files; those requiring a package that ".[all]" does not install and not protecting it with importorskip: 0
+[2] pyproject: 27 extras; {'core_is_numpy_only': True, 'iqm_isolated_from_all': True, 'jax_below_0_9': True}; CI installs ".[all]" = 14 packages (jax and torch not included)
+[3] 203 test files; those requiring a package that ".[all]" does not install and not protecting it with importorskip: 0
 [4] prepared qg_Z [0.6, -0.2, 0.0]: qiskit and cirq give the same canonical result; reading "qiskit" as "cirq" shifts up to 600.0 m-qg (qubit 0 ↔ qubit 2); with a symmetric register (000/111) the shift is 0.0 m-qg: it gives no warning
 verify_cap36: OK
 ```
+The reproducible validation of this review is `verify_cap36: OK`: the core does not require SciPy, `extra_roots ⊆ {jax, qiskit, cirq, pennylane}` and `qchar`, `qgarnet` and `qarch` stay in `core` ($\ge 40$ modules); the three extras rules are `True`, JAX is not available in `.[all]` and 0 tests lack `importorskip`; `canonical_counts` matches Qiskit and Cirq, with a $600.0$ m-qg shift when misread and $0.0$ m-qg on a symmetric register; `tests/test_qarch.py` passes with `4 passed`.
 
 ### `tests/test_qarch.py`
 ```python
@@ -122,10 +125,10 @@ def test_pyproject_and_requirement_roots():
 
 | id | family | formula | function | status |
 | :--- | :--- | :--- | :--- | :--- |
-| `core_numpy_only` | architecture | 40 of 71 modules require only NumPy; 0 require SciPy | `requires`, `group_modules` | `exact` |
+| `core_numpy_only` | architecture | 48 of 79 modules require only NumPy; 0 require SciPy | `requires`, `group_modules` | `exact` |
 | `optional_sdk_groups` | architecture | JAX 20, Qiskit 9, Cirq 1, PennyLane 1 | `group_modules` | `exact` |
 | `extras_constraints` | architecture | core=numpy; iqm outside `all`; jax<0.9 | `parse_pyproject`, `check_extras` | `exact` |
-| `ci_collection_guard` | CI | 0 of 192 tests without `importorskip` | `unguarded_tests`, `installed_by` | `exact` |
+| `ci_collection_guard` | CI | 0 of 203 tests without `importorskip` | `unguarded_tests`, `installed_by` | `exact` |
 | `qubit_order_convention` | interop | Qiskit = Cirq after `canonical_counts` | `canonical_counts`, `qg_z_profile` | `exact` |
 | `silent_qubit_swap` | interop | shift 600.0 m-qg; 0.0 m-qg if the register is symmetric | `convention_error_mqg` | `exact` |
 | `ibm_runtime_readings` | hardware | filter + readout 0.013–0.022 (§137) | — | `unverified` (cited, not re-run) |

@@ -1,6 +1,8 @@
 # Chapter 34 — Structural Limits, Equivalences and Negative Results: What the qg Reading Cannot See (and Where the Filter Does Not Reach) {#sec-qjax34 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the limits chapter on the basis of Ch. 1–33. Module: `qang.qlimits` (exact NumPy). Verification: `tools/verify_cap34.py`. **Summary: almost every limit has a common root: qg reads a Z-basis probability ($p_0$), and what is not in that probability it does not see. What follows proves it with code where possible, and flags as `unverified` what is only cited from the notes.**
 
@@ -138,6 +140,7 @@ def sufficient_shots_entropy(n, eps, d, t)   # sufficient bound; plugin_cz_bias_
      n=3, uniform independent, 1000 repetitions, seed 34 — exact H_Z=3, C_Z=0: N=100: Ĥ_Z=2.9478, Ĉ_Z=0.0307 (theory 0.0289); N=10000: Ĥ_Z=2.9995, Ĉ_Z=0.0003 (theory 0.0003)
 verify_cap34: OK
 ```
+The reproducible validation of this review is `verify_cap34: OK`: $P_Z$(graph) $=P_Z$(product) with $d=0$ and $\langle X_iZ_{i-1}Z_{i+1}\rangle=+1$ versus $0$; $qg_S$ non-monotone in 24/24 and mean $qg_Z$ monotone; arccos minimum $-0.8776$ versus $-1.0000$; quadratic-form error $<10^{-13}$; filter retention 1.0 with deviation $>100$ m-qg; 0 `measured gain` in 97 sub-measures; $C_Z=0$ on the graph and $W'_3=-1+0.293556<0$; `tests/test_qlimits.py` passes with `15 passed`.
 
 ### `tests/test_qlimits.py`
 ```python

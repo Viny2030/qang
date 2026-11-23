@@ -2,7 +2,7 @@
 *Chapter 34 — Structural Limits, Equivalences and Negative Results: What the qg Reading Cannot See (and Where the Filter Does Not Reach)*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del capítulo de límites sobre la base de Cap. 1–33. Módulo: `qang.qlimits` (NumPy exacto). Verificación: `tools/verify_cap34.py`. **Resumen: casi todos los límites tienen una raíz común: qg lee una probabilidad de la base Z ($p_0$), y lo que no está en esa probabilidad no lo ve. Lo que sigue lo demuestra con código donde se puede, y marca como `unverified` lo que sólo se cita de las notas.**
 > **EN abstract.** Almost every limit has the same root: $qg$ reads a Z-basis probability $p_0$, so anything outside it is invisible. This chapter proves the checkable ones with exact code (graph states, $qg_S$ under $T_1$, the $\arccos$ range trap, the weight-preservation analyzer, the weight-1 quadratic form, in-sector errors) and flags the rest as cited, not re-run. A new section (§34.13) proves that no function of a single Z-basis distribution can certify entanglement, that $C_Z$ errs in both directions, and gives the two-setting witness that does certify the 3-qubit path.
@@ -141,6 +141,7 @@ def sufficient_shots_entropy(n, eps, d, t)   # cota suficiente; plugin_cz_bias_u
      n=3, uniforme independiente, 1000 repeticiones, semilla 34 — exacto H_Z=3, C_Z=0: N=100: Ĥ_Z=2.9478, Ĉ_Z=0.0307 (teoría 0.0289); N=10000: Ĥ_Z=2.9995, Ĉ_Z=0.0003 (teoría 0.0003)
 verify_cap34: OK
 ```
+La validación reproducible de esta revisión es `verify_cap34: OK`: $P_Z$(grafo) $=P_Z$(producto) con $d=0$ y $\langle X_iZ_{i-1}Z_{i+1}\rangle=+1$ frente a $0$; $qg_S$ no monótono en 24/24 y $qg_Z$ medio monótono; mínimo con arccos $-0.8776$ frente a $-1.0000$; error de la forma cuadrática $<10^{-13}$; retención del filtro 1.0 con desvío $>100$ m-qg; 0 `measured gain` en 97 submedidas; $C_Z=0$ en el grafo y $W'_3=-1+0.293556<0$; `tests/test_qlimits.py` pasa con `15 passed`.
 
 ### `tests/test_qlimits.py`
 ```python
