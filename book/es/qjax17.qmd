@@ -2,7 +2,7 @@
 *Chapter 17 — Postselected Closed Timelike Curves (P-CTC) versus D-CTC: Two Maps, Two m-qg Readouts and the Shot Price*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 14 sobre la base de Cap. 1–16. Módulo: `qang.qctc` (JAX, `jax<0.9`; alineado con `qang.postselection`, §164). Verificación: `tools/verify_cap17.py`. Se simulan los **mapas**; la existencia física de CTC es `unverified` y no se afirma.
 
@@ -16,6 +16,12 @@ P-CTC es la teleportación del Cap. 15 con la medida de Bell **postseleccionada*
 
 **EN.** P-CTC is postselected teleportation (Bell pair + $1/p_{\text{post}}$ shots); D-CTC is a nonlinear fixed point. Both are simulated as maps and read in m-qg.
 
+La formulación de P-CTC como teleportación postseleccionada sigue a Lloyd et al.: se sustituye el estado de la curva por un par máximamente entrelazado, se prescribe y se postselecciona el mismo resultado de Bell, y el mapa efectivo queda $C\rho C^\dagger/\mathrm{Tr}(C\rho C^\dagger)$ con $C=\mathrm{Tr}_{\text{CTC}}U$. En qubits, $U=I$ da $C=2I$, luego $\mathrm{Tr}(C\rho C^\dagger)=4$ y $p_{\text{post}}=\tfrac14\mathrm{Tr}(C\rho C^\dagger)=1$: el factor $1/4$ no atenúa la identidad.
+
+La formulación de D-CTC es la condición de autoconsistencia de Deutsch, $\tau=\mathrm{Tr}_{\text{CR}}[U(\rho\otimes\tau)U^\dagger]$, con salida $\mathrm{Tr}_{\text{CTC}}[U(\rho\otimes\tau)U^\dagger]$. Esa condición puede admitir más de un punto fijo; la regla histórica de máxima entropía no es una consecuencia de la unitariedad. La iteración desde $I/2$ implementada aquí es una convención numérica que selecciona un punto fijo y converge en $\le2$ iteraciones en los tres casos verificados, no una prueba de unicidad para $U$ arbitrario.
+
+**Fuentes de la sección.** Deutsch 1991, *Phys. Rev. D* 44, 3197, DOI `10.1103/PhysRevD.44.3197`, <https://link.aps.org/doi/10.1103/PhysRevD.44.3197>: condición de autoconsistencia y regla de máxima entropía; Bennett et al. 1993, *Phys. Rev. Lett.* 70, 1895, DOI `10.1103/PhysRevLett.70.1895`: teleportación con par de Bell y correcciones; Lloyd et al. 2011, *Phys. Rev. Lett.* 106, 040403, DOI `10.1103/PhysRevLett.106.040403`, <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.106.040403>: P-CTC por postselección y prueba experimental de consistencia; Brun y Wilde, *Simulations of closed timelike curves*, <https://arxiv.org/abs/1504.05911>: $B=\mathrm{Tr}_C U$, normalización $\mathrm{Tr}(B^\dagger B\rho)$ y discusión del evento de proyección nula; Bishop, Costa y Ralph, *Quantum state tomography on closed timelike curves using weak measurements*, <https://arxiv.org/abs/2407.14577v2>: D-CTC asigna estado definido a la curva, P-CTC no, y alternativas a la regla de máxima entropía.
+
 ## 17.2 Tres interacciones, leídas en m-qg
 
 | $U$ | $C=\mathrm{Tr}_{\text{CTC}}U$ | P-CTC | $p_{\text{post}}$ | D-CTC |
@@ -26,6 +32,8 @@ P-CTC es la teleportación del Cap. 15 con la medida de Bell **postseleccionada*
 | $(X\otimes I)\,$SWAP | $X$ | $\rho\mapsto X\rho X$ ($qg_Y,qg_Z\to-$) | $1/4$ | — |
 
 Instancia CNOT: entrada $-980$ m-qg → P-CTC $+1000$ m-qg con $p_{\text{post}}=0.010$ ($\times100$ disparos); D-CTC $-980$ m-qg con $qg_X\to0$. La no linealidad de P-CTC se paga en el presupuesto: $N\propto1/p_{\text{post}}=2/(1+qg_Z)$, divergente en el polo $|1\rangle$ (`exact` para el mapa).
+
+P-CTC y D-CTC no son dos lecturas de una misma regla: para CNOT, P-CTC proyecta CR a $|0\rangle$ y mueve $qg_Z\to+1000$ m-qg para cualquier entrada, mientras D-CTC conserva $qg_Z$ y anula $qg_X,qg_Y$. La tabla debe leerse como comparación de mapas, no como dos implementaciones de un mismo dispositivo. El precio $N\propto1/p_{\text{post}}=2/(1+qg_Z)$ es el sobregiro **medio** de una postselección ideal: supone resultado de Bell correcto, detector perfecto e intentos independientes. A $-980$ m-qg, $p_{\text{post}}=0.010$ y el promedio es $\times100$; cerca del polo $|1\rangle$ diverge. No se modelan eficiencia, oscuridad ni deriva. En SWAP, P-CTC cuesta $\times4$ disparos aunque el mapa sea identidad: ese coste es contable, no una ganancia ni una pérdida de fidelidad; D-CTC no tiene ese multiplicador porque no postselecciona, pero su punto fijo se calcula iterativamente. La fila $(X\otimes I)\,\mathrm{SWAP}$ solo afirma el mapa P-CTC $X\rho X$ con $p_{\text{post}}=1/4$; el valor D-CTC queda marcado como `—` porque el verificador no lo calcula. “1 par de Bell (2 qubits)” es el coste de **simular el mapa** P-CTC con teleportación postseleccionada, no una CTC física; el estatus `unverified` se mantiene también para los experimentos ópticos que prueban consistencia de los mapas. La etiqueta `exact` cubre la identidad algebraica de los mapas, los puntos fijos encontrados y los conteos de recursos bajo los supuestos ideales; hardware con ruido, postselección finita o resolución limitada queda fuera de ese alcance.
 
 ## 17.3 Contraste operativo
 
@@ -64,6 +72,8 @@ def dctc_map(rho, U, iters=200):                 # punto fijo desde I/2
 [4] U=(X⊗I)SWAP: C = X → ρ → XρX, p_post=0.25
 verify_cap17: OK
 ```
+La validación reproducible de esta revisión es `verify_cap17: OK`: $C_{\text{CNOT}}=2|0\rangle\langle0|$; P-CTC $qg_Z\to1$ a $10^{-13}$ y $p_{\text{post}}=(1+qg_Z)/2$ a $10^{-14}$; D-CTC conserva $qg_Z$ y anula $qg_X$ a $10^{-13}$; SWAP: ambos identidad con $p_{\text{post}}=1/4$; `tests/test_qctc.py` pasa con `2 passed`.
+
 Asserts: $C_{\text{CNOT}}=2|0\rangle\langle0|$; P-CTC $qg_Z\to1$ a $10^{-13}$ y $p_{\text{post}}=(1+qg_Z)/2$ a $10^{-14}$; D-CTC conserva $qg_Z$ y anula $qg_X$ a $10^{-13}$; SWAP: ambos identidad, $p_{\text{post}}=1/4$.
 
 ### `tests/test_qctc.py`
@@ -93,20 +103,3 @@ def test_swap_identity():
 
 `CHANGELOG.md [Unreleased]`: `qang.qctc` (`pctc_operator`, `pctc_map`, `dctc_map`, `bloch`, `state_from_bloch`, `shots_multiplier_pctc`); `tools/verify_cap17.py`; `tests/test_qctc.py`.
 Commit: `docs(cap17): P-CTC vs D-CTC reescritos sobre Cap. 1–16 + qang.qctc + verify_cap17`.
-
-## 17.7 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-La formulación de P-CTC como teleportación postseleccionada es la de Lloyd et al.: se sustituye el estado de la curva por un par máximamente entrelazado, se prescribe y se postselecciona el mismo resultado de Bell, y el mapa efectivo queda $C\rho C^\dagger/\mathrm{Tr}(C\rho C^\dagger)$ con $C=\mathrm{Tr}_{\text{CTC}}U$ (salvo la constante de dimensión, que cancela al normalizar). En qubits, $U=I$ da $C=2I$, luego $\mathrm{Tr}(C\rho C^\dagger)=4$ y $p_{\text{post}}=\tfrac14\mathrm{Tr}(C\rho C^\dagger)=1$: el factor $1/4$ no atenúa la identidad. La convención de traza parcial usada en `qang.qctc` coincide con la notación de la literatura reciente sobre P-CTC/D-CTC.
-
-La formulación de D-CTC es la condición de autoconsistencia de Deutsch, $\tau=\mathrm{Tr}_{\text{CR}}[U(\rho\otimes\tau)U^\dagger]$, con salida $\mathrm{Tr}_{\text{CTC}}[U(\rho\otimes\tau)U^\dagger]$. Esa condición puede admitir más de un punto fijo; la regla histórica de máxima entropía no es una consecuencia de la unitariedad. La iteración desde $I/2$ implementada aquí es una convención numérica que selecciona un punto fijo y converge en $\le2$ iteraciones en los tres casos verificados, no una prueba de unicidad para $U$ arbitrario.
-
-Precisiones que delimitan las cifras del capítulo:
-
-1. P-CTC y D-CTC no son dos lecturas de una misma regla: para CNOT, P-CTC proyecta CR a $|0\rangle$ y mueve $qg_Z\to+1000$ m-qg para cualquier entrada, mientras D-CTC conserva $qg_Z$ y anula $qg_X,qg_Y$. La tabla 17.2 debe leerse como comparación de mapas, no como dos implementaciones de un mismo dispositivo.
-2. El precio $N\propto1/p_{\text{post}}=2/(1+qg_Z)$ es el sobregiro **medio** de una postselección ideal: supone resultado de Bell correcto, detector perfecto e intentos independientes. A $-980$ m-qg, $p_{\text{post}}=0.010$ y el promedio es $\times100$; cerca del polo $|1\rangle$ diverge. No se modelan eficiencia, oscuridad ni deriva.
-3. En SWAP, P-CTC cuesta $\times4$ disparos aunque el mapa sea identidad. Ese coste es contable, no una ganancia ni una pérdida de fidelidad; D-CTC no tiene ese multiplicador porque no postselecciona, pero su punto fijo se calcula iterativamente.
-4. La fila $(X\otimes I)\,\mathrm{SWAP}$ solo afirma el mapa P-CTC $X\rho X$ con $p_{\text{post}}=1/4$; el valor D-CTC queda marcado como `—` porque el verificador no lo calcula. No se rellena por analogía.
-5. “1 par de Bell (2 qubits)” es el costo de **simular el mapa** P-CTC con teleportación postseleccionada. No implica que exista una CTC física; el estatus `unverified` se mantiene también para los experimentos ópticos que prueban consistencia de los mapas.
-6. El etiquetado `exact` cubre la identidad algebraica de los mapas, los puntos fijos encontrados y los conteos de recursos bajo los supuestos ideales. Hardware con ruido, postselección finita o resolución limitada queda fuera de ese alcance.
-
-**Fuentes contrastadas:** Deutsch 1991, *Phys. Rev. D* 44, 3197 (DOI `10.1103/PhysRevD.44.3197`, `https://link.aps.org/doi/10.1103/PhysRevD.44.3197`): condición de autoconsistencia y regla de máxima entropía; Bennett et al. 1993, *Phys. Rev. Lett.* 70, 1895 (DOI `10.1103/PhysRevLett.70.1895`): teleportación con par de Bell y correcciones; Lloyd et al. 2011, *Phys. Rev. Lett.* 106, 040403 (DOI `10.1103/PhysRevLett.106.040403`, `https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.106.040403`): P-CTC por postselección y prueba experimental de consistencia; Brun y Wilde, *Simulations of closed timelike curves* (`https://arxiv.org/abs/1504.05911`): $B=\mathrm{Tr}_C U$, normalización $\mathrm{Tr}(B^\dagger B\rho)$ y discusión del evento de proyección nula; Bishop, Costa y Ralph, *Quantum state tomography on closed timelike curves using weak measurements* (`https://arxiv.org/abs/2407.14577v2`): D-CTC asigna estado definido a la curva, P-CTC no, y alternativas a la regla de máxima entropía.

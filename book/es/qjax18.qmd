@@ -2,7 +2,7 @@
 *Chapter 18 — Black Holes as Scramblers: Hayden–Preskill, the P· F=1/4 Law of the Yoshida–Kitaev Decoder, OTOC and Why qgS Cannot See the Page Curve*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 15 sobre la base de Cap. 1–17. Módulo: `qang.qscramble` (JAX, `jax<0.9`; §164). Verificación: `tools/verify_cap18.py` (10 qubits en statevector).
 
@@ -16,13 +16,27 @@ verificada a $10^{-12}$ para $U$ Haar y $U=I$. Para $U$ Haar: $P\approx d_A^{-2}
 
 **EN.** The probabilistic decoder obeys $P\cdot F=1/d_A^2$ exactly; the fidelity is read from three $(R,R')$ correlators, no tomography (`exact`).
 
+El protocolo implementado es el decodificador probabilístico de Yoshida–Kitaev para el experimento de Hayden–Preskill: se aplica $U^*$ a la copia simulada $(A'B')$, se proyecta cada par $(D_j,D'_j)$ sobre EPR y se acepta solo si todas las proyecciones tienen éxito. En el artículo original la probabilidad de éxito se denota $\Delta$ y escala como $1/(d_A d_R)+1/d_D^2$ para $U$ aleatorio y buen scrambling; con $d_R=d_A=2$ y $d_D=4$ eso da $0.25+0.0625=0.3125$, mientras la media de 20 muestras Haar del verificador es $0.2980\pm0.0027$. La diferencia es de tamaño finito: el promedio Haar exacto incluye correcciones $O(1/(d^2-1))$, ausentes en la forma asintótica.
+
+La identidad reportada debe leerse con su dominio. Yoshida–Kitaev dan la cota $F\ge 1/(d_A d_R P)$ (aquí $d_A d_R=4$), que en este caso qubit a qubit se satura en los tres $U$ probados: $P\cdot F=1/4$ a $10^{-12}$. Por eso el capítulo usa $1/d_A^2=1/4$: vale porque $d_R=d_A=2$. No se afirma la misma igualdad para $d_R\ne d_A$, ruido, $U$ desconocido ni thermalidad real; el resultado es propiedad del modelo ideal de EPR máximamente entrelazado y del proyector EPR empleado.
+
+$F=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ es la fidelidad al proyector $|\Phi^+\rangle\langle\Phi^+|_{RR'}$, no fidelidad de proceso ni de estado completo. Tres productos de Pauli bastan para ese escalar; la tomografía de dos qubits requiere nueve correladores no identidad. El acuerdo con la proyección directa es $10^{-12}$ bajo statevector ideal. “2 copias del sistema” significa dos registros simulados acoplados de forma coherente: $(A,B)$ con $U$ y $(A',B')$ con $U^*$, más el acceso a $B'$. No son dos réplicas independientes del agujero negro; el conteo asume conocer e implementar $U^*$, una idealización señalada por Yoshida–Kitaev y Harlow–Hayden. Finalmente, $\times1/P\approx3.4$ es el promedio de intentos para $U$ Haar en este tamaño, no un coste determinista: para $U=I$, $P=1/4$ y el promedio es $\times4$, con número aleatorio en una sesión concreta.
+
+**Fuentes de la sección.** Hayden y Preskill 2007, *JHEP* 09, 120, DOI `10.1088/1126-6708/2007/09/120`, <https://arxiv.org/abs/0708.4025>: espejo cuántico, umbral posterior al punto de Page y decodificación posible desde el punto de vista de la información; Yoshida y Kitaev 2017, *Efficient decoding for the Hayden–Preskill protocol*, <https://arxiv.org/abs/1710.03363>: proyección EPR, escala $1/(d_A d_R)$, cota de fidelidad $F\ge1/(d_A d_R\Delta)$ y decodificador determinista vía Grover.
+
 ## 18.2 OTOC como diagnóstico de scrambling
 
 $\mathrm{OTOC}=\tfrac1d\mathrm{Re\,Tr}(W^\dagger V_t^\dagger WV_t)$ con $W=Z_A$, $V=Z_{B_3}$: $+1.000$ para $U=I$, $-0.009\approx O(1/d^2)$ para $U$ Haar. Es una lectura $qg$ de un circuito compuesto ($U^\dagger VU$ seguido de $W$), coste 1 configuración (`exact`).
 
+El OTOC se calcula para un $U$ concreto. El valor $-0.009$ ilustra el decaimiento esperado para Haar, pero una sola muestra puede tener signo y magnitud distintos; el enunciado robusto es la media sobre el ensemble, no ese número individual.
+
 ## 18.3 Hallazgo negativo: qgS es plano donde la curva de Page sube y baja
 
 Estado Haar de $n=8$ qubits. Rényi-2 del subsistema de $k$ qubits (desde la pureza, $4^k-1$ correladores): $0.98,1.90,2.61,\mathbf{3.00},2.61,1.89,0.95$ — curva de Page. Media de $qg_S$ (una base, Cap. 1): $1.00$ para todo $k$. **$qg_S$ no mide entrelazamiento** (THEORY_CORE §2.4, `against`); su uso aquí es sólo como coordenada de lectura, nunca como entropía de entrelazamiento.
+
+La curva de Page del verificador es $S_2=-\log_2\mathrm{Tr}\rho_k^2$ para **una** realización Haar de $n=8$. El máximo en $k=4$ es la forma esperada, pero no es la curva de Page analítica promediada ni la entropía de von Neumann; obtener $S_2$ por pureza requiere $4^k-1$ correladores del subsistema de $k$ qubits. $qg_S$ es la entropía de Shannon de la distribución en una sola base $Z$, promediada sobre los $k$ qubits. Para un estado Haar típico los marginales computacionales son casi uniformes para todo $k$, de ahí el valor plano $1.00$: esto confirma el hallazgo `against`, $qg_S$ no mide entrelazamiento y no puede reemplazar a $S_2$ ni a la entropía de Page. El estatus `exact` del capítulo cubre la identidad $P\cdot F$ en los casos simulados, los tres correladores y el cálculo del OTOC para el $U$ dado; la transición de Page, la complejidad de decodificación y la viabilidad física de preparar $B'$ quedan fuera de esa etiqueta.
+
+**Fuentes de la sección.** Page 1993, *Phys. Rev. Lett.* 71, 1291, DOI `10.1103/PhysRevLett.71.1291`, y *Phys. Rev. Lett.* 71, 3743, DOI `10.1103/PhysRevLett.71.3743`: entropía media de un subsistema e información en la radiación de agujeros negros; Shenker y Stanford 2014, *JHEP* 03, 067, DOI `10.1007/JHEP03(2014)067`, y Maldacena, Shenker y Stanford 2016, *JHEP* 08, 106, DOI `10.1007/JHEP08(2016)106`: OTOC, butterfly effect y cota de caos.
 
 ## 18.4 Contraste operativo
 
@@ -59,6 +73,8 @@ def qg_S_mean(psi, n, k)                # media de H((1+qg_Z)/2) sobre k qubits 
 [3] S2(k):  0.98 1.90 2.61 3.00 2.61 1.89 0.95 | qg_S(k): 1.00 × 7
 verify_cap18: OK
 ```
+La validación reproducible de esta revisión es `verify_cap18: OK`: $|PF-\tfrac14|<10^{-12}$ y $|F-F_{qg}|<10^{-12}$ en 3 $U$; $\langle P\rangle_{\text{Haar}}=0.2980\pm0.0027$ frente a $0.3125$; OTOC$(I)=1$; $S_2$ con máximo central y $\max qg_S-\min qg_S<0.05$; `tests/test_qscramble.py` pasa con `1 passed`.
+
 Asserts: $|PF-\tfrac14|<10^{-12}$, $|F-F_{qg}|<10^{-12}$ (3 $U$); $|\langle P\rangle-0.3125|<0.03$; OTOC$(I)=1$; $S_2$ con máximo central y $\max qg_S-\min qg_S<0.05$.
 
 ### `tests/test_qscramble.py`
@@ -83,21 +99,3 @@ def test_pf_law():
 
 `CHANGELOG.md [Unreleased]`: `qang.qscramble` (`haar_unitary`, `initial_state`, `yoshida_kitaev`, `otoc`, `renyi2_subsystem`, `qg_S_mean`); `tools/verify_cap18.py`; `tests/test_qscramble.py`.
 Commit: `docs(cap18): Hayden–Preskill, ley P·F=1/4 y curva de Page reescritos sobre Cap. 1–17 + qang.qscramble + verify_cap18`.
-
-## 18.8 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-El protocolo implementado es el decodificador probabilístico de Yoshida–Kitaev para el experimento de Hayden–Preskill: se aplica $U^*$ a la copia simulada $(A'B')$, se proyecta cada par $(D_j,D'_j)$ sobre EPR y se acepta solo si todas las proyecciones tienen éxito. En el artículo original la probabilidad de éxito se denota $\Delta$ y escala como $1/(d_A d_R)+1/d_D^2$ para $U$ aleatorio y buen scrambling; con $d_R=d_A=2$ y $d_D=4$ eso da $0.25+0.0625=0.3125$, mientras la media de 20 muestras Haar del verificador es $0.2980\pm0.0027$. La diferencia es de tamaño finito: el promedio Haar exacto incluye correcciones $O(1/(d^2-1))$, ausentes en la forma asintótica.
-
-La identidad reportada debe leerse con su dominio. Yoshida–Kitaev dan la cota $F\ge 1/(d_A d_R P)$ (aquí $d_A d_R=4$), que en este caso qubit a qubit se satura en los tres $U$ probados: $P\cdot F=1/4$ a $10^{-12}$. Por eso el capítulo usa $1/d_A^2=1/4$: vale porque $d_R=d_A=2$. No se afirma la misma igualdad para $d_R\ne d_A$, ruido, $U$ desconocido ni thermalidad real; el resultado es propiedad del modelo ideal de EPR máximamente entrelazado y del proyector EPR empleado.
-
-Precisiones que delimitan las cifras del capítulo:
-
-1. $F=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ es la fidelidad al proyector $|\Phi^+\rangle\langle\Phi^+|_{RR'}$, no fidelidad de proceso ni de estado completo. Tres productos de Pauli bastan para ese escalar; la tomografía de dos qubits requiere nueve correladores no identidad. El acuerdo con la proyección directa es $10^{-12}$ bajo statevector ideal.
-2. “2 copias del sistema” significa dos registros simulados acoplados de forma coherente: $(A,B)$ con $U$ y $(A',B')$ con $U^*$, más el acceso a $B'$. No son dos réplicas independientes del agujero negro. El conteo asume conocer e implementar $U^*$, una idealización señalada por Yoshida–Kitaev y Harlow–Hayden.
-3. $\times1/P\approx3.4$ es el promedio de intentos para $U$ Haar en este tamaño, no un coste determinista. Para $U=I$, $P=1/4$ y el promedio es $\times4$; en una sesión concreta el número de intentos es aleatorio.
-4. El OTOC $\tfrac1d\mathrm{Re\,Tr}(W^\dagger V_t^\dagger WV_t)$ se calcula para un $U$ concreto. El valor $-0.009$ ilustra el decaimiento esperado para Haar, pero una sola muestra puede tener signo y magnitud distintos; el enunciado robusto es la media sobre el ensemble, no ese número individual.
-5. La curva de Page del verificador es $S_2=-\log_2\mathrm{Tr}\rho_k^2$ para **una** realización Haar de $n=8$. El máximo en $k=4$ es la forma esperada, pero no es la curva de Page analítica promediada ni la entropía de von Neumann. Obtener $S_2$ por pureza requiere $4^k-1$ correladores del subsistema de $k$ qubits.
-6. $qg_S$ es la entropía de Shannon de la distribución en una sola base $Z$, promediada sobre los $k$ qubits. Para un estado Haar típico los marginales computacionales son casi uniformes para todo $k$, de ahí el valor plano $1.00$. Esto confirma el hallazgo `against`: $qg_S$ no mide entrelazamiento y no puede reemplazar a $S_2$ o a la entropía de Page.
-7. El estatus `exact` del capítulo cubre la identidad $P\cdot F$ en los casos simulados, los tres correladores y el cálculo del OTOC para el $U$ dado. La transición de Page, la complejidad de decodificación y la viabilidad física de preparar $B'$ quedan fuera de esa etiqueta.
-
-**Fuentes contrastadas:** Hayden y Preskill 2007, *JHEP* 09, 120 (DOI `10.1088/1126-6708/2007/09/120`, `https://arxiv.org/abs/0708.4025`): espejo cuántico, umbral posterior al punto de Page y decodificación posible desde el punto de vista de la información; Yoshida y Kitaev 2017, *Efficient decoding for the Hayden–Preskill protocol* (`https://arxiv.org/abs/1710.03363`): proyección EPR, escala $1/(d_A d_R)$, cota de fidelidad $F\ge1/(d_A d_R\Delta)$ y decodificador determinista vía Grover; Page 1993, *Phys. Rev. Lett.* 71, 1291 (DOI `10.1103/PhysRevLett.71.1291`) y *Phys. Rev. Lett.* 71, 3743 (DOI `10.1103/PhysRevLett.71.3743`): entropía media de un subsistema e información en la radiación de agujeros negros; Shenker y Stanford 2014, *JHEP* 03, 067 (DOI `10.1007/JHEP03(2014)067`) y Maldacena, Shenker y Stanford 2016, *JHEP* 08, 106 (DOI `10.1007/JHEP08(2016)106`): OTOC, butterfly effect y cota de caos.
