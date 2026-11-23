@@ -1,6 +1,8 @@
 # Chapter 31 — Methodology: Pre-Registered Falsification with SHA-256, Exact p-values, Holm Correction and Shot Budget {#sec-qjax31 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 28 on the basis of Ch. 1–30 (Bayes–Haar intervals of Ch. 4 and 21, budget of Ch. 8 and 30). Module: `qang.qfalsify` (standard library only). Verification: `tools/verify_cap31.py`. The commits and hashes of the repository's historical record (Appendix E) are not reproduced here; this chapter verifies the **machinery** that makes them checkable.
 
@@ -51,6 +53,7 @@ def shots_for_power(p0, p1, alpha=0.05, target=0.9)
 [4] 0.6 vs 0.5: n=224 (power 0.911); n=405 for 0.99; 0.52 vs 0.5: n=5435 (×24.3)
 verify_cap31: OK
 ```
+The reproducible validation of this review is `verify_cap31: OK`: the SHA-256 is independent of key order and any change in 9/9 fields invalidates it; the binomial tails match SciPy to $10^{-12}$ and the decisions are confirmed/refuted/inconclusive; Holm lowers the FWER from 0.656 to 0.042 and the budget grows as $1/\Delta^2$ (224 → 5435); `tests/test_qfalsify.py` passes with `4 passed`.
 
 ### `tests/test_qfalsify.py`
 ```python
