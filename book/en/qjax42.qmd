@@ -115,6 +115,7 @@ The reproducible validation of this review is `verify_cap42: OK`: $d_N=[1,24,324
 | `t_duality_spectrum` | strings | same spectrum at $R$ and $\alpha'/R$ (6 radii) | `qang.qstring.t_dual_equal`, `qang.qstring.closed_spectrum` | `exact` |
 | `selfdual_massless` | strings | $676=576+96+4$ at $R=\sqrt{\alpha'}$ | `qang.qstring.massless_states`, `qang.qstring.massless_breakdown` | `exact` |
 | `luttinger_block_variance` | strings | $K\simeq\pi^2\,d\,\mathrm{Var}/d\ln(\text{chord})$; error $1.3$–$13.4\%$ | `qang.qstring.luttinger_k_from_variance`, `qang.qstring.xxz_ground_distribution` | `mixed` |
+| `string_analogue_rerun` | strings | $d_N$, $D=26$, level in Z, T-duality at 6 radii | `tools/verify_exp33_42_1.py` | `exact` (analogue) |
 | `string_physics_claims` | strings | that `qang` measures string physics | — | `not adopted` |
 
 ## 42.11 CHANGELOG and commit
@@ -127,3 +128,18 @@ The reproducible validation of this review is `verify_cap42: OK`: $d_N=[1,24,324
 ```text
 feat(book): add Ch. 42 (string theory with qang) with qang.qstring
 ```
+
+## 42.12 Experiment 33/42.1 — Light-cone counting, level reading and T-duality
+
+**Hypothesis.** The verifiable string analogue gives $d_N=1,24,324,3200,25650,176256$, $D=26$, $576=299+276+1$, the level as a weighted Hamming weight read in Z, and an invariant spectrum under $R\leftrightarrow\alpha'/R$ at six radii; none of this measures physical strings.
+
+**Method.** `tools/verify_exp33_42_1.py` uses `qang.qstring.colored_partitions`, `critical_dimension`, `closed_massless_decomposition`, `level_from_z`, `level_from_readings`, `level_variance`, `level_shots`, `level_filter_damped`, `level_vs_weight_blindness`, `t_dual_equal`, `massless_states`/`massless_breakdown` and `dual_exponents`.
+
+```text
+d_N=[1, 24, 324, 3200, 25650, 176256]; D=26; 576=299+276+1
+linear level OK; Var=22.75; N(σ=0.1)=8740; T1 retention=0.2401
+T-duality at 6 radii: {0.5: 580, 0.7: 576, 1.0: 676, 1.3: 576, 2.0: 580, 3.0: 578}; self-dual 676=576+96+4
+dual exponents K=3/2: 3.000000 × 0.333333 = 1.000000000000
+```
+
+**Reading.** Counts and T-duality are model identities; the $T_1$ filter and level/weight blind spots are properties of the reading analogue. `exact` as an analogue; the claim «qang measures string physics» remains `not adopted`.

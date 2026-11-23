@@ -103,6 +103,22 @@ def test_pca_rbs():
 | `number_check_t1` | chemistry | $N$ mod 4 exact under $T_1$ at $N=2,n=4$ | `sector_projector`, `filtered_energy` | `exact` (model); hardware `unverified` |
 | `pca_unary_rbs` | spectroscopy | $p_{\text{exc},k}=\lambda_k$ with $n(n-1)/2$ RBS | `pca_unary`, `givens_decomposition` | `exact` |
 | `qaoa_exact_k_xy` | optimization | feasible mass 1 with XY mixer | `qaoa_optimize` | `exact`; vs. classical `no gain` |
+| `electron_witness_shots` | chemistry | $W=1000\gamma \pm 1000/\sqrt{N}$ under $T_1$ | `witness_mqg`, `qg_z_profile` | `exact` (sim.); hardware `unverified` |
 
 `CHANGELOG.md [Unreleased]`: `qang.qchem`; `tools/verify_cap28.py`; `tests/test_qchem.py`.
 Commit: `docs(cap28): electron witness, number check, RBS PCA and exactly-K QAOA rewritten on Ch. 1–27 + qang.qchem + verify_cap28`.
+
+## 28.10 Experiment 28.1 — Electron witness under T1 with shot-level readout
+
+**Hypothesis.** Under $T_1$ relaxation with probability $\gamma$, the witness $W=1000(\overline{qg_Z}-(1-2N/n))$ increases by exactly $1000\gamma$ m-qg, and the $N=2$ number filter returns it to zero without biasing the energy.
+
+**Method.** `tools/verify_exp28_1.py` prepares the Hubbard dimer ground state (4 qubits, $t=1$, $U=2$) with `qang.qchem.ground_state_sector`, applies `apply_t1_all`, samples 20000 outcomes from the 16 bitstring distribution per seed (3 seeds), and reads $\overline{qg_Z}$ with `qang.interop.qg_z_profile`. The filter is `weight_filter(..., 2)`; the filtered energy uses `filtered_energy` and `sector_projector`.
+
+```text
+γ=0.02: W exact=+20.0  W raw=+20.0±2.0  W filtered=+0.0  kept=0.9605 (exact 0.9604)  E=-1.2360679775
+γ=0.05: W exact=+50.0  W raw=+49.8±2.0  W filtered=+0.0  kept=0.9030 (exact 0.9025)  E=-1.2360679775
+γ=0.10: W exact=+100.0 W raw=+100.1±2.0 W filtered=-0.0  kept=0.8101 (exact 0.8100)  E=-1.2360679775
+verify_exp28_1: OK
+```
+
+**Reading.** The raw witness recovers $1000\gamma$ within $2\sigma$ at all three points; after filtering, $W\approx0$ and the kept fraction follows $(1-\gamma)^2$. The filtered-sector energy is $E_0=-1.2360679775$ in every case. The witness standard error is $\sigma_W\approx2$ m-qg with 20000 shots. `exact` in simulation; hardware `unverified`.

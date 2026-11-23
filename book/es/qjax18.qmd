@@ -96,6 +96,39 @@ def test_pf_law():
 | `yk_fidelity_3qg` | scrambling | $F=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ | `yoshida_kitaev` | `exact` |
 | `otoc_qg` | scrambling | $\tfrac1d\mathrm{Tr}(W^\dagger V_t^\dagger WV_t)$ | `otoc` | `exact` |
 | `page_curve_qgS` | información | $qg_S$ plano vs $S_2$ | `renyi2_subsystem`, `qg_S_mean` | `against` |
+| `yk_pf_shots` | scrambling | $\hat P\hat F=1/4$ bajo ruido de disparos | `yoshida_kitaev` | `exact` (sim.); hardware `unverified` |
+| `page_purity_correlators` | información | $\mathrm{Tr}\rho_k^2=2^{-k}\sum\langle P\rangle^2$, $4^k-1$ | `renyi2_subsystem` | `exact` (sim.); hardware `unverified` |
 
 `CHANGELOG.md [Unreleased]`: `qang.qscramble` (`haar_unitary`, `initial_state`, `yoshida_kitaev`, `otoc`, `renyi2_subsystem`, `qg_S_mean`); `tools/verify_cap18.py`; `tests/test_qscramble.py`.
 Commit: `docs(cap18): Hayden–Preskill, ley P·F=1/4 y curva de Page reescritos sobre Cap. 1–17 + qang.qscramble + verify_cap18`.
+
+## 18.8 Experimento 18.1 — Ley P·F bajo ruido de disparos
+
+**Hipótesis.** La identidad $P_{\text{EPR}}F_{\text{EPR}}=1/4$ sobrevive al muestreo finito: $\hat P\hat F$ cae dentro de $5\sigma$ del valor exacto y el sobrecoste medido $N/\hat k$ reproduce $1/P$.
+
+**Método.** `tools/verify_exp18_1.py` usa `qang.qscramble.yoshida_kitaev` con $n_B=3$, $n_D=2$ para $U$ Haar, $X_A$ e $I$. Cada ensayo es un Bernoulli de éxito $P$; condicionado al éxito, un segundo Bernoulli mide la fidelidad contra $|\Phi^+\rangle_{RR'}$. Se usan $N=20000$ intentos × 3 semillas. La incertidumbre del producto se propaga como $\sigma_{PF}=\sqrt{(F^2P(1-P)+PF(1-F))/N}$.
+
+```text
+U=Haar #1 : P=0.2964 F=0.8435 F(qg)=0.8435 P·F=0.250000 | medido P=0.2933 F=0.8434 P·F=0.2474±0.0018 | aceptados=5866/20000 (×3.41) m_F=+687 m-qg
+U=X en A  : P=0.2500 F=1.0000 F(qg)=1.0000 P·F=0.250000 | medido P=0.2471 F=1.0000 P·F=0.2471±0.0018 | aceptados=4942/20000 (×4.05) m_F=+1000 m-qg
+U=I       : P=0.2500 F=1.0000 F(qg)=1.0000 P·F=0.250000 | medido P=0.2471 F=1.0000 P·F=0.2471±0.0018 | aceptados=4942/20000 (×4.05) m_F=+1000 m-qg
+verify_exp18_1: OK
+```
+
+**Lectura.** Para Haar, $\hat P\hat F=0.2474\pm0.0018$ contra $0.25$ exacto; $m_F=1000(2F-1)=+687$ m-qg. El sobrecoste es estocástico: $\times3.41$ medido frente a $1/P=3.37$ esperado, y $\times4.05$ para $U=I$, donde $P=1/4$. La identidad y el conteo son `exact` bajo el modelo ideal; en hardware con ruido y postselección finita, `unverified`.
+
+## 18.9 Experimento 18.2 — Pureza por correladores frente a qg_S plano
+
+**Hipótesis.** $S_2=-\log_2\mathrm{Tr}\rho_k^2$ reconstruye la curva de Page con $4^k-1$ correladores no identidad, mientras $qg_S$ (una base $Z$) permanece plano y no mide entrelazamiento.
+
+**Método.** `tools/verify_exp18_2.py` toma una realización Haar de $n=8$ qubits. La pureza de los $k$ primeros qubits se reconstruye como $\mathrm{Tr}\rho_k^2=2^{-k}\sum_{P\in\{I,X,Y,Z\}^{\otimes k}}\langle P\rangle^2$, incluida la identidad. Se comparan $k=1$ (3 correladores) y $k=2$ (15), y se añade ruido gaussiano de $\sqrt{(1-q_i^2)/N}$ por correlador con $N=20000$ y 3 semillas.
+
+```text
+S2(k)  :  0.98 1.90 2.61 3.00 2.61 1.89 0.95 | qg_S(k): 1.00 × 7
+k=1: pureza=0.505620670 = 2^-S2 (0.505620670); 3 correladores
+k=2: pureza=0.267976034 = 2^-S2 (0.267976034); 15 correladores
+S2(k=1) con ruido: 0.9836 / 0.9841 / 0.9758 vs 0.9839 ± 0.0021
+verify_exp18_2: OK
+```
+
+**Lectura.** La reconstrucción coincide con $2^{-S_2}$ a $10^{-12}$ en $k=1,2$; el coste crece como $4^k-1$ (3 y 15) frente a una sola configuración de $qg_S$. Bajo ruido de 20000 shots, $S_2=0.9839\pm0.0021$. Esto cuantifica el hallazgo `against` de la sección 18.3: $qg_S$ es coordenada de lectura, no entropía de entrelazamiento. `exact` en statevector; hardware `unverified`.

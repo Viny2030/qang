@@ -123,6 +123,7 @@ def test_werner_correlators():
 | `singlet_fraction_3bases` | teleportación | $(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ | `singlet_fraction_from_qg` | `exact` |
 | `teleport_channel_mqg` | teleportación | $m'=V\,m$ | `teleport`, `bloch` | `exact` |
 | `teleport_shots` | estadística | $N=(1-V^2)/(4\sigma_F^2)$; 1 vs 12 config. | `shots_for_fidelity` | `exact` |
+| `teleport_3qg_shots` | estadística | $\bar F=(3+qg_{XX}-qg_{YY}+qg_{ZZ})/6$; sesgo 0.0667 | `tools/verify_exp12_13_1.py` | `exact` (sim.); hardware `unverified` |
 | `one_basis_bias` | teleportación | $\bar F_{1b}\ge\bar F_{3b}$ | `verify_cap15.py` §5 | `mixed` |
 
 ### `CHANGELOG.md` — `[Unreleased]`
@@ -135,3 +136,21 @@ def test_werner_correlators():
 - `.github/workflows/book.yml`: `GH_TOKEN` en `quarto-actions/setup` (403 al resolver TinyTeX).
 ```
 Commit: `docs(cap15): teleportación y límite del par de Bell reescritos sobre Cap. 1–14 + qang.qtele + verify_cap15`.
+
+## 15.9 Experimento 12/13.1 — Fidelidad teleportada desde tres correladores y filtro de doble carril
+
+**Nota de identidad.** El antiguo §13.1 del índice histórico («La fidelidad de teleportación como lectura lineal de tres correladores qg») quedó reescrito en los Caps. 15–16; aquí se verifica como un solo experimento con su parte óptica.
+
+**Hipótesis.** $\bar F=(3+qg_{XX}-qg_{YY}+qg_{ZZ})/6$ predice la fidelidad sin ejecutar el circuito de teleportación; con Werner $V=0{,}9$ da $0{,}95$, y un estado no Werner con $(0{,}8,-0{,}8,1{,}0)$ da $0{,}9333$, frente a $1{,}0$ si se asume erróneamente una sola base. En doble carril a 50 km, $\eta=0{,}1$: sin filtrar se lee $+0{,}84$, con filtro $-0{,}60$ a tasa $0{,}10$.
+
+**Método.** `tools/verify_exp12_13_1.py` usa `qang.qpon.fidelity_from_correlators`, `qang.qtele.teleport_fidelity_werner_qzz`/`shots_for_fidelity` y `qang.qdualrail` (`transmission`, `dual_rail_state`, `apply_loss`, `readout_unfiltered`, `readout_sector_filtered`, `shots_multiplier_two_photons`), sin Qiskit.
+
+```text
+álgebra exacta: F=1 (Bell), F=2/3 en qg_ZZ=1/3; N(F=0.9, σ=0.01)=475
+Werner V=0.9: F=0.950000; no Werner: F=0.933333 vs 1 base=1.000000
+V=0.9000: F̂=0.949183 vs 0.950000 (±0.000890)
+V=0.3333: F̂=0.667917 vs 0.666667 (±0.001925)
+doble carril 50 km: η=0.10, raw=+0.84, filtrado=-0.60 (tasa 0.10)
+```
+
+**Lectura.** Tres bases bastan para predecir $\bar F$ y revelan el sesgo del supuesto Werner; el filtro de sector elimina el sesgo de pérdida pagando $\times1/\eta$ disparos. `exact` en simulación; hardware `unverified`.

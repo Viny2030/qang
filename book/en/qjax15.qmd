@@ -121,6 +121,7 @@ def test_werner_correlators():
 | `singlet_fraction_3bases` | teleportation | $(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ | `singlet_fraction_from_qg` | `exact` |
 | `teleport_channel_mqg` | teleportation | $m'=V\,m$ | `teleport`, `bloch` | `exact` |
 | `teleport_shots` | statistics | $N=(1-V^2)/(4\sigma_F^2)$; 1 vs 12 config. | `shots_for_fidelity` | `exact` |
+| `teleport_3qg_shots` | statistics | $\bar F=(3+qg_{XX}-qg_{YY}+qg_{ZZ})/6$; 0.0667 bias | `tools/verify_exp12_13_1.py` | `exact` (sim.); hardware `unverified` |
 | `one_basis_bias` | teleportation | $\bar F_{1b}\ge\bar F_{3b}$ | `verify_cap15.py` §5 | `mixed` |
 
 ### `CHANGELOG.md` — `[Unreleased]`
@@ -133,3 +134,21 @@ def test_werner_correlators():
 - `.github/workflows/book.yml`: `GH_TOKEN` in `quarto-actions/setup` (403 when resolving TinyTeX).
 ```
 Commit: `docs(cap15): teleportation and the Bell-pair limit rewritten on Ch. 1–14 + qang.qtele + verify_cap15`.
+
+## 15.9 Experiment 12/13.1 — Teleported fidelity from three correlators and the dual-rail filter
+
+**Identity note.** Former §13.1 in the historical index («teleportation fidelity as a linear reading of three qg correlators») was rewritten in Chs. 15–16; it is verified here as one experiment with its optical part.
+
+**Hypothesis.** $\bar F=(3+qg_{XX}-qg_{YY}+qg_{ZZ})/6$ predicts fidelity without running the teleportation circuit; Werner $V=0.9$ gives $0.95$, while a non-Werner state with $(0.8,-0.8,1.0)$ gives $0.9333$ versus $1.0$ if one wrongly assumes a single basis. In a 50 km dual rail, $\eta=0.1$: unfiltered reads $+0.84$, filtered reads $-0.60$ at rate $0.10$.
+
+**Method.** `tools/verify_exp12_13_1.py` uses `qang.qpon.fidelity_from_correlators`, `qang.qtele.teleport_fidelity_werner_qzz`/`shots_for_fidelity` and `qang.qdualrail` (`transmission`, `dual_rail_state`, `apply_loss`, `readout_unfiltered`, `readout_sector_filtered`, `shots_multiplier_two_photons`), without Qiskit.
+
+```text
+exact algebra: F=1 (Bell), F=2/3 at qg_ZZ=1/3; N(F=0.9, σ=0.01)=475
+Werner V=0.9: F=0.950000; non-Werner: F=0.933333 vs 1 basis=1.000000
+V=0.9000: F̂=0.949183 vs 0.950000 (±0.000890)
+V=0.3333: F̂=0.667917 vs 0.666667 (±0.001925)
+50 km dual rail: η=0.10, raw=+0.84, filtered=-0.60 (rate 0.10)
+```
+
+**Reading.** Three bases suffice to predict $\bar F$ and expose the Werner-assumption bias; the sector filter removes the loss bias at $\times1/\eta$ shots. `exact` in simulation; hardware `unverified`.

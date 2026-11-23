@@ -129,6 +129,7 @@ def test_thermal_fisher_closed_form():
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |
 | `ramsey_operating_point` | metrología | $\arg\max I_F(\phi)=\pi/2\iff qg_Z=0$ | `ramsey_fisher_phi` | `exact` |
+| `ramsey_operating_point_shots` | metrología | $I_F^{max}=C^2$; pérdida 90 %/95 % a $\phi=0{,}2$ | `tools/verify_exp11_1.py` | `exact` (sim.); hardware `unverified` |
 | `ramsey_T_opt` | metrología | $T^\star=T_2/2$ | `optimal_T` | `exact` |
 | `ghz_dephasing` | metrología | $\max_T I/T$ igual a producto | `ghz_fisher_omega`, `product_fisher_omega` | `no gain` |
 | `thermal_tanh_fisher` | metrología | $\tfrac14\operatorname{sech}^2(x/2)$; $qg_Z^\star=0.834$ | `thermal_fisher_x`, `thermal_fisher_T` | `exact` |
@@ -142,3 +143,19 @@ def test_thermal_fisher_closed_form():
 - `tools/verify_cap11.py`, `tests/test_qmetro.py`; Apéndice H: 5 entradas.
 ```
 Commit: `docs(cap11): metrología en qga reescrita sobre Cap. 1–9 + qang.qmetro + verify_cap11`.
+
+## 11.9 Experimento 11.1 — Punto de operación Ramsey en $qg_Z=0$
+
+**Hipótesis.** La información de Fisher de Ramsey, $I_F(\phi)=C^2\sin^2\phi/(1-C^2\cos^2\phi)$, alcanza su máximo $C^2$ en $\phi=\pi/2$, es decir $qg_Z=0$ (250 qga). A $\phi=0{,}2$ rad se pierde el 90 % de $I_F$ con $C=0{,}8$ y el 95 % con $C=0{,}5$; con $C=1$, $I_F\equiv1$.
+
+**Método.** `tools/verify_exp11_1.py` explora 2001 valores de $\phi$ con `qang.qmetro.ramsey_fisher_phi`, verifica `optimal_T` y calcula la escala de shots con `qang.probability.shot_noise_milliqang`.
+
+```text
+C=1.0: max I_F=1.000000 en φ=3.1222 rad; a φ=0.2 pierde -0.0 %
+C=0.8: max I_F=0.640000 en φ=1.5708 rad; a φ=0.2 pierde 89.8 %
+C=0.5: max I_F=0.250000 en φ=1.5708 rad; a φ=0.2 pierde 94.8 %
+C=1: I_F≡1 (σ=3.4e-14); T*=T2/2=0.500000
+N=20000: σ_m=7.0711 m-qg; σ_qga≈1.1254; resolución 1 m-qg → 1000000 shots
+```
+
+**Lectura.** Para $C=1$ el máximo es degenerado en $\phi$ y el argmax numérico no es informativo; con decoherencia el óptimo se ancla en $\pi/2$. La regla operativa es fijar el punto de trabajo por $qg_Z=0$ en m-qg, no por un $\phi$ nominal. `exact`; hardware `unverified`.

@@ -96,7 +96,8 @@ La validación reproducible de esta revisión es `verify_cap41: OK`: $|F_{\mathr
 |---|---|---|---|---|
 | `pctc_info_balance` | física | $p\,F_\mathrm{acc}+F_\text{éxito}=1$ | `qang.qtimeloop.pctc_fisher` | `exact` |
 | `pctc_south_amplification` | física | $d\theta'/d\theta=1/a$, $p_\mathrm{post}=a^2$ | `qang.qtimeloop.pctc_amplification`, `qang.qtimeloop.pctc_p_post` | `exact` |
-| `grandfather_maps` | física | P-CTC $p_\mathrm{post}=0$; D-CTC $(0,0,0)$ m-qg | `qang.qtimeloop.pctc_success`, `qang.qtimeloop.deutsch_iterate` | `exact` |
+| `pctc_shot_budget` | física | $k\sim\mathrm{Bin}(N,p)$, coste $1/p$, Fisher reconstruido | `tools/verify_exp41_1.py` | `exact` (sim.); CTC física `unverified` |
+| `grandfather_maps` | física | P-CTC $p_\mathrm{post}=0$; D-CTC $(0,0,0)$ m-qg | `qang.qtimeloop.pctc_success`, `qang.qtimeloop.deutsch_iterate`, `tools/verify_exp41_2.py` | `exact` |
 | `loop_fixed_dimension` | física | $\dim\ker(R-I)$ por ángulo en qga | `qang.qtimeloop.fixed_dimension`, `qang.qtimeloop.bloch_rotation` | `exact` |
 | `physical_ctc_existence` | física | existencia de CTC | — | `unverified` (no se afirma) |
 
@@ -110,3 +111,37 @@ La validación reproducible de esta revisión es `verify_cap41: OK`: $|F_{\mathr
 ```text
 feat(book): add Cap. 41 (time travel) with qang.qtimeloop
 ```
+
+## 41.10 Experimento 41.1 — Amplificación por disparo aceptado y presupuesto por copia
+
+**Hipótesis.** Cerca del polo sur, la P-CTC amplifica la distinguibilidad angular por $1/a$, pero sólo acepta una fracción $p_\mathrm{post}=a^2$ de las copias. Contando los fracasos, la información de Fisher por copia de entrada sigue siendo exactamente 1: la no linealidad no crea información.
+
+**Método.** `tools/verify_exp41_1.py` usa `qang.qtimeloop.pctc_p_post`, `pctc_amplification`, `pctc_theta_out` y `pctc_fisher`. Simula 20000 intentos por semilla (3 semillas) para $a=0{,}5$ y $\theta\in\{\pi-0{,}01,\pi/2,0{,}1\}$: extrae el éxito $k\sim\mathrm{Bin}(N,p)$, estima $\hat p=k/N$ y $\hat q'=\cos\hat\theta'$ de los $k$ éxitos, y reconstruye el balance con la derivada analítica $dp/d\theta=-(1-a^2)\sin\theta/2$.
+
+```text
+Fisher exacto en 2000 pares (a,θ): max|F_total−1| = 7.10e-11
+a=0.5 θ=3.1316 rad: p=0.250019  amplificación=1.999850  F_acc=3.9994  F_fracaso=0.000075  total=1.000000000000
+  semilla 21: k=5112/20000  p̂=0.255600±0.003062  q̂'=-0.999609±0.000280  overhead=3.9124  F_total̂=1.0223
+a=0.5 θ=1.5708 rad: p=0.625000  amplificación=0.800000  F_acc=0.6400  F_fracaso=0.6000  total=1.000000000000
+  semilla 21: k=12374/20000 p̂=0.618700±0.003423  q̂'=+0.602069±0.007192  overhead=1.6163  F_total̂=0.9921
+a=0.5 θ=0.1000 rad: p=0.998127  amplificación=0.500938  F_acc=0.2509  F_fracaso=0.7495  total=1.000000000000
+  semilla 21: k=19955/20000 p̂=0.997750±0.000306  q̂'=+0.998597±0.000354  overhead=1.0023  F_total̂=0.8747
+polo sur: amplificación=1/a=2.0, p_post=a²=0.25 → ×4 disparos
+```
+
+**Lectura.** En el polo sur el factor $2$ de separación angular se paga con $4$ veces más disparos por evento aceptado; en $\theta=\pi/2$ hay contracción ($0{,}8$) y el coste es $1{,}6$. La reconstrucción muestreada del balance queda dentro de $5\sigma$ de 1 en los tres regímenes; la desviación del caso $\theta=0{,}1$ es sesgo del estimador plug-in de $1/p$ con $p\approx1$, no del mapa. `exact` para el álgebra; la existencia física de CTC sigue `unverified`.
+
+## 41.11 Experimento 41.2 — Abuelo: dos modelos, dos salidas verificables
+
+**Hipótesis.** Para $U=I_\mathrm{CR}\otimes X_\mathrm{CTC}$, la P-CTC tiene $p_\mathrm{post}=0$: la historia no se acepta ni una sola vez. La D-CTC converge al punto fijo de máxima entropía del CTC, $(0,0,0)$ m-qg, y deja el qubit cronológico igual que entró.
+
+**Método.** `tools/verify_exp41_2.py` usa `qang.qtimeloop.pctc_success`, `deutsch_iterate` y `bloch_mqg` sobre tres estados del registro cronológico ($|+\rangle$, $R_y(0{,}7)|0\rangle$, $|0\rangle$), simula 100000 intentos con $p=0$ y comprueba la convergencia en una iteración.
+
+```text
+           |+>: p_post=0.0e+00  CTC=[0. 0. 0.]  CR_in=[1000.    0.    0.]  CR_out=[1000.    0.    0.]
+    RY(0.7)|0>: p_post=0.0e+00  CTC=[0. 0. 0.]  CR_in=[644.217687   0. 764.842187]  CR_out=[644.217687   0. 764.842187]
+           |0>: p_post=0.0e+00  CTC=[0. 0. 0.]  CR_in=[   0.    0. 1000.]  CR_out=[   0.    0. 1000.]
+convergencia D-CTC: 1 iteración ya da el punto fijo; 100000 intentos P-CTC → 0 aceptados
+```
+
+**Lectura.** La paradoja no se «resuelve» con una señal más fuerte: en P-CTC no hay distribución sobre la que medir. En D-CTC la autointeracción elige el estado de lectura nulo y conserva el CR. Ambos resultados son `exact` a nivel de mapa; la existencia física de CTC permanece `unverified`.

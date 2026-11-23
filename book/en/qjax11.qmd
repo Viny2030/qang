@@ -125,6 +125,7 @@ def test_thermal_fisher_closed_form():
 | id | family | formula | function | status |
 | :--- | :--- | :--- | :--- | :--- |
 | `ramsey_operating_point` | metrology | $\arg\max I_F(\phi)=\pi/2\iff qg_Z=0$ | `ramsey_fisher_phi` | `exact` |
+| `ramsey_operating_point_shots` | metrology | $I_F^{max}=C^2$; 90 %/95 % loss at $\phi=0.2$ | `tools/verify_exp11_1.py` | `exact` (sim.); hardware `unverified` |
 | `ramsey_T_opt` | metrology | $T^\star=T_2/2$ | `optimal_T` | `exact` |
 | `ghz_dephasing` | metrology | $\max_T I/T$ equal to product | `ghz_fisher_omega`, `product_fisher_omega` | `no gain` |
 | `thermal_tanh_fisher` | metrology | $\tfrac14\operatorname{sech}^2(x/2)$; $qg_Z^\star=0.834$ | `thermal_fisher_x`, `thermal_fisher_T` | `exact` |
@@ -138,3 +139,19 @@ def test_thermal_fisher_closed_form():
 - `tools/verify_cap11.py`, `tests/test_qmetro.py`; Appendix H: 5 entries.
 ```
 Commit: `docs(cap11): metrology in qga rewritten on Ch. 1–9 + qang.qmetro + verify_cap11`.
+
+## 11.9 Experiment 11.1 — Ramsey operating point at $qg_Z=0$
+
+**Hypothesis.** The Ramsey Fisher information $I_F(\phi)=C^2\sin^2\phi/(1-C^2\cos^2\phi)$ peaks at $C^2$ when $\phi=\pi/2$, i.e. $qg_Z=0$ (250 qga). At $\phi=0.2$ rad it loses 90 % of $I_F$ for $C=0.8$ and 95 % for $C=0.5$; with $C=1$, $I_F\equiv1$.
+
+**Method.** `tools/verify_exp11_1.py` scans 2001 $\phi$ values with `qang.qmetro.ramsey_fisher_phi`, checks `optimal_T`, and sets the shot scale with `qang.probability.shot_noise_milliqang`.
+
+```text
+C=1.0: max I_F=1.000000 at φ=3.1222 rad; at φ=0.2 loses -0.0 %
+C=0.8: max I_F=0.640000 at φ=1.5708 rad; at φ=0.2 loses 89.8 %
+C=0.5: max I_F=0.250000 at φ=1.5708 rad; at φ=0.2 loses 94.8 %
+C=1: I_F≡1 (σ=3.4e-14); T*=T2/2=0.500000
+N=20000: σ_m=7.0711 m-qg; σ_qga≈1.1254; 1 m-qg resolution → 1000000 shots
+```
+
+**Reading.** For $C=1$ the maximum is flat in $\phi$ and the numerical argmax is not informative; with decoherence the optimum is anchored at $\pi/2$. The operational rule is to set the working point by $qg_Z=0$ in m-qg, not by a nominal $\phi$. `exact`; hardware `unverified`.

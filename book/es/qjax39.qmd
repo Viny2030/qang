@@ -91,6 +91,7 @@ Conflictos de entorno documentados: Qiskit Dynamics exige `qiskit<=1.3`; PennyLa
 |---|---|---|---|---|
 | `integrations_audit` | arquitectura | guardas `require()`, extras y tests por adaptador | `qang.qintegr.require_guard_report`, `qang.qintegr.extra_report`, `qang.qintegr.guard_report` | `exact` |
 | `w_state_t1_filter` | ruido | filtro de peso 1 sobre W de 3 qubits, $t/T_1=0.6$ | `qang.qintegr.w_state_t1_readings` | `exact` |
+| `w_state_t1_filter_shots` | ruido | raw $+634.1$ → filtrada $+333.333$ m-qg, kept $0.5488$ | `tools/verify_exp39_1.py` | `exact` (sim.); hardware `unverified` |
 | `mitiq_filter_zne` | ruido | ZNE de la lectura filtrada | `qang.integrations.mitiq.execute_with_filter_zne` | `unverified` (citado, requiere mitiq) |
 
 ## 39.9 CHANGELOG y commit
@@ -103,3 +104,18 @@ Conflictos de entorno documentados: Qiskit Dynamics exige `qiskit<=1.3`; PennyLa
 ```text
 docs(book): rewrite Cap. 39 (integrations) as a verifiable audit; add qang.qintegr
 ```
+
+## 39.10 Experimento 39.1 — Filtro de peso sobre W bajo $T_1$, con lectura por disparos
+
+**Hipótesis.** Para el estado W de 3 qubits a $t/T_1=0{,}6$, la población amortiguada da una lectura cruda de $+634{,}1$ m-qg, mientras que el filtro de peso 1 recupera el ideal $+333{,}333$ m-qg y conserva $e^{-0{,}6}=0{,}5488$ de los disparos, a un coste $\times1{,}822$.
+
+**Método.** `tools/verify_exp39_1.py` usa `qang.qintegr.w_state_t1_readings`, `qang.qlimits.damp_distribution` y `qang.interop.qg_z_profile`/`weight_filter`; muestrea 20000 resultados de la distribución de 8 bitstrings para 3 semillas, sin importar ningún SDK.
+
+```text
+exacto: raw=634.1256, filtrada=333.333333333, kept=0.548811636, overhead=1.822118800
+semilla 11: raw=+637.2±5.45, filt=+330.936±9.061, kept=0.54225 (k=10845)
+semilla 12: raw=+628.9±5.50, filt=+328.933±8.980, kept=0.55300 (k=11060)
+semilla 13: raw=+646.7±5.39, filt=+350.611±8.978, kept=0.54405 (k=10881)
+```
+
+**Lectura.** La lectura filtrada coincide con el ideal dentro de $5\sigma$ en las tres semillas; el sobrecoste $\times1{,}82$ es el precio de eliminar el sesgo. `exact` en simulación; hardware `unverified`.

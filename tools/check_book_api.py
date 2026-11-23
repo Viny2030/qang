@@ -125,30 +125,36 @@ def check_call(node: ast.Call, al, unimportable: set) -> Optional[str]:
 
 def scan(root: str) -> Tuple[List[str], List[str], int, int]:
     sys.path.insert(0, root)
-    files = sorted(glob.glob(os.path.join(root, "book", "es", "*.qmd")) + glob.glob(os.path.join(root, "book", "en", "*.qmd"))
-                   + glob.glob(os.path.join(root, "book", "*.md")))
-    problems: List[str] = []
-    unimportable: set = set()
-    nblocks = ncalls = 0
-    for f in files:
-        with open(f, encoding="utf-8") as fh:
-            text = fh.read()
-        for start, code in code_blocks(text):
-            nblocks += 1
-            try:
-                tree = ast.parse(_clean(code))
-            except SyntaxError:
-                continue
-            al = _aliases(tree)
-            if not al:
-                continue
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Call):
-                    ncalls += 1
-                    msg = check_call(node, al, unimportable)
-                    if msg:
-                        problems.append("%s:%d: %s" % (os.path.relpath(f, root), start + node.lineno - 1, msg))
-    return problems, sorted(unimportable), nblocks, ncalls
+    try:
+        files = sorted(glob.glob(os.path.join(root, "book", "es", "*.qmd")) + glob.glob(os.path.join(root, "book", "en", "*.qmd"))
+                       + glob.glob(os.path.join(root, "book", "*.md")))
+        problems: List[str] = []
+        unimportable: set = set()
+        nblocks = ncalls = 0
+        for f in files:
+            with open(f, encoding="utf-8") as fh:
+                text = fh.read()
+            for start, code in code_blocks(text):
+                nblocks += 1
+                try:
+                    tree = ast.parse(_clean(code))
+                except SyntaxError:
+                    continue
+                al = _aliases(tree)
+                if not al:
+                    continue
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Call):
+                        ncalls += 1
+                        msg = check_call(node, al, unimportable)
+                        if msg:
+                            problems.append("%s:%d: %s" % (os.path.relpath(f, root), start + node.lineno - 1, msg))
+        return problems, sorted(unimportable), nblocks, ncalls
+    finally:
+        try:
+            sys.path.remove(root)
+        except ValueError:
+            pass
 
 
 def main() -> int:

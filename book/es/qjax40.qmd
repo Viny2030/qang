@@ -98,9 +98,11 @@ La validación reproducible de esta revisión es `verify_cap40: OK`: error de co
 | `charge_conj_antipode` | física | $\psi\mapsto\sigma_y\psi^*$ invierte las tres lecturas | `qang.qanti.conjugate`, `qang.qanti.bloch_mqg` | `exact` |
 | `no_self_conjugate_qubit` | física | $\lvert\langle\psi\vert C\psi\rangle\rvert=0$ | `qang.qanti.self_conjugate_overlap` | `exact` |
 | `zitterbewegung_qgz` | física | $qg_Z=1/\gamma^2+\beta^2\cos2Et$ | `qang.qanti.zb_analytic_mqg`, `qang.qanti.zb_qgz_mqg` | `exact` |
+| `zitter_shot_fit` | ruido | ajuste $A+B\cos wt+C\sin wt$: $w=2{,}5$, media 640, amp. 360 m-qg | `tools/verify_exp40_2.py` | `exact` (sim.); hw §170 `unverified` |
 | `pair_creation_lz` | física | $P=e^{-\pi m^2/eE}$; $qg=1-2P$ | `qang.qanti.pair_probability`, `qang.qanti.pair_reading_mqg`, `qang.qanti.lz_numeric` | `exact` (numérico a $2\cdot10^{-3}$) |
 | `singlet_local_blind` | física | $qg_Z=0$ local, $qg_{ZZ}=-1000$ | `qang.qanti.singlet_readings` | `exact` |
 | `branch_shots` | ruido | $N=z^2(\gamma^2-1)$ | `qang.qanti.shots_to_certify_branch` | `exact` |
+| `baryo_shots` | ruido | $N(3\sigma)=(3/Y_B)^2\approx1{,}19\cdot10^{21}$ | `qang.probability.shots_for_sign` | `exact` (álgebra); hardware `unverified` |
 
 ## 40.11 CHANGELOG y commit
 
@@ -112,3 +114,34 @@ La validación reproducible de esta revisión es `verify_cap40: OK`: error de co
 ```text
 feat(book): add Cap. 40 (matter/antimatter) with qang.qanti
 ```
+
+## 40.12 Experimento 40.1 — Presupuesto de shots para la asimetría bariónica
+
+**Hipótesis.** Detectar la asimetría $Y_B=8{,}7\cdot10^{-11}$ como una lectura $qg_Z=Y_B$, es decir $m=1000Y_B=8{,}7\cdot10^{-8}$ m-qg, exige $N=(3/Y_B)^2\approx1{,}19\cdot10^{21}$ disparos a $3\sigma$. Una asimetría de regeneración mucho mayor es verificable con un presupuesto accesible.
+
+**Método.** `tools/verify_exp40_1.py` usa `qang.probability.shots_for_sign` y `shots_for_resolution` para el presupuesto analítico, `analyze` para estimar la lectura con intervalo de Wilson a $z=3$, y una demostración a escala con $q=0{,}05$ y 5 semillas. El control usa $\Delta P=4{,}85\cdot10^{-4}$ y $\Delta m=-2000\Delta P$ con $2^{24}$ disparos.
+
+```text
+Y_B=8.70e-11 -> qg_Z=8.70e-11, m=8.70e-08 m-qg
+N(1σ)=1.3212e+20; N(3σ)=1.1891e+21 shots [=(3/Y_B)^2]
+demo q=0.05, 5 semillas: m=+55.83, +60.99, +57.23, +53.75, +48.04 m-qg (LI3σ > 0)
+control ΔP=4.85e-04 -> Δm=-0.97 m-qg; 16777216 shots σ=0.2441 m-qg -> 4σ
+verify_exp40_1: OK
+```
+
+**Lectura.** La detección directa de $Y_B$ queda fuera de alcance experimental: $1{,}19\cdot10^{21}$ shots. La demostración a escala confirma la ley $N\propto q^{-2}$ y el intervalo de Wilson. El control de regeneración da $\Delta m=-0{,}97$ m-qg, unas $1{,}1\cdot10^{7}$ veces la señal directa, detectable a $\sim4\sigma$ con $2^{24}$ shots. Corrección a la propuesta inicial: ese control es $4\sigma$, no $126\sigma$ — $\sqrt{2^{24}}=4096$, luego $\sigma=1000/4096=0{,}2441$ m-qg. `exact` para el álgebra y el conteo; hardware `unverified`.
+
+## 40.13 Experimento 40.2 — Ajuste por disparos de la Zitterbewegung del qubit β
+
+**Hipótesis.** Con $m=1$, $p=0{,}75$ ($E=1{,}25$, $\gamma=1{,}25$, $\beta=0{,}6$), un estado $|0\rangle$ oscila con $qg_Z(t)=1000/\gamma^2+1000\beta^2\cos(2Et)$: media $+640$ m-qg, amplitud $360$ m-qg y frecuencia $2E=2{,}5$. El ajuste preregistrado Z1–Z5 recupera esos tres números con 2000 shots por punto.
+
+**Método.** `tools/verify_exp40_2.py` usa `qang.qanti.zb_qgz_mqg`, `zb_analytic_mqg`, `eigenstate`, `conjugate`, `self_conjugate_overlap`, `singlet_readings` y `shots_to_certify_branch`; ajusta $A+B\cos wt+C\sin wt$ por mínimos cuadrados ponderados, sin Qiskit.
+
+```text
+E=1.25, γ=1.25, β=0.60, w=2E=2.50; max error analítico=4.55e-13
+conjugación: bloch(Cψ)=-bloch(ψ); |<Cψ|E->|=1; max |<ψ|Cψ>|=0.0e+00
+ajuste: w=2.5000 (2.5±5 %), media=636.39 (640±60), amplitud=363.61 (360±60), χ²/dof=0.764
+ramas: N(γ=2)=27, N(β=0.99)=443.26; singlete=(0,0,-1000), -1000 m-qg
+```
+
+**Lectura.** Los criterios Z1–Z5 se cumplen: frecuencia exacta, media y amplitud dentro de $\pm60$ m-qg, y $\chi^2/\mathrm{dof}<1$. La conjugación no tiene puntos fijos y el singlete es ciego en $X,Y$. `exact` en simulación; la ejecución en Garnet de §170 permanece `unverified` en este repo.

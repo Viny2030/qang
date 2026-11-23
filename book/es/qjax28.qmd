@@ -105,6 +105,22 @@ def test_pca_rbs():
 | `number_check_t1` | química | $N$ mod 4 exacto bajo $T_1$ en $N=2,n=4$ | `sector_projector`, `filtered_energy` | `exact` (modelo); hardware `unverified` |
 | `pca_unary_rbs` | espectroscopía | $p_{\text{exc},k}=\lambda_k$ con $n(n-1)/2$ RBS | `pca_unary`, `givens_decomposition` | `exact` |
 | `qaoa_exact_k_xy` | optimización | masa factible 1 con mezclador XY | `qaoa_optimize` | `exact`; vs. clásico `no gain` |
+| `electron_witness_shots` | química | $W=1000\gamma \pm 1000/\sqrt{N}$ bajo $T_1$ | `witness_mqg`, `qg_z_profile` | `exact` (sim.); hardware `unverified` |
 
 `CHANGELOG.md [Unreleased]`: `qang.qchem`; `tools/verify_cap28.py`; `tests/test_qchem.py`.
 Commit: `docs(cap28): testigo de electrones, verificación por número, PCA con RBS y QAOA exactamente-K sobre Cap. 1–27 + qang.qchem + verify_cap28`.
+
+## 28.10 Experimento 28.1 — Testigo de electrones bajo T1 con lectura por disparos
+
+**Hipótesis.** Bajo relajación $T_1$ con probabilidad $\gamma$, el testigo $W=1000(\overline{qg_Z}-(1-2N/n))$ crece exactamente $1000\gamma$ m-qg, y el filtro de número $N=2$ lo devuelve a cero sin sesgar la energía.
+
+**Método.** `tools/verify_exp28_1.py` prepara el fundamental del dímero de Hubbard (4 qubits, $t=1$, $U=2$) con `qang.qchem.ground_state_sector`, aplica `apply_t1_all`, muestrea 20000 distribuciones de 16 bitstrings por semilla (3 semillas) y lee $\overline{qg_Z}$ con `qang.interop.qg_z_profile`. El filtro usa `weight_filter(..., 2)`; la energía filtrada se calcula con `filtered_energy` y `sector_projector`.
+
+```text
+γ=0.02: W exacto=+20.0  W crudo=+20.0±2.0  W filtrado=+0.0  kept=0.9605 (exacto 0.9604)  E=-1.2360679775
+γ=0.05: W exacto=+50.0  W crudo=+49.8±2.0  W filtrado=+0.0  kept=0.9030 (exacto 0.9025)  E=-1.2360679775
+γ=0.10: W exacto=+100.0 W crudo=+100.1±2.0 W filtrado=-0.0  kept=0.8101 (exacto 0.8100)  E=-1.2360679775
+verify_exp28_1: OK
+```
+
+**Lectura.** El testigo crudo recupera $1000\gamma$ dentro de $2\sigma$ en los tres puntos; tras filtrar, $W\approx0$ y la fracción conservada sigue $(1-\gamma)^2$. La energía del sector filtrado es $E_0=-1.2360679775$ en los tres casos. El error estándar del testigo es $\sigma_W\approx2$ m-qg con 20000 shots. `exact` en simulación; hardware `unverified`.

@@ -109,6 +109,21 @@ def test_status_list(): assert "measured gain" in STATUSES and len(STATUSES) == 
 | :--- | :--- | :--- | :--- | :--- |
 | `ledger_consistency` | methodology | 106/106 references resolved | `unresolved`, `load_ledger` | `exact` |
 | `ledger_evidence_level` | methodology | 0 `measured gain`, 0 primary `tested on hardware` | `summarize` | `exact`; hardware `unverified` |
+| `ledger_rerun_audit` | methodology | 90 rows, 106 references, 19 caveats, 64 clean `exact` | `tools/verify_exp32_1.py` | `exact` (audit) |
 
 `CHANGELOG.md [Unreleased]`: `qang.qledger`; `tools/verify_cap32.py`; `tests/test_qledger.py`.
 Commit: `docs(cap32): ledger of 90 sub-measures (Ch. 7–31) + qang.qledger + verify_cap32`.
+
+## 32.9 Experiment 32/ApH.1 — Re-runnable audit of the submeasure ledger
+
+**Hypothesis.** The 90-submeasure ledger of chapters 7–31 is internally consistent: 106 resolved references, unique ids, statuses inside the allowed vocabulary, and no claimed measured gain or hardware-tested status as a primary result.
+
+**Method.** `tools/verify_exp32_1.py` calls `qang.qledger.load_ledger`, `unresolved`, `summarize`, `caveats` and `clean_exact` on `book/` and `qang/`+`tools/`.
+
+```text
+rows=90 across 25 chapters; unique ids=90
+summary: {'exact': 82, 'against': 3, 'no gain': 3, 'unverified': 1, 'mixed': 1}
+unresolved references: 0; caveats=19; clean exact=64
+```
+
+**Reading.** «Confirmed» in the ledger means analytic or simulation exactness: `measured gain=0` and `tested on hardware=0`. The audit is `exact` over the current repo content; it is not new experimental evidence.

@@ -98,9 +98,11 @@ The reproducible validation of this review is `verify_cap40: OK`: conjugation er
 | `charge_conj_antipode` | physics | $\psi\mapsto\sigma_y\psi^*$ inverts the three readings | `qang.qanti.conjugate`, `qang.qanti.bloch_mqg` | `exact` |
 | `no_self_conjugate_qubit` | physics | $\lvert\langle\psi\vert C\psi\rangle\rvert=0$ | `qang.qanti.self_conjugate_overlap` | `exact` |
 | `zitterbewegung_qgz` | physics | $qg_Z=1/\gamma^2+\beta^2\cos2Et$ | `qang.qanti.zb_analytic_mqg`, `qang.qanti.zb_qgz_mqg` | `exact` |
+| `zitter_shot_fit` | noise | fit $A+B\cos wt+C\sin wt$: $w=2.5$, mean 640, amp. 360 m-qg | `tools/verify_exp40_2.py` | `exact` (sim.); hw §170 `unverified` |
 | `pair_creation_lz` | physics | $P=e^{-\pi m^2/eE}$; $qg=1-2P$ | `qang.qanti.pair_probability`, `qang.qanti.pair_reading_mqg`, `qang.qanti.lz_numeric` | `exact` (numerical to $2\cdot10^{-3}$) |
 | `singlet_local_blind` | physics | local $qg_Z=0$, $qg_{ZZ}=-1000$ | `qang.qanti.singlet_readings` | `exact` |
 | `branch_shots` | noise | $N=z^2(\gamma^2-1)$ | `qang.qanti.shots_to_certify_branch` | `exact` |
+| `baryo_shots` | noise | $N(3\sigma)=(3/Y_B)^2\approx1.19\times10^{21}$ | `qang.probability.shots_for_sign` | `exact` (algebra); hardware `unverified` |
 
 ## 40.11 CHANGELOG and commit
 
@@ -112,3 +114,34 @@ The reproducible validation of this review is `verify_cap40: OK`: conjugation er
 ```text
 feat(book): add Ch. 40 (matter/antimatter) with qang.qanti
 ```
+
+## 40.12 Experiment 40.1 — Shot budget for the baryon asymmetry
+
+**Hypothesis.** Detecting $Y_B=8.7\times10^{-11}$ as a reading $qg_Z=Y_B$, i.e. $m=1000Y_B=8.7\times10^{-8}$ m-qg, requires $N=(3/Y_B)^2\approx1.19\times10^{21}$ shots at $3\sigma$. A much larger regeneration asymmetry is testable with an accessible budget.
+
+**Method.** `tools/verify_exp40_1.py` uses `qang.probability.shots_for_sign` and `shots_for_resolution` for the analytic budget, `analyze` for the reading with a Wilson interval at $z=3$, and a scaled demonstration with $q=0.05$ over 5 seeds. The control uses $\Delta P=4.85\times10^{-4}$ and $\Delta m=-2000\Delta P$ with $2^{24}$ shots.
+
+```text
+Y_B=8.70e-11 -> qg_Z=8.70e-11, m=8.70e-08 m-qg
+N(1σ)=1.3212e+20; N(3σ)=1.1891e+21 shots [=(3/Y_B)^2]
+demo q=0.05, 5 seeds: m=+55.83, +60.99, +57.23, +53.75, +48.04 m-qg (3σ lower bound > 0)
+control ΔP=4.85e-04 -> Δm=-0.97 m-qg; 16777216 shots σ=0.2441 m-qg -> 4σ
+verify_exp40_1: OK
+```
+
+**Reading.** Direct detection of $Y_B$ is out of reach: $1.19\times10^{21}$ shots. The scaled demonstration confirms the law $N\propto q^{-2}$ and the Wilson interval. The regeneration control gives $\Delta m=-0.97$ m-qg, about $1.1\times10^{7}$ times the direct signal, detectable at $\sim4\sigma$ with $2^{24}$ shots. Correction to the initial proposal: that control is $4\sigma$, not $126\sigma$ — $\sqrt{2^{24}}=4096$, so $\sigma=1000/4096=0.2441$ m-qg. `exact` for the algebra and the count; hardware `unverified`.
+
+## 40.13 Experiment 40.2 — Shot-level fit of the β-qubit Zitterbewegung
+
+**Hypothesis.** With $m=1$, $p=0.75$ ($E=1.25$, $\gamma=1.25$, $\beta=0.6$), a $|0\rangle$ state oscillates with $qg_Z(t)=1000/\gamma^2+1000\beta^2\cos(2Et)$: mean $+640$ m-qg, amplitude $360$ m-qg and frequency $2E=2.5$. The preregistered Z1–Z5 fit recovers those three numbers with 2000 shots per point.
+
+**Method.** `tools/verify_exp40_2.py` uses `qang.qanti.zb_qgz_mqg`, `zb_analytic_mqg`, `eigenstate`, `conjugate`, `self_conjugate_overlap`, `singlet_readings` and `shots_to_certify_branch`; it fits $A+B\cos wt+C\sin wt$ by weighted least squares, without Qiskit.
+
+```text
+E=1.25, γ=1.25, β=0.60, w=2E=2.50; max analytic error=4.55e-13
+conjugation: bloch(Cψ)=-bloch(ψ); |<Cψ|E->|=1; max |<ψ|Cψ>|=0.0e+00
+fit: w=2.5000 (2.5±5 %), mean=636.39 (640±60), amplitude=363.61 (360±60), χ²/dof=0.764
+branches: N(γ=2)=27, N(β=0.99)=443.26; singlet=(0,0,-1000), -1000 m-qg
+```
+
+**Reading.** Criteria Z1–Z5 are met: exact frequency, mean and amplitude within $\pm60$ m-qg, and $\chi^2/\mathrm{dof}<1$. Conjugation has no fixed points and the singlet is blind in $X,Y$. `exact` in simulation; the Garnet execution of §170 remains `unverified` in this repo.

@@ -124,7 +124,9 @@ def test_brewster(): assert abs(fresnel(1.0, 1.5, math.atan(1.5))[1]) < 1e-15
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |
 | `jw_exchange_sign` | transversal | $qg_X=-1$ (fermión) frente a $+1$ (SWAP) | `exchange_qgx`, `anticommutation_error` | `exact` |
+| `jw_exchange_sign_shots` | transversal | $-1000$ vs $+1000$ m-qg, $\sigma\approx7{,}07$ con 20000 shots | `tools/verify_exp38_1.py` | `exact` (sim.); hardware `unverified` |
 | `hahn_echo_qgx` | transversal | eco estático 1; deriva 10 %: $e^{-(0.1\sigma\tau)^2/2}$ | `hahn_echo_ensemble`, `hahn_echo_qgx_drift` | `exact` |
+| `hahn_echo_shots` | transversal | estático $1.000000$ vs deriva $0.8209$ (179 m-qg) | `tools/verify_exp38_2.py` | `exact` (sim.); hardware `unverified` |
 | `tfim_finite_size_mx` | transversal | $m_X(g=J)$: 894.4 → 732.3 → 636.6 | `tfim_mx_mqg` | `exact` |
 | `aharonov_bohm_qgz` | transversal | $qg_Z=\cos(2\pi\Phi/\Phi_0)$; sin signo | `ab_qgz` | `exact` |
 | `wigner_rotation_qgx` | transversal | $\Omega_W=0.3303$ rad; $qg_X=+945.9$ m-qg | `wigner_rotation`, `boost` | `exact` |
@@ -136,3 +138,34 @@ def test_brewster(): assert abs(fresnel(1.0, 1.5, math.atan(1.5))[1]) < 1e-15
 
 `CHANGELOG.md [Unreleased]`: `qang.qtransv`; `tools/verify_cap38.py`; `tests/test_qtransv.py`.
 Commit: `docs(cap38): aplicaciones transversales (7 de 13 recalculadas) + qang.qtransv + verify_cap38`.
+
+## 38.14 Experimento 38.1 — Signo de intercambio bajo ruido de disparos
+
+**Hipótesis.** El signo de la estadística Jordan–Wigner es una lectura $qg_X$: el operador fermiónico da $-1000$ m-qg y un SWAP de qubits da $+1000$ m-qg, separación de $2000$ m-qg; con $N=20000$ shots, $\sigma\approx7{,}07$ m-qg.
+
+**Método.** `tools/verify_exp38_1.py` usa `qang.qtransv.anticommutation_error` y `exchange_qgx`, y sintetiza conteos binomiales con `qang.probability.p0_from_milliqang` y `analyze`.
+
+```text
+error de anticomutación (4 modos)=0.0e+00; qg_X fermión=-1.0, SWAP=+1.0
+fermión: k0=    0/20000  lectura=-1000.00 m-qg (ideal -1000, σ=7.07)
+   SWAP: k0=20000/20000  lectura=+1000.00 m-qg (ideal +1000, σ=7.07)
+separación fermión↔SWAP = 2000 m-qg; σ=7.07 m-qg
+```
+
+**Lectura.** En este punto ideal la señal es $\sim283\sigma$; el contenido físico es el **signo**, no la magnitud. `exact` en simulación; hardware `unverified`.
+
+## 38.15 Experimento 38.2 — Eco de Hahn bajo deriva del 10 %
+
+**Hipótesis.** Con $\sigma/2\pi=50$ kHz y $\tau=20$ µs ($\sigma\tau=6{,}283$), el eco estático da $qg_X=1$, mientras que una deriva del 10 % de $\sigma$ lo reduce a $e^{-(0{,}1\sigma\tau)^2/2}=0{,}8209$: pérdida de $179$ m-qg, frente al decaimiento libre $2{,}7\cdot10^{-9}$.
+
+**Método.** `tools/verify_exp38_2.py` usa `free_decay_qgx`, `hahn_echo_ensemble`, `hahn_echo_qgx_drift`, `p0_from_milliqang` y `analyze`, con $N=20000$ shots por condición.
+
+```text
+σ·τ=6.283185: decaimiento libre=2.675e-09; eco estático=1.000000
+pulso +2 %: 0.99901 (0.99 m-qg); deriva 10 %: 0.8209
+   estático: k0=20000/20000  lectura=+1000.00 m-qg
+deriva 10 %: k0=18235/20000  lectura=+823.50 m-qg
+separación muestreada=176.50 m-qg (ideal 179.13, σ=7.07)
+```
+
+**Lectura.** El eco cancela la desintonía estática, pero no una deriva que cambia durante la secuencia; el pulso con error $+2$ % pierde sólo $0{,}99$ m-qg, frente a $179$ m-qg de la deriva. `exact` en simulación; hardware `unverified`.

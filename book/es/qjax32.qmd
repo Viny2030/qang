@@ -109,6 +109,21 @@ def test_status_list(): assert "measured gain" in STATUSES and len(STATUSES) == 
 | :--- | :--- | :--- | :--- | :--- |
 | `ledger_consistency` | metodología | 106/106 referencias resueltas | `unresolved`, `load_ledger` | `exact` |
 | `ledger_evidence_level` | metodología | 0 `measured gain`, 0 `tested on hardware` principal | `summarize` | `exact`; hardware `unverified` |
+| `ledger_rerun_audit` | metodología | 90 filas, 106 referencias, 19 matices, 64 `exact` limpio | `tools/verify_exp32_1.py` | `exact` (auditoría) |
 
 `CHANGELOG.md [Unreleased]`: `qang.qledger`; `tools/verify_cap32.py`; `tests/test_qledger.py`.
 Commit: `docs(cap32): libro de cuentas de 90 submedidas (Cap. 7–31) + qang.qledger + verify_cap32`.
+
+## 32.9 Experimento 32/ApH.1 — Auditoría reejecutable del libro de submedidas
+
+**Hipótesis.** El libro de 90 submedidas de los capítulos 7–31 es internamente consistente: 106 referencias resueltas, ids únicos, estatus dentro del vocabulario permitido y ninguna afirmación de ventaja medida o hardware probado como estatus principal.
+
+**Método.** `tools/verify_exp32_1.py` invoca `qang.qledger.load_ledger`, `unresolved`, `summarize`, `caveats` y `clean_exact` sobre `book/` y `qang/`+`tools/`.
+
+```text
+filas=90 en 25 capítulos; ids únicos=90
+resumen: {'exact': 82, 'against': 3, 'no gain': 3, 'unverified': 1, 'mixed': 1}
+referencias sin resolver: 0; matices=19; exacto limpio=64
+```
+
+**Lectura.** «Confirmado» en el libro significa exactitud analítica o de simulación: `measured gain=0` y `tested on hardware=0`. La auditoría es `exact` sobre el contenido actual del repo; no nueva evidencia experimental.

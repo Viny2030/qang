@@ -124,7 +124,9 @@ def test_brewster(): assert abs(fresnel(1.0, 1.5, math.atan(1.5))[1]) < 1e-15
 | id | family | formula | function | status |
 | :--- | :--- | :--- | :--- | :--- |
 | `jw_exchange_sign` | cross-cutting | $qg_X=-1$ (fermion) versus $+1$ (SWAP) | `exchange_qgx`, `anticommutation_error` | `exact` |
+| `jw_exchange_sign_shots` | cross-cutting | $-1000$ vs $+1000$ m-qg, $\sigma\approx7.07$ with 20000 shots | `tools/verify_exp38_1.py` | `exact` (sim.); hardware `unverified` |
 | `hahn_echo_qgx` | cross-cutting | static echo 1; 10 % drift: $e^{-(0.1\sigma\tau)^2/2}$ | `hahn_echo_ensemble`, `hahn_echo_qgx_drift` | `exact` |
+| `hahn_echo_shots` | cross-cutting | static $1.000000$ vs drift $0.8209$ (179 m-qg) | `tools/verify_exp38_2.py` | `exact` (sim.); hardware `unverified` |
 | `tfim_finite_size_mx` | cross-cutting | $m_X(g=J)$: 894.4 → 732.3 → 636.6 | `tfim_mx_mqg` | `exact` |
 | `aharonov_bohm_qgz` | cross-cutting | $qg_Z=\cos(2\pi\Phi/\Phi_0)$; no sign | `ab_qgz` | `exact` |
 | `wigner_rotation_qgx` | cross-cutting | $\Omega_W=0.3303$ rad; $qg_X=+945.9$ m-qg | `wigner_rotation`, `boost` | `exact` |
@@ -136,3 +138,34 @@ def test_brewster(): assert abs(fresnel(1.0, 1.5, math.atan(1.5))[1]) < 1e-15
 
 `CHANGELOG.md [Unreleased]`: `qang.qtransv`; `tools/verify_cap38.py`; `tests/test_qtransv.py`.
 Commit: `docs(cap38): cross-cutting applications (7 of 13 recomputed) + qang.qtransv + verify_cap38`.
+
+## 38.14 Experiment 38.1 — Exchange sign under shot noise
+
+**Hypothesis.** The Jordan–Wigner exchange sign is an $qg_X$ reading: the fermionic operator gives $-1000$ m-qg and a qubit SWAP gives $+1000$ m-qg, a $2000$ m-qg separation; with $N=20000$ shots, $\sigma\approx7.07$ m-qg.
+
+**Method.** `tools/verify_exp38_1.py` uses `qang.qtransv.anticommutation_error` and `exchange_qgx`, and synthesises binomial counts with `qang.probability.p0_from_milliqang` and `analyze`.
+
+```text
+anticommutation error (4 modes)=0.0e+00; qg_X fermion=-1.0, SWAP=+1.0
+fermion: k0=    0/20000  reading=-1000.00 m-qg (ideal -1000, σ=7.07)
+   SWAP: k0=20000/20000  reading=+1000.00 m-qg (ideal +1000, σ=7.07)
+fermion↔SWAP separation = 2000 m-qg; σ=7.07 m-qg
+```
+
+**Reading.** At this ideal point the signal is $\sim283\sigma$; the physical content is the **sign**, not the magnitude. `exact` in simulation; hardware `unverified`.
+
+## 38.15 Experiment 38.2 — Hahn echo under 10 % detuning drift
+
+**Hypothesis.** With $\sigma/2\pi=50$ kHz and $\tau=20$ µs ($\sigma\tau=6.283$), the static echo gives $qg_X=1$, while a 10 % drift of $\sigma$ reduces it to $e^{-(0.1\sigma\tau)^2/2}=0.8209$: a $179$ m-qg loss, versus free decay $2.7\times10^{-9}$.
+
+**Method.** `tools/verify_exp38_2.py` uses `free_decay_qgx`, `hahn_echo_ensemble`, `hahn_echo_qgx_drift`, `p0_from_milliqang` and `analyze`, with $N=20000$ shots per condition.
+
+```text
+σ·τ=6.283185: free decay=2.675e-09; static echo=1.000000
++2 % pulse: 0.99901 (0.99 m-qg); 10 % drift: 0.8209
+   static: k0=20000/20000  reading=+1000.00 m-qg
+10 % drift: k0=18235/20000  reading=+823.50 m-qg
+sampled separation=176.50 m-qg (ideal 179.13, σ=7.07)
+```
+
+**Reading.** The echo cancels static detuning but not drift during the sequence; a $+2$ % pulse error costs only $0.99$ m-qg versus $179$ m-qg from drift. `exact` in simulation; hardware `unverified`.
