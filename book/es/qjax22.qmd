@@ -2,7 +2,7 @@
 *Chapter 22 — Quantum Batteries and Networks: Ergotropy as (r-qgZ)/2 and Repeater Chains with Visibility V^k*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 19 sobre la base de Cap. 1–21 (§56, §57). Módulo: `qang.qbattery` (JAX, `jax<0.9`; usa `qang.qtele`). Verificación: `tools/verify_cap22.py`.
 
@@ -16,9 +16,27 @@ Carga completa $qg_Z=-1$ ($-1000$ m-qg): $W=\omega$. **Hallazgo**: la lectura $Z
 
 **EN.** Ergotropy is $(r-qg_Z)/2$ in units of $\omega$; the $Z$ readout alone cannot distinguish a coherent half-charged cell from a passive one (`exact`).
 
+El capítulo aplica dos resultados estándar con la lectura qang: la ergotropía de un qubit como diferencia entre su energía y la de su estado pasivo, y la composición de canales depolarizantes en una cadena de enlaces de Werner. Precisiones que delimitan el modelo:
+
+La ergotropía $W=\operatorname{tr}(\rho H)-\operatorname{tr}(\sigma_\rho H)$ se define respecto de un Hamiltoniano y de operaciones unitarias cíclicas; la forma $(r-qg_Z)/2$ supone $H=\omega|1\rangle\langle1|$ con el nivel fundamental a energía cero. Un desplazamiento constante de $H$ suma la misma constante a $E$ y a $W$, pero cambia la fracción pasiva: ésta no es invariante bajo la elección del cero de energía.
+
+$r$ es la longitud del vector de Bloch, no una lectura $Z$: $r^2=qg_X^2+qg_Y^2+qg_Z^2$. Con sólo $qg_Z=0$, $|+\rangle$ ($r=1$) y $I/2$ ($r=0$) son indistinguibles y dan $W=\omega/2$ y $W=0$. La desigualdad $r\ge|qg_Z|$ garantiza $W\ge0$.
+
+Para estados diagonales $r=|qg_Z|$, $W=\omega\max(0,-qg_Z)$; la fracción pasiva $(1-r)/(1-qg_Z)$ está definida para $qg_Z<1$ y mide energía no extraíble / energía almacenada, no la eficiencia de un protocolo concreto. No se afirma ventaja de carga colectiva: esa comparación depende del Hamiltoniano de interacción, del tiempo y de la carga inicial, y queda `unverified` aquí.
+
+**Fuentes de la sección.** Allahverdyan, Balian y Nieuwenhuizen 2004 (*Europhys. Lett.* 67, 565, DOI `10.1209/epl/i2004-10101-2`; `https://arxiv.org/abs/cond-mat/0401574`): definición de ergotropía y estado pasivo; Campaioli, Pollock y Vinjanampathy 2018 (*Quantum Batteries — Review Chapter*, DOI `10.48550/arXiv.1805.05507`; `https://arxiv.org/abs/1805.05507`): marco de energía, ergotropía y potencia de carga.
+
 ## 22.2 Redes: el swapping multiplica visibilidades
 
 Cadena de $k$ enlaces de Werner $V$ con medidas de Bell ideales: el canal compuesto es depolarizante con $V_{\text{end}}=V^k$ (verificado numéricamente $0.9\times0.8=0.720$: $qg_{ZZ}=720$ m-qg). Utilidad (Cap. 15): $V^k>1/3$ ⇒ $k_{\max}=\lfloor\ln(1/3)/\ln V\rfloor$: $V=0.99\to109$ enlaces ($334$ m-qg), $0.95\to21$, $0.9\to10$ ($349$ m-qg; el 11.º cae a $314$), $0.8\to4$. Planificación de red: medir $qg_{ZZ}$ por enlace (1 base), multiplicar, comparar con $333$ m-qg (`exact` para Werner; estados no Werner: cota superior, Cap. 15 §4). Pérdida por enlace: tasa $\times\eta^k$ (Cap. 16), no fidelidad.
+
+$V_{\mathrm{end}}=V^k$ es la composición de $k$ canales depolarizantes ideales (teleportación o *entanglement swapping* con medidas de Bell perfectas), no la recurrencia de un esquema de purificación. En repetidores reales con purificación, memorias y pérdida, la fidelidad sigue otras reglas. Aquí $0<V<1$: para $V=1$ no existe un $k_{\max}$ finito, y la desigualdad estricta $V^k>1/3$ se maneja con una tolerancia numérica en `max_links`.
+
+El umbral $V>1/3$ equivale a $\bar F=(1+V)/2>2/3$ en el modelo de Werner y a $qg_{ZZ}>333$ m-qg. El valor $2/3$ es la fidelidad clásica óptima para teleportar un qubit desconocido, no un umbral de violación de Bell ($V>1/\sqrt2$) ni de entrelazamiento para recursos arbitrarios. Para estados no Werner hacen falta $qg_{XX}$, $qg_{YY}$ y $qg_{ZZ}$: la lectura de una base es una herramienta de planificación con el sesgo cuantificado en Cap. 15 §4, no una certificación general.
+
+La tasa $\eta^k$ (Cap. 16) y la visibilidad $V^k$ afectan a cantidades distintas: la pérdida reduce la probabilidad de anuncio, el ruido depolarizante reduce la correlación. El producto de $qg_{ZZ}$ por enlace es exacto bajo Werner; con ruido no isotrópico debe sustituirse por la fracción de singlete de Horodecki $F_s=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ y $\bar F=(2F_s+1)/3$.
+
+**Fuentes de la sección.** Bennett et al. 1993 (DOI `10.1103/PhysRevLett.70.1895`) y Horodecki et al. 1999 (DOI `10.1103/PhysRevA.60.1888`): teleportación y fidelidad máxima con recursos mixtos; Massar y Popescu 1995 (DOI `10.1103/PhysRevLett.74.1259`): límite clásico $\bar F=2/3$; Bennett et al. 1996 (DOI `10.1103/PhysRevA.54.3824`) y Bennett et al. 1998 (DOI `10.1103/PhysRevA.59.169`): Werner, entrelazamiento mezclado y repetidores con purificación.
 
 ## 22.3 Contraste operativo
 
@@ -50,6 +68,8 @@ def chain_two_links_numeric(V1, V2) # (id ⊗ Λ_{V2})(ρ_{V1}) → correladores
 [4] dos enlaces 0.9 y 0.8: qg_ZZ extremo = 0.720 = V1·V2 (720 m-qg)
 verify_cap22: OK
 ```
+La validación reproducible de esta revisión es `verify_cap22: OK`: $W_{\text{puro}}=E$ y $W_{\text{diag}}=\max(0,-qg_Z)$ a $10^{-15}$, $k_{\max}(0.9)=10$, $k_{\max}(0.95)=21$ y correladores $0.72$ a $10^{-13}$; `tests/test_qbattery.py` pasa con `3 passed`.
+
 Asserts: $W_{\text{puro}}=E$ y $W_{\text{diag}}=\max(0,-qg_Z)$ a $10^{-15}$; $k_{\max}(0.9)=10$, $k_{\max}(0.95)=21$; correladores $0.72$ a $10^{-13}$.
 
 ### `tests/test_qbattery.py`
@@ -71,18 +91,3 @@ def test_chain(): assert abs(float(chain_two_links_numeric(0.9, 0.8)[2]) - 0.72)
 
 `CHANGELOG.md [Unreleased]`: `qang.qbattery`; `tools/verify_cap22.py`; `tests/test_qbattery.py`.
 Commit: `docs(cap22): baterías y redes reescritos sobre Cap. 1–21 + qang.qbattery + verify_cap22`.
-
-## 22.7 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-El capítulo aplica dos resultados estándar con la lectura qang: la ergotropía de un qubit como diferencia entre su energía y la de su estado pasivo, y la composición de canales depolarizantes en una cadena de enlaces de Werner.
-
-Precisiones que delimitan el modelo:
-
-1. La ergotropía $W=\operatorname{tr}(\rho H)-\operatorname{tr}(\sigma_\rho H)$ se define respecto de un Hamiltoniano y de operaciones unitarias cíclicas; la forma $(r-qg_Z)/2$ supone $H=\omega|1\rangle\langle1|$ con el nivel fundamental a energía cero. Un desplazamiento constante de $H$ suma la misma constante a $E$ y a $W$, pero cambia la fracción pasiva: ésta no es invariante bajo la elección del cero de energía.
-2. $r$ es la longitud del vector de Bloch, no una lectura $Z$: $r^2=qg_X^2+qg_Y^2+qg_Z^2$. Con sólo $qg_Z=0$, $|+\rangle$ ($r=1$) y $I/2$ ($r=0$) son indistinguibles y dan $W=\omega/2$ y $W=0$. La desigualdad $r\ge|qg_Z|$ garantiza $W\ge0$.
-3. Para estados diagonales $r=|qg_Z|$, $W=\omega\max(0,-qg_Z)$; la fracción pasiva $(1-r)/(1-qg_Z)$ está definida para $qg_Z<1$ y mide energía no extraíble / energía almacenada, no la eficiencia de un protocolo concreto. No se afirma ventaja de carga colectiva: esa comparación depende del Hamiltoniano de interacción, del tiempo y de la carga inicial, y queda `unverified` aquí.
-4. $V_{\mathrm{end}}=V^k$ es la composición de $k$ canales depolarizantes ideales (teleportación o *entanglement swapping* con medidas de Bell perfectas), no la recurrencia de un esquema de purificación. En repetidores reales con purificación, memorias y pérdida, la fidelidad sigue otras reglas. Aquí $0<V<1$: para $V=1$ no existe un $k_{\max}$ finito, y la desigualdad estricta $V^k>1/3$ se maneja con una tolerancia numérica en `max_links`.
-5. El umbral $V>1/3$ equivale a $\bar F=(1+V)/2>2/3$ en el modelo de Werner y a $qg_{ZZ}>333$ m-qg. El valor $2/3$ es la fidelidad clásica óptima para teleportar un qubit desconocido, no un umbral de violación de Bell ($V>1/\sqrt2$) ni de entrelazamiento para recursos arbitrarios. Para estados no Werner hacen falta $qg_{XX}$, $qg_{YY}$ y $qg_{ZZ}$: la lectura de una base es una herramienta de planificación con el sesgo cuantificado en Cap. 15 §4, no una certificación general.
-6. La tasa $\eta^k$ (Cap. 16) y la visibilidad $V^k$ afectan a cantidades distintas: la pérdida reduce la probabilidad de anuncio, el ruido depolarizante reduce la correlación. El producto de $qg_{ZZ}$ por enlace es exacto bajo Werner; con ruido no isotrópico debe sustituirse por la fracción de singlete de Horodecki $F_s=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ y $\bar F=(2F_s+1)/3$.
-
-**Fuentes contrastadas:** Allahverdyan, Balian y Nieuwenhuizen 2004 (*Europhys. Lett.* 67, 565, DOI `10.1209/epl/i2004-10101-2`; `https://arxiv.org/abs/cond-mat/0401574`): definición de ergotropía y estado pasivo; Campaioli, Pollock y Vinjanampathy 2018 (*Quantum Batteries — Review Chapter*, DOI `10.48550/arXiv.1805.05507`; `https://arxiv.org/abs/1805.05507`): marco de energía, ergotropía y potencia de carga; Bennett et al. 1993 (DOI `10.1103/PhysRevLett.70.1895`) y Horodecki et al. 1999 (DOI `10.1103/PhysRevA.60.1888`): teleportación y fidelidad máxima con recursos mixtos; Massar y Popescu 1995 (DOI `10.1103/PhysRevLett.74.1259`): límite clásico $\bar F=2/3$; Bennett et al. 1996 (DOI `10.1103/PhysRevA.54.3824`) y Bennett et al. 1998 (DOI `10.1103/PhysRevA.59.169`): Werner, entrelazamiento mezclado y repetidores con purificación.

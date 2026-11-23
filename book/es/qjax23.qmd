@@ -2,7 +2,7 @@
 *Chapter 23 — Weight-Preserving Quantum Neural Networks: Unary Loader, RBS Gates in qga, Symmetry Filter under T1 and QSP as a Chebyshev Polynomial in qg*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 20 sobre la base de Cap. 1–22 (`WeightQNN`, `MultiClassQNN`, `qang.qsp`). Módulo: `qang.qweightqnn` (JAX, `jax<0.9`). Verificación: `tools/verify_cap23.py`.
 
@@ -14,17 +14,33 @@
 
 **EN.** The unary loader and RBS layers keep the state in the weight-1 sector exactly; the classifier output is a quadratic form read from $n$ probabilities of one $Z$ histogram (`exact`).
 
+El alcance físico y algorítmico de las afirmaciones del capítulo se delimita contrastando el cargador unario/RBS, el filtro de simetría bajo $T_1$, la entrenabilidad en qga y la identificación QSP/Chebyshev con fuentes primarias.
+
 ## 23.2 Entrenamiento diferenciable en qga
 
 Tarea: etiquetas $\mathrm{sign}(x^\top RDR^\top x)$ con $R$ oculta ($n=4$, 200/400 muestras). Pérdida de correlación $-\langle y\,\ell\rangle$ (la familia es exactamente la del objetivo); `jax.value_and_grad`, 6 semillas, 500 pasos, $\eta=4000$ qga²: exactitud de test $0.982$, margen medio $|y|=0.539$ (óptimo teórico de correlación $0.513$, alcanzado $0.513$). Sin mesetas (9 parámetros; Cap. 9 §4).
 
+**Entrenabilidad y ausencia de mesetas no es genérica.** El resultado de §23.2 (9 parámetros, sin mesetas, exactitud 0.982) es una observación empírica en una instancia pequeña con codificación unaria y pérdida de correlación; no contradice los resultados de mesetas estériles para circuitos profundos/altamente expresivos. McClean *et al.* prueban que, para PQC aleatorios que forman 2-designs, el gradiente se concentra exponencialmente en el número de qubits (Nat. Commun. 9, 4812, 2018; DOI `10.1038/s41467-018-07090-4`; arXiv:1803.11173). Cerezo *et al.* acotan además la dependencia en la localidad del observable: costos globales inducen mesetas incluso en circuitos someros, mientras costos locales pueden ser entrenables a profundidad $\mathcal{O}(\log n)$ (Nat. Commun. 12, 1791, 2021; DOI `10.1038/s41467-021-21728-w`; arXiv:2001.00550). La afirmación correcta aquí es `exact` para la instancia verificada y `unverified` como garantía de escalamiento.
+
+**Fuentes de la sección.** McClean *et al.* 2018, DOI `10.1038/s41467-018-07090-4`; Cerezo *et al.* 2021, DOI `10.1038/s41467-021-21728-w` (contexto de mesetas citado en §23.2).
+
 ## 23.3 Filtro de simetría bajo relajación T1: exacto en margen, ganancia en disparos, `mixed` en exactitud
 
-Relajación $T_1$ uniforme $\gamma$ sobre el histograma: sin filtro $y\to(1-\gamma)y$; con filtro de sector $y$ **exacto** con tasa de aceptación $(1-\gamma)$. Disparos para confirmar el signo a $3\sigma$ (Cap. 1, $N_{\text{signo}}$): $\gamma=0.3$: sin filtro $63$, con filtro $44$ ⇒ $\times1.43=1/(1-\gamma)$ (`exact`). Con $\gamma$ **no uniforme** $(0.05,0.35,0.10,0.30)$ el filtro deja sesgo: exactitud $0.977$ con y sin filtro (limpia $0.982$) — la ganancia es de presupuesto, no de exactitud (`mixed`; coherente con Cap. 21 antiguo, F5).
+Relajación $T_1$ uniforme $\gamma$ sobre el histograma: sin filtro $y\to(1-\gamma)y$; con filtro de sector $y$ **exacto** con tasa de aceptación $(1-\gamma)$. Disparos para confirmar el signo a $3\sigma$ (Cap. 1, $N_{\text{signo}}$): $\gamma=0.3$: sin filtro $63$, con filtro $44$ ⇒ $\times1.43=1/(1-\gamma)$ (`exact`). Con $\gamma$ **no uniforme** $(0.05,0.35,0.10,0.30)$ el filtro deja sesgo: exactitud $0.967$ con y sin filtro (limpia $0.982$) — la ganancia es de presupuesto, no de exactitud (`mixed`; coherente con Cap. 21 antiguo, F5).
+
+**Conservación de peso y alcance del filtro de simetría.** La red RBS conserva el peso de Hamming exactamente porque cada $\mathrm{RBS}(\theta)$ actúa como rotación real en el subespacio $\{|01\rangle,|10\rangle\}$ y deja invariantes $|00\rangle,|11\rangle$; por eso la masa fuera del sector es $0$ a precisión de máquina en §23.1. El filtro de sector postselecciona la componente de peso 1, pero no certifica corrección lógica general: Sagastizabal *et al.* muestran experimentalmente que la verificación de simetría mejora la estimación de energía/estado en un VQE de $\mathrm{H}_2$ al mitigar relajación y excitación residual que violan la simetría, pero también que sólo detecta errores que sacan el estado del subespacio simétrico; los errores intra-sector quedan invisibles (PRA 100, 010302(R), DOI `10.1103/PhysRevA.100.010302`). En §23.3 esto coincide con el caso $T_1$ no uniforme: la ganancia es de presupuesto de disparos, no de exactitud (`mixed`).
+
+**$T_1$ uniforme: escalar global más fuga irreversible, no “corrección completa”.** La exactitud de $y$ tras filtrar bajo $\gamma$ uniforme vale porque $K_0^{\otimes n}$ pesa por igual todos los $|e_k\rangle$ y $K_1$ envía masa a peso 0; la tasa aceptada es $(1-\gamma)$ por capa efectiva. La precisión necesaria es que el filtro elimina la componente fuera de sector, no el ruido físico: con $T_1$ no uniforme o con canales intra-sector (desfase, crosstalk, errores de compuerta coherentes) la lectura puede seguir sesgada. Por tanto el estatus `exact` de §23.3 aplica sólo al modelo diagonal de amortiguamiento uniforme sobre el histograma; cualquier extensión a hardware requiere calibrar $\gamma_k$ por qubit y declarar el modelo de ruido.
+
+**Fuentes de la sección.** Sagastizabal *et al.* 2019, *Phys. Rev. A* 100, 010302(R), DOI `10.1103/PhysRevA.100.010302` (symmetry verification / error mitigation en VQE).
 
 ## 23.4 QSP: d pulsos, polinomio de grado d en la lectura
 
 $U=R_Z(\phi_0)\prod_{k=1}^d W(a)R_Z(\phi_k)$, $W(a)=R_X$ con $\cos(\theta/2)=a$. Con $\phi\equiv0$: $qg_Z=T_d(2a^2-1)$ (Chebyshev, $10^{-12}$ para $d=1,3,7$). Coste: $d$ pulsos físicos $W$ y $d+1$ $R_Z$ virtuales (Cap. 2). Ajuste de $\mathbf 1[|a|>0.5]$ con $d=7$ (fases en qga, JAX): exactitud $1.000$ sobre la malla, MSE $0.107$. Un clasificador escalar de **1 qubit, 0 ancillas, 7 pulsos** (`exact` sim.; hardware `unverified`).
+
+**QSP/Chebyshev: identificación matemática y límites de implementación.** La identidad $qg_Z=T_d(2a^2-1)$ para $\phi\equiv0$ es exacta en el modelo de §23.4 y está verificada numéricamente a $10^{-12}$ para $d=1,3,7$. Martyn *et al.* sitúan QSP/QSVT como marco unificador de transformaciones polinomiales de valores singulares/bloques codificados, del que QSP es caso escalar (PRX Quantum 2, 040203, 2021; DOI `10.1103/PRXQuantum.2.040203`; arXiv:2105.02859). La precisión operativa es que la correspondencia capítulo$\to$QSP usa $W(a)=R_X(\theta)$ con $\cos(\theta/2)=a$ y fases $R_Z$ virtuales: el costo de 7 pulsos es de modelo; la fidelidad hardware, la compilación a pulsos nativos y la estabilidad de fase quedan `unverified`.
+
+**Fuentes de la sección.** Martyn *et al.* 2021, *PRX Quantum* 2, 040203, DOI `10.1103/PRXQuantum.2.040203`, arXiv:2105.02859 (QSVT/QSP como transformaciones polinomiales).
 
 ## 23.5 Contraste operativo
 
@@ -33,8 +49,12 @@ $U=R_Z(\phi_0)\prod_{k=1}^d W(a)R_Z(\phi_k)$, $W(a)=R_X$ con $\cos(\theta/2)=a$.
 | Carga de $x\in\mathbb R^4$ | amplitud general ($2^n$ amplitudes, $O(2^n)$ compuertas) | unario: 3 RBS, exacto | (`exact`) |
 | Lectura del clasificador | observable + tomografía | $n$ probabilidades de 1 histograma | (`exact`) |
 | Disparos bajo $T_1$, $\gamma=0.3$ | 63 | 44 (filtro de sector) | $-30\%$ (`exact`, $1/(1-\gamma)$) |
-| Exactitud bajo $T_1$ no uniforme | 0.977 | 0.977 | `mixed` (sin ganancia) |
+| Exactitud bajo $T_1$ no uniforme | 0.967 | 0.967 | `mixed` (sin ganancia) |
 | Clasificador escalar | red clásica / codificación repetida | QSP: 1 qubit, 7 pulsos, $T_d$ | (`exact` sim.) |
+
+**Densidad/mezclas y modelos QML eficientes en entrenamiento.** La reescritura no debe leerse como afirmación general de ventaja QML. Coyle *et al.* proponen modelos de densidad (mezclas de unitarios entrenables con restricción distribucional) y usan el lema de mezcla de Hastings-Campbell para relacionar combinaciones lineales de unitarios con modelos de densidad de circuitos menos profundos, buscando equilibrar expresividad y entrenabilidad (arXiv:2405.20237, 2024; DOI `10.48550/arXiv.2405.20237`). Este resultado es relevante como contexto de diseño: el filtro de simetría de qang actúa sobre distribuciones de lectura/estado efectivo, pero el capítulo no implementa ni verifica un density-QNN de Coyle *et al.*; cualquier transferencia de garantía es `unverified` y debe declararse como analogía metodológica, no como equivalencia.
+
+**Fuentes de la sección.** Coyle *et al.* 2024/2025, arXiv:2405.20237, DOI `10.48550/arXiv.2405.20237` (density quantum machine learning, LCU/Hastings-Campbell, entrenabilidad).
 
 ## 23.6 Bloque JAX (`qang/qweightqnn.py`)
 
@@ -54,11 +74,13 @@ def qsp_readout(phis_qga, a):           # qg_Z tras R_Z(φ0) Π W(a) R_Z(φk); �
 [1] cargador unario: 3 RBS, error 1e-13; red de 9 RBS: peso fuera del sector = 0.0e+00
 [2] WeightQNN 4 qubits/9 RBS: loss=-0.513, exactitud test=0.982, |y| medio=0.539
 [3] γ=0.3: sin filtro y→0.7·y (N_3σ≈63) | con filtro y exacto, tasa 0.7 (N_3σ≈44) → ×1.43 menos disparos
-    γ no uniforme (0.05, 0.35, 0.1, 0.3): exactitud con filtro=0.977, sin filtro=0.977, limpia=0.982 (mixed)
+    γ no uniforme (0.05, 0.35, 0.1, 0.3): exactitud con filtro=0.967, sin filtro=0.967, limpia=0.982 (mixed)
 [4] QSP φ≡0: qg_Z = T_d(2a²−1) a 1e-12 para d=1,3,7
 [4] QSP d=7 ajustado a 1[|a|>0.5]: MSE=0.107, exactitud=1.000
 verify_cap23: OK
 ```
+La validación reproducible de esta revisión es `verify_cap23: OK`: loader a $10^{-13}$, masa fuera del sector $<10^{-14}$, exactitud $>0.9$, $y_{\text{sin}}=(1-\gamma)y$ y $y_{\text{con}}=y$ a $10^{-12}$, Chebyshev a $10^{-12}$ y QSP exactitud $>0.85$; `tests/test_qweightqnn.py` pasa con `3 passed`.
+
 Asserts: loader a $10^{-13}$; masa fuera del sector $<10^{-14}$; exactitud $>0.9$; $y_{\text{sin}}=(1-\gamma)y$ y $y_{\text{con}}=y$ a $10^{-12}$; Chebyshev a $10^{-12}$; QSP exactitud $>0.85$.
 
 ### `tests/test_qweightqnn.py`
@@ -89,15 +111,4 @@ def test_qsp_chebyshev():
 | `qsp_chebyshev_qg` | QML | $qg_Z=T_d(2a^2-1)$; $d$ pulsos | `qsp_readout` | `exact` sim. |
 
 `CHANGELOG.md [Unreleased]`: `qang.qweightqnn`; `tools/verify_cap23.py`; `tests/test_qweightqnn.py`.
-Commit de cierre: `docs: revisión teórica y validación cap 23` (sección §23.9 añadida).
-## 23.9 Contraste bibliográfico y precisiones de revisión (2026-11-22)
-
-Esta sección delimita el alcance físico y algorítmico de las afirmaciones del capítulo, contrastando el cargador unario/RBS, el filtro de simetría bajo $T_1$, la entrenabilidad en qga y la identificación QSP/Chebyshev con fuentes primarias.
-
-1. **Conservación de peso y alcance del filtro de simetría.** La red RBS conserva el peso de Hamming exactamente porque cada $\mathrm{RBS}(\theta)$ actúa como rotación real en el subespacio $\{|01\rangle,|10\rangle\}$ y deja invariantes $|00\rangle,|11\rangle$; por eso la masa fuera del sector es $0$ a precisión de máquina en §23.1. El filtro de sector postselecciona la componente de peso 1, pero no certifica corrección lógica general: Sagastizabal *et al.* muestran experimentalmente que la verificación de simetría mejora la estimación de energía/estado en un VQE de $\mathrm{H}_2$ al mitigar relajación y excitación residual que violan la simetría, pero también que sólo detecta errores que sacan el estado del subespacio simétrico; los errores intra-sector quedan invisibles (PRA 100, 010302(R), DOI `10.1103/PhysRevA.100.010302`). En §23.3 esto coincide con el caso $T_1$ no uniforme: la ganancia es de presupuesto de disparos, no de exactitud (`mixed`).
-2. **$T_1$ uniforme: escalar global más fuga irreversible, no “corrección completa”.** La exactitud de $y$ tras filtrar bajo $\gamma$ uniforme vale porque $K_0^{\otimes n}$ pesa por igual todos los $|e_k\rangle$ y $K_1$ envía masa a peso 0; la tasa aceptada es $(1-\gamma)$ por capa efectiva. La precisión necesaria es que el filtro elimina la componente fuera de sector, no el ruido físico: con $T_1$ no uniforme o con canales intra-sector (desfase, crosstalk, errores de compuerta coherentes) la lectura puede seguir sesgada. Por tanto el estatus `exact` de §23.3 aplica sólo al modelo diagonal de amortiguamiento uniforme sobre el histograma; cualquier extensión a hardware requiere calibrar $\gamma_k$ por qubit y declarar el modelo de ruido.
-3. **Entrenabilidad y ausencia de mesetas no es genérica.** El resultado de §23.2 (9 parámetros, sin mesetas, exactitud 0.982) es una observación empírica en una instancia pequeña con codificación unaria y pérdida de correlación; no contradice los resultados de mesetas estériles para circuitos profundos/altamente expresivos. McClean *et al.* prueban que, para PQC aleatorios que forman 2-designs, el gradiente se concentra exponencialmente en el número de qubits (Nat. Commun. 9, 4812, 2018; DOI `10.1038/s41467-018-07090-4`; arXiv:1803.11173). Cerezo *et al.* acotan además la dependencia en la localidad del observable: costos globales inducen mesetas incluso en circuitos someros, mientras costos locales pueden ser entrenables a profundidad $\mathcal{O}(\log n)$ (Nat. Commun. 12, 1791, 2021; DOI `10.1038/s41467-021-21728-w`; arXiv:2001.00550). La afirmación correcta aquí es `exact` para la instancia verificada y `unverified` como garantía de escalamiento.
-4. **QSP/Chebyshev: identificación matemática y límites de implementación.** La identidad $qg_Z=T_d(2a^2-1)$ para $\phi\equiv0$ es exacta en el modelo de §23.4 y está verificada numéricamente a $10^{-12}$ para $d=1,3,7$. Martyn *et al.* sitúan QSP/QSVT como marco unificador de transformaciones polinomiales de valores singulares/bloques codificados, del que QSP es caso escalar (PRX Quantum 2, 040203, 2021; DOI `10.1103/PRXQuantum.2.040203`; arXiv:2105.02859). La precisión operativa es que la correspondencia capítulo$\to$QSP usa $W(a)=R_X(\theta)$ con $\cos(\theta/2)=a$ y fases $R_Z$ virtuales: el costo de 7 pulsos es de modelo; la fidelidad hardware, la compilación a pulsos nativos y la estabilidad de fase quedan `unverified`.
-5. **Densidad/mezclas y modelos QML eficientes en entrenamiento.** La reescritura no debe leerse como afirmación general de ventaja QML. Coyle *et al.* proponen modelos de densidad (mezclas de unitarios entrenables con restricción distribucional) y usan el lema de mezcla de Hastings-Campbell para relacionar combinaciones lineales de unitarios con modelos de densidad de circuitos menos profundos, buscando equilibrar expresividad y entrenabilidad (arXiv:2405.20237, 2024; DOI `10.48550/arXiv.2405.20237`). Este resultado es relevante como contexto de diseño: el filtro de simetría de qang actúa sobre distribuciones de lectura/estado efectivo, pero el capítulo no implementa ni verifica un density-QNN de Coyle *et al.*; cualquier transferencia de garantía es `unverified` y debe declararse como analogía metodológica, no como equivalencia.
-
-**Fuentes contrastadas:** Sagastizabal *et al.* 2019, *Phys. Rev. A* 100, 010302(R), DOI `10.1103/PhysRevA.100.010302` (symmetry verification / error mitigation en VQE); Martyn *et al.* 2021, *PRX Quantum* 2, 040203, DOI `10.1103/PRXQuantum.2.040203`, arXiv:2105.02859 (QSVT/QSP como transformaciones polinomiales); Coyle *et al.* 2024/2025, arXiv:2405.20237, DOI `10.48550/arXiv.2405.20237` (density quantum machine learning, LCU/Hastings-Campbell, entrenabilidad). Contexto de mesetas citado en §3: McClean *et al.* 2018, DOI `10.1038/s41467-018-07090-4`; Cerezo *et al.* 2021, DOI `10.1038/s41467-021-21728-w`.
+Commit de cierre: `docs: revisión teórica y validación cap 23`.

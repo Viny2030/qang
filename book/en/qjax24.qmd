@@ -1,6 +1,8 @@
 # Chapter 24 — The Symmetry Filter with Density Matrices: Exact under Uniform T1 Relaxation (Even Mid-Circuit), T1 Ratios, Failure under Dephasing and ZNE Rescue {#sec-qjax24 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 21 (F5, F6) on the basis of Ch. 1–23. Module: `qang.qsymfilter` (JAX, `jax<0.9`; uses `qang.qweightqnn`). Verification: `tools/verify_cap24.py` ($16\times16$ density matrices).
 
@@ -47,6 +49,8 @@ def richardson_zne(lams, vals)           # polynomial of degree len−1 evaluate
 [3] dephasing p=0.02: filtered error=0.0551, ZNE=-0.3914 (error 0.0019) → ×28.7 better
 verify_cap24: OK
 ```
+The reproducible validation of this review is `verify_cap24: OK`: $\|\rho_S-\rho_S^{\text{id}}\|<10^{-13}$ and rate $=(1-\gamma)^6$ to $10^{-13}$, ratios to $10^{-13}$ and ZNE error $<$ filtered error; `tests/test_qsymfilter.py` passes with `1 passed`.
+
 Asserts: $\|\rho_S-\rho_S^{\text{id}}\|<10^{-13}$ and rate $=(1-\gamma)^6$ to $10^{-13}$; ratios to $10^{-13}$; ZNE error $<$ filtered error.
 
 ### `tests/test_qsymfilter.py`

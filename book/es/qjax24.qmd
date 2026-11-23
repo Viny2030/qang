@@ -2,7 +2,7 @@
 *Chapter 24 — The Symmetry Filter with Density Matrices: Exact under Uniform T1 Relaxation (Even Mid-Circuit), T1 Ratios, Failure under Dephasing and ZNE Rescue*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 21 (F5, F6) sobre la base de Cap. 1–23. Módulo: `qang.qsymfilter` (JAX, `jax<0.9`; usa `qang.qweightqnn`). Verificación: `tools/verify_cap24.py` (matrices densidad $16\times16$).
 
@@ -16,13 +16,29 @@ Verificado: $\|\rho_S-\rho_S^{\text{ideal}}\|_\infty=1.2\cdot10^{-16}$, tasa $0.
 
 **EN.** Uniform amplitude damping acts on the weight-1 sector as a global scalar plus an irreversible leak to weight 0, so sector postselection restores the exact state mid-circuit (`exact`).
 
+El alcance de las afirmaciones de mitigación del capítulo se fija contrastando que el filtro de simetría es una postselección por subespacio, no un corrector cuántico completo, y que ZNE es una extrapolación dependiente del modelo de ruido.
+
+**Postselección por simetría: detecta sólo violaciones del subespacio.** La identidad $\rho_S^{\mathrm{filtrado}}=\rho_S^{\mathrm{ideal}}$ bajo $T_1$ uniforme vale porque el error deja una componente escalar en el sector de peso 1 y una fuga a peso 0; la postselección elimina la fuga. Bonet-Monroig *et al.* formalizan la verificación de simetría como proyección/postselección al eigensespacio objetivo y muestran que sólo mitiga errores que sacan el estado fuera de ese subespacio; errores que conmutan con la simetría o actúan dentro del subespacio no se detectan (Phys. Rev. A 98, 062339, 2018; DOI `10.1103/PhysRevA.98.062339`; arXiv:1807.10050). Esto respalda la distinción del capítulo entre $T_1$ uniforme (`exact`) y desfase intra-sector (`mixed`/no protegido).
+
+**Fuentes de la sección.** Bonet-Monroig *et al.* 2018, *Phys. Rev. A* 98, 062339, DOI `10.1103/PhysRevA.98.062339`, arXiv:1807.10050 (symmetry verification, postselección, alcance y límites).
+
 ## 24.2 Cocientes T1 (F5): corrección exacta sólo para ruido final
 
 $T_1$ **no uniforme** $\gamma_k$ aplicado al final: $p(e_k)=(1-\gamma_k)\,p^{\text{ideal}}(e_k)$ exacto ⇒ dividir por $(1-\gamma_k)$ (calibrado, Cap. 30) recupera $y=-0.3933$. Aplicado **entre** compuertas, la distorsión no conmuta con las RBS: $y$ filtrado $=+0.0746$ (error $0.468$) y la corrección final **no basta** (`mixed`). Regla: cocientes $T_1$ sólo con tiempos de compuerta $\ll T_1$ de los qubits más lentos; medir $\gamma_k$ por qubit (Cap. 30).
 
+**Kraus de amplitud damping y supuesto “diagonal/uniforme”.** El canal de amortiguamiento de amplitud con $K_0=\mathrm{diag}(1,\sqrt{1-\gamma})$, $K_1=|0\rangle\langle1|\sqrt{\gamma}$ modela relajación $T_1$; su acción sobre poblaciones de peso 1 es diagonal sólo en la base computacional y uniforme sólo si $\gamma_k$ es igual para todos los qubits. La regla de §24.2 (cocientes $T_1$ sólo con ruido final o compuertas $\ll T_1$) es consecuencia de la no conmutación entre canales locales no uniformes y compuertas entrelazantes: el resultado `mixed` intra-circuito está correctamente acotado por la simulación de densidad $16\times16$ del verificador, no por una identidad algebraica general.
+
 ## 24.3 Desfase: el filtro no protege; ZNE sí (F6)
 
 El desfase conserva el peso pero destruye coherencias **dentro** del sector, invisibles al filtro. Con $p=0.02$ por compuerta: error filtrado $0.0551$; Richardson sobre $\lambda\in\{1,2,3\}$ ($y=-0.3382,-0.2939,-0.2584$) extrapola a $-0.3914$ (error $0.0019$, $\times28.7$) al coste de $3\times$ circuitos (`exact` sim.; hardware `unverified`). Combinación recomendada: filtro (elimina $T_1$ y fugas) + ZNE (desfase residual); orden de aplicación: filtrar cada $\lambda$, luego extrapolar.
+
+**Desfase intra-sector: límite estructural del filtro, no fallo numérico.** El desfase $Z$ conserva el número de excitaciones y por tanto el peso de Hamming, pero degrada coherencias entre $|e_k\rangle$ dentro del sector. Como el filtro proyecta por peso, no puede distinguir $\rho_S$ coherente de una versión desfasada con la misma población en el sector; por eso §24.3 reporta error filtrado $0.0551$ con $p=0.02$. La afirmación “filtro no protege” es `exact` dentro del modelo de Kraus de desfase aplicado por compuerta.
+
+**ZNE/Richardson: extrapolación válida bajo modelo de ruido escalable.** La mejora $\times28.7$ se obtiene con Richardson sobre $\lambda\in\{1,2,3\}$, suponiendo que el valor esperado admite expansión en potencias del parámetro de ruido y que la amplificación por $\lambda$ es física/fidedigna. Temme, Bravyi y Gambetta introducen la extrapolación al límite de ruido cero mediante Richardson y requieren control de la amplificación del ruido o su escalado efectivo (Phys. Rev. Lett. 119, 180509, 2017; DOI `10.1103/PhysRevLett.119.180509`; arXiv:1612.02058). Por eso el capítulo marca ZNE como `exact` en simulación y `unverified` en hardware: la ganancia real depende de la fidelidad del escalado, del muestreo y de la ausencia de términos no analíticos dominantes.
+
+**Composición filtro+ZNE: orden y coste deben declararse.** Filtrar cada $\lambda$ antes de extrapolar es correcto porque la postselección elimina la componente fuera de sector en cada punto de ruido, mientras Richardson actúa sobre la dependencia residual intra-sector. El coste es multiplicativo: $3\times$ circuitos por los tres puntos de ZNE, más el overhead de postselección $(1-\gamma)^{-L}$ para mantener varianza estadística. No se afirma supresión universal de ruido: la combinación mitiga fuga de peso y parte del desfase modelado, pero no corrige errores coherentes arbitrarios ni sustituye códigos de corrección de errores.
+
+**Fuentes de la sección.** Temme, Bravyi y Gambetta 2017, *Phys. Rev. Lett.* 119, 180509, DOI `10.1103/PhysRevLett.119.180509`, arXiv:1612.02058 (zero-noise extrapolation / Richardson). Contexto de error mitigation: Cai *et al.* 2023, *Rev. Mod. Phys.* 95, 045005, DOI `10.1103/RevModPhys.95.045005` (revisión; usado como marco general, no como sustituto de las pruebas numéricas del capítulo).
 
 ## 24.4 Contraste operativo
 
@@ -51,6 +67,8 @@ def richardson_zne(lams, vals)           # polinomio de grado len−1 evaluado e
 [3] desfase p=0.02: error filtrado=0.0551, ZNE=-0.3914 (error 0.0019) → ×28.7 mejor
 verify_cap24: OK
 ```
+La validación reproducible de esta revisión es `verify_cap24: OK`: $\|\rho_S-\rho_S^{\text{id}}\|<10^{-13}$ y tasa $=(1-\gamma)^6$ a $10^{-13}$, cocientes a $10^{-13}$ y error ZNE $<$ error filtrado; `tests/test_qsymfilter.py` pasa con `1 passed`.
+
 Asserts: $\|\rho_S-\rho_S^{\text{id}}\|<10^{-13}$ y tasa $=(1-\gamma)^6$ a $10^{-13}$; cocientes a $10^{-13}$; error ZNE $<$ error filtrado.
 
 ### `tests/test_qsymfilter.py`
@@ -78,14 +96,3 @@ def test_filter_exact_under_uniform_T1():
 
 `CHANGELOG.md [Unreleased]`: `qang.qsymfilter`; `tools/verify_cap24.py`; `tests/test_qsymfilter.py`.
 Commit: `docs(cap24): filtro de simetría con matrices densidad, cocientes T1 y ZNE sobre Cap. 1–23 + qang.qsymfilter + verify_cap24`.
-## 24.8 Contraste bibliográfico y precisiones de revisión (2026-11-22)
-
-Esta sección fija el alcance de las afirmaciones de mitigación del capítulo: el filtro de simetría es una postselección por subespacio, no un corrector cuántico completo, y ZNE es una extrapolación dependiente del modelo de ruido.
-
-1. **Postselección por simetría: detecta sólo violaciones del subespacio.** La identidad $\rho_S^{\mathrm{filtrado}}=\rho_S^{\mathrm{ideal}}$ bajo $T_1$ uniforme vale porque el error deja una componente escalar en el sector de peso 1 y una fuga a peso 0; la postselección elimina la fuga. Bonet-Monroig *et al.* formalizan la verificación de simetría como proyección/postselección al eigensespacio objetivo y muestran que sólo mitiga errores que sacan el estado fuera de ese subespacio; errores que conmutan con la simetría o actúan dentro del subespacio no se detectan (Phys. Rev. A 98, 062339, 2018; DOI `10.1103/PhysRevA.98.062339`; arXiv:1807.10050). Esto respalda la distinción del capítulo entre $T_1$ uniforme (`exact`) y desfase intra-sector (`mixed`/no protegido).
-2. **Kraus de amplitud damping y supuesto “diagonal/uniforme”.** El canal de amortiguamiento de amplitud con $K_0=\mathrm{diag}(1,\sqrt{1-\gamma})$, $K_1=|0\rangle\langle1|\sqrt{\gamma}$ modela relajación $T_1$; su acción sobre poblaciones de peso 1 es diagonal sólo en la base computacional y uniforme sólo si $\gamma_k$ es igual para todos los qubits. La regla de §24.2 (cocientes $T_1$ sólo con ruido final o compuertas $\ll T_1$) es consecuencia de la no conmutación entre canales locales no uniformes y compuertas entrelazantes: el resultado `mixed` intra-circuito está correctamente acotado por la simulación de densidad $16\times16$ del verificador, no por una identidad algebraica general.
-3. **Desfase intra-sector: límite estructural del filtro, no fallo numérico.** El desfase $Z$ conserva el número de excitaciones y por tanto el peso de Hamming, pero degrada coherencias entre $|e_k\rangle$ dentro del sector. Como el filtro proyecta por peso, no puede distinguir $\rho_S$ coherente de una versión desfasada con la misma población en el sector; por eso §24.3 reporta error filtrado $0.0551$ con $p=0.02$. La afirmación “filtro no protege” es `exact` dentro del modelo de Kraus de desfase aplicado por compuerta.
-4. **ZNE/Richardson: extrapolación válida bajo modelo de ruido escalable.** La mejora $\times28.7$ se obtiene con Richardson sobre $\lambda\in\{1,2,3\}$, suponiendo que el valor esperado admite expansión en potencias del parámetro de ruido y que la amplificación por $\lambda$ es física/fidedigna. Temme, Bravyi y Gambetta introducen la extrapolación al límite de ruido cero mediante Richardson y requieren control de la amplificación del ruido o su escalado efectivo (Phys. Rev. Lett. 119, 180509, 2017; DOI `10.1103/PhysRevLett.119.180509`; arXiv:1612.02058). Por eso el capítulo marca ZNE como `exact` en simulación y `unverified` en hardware: la ganancia real depende de la fidelidad del escalado, del muestreo y de la ausencia de términos no analíticos dominantes.
-5. **Composición filtro+ZNE: orden y coste deben declararse.** Filtrar cada $\lambda$ antes de extrapolar es correcto porque la postselección elimina la componente fuera de sector en cada punto de ruido, mientras Richardson actúa sobre la dependencia residual intra-sector. El coste es multiplicativo: $3\times$ circuitos por los tres puntos de ZNE, más el overhead de postselección $(1-\gamma)^{-L}$ para mantener varianza estadística. No se afirma supresión universal de ruido: la combinación mitiga fuga de peso y parte del desfase modelado, pero no corrige errores coherentes arbitrarios ni sustituye códigos de corrección de errores.
-
-**Fuentes contrastadas:** Bonet-Monroig *et al.* 2018, *Phys. Rev. A* 98, 062339, DOI `10.1103/PhysRevA.98.062339`, arXiv:1807.10050 (symmetry verification, postselección, alcance y límites). Temme, Bravyi y Gambetta 2017, *Phys. Rev. Lett.* 119, 180509, DOI `10.1103/PhysRevLett.119.180509`, arXiv:1612.02058 (zero-noise extrapolation / Richardson). Contexto de error mitigation: Cai *et al.* 2023, *Rev. Mod. Phys.* 95, 045005, DOI `10.1103/RevModPhys.95.045005` (revisión; usado como marco general, no como sustituto de las pruebas numéricas del capítulo).
