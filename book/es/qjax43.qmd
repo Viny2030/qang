@@ -2,7 +2,7 @@
 *Chapter 43 — Quantum Robotics and Autonomous Control Read with qang: One Qubit per Joint, the Shot Budget, Real Time and Grover for Trajectory Selection*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > **Resumen.** ¿Qué le aporta qang a un robot, y qué no? Se codifica cada articulación como un qubit, $R_Y(\theta)|0\rangle$, y se leen sus valores qg. Resultados, todos con verificador: (i) la lectura en $Z$ da el ángulo con varianza $1/N$ para todo $\theta$, pero pierde el signo; con dos bases el signo se recupera y la varianza es $(\cos^4\theta+\sin^4\theta)/N$, por encima de la cota de Cramér–Rao $1/(2N)$ salvo a $45^\circ$; (ii) la tolerancia del efector fija los disparos, $N=\lceil z^2\,\mathrm{tr}(JJ^{\mathsf T})/\varepsilon^2\rceil$; (iii) el ciclo de control fija los disparos disponibles, y para un brazo de dos eslabones con tolerancia de $0{,}02$ hacen falta 7225 disparos por articulación: a 100 Hz y 1 ms por disparo caben 10; (iv) una articulación que deriva se sigue con un Kalman escalar cuya varianza estacionaria es cerrada; (v) Grover cuenta consultas con ahorro $\sim(2/\pi)\sqrt N$ en el modelo de oráculo. **Estado: `exact`** para las identidades y presupuestos; no hay ganancia medida. Módulo: `qang.qrobot` (NumPy). Verificación: `tools/verify_cap43.py`.
 >
@@ -132,7 +132,7 @@ print(round(err, 3), "frente a la tolerancia 0.02")        # una sola corrida: d
 - La lectura en dos bases cuesta $2N$ disparos por articulación; su error esperado es $\le\varepsilon$ (a $45^\circ$ es la mitad de la varianza del caso solo-$Z$). Una corrida suelta fluctúa alrededor de ese RMS: no es una garantía por corrida.
 - Los valores de `print` del paso 2 no son una medición del libro. Qiskit no estaba instalado en el entorno donde se redactó el capítulo; las identidades que lo respaldan (varianzas, RMS y presupuesto) sí se verifican con disparos binomiales de NumPy en `tools/verify_cap43.py`. Quien reproduzca el bloque debe comprobar la salida de Qiskit en su entorno.
 
-**Seguimiento de una articulación que deriva** (verificado en `tools/verify_cap43.py`, §[5]): con $q=4\cdot10^{-4}$ rad² por ciclo y $N=400$ disparos, la varianza a posteriori estacionaria es $8{,}20\cdot10^{-4}$ rad² (simulada: $8{,}21\cdot10^{-4}$), es decir, $\sigma=0{,}029$ rad frente a $0{,}050$ rad sin filtro.
+**Seguimiento de una articulación que deriva** (verificado en `tools/verify_cap43.py`, §[5]): con $q=4\cdot10^{-4}$ rad² por ciclo y $N=400$ disparos, la varianza a posteriori estacionaria es $8{,}20\cdot10^{-4}$ rad² (simulada: $8{,}14\cdot10^{-4}$), es decir, $\sigma=0{,}029$ rad frente a $0{,}050$ rad sin filtro.
 
 ## 43.5 Casos de uso, limitaciones (NISQ frente a simuladores) y líneas futuras
 
@@ -170,6 +170,8 @@ pytest tests/test_qrobot.py -q        # 8 pruebas, ~1 s
 ```
 
 Siete bloques: [1] cinemática (jacobiana por diferencias finitas, 400 soluciones de IK, blanco fuera de alcance); [2] varianza $1/N$ y $(\cos^4\theta+\sin^4\theta)/N$ con disparos binomiales ($\pm10\%$, 5 ángulos) y cota de Cramér–Rao; [3] RMS del efector ($N=500$ y $4000$, $\pm6\%$) y $N(\varepsilon)=43\,342$ disparos por articulación para $\varepsilon=0{,}01$ con tres eslabones; [4] presupuesto de tiempo real y `preflight` (7225 requeridos, 10 disponibles a 100 Hz); [5] Kalman escalar ($\pm20\%$); [6] Grover: fórmula frente a simulación explícita en cuatro casos, $(N+1)/(M+1)$ clásico simulado y cociente $651\approx(2/\pi)\sqrt{2^{20}}$; [7] desplazamiento de parámetro $-\sin\theta$ con 250 qga.
+
+La validación reproducible de esta revisión es `verify_cap43: OK`: jacobiana por diferencias finitas e IK cerrada (400 soluciones), $\mathrm{Var}(\hat\theta)=1/N$ y $(\cos^4\theta+\sin^4\theta)/N\ge1/(2N)$ simuladas a $\pm10\%$ con igualdad solo a $45^\circ$, RMS del efector a $\pm6\%$ con $N(0{,}01)=43\,342$, `preflight` de $7225$ requeridos y $10$ disponibles a 100 Hz, Kalman con $P=8{,}20\cdot10^{-4}$ rad² y Grover con $P=0{,}99946$ y cociente $651$; `tests/test_qrobot.py` pasa con `8 passed`.
 
 ## 43.8 Apéndice H
 

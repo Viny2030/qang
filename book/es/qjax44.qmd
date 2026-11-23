@@ -2,7 +2,7 @@
 *Chapter 44 — Quantum Agentic AI Read with qang: Born Policies, the Angle as Natural Gradient, the Decision Reading and Shot Allocation Across Tools*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > **Resumen.** ¿Qué le aporta qang a un agente autónomo híbrido, y qué no? Se toma el agente mínimo: dos acciones cuya política es la medida de un qubit, $\pi(0)=\cos^2(\theta/2)$. Resultados, todos con verificador: (i) la información de Fisher de la política es 1 para todo $\theta$, y el flujo del gradiente en $\theta$ es *exactamente* el gradiente natural del logit, $\phi_t=\phi_0+\eta\Delta t$ con $\Delta=r_0-r_1$: la acción peor baja a $1\%$ en $4{,}6/(\eta\Delta)$ pasos, frente a $108/(\eta\Delta)$ con el gradiente plano en el logit ($23{,}5\times$); (ii) cerca de un polo el gradiente se anula y la varianza no, de modo que el signo del gradiente cuesta 100 veces más episodios a $\theta=0{,}05$ que en el ecuador y un agente en el polo no se mueve nunca sin un piso de exploración; (iii) la lectura de decisión ($qg_Z$, $qg_S$, $qg_{SNR}$, disparos para el signo) se calcula antes de actuar; (iv) repartir los disparos entre $K$ lecturas con $n_i\propto\sin\theta_i$ baja la suma de varianzas por el factor $K\sum\sin^2\theta_i/(\sum\sin\theta_i)^2$. **Estado: `exact`**; no hay ganancia medida, y una política de un solo qubit es indistinguible de una moneda clásica sesgada. Módulo: `qang.qagent` (NumPy). Verificación: `tools/verify_cap44.py`.
 >
@@ -173,7 +173,9 @@ python tools/verify_cap44.py          # solo NumPy + qang; ~1 min
 pytest tests/test_qagent.py -q        # 4 pruebas, ~1 s
 ```
 
-Cinco bloques: [1] gradiente, varianza e información de Fisher con $4\cdot10^5$ muestras en cuatro ángulos; [2] flujo cerrado frente a integración de Euler, $\phi_t=\phi_0+\eta\Delta t$, tiempos $4{,}595$ y $108{,}2$ (cociente $23{,}5$; a $0{,}1\%$, $147\times$) y REINFORCE de Bernoulli frente al flujo ($0{,}316$ frente a $0{,}310$); [3] episodios para el signo ($15$ en el ecuador, $1542$ a $\theta=0{,}05$), polo inmóvil, y escape del polo malo con piso en $200$ de $200$ corridas (mediana de $227$ pasos); [4] lectura de decisión frente a `qang.probability`; [5] reparto de disparos ($1{,}389$ calculado, $1{,}376$ simulado).
+Cinco bloques: [1] gradiente, varianza e información de Fisher con $4\cdot10^5$ muestras en cuatro ángulos; [2] flujo cerrado frente a integración de Euler, $\phi_t=\phi_0+\eta\Delta t$, tiempos $4{,}595$ y $108{,}2$ (cociente $23{,}5$; a $0{,}1\%$, $147\times$) y REINFORCE de Bernoulli frente al flujo ($0{,}316$ frente a $0{,}310$); [3] episodios para el signo ($15$ en el ecuador, $1542$ a $\theta=0{,}05$), polo inmóvil, y escape del polo malo con piso en $200$ de $200$ corridas (mediana de $227$ pasos); [4] lectura de decisión frente a `qang.probability`; [5] reparto de disparos ($1{,}389$ calculado, $1{,}377$ simulado).
+
+La validación reproducible de esta revisión es `verify_cap44: OK`: $I(\theta)=1$ a $10^{-12}$ en cuatro ángulos, flujo cerrado $\phi_t=\phi_0+\eta\Delta t$ con $4{,}595/(\eta\Delta)$ frente a $108{,}2/(\eta\Delta)$ ($23{,}5\times$), episodios para el signo $15$ frente a $1542$ a $\theta=0{,}05$ ($100\times$) y escape del polo en $200$ de $200$ corridas, lectura $qg_Z=0{,}921$ con $2$ disparos y reparto óptimo $1{,}389$; `tests/test_qagent.py` pasa con `4 passed`.
 
 ## 44.8 Apéndice H
 

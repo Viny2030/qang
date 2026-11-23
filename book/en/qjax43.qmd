@@ -1,6 +1,8 @@
 # Chapter 43 — Quantum Robotics and Autonomous Control Read with qang: One Qubit per Joint, the Shot Budget, Real Time and Grover for Trajectory Selection {#sec-qjax43 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+>
+> **Analysis and update date:** November 23, 2026
 
 > **Abstract.** What does qang give a robot, and what does it not? Each joint is encoded as a qubit, $R_Y(\theta)|0\rangle$, and its qg values are read. Results, all with a verifier: (i) a $Z$ reading gives the angle with variance $1/N$ for every $\theta$ but loses the sign; with two bases the sign is recovered and the variance is $(\cos^4\theta+\sin^4\theta)/N$, above the Cramér–Rao bound $1/(2N)$ except at $45^\circ$; (ii) the end-effector tolerance fixes the shots, $N=\lceil z^2\,\mathrm{tr}(JJ^{\mathsf T})/\varepsilon^2\rceil$; (iii) the control cycle fixes the available shots: a two-link arm with tolerance $0.02$ needs 7225 shots per joint, while at 100 Hz and 1 ms per shot only 10 fit; (iv) a drifting joint is tracked by a scalar Kalman filter with a closed-form steady-state variance; (v) Grover saves queries by $\sim(2/\pi)\sqrt N$ in the oracle model. **Status: `exact`** for the identities and budgets; no measured gain is claimed. Module: `qang.qrobot` (NumPy). Verification: `tools/verify_cap43.py`.
 
@@ -128,7 +130,7 @@ print(round(err, 3), "versus tolerance 0.02")              # a single run: of th
 - The two-basis reading costs $2N$ shots per joint; its expected error is $\le\varepsilon$ (at $45^\circ$ it is half the variance of the $Z$-only case). A single run fluctuates around that RMS: it is not a per-run guarantee.
 - The `print` values of step 2 are not a measurement of this book. Qiskit was not installed in the environment where the chapter was written; the identities behind it (variances, RMS and budget) are verified with NumPy binomial shots in `tools/verify_cap43.py`. Whoever reproduces the block should check the Qiskit output in their own environment.
 
-**Tracking a drifting joint** (verified in `tools/verify_cap43.py`, §[5]): with $q=4\cdot10^{-4}$ rad² per cycle and $N=400$ shots, the steady-state posterior variance is $8.20\cdot10^{-4}$ rad² (simulated: $8.21\cdot10^{-4}$), that is, $\sigma=0.029$ rad versus $0.050$ rad without the filter.
+**Tracking a drifting joint** (verified in `tools/verify_cap43.py`, §[5]): with $q=4\cdot10^{-4}$ rad² per cycle and $N=400$ shots, the steady-state posterior variance is $8.20\cdot10^{-4}$ rad² (simulated: $8.14\cdot10^{-4}$), that is, $\sigma=0.029$ rad versus $0.050$ rad without the filter.
 
 ## 43.5 Use cases, limitations (NISQ versus simulators) and future directions
 
@@ -166,6 +168,8 @@ pytest tests/test_qrobot.py -q        # 8 tests, ~1 s
 ```
 
 Seven blocks: [1] kinematics (Jacobian by finite differences, 400 IK solutions, out-of-reach target); [2] variance $1/N$ and $(\cos^4\theta+\sin^4\theta)/N$ with binomial shots ($\pm10\%$, 5 angles) and the Cramér–Rao bound; [3] end-effector RMS ($N=500$ and $4000$, $\pm6\%$) and $N(\varepsilon)=43\,342$ shots per joint for $\varepsilon=0.01$ with three links; [4] real-time budget and `preflight` (7225 required, 10 available at 100 Hz); [5] scalar Kalman ($\pm20\%$); [6] Grover: formula versus explicit simulation in four cases, simulated classical $(N+1)/(M+1)$ and ratio $651\approx(2/\pi)\sqrt{2^{20}}$; [7] parameter shift $-\sin\theta$ with 250 qga.
+
+The reproducible validation of this review is `verify_cap43: OK`: finite-difference Jacobian and closed-form IK (400 solutions), $\mathrm{Var}(\hat\theta)=1/N$ and $(\cos^4\theta+\sin^4\theta)/N\ge1/(2N)$ simulated to $\pm10\%$ with equality only at $45^\circ$, end-effector RMS to $\pm6\%$ with $N(0.01)=43\,342$, `preflight` of $7225$ required and $10$ available shots at 100 Hz, Kalman with $P=8.20\cdot10^{-4}$ rad² and Grover with $P=0.99946$ and ratio $651$; `tests/test_qrobot.py` passes with `8 passed`.
 
 ## 43.8 Appendix H
 
