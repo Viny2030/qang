@@ -2,7 +2,7 @@
 *Chapter 29 — Error Correction: the Syndrome as a qg_ZZZZ Reading, the Amplitude-Damping Code, Erasure vs. Bit Error, Schmidt Rank of the Cut and ZNE Cost*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 26 sobre la base de Cap. 1–28 (borrado heraldado de Cap. 16, filtro de sector y ZNE de Cap. 24, canales afines de Cap. 27, coste en disparos de Cap. 8 y 25). Módulo: `qang.qecc` (NumPy/SciPy exacto). Verificación: `tools/verify_cap29.py`. Quedan fuera y **sin verificar aquí** (`unverified`): la superficie con decodificador consciente de $T_1$, los qutrits, el benchmarking aleatorizado y el protocolo completo de corte de circuitos de `qang.knitting`.
 
@@ -96,6 +96,7 @@ def richardson_weights(lams) / zne_variance_factor(lams) / zne_estimate(f, lams)
 [4] Richardson (1,2,3): [3 −3 1], Σc² = 19.0; a=0.2: bruto 655.0, ZNE 3 pts 795.2
 verify_cap29: OK
 ```
+La validación reproducible de esta revisión es `verify_cap29: OK`: CPTP a $10^{-12}$ y $qg_{ZZZZ}=+1000$ m-qg; pendientes log-log $1.00$ sin codificar frente a $1.99$ codificado, $\gamma^*\approx0.177$ y codificar sin recuperar es peor; con $n=3$ y $1\%$ el borrado da $5.00\cdot10^{-7}$ frente a $2.98\cdot10^{-4}$ de bit; el corte $4|4$ da rangos $16/2/6$ y $\sum c_i^2=19$; `tests/test_qecc.py` pasa con `4 passed`.
 
 ### `tests/test_qecc.py`
 ```python

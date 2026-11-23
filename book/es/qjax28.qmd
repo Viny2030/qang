@@ -2,7 +2,7 @@
 *Chapter 28 — Chemistry and Optimization in the Weight Sector: the Electron-Count Witness in m-qg, Number Checks, RBS-Based PCA and "Exactly-K" QAOA*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 25 sobre la base de Cap. 1–27 (testigo de Cap. 5 y 7, filtro de sector de Cap. 24, núcleo unario de Cap. 26, RBS de Cap. 23 y 27). Módulo: `qang.qchem` (JAX + SciPy; `jax<0.9`). Verificación: `tools/verify_cap28.py`. El modelo molecular es el **dímero de Hubbard** (4 qubits, 2 electrones, energía analítica), no H$_2$ en STO-3G ni LiH: las cifras de moléculas reales del tratado original siguen en `RESEARCH_NOTES.md` como `tested in simulator` y no se reproducen aquí.
 
@@ -75,12 +75,13 @@ def qaoa_optimize(c, n, K, p, mixer, penalty=0.0)  # mixer = "xy" | "x"
 [1] [H,N]=0 [H,Sz]=0; E0=-1.236067977500 = (U−√(U²+16t²))/2
 [2] T1 γ=0.05: testigo = +50.0 m-qg (= 1000γ)
 [3] γ=0.05 crudo ΔE=+0.1205  paridad +0.00341 (0.905)  N mod4 +0.0e+00 (0.9025)
-[4] PCA n=5: λ=[0.694 0.124 0.089 0.06 0.033], error=2.2e-16, RBS=10
+[4] PCA n=5: λ=[0.694 0.124 0.089 0.06 0.033], error=1.3e-16, RBS=10
 [5] inversión = (x·y)² a 1e-12; recursos n=5: 5 qubits/0 ancillas vs 11 qubits/1 ancilla
     p=1: XY factible=1.000000 razón=0.575 | penalización factible=0.343 razón(cond.)=0.252
     voraz razón = 0.977
 verify_cap28: OK
 ```
+La validación reproducible de esta revisión es `verify_cap28: OK`: $[H,N]=[H,Sz]=0$ y $E_0=-1.236067977500$; testigo $+1000\gamma$ m-qg para $\gamma=0.02,0.05,0.10$; $N$ mod 4 da $\Delta E=0$ con fracción $(1-\gamma)^2$; PCA con 10 RBS y error $<10^{-13}$; inversión $=(x\cdot y)^2$ a $10^{-12}$; masa factible XY $1.000$ en $p=1,2$ frente a voraz $0.977$; `tests/test_qchem.py` pasa con `3 passed`.
 
 ### `tests/test_qchem.py`
 ```python

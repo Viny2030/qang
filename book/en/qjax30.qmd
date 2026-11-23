@@ -1,6 +1,8 @@
 # Chapter 30 — Hardware Characterization in m-qg: T1 with Optimal Delay, Read-out Calibration with Error Bars, XEB/HOP, ZZ Shift and Control Quantization {#sec-qjax30 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 27 on the basis of Ch. 1–29 (affine readout of Ch. 25 and 27, shot budget of Ch. 8, Fisher of Ch. 9). Module: `qang.qchar` (exact NumPy, no SciPy). Verification: `tools/verify_cap30.py`. Everything is **simulation**: no number in this chapter came from a device (`tested in simulator`; hardware `unverified`).
 
@@ -69,6 +71,7 @@ def zz_phase_qga(zeta, t):          return 1000.0 * zeta * t / (2*np.pi)
 [5] 8 bits: σ = 1.1251 qga = 0.00707 rad
 verify_cap30: OK
 ```
+The reproducible validation of this review is `verify_cap30: OK`: $T_1$ fit to $10^{-9}$, $t^*/T_1=1.5936$ and $\times3.6$ information; $e_{01}=0.0200\pm0.0031$, $e_{10}=0.0600\pm0.0053$ and $4900$ shots; HOP $0.7422$ at $f=0.7$ with recovered fidelity $0.699$; phase $260.0$ qga and $\sigma=1.1251$ qga at $8$ bits; `tests/test_qchar.py` passes with `5 passed`.
 
 ### `tests/test_qchar.py`
 ```python

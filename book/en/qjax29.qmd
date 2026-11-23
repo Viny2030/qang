@@ -1,6 +1,8 @@
 # Chapter 29 — Error Correction: the Syndrome as a qg_ZZZZ Reading, the Amplitude-Damping Code, Erasure vs. Bit Error, Schmidt Rank of the Cut and ZNE Cost {#sec-qjax29 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 26 on the basis of Ch. 1–28 (heralded erasure of Ch. 16, sector filter and ZNE of Ch. 24, affine channels of Ch. 27, shot cost of Ch. 8 and 25). Module: `qang.qecc` (exact NumPy/SciPy). Verification: `tools/verify_cap29.py`. Left out and **unverified here** (`unverified`): the surface code with a $T_1$-aware decoder, qutrits, randomized benchmarking and the full circuit-cutting protocol of `qang.knitting`.
 
@@ -92,6 +94,7 @@ def richardson_weights(lams) / zne_variance_factor(lams) / zne_estimate(f, lams)
 [4] Richardson (1,2,3): [3 −3 1], Σc² = 19.0; a=0.2: raw 655.0, 3-pt ZNE 795.2
 verify_cap29: OK
 ```
+The reproducible validation of this review is `verify_cap29: OK`: CPTP to $10^{-12}$ and $qg_{ZZZZ}=+1000$ m-qg; log-log slopes $1.00$ unencoded versus $1.99$ encoded, $\gamma^*\approx0.177$ and encoding without recovery is worse; at $n=3$ and $1\%$ erasure gives $5.00\cdot10^{-7}$ versus $2.98\cdot10^{-4}$ for bit error; the $4|4$ cut gives ranks $16/2/6$ and $\sum c_i^2=19$; `tests/test_qecc.py` passes with `4 passed`.
 
 ### `tests/test_qecc.py`
 ```python

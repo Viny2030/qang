@@ -1,6 +1,8 @@
 # Chapter 28 — Chemistry and Optimization in the Weight Sector: the Electron-Count Witness in m-qg, Number Checks, RBS-Based PCA and "Exactly-K" QAOA {#sec-qjax28 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 25 on the basis of Ch. 1–27 (witness of Ch. 5 and 7, sector filter of Ch. 24, unary kernel of Ch. 26, RBS of Ch. 23 and 27). Module: `qang.qchem` (JAX + SciPy; `jax<0.9`). Verification: `tools/verify_cap28.py`. The molecular model is the **Hubbard dimer** (4 qubits, 2 electrons, analytic energy), not H$_2$ in STO-3G nor LiH: the real-molecule figures of the original treatise remain in `RESEARCH_NOTES.md` as `tested in simulator` and are not reproduced here.
 
@@ -71,12 +73,13 @@ def qaoa_optimize(c, n, K, p, mixer, penalty=0.0)  # mixer = "xy" | "x"
 [1] [H,N]=0 [H,Sz]=0; E0=-1.236067977500 = (U−√(U²+16t²))/2
 [2] T1 γ=0.05: witness = +50.0 m-qg (= 1000γ)
 [3] γ=0.05 raw ΔE=+0.1205  parity +0.00341 (0.905)  N mod4 +0.0e+00 (0.9025)
-[4] PCA n=5: λ=[0.694 0.124 0.089 0.06 0.033], error=2.2e-16, RBS=10
+[4] PCA n=5: λ=[0.694 0.124 0.089 0.06 0.033], error=1.3e-16, RBS=10
 [5] inversion = (x·y)² to 1e-12; resources n=5: 5 qubits/0 ancillas vs 11 qubits/1 ancilla
     p=1: XY feasible=1.000000 ratio=0.575 | penalty feasible=0.343 ratio(cond.)=0.252
     greedy ratio = 0.977
 verify_cap28: OK
 ```
+The reproducible validation of this review is `verify_cap28: OK`: $[H,N]=[H,Sz]=0$ and $E_0=-1.236067977500$; witness $+1000\gamma$ m-qg for $\gamma=0.02,0.05,0.10$; $N$ mod 4 gives $\Delta E=0$ with fraction $(1-\gamma)^2$; PCA with 10 RBS and error $<10^{-13}$; inversion $=(x\cdot y)^2$ to $10^{-12}$; XY feasible mass $1.000$ at $p=1,2$ versus greedy $0.977$; `tests/test_qchem.py` passes with `3 passed`.
 
 ### `tests/test_qchem.py`
 ```python
