@@ -1,6 +1,8 @@
 # Chapter 21 — Certified Random Numbers and Channel Audit: Min-Entropy with a Credible Interval and Block Drift in m-qg {#sec-qjax21 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 18 on the basis of Ch. 1–20 (§31, §41, §42). Module: `qang.qrng` (NumPy/optional SciPy; compatible with the core). Verification: `tools/verify_cap21.py`.
 
@@ -8,9 +10,9 @@
 
 ## 21.1 Point versus certificate
 
-$H_{\min}=-\log_2\frac{1+|qg_Z|}{2}$ (Ch. 19) evaluated at the **point** $\hat{qg}_Z=2k_0/N-1$ overestimates: with $k_0=N/2$ it gives $1.000$ bit for any $N$. The certified version takes the maximum of $|qg_Z|$ over the $99.9\%$ credible interval of the Bayes–Haar posterior $\mathrm{Beta}(1+k_0,1+N-k_0)$ (Ch. 8):
+$H_{\min}=-\log_2\frac{1+|qg_Z|}{2}$ (Ch. 19) evaluated at the **point** $\hat{qg}_Z=2k_0/N-1$ overestimates: with $k_0=N/2$ it gives $1.000$ bit for any $N$. The certified version takes the maximum of $|qg_Z|$ over the $99.8\%$ central credible interval ($0.1\%$ tail on each side) of the Bayes–Haar posterior $\mathrm{Beta}(1+k_0,1+N-k_0)$ (Ch. 8):
 $$H_{\min}^{\text{cert}}=-\log_2\frac{1+\max(|qg_Z^{\text{lo}}|,|qg_Z^{\text{hi}}|)}{2}:\quad N=10^3\to0.866,\ 10^4\to0.956,\ 10^5\to0.986,\ 10^6\to0.9955\ \text{bit}.$$
-Budget to certify $H_{\min}\ge0.99$ ($|qg_Z|\le7.0$ m-qg at $99.9\%$): $N\approx1.97\cdot10^5$ shots (`exact` for the i.i.d. model). With a real bias of $30$ m-qg ($N=2\cdot10^5$): point $0.9528$, certified $0.9431$, true $0.9574$ — the certificate is a lower bound.
+Budget to certify $H_{\min}\ge0.99$ ($|qg_Z|\le7.0$ m-qg with $0.1\%$ tails): $N\approx1.97\cdot10^5$ shots (`exact` for the i.i.d. model). With a real bias of $30$ m-qg ($N=2\cdot10^5$): point $0.9528$, certified $0.9431$, true $0.9574$ — the certificate is a lower bound.
 
 ## 21.2 Channel audit: stationarity of qgZ by blocks
 
@@ -20,7 +22,7 @@ $\chi^2$ of homogeneity of $p_0$ between blocks of $10^4$ ($19$ d.o.f.): station
 
 | Metric | Standard | `qang` (`qang.qrng`) | Status |
 | :--- | :--- | :--- | :--- |
-| $H_{\min}$, $N=10^4$, no bias | point: $1.000$ | certified $99.9\%$: $0.956$ | honest bound (`exact`) |
+| $H_{\min}$, $N=10^4$, no bias | point: $1.000$ | certified $99.8\%$ central: $0.956$ | honest bound (`exact`) |
 | Shots for $H_{\min}\ge0.99$ | — | $1.97\cdot10^5$ | (`exact`) |
 | Hidden bias of $30$ m-qg | point $0.953>$ true | cert $0.943<$ true | (`exact`) |
 | Channel drift | — | $\chi^2$ $27\to131$; blocks in m-qg | (`exact`) |
@@ -29,7 +31,7 @@ $\chi^2$ of homogeneity of $p_0$ between blocks of $10^4$ ($19$ d.o.f.): station
 ## 21.4 Block (`qang/qrng.py`)
 
 ```python
-def posterior_qz_quantiles(k0, N, q=0.999):   # quantiles of Beta(1+k0, 1+N−k0) → qg_Z = 2p0 − 1
+def posterior_qz_quantiles(k0, N, q=0.999):   # quantiles [1−q, q] = [0.001, 0.999] of Beta(1+k0, 1+N−k0) → qg_Z = 2p0 − 1
 def certified_min_entropy(k0, N, q=0.999):    # −log2((1 + max|qg_Z| in the interval)/2)
 def shots_for_certified_hmin(h, z=3.09):      # q_max = 2·2^−h − 1 ; N = (z/q_max)²
 def block_drift_chi2(bits, block):            # homogeneity χ²; returns qg_Z per block in m-qg
@@ -38,12 +40,14 @@ def block_drift_chi2(bits, block):            # homogeneity χ²; returns qg_Z p
 ## 21.5 Verification — `tools/verify_cap21.py`
 
 ```
-[1] N=    10000, k0=N/2: point H_min = 1.0000 | 99.9% interval qg_Z = [-30.9, +30.9] m-qg | cert H_min = 0.9561 bit
+[1] N=    10000, k0=N/2: point H_min = 1.0000 | 99.8% central interval qg_Z = [-30.9, +30.9] m-qg | cert H_min = 0.9561 bit
 [2] H_min ≥ 0.99 certified: |qg_Z| ≤ 7.0 m-qg ⇒ N ≈ 197358 shots
 [3] real bias 30 m-qg, N=2e5: point H_min=0.9528, cert=0.9431, true=0.9574
 [4] χ²(19 d.o.f.): stationary 27.1 | drift 130.7
 verify_cap21: OK
 ```
+The reproducible validation of this review is `verify_cap21: OK`: cert$(10^6)>0.99$, cert$(10^3)<0.9$; certificate $\le$ true value with a $30$ m-qg bias; $\chi^2_{\text{drift}}>3\chi^2_{\text{stat}}$; `tests/test_qrng.py` passes with `2 passed`.
+
 Asserts: cert$(10^6)>0.99$, cert$(10^3)<0.9$; cert $\le$ true with bias; $\chi^2_{\text{drift}}>3\chi^2_{\text{stat}}$.
 
 ### `tests/test_qrng.py`

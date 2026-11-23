@@ -2,7 +2,7 @@
 *Chapter 21 — Certified Random Numbers and Channel Audit: Min-Entropy with a Credible Interval and Block Drift in m-qg*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 18 sobre la base de Cap. 1–20 (§31, §41, §42). Módulo: `qang.qrng` (NumPy/SciPy opcional; compatible con el core). Verificación: `tools/verify_cap21.py`.
 
@@ -16,9 +16,17 @@ Presupuesto para certificar $H_{\min}\ge0.99$ ($|qg_Z|\le7.0$ m-qg con cola $0.1
 
 **EN.** Point min-entropy overestimates; the certified value uses the equal-tailed Bayes-Haar credible interval of $qg_Z$ with $0.1\%$ tails ($99.8\%$ central mass) and is a lower bound (`exact`, i.i.d. model).
 
+La etiqueta correcta del código con `q=0.999` es **cola $0.1\%$ por lado / masa central $99.8\%$**, no “$99.9\%$”. Un intervalo central $99.9\%$ exigiría cuantiles $0.0005$ y $0.9995$; cambiar `q` alteraría todos los números de este capítulo ($0.866$, $0.956$, $0.986$, $0.9955$ y $N\approx197358$). $H_{\min}^{\mathrm{cert}}=-\log_2((1+\max|qg_Z|)/2)$ toma el peor extremo del intervalo, por lo que es cota inferior del parámetro dentro del modelo i.i.d. Solo es válida bajo muestreo independiente y modelo Beta-Bernoulli con previa uniforme/Bayes-Haar. $N=(z/q_{\max})^2$ con $q_{\max}=2\cdot2^{-h}-1$ invierte la aproximación normal $|qg_Z|\le z/\sqrt{N}$ alrededor de $qg_Z=0$; no es una cota exacta en colas pequeñas. Con $z=3.09$ se usa el cuantil normal $0.999$, coherente con la cola $0.1\%$ por lado, y da $|qg_Z|\le7.0$ m-qg y $N\approx197358$ para $h=0.99$.
+
+**Fuentes de la sección.** NIST TN 2119, *Estimating Instrument Performance: with Confidence Intervals and Confidence Bounds*, DOI `10.6028/NIST.TN.2119`, <https://nvlpubs.nist.gov/nistpubs/TechnicalNotes/NIST.TN.2119.pdf>, §4.5: intervalo creíble *equal-tailed* definido como los cuantiles $\alpha/2$ y $1-\alpha/2$ del posterior (aquí $\alpha=0.002$); NIST SP 800-90B, DOI `10.6028/NIST.SP.800-90B`, <https://csrc.nist.gov/pubs/sp/800/90/b/final>: estimación de entropía y *health tests*.
+
 ## 21.2 Auditoría de canal: estacionariedad de qgZ por bloques
 
 $\chi^2$ de homogeneidad de $p_0$ entre bloques de $10^4$ ($19$ g.d.l.): canal estacionario $27.1$; deriva lineal de $0\to80$ m-qg: $130.7$, con lecturas por bloque $+7,-32,-22,-49,-71$ m-qg. La deriva invalida la hipótesis i.i.d. de §21.1 antes de que el punto lo muestre (`exact` estadístico). Extracción (Toeplitz/Trevisan) y certificación por desigualdades de Bell quedan referenciadas (§41, §42), no reproducidas.
+
+La auditoría $\chi^2$ de homogeneidad de una tabla $2\times B$ tiene $B-1$ grados de libertad; con $B=20$ bloques son $19$. Rechazar homogeneidad ($130.7$ frente a $27.1$) indica que el proceso no es i.i.d., pero no identifica la causa ni certifica aleatoriedad criptográfica: solo diagnostica deriva en la frecuencia de ceros. La deriva detectada rompe la hipótesis de §21.1: el certificado debe recalcularse por bloques o tras eliminar la no estacionariedad. NIST SP 800-90B evalúa la entropía de la fuente de ruido y las pruebas de salud (*health tests*) de la implementación, no únicamente un intervalo sobre una salida idealizada. Por eso la extracción (Toeplitz/Trevisan) y la certificación por desigualdades de Bell (§41–42) permanecen referenciadas y marcadas `unverified` aquí. NIST IR 8446 separa la estimación de entropía de la calidad estadística de la salida; el estatus `exact` significa exactitud algebraica **dentro del modelo**, no acreditación normativa ni evidencia de resistencia a atacantes con acceso a la fuente.
+
+**Fuentes de la sección.** NIST/SEMATECH *e-Handbook of Statistical Methods*, §7.4.6, <https://www.itl.nist.gov/div898/handbook/prc/section4/prc46.htm>: $\chi^2$ de homogeneidad con $(2-1)(B-1)$ grados de libertad; NIST SP 800-90B, DOI `10.6028/NIST.SP.800-90B`: health tests; NIST IR 8446, DOI `10.6028/NIST.IR.8446`, <https://nvlpubs.nist.gov/nistpubs/ir/2026/NIST.IR.8446.pdf>: comparación SP 800-90B/AIS 20/31.
 
 ## 21.3 Contraste operativo
 
@@ -48,6 +56,8 @@ def block_drift_chi2(bits, block):            # χ² de homogeneidad; devuelve q
 [4] χ²(19 g.d.l.): estacionario 27.1 | deriva 130.7
 verify_cap21: OK
 ```
+La validación reproducible de esta revisión es `verify_cap21: OK`: cert$(10^6)>0.99$, cert$(10^3)<0.9$; certificado $\le$ verdadero con sesgo de $30$ m-qg; $\chi^2_{\text{deriva}}>3\chi^2_{\text{estac}}$; `tests/test_qrng.py` pasa con `2 passed`.
+
 Asserts: cert$(10^6)>0.99$, cert$(10^3)<0.9$; cert $\le$ verdadero con sesgo; $\chi^2_{\text{deriva}}>3\chi^2_{\text{estac}}$.
 
 ### `tests/test_qrng.py`
@@ -68,18 +78,3 @@ def test_cert_grows_with_N(): assert certified_min_entropy(500000, 1000000) > ce
 
 `CHANGELOG.md [Unreleased]`: `qang.qrng`; `tools/verify_cap21.py`; `tests/test_qrng.py`.
 Commit: `docs(cap21): QRNG certificado y auditoría de canal reescritos sobre Cap. 1–20 + qang.qrng + verify_cap21`.
-
-## 21.8 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-El capítulo usa la misma coordenada física que Caps. 19–20: $qg_Z=2p_0-1$. El intervalo se construye sobre $p_0$ con el posterior $\mathrm{Beta}(1+k_0,1+N-k_0)$ y se transforma a $qg_Z$; es un intervalo creíble de colas iguales (*equal-tailed*), no un intervalo de confianza frecuentista ni una cota de cumplimiento sobre el dispositivo físico.
-
-Precisiones que delimitan el cómputo:
-
-1. La etiqueta correcta del código con `q=0.999` es **cola $0.1\%$ por lado / masa central $99.8\%$**, no “$99.9\%$”. Un intervalo central $99.9\%$ exigiría cuantiles $0.0005$ y $0.9995$; cambiar `q` alteraría todos los números de este capítulo ($0.866$, $0.956$, $0.986$, $0.9955$ y $N\approx197358$). NIST TN 2119, §4.5, define el intervalo creíble *equal-tailed* precisamente como los cuantiles $\alpha/2$ y $1-\alpha/2$ del posterior (aquí $\alpha=0.002$).
-2. $H_{\min}^{\mathrm{cert}}=-\log_2((1+\max|qg_Z|)/2)$ toma el peor extremo del intervalo, por lo que es cota inferior del parámetro dentro del modelo i.i.d. Solo es válida bajo muestreo independiente y modelo Beta-Bernoulli con previa uniforme/Bayes-Haar. La deriva detectada en §21.2 rompe esa hipótesis: el certificado de §21.1 debe recalcularse por bloques o tras eliminar la no estacionariedad.
-3. $N=(z/q_{\max})^2$ con $q_{\max}=2\cdot2^{-h}-1$ invierte la aproximación normal $|qg_Z|\le z/\sqrt{N}$ alrededor de $qg_Z=0$; no es una cota exacta en colas pequeñas. Con $z=3.09$ se usa el cuantil normal $0.999$, coherente con la cola $0.1\%$ por lado, y da $|qg_Z|\le7.0$ m-qg y $N\approx197358$ para $h=0.99$.
-4. La auditoría $\chi^2$ de homogeneidad de una tabla $2\times B$ tiene $B-1$ grados de libertad; con $B=20$ bloques son $19$. Rechazar homogeneidad ($130.7$ frente a $27.1$) indica que el proceso no es i.i.d., pero no identifica la causa ni certifica aleatoriedad criptográfica: solo diagnostica deriva en la frecuencia de ceros.
-5. NIST SP 800-90B evalúa la entropía de la fuente de ruido y las pruebas de salud (*health tests*) de la implementación, no únicamente un intervalo sobre una salida idealizada. Por eso la extracción (Toeplitz/Trevisan) y la certificación por desigualdades de Bell (§41–42) permanecen referenciadas y marcadas `unverified` aquí.
-6. NIST IR 8446 compara SP 800-90B con AIS 20/31 y separa la estimación de entropía de la calidad estadística de la salida. El estatus `exact` de esta sección significa exactitud algebraica **dentro del modelo**, no acreditación normativa ni evidencia de resistencia a atacantes con acceso a la fuente.
-
-**Fuentes contrastadas:** NIST TN 2119 (*Estimating Instrument Performance: with Confidence Intervals and Confidence Bounds*, DOI `10.6028/NIST.TN.2119`; `https://nvlpubs.nist.gov/nistpubs/TechnicalNotes/NIST.TN.2119.pdf`): intervalo creíble *equal-tailed* y §4.5; NIST SP 800-90B (*Recommendation for the Entropy Sources Used for Random Bit Generation*, DOI `10.6028/NIST.SP.800-90B`; `https://csrc.nist.gov/pubs/sp/800/90/b/final`): estimación de entropía y health tests; NIST IR 8446 (*Bridging the Gap Between Standards on Random Number Generation*, DOI `10.6028/NIST.IR.8446`; `https://nvlpubs.nist.gov/nistpubs/ir/2026/NIST.IR.8446.pdf`): comparación SP 800-90B/AIS 20/31; NIST/SEMATECH *e-Handbook of Statistical Methods*, §7.4.6 (`https://www.itl.nist.gov/div898/handbook/prc/section4/prc46.htm`): $\chi^2$ de homogeneidad con $(2-1)(B-1)$ grados de libertad.

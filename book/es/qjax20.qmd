@@ -2,7 +2,7 @@
 *Chapter 20 — BB84 in qg Space: Four States in qga, QBER as an m-qg Readout and the Sifted-Bit Budget*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 17 sobre la base de Cap. 1–19 (§40, §43, §44, §49). Módulo: `qang.qkd` (JAX, `jax<0.9`; usa `qang.qdemarc`). Verificación: `tools/verify_cap20.py`.
 
@@ -14,15 +14,27 @@
 
 **EN.** BB84 states are two antipodal pairs on the Bloch sphere; each is prepared with one physical $R_Y$ pulse and at most one virtual $R_Z$ (`exact`).
 
+Los cuatro estados son los autoestados de $Z$ y $X$, con $|\langle Z_0|X_0\rangle|^2=1/2$: son bases mutuamente no sesgadas (MUB). En qga, $500$ qga $=\pi$, así que los polos son $0/500$ y el ecuador es $250$ con $\varphi=0/500$. Preparar con una $R_Y$ más una $R_Z$ virtual es una optimización de compuertas (Cap. 2), no una propiedad de seguridad; supone control de qubit ideal y fase virtual perfecta. La afirmación “un pulso físico por estado” es correcta solo dentro del modelo de qubit único ideal: $R_Z$ virtual no consume duración de pulso, pero sí exige marcos de fase y compuertas virtuales bien calibradas. En implementaciones con pulsos coherentes débiles, pérdida, dark counts y tiempo muerto, el QBER observado mezcla canal, detector y postselección.
+
+**Fuentes de la sección.** Bennett y Brassard 1984, reimpresión en *Theoretical Computer Science* 560, 2014, DOI `10.1016/j.tcs.2014.05.025`, <https://arxiv.org/abs/2003.06557>: cuatro estados, MUB y detección de interceptación; Gisin et al., *Rev. Mod. Phys.* 81, 1301 (2009), DOI `10.1103/RevModPhys.81.1301`, <http://quic.ulb.ac.be/_media/publications/2009-rmp-81-001301.pdf>: implementación de QKD con pulsos débiles y límites prácticos de preparación y detección.
+
 ## 20.2 Intercepta-y-reenvía y canal depolarizante en m-qg
 
 Eve mide una fracción $f$ de los pulsos en $Z$ o $X$ al azar y reenvía: $e=f/4$ exacto ($f=1\Rightarrow25\%\Leftrightarrow500$ m-qg). Canal depolarizante $p$ sin Eve: $e=p/2$ ($p=0.04\Rightarrow+960$ m-qg). Información de Eve (IR): $I_E=f/2=2e$. Tasas por bit tamizado:
 $$r_{\text{IR}}=1-h(e)-2e,\qquad r_{\text{colectivo}}=1-2h(e)\ (\text{Cap. 19}),\qquad e^\star_{\text{col}}=0.110\Leftrightarrow780\text{ m-qg}\Leftrightarrow f^\star=0.44 .$$
 Con $f=0.5$: $e=0.125$ ($750$ m-qg), $r_{\text{col}}=-0.087$ → abortar, aunque $r_{\text{IR}}=+0.206$: la cota colectiva es la que decide (`exact`).
 
+En intercepta-y-reenvía (IR) parcial, Eve elige mal la base con probabilidad $1/2$ y, cuando elige mal, Bob obtiene el bit opuesto con probabilidad $1/2$; por tanto $e=f/4$ y $qg_Z=1-f/2$. Con $f=1$: $e=25\%$ y $qg_Z=500$ m-qg, además de $I_E=0.5$ bit por bit tamizado. Ese canal es entanglement-breaking: no puede sostener distribución de clave, aunque el QBER por sí solo no identifique al atacante. El canal depolarizante del código es $\rho\mapsto(1-p)\rho+pI/2$, convención en la que el error de medida en cualquier base es $p/2$. No debe confundirse con la convención de errores Pauli equiprobables $X,Y,Z$, donde la probabilidad de reemplazo total es $4p/3$; son parametrizaciones distintas del mismo mapa. Combinando con IR: $e=(1-p)f/4+p/2$, que da $e=0.1400$ para $f=0.5$, $p=0.04$. $r_{\mathrm{IR}}=1-h(e)-2e$ es la cota de clave privada $I(A:B)-I_E$ para **este** canal IR con $I_E=2e$, en bits ya tamizados y con corrección de errores ideal de una dirección. No es la cota óptima contra ataques individuales generales. La cota colectiva $r=1-2h(e)$ del Cap. 19 es más conservadora y decide el aborto: con $f=0.5$, $e=0.125$ da $r_{\mathrm{IR}}=+0.2064$ pero $r_{\mathrm{col}}=-0.0871$. El umbral $e^\star=0.110$ corresponde a $f^\star\simeq0.44$, no a “la mitad de los pulsos”.
+
+**Fuentes de la sección.** Gisin et al., *Rev. Mod. Phys.* 81, 1301 (2009), DOI `10.1103/RevModPhys.81.1301`: IR completo con $I_E=0.5$ y QBER $25\%$, además de la distinción entre ataques individuales y colectivos; Shor y Preskill 2000, DOI `10.1103/PhysRevLett.85.441`: tasa colectiva $1-2h(e)$ y umbral $11\%$; Słowik et al. 2023, <https://dl.ifip.org/db/conf/ondm/ondm2023/1570879964.pdf>: IR parcial con $e=\rho/4$, $I_E=\rho/2$ y cota $1-h(e)-I_E$; Preskill, *Ph219/CS219 Chapter 3*, <https://www.preskill.caltech.edu/ph219/chap3_15.pdf>, y <https://arxiv.org/html/2602.22319v2>: convenciones del canal depolarizante y relación entre errores Pauli y QBER.
+
 ## 20.3 Presupuesto de bits tamizados
 
 $N=e(1-e)/\sigma_e^2$; $\sigma_m=2000\,\sigma_e$ en m-qg. Para $\sigma_e=0.005$ ($10$ m-qg): $784$ bits a $e=0.02$, $2\,944$ a $e=0.08$. Lejos del polo ($e\ge0.02$) el método delta y Wilson coinciden; cerca de $e\to0$ usar Wilson/Bayes-Haar (Cap. 4, 21). Con doble carril (Cap. 16) el QBER se estima **dentro del sector de peso 1**, separando pérdida (tasa) de error (fidelidad).
+
+$N=e(1-e)/\sigma_e^2$ es la inversión de la varianza del estimador binomial $\hat e$: $\operatorname{Var}(\hat e)=e(1-e)/N$, con aproximación normal. Para $e=0.02$ y $\sigma_e=0.005$ da $784$ bits **tamizados**; el número de pulsos emitidos es mayor por sifting, pérdida y eficiencia de detección. Cerca de $e\to0$ la aproximación normal falla y deben usarse intervalos Wilson/Bayes-Haar (Caps. 4 y 21). La conversión $\sigma_m=2000\,\sigma_e$ viene de $|d(1000\,qg_Z)/de|=2000$ m-qg. El tratamiento del Cap. 16 con doble carril separa pérdida de error solo dentro del sector de peso 1 y bajo muestreo justo.
+
+**Fuentes de la sección.** LibreTexts/OpenStax, *The Central Limit Theorem for Proportions*, <https://stats.libretexts.org/Bookshelves/Applied_Statistics/Business_Statistics_(OpenStax)/07%3A_The_Central_Limit_Theorem/7.03%3A_The_Central_Limit_Theorem_for_Proportions>: $\operatorname{Var}(\hat p)=p(1-p)/N$ para la proporción muestral; Caps. 4 y 21 para intervalos Wilson/Bayes-Haar y Cap. 16 para la estimación dentro del sector de peso 1.
 
 ## 20.4 Contraste operativo
 
@@ -61,6 +73,8 @@ def sifted_bits_for_qber_sigma(e, s):       # e(1−e)/s²
 [5] |<Z0|X0>|² = 0.5
 verify_cap20: OK
 ```
+La validación reproducible de esta revisión es `verify_cap20: OK`: $e=f/4$ y $e=p/2$ a $10^{-14}$; $N(0.02,0.005)=784$; MUB a $10^{-14}$; `tests/test_qkd.py` pasa con `2 passed`.
+
 Asserts: $e=f/4$ y $e=p/2$ a $10^{-14}$; $N(0.02,0.005)=784$; MUB a $10^{-14}$.
 
 ### `tests/test_qkd.py`
@@ -81,18 +95,3 @@ def test_budget(): assert abs(sifted_bits_for_qber_sigma(0.02, 0.005) - 784) < 1
 
 `CHANGELOG.md [Unreleased]`: `qang.qkd` (`ket`, `BB84`, `intercept_resend`, `depolarize`, `qber`, `eve_info_intercept_resend`, `key_rate_individual`, `sifted_bits_for_qber_sigma`); `tools/verify_cap20.py`; `tests/test_qkd.py`.
 Commit: `docs(cap20): BB84 en espacio qg reescrito sobre Cap. 1–19 + qang.qkd + verify_cap20`.
-
-## 20.8 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-El capítulo usa la misma coordenada física que el Cap. 19: $e=(1-qg_Z)/2$. La novedad aquí es que $e$ se genera con un ataque y un canal explícitos, no que cambie la definición de QBER. La lectura en m-qg sigue siendo la proyección de la base reconciliada.
-
-Precisiones que delimitan el modelo:
-
-1. Los cuatro estados son los autoestados de $Z$ y $X$, con $|\langle Z_0|X_0\rangle|^2=1/2$: son bases mutuamente no sesgadas (MUB). En qga, $500$ qga $=\pi$, así que los polos son $0/500$ y el ecuador es $250$ con $\varphi=0/500$. Preparar con una $R_Y$ más una $R_Z$ virtual es una optimización de compuertas (Cap. 2), no una propiedad de seguridad; supone control de qubit ideal y fase virtual perfecta.
-2. En intercepta-y-reenvía (IR) parcial, Eve elige mal la base con probabilidad $1/2$ y, cuando elige mal, Bob obtiene el bit opuesto con probabilidad $1/2$; por tanto $e=f/4$ y $qg_Z=1-f/2$. Con $f=1$: $e=25\%$ y $qg_Z=500$ m-qg, además de $I_E=0.5$ bit por bit tamizado. Ese canal es entanglement-breaking: no puede sostener distribución de clave, aunque el QBER por sí solo no identifique al atacante.
-3. El canal depolarizante del código es $\rho\mapsto(1-p)\rho+pI/2$, convención en la que el error de medida en cualquier base es $p/2$. No debe confundirse con la convención de errores Pauli equiprobables $X,Y,Z$, donde la probabilidad de reemplazo total es $4p/3$; son parametrizaciones distintas del mismo mapa. Combinando con IR: $e=(1-p)f/4+p/2$, que da $e=0.1400$ para $f=0.5$, $p=0.04$.
-4. $r_{\mathrm{IR}}=1-h(e)-2e$ es la cota de clave privada $I(A:B)-I_E$ para **este** canal IR con $I_E=2e$, en bits ya tamizados y con corrección de errores ideal de una dirección. No es la cota óptima contra ataques individuales generales. La cota colectiva $r=1-2h(e)$ del Cap. 19 es más conservadora y decide el aborto: con $f=0.5$, $e=0.125$ da $r_{\mathrm{IR}}=+0.2064$ pero $r_{\mathrm{col}}=-0.0871$. El umbral $e^\star=0.110$ corresponde a $f^\star\simeq0.44$, no a “la mitad de los pulsos”.
-5. $N=e(1-e)/\sigma_e^2$ es la inversión de la varianza del estimador binomial $\hat e$: $\operatorname{Var}(\hat e)=e(1-e)/N$, con aproximación normal. Para $e=0.02$ y $\sigma_e=0.005$ da $784$ bits **tamizados**; el número de pulsos emitidos es mayor por sifting, pérdida y eficiencia de detección. Cerca de $e\to0$ la aproximación normal falla y deben usarse intervalos Wilson/Bayes-Haar (Caps. 4 y 21). La conversión $\sigma_m=2000\,\sigma_e$ viene de $|d(1000\,qg_Z)/de|=2000$ m-qg.
-6. La afirmación “un pulso físico por estado” es correcta solo dentro del modelo de qubit único ideal: $R_Z$ virtual no consume duración de pulso, pero sí exige marcos de fase y compuertas virtuales bien calibradas. En implementaciones con pulsos coherentes débiles, pérdida, dark counts y tiempo muerto, el QBER observado mezcla canal, detector y postselección; el tratamiento del Cap. 16 con doble carril separa pérdida de error solo dentro del sector de peso 1 y bajo muestreo justo.
-
-**Fuentes contrastadas:** Bennett y Brassard 1984 (reimpresión, *Theoretical Computer Science* 560, 2014, DOI `10.1016/j.tcs.2014.05.025`; `https://arxiv.org/abs/2003.06557`): cuatro estados, MUB y detección de interceptación; Gisin et al., *Rev. Mod. Phys.* 81, 1301 (2009, DOI `10.1103/RevModPhys.81.1301`; `http://quic.ulb.ac.be/_media/publications/2009-rmp-81-001301.pdf`): IR completo con $I_E=0.5$ y QBER $25\%$, además de la distinción entre ataques individuales y colectivos; Shor y Preskill 2000 (DOI `10.1103/PhysRevLett.85.441`): tasa colectiva $1-2h(e)$ y umbral $11\%$; Słowik et al. 2023 (`https://dl.ifip.org/db/conf/ondm/ondm2023/1570879964.pdf`): IR parcial con $e=\rho/4$ e $I_E=\rho/2$ y cota $1-h(e)-I_E$; Preskill, *Ph219/CS219 Chapter 3* (`https://www.preskill.caltech.edu/ph219/chap3_15.pdf`) y `https://arxiv.org/html/2602.22319v2`: convenciones del canal depolarizante y relación entre errores Pauli y QBER; LibreTexts/OpenStax (`https://stats.libretexts.org/Bookshelves/Applied_Statistics/Business_Statistics_(OpenStax)/07%3A_The_Central_Limit_Theorem/7.03%3A_The_Central_Limit_Theorem_for_Proportions`): $\operatorname{Var}(\hat p)=p(1-p)/N$ para la proporción muestral.

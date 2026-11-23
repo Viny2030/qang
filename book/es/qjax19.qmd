@@ -2,7 +2,7 @@
 *Chapter 19 — Demarcation: Quantum Cryptography (QKD/QRNG) versus Post-Quantum Cryptography (PQC). Where There Is a Qubit to Read in m-qg and Where There Is None*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 16 sobre la base de Cap. 1–18. Módulo: `qang.qdemarc` (JAX, `jax<0.9`). Verificación: `tools/verify_cap19.py`. Detalle de BB84 y QRNG: Cap. 20–21.
 
@@ -14,13 +14,25 @@
 
 **EN.** `qang` applies where security rests on a projective readout of a physical qubit (QKD, QRNG) and not to PQC, whose security parameters are uncountable in shots (`against`).
 
+La frontera propuesta no es una jerarquía entre protocolos, sino una diferencia de objeto: `qang` lee un observable de un qubit físico, mientras la criptografía post-cuántica es aritmética clásica sobre retículos, hashes o códigos. Por eso QKD y QRNG entran por la puerta del Cap. 1 —una medición proyectiva con $qg_Z$— y PQC queda marcada como `against`: no hay base de medición, ángulo ni lectura en m-qg que evaluar. Esto no es un juicio de seguridad sobre PQC; es un desajuste de categoría. El $\delta=2^{-138.8}$ es la probabilidad de fallo de descapsulación de ML-KEM-512 según FIPS 203, no el parámetro general de seguridad post-cuántica; el mismo estándar da $2^{-164.8}$ para ML-KEM-768 y $2^{-174.8}$ para ML-KEM-1024. Las categorías NIST 1/3/5 se refieren a resistencias clásicas de $128/192/256$ bits y se comparan con algoritmos de referencia, no con un $\delta$ de fallo. $N_{\mathrm{PQC}}=(3/(2\delta))^2=2^{278.8}$ es una analogía contable para subrayar la incomparabilidad: intentar resolver un evento de probabilidad $2^{-138.8}$ con el presupuesto de disparos de un qubit daría un número inalcanzable, además de que no existe tal qubit. No es un ataque ni una cota de seguridad de PQC; la etiqueta `against` significa “fuera del observable `qang`”.
+
+**Fuentes de la sección.** FIPS 203, <https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.pdf>: tabla 1 de tasas de fallo de descapsulación de ML-KEM y categorías NIST 1/3/5; FIPS 204 y FIPS 205, finalizados en 2024, completan ML-DSA y SLH-DSA; NIST IR 8545, DOI `10.6028/NIST.IR.8545`, y NIST 2025, <https://www.nist.gov/news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-post-quantum-encryption>: selección de HQC como segundo KEM, con normalización en curso. Un QRNG puede alimentar de semillas a un esquema PQC, pero eso ocurre en una capa distinta: el QRNG aporta entropía clásica certificada y el PQC consume bits, sin exponer un observable cuánto-métrico nuevo.
+
 ## 19.2 QKD: el QBER como lectura m-qg y el umbral de 780 m-qg
 
 $e\leftrightarrow qg_Z=1-2e$ en el eje de la base reconciliada. Tasa asintótica BB84 (un solo paso, ataques colectivos): $r=1-2h(e)>0\iff e<0.1100\iff qg_Z>0.780$ ($780$ m-qg). Tabla: QBER $0.02\to+960$ m-qg, $r=0.717$; $0.08\to+840$, $r=0.196$; $0.15\to+700$, $r=-0.220$ (abortar). Decisión de protocolo = umbral en m-qg, con intervalos Wilson/Bayes-Haar (Cap. 4, 8) para la cobertura cerca del polo (`exact`).
 
+La tasa $r=1-2h(e)$ es la cota asintótica de BB84 ideal con postprocesamiento de una sola dirección y ataques colectivos. Da $r=0$ en $e^\star\simeq0.1100$, equivalente a $qg_Z^\star\simeq0.7799$ (780 m-qg). No incluye el factor de sifting $1/2$, correcciones de clave finita, eficiencia de detectores, desalineación ni decoy states. Con local randomization el umbral probado sube a $12.41\%$; sin ese preprocesamiento la prueba de Shor–Preskill solo cubre hasta $11\%$ y la inseguridad se conoce por encima de $\sim14.64\%$. Con postprocesamiento de dos direcciones el intervalo conocido es $20\%$–$25\%$. El $780$ m-qg es una decisión dentro del modelo indicado, no una constante universal. La relación $e\leftrightarrow qg_Z=1-2e$ vale en la base reconciliada y para errores de bit; la seguridad completa de BB84 necesita además estimar errores de fase y el parámetro de privacidad del canal. Un solo $qg_Z$ es la coordenada de la lectura, no la prueba completa. Los intervalos Wilson/Bayes-Haar del Cap. 4 y 8 son la forma correcta de dar cobertura al estimar $e$ con muestras finitas cerca del polo.
+
+**Fuentes de la sección.** Bennett y Brassard, *Quantum cryptography: Public key distribution and coin tossing*, original de 1984, reimpresión en *Theoretical Computer Science* 560, 2014, DOI `10.1016/j.tcs.2014.05.025`, <https://arxiv.org/abs/2003.06557>: BB84 y detección de interceptación por error inducido; Shor y Preskill 2000, *Phys. Rev. Lett.* 85, 441, DOI `10.1103/PhysRevLett.85.441`: seguridad asintótica y tasa $1-2h(e)$; Woodhead 2014, *Phys. Rev. A* 90, 022306, DOI `10.1103/PhysRevA.90.022306`, <https://arxiv.org/abs/1405.5625>: umbral $11\%$, mejora a $12.41\%$ e intervalo de dos direcciones $20\%$–$25\%$.
+
 ## 19.3 QRNG: entropía mínima desde |qgZ|
 
 $H_{\min}=-\log_2\frac{1+|qg_Z|}{2}$: $0$ m-qg → $1.000$ bit; $20$ m-qg → $0.971$; $100$ m-qg → $0.863$; $500$ m-qg → $0.415$. Certificar un sesgo de $20$ m-qg ($\delta=0.01$) a $3\sigma$ cuesta $N=22\,500$ disparos (`exact`).
+
+$H_{\min}=-\log_2\max_x p_x=-\log_2\big((1+|qg_Z|)/2\big)$ es la entropía mínima de **una** distribución de un qubit medida en la base $Z$. En criptografía la cantidad operacional es $H_{\min}(X|E)$ condicionada a información lateral. Los valores $0.9714$ bit a $20$ m-qg y $0.4150$ bit a $500$ m-qg suponen IID, sin memoria y sin información clásica adicional sobre el sesgo. $N=(z/(2\delta))^2$ es la aproximación normal cerca del ecuador ($p\simeq1/2$), donde $\sigma_p=1/(2\sqrt N)$. Para $\delta=0.01$ y $z=3$ da $22\,500$ disparos. Cerca de $p=0$ o $p=1$, o con correlaciones temporales, muertos de detector y ruido clásico, el número debe sustituirse por límites binomiales exactos y por las pruebas de salud de una fuente de entropía; el conteo del capítulo es ideal.
+
+**Fuentes de la sección.** NIST SP 800-90B, DOI `10.6028/NIST.SP.800-90B`, <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90B.pdf>: min-entropía, validación de fuentes de entropía y *health tests*.
 
 ## 19.4 Contraste operativo
 
@@ -58,6 +70,8 @@ def shots_to_resolve_bias(delta, z=3.0):   # (z/(2δ))²
 [3] PQC: δ = 2^-138.8 → N = 2^278.8 'disparos' — incontable; sin qubit: qang no aplica (against)
 verify_cap19: OK
 ```
+La validación reproducible de esta revisión es `verify_cap19: OK`: $e^\star=0.1100\pm2\cdot10^{-4}$ con $1-2h(e^\star)=0$ a $10^{-9}$; $H_{\min}(0)=1$; $\log_2 N_{\text{PQC}}>270$; `tests/test_qdemarc.py` pasa con `3 passed`.
+
 Asserts: $e^\star=0.1100\pm2\cdot10^{-4}$ con $1-2h(e^\star)=0$ a $10^{-9}$; $H_{\min}(0)=1$; $\log_2N_{\text{PQC}}>270$.
 
 ### `tests/test_qdemarc.py`
@@ -80,19 +94,3 @@ def test_pqc_uncountable(): import math; assert math.log2(shots_to_resolve_bias(
 
 `CHANGELOG.md [Unreleased]`: `qang.qdemarc` (`h2`, `qber_to_qz`, `qz_to_qber`, `bb84_rate_from_qz`, `bb84_threshold_qz`, `qrng_min_entropy_from_qz`, `shots_to_resolve_bias`); `tools/verify_cap19.py`; `tests/test_qdemarc.py`.
 Commit: `docs(cap19): demarcación QKD/QRNG vs PQC reescrita sobre Cap. 1–18 + qang.qdemarc + verify_cap19`.
-
-## 19.8 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-La frontera propuesta no es una jerarquía entre protocolos, sino una diferencia de objeto: `qang` lee un observable de un qubit físico, mientras la criptografía post-cuántica es aritmética clásica sobre retículos, hashes o códigos. Por eso QKD y QRNG entran por la puerta del Cap. 1 —una medición proyectiva con $qg_Z$— y PQC queda marcada como `against`: no hay una base de medición, un ángulo ni una lectura en m-qg que evaluar. Esto no es un juicio de seguridad sobre PQC; es un desajuste de categoría.
-
-Precisiones que delimitan las cifras del capítulo:
-
-1. La tasa $r=1-2h(e)$ es la cota asintótica de BB84 ideal con postprocesamiento de una sola dirección y ataques colectivos. Da $r=0$ en $e^\star\simeq0.1100$, equivalente a $qg_Z^\star\simeq0.7799$ (780 m-qg). No incluye el factor de sifting $1/2$, correcciones de clave finita, eficiencia de detectores, desalineación ni decoy states. Con local randomization el umbral probado sube a $12.41\%$; sin ese preprocesamiento la prueba de Shor–Preskill solo cubre hasta $11\%$ y la inseguridad se conoce por encima de $\sim14.64\%$. Con postprocesamiento de dos direcciones el intervalo conocido es $20\%$–$25\%$. El $780$ m-qg es una decisión dentro del modelo indicado, no una constante universal.
-2. $e\leftrightarrow qg_Z=1-2e$ vale en la base reconciliada y para errores de bit. La seguridad completa de BB84 necesita además estimar errores de fase y el parámetro de privacidad del canal; un solo $qg_Z$ es la coordenada de la lectura, no la prueba completa. Los intervalos Wilson/Bayes-Haar del Cap. 4 y 8 son la forma correcta de dar cobertura al estimar $e$ con muestras finitas cerca del polo.
-3. $H_{\min}=-\log_2\max_x p_x=-\log_2\big((1+|qg_Z|)/2\big)$ es la entropía mínima de **una** distribución de un qubit medida en la base $Z$. En criptografía la cantidad operacional es $H_{\min}(X|E)$ condicionada a información lateral. Los valores $0.9714$ bit a $20$ m-qg y $0.4150$ bit a $500$ m-qg suponen IID, sin memoria y sin información clásica adicional sobre el sesgo.
-4. $N=(z/(2\delta))^2$ es la aproximación normal cerca del ecuador ($p\simeq1/2$), donde $\sigma_p=1/(2\sqrt N)$. Para $\delta=0.01$ y $z=3$ da $22\,500$ disparos. Cerca de $p=0$ o $p=1$, o con correlaciones temporales, muertos de detector y ruido clásico, el número debe sustituirse por límites binomiales exactos y por las pruebas de salud de una fuente de entropía; el conteo del capítulo es ideal.
-5. El $\delta=2^{-138.8}$ del capítulo es la probabilidad de fallo de descapsulación de ML-KEM-512 según FIPS 203, no el parámetro general de seguridad post-cuántica. El mismo estándar da $2^{-164.8}$ para ML-KEM-768 y $2^{-174.8}$ para ML-KEM-1024. Las categorías NIST 1/3/5 se refieren a resistencias clásicas de $128/192/256$ bits, a las que corresponde comparar con algoritmos de referencia, no con un $\delta$ de fallo.
-6. $N_{\mathrm{PQC}}=(3/(2\delta))^2=2^{278.8}$ es una analogía contable para subrayar la incomparabilidad: intentar resolver un evento de probabilidad $2^{-138.8}$ con el presupuesto de disparos de un qubit daría un número inalcanzable, además de que no existe tal qubit. No es un ataque ni una cota de seguridad de PQC; la etiqueta `against` significa “fuera del observable `qang`”.
-7. El estado del ecosistema post-cuántico también importa: FIPS 203 (ML-KEM), FIPS 204 (ML-DSA) y FIPS 205 (SLH-DSA) se finalizaron en 2024; HQC fue seleccionado en 2025 como segundo KEM, con normalización en curso. Un QRNG puede alimentar de semillas a un esquema PQC, pero eso ocurre en una capa distinta: el QRNG aporta entropía clásica certificada y el PQC consume bits, sin exponer un observable cuánto-métrico nuevo.
-
-**Fuentes contrastadas:** Bennett y Brassard, *Quantum cryptography: Public key distribution and coin tossing*, original de 1984 (reimpresión, *Theoretical Computer Science* 560, 2014, DOI `10.1016/j.tcs.2014.05.025`; `https://arxiv.org/abs/2003.06557`): BB84 y detección de interceptación por error inducido; Shor y Preskill 2000, *Phys. Rev. Lett.* 85, 441 (DOI `10.1103/PhysRevLett.85.441`): seguridad asintótica y tasa $1-2h(e)$; Woodhead 2014, *Phys. Rev. A* 90, 022306 (DOI `10.1103/PhysRevA.90.022306`; `https://arxiv.org/abs/1405.5625`): umbral $11\%$, mejora a $12.41\%$ e intervalo de dos direcciones $20\%$–$25\%$; NIST SP 800-90B (`https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90B.pdf`, DOI `10.6028/NIST.SP.800-90B`): min-entropía y validación de fuentes de entropía; FIPS 203 (`https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.pdf`): tabla 1 de tasas de fallo de descapsulación de ML-KEM y categorías NIST 1/3/5; NIST IR 8545 (DOI `10.6028/NIST.IR.8545`) y NIST 2025 (`https://www.nist.gov/news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-post-quantum-encryption`): selección de HQC como segundo KEM.
