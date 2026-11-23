@@ -23,6 +23,15 @@ Reference implementation and computational toolkit for:
 - **IQM** devices (`qang.iqm`): readout correction from the two poles or the error profile, qg read-outs of `IQMBackend` counts, chain choice; the project's first real-hardware runs were on IQM Garnet.
 - A bilingual **book**, *Quantum Computing, Information and Physics in qang Space*: [English](https://viny2030.github.io/qang/en/) · [Español](https://viny2030.github.io/qang/es/).
 
+### What's new in 0.17.0 — agents, robotics, adapters, and stabilizer budgeting
+
+- **`qang.qagent` (Cap. 44):** two-action hybrid agent whose policy is one qubit measurement — Born policy, exact REINFORCE gradient/Fisher information 1, closed-form gradient flow (angle as natural gradient of logit), pole/exploration-floor analysis, decision reading, and Neyman shot allocation across tools. Identities and resource budgets; no measured advantage claimed.
+- **`qang.qrobot` (Cap. 43):** one qubit per joint — joint readings/sign trap, variances `1/N` and `(cos^4+sin^4)/N` vs CRB `1/(2N)`, end-effector RMS/shot budget, real-time preflight, scalar Kalman steady state, parameter-shift in qga, and Grover query counting. Identities and resource budgets; no measured advantage claimed.
+- **`qang.adapters`:** lazy-import adapters for PennyLane/Cirq results, TensorCircuit-NG circuits (`qg_z_from_circuit`), and Dynamiqs/jaxquantum states (`qg_z_from_state`); backend-invariance verifier/tests added.
+- **`qang.sectors.stabilizer_shot_budget`:** exact 0/1 knapsack for symmetry-check selection under shot/depth budget (arXiv:2607.01072 vocabulary). Status: `sin_verificar` (not compared against a device noise model).
+- **`qang.measures`:** `min_area`, `pole_damped`, `filter_zne` reclassified `ganancia→mixta`; `stabilizer_budget` added (`sin_verificar`).
+- **Book/docs (summary):** chapters 1–44 and appendices A–H normalized/updated (dates, sources, reproducible validation; Appendix H/markers preserved), with verifiers/tests and parity/tooling checks.
+
 ### What's new in 0.16.0 — string theory read with qang, the single-basis no-go, and CI on Python 3.11–3.13
 
 - **`qang.qstring` and book chapter 42:** exact light-cone counting (D=26, 576=299+276+1), the level as a weighted Hamming weight with a linear Z reading and its T1 filter, T-duality (576 → 676 massless states at the self-dual radius) and the Luttinger parameter of an XXZ ring from one Z histogram. Physical string claims stay `not adopted`.
