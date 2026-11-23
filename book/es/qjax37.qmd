@@ -2,7 +2,7 @@
 *Chapter 37 — Nanoquantum Systems: Tunnelling, Landauer, Partition Noise, Level Occupation, Quantum-Dot Spins and NV Centres Read with the qang Equation*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del capítulo de nanocuántica sobre la base de Cap. 1–36. Módulo: `qang.qnano` (NumPy; el ruido binomial se calcula con la distribución exacta, sin Monte Carlo, salvo la termometría). Verificación: `tools/verify_cap37.py`. **Todo es cálculo y simulación: ninguna cifra viene de un experimento. En el único caso en que `qang` compite como estimador (la termometría), pierde.**
 > **EN abstract.** Transmissions, occupations and spin populations are probabilities, so the qang equation reads them all alike: the half-angle of a tunnelling probability is the transmission amplitude modulus; Landauer's conductance is the mean $qg$ of the channels; partition noise is the binomial variance, stabilised by the angle ($\sqrt N\sigma_\theta\in[1.0005,1.0100]$ for $T\in[0.02,0.98]$). As a thermometer, the artanh line is biased ($-1.9\%$) and noisier than the maximum-likelihood fit. Calculation and simulation only.
@@ -104,6 +104,8 @@ def nv_sigma_mqg(C, Nb, p0=0.5); nv_photons_for(sigma_mqg, C); odmr_fisher_crb_h
 [7] NV C=0.3, Nb=444 444: σ aproximada 10.00 m-qg, exacta 9.22 m-qg; para 10 m-qg exactos hacen falta 377,778 fotones (C=0.3 pide 11.1× los de C=1); ODMR 1 MHz, C=0.2, 61 puntos, 1.16 M fotones: CRB 8.55 kHz = 305 nT (γ=28 GHz/T)
 verify_cap37: OK
 ```
+
+La validación reproducible de esta revisión es `verify_cap37: OK`: $\cos(\theta_T/2)=\sqrt T$ a $10^{-15}$ y las pendientes de $\ln T$ y $\ln(\pi-\theta_T)$ están a $0.01$ de $-2\kappa$ y $-\kappa$; identidad de Landauer a $4.4\cdot10^{-16}$ y recuperación de dos canales a $10^{-12}$; $\sqrt N\sigma_\theta\in[1.0005,1.0100]$ con recorrido de $\sqrt N\sigma_{\hat T}$ mayor que $0.3$; $qg_Z=-\tanh(x/2)$ a $10^{-15}$; ML $1.0000\pm0.0275$ frente a artanh $0.9808\pm0.0366$ con sesgo y dispersión $1.3\times$; lectura $960/-840$ m-qg y presupuesto NV exacto; `tests/test_qnano.py` pasa con `5 passed`.
 
 ### `tests/test_qnano.py`
 ```python

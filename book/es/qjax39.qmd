@@ -2,7 +2,7 @@
 *Chapter 39 — `qang.integrations`: Twelve Libraries, One Reading Contract, Audited with Code*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del capítulo de integraciones sobre la base de Cap. 1–38. Módulos: `qang.integrations.*` (12 adaptadores) y `qang.qintegr` (auditoría, NumPy + biblioteca estándar). Verificación: `tools/verify_cap39.py`. **Estado: `exact` para la auditoría y el filtro bajo T1; `unverified` para toda cifra que exige un SDK** (mitiq, qiskit-experiments, Qiskit Dynamics, QuTiP, Stim, scikit-learn, JAX, PyTorch, Qibo, pytket, Braket, CUDA-Q), porque ninguno se instala en el entorno de verificación de este capítulo. Los resultados numéricos del capítulo anterior se citan, con su fuente, como `unverified` y se reproducen con `pytest` en el entorno de cada extra.
 >
@@ -66,6 +66,8 @@ missing_library_message("mitiq")                   # 'pip install "qang[mitiq]"'
 [5] W de 3 qubits, t/T1 = 0.6: lectura cruda +634.1 m-qg, filtrada +333.333 m-qg (ideal +333.333); fracción conservada 0.5488 = e^(−0.6)
 verify_cap39: OK
 ```
+
+La validación reproducible de esta revisión es `verify_cap39: OK`: 12 adaptadores = catálogo y guardas `require()` 12/12; extras 12/12, con `cudaq` y `qiskit_dynamics` fuera del extra `integrations`; 12/12 ejercitados por tests y 0 sin `importorskip`; mensaje de instalación con `qang[extra]`; W de 3 qubits a $t/T_1=0.6$: cruda $+634.1$ m-qg a $0.05$, filtrada $+333.333$ m-qg a $10^{-9}$ del ideal y fracción conservada $e^{-0.6}$ a $10^{-12}$; `tests/test_qintegr.py` pasa con `7 passed`.
 
 `tests/test_qintegr.py` (7 pruebas): niveles de importación, extras y mensaje, guardas de tests (directa y por ayudante), guardas `require()` (llamada y asignación), filtro exacto del estado W.
 

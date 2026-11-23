@@ -1,6 +1,8 @@
 # Chapter 38 — Cross-Cutting Applications Read with qang: Fermions and Jordan–Wigner, Hahn Echo, Transverse-Field Ising, Aharonov–Bohm, Wigner, Fresnel and the Unruh Vacuum {#sec-qjax38 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Partial rewrite of the cross-cutting chapter on the basis of Ch. 1–37. Module: `qang.qtransv` (exact NumPy). Verification: `tools/verify_cap38.py`. **It covers seven of the thirteen phenomena of the previous chapter; the others (H₂ UCC, Kitaev chain, Jarzynski, GHZ Fisher, Fubini–Study, OTOC, level ladders) are cited without re-running (`unverified`). Everything is a closed formula, exact diagonalization or 2×2/4×4 algebra: no figure comes from an experiment.**
 > **Abstract.** Seven phenomena are recomputed exactly: the fermionic exchange sign is the difference between the two poles of $qg_X$ ($-1000$ vs $+1000$ m-qg); the Hahn echo reads $qg_X=1.000000$ for static detuning and 179 m-qg lower under 10 % drift; the transverse-field Ising peak sits at $\theta=\pi/4$ only in the thermodynamic limit; Aharonov–Bohm gives $qg_Z=\cos(2\pi\Phi/\Phi_0)$; Wigner rotation $18.92^\circ$; Fresnel; and $\theta/2=\operatorname{gd}(r)$ for the Unruh vacuum weight. Six others are cited, not re-run.
@@ -101,6 +103,8 @@ def vacuum_weight(r); gudermannian(r); thermal_entropy_nats(r); thermal_entropy_
 [7] θ/2 = gd(r) = arctan(sinh r) to 2e-16; closed entropy − sum: r=0.25: 3e-17, r=0.5: 2e-16, r=1.0: 7e-16, r=1.5: 2e-06 (cutoff of 80 levels)
 verify_cap38: OK
 ```
+
+The reproducible validation of this review is `verify_cap38: OK`: anticommutation error $<10^{-15}$ and $qg_X=\mp1000$ m-qg; static echo $1.000000$ to $10^{-12}$, $+2\%$ pulse $0.99901$ to $10^{-5}$ and $10\%$ drift $0.8209$ to $10^{-4}$; monotonically decreasing $m_X(g=J)$ with $732.3$ m-qg at $N=10$ (within $0.06$); flux period $<10^{-12}$ and $\sqrt N\sigma(\hat\Phi/\Phi_0)\in(0.1591,0.1600)$; $\Omega_W=0.3303$ rad to $5\cdot10^{-5}$, $qg_X=+945.9$ m-qg and collinear boosts $<10^{-7}$; Brewster $r_p<10^{-15}$, TIR $|r|=1$ to $10^{-14}$ and $qg_Y=+600$ m-qg; $\theta/2=\operatorname{gd}(r)$ to $10^{-14}$ and $S_{\text{closed}}-S_{\text{sum}}<10^{-12}$ for $r\le1$; `tests/test_qtransv.py` passes with `5 passed`.
 
 ### `tests/test_qtransv.py`
 ```python

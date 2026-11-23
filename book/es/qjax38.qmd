@@ -2,7 +2,7 @@
 *Chapter 38 — Cross-Cutting Applications Read with qang: Fermions and Jordan–Wigner, Hahn Echo, Transverse-Field Ising, Aharonov–Bohm, Wigner, Fresnel and the Unruh Vacuum*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura parcial del capítulo transversal sobre la base de Cap. 1–37. Módulo: `qang.qtransv` (NumPy exacto). Verificación: `tools/verify_cap38.py`. **Cubre siete de los trece fenómenos del capítulo anterior; los otros (UCC de H₂, cadena de Kitaev, Jarzynski, Fisher de GHZ, Fubini–Study, OTOC, escaleras de niveles) se citan sin re-ejecutar (`unverified`). Todo es fórmula cerrada, diagonalización exacta o álgebra 2×2/4×4: ninguna cifra viene de un experimento.**
 > **EN abstract.** Seven phenomena are recomputed exactly: the fermionic exchange sign is the difference between the two poles of $qg_X$ ($-1000$ vs $+1000$ m-qg); the Hahn echo reads $qg_X=1.000000$ for static detuning and 179 m-qg lower under 10 % drift; the transverse-field Ising peak sits at $\theta=\pi/4$ only in the thermodynamic limit; Aharonov–Bohm gives $qg_Z=\cos(2\pi\Phi/\Phi_0)$; Wigner rotation $18.92^\circ$; Fresnel; and $\theta/2=\operatorname{gd}(r)$ for the Unruh vacuum weight. Six others are cited, not re-run.
@@ -103,6 +103,8 @@ def vacuum_weight(r); gudermannian(r); thermal_entropy_nats(r); thermal_entropy_
 [7] θ/2 = gd(r) = arctan(sinh r) a 2e-16; entropía cerrada − suma: r=0.25: 3e-17, r=0.5: 2e-16, r=1.0: 7e-16, r=1.5: 2e-06 (corte de 80 niveles)
 verify_cap38: OK
 ```
+
+La validación reproducible de esta revisión es `verify_cap38: OK`: error de anticonmutación $<10^{-15}$ y $qg_X=\mp1000$ m-qg; eco estático $1.000000$ a $10^{-12}$, pulso $+2\%$ $0.99901$ a $10^{-5}$ y deriva $10\%$ $0.8209$ a $10^{-4}$; $m_X(g=J)$ monótono y $732.3$ m-qg en $N=10$ (dentro de $0.06$); periodo de flujo $<10^{-12}$ y $\sqrt N\sigma(\hat\Phi/\Phi_0)\in(0.1591,0.1600)$; $\Omega_W=0.3303$ rad a $5\cdot10^{-5}$, $qg_X=+945.9$ m-qg y colineales $<10^{-7}$; Brewster $r_p<10^{-15}$, TIR $|r|=1$ a $10^{-14}$ y $qg_Y=+600$ m-qg; $\theta/2=\operatorname{gd}(r)$ a $10^{-14}$ y $S_{\text{cerrada}}-S_{\text{suma}}<10^{-12}$ para $r\le1$; `tests/test_qtransv.py` pasa con `5 passed`.
 
 ### `tests/test_qtransv.py`
 ```python

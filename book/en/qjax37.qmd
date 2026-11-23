@@ -1,6 +1,8 @@
 # Chapter 37 — Nanoquantum Systems: Tunnelling, Landauer, Partition Noise, Level Occupation, Quantum-Dot Spins and NV Centres Read with the qang Equation {#sec-qjax37 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the nanoquantum chapter on the basis of Ch. 1–36. Module: `qang.qnano` (NumPy; binomial noise is computed with the exact distribution, no Monte Carlo, except for thermometry). Verification: `tools/verify_cap37.py`. **Everything is calculation and simulation: no figure comes from an experiment. In the only case where `qang` competes as an estimator (thermometry), it loses.**
 > **Abstract.** Transmissions, occupations and spin populations are probabilities, so the qang equation reads them all alike: the half-angle of a tunnelling probability is the transmission amplitude modulus; Landauer's conductance is the mean $qg$ of the channels; partition noise is the binomial variance, stabilised by the angle ($\sqrt N\sigma_\theta\in[1.0005,1.0100]$ for $T\in[0.02,0.98]$). As a thermometer, the artanh line is biased ($-1.9\%$) and noisier than the maximum-likelihood fit. Calculation and simulation only.
@@ -102,6 +104,8 @@ def nv_sigma_mqg(C, Nb, p0=0.5); nv_photons_for(sigma_mqg, C); odmr_fisher_crb_h
 [7] NV C=0.3, Nb=444 444: approximate σ 10.00 m-qg, exact 9.22 m-qg; for exactly 10 m-qg one needs 377,778 photons (C=0.3 asks 11.1× those of C=1); ODMR 1 MHz, C=0.2, 61 points, 1.16 M photons: CRB 8.55 kHz = 305 nT (γ=28 GHz/T)
 verify_cap37: OK
 ```
+
+The reproducible validation of this review is `verify_cap37: OK`: $\cos(\theta_T/2)=\sqrt T$ to $10^{-15}$ and the slopes of $\ln T$ and $\ln(\pi-\theta_T)$ are within $0.01$ of $-2\kappa$ and $-\kappa$; Landauer identity to $4.4\cdot10^{-16}$ and two-channel recovery to $10^{-12}$; $\sqrt N\sigma_\theta\in[1.0005,1.0100]$ with a $\sqrt N\sigma_{\hat T}$ range above $0.3$; $qg_Z=-\tanh(x/2)$ to $10^{-15}$; ML $1.0000\pm0.0275$ versus biased artanh $0.9808\pm0.0366$ with $1.3\times$ spread; readout $960/-840$ m-qg and exact NV photon budget; `tests/test_qnano.py` passes with `5 passed`.
 
 ### `tests/test_qnano.py`
 ```python

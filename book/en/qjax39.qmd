@@ -1,6 +1,8 @@
 # Chapter 39 — `qang.integrations`: Twelve Libraries, One Reading Contract, Audited with Code {#sec-qjax39 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the integrations chapter on the basis of Ch. 1–38. Modules: `qang.integrations.*` (12 adapters) and `qang.qintegr` (audit, NumPy + standard library). Verification: `tools/verify_cap39.py`. **Status: `exact` for the audit and the filter under T1; `unverified` for every figure that requires an SDK** (mitiq, qiskit-experiments, Qiskit Dynamics, QuTiP, Stim, scikit-learn, JAX, PyTorch, Qibo, pytket, Braket, CUDA-Q), because none is installed in the verification environment of this chapter. The numerical results of the previous chapter are cited, with their source, as `unverified` and are reproduced with `pytest` in the environment of each extra.
 >
@@ -64,6 +66,8 @@ missing_library_message("mitiq")                   # 'pip install "qang[mitiq]"'
 [5] 3-qubit W, t/T1 = 0.6: raw reading +634.1 m-qg, filtered +333.333 m-qg (ideal +333.333); fraction kept 0.5488 = e^(−0.6)
 verify_cap39: OK
 ```
+
+The reproducible validation of this review is `verify_cap39: OK`: 12 adapters = catalogue and `require()` guards 12/12; extras 12/12, with `cudaq` and `qiskit_dynamics` outside the `integrations` extra; 12/12 exercised by tests and 0 without `importorskip`; installation message with `qang[extra]`; 3-qubit W at $t/T_1=0.6$: raw $+634.1$ m-qg to $0.05$, filtered $+333.333$ m-qg to $10^{-9}$ of the ideal and kept fraction $e^{-0.6}$ to $10^{-12}$; `tests/test_qintegr.py` passes with `7 passed`.
 
 `tests/test_qintegr.py` (7 tests): import levels, extras and message, test guards (direct and by helper), `require()` guards (call and assignment), exact filter of the W state.
 
