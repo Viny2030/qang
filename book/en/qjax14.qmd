@@ -1,6 +1,8 @@
 # Chapter 14 — Majorana Phases, 0νββ, Sterile Neutrinos in the |11⟩ Sector and Angular Projections {#sec-qjax14 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 11 on the basis of Ch. 1–13. Module: `qang.qmajorana` (JAX, `jax<0.9`; uses `qang.qneutrino`; aligned with `qang.angular`, §155, §163). Verification: `tools/verify_cap14.py`.
 
@@ -10,18 +12,34 @@
 
 $U=U_{\text{PMNS}}\,\mathrm{diag}(1,e^{i\alpha_{21}/2},e^{i\alpha_{31}/2})$. In the language of Ch. 2 and 12, the Majorana phases are $R_Z$ rotations **in the mass basis**, which commute with the propagation $R_Z(\phi_i)$ and cancel in $|U_{\beta i}e^{-i\phi_i}U^*_{\alpha i}|^2$. Verified: $P(\nu_\alpha\to\nu_\beta)$ invariant to $10^{-14}$ for 9 pairs $(\alpha_{21},\alpha_{31};L/E)$ (`exact`). Operational consequence: no oscillation experiment, with or without `qang`, measures $\alpha_{21},\alpha_{31}$; the `m-qg` readout is blind to them by construction.
 
+The separation between Majorana phases and oscillations is the expected one: $U_{\text{PMNS}}\mathrm{diag}(1,e^{i\alpha_{21}/2},e^{i\alpha_{31}/2})$ differs from $U_{\text{PMNS}}$ by a diagonal matrix in the mass basis, which commutes with the propagation phases and cancels in $U_{\beta i}e^{-i\phi_i}U^*_{\alpha i}$. The same phase does enter $m_{\beta\beta}=|\sum_iU_{ei}^2m_i|$, as noted by the PDG and $0\nu\beta\beta$ reviews.
+
+**Sources for this section.** E. Majorana, *Nuovo Cim.* 14, 171–184 (1937), DOI `10.1007/BF02961314`, <https://link.springer.com/article/10.1007/BF02961314>.
+
 ## 14.2 Effective 0νββ mass: three phasors, no quantum gain
 
 $$|m_{\beta\beta}|=\Big|\sum_iU_{ei}^2m_i\Big|=\big|c_{12}^2c_{13}^2m_1+s_{12}^2c_{13}^2m_2e^{i\alpha_{21}}+s_{13}^2m_3e^{i(\alpha_{31}-2\delta)}\big| .$$
 Ranges (sweep $\alpha_{21},\alpha_{31}\in[0,2\pi)$, $73^2$ points): NO with $m_{\text{light}}=0$: $[1.4,3.7]$ meV; NO with $0.05$ eV: $[17.5,50.7]$ meV; IO with $m_{\text{light}}=0$: $[18.8,48.5]$ meV. It is classical three-phasor arithmetic: status `no gain` (analogous to PQC, THEORY_CORE §2.6). `qang` contributes only the geometric reading (the three moduli $|U_{ei}|^2m_i$ and their angles in qga), not a resource reduction.
 
+The ranges $[1.4,3.7]$ meV (NO, $m_{\text{light}}=0$), $[17.5,50.7]$ meV (NO, $0.05$ eV) and $[18.8,48.5]$ meV (IO, $m_{\text{light}}=0$) are sweeps of $\alpha_{21},\alpha_{31}$ with the verifier's fixed parameters. They are not confidence intervals and include neither oscillation-parameter uncertainty, nuclear matrix elements nor $g_A$; hence the `no gain` status, not a mass determination. The $73^2$ grid on $[0,2\pi)$ includes the endpoint $\alpha=0\equiv2\pi$ twice; this does not change the reported extrema, but it should be read as periodic sampling with a duplicated border.
+
+**Sources for this section.** PDG 2024, *Neutrinoless Double-β Decay*, <https://pdg.lbl.gov/2024/reviews/rpp2024-rev-neutrinoless-double-beta-decay.pdf>; S. Agostini et al. 2023, *Rev. Mod. Phys.* 95, 025002, <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.95.025002>.
+
 ## 14.3 Sterile 3+1: the |11⟩ sector changes meaning
 
 In Ch. 12 the encoding $e,\mu,\tau\mapsto|00\rangle,|01\rangle,|10\rangle$ leaves $|11\rangle$ **unphysical** and enables the sector filter. With a fourth flavor $\nu_s\mapsto|11\rangle$ the weight there is **signal**: $P(\nu_\alpha\to\nu_s)=p(|11\rangle)$. Rule: **the sector filter is forbidden in $3+1$**; instead the weight in $|11\rangle$ is compared with the spurious background $\varepsilon/4$ from depolarization (Ch. 12, §4). Conservative threshold without calibration: $P_s>z\varepsilon/4$. Reactor SBL instance ($L=500$ m, $E=3$ MeV, $\Delta m^2_{41}=1$ eV$^2$, $\sin^2\theta_{14}=0.1$): $\phi_{41}=67\,216$ qga (67.2 turns: averaged regime), $P_s=0.1357$ → $+729$ m-qg on the $(e,s)$ axis; detectable at $3\sigma$ for $\varepsilon\le0.10$ (`exact` for the model; hardware `unverified`). Cost: 2 qubits for 4 flavors ($-2$ versus one-hot), the same as Ch. 12 but without a filter.
 
+The rule "sector filter forbidden in $3+1$" is specific to this 2-qubit encoding: $e,\mu,\tau,s\mapsto|00\rangle,|01\rangle,|10\rangle,|11\rangle$, where $|11\rangle$ is signal and discarding it would destroy $P_s$. The $5.5\times$ gain reported in §163 / `RESEARCH_NOTES.md` belongs to a different experiment: `sterile_circuit` uses **4 one-hot qubits**, keeps the weight-1 sector and was evaluated only with simulated noise models. There is no contradiction: the encodings and channels differ.
+
+The SBL instance ($L=500$ m, $E=3$ MeV, $\Delta m^2_{41}=1$ eV², $\sin^2\theta_{14}=0.1$) is illustrative and lies in the averaged regime: $\phi_{41}=422.3$ rad $=67\,216$ qga ($\approx67.2$ turns). $P_s=0.1357$ is compared with the model depolarization background $\varepsilon/4$, not a measured background. Global fits and STEREO/PROSPECT strongly constrain the sterile explanation of the reactor anomaly, so the existence of $\nu_s$ is not claimed.
+
+**Sources for this section.** G. Mention et al. 2011, *The Reactor Antineutrino Anomaly*, <https://arxiv.org/abs/1101.2755>; STEREO/PROSPECT 2021, <https://arxiv.org/html/2105.13776v1>; reactor anomaly review 2021, <https://arxiv.org/html/2109.13541v1>. Internal contrast: `RESEARCH_NOTES.md` §163 and `README.md` (4-qubit one-hot encoding).
+
 ## 14.4 Angular projections (`qang.angular`): qgZ=m/j
 
 For spin/angular momentum $j$ the natural reading is $qg_Z^{(j)}=\langle J_z\rangle/j\in\{-1,\dots,+1\}$ with step $1/j$ ($1000/j$ m-qg): $j=\tfrac12$ is the qubit; $j=1$: $\{-1000,0,+1000\}$; $j=2$: step $500$ m-qg. QFI of the polar angle of a spin coherent state: $4\,\mathrm{Var}(J_y)=2j$ rad$^{-2}$ ($=2j\cdot3.95\cdot10^{-5}$ qga$^{-2}$), which reduces to 1 for the qubit (Ch. 9). Identity `exact`; qudit advantage on hardware `unverified` (THEORY_CORE §2.7: not claimed).
+
+For $j=2$, $QFI(\theta)=4\,\mathrm{Var}(J_y)=2j=4.0$ rad$^{-2}$ and $\mathrm{RAD\_PER\_QGA}^2=(2\pi/1000)^2=3.948\cdot10^{-5}$ give $1.579\cdot10^{-4}$ qga$^{-2}$ (verifier). The identity is `exact`; the qudit advantage on hardware remains `unverified`.
 
 ## 14.5 Operational contrast — Without `qang` vs. with `qang`
 
@@ -65,6 +83,10 @@ def qz_spin_projection(m, j):                             # qg_Z^{(j)} = m/j
 [4] j=2.0: qg_Z ∈ [-1000 -500 0 500 1000] m-qg; QFI(θ)=4.0 rad⁻²
 verify_cap14: OK
 ```
+
+The reproducible validation of this review is `verify_cap14: OK`: Majorana-phase invariance to $10^{-14}$ in 9 configurations; $|m_{\beta\beta}|$ ranges for NO/IO; $P_s=0.1357$ in $|11\rangle$ with threshold $z\varepsilon/4$; the $qg_Z^{(j)}$ grid and $QFI=2j$ for $j=0.5,1,1.5,2$; `tests/test_qmajorana.py` passes with `3 passed`.
+
+Note: in `tools/verify_cap14.py` the imports `embed_two_qubits`, `depolarize` and `sector_filter` are unused; they do not affect the four validated blocks.
 
 ### `tests/test_qmajorana.py`
 ```python

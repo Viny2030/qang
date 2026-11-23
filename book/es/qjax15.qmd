@@ -2,7 +2,7 @@
 *Chapter 15 — Optical Teleportation and the Bell-Pair Limit: the Channel as a Linear m-qg Contraction and the 333 m-qg Threshold*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 12 sobre la base de Cap. 1–14. Módulo: `qang.qtele` (JAX, `jax<0.9`; alineado con `qang.qpon`, §57, §157). Verificación: `tools/verify_cap15.py`. Doble carril y filtro de sector a larga distancia: Cap. 16.
 
@@ -14,19 +14,31 @@
 $$F_s=\tfrac14\big(1+qg_{XX}-qg_{YY}+qg_{ZZ}\big),\qquad \bar F=\frac{2F_s+1}{3},\qquad \bar F_{\text{Werner}}=\frac{1+V}{2}.$$
 Umbral clásico $\bar F=2/3\iff F_s=1/2\iff V=1/3$: **el par de Bell es útil si y sólo si $qg_{ZZ}>333$ m-qg** bajo el modelo de Werner (`exact`). Para un recurso general se necesitan las 3 bases; la lectura de una sola base es cota superior (§15.4).
 
+El umbral $qg_{ZZ}=1/3$ ($333$ m-qg) marca el límite de teleportación mejor que clásica y, en el modelo de Werner, el de entrelazamiento; no marca violación de Bell: la familia de Werner viola CHSH sólo para $V>1/\sqrt2$. La fracción de singlete $F_s=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ se refiere a $|\Psi^-\rangle$; con $\rho_V$ mezclada con $|\Phi^+\rangle$ los correladores son $(+V,-V,+V)$. El convenio Bell elegido cambia el signo de $qg_{YY}$, no $\bar F$.
+
+**Fuentes de la sección.** R. Werner, *Phys. Rev. A* 40, 4277 (1989), DOI `10.1103/PhysRevA.40.4277`, <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.40.4277>; M. Horodecki, P. Horodecki y R. Horodecki, *Phys. Rev. A* 60, 1888 (1999), DOI `10.1103/PhysRevA.60.1888`, <https://arxiv.org/html/quant-ph/9807091v2>.
+
 **EN.** The Werner resource is read as three single-basis correlators; the classical threshold is $qg_{ZZ}=333$ m-qg under the Werner model (`exact`), and an upper bound otherwise.
 
 ## 15.2 El canal de teleportación en m-qg: m'=V m
 
 Teleportación completa (medida de Bell sobre entrada⊗A, corrección de Pauli en B) con recurso $\rho_V$ es el canal depolarizante $\mathbf r\mapsto V\mathbf r$; en lectura: $m\text{-qg}'=V\cdot m\text{-qg}$ para cualquier eje, verificado a $10^{-13}$ sobre entradas aleatorias. Ejemplo: $+600$ m-qg $\to+420$ ($V=0.7$) $\to+200$ ($V=1/3$). El déficit disipativo del estado teleportado (Cap. 5) es $qg_\tau=\sqrt{1-V^2r^2}$. La fidelidad promedio sobre el 2-diseño de 6 autoestados de Pauli reproduce $(1+V)/2$ a $10^{-13}$ (`exact`).
 
+$m\text{-qg}'=V\,m\text{-qg}$ es la contracción del canal depolarizante inducido por teleportación imperfecta, verificada sobre 9 entradas aleatorias a $10^{-13}$; no implica atenuación física del fotón ni pérdida, sino el promedio sobre el recurso mixto.
+
+**Fuentes de la sección.** C. H. Bennett et al., *Phys. Rev. Lett.* 70, 1895 (1993), DOI `10.1103/PhysRevLett.70.1895`, <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.70.1895>.
+
 ## 15.3 Presupuesto de disparos y configuraciones
 
 Desde $qg_{ZZ}$: $\sigma_{\bar F}=\tfrac12\sqrt{(1-V^2)/N}$ ⇒ $N=(1-V^2)/(4\sigma_{\bar F}^2)$: $475$ disparos ($V=0.9$) o $1\,600$ ($V=0.6$) para $\sigma_{\bar F}=0.01$ en **una** configuración. Tomografía de proceso del canal: 4 entradas $\times$ 3 bases $=12$ configuraciones, $\ge12N$ disparos para la misma precisión por celda (`exact`, conteo).
 
+El presupuesto $N=(1-V^2)/(4\sigma_{\bar F}^2)$ supone disparos independientes, estimador de $qg_{ZZ}$ sin error de lectura, sin fondos oscuros y con la forma Werner conocida; da $475$ y $1\,600$ disparos para $V=0.9$ y $0.6$. La comparación con $12N$ es a igual $\sigma$ por celda de tomografía, no a igual información global: una sola base no reconstruye el proceso completo.
+
 ## 15.4 Hallazgo `mixed`: la lectura de una base sobreestima recursos no Werner
 
 Recurso con desfase puro ($qg_{ZZ}=1$, $qg_{XX}=0.8$): $\bar F$ real (3 bases) $=0.9333$; $\bar F$ supuesta Werner desde $qg_{ZZ}$ $=1.0000$ (sesgo $+0.067$). Regla: **certificar con 3 bases; planificar con 1**. Un recurso con $qg_{ZZ}>1/3$ pero $qg_{XX}+qg_{ZZ}\le1$ no está certificado como entrelazado (testigo de 2 bases, Cap. 5).
+
+La cota $\bar F_{1\text{ base}}\ge\bar F_{3\text{ bases}}$ se verificó en el estado no Werner construido en `verify_cap15.py` §5. La regla operativa `planificar con 1, certificar con 3` es conservadora; el capítulo no la presenta como teorema general para todo estado de dos qubits.
 
 ## 15.5 Contraste operativo — Sin `qang` vs. con `qang`
 
@@ -37,6 +49,10 @@ Recurso con desfase puro ($qg_{ZZ}=1$, $qg_{XX}=0.8$): $\bar F$ real (3 bases) $
 | Predicción de la salida | simular el canal | $m'=V\,m$ en cualquier eje | (`exact`) |
 | Recurso no Werner | — | 1 base sesga $+0.067$; usar 3 bases | `mixed` |
 | Hardware óptico (§57, §157) | — | referenciado, no reproducido aquí | `unverified` en este cap. |
+
+La implementación óptica se cita como antecedente experimental, no se reproduce: el hardware queda `unverified` en este capítulo. En particular, el protocolo aquí verificado usa medición de Bell y correcciones de Pauli ideales en simulación.
+
+**Fuentes de la sección.** D. Bouwmeester et al., *Nature* 390, 575 (1997), DOI `10.1038/37539`, <https://www.nature.com/articles/37539>; D. Boschi et al., *Phys. Rev. Lett.* 80, 1121 (1998), DOI `10.1103/PhysRevLett.80.1121`, <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.80.1121>.
 
 ## 15.6 Bloque JAX (`qang/qtele.py`)
 
@@ -76,6 +92,9 @@ def shots_for_fidelity(V, sigma_F):             # (1 − V²)/(4σ_F²)
 [5] no Werner: qg_XX=0.80, qg_ZZ=1.00; F̄(3 bases)=0.9333, F̄(1 base)=1.0000 → sesgo +0.0667 (mixed)
 verify_cap15: OK
 ```
+
+La validación reproducible de esta revisión es `verify_cap15: OK`: correladores y $F_s$ a $10^{-14}$; Bloch de salida $=V\mathbf r$ a $10^{-13}$ (9 entradas aleatorias); $\bar F$ sobre el 2-diseño a $10^{-13}$; $\bar F(V=1/3)=2/3$ a $10^{-15}$; $\bar F_{1\text{ base}}\ge\bar F_{3\text{ bases}}$; `tests/test_qtele.py` pasa con `3 passed`.
+
 Asserts: correladores y $F_s$ a $10^{-14}$; Bloch de salida $=V\mathbf r$ a $10^{-13}$ (9 entradas aleatorias); $\bar F$ sobre 2-diseño a $10^{-13}$; $\bar F(V=1/3)=2/3$ a $10^{-15}$; $\bar F_{1\text{ base}}\ge\bar F_{3\text{ bases}}$.
 
 ### `tests/test_qtele.py`
@@ -116,18 +135,3 @@ def test_werner_correlators():
 - `.github/workflows/book.yml`: `GH_TOKEN` en `quarto-actions/setup` (403 al resolver TinyTeX).
 ```
 Commit: `docs(cap15): teleportación y límite del par de Bell reescritos sobre Cap. 1–14 + qang.qtele + verify_cap15`.
-
-## 15.9 Contraste bibliográfico y precisiones de revisión (2026-11-21)
-
-La relación $\bar F=(2F_s+1)/3$ es el caso $d=2$ del teorema de Horodecki $f_{\max}=(F_{\max}d+1)/(d+1)$ para teleportación óptima con operaciones locales y comunicación clásica. El umbral $\bar F=2/3$ equivale a $F_s=1/2$ y, para el recurso de Werner, a $V=1/3$ (`exact`, Cap. 1–14 + literatura).
-
-Precisiones que delimitan las cifras:
-
-1. $qg_{ZZ}=1/3$ (333 m-qg) marca el límite de teleportación mejor que clásica y, en el modelo de Werner, el límite de entangledo. No marca violación de Bell: la familia de Werner viola CHSH sólo para $V>1/\sqrt2$. No confundir los tres umbrales.
-2. $F_s=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ es la fracción de singlete respecto de $|\Psi^-\rangle$; el recurso $\rho_V$ se escribió como mezcla con $|\Phi^+\rangle$, así que los correladores son $(+V,-V,+V)$. El convenio Bell elegido no cambia $\bar F$, pero sí el signo de $qg_{YY}$; no hay cambio en la lectura.
-3. $m\text{-qg}'=V\,m\text{-qg}$ es la contracción del canal depolarizante inducido por teleportación imperfecta, verificada sobre 9 entradas aleatorias a $10^{-13}$. No implica atenuación física del fotón ni pérdida; es el promedio sobre el recurso mixto.
-4. El presupuesto $N=(1-V^2)/(4\sigma_{\bar F}^2)$ supone disparos independientes, estimador de $qg_{ZZ}$ sin error de lectura, sin fondos oscuros y con la forma Werner conocida. Da $475$ y $1\,600$ disparos para $V=0.9$ y $0.6$; la comparación con $12N$ es a igual $\sigma$ **por celda** de tomografía, no a igual información global: una sola base no reconstruye el proceso completo.
-5. La cota $\bar F_{1\text{ base}}\ge\bar F_{3\text{ bases}}$ se verificó en el estado no Werner construido en `verify_cap15.py` §5. La regla operativa `planificar con 1, certificar con 3` es conservadora; el capítulo no la presenta como teorema general para todo estado de dos qubits.
-6. La implementación óptica se cita como antecedente experimental, no se reproduce: el hardware queda `unverified` en este capítulo. En particular, el protocolo aquí verificado usa medición de Bell y correcciones de Pauli ideales en simulación.
-
-**Fuentes contrastadas:** Bennett et al. 1993, *Phys. Rev. Lett.* 70, 1895–1899 (DOI `10.1103/PhysRevLett.70.1895`, `https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.70.1895`); Werner 1989, *Phys. Rev. A* 40, 4277–4281 (DOI `10.1103/PhysRevA.40.4277`, `https://journals.aps.org/pra/abstract/10.1103/PhysRevA.40.4277`); Horodecki, Horodecki y Horodecki 1999, *Phys. Rev. A* 60, 1888 (DOI `10.1103/PhysRevA.60.1888`, `https://arxiv.org/html/quant-ph/9807091v2`); Bouwmeester et al. 1997, *Nature* 390, 575–579 (DOI `10.1038/37539`, `https://www.nature.com/articles/37539`); Boschi et al. 1998, *Phys. Rev. Lett.* 80, 1121 (DOI `10.1103/PhysRevLett.80.1121`, `https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.80.1121`).
