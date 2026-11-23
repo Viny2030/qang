@@ -1,6 +1,8 @@
 # Chapter 27 — Many-Body Dynamics in the Weight-1 Sector: XY as a Quantum Walk of RBS Gates, Affine Bloch Channels and One-Parameter varQTE {#sec-qjax27 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 24 on the basis of Ch. 1–26 (`qang.channels`, `qang.varqte`; Hubbard/RBM remain referenced as `unverified` in this chapter). Module: `qang.qdynamics` (JAX, `jax<0.9`). Verification: `tools/verify_cap27.py`.
 
@@ -48,6 +50,8 @@ def varqte_ry_mclachlan(omega, tau_max, steps)         # θ̇ = ω sinθ (Euler)
 [3] varQTE Euler 3000 steps: max error in qg_Z = 9.20e-05 (final -995 m-qg vs -995)
 verify_cap27: OK
 ```
+The reproducible validation of this review is `verify_cap27: OK`: $e_{64}<10^{-2}$ and $e_{64}<e_{16}/3$, affine $T_1=$ Kraus to $10^{-14}$, composition $=(M,\mathbf c)$ to $10^{-14}$ and varQTE error $<2\cdot10^{-3}$; `tests/test_qdynamics.py` passes with `3 passed`.
+
 Asserts: $e_{64}<10^{-2}$ and $e_{64}<e_{16}/3$; affine $T_1=$ Kraus to $10^{-14}$; composition $=(M,\mathbf c)$ to $10^{-14}$; varQTE error $<2\cdot10^{-3}$.
 
 ### `tests/test_qdynamics.py`

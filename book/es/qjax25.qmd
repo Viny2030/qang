@@ -2,7 +2,7 @@
 *Chapter 25 — Echo Calibration and Noise Bias: Readout Drag as an Affine Map in m-qg, When **Not** to Invert (§108) and Drag-Free Readout*
 
 
-> **Día de análisis y actualización:** 22 de noviembre de 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 22 (F7) sobre la base de Cap. 1–24. Módulo: `qang.qecho` (NumPy; compatible con el core). Verificación: `tools/verify_cap25.py`. Prohibición THEORY_CORE §2.2 incorporada como criterio cuantitativo.
 
@@ -70,6 +70,8 @@ def sector_readout_error_order(p_sector, e01, e10) # (p filtrada, sesgo máx., c
 [3] e01=0.02, e10=0.06: sesgo filtrado=0.00130 (~ e01·e10) vs 0.0600 sin filtro → ×46
 verify_cap25: OK
 ```
+La validación reproducible de esta revisión es `verify_cap25: OK`: punto fijo a $10^{-9}$, decisiones de las filas 1, 2 y 4, MC dentro del $15\%$ de la teoría y sesgo filtrado $<3\,e_{01}e_{10}$; `tests/test_qecho.py` pasa con `3 passed`.
+
 Asserts: punto fijo a $10^{-9}$; decisiones de las filas 1, 2 y 4; MC dentro del $15\%$ de la teoría; sesgo filtrado $<3\,e_{01}e_{10}$.
 
 ### `tests/test_qecho.py`

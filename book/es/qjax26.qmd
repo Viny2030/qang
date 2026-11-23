@@ -2,7 +2,7 @@
 *Chapter 26 — Applied Information Geometry: Quantum Kernels in qg Space, Exponential Concentration and the Non-Concentrating Unary Sector Kernel*
 
 
-**Actualizado:** 22 de noviembre de 2026 · **Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
 
 > Reescritura del antiguo Cap. 23 sobre la base de Cap. 1–25 (la Fisher/QNG vive en Cap. 9; aquí núcleos y mesetas). Módulo: `qang.qkernels` (JAX, `jax<0.9`; usa `qang.qweightqnn`). Verificación: `tools/verify_cap26.py`.
 
@@ -16,13 +16,27 @@ El núcleo **de lectura** $\prod_q(1+qg_Zqg_Z')/2$ (una base) no es la fidelidad
 
 **EN.** The product-map fidelity kernel has a closed form in Bloch vectors; the $Z$-only kernel is a different, classical object (`exact`).
 
+**Núcleo de fidelidad y feature space cuántico.** El núcleo $k(x,x')=|\langle\psi(x)|\psi(x')\rangle|^2$ y su estimación por circuito/kernel estimator son la base de los métodos de kernel cuántico y SVM cuántico (Havlíček *et al.*, *Nature* 567, 209–212, 2019, DOI `10.1038/s41586-019-0980-2`; arXiv:1804.11326). La forma cerrada de producto en §26.1 es `exact` para mapas producto de un qubit; no generaliza a embeddings entrelazados sin calcular el solapamiento completo.
+
+**Fuentes de la sección.** Havlíček *et al.* 2019, *Nature* 567, 209–212, DOI `10.1038/s41586-019-0980-2`, arXiv:1804.11326 (QSVM/quantum kernel estimator, feature maps). Schuld & Killoran 2019, *Phys. Rev. Lett.* 122, 040504, DOI `10.1103/PhysRevLett.122.040504` (feature Hilbert spaces / kernels cuánticos, contexto).
+
 ## 26.2 Concentración exponencial: el análogo de la meseta estéril para núcleos
 
 Características de producto aleatorias ($\alpha\sim U[0,500]$, $\varphi\sim U[0,1000]$ qga): $\mathbb E[k]\approx(1/4)^{n/2}$ y $\mathrm{Var}[k]$ cae de $5.5\cdot10^{-2}$ ($n=2$) a $2.1\cdot10^{-5}$ ($n=10$); disparos para $\sigma_k=\mathbb E[k]/10$: $3\cdot10^2\to10^5$. El núcleo es adimensional: la unidad qga **no** interviene (coherente con Cap. 9 §4: `against` como mitigación). Es el mismo fenómeno que la meseta: la información útil se diluye en $2^n$ dimensiones.
 
+**Concentración exponencial de kernels.** La caída exponencial de $\mathrm{Var}[k]$ observada en esta sección es coherente con la concentración exponencial de kernels cuánticos: para embeddings expresivos/globales/ruidosos/entrelazados, los valores de kernel se concentran y distinguir entradas requiere shots exponenciales (Thanasilp *et al.*, *Nat. Commun.* 15, 5200, 2024, DOI `10.1038/s41467-024-49287-w`). El capítulo lo presenta como análogo de barren plateaus; la referencia correcta es concentración de kernel, no un teorema de BP de QNN salvo la analogía explícita.
+
+**Coste de estimación y SWAP/inversión.** El test SWAP y el test de inversión estiman solapamientos/fidelidades; el coste en shots escala con la precisión deseada y se degrada si la media del kernel es exponencialmente pequeña. La tabla de disparos de esta sección es una consecuencia estadística de $k(1-k)/\sigma^2$, no una ventaja cuántica.
+
+**Mitigación por cambio de unidad.** La invariancia adimensional del kernel implica que cambiar qga/rad no mitiga la concentración; la mitigación real requiere controlar expresividad, localidad del kernel, ruido y estructura del embedding, como indican Thanasilp 2024.
+
+**Fuentes de la sección.** Thanasilp *et al.* 2024, *Nat. Commun.* 15, 5200, DOI `10.1038/s41467-024-49287-w` (exponential concentration of quantum kernels, causas y consecuencias de muestreo).
+
 ## 26.3 Núcleo unario de sector: (x· x')², polinomial, sin concentración
 
 Con el cargador unario del Cap. 23, $|x\rangle=\sum_kx_k|e_k\rangle$ ⇒ $k_u(x,x')=(x\cdot x')^2$ — polinomial de grado 2, estimable por test de inversión sin ancilla ($2(n-1)$ RBS) con $P(|e_0\rangle)$, exacto a $10^{-12}$. Para vectores unitarios aleatorios: $\mathbb E[k_u]=1/n$ y $\mathrm{Var}[k_u]\sim2/n^2$ ($n=4:6.2\cdot10^{-2}$; $n=16:6.5\cdot10^{-3}$): decaimiento **polinomial**. Disparos a $\sigma=\mathbb E/10$ con $n=6$: $507$ frente a $6.4\cdot10^3$ del mapa producto. Además, el sector de peso 1 habilita el filtro de simetría: $T_1$ exacto (Cap. 24) y lectura a $O(e_{01}e_{10})$ (Cap. 25). Límite honesto: $k_u$ es un núcleo **clásico** (polinomial) — la ventaja es de ingeniería de ruido y presupuesto, no de expresividad (`exact`; ventaja de aprendizaje `no gain`).
+
+**Núcleo unario $(x\cdot x')^2$: alcance de la ventaja.** El núcleo en sector de peso 1 es polinomial y clásico en su forma funcional; su ventaja en el capítulo es de ingeniería: 0 ancillas, profundidad $2(n-1)$ RBS, compatibilidad con filtro de simetría/lectura. Esto debe etiquetarse como `no gain` en expresividad y `exact`/`advantage` sólo en presupuesto de ruido/recursos bajo el modelo asumido.
 
 ## 26.4 Contraste operativo
 
@@ -55,6 +69,8 @@ def shots_for_kernel(k, sigma):        return k * (1 - k) / sigma ** 2
 [3] núcleo unario n=6: (x·y)² = inversión a 1e-12; E[k]=0.165 (=1/n), 507 disparos | n=16: Var 6.46e-03 (polinomial)
 verify_cap26: OK
 ```
+La validación reproducible de esta revisión es `verify_cap26: OK`: forma cerrada a $10^{-13}$ en 5 casos, $\mathrm{Var}_{n=10}<\mathrm{Var}_{n=2}/50$ y test de inversión $=(x\cdot y)^2$ a $10^{-12}$; `tests/test_qkernels.py` pasa con `2 passed`.
+
 Asserts: forma cerrada a $10^{-13}$ (5 casos); $\mathrm{Var}_{n=10}<\mathrm{Var}_{n=2}/50$; test de inversión $=(x\cdot y)^2$ a $10^{-12}$.
 
 ### `tests/test_qkernels.py`
@@ -66,17 +82,7 @@ def test_same_point_is_one(): r = jnp.array([[0., 0.6, 0.8], [1., 0., 0.]]); ass
 def test_unary(): x = jnp.array([0.6, 0.8, 0., 0.]); y = jnp.array([0., 0., 1., 0.]); assert float(unary_inversion_test(x, y, 4)) < 1e-14
 ```
 
-## 26.7 Contraste bibliográfico y precisiones de revisión (2026-11-22)
-
-1. **Núcleo de fidelidad y feature space cuántico.** El núcleo $k(x,x')=|\langle\psi(x)|\psi(x')\rangle|^2$ y su estimación por circuito/kernel estimator son la base de los métodos de kernel cuántico y SVM cuántico (Havlíček *et al.*, *Nature* 567, 209–212, 2019, DOI `10.1038/s41586-019-0980-2`; arXiv:1804.11326). La forma cerrada de producto en §26.1 es `exact` para mapas producto de un qubit; no generaliza a embeddings entrelazados sin calcular el solapamiento completo.
-2. **Concentración exponencial de kernels.** La caída exponencial de $\mathrm{Var}[k]$ observada en §26.2 es coherente con la concentración exponencial de kernels cuánticos: para embeddings expresivos/globales/ruidosos/entrelazados, los valores de kernel se concentran y distinguir entradas requiere shots exponenciales (Thanasilp *et al.*, *Nat. Commun.* 15, 5200, 2024, DOI `10.1038/s41467-024-49287-w`). El capítulo lo presenta como análogo de barren plateaus; la referencia correcta es concentración de kernel, no un teorema de BP de QNN salvo la analogía explícita.
-3. **Coste de estimación y SWAP/inversión.** El test SWAP y el test de inversión estiman solapamientos/fidelidades; el coste en shots escala con la precisión deseada y se degrada si la media del kernel es exponencialmente pequeña. La tabla de disparos de §26.2 es una consecuencia estadística de $k(1-k)/\sigma^2$, no una ventaja cuántica.
-4. **Núcleo unario $(x\cdot x')^2$.** El núcleo en sector de peso 1 es polinomial y clásico en su forma funcional; su ventaja en el capítulo es de ingeniería: 0 ancillas, profundidad $2(n-1)$ RBS, compatibilidad con filtro de simetría/lectura. Esto debe etiquetarse como `no gain` en expresividad y `exact`/`advantage` sólo en presupuesto de ruido/recursos bajo el modelo asumido.
-5. **Mitigación por cambio de unidad.** La invariancia adimensional del kernel implica que cambiar qga/rad no mitiga la concentración; la mitigación real requiere controlar expresividad, localidad del kernel, ruido y estructura del embedding, como indican Thanasilp 2024.
-
-**Fuentes contrastadas:** Havlíček *et al.* 2019, *Nature* 567, 209–212, DOI `10.1038/s41586-019-0980-2` (QSVM/quantum kernel estimator, feature maps). Thanasilp *et al.* 2024, *Nat. Commun.* 15, 5200, DOI `10.1038/s41467-024-49287-w` (exponential concentration of quantum kernels, causas y consecuencias de muestreo). Schuld & Killoran 2019, *Phys. Rev. Lett.* 122, 040504, DOI `10.1103/PhysRevLett.122.040504` (feature Hilbert spaces / kernels cuánticos, contexto).
-
-## 26.8 Apéndice H
+## 26.7 Apéndice H
 
 | id | familia | fórmula | función | estatus |
 | :--- | :--- | :--- | :--- | :--- |

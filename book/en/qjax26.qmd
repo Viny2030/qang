@@ -1,6 +1,8 @@
 # Chapter 26 — Applied Information Geometry: Quantum Kernels in qg Space, Exponential Concentration and the Non-Concentrating Unary Sector Kernel {#sec-qjax26 .unnumbered}
 
-**Updated:** November 22, 2026
+> **Día de análisis y actualización:** 23 de noviembre de 2026
+
+> **Analysis and update date:** November 23, 2026
 
 > Rewrite of the old Ch. 23 on the basis of Ch. 1–25 (Fisher/QNG lives in Ch. 9; here, kernels and plateaus). Module: `qang.qkernels` (JAX, `jax<0.9`; uses `qang.qweightqnn`). Verification: `tools/verify_cap26.py`.
 
@@ -51,6 +53,8 @@ def shots_for_kernel(k, sigma):        return k * (1 - k) / sigma ** 2
 [3] unary kernel n=6: (x·y)² = inversion to 1e-12; E[k]=0.165 (=1/n), 507 shots | n=16: Var 6.46e-03 (polynomial)
 verify_cap26: OK
 ```
+The reproducible validation of this review is `verify_cap26: OK`: closed form to $10^{-13}$ in 5 cases, $\mathrm{Var}_{n=10}<\mathrm{Var}_{n=2}/50$ and inversion test $=(x\cdot y)^2$ to $10^{-12}$; `tests/test_qkernels.py` passes with `2 passed`.
+
 Asserts: closed form to $10^{-13}$ (5 cases); $\mathrm{Var}_{n=10}<\mathrm{Var}_{n=2}/50$; inversion test $=(x\cdot y)^2$ to $10^{-12}$.
 
 ### `tests/test_qkernels.py`
