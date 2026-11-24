@@ -105,3 +105,41 @@ def test_local_flat(): assert np.max(np.abs(local_qgz(correlation_matrix(64)))) 
 
 `CHANGELOG.md [Unreleased]`: `qang.qcft`; `tools/verify_cap33.py`; `tests/test_qcft.py`.
 Commit: `docs(cap33): alcance de qang frente a la CFT c=1 y la teoría de cuerdas + qang.qcft + verify_cap33`.
+
+## F2 — Carga central de la cadena XX y el límite de la lectura qg local
+*F2 — Central Charge of the XX Chain and the Limit of Local qg Readings*
+
+**Hipótesis H2 (`unverified`).** Las lecturas qg locales no detectan la carga central; la geometría emergente no es verificable con qg local (`unverified`). Hipótesis operativa validada para esta verificación; `unverified` como afirmación física.
+
+**Teorema T2 (`exact`).** $S(l)=\frac c6\log_2\!\big[(2n/\pi)\sin(\pi l/n)\big]+s_0$, $qg_{ZZ}^c=-4C_{ij}^2$ y $c_{\text{fit}}(n)\to1$ (`exact`).
+
+**Diseño del circuito.** Cadena XX abierta de $n=8$ sitios a medio llenado y bloques pares (`exact`). Llamadas reales de la API: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper`, `geometric_phase_qg` y `pancharatnam_phase` (`exact`; `tools/verify_exp_f2.py`). La lectura local no da $c$ (`unverified`).
+
+**Criterio cuantitativo de falsación.** Se fija `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05` y `M=600` estimaciones independientes, `e01=0.02`, `e10=0.06` y `seed=21` (`exact`). Los `hits` se contrastan con la decisión de `qang.qfalsify.decide` vía `binom_upper`: 600/600 aciertos dan decisión `confirmada` (`simulado`), y el control desplazado +50 qga queda `refutada` (`simulado`). `tools/verify_exp_f2.py` imprime `verify_exp_f2: OK` (`simulado`).
+
+**Resultado.**
+
+| Magnitud | Valor | Estado |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `c` | `1` | `exact` |
+| `fit_n` | `[32,64,128,256,512]` | `exact` |
+| `fit_c` | `[1.1165,1.0648,1.0337,1.0171,1.0086]` | `exact` |
+| `qg_ZZ^c(1,2)` | `-244.84 m-qg` | `exact` |
+| `S(4)` | `0.8220 bits` | `exact` |
+| `s0` | `0.391417` | `exact` |
+| `phase_pred` | `244.84 qga` | `exact` |
+| `phase_mean` | `244.851086 qga` | `simulado` |
+| `hits` | `600/600` | `simulado` |
+| `decisión` | `confirmada` | `simulado` |
+| `control` | `refutada` | `simulado` |
+| `cono y Pancharatnam` | `795.167235 qga` | `exact` |
+| `AdS/CFT` | `no verificable con qg local` | `unverified` |
+| `verificador` | `verify_exp_f2: OK` | `simulado` |
+
+**Fuentes.** Calabrese y Cardy 2004, entropía de bloque en CFT, `hep-th/0405152` (`exact` como referencia); Ryu y Takayanagi 2006, entropía y geometría, `hep-th/0603001` (`exact` como referencia); Brown y Henneaux, `DOI 10.1007/BF01211590` (`exact` como referencia). La extensión AdS/CFT queda `unverified`.

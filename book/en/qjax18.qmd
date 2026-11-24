@@ -116,3 +116,39 @@ verify_exp18_2: OK
 ```
 
 **Reading.** The reconstruction matches $2^{-S_2}$ to $10^{-12}$ for $k=1,2$; the cost grows as $4^k-1$ (3 and 15) against one setting for $qg_S$. With 20000-shot noise, $S_2=0.9839\pm0.0021$. This quantifies the `against` finding of §18.3: $qg_S$ is a readout coordinate, not an entanglement entropy. `exact` in statevector; hardware `unverified`.
+
+## F1 — Post-Page firewall: P·F=1/4, Page curve and OTOC
+
+**Hypothesis H1 (`unverified`).** In a post-Page toy model the angular readout of the compound correlator shows no firewall signature; $P\cdot F=1/4$ is `exact` and the Haar OTOC is $O(1/d^2)$ (`exact`). Operational hypothesis validated for this verification; `unverified` as a physical claim.
+
+**Theorem T1 (`exact`).** $P_{\text{EPR}}F_{\text{EPR}}=1/d_A^2=1/4$ and $\mathrm{OTOC}_{\text{Haar}}=-1/(d^2-1)=-0.003921569$ (`exact`).
+
+**Circuit design.** An 8-qubit circuit (`exact`): $d_A=d_R=2$, $n_B=3$, $n_D=2$, Haar $U$ on $AB$, $U^*$ on $A'B'$ and projection of $DD'$ onto EPR, with $F=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ (`exact`). Real API calls: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper`, `geometric_phase_qg`, `pancharatnam_phase` and `sectors.filter_distribution` (`exact`; `tools/verify_exp_f1.py`).
+
+**Quantitative falsification criterion.** Set `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05`, `M=600` independent estimates, `e01=0.02`, `e10=0.06` and `seed=21` (`exact`). Hits are compared with the decision of `qang.qfalsify.decide` via `binom_upper`: 600/600 hits give decision `confirmada` (`simulated`), and the shifted control +50 qga gives 0/600 and decision `refutada` (`simulated`). `tools/verify_exp_f1.py` prints `verify_exp_f1: OK` (`simulated`).
+
+**Result.**
+
+| Quantity | Value | Status |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `S2_Page_k1..7` | `0.983,1.918,2.684,3.006,2.684,1.918,0.983` | `exact` |
+| `P_Haar asymptotic` | `0.3125` | `exact` |
+| `P_repo` | `0.298 +/- 0.003` | `simulated` |
+| `F` | `0.84` | `simulated` |
+| `phase_pred` | `250.0 qga` | `exact` |
+| `phase_mean` | `250.011086 qga` | `simulated` |
+| `hits` | `600/600` | `simulated` |
+| `decision` | `confirmada` | `simulated` |
+| `control` | `0/600 refutada` | `simulated` |
+| `cone and Pancharatnam` | `500.0 qga` | `exact` |
+| `singlet kept` | `1.0` | `exact` |
+| `firewall interpretation` | `no firewall signature` | `unverified` |
+| `verifier` | `verify_exp_f1: OK` | `simulated` |
+
+**Sources.** Page 1993, subsystem entropy, `gr-qc/9305007` (`exact` as reference); Hayden and Preskill 2007, quantum mirror, `arXiv:0708.4025` (`exact` as reference); Yoshida and Kitaev 2017, probabilistic decoder, `arXiv:1710.03363` (`exact` as reference). The firewall interpretation remains `unverified`.

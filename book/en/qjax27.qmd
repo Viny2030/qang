@@ -74,3 +74,125 @@ def test_varqte(): assert abs(float(varqte_ry_mclachlan(1.0, 2.0, 2000)[-1]) - f
 
 `CHANGELOG.md [Unreleased]`: `qang.qdynamics`; `tools/verify_cap27.py`; `tests/test_qdynamics.py`.
 Commit: `docs(cap27): XY walk with RBS, affine channels and varQTE rewritten on Ch. 1–26 + qang.qdynamics + verify_cap27`.
+
+## F3 — Arrow of time: odd qg_Z(τ) under H=ω Z/2
+
+**Hypothesis H3 (`unverified`).** $qg_Z(\tau)$ is odd in $\tau$ for $H=\omega Z/2$ from $|+\rangle$; reversing $\tau$ shifts the phase by 71.94484 qga under the `qg_Phi` encoding, and no physical arrow of time follows from unitary dynamics (`unverified`). Operational hypothesis validated for this verification; `unverified` as a physical claim.
+
+**Theorem T3 (`exact`).** $qg_Z(\tau)=-\tanh(\omega\tau)$ (`exact`).
+
+**Circuit design.** One qubit in $|+\rangle$, $RZ(\omega\tau)$ and $X/Y$ readout, with `QangPhi.from_complex` (`exact`). Real API calls: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout` and `qang.qfalsify.decide`/`binom_upper` (`exact`; `tools/verify_exp_f3.py`).
+
+**Quantitative falsification criterion.** Set `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05`, `M=600` independent estimates, `e01=0.02`, `e10=0.06` and `seed=21` (`exact`). Hits are compared with the decision of `qang.qfalsify.decide` via `binom_upper`: both directions give 600/600 and decision `confirmada` (`simulated`), and the shifted control +50 qga is `refutada` (`simulated`). `tools/verify_exp_f3.py` prints `verify_exp_f3: OK` (`simulated`).
+
+**Result.**
+
+| Quantity | Value | Status |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `omega` | `1` | `exact` |
+| `tau` | `2` | `exact` |
+| `tanh(2)` | `0.96402758` | `exact` |
+| `qg_Z_fwd` | `-0.96402758` | `exact` |
+| `qg_Z_rev` | `+0.96402758` | `exact` |
+| `phase_pred_fwd` | `964.02758 qga` | `exact` |
+| `phase_pred_rev` | `35.97242 qga` | `exact` |
+| `separation` | `71.94484 qga` | `exact` |
+| `phase_mean_fwd` | `964.038666 qga` | `simulated` |
+| `phase_mean_rev` | `35.977672 qga` | `simulated` |
+| `hits_fwd` | `600/600 confirmada` | `simulated` |
+| `hits_rev` | `600/600 confirmada` | `simulated` |
+| `control` | `refutada` | `simulated` |
+| `physical arrow` | `not following from unitary dynamics` | `unverified` |
+| `verifier` | `verify_exp_f3: OK` | `simulated` |
+
+**Sources.** Repository `book/es/qjax27.qmd` for the identity $qg_Z=-\tanh$ (`exact` as local reference); *Scholarpedia*, “Loschmidt echo”, `DOI 10.4249/scholarpedia.11687` (`exact` as reference, secondary source). The physical claim about the arrow of time remains `unverified`.
+
+## F4 — FMO transfer phase in the weight-1 sector
+
+**Hypothesis H4 (`unverified`).** The FMO transfer phase is linear in $\Delta\epsilon\,t$ and resolvable at $5\sigma$ for $t=10$ fs; the calculation uses only the Adolphs–Renger FMO Hamiltonian, so `APC` is out of quantitative scope (`unverified` as identification). Operational hypothesis validated for this verification; `unverified` as a physical claim.
+
+**Theorem T4 (`exact`).** The one-link propagator is $RBS(Jt)$ and `phase_qga=1000*(omega*t mod 1)` (`exact`).
+
+**Circuit design.** Seven sites in the weight-1 sector with an RBS gate between sites 1 and 2 and the filter `sectors.filter_distribution(probs,7,1)` (`exact`). Real API calls: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper` and `sectors.filter_distribution` (`exact`; `tools/verify_exp_f4.py`).
+
+**Quantitative falsification criterion.** Set `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05`, `M=600` independent estimates, `e01=0.02`, `e10=0.06` and `seed=21` (`exact`). Hits are compared with the decision of `qang.qfalsify.decide` via `binom_upper`: 600/600 hits give decision `confirmada` (`simulated`), and the shifted control +50 qga is `refutada` (`simulated`). `tools/verify_exp_f4.py` prints `verify_exp_f4: OK` (`simulated`).
+
+**Result.**
+
+| Quantity | Value | Status |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `site_energies_cm_inv` | `[410,530,210,320,480,630,440]` | `exact` |
+| `coupling 1-2` | `-87.7 cm^-1` | `exact` |
+| `lambda` | `35 cm^-1` | `exact` |
+| `tau_c` | `50 fs` | `exact` |
+| `T` | `300 K` | `exact` |
+| `1 cm^-1` | `1.8836516e-4 rad/fs = 0.0299792458 qga/fs` | `exact` |
+| `Delta_epsilon` | `120 cm^-1` | `exact` |
+| `Delta_epsilon rate` | `3.5975095 qga/fs` | `exact` |
+| `t` | `10 fs` | `exact` |
+| `phase_pred` | `35.975095 qga` | `exact` |
+| `phase_mean` | `35.986181 qga` | `simulated` |
+| `hits` | `600/600` | `simulated` |
+| `decision` | `confirmada` | `simulated` |
+| `control` | `refutada` | `simulated` |
+| `sector_weight1` | `7/128=0.054688` | `exact` |
+| `APC` | `out of scope: Adolphs–Renger FMO parameters, not allophycocyanin` | `unverified` |
+| `verifier` | `verify_exp_f4: OK` | `simulated` |
+
+**Sources.** `arXiv:1411.3654` (`exact` as reference); `DOI 10.1073/pnas.0908989106` (`exact` as reference); `DOI 10.1529/biophysj.105.079483` (`exact` as reference). The APC identification is out of scope; the parameters are FMO only (`unverified` as mapping to APC).
+
+## F8 — Discrete time crystal: 500 qga between periods
+
+**Hypothesis H8 (`unverified`).** The DTC shifts the readout phase by 500 qga between consecutive periods and $\epsilon<0.15$ does not destroy period doubling in the toy model; the physical DTC claim is unverified (`unverified`). Operational hypothesis validated for this verification; `unverified` as a physical claim.
+
+**Theorem T8 (`exact` in the toy model).** $\phi(n+1)=\phi(n)+500 \bmod 1000$ qga (`exact` in the toy model).
+
+**Circuit design.** Four qubits in $|-\rangle^4$, $RX(\pi(1-\epsilon))$, long-range $ZZ$ couplings, $RZ(D_i)$ and $X$ measurement, with a weight-2 filter (`exact`). Real API calls: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper` and `sectors.filter_distribution` (`exact`; `tools/verify_exp_f8.py`).
+
+**Quantitative falsification criterion.** Set `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05`, `M=600` independent estimates, `e01=0.02`, `e10=0.06` and `seed=21` (`exact`). Hits are compared with the decision of `qang.qfalsify.decide` via `binom_upper`: 600/600 hits give decision `confirmada` (`simulated`), and the shifted +50 qga (550.0 qga) and even (0.0 qga) controls are `refutada` (`simulated`). `tools/verify_exp_f8.py` prints `verify_exp_f8: OK` (`simulated`).
+
+**Result.**
+
+| Quantity | Value | Status |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `N_ions` | `10` | `exact` |
+| `T_drive` | `74 µs` | `exact` |
+| `drive` | `13.513514 kHz` | `exact` |
+| `eps` | `0.1` | `exact` |
+| `limit` | `0.15` | `exact` |
+| `J0/2pi` | `0.1 kHz` | `exact` |
+| `W*T3` | `3.141593` | `exact` |
+| `J0*t2` | `0.02` | `exact` |
+| `n_periods` | `100` | `exact` |
+| `detection_fidelity` | `0.98` | `exact` |
+| `odd_pred` | `500.0 qga` | `exact` |
+| `even_pred` | `0.0 qga` | `exact` |
+| `separation` | `500.0 qga` | `exact` |
+| `phase_mean` | `500.011086 qga` | `simulated` |
+| `hits` | `600/600` | `simulated` |
+| `decision` | `confirmada` | `simulated` |
+| `control` | `550.0 refutada` | `simulated` |
+| `even` | `0.0 refutada` | `simulated` |
+| `sector_weight2` | `6/16=0.375` | `exact` |
+| `DTC physics` | `not verified` | `unverified` |
+| `verifier` | `verify_exp_f8: OK` | `simulated` |
+
+**Sources.** `DOI 10.1038/nature21413` (`exact` as reference). Note: no Nayak et al. 2019 DTC experiment was found and it is not cited (`unverified`). The physical DTC claim remains `unverified`.

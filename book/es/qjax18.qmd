@@ -132,3 +132,40 @@ verify_exp18_2: OK
 ```
 
 **Lectura.** La reconstrucción coincide con $2^{-S_2}$ a $10^{-12}$ en $k=1,2$; el coste crece como $4^k-1$ (3 y 15) frente a una sola configuración de $qg_S$. Bajo ruido de 20000 shots, $S_2=0.9839\pm0.0021$. Esto cuantifica el hallazgo `against` de la sección 18.3: $qg_S$ es coordenada de lectura, no entropía de entrelazamiento. `exact` en statevector; hardware `unverified`.
+
+## F1 — Firewall post-Page: P·F=1/4, curva de Page y OTOC
+*F1 — Post-Page Firewall: P·F=1/4, Page Curve and OTOC*
+
+**Hipótesis H1 (`unverified`).** En un modelo de juguete post-Page, la lectura angular del correlador compuesto no muestra firma de firewall; $P\cdot F=1/4$ es `exact` y el OTOC de Haar es $O(1/d^2)$ (`exact`). Hipótesis operativa validada para esta verificación; `unverified` como afirmación física.
+
+**Teorema T1 (`exact`).** $P_{\text{EPR}}F_{\text{EPR}}=1/d_A^2=1/4$ y $\mathrm{OTOC}_{\text{Haar}}=-1/(d^2-1)=-0.003921569$ (`exact`).
+
+**Diseño del circuito.** Circuito de 8 qubits (`exact`): $d_A=d_R=2$, $n_B=3$, $n_D=2$, $U$ Haar sobre $AB$, $U^*$ sobre $A'B'$ y proyección $DD'$ sobre EPR, con $F=(1+qg_{XX}-qg_{YY}+qg_{ZZ})/4$ (`exact`). Llamadas reales de la API: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper`, `geometric_phase_qg`, `pancharatnam_phase` y `sectors.filter_distribution` (`exact`; `tools/verify_exp_f1.py`).
+
+**Criterio cuantitativo de falsación.** Se fija `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05` y `M=600` estimaciones independientes, `e01=0.02`, `e10=0.06` y `seed=21` (`exact`). Los `hits` se contrastan con la decisión de `qang.qfalsify.decide` mediante el límite superior binomial `binom_upper`: 600/600 aciertos dan decisión `confirmada` (`simulado`), y el control desplazado +50 qga da 0/600 y decisión `refutada` (`simulado`). `tools/verify_exp_f1.py` imprime `verify_exp_f1: OK` (`simulado`).
+
+**Resultado.**
+
+| Magnitud | Valor | Estado |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `S2_Page_k1..7` | `0.983,1.918,2.684,3.006,2.684,1.918,0.983` | `exact` |
+| `P_Haar asintótico` | `0.3125` | `exact` |
+| `P_repo` | `0.298 +/- 0.003` | `simulado` |
+| `F` | `0.84` | `simulado` |
+| `phase_pred` | `250.0 qga` | `exact` |
+| `phase_mean` | `250.011086 qga` | `simulado` |
+| `hits` | `600/600` | `simulado` |
+| `decisión` | `confirmada` | `simulado` |
+| `control` | `0/600 refutada` | `simulado` |
+| `cono y Pancharatnam` | `500.0 qga` | `exact` |
+| `singlet kept` | `1.0` | `exact` |
+| `interpretación firewall` | `sin firma de firewall` | `unverified` |
+| `verificador` | `verify_exp_f1: OK` | `simulado` |
+
+**Fuentes.** Page 1993, entropía de un subsistema, `gr-qc/9305007` (`exact` como referencia); Hayden y Preskill 2007, espejo cuántico, `arXiv:0708.4025` (`exact` como referencia); Yoshida y Kitaev 2017, decodificador probabilístico, `arXiv:1710.03363` (`exact` como referencia). La interpretación de firewall queda `unverified`.

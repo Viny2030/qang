@@ -139,3 +139,43 @@ def test_nv(): assert abs(nv_sigma_mqg(0.3, nv_photons_for(10, 0.3)) - 10) < 1e-
 
 `CHANGELOG.md [Unreleased]`: `qang.qnano`; `tools/verify_cap37.py`; `tests/test_qnano.py`.
 Commit: `docs(cap37): nanocuántica leída con qang + qang.qnano + verify_cap37`.
+
+## F6 — Modo C-G de 1.11 THz y fase ZPE en ADN
+*F6 — 1.11 THz C-G Mode and ZPE Phase in DNA*
+
+**Hipótesis H6 (`unverified`).** Un modo C-G de 1.11 THz acumula 110 qga en 1 ps y es distinguishable de cero a $5\sigma$; un mecanismo directo ZPE $\to$ transferencia de carga en ADN no está establecido (`unverified`). Hipótesis operativa validada para esta verificación; `unverified` como afirmación física.
+
+**Teorema T6 (`exact`).** `phi_qga=1000*(nu*t mod 1)` (`exact`).
+
+**Diseño del circuito.** Un qubit en $|+\rangle$, $RZ(2\pi\nu t)$ y lectura $X/Y$ con `qga.azimuth_qga` (`exact`). Llamadas reales de la API: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper`, `geometric_phase_qg` y `pancharatnam_phase` (`exact`; `tools/verify_exp_f6.py`).
+
+**Criterio cuantitativo de falsación.** Se fija `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05` y `M=600` estimaciones independientes, `e01=0.02`, `e10=0.06` y `seed=21` (`exact`). Los `hits` se contrastan con la decisión de `qang.qfalsify.decide` vía `binom_upper`: 600/600 aciertos dan decisión `confirmada` (`simulado`), y los controles desplazado +50 qga (160.0) y cero (0.0 qga) quedan `refutada` (`simulado`). `tools/verify_exp_f6.py` imprime `verify_exp_f6: OK` (`simulado`).
+
+**Resultado.**
+
+| Magnitud | Valor | Estado |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `nu` | `1.11 THz` | `exact` |
+| `t` | `1 ps` | `exact` |
+| `h` | `4.135667696e-15 eV*s` | `exact` |
+| `ZPE` | `0.00229529557128 eV = 2.295295571 meV` | `exact` |
+| `dG_AT` | `+0.57 kcal/mol` | `exact` |
+| `dG_GC` | `-0.11 kcal/mol` | `exact` |
+| `phase_pred` | `110.0 qga` | `exact` |
+| `phase_mean` | `110.011086 qga` | `simulado` |
+| `hits` | `600/600` | `simulado` |
+| `decisión` | `confirmada` | `simulado` |
+| `control` | `160.0 refutada` | `simulado` |
+| `zero_pred` | `0.0 qga` | `exact` |
+| `decisión frente a cero` | `refutada` | `simulado` |
+| `cono y Pancharatnam` | `909.665529 qga` | `exact` |
+| `mecanismo ZPE -> transferencia` | `no establecido` | `unverified` |
+| `verificador` | `verify_exp_f6: OK` | `simulado` |
+
+**Fuentes.** Wang et al. 2018, *Spectrochim. Acta A* 200, 195–201 (`exact` como referencia); Yakovchuk et al. 2006, `DOI 10.1093/nar/gkj454` (`exact` como referencia). El mecanismo ZPE $\to$ transferencia de carga en ADN queda `unverified`.

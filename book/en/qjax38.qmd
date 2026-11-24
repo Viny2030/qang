@@ -169,3 +169,47 @@ sampled separation=176.50 m-qg (ideal 179.13, σ=7.07)
 ```
 
 **Reading.** The echo cancels static detuning but not drift during the sequence; a $+2$ % pulse error costs only $0.99$ m-qg versus $179$ m-qg from drift. `exact` in simulation; hardware `unverified`.
+
+## F7 — H3S gap ratio versus weak-coupling BCS and Josephson
+
+**Hypothesis H7 (`unverified`).** The H3S ratio $2\Delta/(k_B T_c)=3.43$ is distinguishable from the weak-coupling BCS value 3.52 at $5\sigma$ resolution; mapping the hydride gap to a Josephson $E_J$ is unverified (`unverified`). Operational hypothesis validated for this verification; `unverified` as a physical claim.
+
+**Theorem T7 (`exact-derived`).** $\mathrm{ratio}=60\ \mathrm{meV}/(k_B\cdot203\ \mathrm{K})=3.429906834$, declared 3.43 (`exact-derived` from `DOI 10.1038/nature14964`).
+
+**Circuit design.** One qubit with $H$–$RZ(\phi)$–$H$ and $\phi=E_J t/\hbar$, plus a phase filter (`exact`). Real API calls: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper`, `geometric_phase_qg` and `pancharatnam_phase` (`exact`; `tools/verify_exp_f7.py`).
+
+**Quantitative falsification criterion.** Set `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05`, `M=600` independent estimates, `e01=0.02`, `e10=0.06` and `seed=21` (`exact`). Hits are compared with the decision of `qang.qfalsify.decide` via `binom_upper`: 600/600 hits give decision `confirmada` (`simulated`), and the shifted +50 qga (393.0) and BCS (352.0 qga) controls are `refutada` (`simulated`). `tools/verify_exp_f7.py` prints `verify_exp_f7: OK` (`simulated`).
+
+**Result.**
+
+| Quantity | Value | Status |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `Tc_H3S` | `203 K at 155 GPa` | `exact` |
+| `2Delta` | `60 meV` | `exact` |
+| `kB` | `8.617333262e-05 eV/K` | `exact` |
+| `ratio` | `3.429906834` | `exact` |
+| `ratio declared` | `3.43` | `exact` |
+| `BCS` | `3.52` | `exact` |
+| `separation` | `9.0 qga` | `exact` |
+| `Tc_LaH10` | `250 K at 170 GPa` | `exact` |
+| `Delta_LaH10` | `53 meV` | `exact` |
+| `ratio derived` | `4.920315684 at Tc=250 K` | `exact` |
+| `ratio published` | `5.6 with fitted Tc=219+/-4 K` | `unverified` |
+| `E_J/h toy` | `30 GHz` | `exact` |
+| `phase_pred` | `343.0 qga` | `exact` |
+| `phase_mean` | `343.011086 qga` | `simulated` |
+| `hits` | `600/600` | `simulated` |
+| `decision` | `confirmada` | `simulated` |
+| `control` | `393.0 refutada` | `simulated` |
+| `BCS phase` | `352.0 qga refutada` | `simulated` |
+| `cone and Pancharatnam` | `655.958261 qga` | `exact` |
+| `mapping` | `not verified` | `unverified` |
+| `verifier` | `verify_exp_f7: OK` | `simulated` |
+
+**Sources.** `DOI 10.1038/nature14964` for H3S (`exact` as reference, $T_c=203$ K at 155 GPa and $2\Delta=60$ meV); `DOI 10.1038/s41586-019-1201-8` for LaH10 (`exact` as reference, $T_c=250$ K at 170 GPa and $\Delta=53$ meV), from which the published ratio 5.6 with fitted $T_c=219+/-4$ K also comes (`unverified`, figure not recalculated here); `DOI 10.1038/s41467-024-53103-w` (`exact` as reference); `DOI 10.1103/PhysRevA.76.042319` (`exact` as reference). The mapping to a Josephson $E_J$ remains `unverified`.

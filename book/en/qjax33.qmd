@@ -103,3 +103,40 @@ def test_local_flat(): assert np.max(np.abs(local_qgz(correlation_matrix(64)))) 
 
 `CHANGELOG.md [Unreleased]`: `qang.qcft`; `tools/verify_cap33.py`; `tests/test_qcft.py`.
 Commit: `docs(cap33): scope of qang versus the c=1 CFT and string theory + qang.qcft + verify_cap33`.
+
+## F2 — XX-chain central charge and the limit of local qg readout
+
+**Hypothesis H2 (`unverified`).** Local qg readings cannot detect the central charge; emergent geometry is not verifiable with local qg (`unverified`). Operational hypothesis validated for this verification; `unverified` as a physical claim.
+
+**Theorem T2 (`exact`).** $S(l)=\frac c6\log_2\!\big[(2n/\pi)\sin(\pi l/n)\big]+s_0$, $qg_{ZZ}^c=-4C_{ij}^2$ and $c_{\text{fit}}(n)\to1$ (`exact`).
+
+**Circuit design.** An open XX chain of $n=8$ sites at half filling and even blocks (`exact`). Real API calls: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper`, `geometric_phase_qg` and `pancharatnam_phase` (`exact`; `tools/verify_exp_f2.py`). The local readout does not give $c$ (`unverified`).
+
+**Quantitative falsification criterion.** Set `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05`, `M=600` independent estimates, `e01=0.02`, `e10=0.06` and `seed=21` (`exact`). Hits are compared with the decision of `qang.qfalsify.decide` via `binom_upper`: 600/600 hits give decision `confirmada` (`simulated`), and the shifted control +50 qga is `refutada` (`simulated`). `tools/verify_exp_f2.py` prints `verify_exp_f2: OK` (`simulated`).
+
+**Result.**
+
+| Quantity | Value | Status |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `c` | `1` | `exact` |
+| `fit_n` | `[32,64,128,256,512]` | `exact` |
+| `fit_c` | `[1.1165,1.0648,1.0337,1.0171,1.0086]` | `exact` |
+| `qg_ZZ^c(1,2)` | `-244.84 m-qg` | `exact` |
+| `S(4)` | `0.8220 bits` | `exact` |
+| `s0` | `0.391417` | `exact` |
+| `phase_pred` | `244.84 qga` | `exact` |
+| `phase_mean` | `244.851086 qga` | `simulated` |
+| `hits` | `600/600` | `simulated` |
+| `decision` | `confirmada` | `simulated` |
+| `control` | `refutada` | `simulated` |
+| `cone and Pancharatnam` | `795.167235 qga` | `exact` |
+| `AdS/CFT` | `not verifiable with local qg` | `unverified` |
+| `verifier` | `verify_exp_f2: OK` | `simulated` |
+
+**Sources.** Calabrese and Cardy 2004, block entropy in CFT, `hep-th/0405152` (`exact` as reference); Ryu and Takayanagi 2006, entropy and geometry, `hep-th/0603001` (`exact` as reference); Brown and Henneaux, `DOI 10.1007/BF01211590` (`exact` as reference). The AdS/CFT extension remains `unverified`.

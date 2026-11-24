@@ -124,3 +124,46 @@ verify_exp28_1: OK
 ```
 
 **Lectura.** El testigo crudo recupera $1000\gamma$ dentro de $2\sigma$ en los tres puntos; tras filtrar, $W\approx0$ y la fracción conservada sigue $(1-\gamma)^2$. La energía del sector filtrado es $E_0=-1.2360679775$ en los tres casos. El error estándar del testigo es $\sigma_W\approx2$ m-qg con 20000 shots. `exact` en simulación; hardware `unverified`.
+
+## F5 — Larmor a 50 microT y singlete dependiente de la orientación
+*F5 — 50 microT Larmor and Orientation-Dependent Singlet*
+
+**Hipótesis H5 (`unverified`).** La fase de Larmor a 50 microT es 1.40 MHz y el rendimiento de singlete depende de la orientación; la magnetorrecepción in vivo no está verificada (`unverified`). Hipótesis operativa validada para esta verificación; `unverified` como afirmación física.
+
+**Teorema T5 (`exact`).** $\omega_L/2\pi=g\mu_B B/h\sim28.0$ GHz/T $\cdot B$, y `Phi_T 0.56 -> 0.74` (`exact`).
+
+**Diseño del circuito.** Dos qubits en el singlete $(|01\rangle-|10\rangle)/\sqrt2$, con $RZ/RX$ para hiperfino y Zeeman y filtro de peso 1 (`exact`). Llamadas reales de la API: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper` y `sectors.filter_distribution` (`exact`; `tools/verify_exp_f5.py`).
+
+**Criterio cuantitativo de falsación.** Se fija `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05` y `M=600` estimaciones independientes, `e01=0.02`, `e10=0.06` y `seed=21` (`exact`). Los `hits` se contrastan con la decisión de `qang.qfalsify.decide` vía `binom_upper`: 600/600 aciertos dan decisión `confirmada` (`simulado`), y el control desplazado +50 qga (450.0 qga) queda `refutada` (`simulado`). `tools/verify_exp_f5.py` imprime `verify_exp_f5: OK` (`simulado`).
+
+**Resultado.**
+
+| Magnitud | Valor | Estado |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `g` | `2` | `exact` |
+| `B` | `50 microT` | `exact` |
+| `gamma/2pi` | `27.992489872 GHz/T` | `exact` |
+| `f_L` | `1.399624494 MHz` | `exact` |
+| `f_L declarado` | `1.4 MHz` | `exact` |
+| `A1` | `diag(1,1,0) mT` | `exact` |
+| `A2` | `0.5 mT` | `exact` |
+| `k` | `1 microsecond^-1` | `exact` |
+| `tau` | `1 microsecond` | `exact` |
+| `theta` | `68 grados` | `exact` |
+| `Phi_T` | `0.56 -> 0.74` | `exact` |
+| `phase_pred` | `400.0 qga` | `exact` |
+| `phase_mean` | `400.011086 qga` | `simulado` |
+| `hits` | `600/600` | `simulado` |
+| `decisión` | `confirmada` | `simulado` |
+| `control` | `450.0 qga refutada` | `simulado` |
+| `singlet kept` | `1.0` | `exact` |
+| `in vivo` | `no verificado` | `unverified` |
+| `verificador` | `verify_exp_f5: OK` | `simulado` |
+
+**Fuentes.** `DOI 10.1016/S0006-3495(00)76629-X` (`exact` como referencia); `DOI 10.1146/annurev-biophys-032116-094545` (`exact` como referencia); `DOI 10.1063/1.436135` (`exact` como referencia). La magnetorrecepción in vivo queda `unverified`.

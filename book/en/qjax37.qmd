@@ -139,3 +139,42 @@ def test_nv(): assert abs(nv_sigma_mqg(0.3, nv_photons_for(10, 0.3)) - 10) < 1e-
 
 `CHANGELOG.md [Unreleased]`: `qang.qnano`; `tools/verify_cap37.py`; `tests/test_qnano.py`.
 Commit: `docs(cap37): nanoquantum systems read with qang + qang.qnano + verify_cap37`.
+
+## F6 — 1.11 THz C–G mode and ZPE phase in DNA
+
+**Hypothesis H6 (`unverified`).** A 1.11 THz C–G mode accumulates 110 qga in 1 ps and is distinguishable from zero at $5\sigma$; a direct ZPE-to-DNA-charge-transfer mechanism is not established (`unverified`). Operational hypothesis validated for this verification; `unverified` as a physical claim.
+
+**Theorem T6 (`exact`).** `phi_qga=1000*(nu*t mod 1)` (`exact`).
+
+**Circuit design.** One qubit in $|+\rangle$, $RZ(2\pi\nu t)$ and $X/Y$ readout with `qga.azimuth_qga` (`exact`). Real API calls: `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout`, `qang.qfalsify.decide`/`binom_upper`, `geometric_phase_qg` and `pancharatnam_phase` (`exact`; `tools/verify_exp_f6.py`).
+
+**Quantitative falsification criterion.** Set `N=65536` shots, `sigma=0.622 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05`, `M=600` independent estimates, `e01=0.02`, `e10=0.06` and `seed=21` (`exact`). Hits are compared with the decision of `qang.qfalsify.decide` via `binom_upper`: 600/600 hits give decision `confirmada` (`simulated`), and the shifted +50 qga (160.0) and zero (0.0 qga) controls are `refutada` (`simulated`). `tools/verify_exp_f6.py` prints `verify_exp_f6: OK` (`simulated`).
+
+**Result.**
+
+| Quantity | Value | Status |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.622 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `nu` | `1.11 THz` | `exact` |
+| `t` | `1 ps` | `exact` |
+| `h` | `4.135667696e-15 eV*s` | `exact` |
+| `ZPE` | `0.00229529557128 eV = 2.295295571 meV` | `exact` |
+| `dG_AT` | `+0.57 kcal/mol` | `exact` |
+| `dG_GC` | `-0.11 kcal/mol` | `exact` |
+| `phase_pred` | `110.0 qga` | `exact` |
+| `phase_mean` | `110.011086 qga` | `simulated` |
+| `hits` | `600/600` | `simulated` |
+| `decision` | `confirmada` | `simulated` |
+| `control` | `160.0 refutada` | `simulated` |
+| `zero_pred` | `0.0 qga` | `exact` |
+| `decision vs zero` | `refutada` | `simulated` |
+| `cone and Pancharatnam` | `909.665529 qga` | `exact` |
+| `ZPE -> charge transfer mechanism` | `not established` | `unverified` |
+| `verifier` | `verify_exp_f6: OK` | `simulated` |
+
+**Sources.** Wang et al. 2018, *Spectrochim. Acta A* 200, 195–201 (`exact` as reference); Yakovchuk et al. 2006, `DOI 10.1093/nar/gkj454` (`exact` as reference). The ZPE-to-DNA-charge-transfer mechanism remains `unverified`.
