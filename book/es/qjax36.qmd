@@ -137,3 +137,34 @@ def test_pyproject_and_requirement_roots():
 
 `CHANGELOG.md [Unreleased]`: `qang.qarch`; `tools/verify_cap36.py`; `tests/test_qarch.py`; **Fixed:** `qang.qchar` ya no importa SciPy en el nivel de módulo.
 Commit: `docs(cap36): auditoría de arquitectura y multi-SDK + qang.qarch + verify_cap36; fix(qchar): sin SciPy en el núcleo`.
+
+## F12 — Ecosistema cuántico: la misma fase qga en Qiskit, PennyLane y Cirq
+*F12 — Quantum Ecosystem: the Same qga Phase in Qiskit, PennyLane and Cirq*
+
+**Hipótesis H12 (`unverified`).** La fase angular de una compuerta paramétrica se lee idéntica en qga en los tres SDKs reales instalados. La concordancia se demuestra aquí en statevector; no se afirma ventaja de velocidad, fidelidad ni resultado en hardware.
+
+**Teorema T12 (`exact`).** Para $|+\rangle$ seguido de $RZ(\varphi)$, el vector de Bloch es $(\cos\varphi,\sin\varphi,0)$ y `azimuth_qga` satisface $\phi_{\rm qga}=\varphi\,1000/(2\pi)$. Es invariante bajo $q_X,q_Y\to\lambda q_X,\lambda q_Y$ con $\lambda>0$, y `qecho.invert_readout` recupera el sesgo afín. Las tres convenciones usan $RZ(\varphi)=\exp(-i\varphi Z/2)$.
+
+**Diseño del circuito.** Un qubit, $\varphi=125$ qga, $N=65536$ shots, `seed=21` y $M=600$ estimaciones. Statevectors reales: `qiskit.quantum_info.Statevector`, `pennylane.state` y `cirq.final_state_vector`; lectura con `qang.geometric.bloch_from_state`, `qga.azimuth_qga`, `QangPhi.from_complex`, `qecho.invert_readout` y `qang.qfalsify.decide`/`binom_upper` (`exact`; `tools/verify_exp_f12.py`). Prerregistro SHA-256 `44e9bbfc85602d6891654b22a2d89f8b962ad6e3157232fd17ff9a282e128682`, calculado antes de medir.
+
+**Criterio cuantitativo de falsación.** $\sigma=0{,}621699$ qga, $\delta_{5\sigma}=3{,}108$ qga, $p_0=0{,}006216$, $\alpha=0{,}05$. Los tres azimuts deben concordar con $125$ qga dentro de $10^{-3}$ qga y la desviación máxima de Bloch ser $<10^{-6}$; el muestreo exige 600/600 aciertos y control +50 qga con 0/600 y decisión `refutada` (`simulado`).
+
+**Resultado.**
+
+| Magnitud | Valor | Estado |
+| :--- | :--- | :--- |
+| versiones | `qiskit=2.6.2`, `pennylane=0.45.1`, `cirq=1.7.0` | `exact` |
+| `max_bloch_deviation` | `1.612890154767399e-08` | `simulado` |
+| `qiskit_azimuth_qga` | `125.0` | `simulado` |
+| `pennylane_azimuth_qga` | `125.0` | `simulado` |
+| `cirq_azimuth_qga` | `125.000000949` | `simulado` |
+| `T12_scaled_azimuth_qga` | `125.0` | `exact` |
+| `T12_readout_inversion` | `0.0` m-qg | `exact` |
+| `hits` | `600/600` | `simulado` |
+| `decision` | `confirmada` | `simulado` |
+| `control +50 qga` | `0/600 refutada` | `simulado` |
+| `verificador` | `verify_exp_f12: OK — statevector real; hardware unverified` | `simulado` |
+
+**Lectura.** La métrica qga unifica la lectura de fase entre los tres SDKs con discrepancias del orden de $10^{-6}$ qga (Cirq, por precisión del statevector). Cierra el protocolo que estaba `unverified` cuando las librerías no estaban instaladas. No hay reclamación de ventaja metrológica en hardware: esa parte sigue `unverified`.
+
+**Fuentes.** Cap. 36 y Cap. 6 de este libro; `qang.interop` para el orden de qubits y `verify_backend_invariance` para la invarianza previa de $qg_Z$. Las librerías se ejecutaron en las versiones indicadas; la equivalencia es de statevector, no de dispositivo.

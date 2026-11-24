@@ -145,3 +145,38 @@ ramas: N(γ=2)=27, N(β=0.99)=443.26; singlete=(0,0,-1000), -1000 m-qg
 ```
 
 **Lectura.** Los criterios Z1–Z5 se cumplen: frecuencia exacta, media y amplitud dentro de $\pm60$ m-qg, y $\chi^2/\mathrm{dof}<1$. La conjugación no tiene puntos fijos y el singlete es ciego en $X,Y$. `exact` en simulación; la ejecución en Garnet de §170 permanece `unverified` en este repo.
+
+## F11 — Materia y antimateria: la conjugación como mapa antípoda
+*F11 — Matter and Antimatter: Conjugation as the Antipodal Map*
+
+**Hipótesis H11 (`unverified`).** La asimetría bariónica $Y_B$ es una populación y no una fase angular: `qang` mide la fase de la interferencia CP-odd en un qubit efectivo, no la abundancia relativa de materia. Ninguna afirmación nueva sobre bariogénesis se deriva de esta lectura; la firma angular de la conjugación de carga es falsable sin invocar física especulativa.
+
+**Teorema T11 (`exact`).** `qang.qanti.conjugate(ψ) = σ_y ψ*` lleva el vector de Bloch a $-r$. Por tanto $p_0\to1-p_0$, $\theta_{\rm qga}\to500-\theta_{\rm qga}$ y $\phi_{\rm qga}\to\phi_{\rm qga}+500 \pmod{1000}$; además $\langle\psi|C\psi\rangle=0$ para todo estado puro y la holonomía del lazo conjugado es el complejo conjugado de la original, así que su fase qga es $1000-\phi_{\rm qga}$. La inversión de lectura afín de `qecho` recupera el valor sin sesgo.
+
+**Diseño del circuito.** Un qubit con $\theta_{\rm qga}=\phi_{\rm qga}=125$ qga, $N=65536$ shots, `seed=21` y $M=600$ estimaciones independientes. Llamadas reales: `qang.qanti.conjugate`, `bloch_mqg`, `self_conjugate_overlap`, `qang.geometric.geometric_phase_qg`, `pancharatnam_phase`, `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout` y `qang.qfalsify.decide`/`binom_upper` (`exact`; `tools/verify_exp_f11.py`). Prerregistro SHA-256 `6ef2f20b7f9f2bf1441f0be65dbd65d2cdee4bc72f1ffb3f478efffc74185735`, calculado antes de ejecutar el muestreo.
+
+**Criterio cuantitativo de falsación.** $\sigma=0{,}621699$ qga, $\delta_{5\sigma}=3{,}108$ qga, $p_0=2\delta/1000=0{,}006216$, $\alpha=0{,}05$. Se contrastan cuatro predicciones: polar materia $125$, polar conjugado $375$, azimut materia $125$ y azimut conjugado $625$ qga. Cada una exige 600/600 aciertos y control desplazado +50 qga con 0/600 y decisión `refutada` (`simulado`).
+
+**Resultado.**
+
+| Magnitud | Valor | Estado |
+| :--- | :--- | :--- |
+| `shots` / `M` | `65536` / `600` | `exact` |
+| `theta_qga` / `phi_qga` | `125` / `125` qga | `exact` |
+| `conjugacion` | $\psi\mapsto\sigma_y\psi^*$; $r\to-r$ | `exact` |
+| `self_conjugate_overlap` | `0.0` | `exact` |
+| `bloch(Cψ)` | `[-0.5, -0.5, -0.707106781]` | `exact` |
+| `p0` materia / conjugado | `0.853553391` / `0.146446609` | `exact` |
+| `theta_conjugado` / `azimut_conjugado` | `375` / `625` qga | `exact` |
+| `fase_geometrica` materia / conjugado | `891.826552` / `108.173448` qga | `exact` |
+| `fase_Pancharatnam` materia / conjugado | `891.826552` / `108.173448` qga | `exact` |
+| `inversion_lectura` | `707.106781187` m-qg | `exact` |
+| `hits` (cuatro casos) | `600/600` | `simulado` |
+| `decision` (cuatro casos) | `confirmada` | `simulado` |
+| `control +50 qga` | `0/600 refutada` | `simulado` |
+| `asimetria barionica como fase` | no afirmada | `unverified` |
+| `verificador` | `verify_exp_f11: OK` | `simulado` |
+
+**Lectura.** Corrección a la exploración previa: el mapa correcto es el antípoda $r\to-r$, no $(q_X,-q_Y,-q_Z)$; por eso el desplazamiento de azimut es $+500$ qga y el polar va de $125$ a $375$ qga, no a $250$/$875$. La conjugación no admite puntos fijos y la holonomía conjugada es la fase opuesta. Todo esto es `exact` en el modelo de un qubit y `simulado` en el muestreo; la interpretación cosmológica de materia y antimateria sigue `unverified`.
+
+**Fuentes.** Cap. 40 y Apéndice G de este libro; `qang.qanti`. La asimetría bariónica y la violación CP en física de partículas no se derivan de este mapa y permanecen fuera del alcance del verificador.

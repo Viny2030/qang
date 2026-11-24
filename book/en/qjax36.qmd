@@ -137,3 +137,34 @@ def test_pyproject_and_requirement_roots():
 
 `CHANGELOG.md [Unreleased]`: `qang.qarch`; `tools/verify_cap36.py`; `tests/test_qarch.py`; **Fixed:** `qang.qchar` no longer imports SciPy at module level.
 Commit: `docs(cap36): architecture and multi-SDK audit + qang.qarch + verify_cap36; fix(qchar): no SciPy in the core`.
+
+## F12 — Quantum Ecosystem: the Same qga Phase in Qiskit, PennyLane and Cirq
+*F12 — Ecosistema cuántico: la misma fase qga en Qiskit, PennyLane y Cirq*
+
+**Hypothesis H12 (`unverified`).** The angular phase of a parametric gate reads identically in qga across the three installed SDKs. Agreement is shown here at statevector level; no speed, fidelity or hardware advantage is claimed.
+
+**Theorem T12 (`exact`).** For $|+\rangle$ followed by $RZ(\varphi)$, the Bloch vector is $(\cos\varphi,\sin\varphi,0)$ and `azimuth_qga` satisfies $\phi_{\rm qga}=\varphi\,1000/(2\pi)$. It is invariant under $q_X,q_Y\to\lambda q_X,\lambda q_Y$ with $\lambda>0$, and `qecho.invert_readout` recovers the unbiased value. All three conventions use $RZ(\varphi)=\exp(-i\varphi Z/2)$.
+
+**Circuit design.** One qubit, $\varphi=125$ qga, $N=65536$ shots, `seed=21` and $M=600$ estimates. Real statevectors: `qiskit.quantum_info.Statevector`, `pennylane.state` and `cirq.final_state_vector`; readout with `qang.geometric.bloch_from_state`, `qga.azimuth_qga`, `QangPhi.from_complex`, `qecho.invert_readout` and `qang.qfalsify.decide`/`binom_upper` (`exact`; `tools/verify_exp_f12.py`). SHA-256 preregistration `44e9bbfc85602d6891654b22a2d89f8b962ad6e3157232fd17ff9a282e128682`, computed before measuring.
+
+**Quantitative falsification criterion.** $\sigma=0.621699$ qga, $\delta_{5\sigma}=3.108$ qga, $p_0=0.006216$, $\alpha=0.05$. The three azimuths must agree with $125$ qga within $10^{-3}$ qga and the maximum Bloch deviation stay below $10^{-6}$; sampling requires 600/600 hits and a +50 qga control with 0/600 and decision `refutada` (`simulado`).
+
+**Result.**
+
+| Magnitude | Value | Status |
+| :--- | :--- | :--- |
+| versions | `qiskit=2.6.2`, `pennylane=0.45.1`, `cirq=1.7.0` | `exact` |
+| `max_bloch_deviation` | `1.612890154767399e-08` | `simulado` |
+| `qiskit_azimuth_qga` | `125.0` | `simulado` |
+| `pennylane_azimuth_qga` | `125.0` | `simulado` |
+| `cirq_azimuth_qga` | `125.000000949` | `simulado` |
+| `T12_scaled_azimuth_qga` | `125.0` | `exact` |
+| `T12_readout_inversion` | `0.0` m-qg | `exact` |
+| `hits` | `600/600` | `simulado` |
+| `decision` | `confirmada` | `simulado` |
+| `control +50 qga` | `0/600 refutada` | `simulado` |
+| `verifier` | `verify_exp_f12: OK — statevector real; hardware unverified` | `simulado` |
+
+**Reading.** The qga metric unifies phase readout across the three SDKs with discrepancies of order $10^{-6}$ qga (Cirq, from statevector precision). It closes the protocol that was `unverified` when the libraries were absent. No metrological advantage on hardware is claimed: that part remains `unverified`.
+
+**Sources.** Ch. 36 and Ch. 6 of this book; `qang.interop` for qubit order and `verify_backend_invariance` for the earlier $qg_Z$ invariance. The libraries ran at the versions listed; the equivalence is at statevector level, not on a device.

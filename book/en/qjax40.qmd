@@ -145,3 +145,38 @@ branches: N(γ=2)=27, N(β=0.99)=443.26; singlet=(0,0,-1000), -1000 m-qg
 ```
 
 **Reading.** Criteria Z1–Z5 are met: exact frequency, mean and amplitude within $\pm60$ m-qg, and $\chi^2/\mathrm{dof}<1$. Conjugation has no fixed points and the singlet is blind in $X,Y$. `exact` in simulation; the Garnet execution of §170 remains `unverified` in this repo.
+
+## F11 — Matter and Antimatter: Conjugation as the Antipodal Map
+*F11 — Materia y antimateria: la conjugación como mapa antípoda*
+
+**Hypothesis H11 (`unverified`).** The baryon asymmetry $Y_B$ is a population, not an angular phase: `qang` measures the phase of the CP-odd interference in an effective qubit, not the relative abundance of matter. No new claim about baryogenesis follows from this reading; the angular signature of charge conjugation is falsifiable without invoking speculative physics.
+
+**Theorem T11 (`exact`).** `qang.qanti.conjugate(psi) = sigma_y psi*` sends the Bloch vector to $-r$. Hence $p_0\to1-p_0$, $\theta_{\rm qga}\to500-\theta_{\rm qga}$ and $\phi_{\rm qga}\to\phi_{\rm qga}+500 \pmod{1000}$; moreover $\langle\psi|C\psi\rangle=0$ for every pure state and the holonomy of the conjugate loop is the complex conjugate of the original, so its qga phase is $1000-\phi_{\rm qga}$. The affine readout inversion of `qecho` recovers the unbiased value.
+
+**Circuit design.** One qubit with $\theta_{\rm qga}=\phi_{\rm qga}=125$ qga, $N=65536$ shots, `seed=21` and $M=600$ independent estimates. Real API calls: `qang.qanti.conjugate`, `bloch_mqg`, `self_conjugate_overlap`, `qang.geometric.geometric_phase_qg`, `pancharatnam_phase`, `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout` and `qang.qfalsify.decide`/`binom_upper` (`exact`; `tools/verify_exp_f11.py`). SHA-256 preregistration `6ef2f20b7f9f2bf1441f0be65dbd65d2cdee4bc72f1ffb3f478efffc74185735`, computed before any sampling.
+
+**Quantitative falsification criterion.** $\sigma=0.621699$ qga, $\delta_{5\sigma}=3.108$ qga, $p_0=2\delta/1000=0.006216$, $\alpha=0.05$. Four predictions are tested: polar matter $125$, polar conjugate $375$, azimuth matter $125$ and azimuth conjugate $625$ qga. Each requires 600/600 hits and a +50 qga shifted control with 0/600 and decision `refutada` (`simulado`).
+
+**Result.**
+
+| Magnitude | Value | Status |
+| :--- | :--- | :--- |
+| `shots` / `M` | `65536` / `600` | `exact` |
+| `theta_qga` / `phi_qga` | `125` / `125` qga | `exact` |
+| `conjugation` | $\psi\mapsto\sigma_y\psi^*$; $r\to-r$ | `exact` |
+| `self_conjugate_overlap` | `0.0` | `exact` |
+| `bloch(Cpsi)` | `[-0.5, -0.5, -0.707106781]` | `exact` |
+| `p0` matter / conjugate | `0.853553391` / `0.146446609` | `exact` |
+| `theta_conjugate` / `azimuth_conjugate` | `375` / `625` qga | `exact` |
+| `geometric_phase` matter / conjugate | `891.826552` / `108.173448` qga | `exact` |
+| `Pancharatnam_phase` matter / conjugate | `891.826552` / `108.173448` qga | `exact` |
+| `readout_inversion` | `707.106781187` m-qg | `exact` |
+| `hits` (four cases) | `600/600` | `simulado` |
+| `decision` (four cases) | `confirmada` | `simulado` |
+| `control +50 qga` | `0/600 refutada` | `simulado` |
+| `baryon asymmetry as a phase` | not claimed | `unverified` |
+| `verifier` | `verify_exp_f11: OK` | `simulado` |
+
+**Reading.** Correction to the earlier exploration: the correct map is the antipode $r\to-r$, not $(q_X,-q_Y,-q_Z)$; therefore the azimuth shift is $+500$ qga and the polar angle goes from $125$ to $375$ qga, not to $250$/$875$. Conjugation has no fixed points and the conjugate holonomy is the opposite phase. All of this is `exact` in the one-qubit model and `simulado` in the sampling; the cosmological interpretation of matter and antimatter remains `unverified`.
+
+**Sources.** Ch. 40 and Appendix G of this book; `qang.qanti`. The baryon asymmetry and CP violation in particle physics are not derived from this map and remain outside the verifier's scope.
