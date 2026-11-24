@@ -658,6 +658,40 @@ Las figuras de este capítulo se generan con `tools/make_cap01_figures.py`, que 
   1,64 m-qg por compuerta $X$, lineal en el número de compuertas, y expuso corrimientos de lectura de 16–55 m-qg (sobre-rotaciones de $1{,}3^\circ$–$3{,}9^\circ$); una
   predicción sobre el ruido de disparo falló y la replicación queda pendiente.
 
+## F9 — Regla de Born: p₀ = cos²(θ/2), la lectura qg_Z y la resolución en qga
+*F9 — Born's Rule: p₀ = cos²(θ/2), the qg_Z Reading and qga Resolution*
+
+**Hipótesis H9 (`unverified`).** Un qubit puro descrito por un solo ángulo polar queda determinado por la probabilidad de Born $p_0$: las cuatro lecturas del Cap. 1 ($\theta$, $qg_Z$, $qg_S$ y m-qg) son funciones exactas de esa única probabilidad, y los estimadores con $N=65536$ disparos caen dentro de $5\sigma$ en los polos, el ecuador y un ángulo intermedio. La afirmación operativa se verifica aquí; la regla de Born como principio físico general queda `unverified`.
+
+**Teorema T9 (`exact`).** $p_0(\theta)=\cos^2(\theta/2)=(1+qg_Z)/2$, $qg_Z=2p_0-1=\cos\theta$, $m=1000\,qg_Z$ y $\theta_{\mathrm{qga}}=(1000/\pi)\arccos\sqrt{p_0}$; la información de Fisher de un disparo en la base $Z$ es $1$ rad$^{-2}=4\pi^2\cdot10^{-6}$ qga$^{-2}$ para todo estado puro. La fase del cono cerrado es $\gamma_{\mathrm{qga}}=1000\,p_0 \pmod{1000}$.
+
+**Diseño del circuito.** Un qubit con ángulo polar $\theta_{\mathrm{qga}}\in\{0,125,250,500\}$ (`exact`): $k_0\sim\mathrm{Bin}(N,p_0)$ con $N=65536$ y `seed=21`, inversión $\hat p_0=k_0/N$ y lectura $\hat\theta_{\mathrm{qga}}=(1000/\pi)\arccos\sqrt{\hat p_0}$. Llamadas reales de la API: `qang.probability.readings_from_p0`, `qang.qga.p0_from_qga`, `qga_from_p0`, `radians_from_qga`, `qga_from_radians`, `angle_sigma_qga`, `cone_phase_qga`, `FISHER_PER_QGA2` y `qang.qfalsify.decide`/`binom_upper` (`exact`; `tools/verify_exp_f9.py`).
+
+**Criterio cuantitativo de falsación.** Se fija `N=65536` shots, `sigma=0.621699 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05` y `M=600` estimaciones independientes (`exact`). Cada estimación acierta si $|\hat\theta_{\mathrm{qga}}-\theta_{\mathrm{qga}}|\le\delta$; los `hits` se contrastan con la decisión de `qang.qfalsify.decide` mediante el límite superior binomial `binom_upper`: 600/600 aciertos dan decisión `confirmada` en los cuatro ángulos (`simulado`), y el control desplazado +50 qga da 0/600 y decisión `refutada` (`simulado`). `tools/verify_exp_f9.py` imprime `verify_exp_f9: OK` (`simulado`).
+
+**Resultado.**
+
+| Magnitud | Valor | Estado |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `sigma` | `0.621699 qga` | `exact` |
+| `delta_5sigma` | `3.108 qga` | `exact` |
+| `p0` bajo la hipótesis nula | `0.006216` | `exact` |
+| `alpha` | `0.05` | `exact` |
+| `M` | `600` | `exact` |
+| `FISHER` | `3.94784e-05 qga^-2 = 1 rad^-2` | `exact` |
+| `p0` a 0 / 125 / 250 / 500 qga | `1.0 / 0.853553 / 0.5 / 0.0` | `exact` |
+| `qg_Z` a 0 / 125 / 250 / 500 qga | `1.0 / 0.707107 / 0.0 / -1.0` | `exact` |
+| `m-qg` a 125 qga | `707.106781` | `exact` |
+| `fase media` a 0 / 125 / 250 / 500 qga | `0.0 / 124.998745 / 249.996811 / 500.0 qga` | `simulado` |
+| `hits` | `600/600` en los cuatro ángulos | `simulado` |
+| `decisión` | `confirmada` | `simulado` |
+| `control +50 qga` | `0/600 refutada` | `simulado` |
+| `fase cónica` | `1000 p0 mod 1000 qga` | `exact` |
+| `verificador` | `verify_exp_f9: OK` | `simulado` |
+
+**Fuentes.** Born 1926 [@born1926]: regla de Born; Bloch 1946 [@bloch1946]: esfera de Bloch; la transformación arcoseno y su varianza estabilizada, @bartlett1947, @anscombe1948 y @freeman1950; la información de Fisher y la distancia de Wootters, @braunstein1994. El resto de la sección es `exact` en el modelo de un qubit; el comportamiento en hardware ruidoso queda `unverified`.
+
 ## Notas bibliográficas {.unnumbered}
 
 La regla de Born [@born1926] y la esfera de Bloch [@bloch1946] son el punto de partida; para estados, mediciones y

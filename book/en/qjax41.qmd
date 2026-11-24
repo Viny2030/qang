@@ -145,3 +145,42 @@ D-CTC convergence: the fixed point is reached in 1 iteration; 100000 P-CTC attem
 ```
 
 **Reading.** The paradox is not «solved» by a stronger signal: in the P-CTC there is no accepted distribution to measure. In the D-CTC the self-interaction selects the null reading state and preserves the CR. Both are `exact` at the map level; physical CTC existence remains `unverified`.
+
+## F10 — Retrocausal fluctuation: the 1/a shift and the per-copy balance
+*F10 — Fluctuación retrocausal: desplazamiento 1/a y balance por copia*
+
+**Hypothesis H10 (`unverified`).** In a postselected loop a small fluctuation of the input angle is read amplified in the output angle: a perturbation «in the past» looks larger in the «future» record. Counting failed attempts as well, the Fisher information per input copy is still 1, so the amplification carries no usable retrocausal signal. This continues Ch. 17 without repeating it and does not claim that physical closed timelike curves exist.
+
+**Theorem T10 (`exact` for the map).** For $C=2\,\mathrm{diag}(1,a)$, $\tan(\theta'/2)=a\tan(\theta/2)$, $p_\mathrm{post}=\cos^2(\theta/2)+a^2\sin^2(\theta/2)$ and $d\theta'/d\theta=a/p_\mathrm{post}$, equal to $1/a$ at the south pole. The balance $p_\mathrm{post}F_\mathrm{acc}+F_\mathrm{failure}=1$ is exact for all $(a,\theta)$ with $0<a\le1$.
+
+**Circuit design.** Take $a=0.5$, $\theta=\pi-0.02$ and a fluctuation $\delta\theta=0.01$ rad, with $N=65536$ shots and `seed=23` (`exact`). The predicted shift $\delta\theta'\approx(d\theta'/d\theta)\,\delta\theta$ is encoded as a $\mathrm{qg}_\Phi$ phase and read in qga at the fixed resolution. Real API calls: `qang.qtimeloop.pctc_theta_out`, `pctc_amplification`, `pctc_p_post`, `pctc_fisher`, `shots_for_successes`, `qang.qga.qga_from_radians`, `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout` and `qang.qfalsify.decide`/`binom_upper` (`exact`; `tools/verify_exp_f10.py`).
+
+**Quantitative falsification criterion.** Set `N=65536` shots, `sigma=0.621699 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05` and `M=600` independent estimates (`exact`). Hits are compared with the decision of `qang.qfalsify.decide` via `binom_upper`: 600/600 hits give decision `confirmada` (`simulated`), and the shifted +50 qga control gives 0/600 and decision `refutada` (`simulated`). The balance is checked over 2000 random $(a,\theta)$ pairs (`exact`). `tools/verify_exp_f10.py` prints `verify_exp_f10: OK` (`simulated`).
+
+**Result.**
+
+| Quantity | Value | Status |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `a` | `0.5` | `exact` |
+| `delta_theta` | `0.01 rad` | `exact` |
+| `theta_out` base / perturbed | `3.10159665 / 3.12159315 rad` | `exact` |
+| `shift` | `0.0199965 rad = 3.182542 qga` | `exact` |
+| `amplification` | `1.9994002` (= `1/a` at the pole) | `exact` |
+| `linear prediction` | `0.019994 rad` | `exact` |
+| `p_post` | `0.250074998` | `exact` |
+| `F_accepted` | `3.997601159` | `exact` |
+| `F_success_rate` | `0.0002999` | `exact` |
+| `F_total_per_copy` | `1.0` | `exact` |
+| `max abs(F−1)` over 2000 pairs | `5.154766e-12` | `exact` |
+| `shots for 1000 successes` | `3998.8` | `exact` |
+| `phase predicted / mean` | `6.365084 / 6.384463 qga` | `exact` / `simulated` |
+| `hits` | `600/600` | `simulated` |
+| `decision` | `confirmada` | `simulated` |
+| `control +50 qga` | `0/600 refutada` | `simulated` |
+| `physical retrocausality` | `not claimed; toy map only` | `unverified` |
+| `verifier` | `verify_exp_f10: OK` | `simulated` |
+
+**Reading.** The fluctuation is amplified by nearly $2$ near the south pole, but $p_\mathrm{post}\approx0.25$ requires about $4000$ attempts per thousand successes; the balance $p F_\mathrm{acc}+F_\mathrm{failure}=1$ closes to $5.2\cdot10^{-12}$ over 2000 random pairs. The predicted and sampled phases differ by less than $\delta_{5\sigma}$, with a refuted control. This is a result about simulated maps, not about causality: the retrocausal reading is `unverified` and the existence of CTCs is not claimed.
+
+**Sources.** Deutsch 1991, *Phys. Rev. D* 44, 3197, DOI `10.1103/PhysRevD.44.3197`: self-consistency and the maximum-entropy rule; Lloyd et al. 2011, *Phys. Rev. Lett.* 106, 040403, DOI `10.1103/PhysRevLett.106.040403`: P-CTC by postselection; Ch. 17 and §41 of this book for the two maps and the per-copy budget. The retrocausal interpretation remains `unverified`.

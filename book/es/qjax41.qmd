@@ -145,3 +145,42 @@ convergencia D-CTC: 1 iteración ya da el punto fijo; 100000 intentos P-CTC → 
 ```
 
 **Lectura.** La paradoja no se «resuelve» con una señal más fuerte: en P-CTC no hay distribución sobre la que medir. En D-CTC la autointeracción elige el estado de lectura nulo y conserva el CR. Ambos resultados son `exact` a nivel de mapa; la existencia física de CTC permanece `unverified`.
+
+## F10 — Fluctuación retrocausal: desplazamiento 1/a y balance por copia
+*F10 — Retrocausal Fluctuation: the 1/a Shift and the Per-Copy Balance*
+
+**Hipótesis H10 (`unverified`).** En un bucle postseleccionado, una fluctuación pequeña del ángulo de entrada se lee amplificada en el ángulo de salida: la perturbación «del pasado» parece mayor en el registro «del futuro». Al contar también los intentos fracasados, la información de Fisher por copia de entrada sigue siendo 1, de modo que la amplificación no transporta señal retrocausal utilizable. Continúa el Cap. 17 sin repetirlo y no afirma la existencia física de curvas temporales cerradas.
+
+**Teorema T10 (`exact` en el mapa).** Para $C=2\,\mathrm{diag}(1,a)$, $\tan(\theta'/2)=a\tan(\theta/2)$, $p_\mathrm{post}=\cos^2(\theta/2)+a^2\sin^2(\theta/2)$ y $d\theta'/d\theta=a/p_\mathrm{post}$, que vale $1/a$ en el polo sur. El balance $p_\mathrm{post}F_\mathrm{acc}+F_\mathrm{failure}=1$ es exacto para todo $(a,\theta)$ con $0<a\le1$.
+
+**Diseño del circuito.** Se toma $a=0{,}5$, $\theta=\pi-0{,}02$ y una fluctuación $\delta\theta=0{,}01$ rad, con $N=65536$ shots y `seed=23` (`exact`). El desplazamiento predicho $\delta\theta'\approx(d\theta'/d\theta)\,\delta\theta$ se codifica como fase $\mathrm{qg}_\Phi$ y se lee en qga con resolución fijada. Llamadas reales de la API: `qang.qtimeloop.pctc_theta_out`, `pctc_amplification`, `pctc_p_post`, `pctc_fisher`, `shots_for_successes`, `qang.qga.qga_from_radians`, `QangPhi.from_complex`, `qga.azimuth_qga`, `qecho.invert_readout` y `qang.qfalsify.decide`/`binom_upper` (`exact`; `tools/verify_exp_f10.py`).
+
+**Criterio cuantitativo de falsación.** Se fija `N=65536` shots, `sigma=0.621699 qga`, `delta_5sigma=3.108 qga`, `p0=2*delta/1000=0.006216`, `alpha=0.05` y `M=600` estimaciones independientes (`exact`). Los `hits` se contrastan con la decisión de `qang.qfalsify.decide` vía `binom_upper`: 600/600 aciertos dan decisión `confirmada` (`simulado`), y el control desplazado +50 qga da 0/600 y decisión `refutada` (`simulado`). El balance se comprueba en 2000 pares $(a,\theta)$ aleatorios (`exact`). `tools/verify_exp_f10.py` imprime `verify_exp_f10: OK` (`simulado`).
+
+**Resultado.**
+
+| Magnitud | Valor | Estado |
+| :--- | :--- | :--- |
+| `shots` | `65536` | `exact` |
+| `a` | `0.5` | `exact` |
+| `delta_theta` | `0.01 rad` | `exact` |
+| `theta_out` base / perturbado | `3.10159665 / 3.12159315 rad` | `exact` |
+| `desplazamiento` | `0.0199965 rad = 3.182542 qga` | `exact` |
+| `amplificación` | `1.9994002` (= `1/a` en el polo) | `exact` |
+| `predicción lineal` | `0.019994 rad` | `exact` |
+| `p_post` | `0.250074998` | `exact` |
+| `F_aceptado` | `3.997601159` | `exact` |
+| `F_tasa_éxito` | `0.0002999` | `exact` |
+| `F_total_por_copía` | `1.0` | `exact` |
+| `max abs(F−1)` en 2000 pares | `5.154766e-12` | `exact` |
+| `disparos para 1000 éxitos` | `3998.8` | `exact` |
+| `fase predicha / media` | `6.365084 / 6.384463 qga` | `exact` / `simulado` |
+| `hits` | `600/600` | `simulado` |
+| `decisión` | `confirmada` | `simulado` |
+| `control +50 qga` | `0/600 refutada` | `simulado` |
+| `retrocausalidad física` | `no afirmada; solo mapa de juguete` | `unverified` |
+| `verificador` | `verify_exp_f10: OK` | `simulado` |
+
+**Lectura.** La fluctuación se amplifica casi por $2$ cerca del polo sur, pero $p_\mathrm{post}\approx0{,}25$ obliga a unos $4000$ intentos por mil éxitos; el balance $p F_\mathrm{acc}+F_\mathrm{failure}=1$ cierra a $5{,}2\cdot10^{-12}$ en 2000 pares aleatorios. La fase predicha y la muestreada difieren menos que $\delta_{5\sigma}$, con control refutado. Es un resultado sobre mapas simulados, no sobre causalidad: la lectura retrocausal es `unverified` y la existencia de CTC no se afirma.
+
+**Fuentes.** Deutsch 1991, *Phys. Rev. D* 44, 3197, DOI `10.1103/PhysRevD.44.3197`: autoconsistencia y regla de máxima entropía; Lloyd et al. 2011, *Phys. Rev. Lett.* 106, 040403, DOI `10.1103/PhysRevLett.106.040403`: P-CTC por postselección; Cap. 17 y §41 de este libro para los dos mapas y el presupuesto por copia. La interpretación retrocausal queda `unverified`.
