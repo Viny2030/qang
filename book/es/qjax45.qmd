@@ -1,0 +1,123 @@
+# Capítulo 45 — Benchmark de ruido en cinco stacks: la fase qga sobrevive al qecho y al filtro de sector {#sec-qjax45 .unnumbered}
+*Chapter 45 — Noise Benchmark Across Five Stacks: the qga Phase Survives qecho and Sector Filtering*
+
+> **Día de análisis y actualización:** 24 de noviembre de 2026
+
+> **Resumen.** ¿Sigue siendo medible la fase cuando cinco stacks cuánticos ven el mismo estado con despolarización, amortiguamiento de amplitud y error de lectura? El testigo es $|\psi\rangle=(|0\rangle+e^{i\varphi}|1\rangle)/\sqrt2$ con $\varphi=250$ qga ($\pi/2$ rad), 65_536 disparos y 600 estimaciones. **`exact`**: $\sigma=0{,}621699$ qga, $\delta_{5\sigma}=3{,}108$ qga, la inversión afín recupera $250{,}0$ qga y el filtro de sector conserva $0{,}4$ de la distribución. **`simulado`**: la lectura cruda con despolarización da $243{,}24302$ qga (error $6{,}75698$ qga, por encima de $5\sigma$), 600/600 aciertos y control +50 qga refutado 0/600; con inversión el MSE baja de $1615{,}234375$ a $19{,}369143\ \mathrm{m\text{-}qg}^2$ ($83{,}39\times$). Qiskit 2.6.2, PennyLane 0.45.1 y Cirq 1.7.0 aportan statevector real; QuTiP, Braket e IonQ están ausentes en este entorno y se marcan `unverified`. **No hay `measured gain` ni ejecución en QPU.** Verificación: `tools/verify_exp_f13.py`.
+>
+> **EN abstract.** Does the phase remain measurable when five quantum stacks see the same state under depolarizing noise, amplitude damping and readout error? The witness is $|\psi\rangle=(|0\rangle+e^{i\varphi}|1\rangle)/\sqrt2$ with $\varphi=250$ qga ($\pi/2$ rad), 65_536 shots and 600 estimates. **`exact`**: $\sigma=0.621699$ qga, $\delta_{5\sigma}=3.108$ qga, affine inversion recovers $250.0$ qga and the sector filter keeps $0.4$ of the distribution. **`simulado`**: raw readout under depolarizing noise gives $243.24302$ qga (error $6.75698$ qga, above $5\sigma$), 600/600 hits and the +50 qga control refuted 0/600; with inversion the MSE drops from $1615.234375$ to $19.369143\ \mathrm{m\text{-}qg}^2$ ($83.39\times$). Qiskit 2.6.2, PennyLane 0.45.1 and Cirq 1.7.0 provide real statevectors; QuTiP, Braket and IonQ are absent in this environment and are marked `unverified`. **No `measured gain` and no QPU run.** Verification: `tools/verify_exp_f13.py`.
+
+---
+
+## 45.1 Reglas de lectura
+
+1. Unidades: $\varphi$ en qga (1 vuelta $=1000$ qga), azimut $\operatorname{atan2}(qg_Y,qg_X)\cdot1000/(2\pi)$; los sesgos y varianzas de lectura en m-qg.
+2. Toda cifra numérica trae etiqueta: `exact` si sale de la fórmula, `simulado` si sale del muestreo determinista con semilla 21, `unverified` si depende de un SDK ausente o de hardware no ejecutado.
+3. `5\sigma` es tolerancia angular por estimación, no un valor p. La decisión usa colas binomiales exactas con $\alpha=0{,}05$ y $p_0=2\delta/1000$ en `qang.qfalsify.binom_upper`.
+4. La afirmación de hardware queda `unverified`: tres statevectors son reales, tres son fallback analítico, y ningún QPU fue consultado.
+
+## 45.2 Hipótesis, teorema y prerregistro
+
+**H13 (`unverified`).** Con $N=65\,536$ disparos, la combinación de `qang.qecho.invert_readout` y el filtro de sector reduce el error angular frente a la lectura cruda bajo tres canales: despolarización $p=0{,}02$, amortiguamiento de amplitud $\gamma=0{,}05$ y error de lectura $e_{01}=0{,}02$, $e_{10}=0{,}06$.
+
+**T13 (`exact`).** Para el estado ecuatorial,
+$$
+(qg_X,qg_Y,qg_Z)=(\cos\varphi,\sin\varphi,0),
+$$
+la despolarización escala por $1-p$, el amortiguamiento envía $(x,y,z)\to(\sqrt{1-\gamma}x,\sqrt{1-\gamma}y,\gamma+(1-\gamma)z)$, y la lectura afín $m'=km+1000(e_{10}-e_{01})$ con $k=1-e_{01}-e_{10}=0{,}92$ se invierte como $\hat m=(m'-40)/0{,}92$. Como X e Y sufren la misma transformación, `qang.qga.azimuth_qga` recupera $\varphi$ tras la inversión aunque el azimut crudo se desplace más allá de $5\sigma$.
+
+**Resolución (`exact`).** Con `qang.qga.FISHER_PER_QGA2` $=(2\pi/1000)^2$,
+$$
+\sigma_{\mathrm{qga}}(N)=\frac{1}{\sqrt{NF}}=\frac{159{,}1549}{\sqrt N},\qquad \sigma(65\,536)=0{,}621699,\qquad \delta_{5\sigma}=3{,}108\ \mathrm{qga}.
+$$
+
+**Prerregistro (`exact`).** `PREDICTION` contiene $\varphi=250$ qga, los tres canales, $N=65\,536$, $N_{\mathrm{cal}}=65\,536$, 600 estimaciones, semilla 21, control +50 qga y el criterio: azimut corregido a menos de $10^{-3}$ qga, error crudo por encima de $5\sigma$, 600/600 aciertos, control refutado y MSE invertido menor que el crudo en los tres canales. `qang.qfalsify.register` da `ecb0dad97b5fa18e…` y `verify_registration` se comprueba al iniciar el verificador.
+
+## 45.3 Circuito testigo y modelo ruidoso
+
+```python
+import math
+from qang.geometric import bloch_from_state
+from qang.qecho import invert_readout, mse_raw_vs_inverted, readout_affine
+from qang.qga import QGA_PER_TURN, azimuth_qga, radians_from_qga
+from qang.sectors import filter_distribution
+
+phi = radians_from_qga(250.0)
+state = (complex(math.cos(phi), math.sin(phi)) / math.sqrt(2))
+bloch = bloch_from_state([1 / math.sqrt(2), state])
+m = readout_affine(0.0, 0.02, 0.06)
+print(round(invert_readout(m, 0.02, 0.06), 9))
+print(round(azimuth_qga(0.0, 980.0), 5))
+print(mse_raw_vs_inverted(0.0, 0.02, 0.06, 65536, 65536))
+print(filter_distribution([0.40, 0.20, 0.20, 0.20], 2, 1))
+```
+
+El estado se prepara con `H` y `RZ(phi)` en los stacks con statevector real. La despolarización y el amortiguamiento se aplican al vector de Bloch y la lectura afín a cada componente $qg_X,qg_Y,qg_Z$. El filtro de sector se ejerce en una distribución de 2 qubits con pesos $(0{,}40,0{,}20,0{,}20,0{,}20)$: conserva los estados con peso de Hamming 1, que son $0{,}4$ de la probabilidad (`exact`) y $0{,}402374268$ de 65_536 muestras (`simulado`).
+
+## 45.4 Resultados por stack
+
+| stack | origen | azimut corregido (qga) | error crudo (qga) | aciertos / control | estatus |
+|---|---|---:|---:|---|---|
+| Qiskit 2.6.2 | statevector real | 250,0 | 6,75698 | 600/600 · 0/600 refutado | `simulado` |
+| PennyLane 0.45.1 | statevector real | 250,0 | 6,75698 | 600/600 · 0/600 refutado | `simulado` |
+| Cirq 1.7.0 | statevector real | 250,0 | 6,75698 | 600/600 · 0/600 refutado | `simulado` |
+| QuTiP | fallback analítico | 250,0 | 6,75698 | 600/600 · 0/600 refutado | `unverified` |
+| Braket | fallback analítico | 250,0 | 6,75698 | 600/600 · 0/600 refutado | `unverified` |
+| modelo IonQ | fallback analítico | 250,0 | 6,75698 | 600/600 · 0/600 refutado | `unverified` |
+
+Los tres statevectors reales concuerdan en el azimut corregido dentro de $10^{-3}$ qga; las tres filas ausentes no afirman que esos SDK ejecutaran el circuito. El error crudo mostrado corresponde al canal de despolarización y supera $\delta_{5\sigma}=3{,}108$ qga en los seis casos (`simulado`).
+
+## 45.5 Ganancia de MSE, no ganancia medida
+
+| canal | azimut crudo (qga) | error crudo (qga) | MSE crudo ($\mathrm{m\text{-}qg}^2$) | MSE invertido ($\mathrm{m\text{-}qg}^2$) | cociente |
+|---|---:|---:|---:|---:|---:|
+| despolarización $p=0{,}02$ | 243,24302 | 6,75698 | 1615,234375 | 19,369143 | 83,392143 |
+| amortiguamiento $\gamma=0{,}05$ | 243,207753 | 6,792247 | 1311,145935 | 19,201737 | 68,282675 |
+| solo lectura $e_{01},e_{10}$ | 243,372378 | 6,627622 | 1615,234375 | 19,369143 | 83,392143 |
+
+Todas las cifras de esta tabla son `simulado`; los sesgos de lectura ($40$ m-qg, $36$ m-qg y $40$ m-qg) y la desviación $\approx3{,}90$ m-qg son `exact`. La mejora es una consecuencia de corregir un sesgo conocido con calibración de 65_536 disparos, no una ventaja cuántica medida. El libro sigue con cero `measured gain`.
+
+## 45.6 Límites y líneas futuras
+
+**Límites.** (i) El ruido es un modelo analítico de un qubit, no characterize de un dispositivo; `qang.qecho.invert_readout` corrige la parte afín, no coherencias ni correlaciones temporales. (ii) El amortiguamiento de amplitud conserva el azimut ecuatorial pero reduce la longitud del vector; no se afirma lo mismo cerca de un polo. (iii) QuTiP, Braket e IonQ no están instalados aquí; sus filas son `unverified` y habría que repetir `tools/verify_exp_f13.py` con los extras. (iv) IonQ QPU no fue invocado: `qiskit-ionq` figura como extra opcional, no como evidencia.
+
+**Líneas futuras, sin resultado.** Repetir con 5 y 20 qubits, con $p$ y $\gamma$ estimados por characterize real; comparar contra mitigación de lectura no lineal; extender el filtro de sector a subespacios con peso $w>1$; y medir en hardware con calibración del día. Ninguna de esas afirmaciones tiene estatus `exact` hoy.
+
+## 45.7 Sin qang y con qang
+
+| acción | sin qang | con qang | diferencia |
+|---|---|---|---|
+| predecir resolución angular | $\sigma$ por simulación repetida | `qang.qga.angle_sigma_qga` y `qang.qga.FISHER_PER_QGA2` | `exact` sin disparos |
+| corregir sesgo de lectura | promedio crudo | `qang.qecho.invert_readout` | sesgo 40 → 0 m-qg (`exact`) |
+| decidir fase y control | mirar dos histogramas | `qang.qfalsify.binom_upper` + azimut | 600/600 y 0/600 (`simulado`) |
+| postseleccionar sector | contar a mano | `qang.sectors.filter_distribution` | 0,4 conservado (`exact`) |
+| declarar resultado | confundir simulación con hardware | etiquetas `exact`/`simulado`/`unverified` | honestidad metrológica |
+
+## 45.8 Verificación — `tools/verify_exp_f13.py`
+
+```bash
+python tools/verify_exp_f13.py
+```
+
+El verificador comprueba el prerregistro, calcula los blochs reales donde hay SDK, aplica los tres canales, emite las filas con etiqueta, ejecuta 600 estimaciones con semilla 21 y lanza el control +50 qga. Cierra con `verify_exp_f13: OK — Qiskit/PennyLane/Cirq reales; QuTiP/Braket/IonQ unverified`.
+
+## 45.9 Apéndice H
+
+| id | familia | fórmula o prueba | función | estatus |
+|---|---|---|---|---|
+| `T13_bloch_azimuth` | metrología | $(qg_X,qg_Y,qg_Z)=(\cos\varphi,\sin\varphi,0)$ | `qang.geometric.bloch_from_state`, `qang.qga.azimuth_qga` | `exact` |
+| `T13_depolarizing_scaling` | metrología | $B\to(1-p)B$ | `tools/verify_exp_f13.py` | `exact` |
+| `T13_amplitude_damping_bloch` | metrología | $(x,y,z)\to(\sqrt{1-\gamma}x,\sqrt{1-\gamma}y,\gamma+(1-\gamma)z)$ | `tools/verify_exp_f13.py` | `exact` |
+| `T13_readout_affine_inversion` | metrología | $\hat m=(m'-40)/0{,}92$ | `qang.qecho.invert_readout`, `qang.qecho.readout_affine` | `exact` |
+| `T13_fisher_resolution` | metrología | $\sigma=159{,}1549/\sqrt N$; $\delta_{5\sigma}=3{,}108$ | `qang.qga.angle_sigma_qga`, `qang.qfalsify.binom_upper` | `exact` |
+| `T13_mse_gain` | metrología | MSE 1615,234375 → 19,369143 en despolarización | `qang.qecho.mse_raw_vs_inverted` | `simulado` |
+| `T13_sector_filter` | metrología | peso 1 conserva 0,4 de la distribución | `qang.sectors.filter_distribution` | `exact` |
+| `H13_noise_benchmark` | metrología | qecho y filtro bajan el error angular | `tools/verify_exp_f13.py` | `unverified` |
+| `five_stack_hardware` | interoperabilidad | Qiskit/PennyLane/Cirq/QuTiP/Braket + IonQ en QPU | — | `unverified` |
+
+## 45.10 CHANGELOG y commit
+
+```markdown
+### Added
+- Cap. 45 (`tools/verify_exp_f13.py`): benchmark B3 de fase qga bajo ruido en cinco stacks, con qecho, filtro de sector, prerregistro, control binomial y etiquetas exact/simulado/unverified; entrada ES/EN en `book/es/qjax45.qmd`.
+```
