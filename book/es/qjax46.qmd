@@ -1,0 +1,68 @@
+# Capítulo 46 — Auditoría metrológica: compatibilidad y anatomía de las métricas {#sec-qjax46 .unnumbered}
+
+`exact` | `simulado` | `unverified` — Bloque A (matriz de compatibilidad + anatomía de métricas) y addendum del Bloque B3. Verificador: `tools/verify_exp_a.py`. El benchmark B3 original permanece en el capítulo 45 y en `tools/verify_exp_f13.py`, sin modificaciones ni renumeración.
+
+## 46.1 Matriz de compatibilidad (`exact` en statevector; `unverified` en hardware)
+
+| Ecosistema | Estado | Puente en `qang` | Orden de bits | Alcance probado |
+|---|---|---|---|---|
+| Qiskit | `exact` | `Qang.from_statevector`, `canonical_counts(sdk="qiskit")`, `qg_z_from_state` | little-endian (`q_0` último) | statevector y conteos canónicos |
+| PennyLane | `exact` | `qnode_qg_z`, `Qang.from_statevector` | little-endian (QubitDevice) | statevector y `qg_Z` |
+| Cirq | `exact` | `qg_z_from_result`, `canonical_counts(sdk="cirq")` | big-endian (`q_0` primero) | statevector y conteos canónicos |
+| QuTiP | `unverified` | `mesolve_qg`, `qg_readings`, `qg_z_from_state` | ket/ρ big-endian | ausente en el entorno de verificación |
+| Braket | `unverified` | `run_qg`, normalización SDK | big-endian | ausente en el entorno de verificación |
+| IonQ | `unverified` | extra `ionq` / `qiskit-ionq` | vía Qiskit | sin QPU invocada |
+| PyQuil | `unverified` | sin adaptador nativo | sin fijar | nunca anunciado como integración |
+
+La verificación `A_qiskit_canonical` devuelve `{(1, 0): 3, (0, 1): 1}` y `A_cirq_canonical` devuelve `{(0, 1): 3, (1, 0): 1}` para la misma cadena `"01"`; los perfiles `qg_Z` quedan, respectivamente, `[-0.5, 0.5]` y `[0.5, -0.5]`. La sobrecarga es $O(1)$ por qubit en `qg_z_profile`, sin construcción de circuito ni simulación adicional.
+
+## 46.2 Anatomía de las métricas (`exact`)
+
+| Métrica | Definición | Valor a $N=65\,536$ | Estado |
+|---|---|---|---|
+| Ángulo polar $\theta$ | $\sigma_\theta(N)=159{,}1549/\sqrt N$ qga | $\sigma=0{,}622$ qga; $5\sigma=3{,}108$ qga | `exact` |
+| Acimut $\varphi$ | $\sigma_\varphi=\sigma_\theta/|\sin\theta|$ | $\sigma=0{,}879$ qga a $\theta=250$ qga ($45^\circ$); $5\sigma=4{,}396$ qga | `exact`; indefinido en polos |
+| Fase del cono $\gamma$ | $\sigma_\gamma=500\sqrt{1-qg_Z^2}/\sqrt N$ qga | $\sigma=1{,}953$ qga; $5\sigma=9{,}766$ qga en $qg_Z=0$ | `exact` |
+| Fase física | $\varphi=\arg(\beta/\alpha)$, $|\beta/\alpha|=1$ | fase global removida por `Qang.from_statevector` | `exact` |
+| Inversión de lectura | `qecho.invert_readout` | $k=0{,}92$; varianza $\times 1{,}1815$ | `exact` |
+| Decisión binomial | `qfalsify.decide` | $\alpha_{1\text{-lado}}=2{,}8665\times10^{-7}$; $\alpha_{2\text{-lados}}=5{,}7330\times10^{-7}$ | `exact` |
+| Análogo óptico $E_\parallel/E_\perp$ | estado de polarización | no implementado | `unverified` |
+
+`QangPhi.from_complex` exige módulo unitario (`atol=1e-6`) y falla con `ValueError` para $z=2$; en cambio `Qang.from_statevector` admite amplitudes normalizadas y elimina la fase global fijando $\alpha$ real no negativo. No existe una función `fidelidad angular` en `qecho`; el inversor recupera el valor exactamente en esperanza, pero no reduce la varianza.
+
+## 46.3 Correcciones metrológicas
+
+1. **$5\sigma$ es un nivel $\alpha$, no una banda de tolerancia.** `qfalsify.decide(k, n, p0, alpha)` no tiene modo `5σ`: use $\alpha=2{,}8665\times10^{-7}$ (unilateral) o $\alpha=5{,}7330\times10^{-7}$ (bilateral). Para $m$ comparaciones, `qfalsify.holm(pvalues, alpha)` controla la tasa de error por familia.
+2. **La tabla de resolución es polar.** $159{,}1549/\sqrt N$ no debe reutilizarse para acimut ni para fase de cono: el acimut introduce $1/|\sin\theta|$ y diverge en $\theta=0,\pi$; el cono usa el prefijo $500$, no $159{,}1549$.
+3. **La fase es un cociente, no una amplitud global.** $\beta/\alpha$ con $|\cdot|=1$; la fase global no es observable y se elimina antes de construir `QangPhi`.
+4. **La corrección de lectura tiene precio.** Con $e_{01}=0{,}02$, $e_{10}=0{,}06$, $k=1-e_{01}-e_{10}=0{,}92$ y la varianza de la serie invertida se amplifica por $k^{-2}=1{,}1815$.
+5. **La interpretación de F13/B3 se mantiene.** El experimento usa $\theta=250$ qga, donde $|\sin\theta|=1$ y $\sigma_\varphi=\sigma_\theta$; su $\alpha=0{,}05$ pertenece al protocolo de 600 estimaciones, no al nivel de decisión $5\sigma$.
+
+## 46.4 Addendum B3: tablas comparadas (`exact`)
+
+| $N$ | $\sigma_\theta$ | $5\sigma_\theta$ | $\sigma_\gamma$ | $5\sigma_\gamma$ | $\sigma_\varphi$ a $45^\circ$ |
+|---:|---:|---:|---:|---:|---:|
+| $16\,384$ | 1,243 qga | 6,217 qga | 3,906 qga | 19,531 qga | 1,758 qga |
+| $32\,768$ | 0,879 qga | 4,396 qga | 2,762 qga | 13,811 qga | 1,243 qga |
+| $65\,536$ | 0,622 qga | 3,108 qga | 1,953 qga | 9,766 qga | 0,879 qga |
+
+El umbral $\pm 3{,}108$ qga de `verify_exp_f13.py` es correcto para la fase ecuatorial, pero no debe transferirse a la fase del cono: allí el umbral correspondiente sería $\pm 9{,}766$ qga a $65\,536$ disparos.
+
+## 46.5 Verificación y apéndice H
+
+```bash
+python tools/verify_exp_a.py
+```
+
+Predicción pre-registrada (`qang.qfalsify.register`): SHA-256 `8ab06bc2f31b1c7fbf928fb8c8ad088c347bdc7bbb8bf12c0338ed7de63c5a2a`, calculada antes de emitir cualquier fila.
+
+Filas nuevas para el apéndice H:
+
+| ID | Medida | Resultado | Estado |
+|---|---|---|---|
+| H4.8 | Auditoría de compatibilidad (7 ecosistemas) | `exact` en statevector Qiskit/PennyLane/Cirq; `unverified` en QuTiP/Braket/IonQ/PyQuil | mixto |
+| H4.9 | Anatomía de métricas | $\sigma_\theta$, $\sigma_\varphi$, $\sigma_\gamma$, $\alpha_{5\sigma}$, inversión $k^{-2}$ | `exact` |
+| H4.10 | Addendum B3 | $5\sigma_\gamma=9{,}766$ qga a $65\,536$ disparos | `exact` |
+| H4.11 | Registro de `verify_exp_a.py` | SHA-256 `8ab06bc2f31b1c7fb…` | `exact` |
+
+Los dominios B4–B9, incluido B9(a) (braiding anyónico fraccionario), permanecen `unverified` y no se promueven en este capítulo.
