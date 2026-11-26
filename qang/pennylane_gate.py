@@ -154,3 +154,7 @@ else:  # pragma: no cover - exercised only when pennylane is absent
 
     def filtered_qg_z(*args, **kwargs):
         _require_pennylane()
+
+
+R_qg = rqang
+"""Compatibility alias for ``rqang`` in the book's ``R_qg`` notation."""

@@ -517,6 +517,25 @@ y $T_2$, que es una de sus causas, pero la magnitud mide la pérdida de pureza s
 sobre errores de calibración también la produce (capítulo 2, @sec-area). A diferencia de las anteriores, no es función
 de $p_0$: requiere medir en tres bases.
 
+## Reporte estándar de una medición {#sec-reporte01}
+
+Todos los campos de aplicación del libro usan el mismo contrato de reporte, implementado en `qang.report`:
+
+```python
+from qang.report import qang_report
+
+report = qang_report({"0": 750, "1": 250}, theta_qga=250.0, n_shots=1000)
+report["m_qg"], report["sigma_m"], report["ci_95"]
+```
+
+Las claves son exactamente `p0`, `qg_Z`, `m_qg`, `qga`, `qg_S`, `N`, `sigma_m` y `ci_95`. En el ejemplo, la lectura es
+$0{,}75$, $+500$ m-qg y $166{,}667$ qga; $\sigma_m=1000/\sqrt{1000}=31{,}623$ m-qg, y `ci_95` son los límites del
+ángulo **polar** qga estimado, $(156{,}8,\ 176{,}5)$ qga, con el jacobiano $1000/(2\pi)=159{,}1549$ qga/rad: no es un intervalo azimutal ni de fase de cono. $N$ debe igualar la suma de los conteos: el reporte rechaza un
+`n_shots` inconsistente en lugar de promediar dos tamaños de muestra distintos. Para conteos de varios qubits se
+declara el SDK (`sdk="qiskit"`, `"cirq"`, ...) porque el orden del qubit 0 cambia; también se puede pedir un filtro
+de peso con `weight=`. El contrato no añade información a $p_0$: pone en un mismo formato las ocho lecturas que ya
+se han definido en este capítulo.
+
 ## Alcance y límites de la base {#sec-alcance}
 
 Conviene decir con precisión qué aporta esta base y qué no, antes de construir el resto del libro sobre ella.

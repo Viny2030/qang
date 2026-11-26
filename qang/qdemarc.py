@@ -4,6 +4,8 @@ Backend JAX (jax<0.9). Alineado con Cap. 16 antiguo (ML-KEM/ML-DSA/SLH-DSA/HQC: 
 QBER e ⇔ qg_Z = 1 − 2e (eje de la base de reconciliación). Tasa asintótica BB84 (ataque colectivo, un solo paso):
 r = 1 − 2 h(e) > 0  ⇔  e < 0.1100  ⇔  qg_Z > 0.780 (780 m-qg).
 QRNG de un qubit: H_min = −log2 max(p0,p1) = −log2((1 + |qg_Z|)/2).
+
+AGAINST (direct): PQC is classical lattice/hash/code arithmetic; it has no qubit measurement basis and no m-qg reading. Do not apply ``qang_report`` to PQC artifacts.
 """
 from __future__ import annotations
 

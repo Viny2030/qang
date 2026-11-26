@@ -1,6 +1,8 @@
 """qang.qscramble — Hayden–Preskill / Yoshida–Kitaev (decodificador probabilístico), ley P·F = 1/d_A²,
 OTOC y curva de Page: Rényi-2 frente a qg_S. Backend JAX (jax<0.9). Alineado con §164.
 Orden de qubits: [R, A, B_1..B_nB, B'_1..B'_nB, A', R']  (EPR en (R,A), (B_i,B'_i), (A',R')).
+
+ANALOGY ONLY: information-theoretic scrambling/decoding (including ER=EPR-style readers); no physical black hole, wormhole, gravity or FTL claim.
 """
 from __future__ import annotations
 

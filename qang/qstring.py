@@ -7,6 +7,8 @@ Cuatro bloques, todos con verificador (`tools/verify_cap42.py`):
   D. el radio (parámetro de Luttinger K) de una cadena XXZ leído con una sola base Z (varianza del peso de un bloque).
 Nada de esto mide física de cuerdas: son identidades exactas del modelo y una lectura de un análogo de red. m-qg = 1000·qg_Z;
 1 vuelta = 1000 qga (aquí no se usa qga). Qubit 0 = bit más significativo; el modo k = qubit k−1.
+
+ANALOGY ONLY: exact lattice identities and information-theoretic analogues, not physical string theory; no extra dimension, compactification or FTL claim.
 """
 from __future__ import annotations
 

@@ -2,6 +2,8 @@
 simuladas como mapas sobre el qubit cronológico (CR) y leídas en m-qg. Backend JAX (jax<0.9).
 Alineado con `qang.postselection` (§164). Simulación de los MAPAS; la existencia física de CTC es `unverified`.
 
+ANALOGY ONLY: information-theoretic simulation of CTC maps; no physical time travel, causal loop or FTL claim.
+
 P-CTC:  ρ_CR → C ρ C† / Tr(C ρ C†),  C = Tr_CTC(U)      (requiere par de Bell + postselección, prob. p_post)
 D-CTC:  ρ_CTC = Tr_CR[U(ρ⊗ρ_CTC)U†] (punto fijo),  ρ_out = Tr_CTC[U(ρ⊗ρ_CTC)U†]
 """

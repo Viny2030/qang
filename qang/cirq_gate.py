@@ -125,3 +125,7 @@ else:  # pragma: no cover - exercised only when cirq is absent
 
     def append_qang(*args, **kwargs):
         _require_cirq()
+
+
+R_qg = rqang_gate
+"""Compatibility alias for ``rqang_gate`` in the book's ``R_qg`` notation."""

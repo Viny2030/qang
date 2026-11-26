@@ -32,6 +32,8 @@ the qg vector), so they carry no information that p0 lacks; they name combinatio
     qg_tau = sqrt(1 - r^2) = 2 sqrt(det rho)    purity deficit of the qg vector r = (qg_X, qg_Y, qg_Z)
 
 qg_kappa is not the pulse curvature kappa_qg = 1000 |cos theta| m-qg/rad^2 of chapter 1.
+
+The book's short names are available as aliases: ``m_qg_from_p0``, ``sigma_m`` and ``qg_tau``.
 """
 
 from __future__ import annotations
@@ -46,12 +48,14 @@ from .statistics import qg_s_from_qg_z_interval, wilson_qg_estimate
 __all__ = [
     "readings_from_p0",
     "milliqang_from_p0",
+    "m_qg_from_p0",
     "p0_from_milliqang",
     "theta_from_milliqang",
     "milliqang_from_theta",
     "angle_per_milliqang",
     "pole_angle",
     "shot_noise_milliqang",
+    "sigma_m",
     "shots_for_resolution",
     "pulse_error_milliqang",
     "statistical_angle",
@@ -59,6 +63,7 @@ __all__ = [
     "shots_for_sign",
     "information_curvature",
     "dissipative_deficit",
+    "qg_tau",
     "Reading",
     "analyze",
 ]
@@ -224,3 +229,8 @@ def analyze(k0: int, n_shots: int, target_qg_z: Optional[float] = None, z: float
         qg_s=(_binary_entropy((1.0 + w.qg_z) / 2.0), s_lo, s_hi),
         deviation_milliqang=dev,
     )
+
+
+m_qg_from_p0 = milliqang_from_p0
+sigma_m = shot_noise_milliqang
+qg_tau = dissipative_deficit

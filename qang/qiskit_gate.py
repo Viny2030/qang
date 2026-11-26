@@ -141,3 +141,7 @@ else:  # pragma: no cover - exercised only when qiskit is absent
 
     def append_rqang_parameter(*args, **kwargs):
         _require_qiskit()
+
+
+R_qg = RQangGate
+"""Compatibility alias for ``RQangGate`` in the book's ``R_qg`` notation."""

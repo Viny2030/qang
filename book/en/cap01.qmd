@@ -497,6 +497,25 @@ relaxation, which is one of its causes, but the quantity measures the loss of pu
 an average over calibration errors produces it too (Chapter 2, @sec-area). Unlike the previous ones, it is not a
 function of $p_0$: it requires measuring in three bases.
 
+## Standard measurement report {#sec-report01}
+
+Every application field in the book uses the same reporting contract, implemented in `qang.report`:
+
+```python
+from qang.report import qang_report
+
+report = qang_report({"0": 750, "1": 250}, theta_qga=250.0, n_shots=1000)
+report["m_qg"], report["sigma_m"], report["ci_95"]
+```
+
+The keys are exactly `p0`, `qg_Z`, `m_qg`, `qga`, `qg_S`, `N`, `sigma_m` and `ci_95`. In the example the reading is
+$0.75$, $+500$ m-qg and $166.667$ qga; $\sigma_m=1000/\sqrt{1000}=31.623$ m-qg, and `ci_95` holds the bounds of the
+estimated **polar** qga angle, $(156.8,\ 176.5)$ qga, with Jacobian $1000/(2\pi)=159.1549$ qga/rad: it is neither an azimuthal nor a cone-phase interval. $N$ must equal the sum of the counts: the report rejects an inconsistent
+`n_shots` rather than averaging two different sample sizes. Multi-qubit counts declare their SDK
+(`sdk="qiskit"`, `"cirq"`, ...) because the position of qubit 0 changes; a Hamming-weight filter can be requested
+with `weight=`. The contract adds no information to $p_0$: it puts the eight readings already defined in this
+chapter into one format.
+
 ## Scope and limits of the base {#sec-scope}
 
 It is worth stating precisely what this base brings and what it does not, before building the rest of the book on

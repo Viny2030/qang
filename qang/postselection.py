@@ -2,6 +2,8 @@
 Teleportation with postselection: closed timelike curves (P-CTC) and black-hole decoding in qg terms
 (RESEARCH_NOTES §164).
 
+ANALOGY ONLY: information-theoretic postselection maps, not physical black holes or closed timelike curves; no gravity, spacetime travel or FTL claim.
+
 Both are information-theoretic models, not statements about real spacetime.
 
 P-CTC (Lloyd et al. 2011). A qubit C "sent to the past" is half of a Bell pair (C, A); after C interacts with
