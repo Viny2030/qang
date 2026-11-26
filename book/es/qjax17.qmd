@@ -35,9 +35,9 @@ Instancia CNOT: entrada $-980$ m-qg → P-CTC $+1000$ m-qg con $p_{\text{post}}=
 
 P-CTC y D-CTC no son dos lecturas de una misma regla: para CNOT, P-CTC proyecta CR a $|0\rangle$ y mueve $qg_Z\to+1000$ m-qg para cualquier entrada, mientras D-CTC conserva $qg_Z$ y anula $qg_X,qg_Y$. La tabla debe leerse como comparación de mapas, no como dos implementaciones de un mismo dispositivo. El precio $N\propto1/p_{\text{post}}=2/(1+qg_Z)$ es el sobregiro **medio** de una postselección ideal: supone resultado de Bell correcto, detector perfecto e intentos independientes. A $-980$ m-qg, $p_{\text{post}}=0.010$ y el promedio es $\times100$; cerca del polo $|1\rangle$ diverge. No se modelan eficiencia, oscuridad ni deriva. En SWAP, P-CTC cuesta $\times4$ disparos aunque el mapa sea identidad: ese coste es contable, no una ganancia ni una pérdida de fidelidad; D-CTC no tiene ese multiplicador porque no postselecciona, pero su punto fijo se calcula iterativamente. La fila $(X\otimes I)\,\mathrm{SWAP}$ solo afirma el mapa P-CTC $X\rho X$ con $p_{\text{post}}=1/4$; el valor D-CTC queda marcado como `—` porque el verificador no lo calcula. “1 par de Bell (2 qubits)” es el coste de **simular el mapa** P-CTC con teleportación postseleccionada, no una CTC física; el estatus `unverified` se mantiene también para los experimentos ópticos que prueban consistencia de los mapas. La etiqueta `exact` cubre la identidad algebraica de los mapas, los puntos fijos encontrados y los conteos de recursos bajo los supuestos ideales; hardware con ruido, postselección finita o resolución limitada queda fuera de ese alcance.
 
-## 17.3 Contraste operativo
+## 17.3 Contraste operativo: Sin qang vs. Con qang
 
-| Métrica / Metric | Estándar | `qang` (`qang.qctc` + JAX) | Estatus |
+| Métrica / Metric | Sin qang (baseline estándar) | Con qang (`qang.qctc` + JAX) | Estatus |
 | :--- | :--- | :--- | :--- |
 | Recursos P-CTC | — | 1 par de Bell + postselección $\times1/p_{\text{post}}$ | `exact` (conteo) |
 | Recursos D-CTC | — | iteración de punto fijo (convergió en $\le2$ it. en los 3 casos) | `exact` sim. |
