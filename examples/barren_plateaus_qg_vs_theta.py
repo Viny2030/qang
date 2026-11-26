@@ -44,7 +44,7 @@ when the ansatz is embedded in a many-qubit barren-plateau setting.
 
 from __future__ import annotations
 
-from typing import Dict, List, Sequence
+from typing import Dict, Sequence
 
 import numpy as np
 
@@ -56,6 +56,7 @@ from qang.gradients import (
     inverse_jacobian_raw,
     inverse_jacobian_tikhonov,
 )
+from qang.multiqubit import mean_qg_z
 
 
 def global_z_observable(n_qubits: int) -> SparsePauliOp:
@@ -71,23 +72,48 @@ def global_z_cost(n_qubits: int, reps: int, params: Sequence[float]) -> float:
     return sv.expectation_value(global_z_observable(n_qubits)).real
 
 
+def qg_local_z_cost(n_qubits: int, reps: int, params: Sequence[float]) -> float:
+    """C_L = (1 - mean qg_Z)/2: the qg local cost (Cerezo et al. 2021
+    local-cost analogue) in the native qang readout coordinate."""
+    qc = hardware_efficient_ansatz(n_qubits, reps, params)
+    sv = Statevector.from_instruction(qc)
+    return (1.0 - mean_qg_z(sv.data, n_qubits)) / 2.0
+
+
+def cost_function(n_qubits: int, reps: int, params: Sequence[float], cost: str = "global") -> float:
+    if cost == "global":
+        return global_z_cost(n_qubits, reps, params)
+    if cost == "qg_local":
+        return qg_local_z_cost(n_qubits, reps, params)
+    raise ValueError("cost must be 'global' or 'qg_local'.")
+
+
 def parameter_shift_grad(
-    n_qubits: int, reps: int, params: Sequence[float], param_index: int
+    n_qubits: int,
+    reps: int,
+    params: Sequence[float],
+    param_index: int,
+    cost: str = "global",
 ) -> float:
-    """Exact parameter-shift-rule gradient of global_z_cost with respect
-    to params[param_index] (every rotation here is a single-Pauli-
-    generator RY, so the rule is exact)."""
+    """Exact parameter-shift-rule gradient of the selected cost with respect
+    to params[param_index] (every rotation here is a single-Pauli-generator RY,
+    so the rule is exact)."""
     params = np.asarray(params, dtype=float)
     shift = np.zeros_like(params)
     shift[param_index] = np.pi / 2.0
     return 0.5 * (
-        global_z_cost(n_qubits, reps, params + shift)
-        - global_z_cost(n_qubits, reps, params - shift)
+        cost_function(n_qubits, reps, params + shift, cost=cost)
+        - cost_function(n_qubits, reps, params - shift, cost=cost)
     )
 
 
 def sample_theta_space_gradients(
-    n_qubits: int, reps: int, n_samples: int, seed: int, param_index: int = 0
+    n_qubits: int,
+    reps: int,
+    n_samples: int,
+    seed: int,
+    param_index: int = 0,
+    cost: str = "global",
 ):
     """Sample ``n_samples`` random parameter vectors (each entry uniform
     in [0, 2*pi)) and return (gradients, values of params[param_index])
@@ -99,7 +125,7 @@ def sample_theta_space_gradients(
     theta_values = np.empty(n_samples, dtype=float)
     for i in range(n_samples):
         params = rng.uniform(0.0, 2.0 * np.pi, size=n_params)
-        grads[i] = parameter_shift_grad(n_qubits, reps, params, param_index)
+        grads[i] = parameter_shift_grad(n_qubits, reps, params, param_index, cost=cost)
         theta_values[i] = params[param_index]
     return grads, theta_values
 
@@ -129,19 +155,27 @@ def gradient_variance_by_qubit_count(
     param_index: int = 0,
     space: str = "theta",
     eps: float = 0.05,
+    cost: str = "global",
 ) -> Dict[int, float]:
     """Variance of the (theta- or qg-space) gradient across random
     samples, for each n_qubits in n_qubits_list."""
     result: Dict[int, float] = {}
     for n in n_qubits_list:
-        grads, thetas = sample_theta_space_gradients(n, reps, n_samples, seed + n, param_index)
+        grads, thetas = sample_theta_space_gradients(
+            n, reps, n_samples, seed + n, param_index, cost=cost
+        )
         values = grads if space == "theta" else convert_to_qg_space_gradient(grads, thetas, mode=space, eps=eps)
         result[n] = float(np.var(values))
     return result
 
 
 def near_pole_gradient_blowup(
-    n_qubits: int, reps: int, seed: int, theta_pole_value: float, eps: float = 0.05
+    n_qubits: int,
+    reps: int,
+    seed: int,
+    theta_pole_value: float,
+    eps: float = 0.05,
+    cost: str = "global",
 ):
     """
     Deterministic (non-random) demonstration of the pole singularity:
@@ -156,7 +190,7 @@ def near_pole_gradient_blowup(
     params = rng.uniform(0.0, 2.0 * np.pi, size=n_params)
     params[0] = theta_pole_value
 
-    grad_theta = parameter_shift_grad(n_qubits, reps, params, 0)
+    grad_theta = parameter_shift_grad(n_qubits, reps, params, 0, cost=cost)
     return {
         "theta": grad_theta,
         "qg_raw": grad_theta * inverse_jacobian_raw(theta_pole_value),
@@ -171,32 +205,26 @@ if __name__ == "__main__":
     n_samples = 150
     seed = 0
 
-    print("Gradient variance vs number of qubits, global Z^n cost, theta-space:")
-    theta_var = gradient_variance_by_qubit_count(n_qubits_list, reps, n_samples, seed, space="theta")
-    for n, v in theta_var.items():
-        print(f"  n_qubits={n:2d}  Var(dE/dtheta) = {v:.6e}")
+    for cost in ("global", "qg_local"):
+        print(f"Gradient variance vs number of qubits, cost={cost}, theta-space:")
+        theta_var = gradient_variance_by_qubit_count(
+            n_qubits_list, reps, n_samples, seed, space="theta", cost=cost
+        )
+        for n, v in theta_var.items():
+            print(f"  n_qubits={n:2d}  Var(dE/dtheta) = {v:.6e}")
+        log_var = np.log([theta_var[n] for n in n_qubits_list])
+        slope, _ = np.polyfit(n_qubits_list, log_var, 1)
+        print(f"  log-linear fit slope (per qubit): {slope:.4f}")
+        print()
 
-    log_var = np.log([theta_var[n] for n in n_qubits_list])
-    slope, _ = np.polyfit(n_qubits_list, log_var, 1)
-    print(f"  log-linear fit slope (per qubit): {slope:.4f}  (negative => exponential decay)")
-    print()
+        qg_clipped_var = gradient_variance_by_qubit_count(
+            n_qubits_list, reps, n_samples, seed, space="clipped", cost=cost
+        )
+        for n, v in qg_clipped_var.items():
+            print(f"  n_qubits={n:2d}  Var(dE/dqg_clipped) = {v:.6e}")
+        print()
 
-    print("Same scan, converted to qg-space (clipped, eps=0.05) -- regularization")
-    print("preserves the exponential-in-n decay away from the poles:")
-    qg_clipped_var = gradient_variance_by_qubit_count(
-        n_qubits_list, reps, n_samples, seed, space="clipped"
-    )
-    for n, v in qg_clipped_var.items():
-        print(f"  n_qubits={n:2d}  Var(dE/dqg_clipped) = {v:.6e}")
-    print()
-
-    print("Near-pole blow-up (deterministic, theta[0] = 1e-4, n_qubits=6):")
-    blowup = near_pole_gradient_blowup(6, reps=1, seed=0, theta_pole_value=1e-4)
-    for space, val in blowup.items():
-        print(f"  {space:12s}: {val:+.4e}")
-    print()
-    print("Guideline: away from the poles, qg-space regularization just rescales")
-    print("the barren-plateau variance by an O(1) factor; AT a pole, raw qg-space")
-    print("gradients diverge regardless of qubit count -- the Section 4.1")
-    print("coordinate singularity and the barren-plateau phenomenon are")
-    print("independent effects that compound rather than cancel.")
+        blowup = near_pole_gradient_blowup(6, reps=1, seed=0, theta_pole_value=1e-4, cost=cost)
+        for space, val in blowup.items():
+            print(f"  {cost}:{space:12s}: {val:+.4e}")
+        print()

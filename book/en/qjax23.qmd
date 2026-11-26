@@ -16,6 +16,8 @@ A unit vector $x\in\mathbb R^n$ is loaded as $|x\rangle=\sum_kx_k|e_k\rangle$ in
 
 Task: labels $\mathrm{sign}(x^\top RDR^\top x)$ with hidden $R$ ($n=4$, 200/400 samples). Correlation loss $-\langle y\,\ell\rangle$ (the family is exactly that of the target); `jax.value_and_grad`, 6 seeds, 500 steps, $\eta=4000$ qga²: test accuracy $0.982$, mean margin $|y|=0.539$ (theoretical correlation optimum $0.513$, reached $0.513$). No plateaus (9 parameters; Ch. 9 §4).
 
+**P3 extension (qg-local cost).** The no-mitigation-by-unit conclusion remains, but local cost $C_L=(1-\overline{qg_Z})/2$ improves gradient signal over $C_G=(1-\langle Z^{\otimes n}\rangle)/2$ in the pre-registered P3-SHOT-GRAD-QG-LOCAL simulated instance (see Ch. 9 §9.4.1, `tools/verify_p3_shot_gradient_qg_local.py`, theta ratio 8.42x, 100 shots, $n=6,L=2$, seed 7; `exact` sim., `unverified` hardware).
+
 ## 23.3 Symmetry filter under T1 relaxation: exact in margin, shot gain, `mixed` in accuracy
 
 Uniform $T_1$ relaxation $\gamma$ on the histogram: without a filter $y\to(1-\gamma)y$; with a sector filter $y$ is **exact** with acceptance rate $(1-\gamma)$. Shots to confirm the sign at $3\sigma$ (Ch. 1, $N_{\text{sign}}$): $\gamma=0.3$: without filter $63$, with filter $44$ ⇒ $\times1.43=1/(1-\gamma)$ (`exact`). With **non-uniform** $\gamma$ $(0.05,0.35,0.10,0.30)$ the filter leaves a bias: accuracy $0.967$ with and without the filter (clean $0.982$) — the gain is in budget, not accuracy (`mixed`; consistent with old Ch. 21, F5).

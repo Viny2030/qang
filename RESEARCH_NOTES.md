@@ -49,6 +49,8 @@ writing); re-running the named script reproduces it.
 | 20 | IonQ trapped-ion noise models: QV benchmark and the qg of an RZZ coupling | `examples/ionq_validation.py` | `test_ionq_validation.py` (local mode) |
 | 21 | Chemistry: classical HF/FCI vs noisy quantum energy with and without the qg electron-number filter (H2 curve, LiH limit) | `examples/chemistry_qg_symmetry_witness.py`, `examples/chemistry_lih_deep_circuit.py` | `test_chemistry_qg_symmetry_witness.py`, `test_chemistry_lih_deep_circuit.py` |
 | 22 | Differential equations: DQC solver with qg vs angle encoding, classical spectral control | `examples/ode_qg_vs_angle.py` | `test_ode_qg_vs_angle.py` |
+| 54 | Shot budget vs angle in qga (P1): constant Fisher budget vs state-dependent qg_Z budget | `examples/shot_budget_angle_qga.py` | `test_shot_budget_angle_qga.py` |
+| 55 | Barren plateaus P3 extension: global vs qg-local cost in theta and clipped qg coordinates | `examples/barren_plateaus_qg_vs_theta.py` | `test_barren_plateaus_qg_vs_theta.py` |
 
 ## 1. Regularizing the Section 4.1 gradient singularity
 
@@ -7110,6 +7112,59 @@ figure `tools/make_apendice_g_figures.py`.
   noise (χ²/dof 2.4 for the fit), so gate errors are visible, but the frequency and the mean are not moved by them.
 * **As a speedometer:** γ from E+ at t = 0 is 1.316 (true 1.25, +5%), from E− 1.236 (−1%).
 * One run on one qubit; a replication on another qubit and day is pending, as for §168.
+
+## 54. Shot budget vs angle in qga (P1, `examples/shot_budget_angle_qga.py`)
+
+Question: for a fixed single-qubit Z readout, how many shots are needed to reach a target precision in qg_Z versus in the qga polar angle? This makes explicit the measurement-side analogue of the Section 4.1 Jacobian: optimization steps blow up in raw qg coordinates near poles, but measurement uncertainty in qga is first-order constant away from poles.
+
+Closed form (verified with `qang.qga`, `qang.statistics`):
+
+```
+Var(qg_Z_hat) = 4*p0*(1-p0)/N = sin^2(theta)/N
+F_qga = 4*pi^2/1e6 qga^-2 = 1/159.1549^2 qga^-2
+N_qga(target_qga) = 1/(F_qga*target_qga^2)  (state-independent, delta method)
+N_qg(target_qg, theta_qga) = 4*p0*(1-p0)/target_qg^2 = sin^2(theta)/target_qg^2
+```
+
+Demo (`python examples/shot_budget_angle_qga.py`, target 5 qga, target 0.02 qg_Z, `N_qga=1014`):
+
+| theta (qga) | N_qg (0.02) | N_qga (5 qga) | empirical qga std | delta qga std |
+|---:|---:|---:|---:|---:|
+| 10 | 10 | 1014 | 6.336 | 4.998 |
+| 50 | 239 | 1014 | 4.993 | 4.998 |
+| 125 | 1251 | 1014 | 5.029 | 4.998 |
+| 250 | 2500 | 1014 | 5.006 | 4.998 |
+| 400 | 864 | 1014 | 4.921 | 4.998 |
+| 490 | 10 | 1014 | 6.336 | 4.998 |
+
+Interpretation:
+
+* **qga budget is flat** to first order: 5 qga requires ~1014 shots at equator and away from poles.
+* **qg_Z budget is state-dependent**: equator is worst for fixed qg_Z absolute error (2500 shots for 0.02), while near poles few shots suffice because the outcome is almost deterministic.
+* **Pole caveat is real**: at 10/490 qga with fixed 1014 shots, empirical qga std deviates from 4.998 because minority outcomes are rare and estimates clip to the boundary; the delta method is not valid there. Use `qang.statistics` exact/binomial-aware intervals in that regime.
+
+Tests: `tests/test_shot_budget_angle_qga.py` (5 passed). This does not change P2; `tools/verify_p2_filter_rule.py` keeps `THRESHOLD = 0.95`.
+
+## 55. P3 extension: global vs qg-local cost in theta and qg coordinates (`examples/barren_plateaus_qg_vs_theta.py`)
+
+Extension of �12/�23 with option A: evaluate the same hardware-efficient ansatz gradients for two costs, `global Z^n` and `qg_local = (1-mean qg_Z)/2`, in theta-space and in qg-space conversions (`raw`, `clipped`, `tikhonov`) using `qang.gradients` and `qang.multiqubit.mean_qg_z`.
+
+Checks (fixed seeds, deterministic):
+
+* Global cost keeps exponential decay in theta-space; clipped/tikhonov qg conversions preserve decay (O(1) rescaling away from poles).
+* qg-local shallow cost decays less steeply than global in the tested range (`n=4,6,8`, `reps=1`), matching the �23 local-cost trainability regime.
+* Raw qg conversion still blows up at a pole for both costs (`theta[0]=1e-4 -> 1e-6`, ~100x), while clipped remains bounded and Tikhonov shrinks toward zero. The Section 4.1 singularity compounds with barren-plateau behavior regardless of local/global cost choice.
+
+Commands:
+
+```powershell
+python -m pytest tests/test_barren_plateaus_qg_vs_theta.py -v --tb=short
+python -m pytest tests/test_barren_plateau_qg_local_cost.py tests/test_shot_budget_angle_qga.py -v --tb=short
+```
+
+Result: 23 passed across the P1/P3 regression set. P2 threshold unchanged (`THRESHOLD = 0.95`).
+
+Exploratory follow-up (`examples/shot_gradient_snr_qg_local.py`, not pre-registered): n=6, L=2, 300 inits, 100 shots/parameter-shift circuit, first parameter. Median |shot grad|: global theta 0.005 vs qg-local theta 0.0421 (8.42x); clipped qg 0.00545 vs 0.0623 (11.44x); raw qg max abs grew to 7.08 for qg-local (outlier near pole), confirming H2-style singularity risk in raw coordinates. Toy measurement-level check only.
 
 ## Suggested next steps
 

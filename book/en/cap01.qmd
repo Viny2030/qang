@@ -266,8 +266,8 @@ contradict them:
 - It suggests that a lattice in m-qga avoids barren plateaus. Changing the unit of the parameter multiplies every
   derivative by the constant $2\pi/1000$: it changes neither the ratio of gradient variance to its scale nor its decay
   with the number of qubits. The unit has no effect on plateaus. The qang tools are another matter: they do mitigate
-  them in tested regimes, namely the qg local cost (@sec-geo-plateaus) and the weight filter under T1
-  (@sec-qnn-training).
+  them in tested regimes, namely the qg local cost ([Ch. 26](../es/qjax26.qmd#sec-qjax26)) and the weight filter under T1
+  ([Ch. 23](../es/qjax23.qmd#sec-qjax23)).
 
 ### Unverified proposal: energy and antimatter in qga {#sec-qga-energy}
 
@@ -423,7 +423,7 @@ improves and its evidence.
 | Q-Hertz (qHz) | qga per second | angular frequency on the qga scale: 1 qHz $=2\pi/1000$ rad/s | unit of convenience |
 | Q-Fisher (qFi) | Fisher information per qga² | $I_F=4\pi^2\cdot10^{-6}$ qga$^{-2}$ about the qang angle, for every state | exact (@sec-qga) |
 | Q-Shannon ($qg_S$) | $H(p_0)=H\big((1+qg_Z)/2\big)$ | Shannon entropy of the outcome | exact (@sec-qgs) |
-| Q-Curvature ($qg_\kappa$) | $-d^2qg_S/d\,qg_Z^2=1/[\ln2\,(1-qg_Z^2)]$ | Fisher information about $qg_Z$, in bits | exact; in optimizers, no gain (@sec-limits-qng) |
+| Q-Curvature ($qg_\kappa$) | $-d^2qg_S/d\,qg_Z^2=1/[\ln2\,(1-qg_Z^2)]$ | Fisher information about $qg_Z$, in bits | exact; in optimizers, no gain  |
 | Q-SNR ($qg_{SNR}$) | $\lvert qg_Z\rvert/\sqrt{1-qg_Z^2}=\lvert\cot\theta\rvert$ | signal-to-noise of one shot | exact; sets the shots needed to read a sign |
 | Q-Geodesic ($qg_L$) | $\arccos\big(\sqrt{p_0p_0'}+\sqrt{p_1p_1'}\big)=\lvert\theta-\theta'\rvert/2$ | Bhattacharyya angle between two readings | exact; it is the Fubini–Study distance on a common meridian |
 | Dissipative deficit ($qg_\tau$) | $\sqrt{1-r^2}=\sqrt{1-qg_X^2-qg_Y^2-qg_Z^2}$ | $2\sqrt{\det\rho}$, the lack of purity | exact; measures loss of purity of any origin |
@@ -449,7 +449,7 @@ $qg_\kappa=1/(\ln2\,\sin^2\theta)$. **Mind the notation:** $qg_\kappa$ is not th
 $\kappa_{qg}=1000\,\lvert\cos\theta\rvert$ of @sec-milliqang. That one is the second derivative of the reading with
 respect to the angle; this one, that of the entropy with respect to the reading. The formulation proposes using
 $qg_\kappa$ to damp an optimizer's step near the poles. Scaling the step by the inverse Fisher information is the
-natural gradient [@amari1998], and Chapter 30 measures it (@sec-limits-qng): on the coordinate $qg_Z$ that step is, to
+natural gradient [@amari1998], and Chapter 30 measures it: on the coordinate $qg_Z$ that step is, to
 first order, gradient descent on $\theta$, and it brings no speed-up of its own.
 
 **Signal-to-noise per shot.** A shot is $\pm1$, with mean $qg_Z$ and standard deviation $\sqrt{1-qg_Z^2}$, for any
@@ -557,12 +557,12 @@ is still pending.
 - Mechanisms against barren plateaus (local costs in m-qg, minimum-curvature $\kappa_{qg}$ compilation, initialization
   with the branch sign). Two qang tools are already tested on the book's networks. The **qg local cost**,
   $(1-\overline{qg_Z})/2$, the idea of @cerezo2021 written as a reading, has 470 times more gradient variance than the
-  global cost with 10 qubits and shallow circuits (@sec-geo-plateaus). The **weight filter** returns, under T1, exactly
-  the noiseless gradient, to $10^{-16}$, against a noise-induced plateau (@sec-qnn-training; pre-registered prediction,
+  global cost with 10 qubits and shallow circuits ([Ch. 26](../es/qjax26.qmd#sec-qjax26)). The **weight filter** returns, under T1, exactly
+  the noiseless gradient, to $10^{-16}$, against a noise-induced plateau ([Ch. 23](../es/qjax23.qmd#sec-qjax23); pre-registered prediction,
   §112). Both have measured limits: with deep circuits the local cost also decays exponentially and, where it escapes
   the plateau, it is classically simulable; and the weight sector itself flattens the gradient as the register grows,
   with or without the filter: like a polynomial at weight 1, which is simulable, and exponentially at half filling.
-  Chapter 23 gathers the three sources of a plateau and what qang does with each (@sec-geo-three). Compilation by
+  [Ch. 26](../es/qjax26.qmd#sec-qjax26) and [Ch. 23](../es/qjax23.qmd#sec-qjax23) gather the three sources of a plateau and what qang does with each. Compilation by
   $\kappa_{qg}$ and initialization with the branch sign have not been tested
   against plateaus.
 
@@ -682,3 +682,4 @@ curvature $qg_\kappa$ is compared, is that of @amari1998. The numbered research 
 this chapter and the scripts that check it are in the repository [@qangrepo]; the definition of the qang unit is in
 @monteverde2026. The angular qga scale and the relativistic proposal come from the working document
 @monteverde2026fund; the free Dirac spinor and its components are in any text on relativistic quantum mechanics.
+

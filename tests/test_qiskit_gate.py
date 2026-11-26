@@ -8,7 +8,8 @@ from qang.core import Qang
 from qang.qiskit_gate import FullRQangGate, RQangGate, append_qang
 
 from qiskit import QuantumCircuit, transpile
-from qiskit_aer import AerSimulator
+
+AerSimulator = pytest.importorskip("qiskit_aer").AerSimulator
 
 PI = math.pi
 SHOTS = 20000

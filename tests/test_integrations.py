@@ -62,6 +62,8 @@ def test_jax_filtered_readout_jit_grad():
 def test_jax_through_pennylane_filtered_loss():
     jax = pytest.importorskip("jax")
     qml = pytest.importorskip("pennylane")
+    if not hasattr(jax.core, "is_concrete"):
+        pytest.skip("PennyLane JAX interface requires jax.core.is_concrete (jax<0.9)")
     jnp = jax.numpy
     jax.config.update("jax_enable_x64", True)
     from qang.integrations import jax as qj

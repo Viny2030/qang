@@ -37,7 +37,6 @@ def test_pass_detects_weight_preserving_circuits():
     assert ps["qg_weight_preserving"] is False
     assert [g[1] for g in ps["qg_non_preserving_gates"]] == ["h"]
     # a transpiled weight-preserving circuit stays recognized when gates are bound numerically
-    from qiskit_aer import AerSimulator  # noqa: F401
     t = transpile(_w_like(), basis_gates=["cz", "rz", "sx", "x"], optimization_level=0)
     assert _check(t)["qg_weight_preserving"] is False      # decomposed: sx gates break it gate-wise
 

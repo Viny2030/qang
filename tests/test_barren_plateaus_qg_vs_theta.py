@@ -37,6 +37,7 @@ import pytest
 qiskit = pytest.importorskip("qiskit")
 
 from barren_plateaus_qg_vs_theta import (
+    cost_function,
     gradient_variance_by_qubit_count,
     near_pole_gradient_blowup,
     parameter_shift_grad,
@@ -121,6 +122,43 @@ def test_parameter_shift_grad_matches_finite_difference():
         global_z_cost(n_qubits, reps, params + shift) - global_z_cost(n_qubits, reps, params - shift)
     ) / (2 * h)
     assert exact == pytest.approx(finite_diff, abs=1e-5)
+
+
+def test_qg_local_cost_parameter_shift_matches_finite_difference():
+    rng = np.random.default_rng(1)
+    n_qubits, reps = 4, 1
+    params = rng.uniform(0.0, 2.0 * np.pi, size=n_qubits * (reps + 1))
+    exact = parameter_shift_grad(n_qubits, reps, params, param_index=0, cost="qg_local")
+    h = 1e-6
+    shift = np.zeros_like(params)
+    shift[0] = h
+    finite_diff = (
+        cost_function(n_qubits, reps, params + shift, cost="qg_local")
+        - cost_function(n_qubits, reps, params - shift, cost="qg_local")
+    ) / (2 * h)
+    assert exact == pytest.approx(finite_diff, abs=1e-5)
+
+
+def test_qg_local_cost_theta_space_variance_decays_slower_than_global_shallow():
+    ns = [4, 6, 8]
+    vg = gradient_variance_by_qubit_count(ns, reps=1, n_samples=100, seed=0, space="theta", cost="global")
+    vl = gradient_variance_by_qubit_count(ns, reps=1, n_samples=100, seed=0, space="theta", cost="qg_local")
+    vg_vals = np.array([vg[n] for n in ns], dtype=float)
+    vl_vals = np.array([vl[n] for n in ns], dtype=float)
+    slope_g, _ = np.polyfit(ns, np.log(vg_vals), 1)
+    slope_l, _ = np.polyfit(ns, np.log(vl_vals), 1)
+    # Global should show clear exponential decay; qg local should decay less steeply.
+    assert slope_g < -0.2
+    assert slope_l > slope_g + 0.05
+
+
+def test_qg_local_cost_near_pole_raw_gradient_still_blows_up():
+    near = near_pole_gradient_blowup(6, reps=1, seed=0, theta_pole_value=1e-4, cost="qg_local")
+    far = near_pole_gradient_blowup(6, reps=1, seed=0, theta_pole_value=1e-6, cost="qg_local")
+    assert near["theta"] == pytest.approx(far["theta"], rel=0.05)
+    ratio = abs(far["qg_raw"]) / max(abs(near["qg_raw"]), 1e-30)
+    assert ratio == pytest.approx(100.0, rel=0.1)
+    assert abs(near["qg_clipped"]) == pytest.approx(abs(far["qg_clipped"]), rel=1e-3)
 
 
 if __name__ == "__main__":

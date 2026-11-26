@@ -32,6 +32,16 @@ Para $P=1$ esto reproduce exactamente el paso amortiguado por $qg_\kappa$ y el d
 
 $\mathrm{Var}[\partial_{\alpha}\mathcal L]_{\text{qga}}=(2\pi/1000)^2\,\mathrm{Var}[\partial_\theta\mathcal L]_{\text{rad}}$ para toda pérdida y todo $n$ (`exact`). La instancia de `verify_cap09.py` §4 (una capa en cadena, observable $Z_0Z_{n-1}$) no presenta meseta ($\mathrm{Var}\approx0.13\ \text{rad}^{-2}$ para $n=2\ldots6$): el decaimiento exponencial es propiedad de ansätze profundos/globales (Cap. 23), no de la unidad. Estatus `against` para cualquier afirmación de mitigación por qga/m-qga.
 
+### 9.4.1 Extensión P3: coste local en qg frente a global en coordenadas theta y qg
+
+El cambio de unidad no mitiga la meseta, pero el **costo** y la **coordenada de análisis** sí cambian el diagnóstico operativo. Para $n=6$, $L=2$, HEA de capas en cadena y 200-300 inicios aleatorios (`examples/barren_plateaus_qg_vs_theta.py`, `examples/shot_gradient_snr_qg_local.py`):
+
+- **Costo global** $C_G=(1-\langle Z^{\otimes n}\rangle)/2$: varianza/gradiente pequeño en theta y en qg (`mixed`, instancia simulada).
+- **Costo local en qg** $C_L=(1-\overline{qg_Z})/2$ con $\overline{qg_Z}=\mathrm{mean}(qg_{Z,i})$ (`qang.multiqubit.mean_qg_z`): mayor magnitud de gradiente en la misma instancia (`exact` sim.).
+- **Coordenada qg**: la conversión analítica usa el Jacobiano $\partial qg_Z/\partial\theta=-\sin\theta$; la forma numérica estable requiere clipping o Tikhonov (`qang.gradients.theta_to_qg_jacobian`, `to_qg_gradients`).
+
+Follow-up pre-registrado (`P3-SHOT-GRAD-QG-LOCAL`, SHA-256 `f7193cca...`, `tools/verify_p3_shot_gradient_qg_local.py`): con 100 shots por circuito de parameter-shift, primer parámetro, seed 7, $n=6,L=2,300$ inits, el criterio `median |grad_local| / |grad_global| >= 3.0` en theta-space pasó con ratio 8.42x (qg clipped 11.44x; raw qg max abs local 7.08 por outlier en polo). Estatus: `exact` para la instancia ideal simulada; `unverified` en hardware/ruido real. No cambia la conclusión §9.4: qga no mitiga mesetas; el costo local sí puede mejorar la señal de gradiente.
+
 ## 9.5 Contraste operativo: Sin qang vs. Con qang
 
 Instancia de `tools/verify_cap09.py`.
