@@ -125,10 +125,12 @@ def test_gate_aliases():
 def test_analogy_only_demarcation(module):
     import importlib
 
+    pytest.importorskip("jax")
     assert "ANALOGY ONLY" in importlib.import_module(module).__doc__
 
 
 def test_pqc_is_explicitly_against():
+    pytest.importorskip("jax")
     from qang import qdemarc
 
     assert "AGAINST (direct)" in qdemarc.__doc__

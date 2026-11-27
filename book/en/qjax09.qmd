@@ -34,7 +34,7 @@ Unit change does not mitigate the plateau, but **cost design** and **analysis co
 
 - **Global cost** $C_G=(1-\langle Z^{\otimes n}\rangle)/2$: small gradient variance/magnitude in theta and qg (`mixed`, simulated instance).
 - **qg-local cost** $C_L=(1-\overline{qg_Z})/2$ with $\overline{qg_Z}=\mathrm{mean}(qg_{Z,i})$ (`qang.multiqubit.mean_qg_z`): larger gradient magnitude in the same instance (`exact` sim.).
-- **qg coordinate**: the analytic conversion uses Jacobian $\partial qg_Z/\partial\theta=-\sin\theta$; the stable numeric form needs clipping or Tikhonov (`qang.gradients.theta_to_qg_jacobian`, `to_qg_gradients`).
+- **qg coordinate**: the analytic conversion uses Jacobian $\partial qg_Z/\partial\theta=-\sin\theta$; the stable numeric form needs clipping or Tikhonov (`qang.gradients.jacobian`, `qang.gradients.inverse_jacobian_clipped`, `qang.gradients.inverse_jacobian_tikhonov`).
 
 Pre-registered follow-up (`P3-SHOT-GRAD-QG-LOCAL`, SHA-256 `f7193cca...`, `tools/verify_p3_shot_gradient_qg_local.py`): with 100 shots per parameter-shift circuit, first parameter, seed 7, $n=6,L=2,300$ inits, criterion `median |grad_local| / |grad_global| >= 3.0` in theta-space passed with ratio 8.42x (clipped qg 11.44x; raw qg max abs local 7.08 due to a pole outlier). Status: `exact` for the ideal simulated instance; `unverified` on hardware/real noise. It does not change the §9.4 conclusion: qga does not mitigate barren plateaus; local cost can improve gradient signal.
 

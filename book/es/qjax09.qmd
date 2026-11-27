@@ -38,7 +38,7 @@ El cambio de unidad no mitiga la meseta, pero el **costo** y la **coordenada de 
 
 - **Costo global** $C_G=(1-\langle Z^{\otimes n}\rangle)/2$: varianza/gradiente pequeño en theta y en qg (`mixed`, instancia simulada).
 - **Costo local en qg** $C_L=(1-\overline{qg_Z})/2$ con $\overline{qg_Z}=\mathrm{mean}(qg_{Z,i})$ (`qang.multiqubit.mean_qg_z`): mayor magnitud de gradiente en la misma instancia (`exact` sim.).
-- **Coordenada qg**: la conversión analítica usa el Jacobiano $\partial qg_Z/\partial\theta=-\sin\theta$; la forma numérica estable requiere clipping o Tikhonov (`qang.gradients.theta_to_qg_jacobian`, `to_qg_gradients`).
+- **Coordenada qg**: la conversión analítica usa el Jacobiano $\partial qg_Z/\partial\theta=-\sin\theta$; la forma numérica estable requiere clipping o Tikhonov (`qang.gradients.jacobian`, `qang.gradients.inverse_jacobian_clipped`, `qang.gradients.inverse_jacobian_tikhonov`).
 
 Follow-up pre-registrado (`P3-SHOT-GRAD-QG-LOCAL`, SHA-256 `f7193cca...`, `tools/verify_p3_shot_gradient_qg_local.py`): con 100 shots por circuito de parameter-shift, primer parámetro, seed 7, $n=6,L=2,300$ inits, el criterio `median |grad_local| / |grad_global| >= 3.0` en theta-space pasó con ratio 8.42x (qg clipped 11.44x; raw qg max abs local 7.08 por outlier en polo). Estatus: `exact` para la instancia ideal simulada; `unverified` en hardware/ruido real. No cambia la conclusión §9.4: qga no mitiga mesetas; el costo local sí puede mejorar la señal de gradiente.
 
