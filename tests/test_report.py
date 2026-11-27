@@ -13,10 +13,14 @@ def test_report_canonical_fields_and_exact_readings():
 
     assert tuple(r) == REPORT_FIELDS
     assert r["p0"] == pytest.approx(0.75)
+    assert r["amplitude_0"] == pytest.approx(math.sqrt(0.75))
+    assert r["amplitude_1"] == pytest.approx(0.5)
     assert r["qg_Z"] == pytest.approx(0.5)
     assert r["m_qg"] == pytest.approx(500.0)
     assert r["qga"] == pytest.approx(qga_from_p0(0.75))
     assert r["qga"] == pytest.approx(1000.0 / 6.0)
+    assert r["theta_rad"] == pytest.approx(math.pi / 3.0)
+    assert r["phi_qga"] is None
     assert r["qg_S"] == pytest.approx(qg_s_from_qg_z(0.5))
     assert r["N"] == 1000
     assert r["sigma_m"] == pytest.approx(1000.0 / math.sqrt(1000.0))
@@ -25,6 +29,18 @@ def test_report_canonical_fields_and_exact_readings():
     assert lo < r["qga"] < hi
     assert lo == pytest.approx(qga_from_radians(math.pi / 3.0 - 1.96 / math.sqrt(1000.0)))
     assert hi == pytest.approx(qga_from_radians(math.pi / 3.0 + 1.96 / math.sqrt(1000.0)))
+
+
+@pytest.mark.parametrize("phi", [0.0, 125.0, 999.0])
+def test_report_echoes_declared_azimuth(phi):
+    r = qang_report({"0": 750, "1": 250}, 250.0, 1000, phi_qga=phi)
+    assert r["phi_qga"] == pytest.approx(phi)
+
+
+@pytest.mark.parametrize("phi", [-1.0, 1000.0, math.nan, math.inf, True, "125"])
+def test_report_rejects_invalid_azimuth(phi):
+    with pytest.raises(ValueError, match="phi_qga"):
+        qang_report({"0": 750, "1": 250}, 250.0, 1000, phi_qga=phi)
 
 
 def test_report_honours_sdk_qubit_order():
@@ -40,10 +56,16 @@ def test_report_poles_and_weight_filter():
     north = qang_report({(0,): 1000}, 0.0, 1000)
     south = qang_report({(1,): 1000}, 500.0, 1000)
 
+    assert north["amplitude_0"] == pytest.approx(1.0)
+    assert north["amplitude_1"] == pytest.approx(0.0)
+    assert north["theta_rad"] == pytest.approx(0.0)
     assert north["qg_Z"] == pytest.approx(1.0)
     assert north["m_qg"] == pytest.approx(1000.0)
     assert north["sigma_m"] == pytest.approx(0.0)
     assert north["ci_95"][0] == pytest.approx(0.0)
+    assert south["amplitude_0"] == pytest.approx(0.0)
+    assert south["amplitude_1"] == pytest.approx(1.0)
+    assert south["theta_rad"] == pytest.approx(math.pi)
     assert south["qg_Z"] == pytest.approx(-1.0)
     assert south["m_qg"] == pytest.approx(-1000.0)
     assert south["ci_95"][1] == pytest.approx(500.0)

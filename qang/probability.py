@@ -47,6 +47,7 @@ from .statistics import qg_s_from_qg_z_interval, wilson_qg_estimate
 
 __all__ = [
     "readings_from_p0",
+    "amplitudes_from_p0",
     "milliqang_from_p0",
     "m_qg_from_p0",
     "p0_from_milliqang",
@@ -81,12 +82,21 @@ def _check_m(m: float) -> float:
     return float(m)
 
 
-def readings_from_p0(p0: float) -> dict:
-    """The four exact readings of one probability: theta (rad), qg_Z, qg_S (bits) and m-qg."""
+def amplitudes_from_p0(p0: float) -> Tuple[float, float]:
+    """Positive amplitudes (sqrt(p0), sqrt(1 - p0)) after fixing the global phase."""
     p0 = _check_p(p0)
+    return math.sqrt(p0), math.sqrt(1.0 - p0)
+
+
+def readings_from_p0(p0: float) -> dict:
+    """The exact readings of one probability: amplitudes, theta, qg_Z, qg_S and m-qg."""
+    p0 = _check_p(p0)
+    a0, a1 = amplitudes_from_p0(p0)
     return {
         "p0": p0,
-        "theta": 2.0 * math.acos(math.sqrt(p0)),
+        "amplitude_0": a0,
+        "amplitude_1": a1,
+        "theta": 2.0 * math.acos(a0),
         "qg_z": 2.0 * p0 - 1.0,
         "qg_s": _binary_entropy(p0),
         "milliqang": milliqang_from_p0(p0),

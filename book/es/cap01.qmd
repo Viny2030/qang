@@ -519,26 +519,56 @@ de $p_0$: requiere medir en tres bases.
 
 ## Reporte estándar de una medición {#sec-reporte01}
 
-Todos los campos de aplicación del libro usan el mismo contrato de reporte, implementado en `qang.report`:
+Todos los campos de aplicación del libro usan el mismo contrato de reporte, implementado en `qang.report` y expuesto
+también en la API pública:
 
 ```python
-from qang.report import qang_report
+from qang import REPORT_FIELDS, qang_report
 
-report = qang_report({"0": 750, "1": 250}, theta_qga=250.0, n_shots=1000)
-report["m_qg"], report["sigma_m"], report["ci_95"]
+report = qang_report(
+    {"0": 750, "1": 250},
+    theta_qga=250.0,
+    n_shots=1000,
+    phi_qga=125.0,
+)
+REPORT_FIELDS
+report["amplitude_0"], report["amplitude_1"], report["theta_rad"], report["phi_qga"]
 ```
 
-Las claves son exactamente `p0`, `qg_Z`, `m_qg`, `qga`, `qg_S`, `N`, `sigma_m` y `ci_95`. En el ejemplo, la lectura es
-$0{,}75$, $+500$ m-qg y $166{,}667$ qga; $\sigma_m=1000/\sqrt{1000}=31{,}623$ m-qg, y `ci_95` son los límites del
-ángulo **polar** qga estimado, $(156{,}8,\ 176{,}5)$ qga, con el jacobiano $1000/(2\pi)=159{,}1549$ qga/rad: no es un intervalo azimutal ni de fase de cono. $N$ debe igualar la suma de los conteos: el reporte rechaza un
-`n_shots` inconsistente en lugar de promediar dos tamaños de muestra distintos. Para conteos de varios qubits se
-declara el SDK (`sdk="qiskit"`, `"cirq"`, ...) porque el orden del qubit 0 cambia; también se puede pedir un filtro
-de peso con `weight=`. El contrato no añade información a $p_0$: pone en un mismo formato las ocho lecturas que ya
-se han definido en este capítulo.
+El informe canónico tiene doce claves, en este orden:
+
+```python
+{
+    "p0": 0.75,
+    "amplitude_0": 0.8660254,
+    "amplitude_1": 0.5,
+    "qg_Z": 0.5,
+    "m_qg": 500.0,
+    "qga": 166.667,
+    "theta_rad": 1.047198,
+    "phi_qga": 125.0,
+    "qg_S": 0.811278,
+    "N": 1000,
+    "sigma_m": 31.623,
+    "ci_95": (156.8, 176.5),
+}
+```
+
+Las amplitudes son $\sqrt{p_0}$ y $\sqrt{1-p_0}$ con la fase global fijada; `theta_rad` es el ángulo polar estimado,
+$1{,}047198$ rad. `phi_qga` es la fase **declarada** en la preparación, validada en $[0,1000)$ qga: una medición en
+$Z$ no puede estimarla, por lo que sin `phi_qga` el campo vale `None`. El resto son las lecturas ya definidas:
+$qg_Z=0{,}5$, $+500$ m-qg, $166{,}667$ qga y $qg_S=0{,}811278$; $\sigma_m=1000/\sqrt{1000}=31{,}623$ m-qg, y
+`ci_95` son los límites del ángulo **polar** qga estimado, $(156{,}8,\ 176{,}5)$ qga, con el jacobiano
+$1000/(2\pi)=159{,}1549$ qga/rad: no es un intervalo azimutal ni de fase de cono. $N$ debe igualar la suma de los
+conteos: el reporte rechaza un `n_shots` inconsistente en lugar de promediar dos tamaños de muestra distintos. Para
+conteos de varios qubits se declara el SDK (`sdk="qiskit"`, `"cirq"`, ...) porque el orden del qubit 0 cambia;
+también se puede pedir un filtro de peso con `weight=`. El contrato no añade información a $p_0$: pone en un mismo
+formato las lecturas definidas en este capítulo y distingue lo que se mide de lo que se declara.
 
 | Situación | Sin `qang` | Con `qang` (`qang_report`) |
 | :--- | :--- | :--- |
-| `{"0": 750, "1": 250}` | `p0 = 0,75` aislado | ocho claves: `qg_Z = 0,5`, `m_qg = +500`, `qga = 166,667` |
+| `{"0": 750, "1": 250}` | `p0 = 0,75` aislado | doce claves: `amplitude_0 = 0,866`, `amplitude_1 = 0,500`, `qg_Z = 0,5`, `m_qg = +500`, `qga = 166,667` |
+| Fase | no aparece en un informe de $Z$ | `phi_qga = 125` se declara y valida; nunca se estima de conteos $Z$ |
 | Incertidumbre | fórmula reescrita en cada campo | `sigma_m = 31,623` m-qg y `ci_95 = (156,8, 176,5)` qga |
 | Consistencia | cada capítulo elige orden de qubit y `N` | `N` validado y orden del qubit 0 declarado |
 
@@ -672,6 +702,8 @@ Las figuras de este capítulo se generan con `tools/make_cap01_figures.py`, que 
   $(1000\sin\theta/\delta)^2$ disparos, y los errores de compuerta se presupuestan en las mismas unidades.
 - **Ecuación de probabilidad.** $\theta$, $qg_Z$, $qg_S$ y $m$ son funciones exactas de una sola probabilidad
   $p_0$; con varios resultados, el ángulo qang se generaliza a la distancia estadística de Wootters.
+- **Informe canónico.** `qang_report` devuelve doce claves, con las amplitudes y `theta_rad` derivadas de los
+  conteos; `phi_qga` se declara y valida, pero no se estima de una medición en $Z$.
 - **Escala angular.** El qang angular mide ángulos con 1000 qga por vuelta y es distinto del m-qg, que es una
   lectura: $p_0=\cos^2(\pi\theta_{qga}/1000)$ y $I_F=4\pi^2\cdot10^{-6}$ qga$^{-2}$. La extensión a la energía
   relativista y a la antimateria queda como propuesta sin verificar, con tres errores del documento fuente corregidos.

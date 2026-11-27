@@ -2,9 +2,10 @@
 
 The contract is deliberately small and SDK-independent::
 
-    report = qang_report(counts, theta_qga, n_shots) -> {
-        "p0": ..., "qg_Z": ..., "m_qg": ..., "qga": ...,
-        "qg_S": ..., "N": ..., "sigma_m": ..., "ci_95": ...
+    report = qang_report(counts, theta_qga, n_shots, phi_qga=None) -> {
+        "p0": ..., "amplitude_0": ..., "amplitude_1": ...,
+        "qg_Z": ..., "m_qg": ..., "qga": ..., "theta_rad": ...,
+        "phi_qga": ..., "qg_S": ..., "N": ..., "sigma_m": ..., "ci_95": ...
     }
 
 ``counts`` may be a Qiskit/Cirq/PennyLane/Braket/pytket counts dict, a result
@@ -12,7 +13,9 @@ object accepted by :func:`qang.interop.canonical_counts`, or already-canonical
 ``{(b_0, ..., b_{n-1}): count}`` tuples. The reading is always of qubit 0 in
 that canonical order. ``theta_qga`` is the prepared polar angle in qga
 (1000 qga = one turn); it fixes the pure-state shot noise
-``sigma_m = 1000 sin(theta) / sqrt(N)``. ``ci_95`` is the confidence interval
+``sigma_m = 1000 sin(theta) / sqrt(N)``. ``phi_qga`` is the declared prepared
+azimuth in [0, 1000) qga; it is echoed, not estimated, because Z counts cannot
+see the phase. ``ci_95`` is the confidence interval
 of the *estimated qga angle*, obtained by propagating the theta interval of
 :func:`qang.statistics.confidence_interval_theta` to qga.
 
@@ -32,17 +35,21 @@ from typing import Any, Dict, Optional, Tuple
 
 from .core import qg_s_from_qg_z
 from .interop import canonical_counts, weight_filter
-from .probability import milliqang_from_p0, shot_noise_milliqang
-from .qga import p0_from_qga, qga_from_p0, qga_from_radians
+from .probability import amplitudes_from_p0, milliqang_from_p0, shot_noise_milliqang
+from .qga import azimuth_qga, p0_from_qga, qga_from_p0, qga_from_radians, radians_from_qga
 from .statistics import confidence_interval_theta
 
 __all__ = ["REPORT_FIELDS", "qang_report"]
 
 REPORT_FIELDS: Tuple[str, ...] = (
     "p0",
+    "amplitude_0",
+    "amplitude_1",
     "qg_Z",
     "m_qg",
     "qga",
+    "theta_rad",
+    "phi_qga",
     "qg_S",
     "N",
     "sigma_m",
@@ -77,11 +84,28 @@ def _canonical(
     return out
 
 
+def _declared_azimuth(phi_qga: Optional[float]) -> Optional[float]:
+    """Validate a prepared azimuth and express it in the qga convention."""
+    if phi_qga is None:
+        return None
+    if isinstance(phi_qga, bool) or not isinstance(phi_qga, (int, float)):
+        raise ValueError("phi_qga must be a finite number in [0, 1000) qga.")
+    phi = float(phi_qga)
+    if not math.isfinite(phi) or not 0.0 <= phi < 1000.0:
+        raise ValueError(f"phi_qga must lie in [0, 1000) qga, got {phi_qga}.")
+    phi_rad = radians_from_qga(phi)
+    canonical = azimuth_qga(math.cos(phi_rad), math.sin(phi_rad))
+    if not math.isclose(canonical, phi, abs_tol=1e-9):
+        raise ValueError(f"phi_qga could not be canonicalised, got {phi_qga}.")
+    return phi
+
+
 def qang_report(
     counts: Any,
     theta_qga: float,
     n_shots: int,
     *,
+    phi_qga: Optional[float] = None,
     confidence: float = 0.95,
     sdk: Optional[str] = None,
     n_qubits: Optional[int] = None,
@@ -100,6 +124,10 @@ def qang_report(
         ``[0, 500]`` are folded back through ``p0_from_qga``.
     n_shots:
         Total number of shots. It must equal the sum of the retained counts.
+    phi_qga:
+        Declared prepared azimuth in qga, in ``[0, 1000)``; ``None`` when it is
+        not declared. A Z-basis report cannot estimate the phase, so this value
+        is only echoed after validation.
     confidence:
         One of the levels supported by ``confidence_interval_theta``.
     sdk, n_qubits:
@@ -111,9 +139,10 @@ def qang_report(
     Returns
     -------
     dict
-        Keys in the canonical order of :data:`REPORT_FIELDS`. ``ci_95`` is
-        ``(low_qga, high_qga)`` (or the corresponding level if ``confidence``
-        is changed).
+        Keys in the canonical order of :data:`REPORT_FIELDS`. ``theta_rad`` is
+        the polar angle estimated from the counts, in radians; ``phi_qga`` is
+        the declared azimuth or ``None``. ``ci_95`` is ``(low_qga, high_qga)``
+        (or the corresponding level if ``confidence`` is changed).
     """
     can = _canonical(counts, sdk, n_qubits, weight)
     observed = sum(can.values())
@@ -128,16 +157,21 @@ def qang_report(
 
     ones = sum(c for bits, c in can.items() if bits[0] == 1)
     p0 = 1.0 - ones / n_shots
+    amplitude_0, amplitude_1 = amplitudes_from_p0(p0)
     qg_z = 2.0 * p0 - 1.0
-    theta_hat = 2.0 * math.acos(math.sqrt(p0))
+    theta_hat = 2.0 * math.acos(amplitude_0)
     theta_design = 2.0 * math.acos(math.sqrt(p0_from_qga(theta_qga)))
     lo_rad, hi_rad = confidence_interval_theta(theta_hat, n_shots, confidence)
 
     return {
         "p0": p0,
+        "amplitude_0": amplitude_0,
+        "amplitude_1": amplitude_1,
         "qg_Z": qg_z,
         "m_qg": milliqang_from_p0(p0),
         "qga": qga_from_p0(p0),
+        "theta_rad": theta_hat,
+        "phi_qga": _declared_azimuth(phi_qga),
         "qg_S": qg_s_from_qg_z(qg_z),
         "N": n_shots,
         "sigma_m": shot_noise_milliqang(theta_design, n_shots),

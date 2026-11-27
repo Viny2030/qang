@@ -9,9 +9,13 @@ from qang.core import Qang, qg_s_from_qg_z
 from qang.proportions import theta_from_proportion
 
 
-def test_four_readings_of_one_probability():
+def test_readings_of_one_probability():
     for p0 in (0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0):
         r = PB.readings_from_p0(p0)
+        a0, a1 = PB.amplitudes_from_p0(p0)
+        assert math.isclose(r["amplitude_0"], math.sqrt(p0), abs_tol=1e-12)
+        assert math.isclose(r["amplitude_1"], math.sqrt(1.0 - p0), abs_tol=1e-12)
+        assert (a0, a1) == (r["amplitude_0"], r["amplitude_1"])
         assert math.isclose(math.cos(r["theta"] / 2) ** 2, p0, abs_tol=1e-12)  # Born's rule
         assert math.isclose(r["qg_z"], math.cos(r["theta"]), abs_tol=1e-12)
         assert math.isclose(r["qg_s"], qg_s_from_qg_z(r["qg_z"]), abs_tol=1e-12)
@@ -77,6 +81,8 @@ def test_analyze_maps_one_interval_through_every_reading():
 
 
 def test_invalid_inputs():
+    with pytest.raises(ValueError):
+        PB.amplitudes_from_p0(-0.1)
     with pytest.raises(ValueError):
         PB.milliqang_from_p0(1.2)
     with pytest.raises(ValueError):
