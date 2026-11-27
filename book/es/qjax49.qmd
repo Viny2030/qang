@@ -1,0 +1,51 @@
+# Capítulo 49 — Filtro de simetría y presupuesto de disparos: exposición, eco y desenmarañado {#sec-qjax49 .unnumbered}
+
+`exact` | `sin_verificar` — El filtro y la calibración eco se definen en `qang.sectors`; la optimización de
+estabilizadores queda marcada como `sin_verificar` hasta compararla con un modelo de ruido de dispositivo.
+
+## 49.1 El filtro como operación (`exact`)
+
+`qang.sectors.filter_distribution` conserva los resultados de peso de Hamming fijo y devuelve la distribución
+normalizada junto con la fracción retenida. El filtro no corrige errores dentro del sector: sólo elimina disparos
+que violan la cantidad conservada.
+
+```python
+from qang.sectors import filter_distribution, reweight_sectors, stabilizer_shot_budget
+
+filtered, kept = filter_distribution([1.0, 0.0, 0.0, 0.0], 2, 0)
+reweighted, measured = reweight_sectors([1.0, 0.0, 0.0, 0.0], 2, [0.25, 0.5, 0.25])
+budget = stabilizer_shot_budget([0.2, 0.5, 0.1], [1, 2, 1], 3)
+filtered, kept, measured, budget
+```
+
+La fracción `kept` es un dato experimental: si cae, el filtro reduce la muestra útil y debe presupuestarse en el
+número total de disparos.
+
+## 49.2 Sectores conocidos como distribución (`exact`)
+
+`reweight_sectors` generaliza el filtro cuando el peso inicial no es un eigenestado sino una distribución
+$sector\_probs$. Cada sector se reescala para portar exactamente su probabilidad inicial; con una delta se recupera
+`filter_distribution`. La corrección es exacta para observadores diagonales en la base computacional.
+
+## 49.3 Exposición y calibración eco (`exact` en statevector)
+
+`qang.sectors.sector_exposure` mide la población fuera del sector después de cada compuerta multipartita: cero si la
+conservación es exacta en cada punto. `qang.sectors.echo_transfer_matrix` construye la matriz de transferencia dentro
+del sector y `qang.sectors.unmix_sector` invierte esa matriz con NNLS. La inversión corrige sesgo sistemático, pero
+no recupera los disparos descartados ni reduce por sí sola la varianza.
+
+## 49.4 Presupuesto de estabilizadores (`sin_verificar`)
+
+`stabilizer_shot_budget` resuelve una mochila 0/1: qué comprobaciones agregar dado un peso de error detectado y un
+costo en disparos o profundidad. Es una decisión de diseño en unidades qg, no nueva física. El estatus `sin_verificar`
+impide promoverla a evidencia de hardware sin una comparación con ruido real.
+
+## 49.5 Sin `qang` y con `qang`
+
+| Aspecto | Sin `qang` | Con `qang` |
+| :--- | :--- | :--- |
+| Filtrado | máscara ad hoc | `filter_distribution` devuelve distribución y fracción retenida |
+| Sectores mixtos | reescalado manual | `reweight_sectors` fija la distribución objetivo |
+| Exposición | inspección circuito por circuito | `sector_exposure` da media y máximo por compuerta |
+| Errores en sector | corrección implícita | `echo_transfer_matrix` y `unmix_sector` los hacen explícitos |
+| Presupuesto | decisión informal | `stabilizer_shot_budget`, con estatus `sin_verificar` |

@@ -1,0 +1,51 @@
+# Chapter 49 — Symmetry filter and shot budget: exposure, echo and unmixing {#sec-qjax49-en .unnumbered}
+
+`exact` | `unverified` — The filter and echo calibration are defined in `qang.sectors`; stabilizer optimization stays
+marked `unverified` until it is compared with a device-noise model.
+
+## 49.1 The filter as an operation (`exact`)
+
+`qang.sectors.filter_distribution` keeps outcomes of fixed Hamming weight and returns the normalized distribution
+together with the kept fraction. The filter does not correct errors inside the sector: it only removes shots that
+violate the conserved quantity.
+
+```python
+from qang.sectors import filter_distribution, reweight_sectors, stabilizer_shot_budget
+
+filtered, kept = filter_distribution([1.0, 0.0, 0.0, 0.0], 2, 0)
+reweighted, measured = reweight_sectors([1.0, 0.0, 0.0, 0.0], 2, [0.25, 0.5, 0.25])
+budget = stabilizer_shot_budget([0.2, 0.5, 0.1], [1, 2, 1], 3)
+filtered, kept, measured, budget
+```
+
+The `kept` fraction is experimental data: when it drops, the filter reduces the useful sample and that cost must be
+budgeted in the total shot count.
+
+## 49.2 Sectors known as a distribution (`exact`)
+
+`reweight_sectors` generalizes the filter when the initial weight is not an eigenstate but a distribution
+`sector_probs`. Each sector is rescaled to carry exactly its initial probability; with a delta it recovers
+`filter_distribution`. The correction is exact for observables diagonal in the computational basis.
+
+## 49.3 Exposure and echo calibration (`exact` at statevector level)
+
+`qang.sectors.sector_exposure` measures the population outside the sector after each multipartite gate: zero when
+conservation holds at every point. `qang.sectors.echo_transfer_matrix` builds the in-sector transfer matrix and
+`qang.sectors.unmix_sector` inverts it with NNLS. The inversion corrects systematic bias, but it does not recover
+discarded shots or reduce variance by itself.
+
+## 49.4 Stabilizer budget (`unverified`)
+
+`stabilizer_shot_budget` solves a 0/1 knapsack: which checks to add given a detected-error weight and a cost in shots
+or depth. It is a design decision in qg units, not new physics. The `unverified` status prevents promoting it to
+hardware evidence without comparison against real noise.
+
+## 49.5 Without qang and with qang
+
+| Aspect | Without `qang` | With `qang` |
+| :--- | :--- | :--- |
+| Filtering | ad hoc mask | `filter_distribution` returns distribution and kept fraction |
+| Mixed sectors | manual rescaling | `reweight_sectors` fixes the target distribution |
+| Exposure | circuit-by-circuit inspection | `sector_exposure` gives mean and maximum per gate |
+| In-sector errors | implicit correction | `echo_transfer_matrix` and `unmix_sector` make them explicit |
+| Budget | informal decision | `stabilizer_shot_budget`, with `unverified` status |

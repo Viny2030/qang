@@ -1,0 +1,56 @@
+# Chapter 47 — Auditable readings: counts, estimators and covariances {#sec-qjax47-en .unnumbered}
+
+`exact` | `simulated` — Measurement-primitives block. This chapter replaces the idea of an aggregator report with
+verifiable pieces: normalization, reading, interval and prior declaration of the estimator. It adds no new API.
+Related verifiers: `tools/check_book_api.py`, `tools/check_book_parity.py`.
+
+## 47.1 Why there is no aggregator object (`exact`)
+
+A count does not carry its own contract. What can be registered is the full chain of decisions: which SDK fixed the
+bit order, from which probability each quantity is derived, which estimator produces the interval and which phase is
+declared in the preparation. Keeping those decisions separate prevents one dict from labelling as "measured" a value
+that was actually declared. The primitives already live in the package and are used directly.
+
+## 47.2 Canonicalization and reading (`exact`)
+
+`qang.interop.canonical_counts` returns canonical tuple keys and respects Qiskit and Cirq ordering;
+`qang.probability.analyze` turns $k_0$ zeros into a reading with an interval.
+
+```python
+from qang.interop import canonical_counts
+from qang.probability import analyze
+from qang.statistics import qg_estimate
+
+counts = canonical_counts({"0": 750, "1": 250})
+reading = analyze(750, 1000)
+estimate = qg_estimate(750, 1000, method="wilson")
+counts, reading.qg_z, estimate
+```
+
+The reading adds no new physics: $qg_Z=2p_0-1$, $\theta=\arccos qg_Z$, $qg_S=H(p_0)$ and $m=2000p_0-1000$.
+`qang.probability.readings_from_p0` exposes the same chain when the probability is already known.
+
+## 47.3 Intervals, covariances and witnesses (`exact`)
+
+`qang.statistics.qg_estimate` gathers Bayes, Wilson and delta for $qg_Z$; `qang.statistics.qg_covariance` and
+`qang.statistics.register_witness_variance` propagate uncertainty to several qubits;
+`qang.statistics.qg_s_estimate`, `qang.statistics.radius2_estimate` and `qang.statistics.direction_estimate` cover
+entropy, radius and direction from counts in several bases. Each declares its method: there is no universal interval
+that serves every quantity.
+
+## 47.4 Preregistration without an aggregator (`exact`)
+
+Before measuring, one fixes the bit order and qubit 0, the total shot count, the estimator, the confidence level, the
+required bases and which phases are declared parameters. A declared phase can be recorded as metadata, but must not
+be presented as an estimate from $Z$ counts. The final result is the explicit concatenation of primitives, not a
+structure that decides for the user what a "report" means.
+
+## 47.5 Without qang and with qang
+
+| Aspect | Without `qang` | With `qang` (primitives) |
+| :--- | :--- | :--- |
+| Bit order | implicit | `canonical_counts` fixes it per SDK |
+| Estimator | rewritten in each analysis | `qg_estimate` declares `bayes`, `wilson` or `delta` |
+| Multiqubit variance | hand-made formula | `qg_covariance`, `register_witness_variance` |
+| Declared phase | mixed with the reading | recorded separately; $Z$ cannot estimate it |
+| Audit | free text | registered chain of functions and parameters |

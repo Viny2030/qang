@@ -1,0 +1,50 @@
+# Chapter 48 — Amplitudes and azimuthal phase: what a $Z$ readout cannot estimate {#sec-qjax48-en .unnumbered}
+
+`exact` | `unverified` — Separation of three phases. The amplitude, azimuth and cone-phase formulas are verified at
+statevector level; assigning an azimuth to a real sample remains `unverified` without measuring $X$ and $Y$.
+
+## 48.1 Three angles that are not the same (`exact`)
+
+The polar angle $\theta$ is read in $Z$; the azimuth $\varphi=\arg(\beta/\alpha)$ needs transverse components; the
+cone phase $\gamma$ is the geometric phase of a loop at constant height $qg_Z$. One number in qga cannot represent
+all three. `qang.qga.fubini_study_metric_qga` shows why the azimuth scales with $1/|\sin\theta|$ and becomes
+undefined at the poles.
+
+## 48.2 Amplitudes from $p_0$ (`exact`)
+
+`qang.probability.amplitudes_from_p0` returns $(\sqrt{p_0},\sqrt{1-p_0})$ after fixing the global phase.
+
+```python
+from qang.probability import amplitudes_from_p0
+from qang.qga import azimuth_qga, cone_phase_qga
+
+amplitudes_from_p0(0.75)
+azimuth_qga(1.0, 0.0)
+cone_phase_qga(0.5)
+```
+
+For $p_0=0.75$ this gives $(0.8660254,\ 0.5)$. That positivity is a representation convention, not a phase
+measurement: it does not recover $\varphi$ or $\gamma$.
+
+## 48.3 Azimuth from $X/Y$ (`exact`)
+
+`azimuth_qga(qg_x, qg_y)` computes $\operatorname{atan2}(qg_Y,qg_X)$ in qga and fails at the poles, where the
+azimuth is undefined. `QangPhi.from_complex` requires unit modulus and recovers the phase without the range
+restriction of $qg_Z$; `Qang.from_statevector` removes the global phase by rotating $\alpha$ to a non-negative real.
+The physical phase is the ratio $\beta/\alpha$, not a global amplitude.
+
+## 48.4 Cone phase (`exact`)
+
+`cone_phase_qga(qg_z)` returns $1000p_0=500(1+qg_Z)$ m-qga modulo one turn. It is a geometric phase associated with
+a loop at constant height, not the state azimuth. It is $500$ qga on the equator and $1000\equiv0$ and $0$ at the
+poles, respectively. Reusing the polar resolution $159.1549/\sqrt N$ qga for this quantity would be an error.
+
+## 48.5 Without qang and with qang
+
+| Aspect | Without `qang` | With `qang` |
+| :--- | :--- | :--- |
+| Amplitudes | written by hand | `amplitudes_from_p0` fixes the global phase |
+| Azimuth | confused with the global phase | `azimuth_qga` defines it from $X/Y$ |
+| Declared phase | mixed with the $Z$ reading | recorded separately; $Z$ cannot estimate it |
+| Cone phase | reuses the polar scale | `cone_phase_qga` uses the $500$ prefix |
+| Poles | numerical dependence | the azimuth is explicitly undefined |

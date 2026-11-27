@@ -1,0 +1,51 @@
+# Capítulo 48 — Amplitudes y fase azimutal: lo que una lectura $Z$ no puede estimar {#sec-qjax48 .unnumbered}
+
+`exact` | `unverified` — Separación de tres fases. Las fórmulas de amplitud, azimut y fase de cono se verifican en
+statevector; la asignación de un azimut a una muestra real sigue siendo `unverified` sin medir $X$ e $Y$.
+
+## 48.1 Tres ángulos que no son lo mismo (`exact`)
+
+El ángulo polar $\theta$ se lee en $Z$; el azimut $\varphi=\arg(\beta/\alpha)$ necesita componentes transversales; la
+fase del cono $\gamma$ es la fase geométrica de un lazo a altura constante $qg_Z$. Un mismo número en qga no puede
+representar las tres cosas. `qang.qga.fubini_study_metric_qga` muestra por qué el azimut se escale con
+$1/|\sin\theta|$ y se vuelva indefinido en los polos.
+
+## 48.2 Amplitudes desde $p_0$ (`exact`)
+
+`qang.probability.amplitudes_from_p0` devuelve $(\sqrt{p_0},\sqrt{1-p_0})$ después de fijar la fase global.
+
+```python
+from qang.probability import amplitudes_from_p0
+from qang.qga import azimuth_qga, cone_phase_qga
+
+amplitudes_from_p0(0.75)
+azimuth_qga(1.0, 0.0)
+cone_phase_qga(0.5)
+```
+
+Con $p_0=0{,}75$ se obtiene $(0{,}8660254,\ 0{,}5)$. Esa positividad es una convención de representación, no una
+medición de fase: no permite recuperar $\varphi$ ni $\gamma$.
+
+## 48.3 Azimut desde $X/Y$ (`exact`)
+
+`azimuth_qga(qg_x, qg_y)` calcula $\operatorname{atan2}(qg_Y,qg_X)$ en qga y falla en los polos, donde el azimut no
+está definido. `QangPhi.from_complex` exige módulo unitario y recupera la fase sin la restricción de rango de
+$qg_Z$; `Qang.from_statevector` elimina la fase global fijando $\alpha$ real no negativo. La fase física es el
+cociente $\beta/\alpha$, no una amplitud global.
+
+## 48.4 Fase del cono (`exact`)
+
+`cone_phase_qga(qg_z)` devuelve $1000p_0=500(1+qg_Z)$ m-qga módulo una vuelta. Es una fase geométrica asociada a
+un lazo a altura constante, no el azimut del estado.
+ En el ecuador vale $500$ qga; en los polos, $1000\equiv0$ y
+$0$, respectivamente. Reutilizar la resolución polar $159{,}1549/\sqrt N$ qga para esta magnitud sería un error.
+
+## 48.5 Sin `qang` y con `qang`
+
+| Aspecto | Sin `qang` | Con `qang` |
+| :--- | :--- | :--- |
+| Amplitudes | se escriben a mano | `amplitudes_from_p0` fija la fase global |
+| Azimut | confundido con la fase global | `azimuth_qga` lo define desde $X/Y$ |
+| Fase declarada | mezclada con la lectura $Z$ | se registra aparte; $Z$ no la estima |
+| Fase del cono | reutiliza la escala polar | `cone_phase_qga` usa el prefijo $500$ |
+| Polos | dependencia numérica | el azimut queda explícitamente indefinido |

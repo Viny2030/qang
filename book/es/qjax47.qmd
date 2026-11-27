@@ -1,0 +1,55 @@
+# Capítulo 47 — Lecturas auditables: conteos, estimadores y covarianzas {#sec-qjax47 .unnumbered}
+
+`exact` | `simulado` — Bloque de primitivas de medición. Este capítulo reemplaza la idea de un informe agregador por
+piezas verificables: normalización, lectura, intervalo y declaración previa del estimador. No se añade una nueva API.
+Verificadores relacionados: `tools/check_book_api.py`, `tools/check_book_parity.py`.
+
+## 47.1 Por qué no hay un objeto agregador (`exact`)
+
+Un conteo no contiene su propio contrato. Lo que sí puede registrarse es la cadena completa de decisiones: qué SDK
+fijó el orden de bits, de qué probabilidad se deriva cada magnitud, qué estimador produce el intervalo y qué fase se
+declara en la preparación. Separar esas decisiones evita que un mismo dict nombre como «medido» un valor que en
+realidad se declaró. Las primitivas ya están en el paquete y se usan directamente.
+
+## 47.2 Canonicalización y lectura (`exact`)
+
+`qang.interop.canonical_counts` devuelve claves canónicas de tuples y respeta el orden de Qiskit y Cirq;
+`qang.probability.analyze` convierte $k_0$ ceros en una lectura con intervalo.
+
+```python
+from qang.interop import canonical_counts
+from qang.probability import analyze
+from qang.statistics import qg_estimate
+
+counts = canonical_counts({"0": 750, "1": 250})
+reading = analyze(750, 1000)
+estimate = qg_estimate(750, 1000, method="wilson")
+counts, reading.qg_z, estimate
+```
+
+La lectura no introduce física nueva: $qg_Z=2p_0-1$, $\theta=\arccos qg_Z$, $qg_S=H(p_0)$ y $m=2000p_0-1000$.
+`qang.probability.readings_from_p0` expone la misma cadena cuando la probabilidad ya está conocida.
+
+## 47.3 Intervalos, covarianzas y observadores (`exact`)
+
+`qang.statistics.qg_estimate` reúne Bayes, Wilson y delta para $qg_Z$; `qang.statistics.qg_covariance` y
+`qang.statistics.register_witness_variance` trasladan la incertidumbre a varios qubits; `qang.statistics.qg_s_estimate`,
+`qang.statistics.radius2_estimate` y `qang.statistics.direction_estimate` cubren entropía, radio y dirección desde
+conteos en varias bases. Cada uno declara su método: no hay un intervalo universal que sirva para todas las magnitudes.
+
+## 47.4 Preregistro sin agregador (`exact`)
+
+Antes de medir se fijan: orden de bits y qubit 0, número total de disparos, estimador, nivel de confianza, bases
+necesarias y qué fases son parámetros declarados. Una fase declarada puede registrarse como metadato, pero no debe
+presentarse como estimación de conteos $Z$. El resultado final es la concatenación explícita de primitivas, no una
+estructura que decida por el usuario qué significa «informe».
+
+## 47.5 Sin `qang` y con `qang`
+
+| Aspecto | Sin `qang` | Con `qang` (primitivas) |
+| :--- | :--- | :--- |
+| Orden de bits | implícito | `canonical_counts` lo fija por SDK |
+| Estimador | se reescribe en cada análisis | `qg_estimate` declara `bayes`, `wilson` o `delta` |
+| Varianza multiqubit | fórmula artesanal | `qg_covariance`, `register_witness_variance` |
+| Fase declarada | mezclada con la lectura | se registra aparte; $Z$ no la estima |
+| Auditoría | texto libre | cadena de funciones y parámetros registrada |

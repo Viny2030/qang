@@ -1,0 +1,54 @@
+# Chapter 50 — Barren plateaus and training limits: Jacobian, Fisher and shot bounds {#sec-qjax50-en .unnumbered}
+
+`exact` | `unverified` — Training and sampling synthesis. The plateau diagnostic and shot bounds are verifiable
+calculations; extrapolation to a specific device remains `unverified`.
+
+## 50.1 The plateau as a diagnostic (`exact`)
+
+`qang.qfisher.gradient_variance` measures the variance of $\partial L/\partial\theta_0$ with parameters uniform in
+$[0,1000)$ qga: a barren plateau appears as variance near zero. It is a training diagnostic, not a claim about the
+physics of the problem. `qang.qfisher.circuits_for_metric` separates the QFI cost via Hadamard tests from the CFI$_Z$
+cost via parameter shift.
+
+## 50.2 Jacobian and natural step (`exact`)
+
+For the real single-qubit state, $q=qg_Z=\cos\theta$ and $dq/d\theta=-\sin\theta$. The inverse diverges at the
+poles; `inverse_jacobian_clipped` and `inverse_jacobian_tikhonov` regularize that singularity. The metric
+$F_q=1/(1-q^2)$ explains why the natural gradient in $q$ equals plain gradient descent in $\theta$ to first order.
+
+```python
+from qang.gradients import inverse_jacobian_clipped, natural_gradient_step_qg, signed_qg_step
+from qang.qlimits import hoeffding_shots, sufficient_shots_entropy
+
+inverse_jacobian_clipped(0.0)
+natural_gradient_step_qg(0.5, 1.0, 0.1)
+signed_qg_step(0.5, 1, 0.1, 0.1)
+hoeffding_shots(0.05, 0.01)
+sufficient_shots_entropy(2, 0.05, 0.01)
+```
+
+`qang.gradients.pole_damping_factor` scales the step by $|\sin\theta|$: it slows down near the poles, where little
+coherence is available, and does nothing on the equator.
+
+## 50.3 Sign and pole crossing (`exact`)
+
+$qg_Z$ alone covers $[0,\pi]$; the pair $(qg_Z,s)$ with $s=\operatorname{sign}(qg_X)$ covers the full circle.
+`signed_qg_step` reflects the excess when the step crosses a pole and flips the branch sign. It is the continuation of
+the same path, not an optimizer restart.
+
+## 50.4 Shot bounds (`exact` for the bound; `unverified` on hardware)
+
+`hoeffding_shots` and `sufficient_shots_entropy` give deliberately loose distribution-free bounds for the mean and
+entropy. `qang.qlimits.qgs_per_qubit`, `qang.qlimits.total_correlation_z` and `qang.qlimits.purity_range_from_z`
+relate those bounds to entanglement and purity as seen from $Z$. Bounds do not replace noise calibration nor guarantee
+that an observed plateau is physical.
+
+## 50.5 Without qang and with qang
+
+| Aspect | Without `qang` | With `qang` |
+| :--- | :--- | :--- |
+| Plateau | gradient loss without diagnosis | `gradient_variance` quantifies it |
+| Poles | numerical divergence | `inverse_jacobian_clipped`, `pole_damping_factor` |
+| Natural step | confused with plain descent | `natural_gradient_step_qg` respects the metric |
+| Angular branch | limited range | `signed_qg_step` keeps the sign and crosses poles |
+| Shots | empirical rule | `hoeffding_shots`, `sufficient_shots_entropy` |

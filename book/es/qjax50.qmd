@@ -1,0 +1,55 @@
+# Capítulo 50 — Mesetas planas y límites de entrenamiento: jacobiano, Fisher y cotas de disparos {#sec-qjax50 .unnumbered}
+
+`exact` | `sin_verificar` — Síntesis de entrenamiento y muestreo. El diagnóstico de meseta y las cotas de disparos son
+cálculos verificables; la extrapolación a un hardware específico queda `sin_verificar`.
+
+## 50.1 La meseta como diagnóstico (`exact`)
+
+`qang.qfisher.gradient_variance` mide la varianza de $\partial L/\partial\theta_0$ con parámetros uniformes en
+$[0,1000)$ qga: una meseta estéril aparece como varianza cercana a cero. Es un diagnóstico de entrenamiento, no una
+afirmación sobre la física del problema. `qang.qfisher.circuits_for_metric` separa el costo de QFI vía Hadamard del
+costo de CFI$_Z$ por desplazamiento de parámetro.
+
+## 50.2 Jacobiano y paso natural (`exact`)
+
+En el estado real de un qubit, $q=qg_Z=\cos\theta$ y $dq/d\theta=-\sin\theta$. El inverso diverge en los polos;
+`inverse_jacobian_clipped` y `inverse_jacobian_tikhonov` regularizan esa singularidad.
+ La métrica $F_q=1/(1-q^2)$
+explica por qué el gradiente natural en $q$ equivale, a primer orden, al gradiente en $\theta$.
+
+```python
+from qang.gradients import inverse_jacobian_clipped, natural_gradient_step_qg, signed_qg_step
+from qang.qlimits import hoeffding_shots, sufficient_shots_entropy
+
+inverse_jacobian_clipped(0.0)
+natural_gradient_step_qg(0.5, 1.0, 0.1)
+signed_qg_step(0.5, 1, 0.1, 0.1)
+hoeffding_shots(0.05, 0.01)
+sufficient_shots_entropy(2, 0.05, 0.01)
+```
+
+`qang.gradients.pole_damping_factor` escala el paso con $|\sin\theta|$: frena cerca de los polos, donde la coherencia
+disponible es pequeña, y no actúa en el ecuador.
+
+## 50.3 Signo y cruce de polos (`exact`)
+
+`qg_Z` por sí solo cubre $[0,\pi]$; el par $(qg_Z,s)$ con $s=\operatorname{sign}(qg_X)$ cubre el círculo completo.
+`signed_qg_step` refleja el exceso al cruzar un polo y voltea el signo de la rama. Es una continuación del mismo
+camino, no una reinicialización del optimizador.
+
+## 50.4 Cotas de disparos (`exact` para la cota; `sin_verificar` en hardware)
+
+`hoeffding_shots` y `sufficient_shots_entropy` dan cotas distribution-free, deliberadamente holgadas, para media y
+entropía. `qang.qlimits.qgs_per_qubit`, `qang.qlimits.total_correlation_z` y `qang.qlimits.purity_range_from_z`
+relacionan esas cotas con entrelazamiento y pureza vistos desde $Z$. Las cotas no sustituyen a la calibración de ruido
+ni garantizan que la meseta observada sea física.
+
+## 50.5 Sin `qang` y con `qang`
+
+| Aspecto | Sin `qang` | Con `qang` |
+| :--- | :--- | :--- |
+| Meseta | pérdida de gradiente sin diagnóstico | `gradient_variance` la cuantifica |
+| Polos | divergencia numérica | `inverse_jacobian_clipped`, `pole_damping_factor` |
+| Paso natural | confundido con descenso plano | `natural_gradient_step_qg` respeta la métrica |
+| Rama angular | rango limitado | `signed_qg_step` conserva el signo y cruza polos |
+| Disparos | regla empírica | `hoeffding_shots`, `sufficient_shots_entropy` |
