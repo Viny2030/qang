@@ -1,7 +1,8 @@
 # Chapter 49 — Symmetry filter and shot budget: exposure, echo and unmixing {#sec-qjax49-en .unnumbered}
 
-`exact` | `unverified` — The filter and echo calibration are defined in `qang.sectors`; stabilizer optimization stays
-marked `unverified` until it is compared with a device-noise model.
+`exact` | `unverified` — The filter and echo calibration are defined in `qang.sectors` and checked in
+`tools/verify_cap49.py`; stabilizer optimization stays marked `unverified` until it is compared with a device-noise
+model.
 
 ## 49.1 The filter as an operation (`exact`)
 
@@ -38,7 +39,9 @@ discarded shots or reduce variance by itself.
 
 `stabilizer_shot_budget` solves a 0/1 knapsack: which checks to add given a detected-error weight and a cost in shots
 or depth. It is a design decision in qg units, not new physics. The `unverified` status prevents promoting it to
-hardware evidence without comparison against real noise.
+hardware evidence without comparison against real noise. There is no pre-registration and no hardware run:
+`tools/verify_cap49.py` checks the knapsack against brute force and confirms that the catalogue keeps `unverified`,
+with no `measured gain`.
 
 ## 49.5 Without qang and with qang
 

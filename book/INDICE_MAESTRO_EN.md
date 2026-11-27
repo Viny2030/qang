@@ -406,6 +406,55 @@ devices until a real run exists (Part X).
 ### Chapter 35. qang as a module: changes to quantum and machine-learning libraries
 35.0 ✅ written (qang 0.13.0, `qang.integrations`; tests/test_integrations.py; figures from tools/make_cap35_numbers.py in three environments: .venv-int, .venv-dyn for Qiskit Dynamics and WSL for CUDA-Q): mitiq (filter + ZNE: 55.9 → 1.1 m-qg under T1 and dephasing; post_select already existed), qiskit-experiments (HeraldedReadout: unbiased e01, p and T_eff, the standard one sees the qubit cold), QuTiP, Stim, scikit-learn (full API, same accuracy 0.833 vs 0.842), JAX (grad to 2·10⁻¹⁰; PennyLane 0.45 needs JAX < 0.9), PyTorch, Qiskit Dynamics (needs qiskit ≤ 1.3), Qibo, pytket (half-turns), Braket and CUDA-Q 0.16 (CPU; the GPU needs a newer NVIDIA driver); table of proposals for each project
 
+### Chapter 36. Software Architecture and the Multi-SDK Ecosystem
+36.0 ✅ written: import requirements per module, CI installation and the cost of a wrong qubit order; `tests/test_public_api.py`
+
+### Chapter 37. Nanoquantum Systems: Tunnelling, Landauer, Partition Noise and NV Centres
+37.0 ✅ written: the qang equation applied to transmission, conductance, partition noise, occupation, spins and ODMR
+
+### Chapter 38. Cross-Cutting Applications Read with qang
+38.0 ✅ written: fermions and Jordan–Wigner, Hahn echo, Ising, Aharonov–Bohm, Wigner, Fresnel and the Unruh vacuum
+
+### Chapter 39. `qang.integrations`: Twelve Libraries, One Reading Contract
+39.0 ✅ written: code audit of the integrations and their common contract
+
+### Chapter 40. Matter and Antimatter Read with qang
+40.0 ✅ written: charge conjugation, Zitterbewegung, pair creation and the invisible pair
+
+### Chapter 41. Time Travel Read with qang
+41.0 ✅ written: information balance of postselection, the grandfather paradox and fixed points by angle
+
+### Chapter 42. String Theory Read with qang
+42.0 ✅ written: exact counting, the level as a $Z$ reading, T-duality and the radius of a lattice analogue
+
+## PART XIV. Autonomous systems: quantum robotics and agentic AI 🆕
+
+### Chapter 43. Quantum Robotics and Autonomous Control Read with qang: One Qubit per Joint, the Shot Budget, Real Time and Grover for Trajectory Selection
+43.0 ✅ written: budget $N=\lceil z^2\,\mathrm{tr}(JJ^{\mathsf T})/\varepsilon^2\rceil$, exact correlation of readings, real-time limit and Grover query saving; `tools/verify_cap43.py`, `tests/test_qrobot.py`
+
+### Chapter 44. Quantum Agentic AI Read with qang: Born Policies, the Angle as Natural Gradient, the Decision Reading and Shot Allocation Across Tools
+44.0 ✅ written: $I(\theta)=1$, flow $\phi_t=\phi_0+\eta\Delta t$, pole and exploration floor, decision $qg_Z$ and allocation $n_i\propto\sin\theta_i$; `tools/verify_cap44.py`, `tests/test_qagent.py`; no `measured gain`
+
+### Chapter 45. Noise Benchmark Across Five Stacks: the qga Phase Survives qecho and Sector Filtering
+45.0 ✅ written: $\sigma=0.621699$ qga, affine inversion $250.0$ qga and MSE $1615.2\to19.4$ m-qg² ($83.39\times$); `tools/verify_exp_f13.py`; no QPU
+
+### Chapter 46. Metrological audit: compatibility and anatomy of the metrics
+46.0 ✅ written: compatibility matrix and anatomy of metrics, B3 block addendum; `tools/verify_exp_a.py`
+
+## PART XV. Measurement, noise and training protocols in qga 🆕
+
+### Chapter 47. Auditable readings: counts, estimators and covariances
+47.0 ✅ written: five-field preregistration, `canonical_counts`, `analyze`, `qg_estimate`, covariances and radius/direction in three bases; `tools/verify_cap47.py`
+
+### Chapter 48. Amplitudes and azimuthal phase: what a $Z$ readout cannot estimate
+48.0 ✅ written: polar, azimuth and cone phase separated; assigning an azimuth to a real sample remains `unverified` without $X$ and $Y$
+
+### Chapter 49. Symmetry filter and shot budget: exposure, echo and unmixing
+49.0 ✅ written: filter, reweight, sector exposure, echo matrix and stabilizer knapsack checked by brute force; `tools/verify_cap49.py`; no preregistration or hardware
+
+### Chapter 50. Barren plateaus and training limits: Jacobian, Fisher and shot bounds
+50.0 ✅ written: plateau diagnosis and shot bounds `exact`; hardware extrapolation `unverified`
+
 ---
 
 ## Appendices

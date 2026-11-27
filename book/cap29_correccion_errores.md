@@ -68,7 +68,7 @@ El sesgo residual crece con $a$ (decaimiento exponencial, no polinomial); con $a
 | Orden del error | $O(\gamma)$ | $O(\gamma^2)$ | `exact` |
 | Síndrome | — | $qg_{ZZZZ}$: $+1000$ m-qg (par) | `exact` |
 | Repetición $n=3$, 1 % | $2.98\cdot10^{-4}$ (bit) | $5.00\cdot10^{-7}$ (borrado) | `exact` aritmético |
-| Corte 4\|4, peso 1 | ×65 536 | ×16 | cota de estado; protocolo `unverified` |
+| Corte 4\|4, peso 1 | ×65 536 | ×16 | cota de estado; protocolo `exact` con extra knitting |
 | ZNE 3 puntos | — | ×19 disparos | `exact` |
 | Superficie $T_1$-aware, qutrits, RB | — | no cubiertos | `unverified` |
 
@@ -113,7 +113,7 @@ def test_zne_cost(): assert abs(zne_variance_factor([1, 2, 3]) - 19.0) < 1e-12 a
 | :--- | :--- | :--- | :--- | :--- |
 | `ad_code_syndrome_mqg` | corrección de errores | $qg_{ZZZZ}=1000(1-2P_{\text{impar}})$; error $O(\gamma^2)$ | `parity_mqg`, `avg_fidelity_encoded` | `exact` (sim.); hardware `unverified` |
 | `erasure_vs_flip` | corrección de errores | $e^n/2$ frente a $\sum_{k>n/2}\binom nk p^k(1-p)^{n-k}$ | `rep_logical_error_erasure` | `exact` aritmético |
-| `sector_schmidt_cut` | corte | rango $\sum_k\min(\binom mk,\binom{n-m}{w-k})$ | `schmidt_rank` | `exact` (cota de estado); protocolo `unverified` |
+| `sector_schmidt_cut` | corte | rango $\sum_k\min(\binom mk,\binom{n-m}{w-k})$ | `schmidt_rank` | `exact` (cota de estado); protocolo `exact` con extra knitting |
 | `zne_variance_cost` | mitigación | $\sum c_i^2=19$ para $(1,2,3)$ | `zne_variance_factor` | `exact` |
 
 `CHANGELOG.md [Unreleased]`: `qang.qecc`; `tools/verify_cap29.py`; `tests/test_qecc.py`.

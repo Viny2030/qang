@@ -78,4 +78,35 @@ for a in (0.05, 0.2, 0.5):
     e2, e3 = zne_estimate(f, [1, 2]), zne_estimate(f, [1, 2, 3])
     print(f"    señal 800·e^(−aλ), a={a}: bruto λ=1 {1000*f(1):.1f} m-qg; ZNE 2 pts {1000*e2:.1f}; ZNE 3 pts {1000*e3:.1f} (exacto 800.0)")
     assert abs(e3 - qz0) < abs(e2 - qz0) < abs(f(1) - qz0)
+
+try:
+    import math
+
+    from qiskit import QuantumCircuit
+    from qiskit.quantum_info import SparsePauliOp, Statevector
+    from qiskit_addon_cutting import generate_cutting_experiments, partition_problem, reconstruct_expectation_values
+    from qiskit_aer.primitives import SamplerV2
+    from qang.knitting import pauli_rotation_cut_gamma
+
+    theta = math.pi / 4
+    qc = QuantumCircuit(2)
+    qc.h(0)
+    qc.ry(0.7, 1)
+    qc.rzz(theta, 0, 1)
+    observables = SparsePauliOp(["IX", "XI", "XX"])
+    exact = [Statevector(qc).expectation_value(SparsePauliOp(p)).real for p in observables.paulis.to_labels()]
+    part = partition_problem(circuit=qc, partition_labels="AB", observables=observables.paulis)
+    subexp, coeffs = generate_cutting_experiments(
+        circuits=part.subcircuits, observables=part.subobservables, num_samples=np.inf
+    )
+    sampler = SamplerV2(seed=42)
+    results = {label: sampler.run(subexp[label], shots=20000).result() for label in subexp}
+    rec = reconstruct_expectation_values(results, coeffs, part.subobservables)
+    assert abs(sum(abs(c) for c, _ in coeffs) - pauli_rotation_cut_gamma(math.cos(theta))) < 1e-9
+    assert all(abs(r - e) < 0.03 for r, e in zip(rec, exact))
+    print(f"[5] corte completo 2|2 RZZ(π/4): γ={pauli_rotation_cut_gamma(math.cos(theta)):.4f}, "
+          f"IX/XI/XX reconstruidos {np.round(rec, 3).tolist()} frente a {np.round(exact, 3).tolist()} (20000 disparos, extra `knitting`)")
+except ImportError:
+    print("[5] corte completo: omitido, se requiere el extra `knitting` (qiskit-addon-cutting + qiskit-aer)")
+
 print("verify_cap29: OK")

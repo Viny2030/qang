@@ -19,6 +19,26 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 RESULTS = []
 
 
+def optional_qutip():
+    """Devuelve QuTiP o None; los bloques que lo necesitan se omiten sin él."""
+    try:
+        import qutip as qt
+    except ImportError:
+        return None
+    return qt
+
+
+QUTIP = optional_qutip()
+
+
+def need_qutip(label):
+    """Devuelve el módulo o None después de anunciar un bloque omitido."""
+    if QUTIP is None:
+        print(f"[OMITIDO] {label}: qutip no instalado")
+        return None
+    return QUTIP
+
+
 def check(name, ok, detail=""):
     RESULTS.append(bool(ok))
     print(f"[{'PASA' if ok else 'FALLA'}] {name}" + (f" — {detail}" if detail else ""))
@@ -61,12 +81,14 @@ def pennylane_state(theta):
 
 
 def qutip_state(theta):
-    import qutip as qt
+    qt = need_qutip("estado R_y en QuTiP")
     psi = (-1j * theta / 2 * qt.sigmay()).expm() * qt.basis(2, 0)
     return float(abs(psi.full()[0, 0]) ** 2), float(np.real(qt.expect(qt.sigmaz(), psi)))
 
 
-SDKS = {"Qiskit": qiskit_state, "Cirq": cirq_state, "PennyLane": pennylane_state, "QuTiP": qutip_state}
+SDKS = {"Qiskit": qiskit_state, "Cirq": cirq_state, "PennyLane": pennylane_state}
+if QUTIP is not None:
+    SDKS["QuTiP"] = qutip_state
 
 
 # ---- shot sampling of R_y(theta)|0> in each SDK: array of 0/1 outcomes ----
@@ -124,7 +146,7 @@ def part_equation():
     table = [(0.0, "1", "+1", "+1000"), (math.pi / 4, "0.854", "+0.707", "+707"), (math.pi / 3, "0.75", "+0.5", "+500"),
              (math.pi / 2, "0.5", "0", "0"), (2 * math.pi / 3, "0.25", "-0.5", "-500"), (math.pi, "0", "-1", "-1000")]
     for th, p_txt, z_txt, m_txt in table:
-        for sdk in ("QuTiP", "Qiskit"):
+        for sdk in (name for name in ("QuTiP", "Qiskit") if name in SDKS):
             p0, z = SDKS[sdk](th)
             dp = len(p_txt.split(".")[1]) if "." in p_txt else 0
             dz = len(z_txt.split(".")[1]) if "." in z_txt else 0
@@ -203,7 +225,10 @@ def part_analyze():
 
 def part_other():
     print("\n4. Otras afirmaciones del capítulo")
-    import qutip as qt
+    qt = need_qutip("§168 presupuesto de error de compuerta y entropía")
+    if qt is None:
+        return
+
     # gate-error budget: average R_x(θ(1+ε)) over ε ~ N(0, σ²) with Gauss–Hermite quadrature, in QuTiP
     x, w = np.polynomial.hermite_e.hermegauss(60)
     w = w / w.sum()
@@ -340,24 +365,25 @@ def part_theory():
         check(f"sympy: {name}", abs(float(sp.N(expr))) < 1e-12 if expr.free_symbols == set() else expr == 0, str(expr))
 
     # T4: qang angle arccos(qg_Z) vs Bloch polar angle arccos(qg_Z / r) for a mixed qubit (§45)
-    import qutip as qt
-    from qiskit.quantum_info import DensityMatrix
-    n, reps, rng = 10_000, 4000, np.random.default_rng(7)
-    for th, r, book in ((math.pi / 2, 0.8, 1.56), (math.pi / 8, 0.8, 4.84)):
-        rho = 0.5 * (qt.qeye(2) + r * (math.sin(th) * qt.sigmax() + math.cos(th) * qt.sigmaz()))
-        pz = float(np.real(rho.full()[0, 0]))
-        dm = DensityMatrix(rho.full())
-        dm.seed(int(rng.integers(1 << 31)))
-        k0 = np.array([dm.sample_counts(n).get("0", 0) for _ in range(reps // 10)] +
-                      list(rng.binomial(n, pz, reps - reps // 10)))
-        qz = 2 * k0 / n - 1
-        v_qang = n * np.var(np.arccos(np.clip(qz, -1, 1)), ddof=1)
-        v_bloch = n * np.var(np.arccos(np.clip(qz / r, -1, 1)), ddof=1)
-        formula = 1 + (1 - r ** 2) / (r ** 2 * math.sin(th) ** 2)
-        check(f"Qiskit/QuTiP r = {r}, θ = {th / math.pi:.3g}π: N·Var(arccos qg_Z) = 1 (ángulo qang, cualquier estado)",
-              abs(v_qang - 1) < 0.1, f"{v_qang:.3f}")
-        check(f"  ídem: N·Var(arccos(qg_Z/r)) = {book} (ángulo de Bloch, §45)", abs(v_bloch - formula) / formula < 0.08,
-              f"{v_bloch:.3f}, fórmula {formula:.3f}")
+    qt = need_qutip("T4 ángulo qang frente a ángulo de Bloch")
+    if qt is not None:
+        from qiskit.quantum_info import DensityMatrix
+        n, reps, rng = 10_000, 4000, np.random.default_rng(7)
+        for th, r, book in ((math.pi / 2, 0.8, 1.56), (math.pi / 8, 0.8, 4.84)):
+            rho = 0.5 * (qt.qeye(2) + r * (math.sin(th) * qt.sigmax() + math.cos(th) * qt.sigmaz()))
+            pz = float(np.real(rho.full()[0, 0]))
+            dm = DensityMatrix(rho.full())
+            dm.seed(int(rng.integers(1 << 31)))
+            k0 = np.array([dm.sample_counts(n).get("0", 0) for _ in range(reps // 10)] +
+                          list(rng.binomial(n, pz, reps - reps // 10)))
+            qz = 2 * k0 / n - 1
+            v_qang = n * np.var(np.arccos(np.clip(qz, -1, 1)), ddof=1)
+            v_bloch = n * np.var(np.arccos(np.clip(qz / r, -1, 1)), ddof=1)
+            formula = 1 + (1 - r ** 2) / (r ** 2 * math.sin(th) ** 2)
+            check(f"Qiskit/QuTiP r = {r}, θ = {th / math.pi:.3g}π: N·Var(arccos qg_Z) = 1 (ángulo qang, cualquier estado)",
+                  abs(v_qang - 1) < 0.1, f"{v_qang:.3f}")
+            check(f"  ídem: N·Var(arccos(qg_Z/r)) = {book} (ángulo de Bloch, §45)", abs(v_bloch - formula) / formula < 0.08,
+                  f"{v_bloch:.3f}, fórmula {formula:.3f}")
 
     # §125 S1, S2: exact binomial sums on p ∈ {0.1, …, 0.9}, Anscombe angle, interval θ ± z/√(n + 1/2)
     z = norm.ppf(0.975)
@@ -425,20 +451,24 @@ def part_theory():
     for k in ks:
         c = cirq.Circuit([cirq.X(qb), cirq.amplitude_damp(0.0016)(qb)] * int(k))
         lin.append(1000 + 1000 * float(np.real(np.trace(sim.simulate(c).final_density_matrix @ np.diag([1, -1])))))
+    qt = need_qutip("§168 sobre-rotación coherente")
     coh = []
-    for k in ks:
-        psi = (-1j * k * math.pi * 1.003 / 2 * qt.sigmax()).expm() * qt.basis(2, 0)
-        coh.append(1000 + 1000 * float(qt.expect(qt.sigmaz(), psi)))
+    if qt is not None:
+        for k in ks:
+            psi = (-1j * k * math.pi * 1.003 / 2 * qt.sigmax()).expm() * qt.basis(2, 0)
+            coh.append(1000 + 1000 * float(qt.expect(qt.sigmaz(), psi)))
 
     def quad_share(y):
         c2, c1, _ = np.polyfit(ks, y, 2)
         return abs(c2) * 41 ** 2 / (abs(c2) * 41 ** 2 + abs(c1) * 41)
 
-    s_lin, s_coh = quad_share(lin), quad_share(coh)
+    s_lin = quad_share(lin)
     check("Cirq: amortiguamiento por compuerta → faltante afín en k (término k² < 5 % a k = 41)", s_lin < 0.05,
           f"{s_lin:.3f}; {lin[-1]:.1f} m-qg a k = 41")
-    check("QuTiP: sobre-rotación coherente → faltante cuadrático en k (término k² > 95 %)", s_coh > 0.95,
-          f"{s_coh:.3f}; {coh[-1]:.1f} m-qg a k = 41")
+    if qt is not None:
+        s_coh = quad_share(coh)
+        check("QuTiP: sobre-rotación coherente → faltante cuadrático en k (término k² > 95 %)", s_coh > 0.95,
+              f"{s_coh:.3f}; {coh[-1]:.1f} m-qg a k = 41")
 
     # the same test on the §168 chains: a pure k² model is rejected, a single slope is not
     from scipy.stats import chi2
@@ -524,16 +554,17 @@ def part_qga():
     check("sympy: ε_m = ½ θ² σ² d²m/dθ² + O(σ⁴), es decir |ε_m| ≈ ½ θ² σ² κ_qg",
           sp.simplify(lead - sp.Rational(1, 2) * th ** 2 * sg ** 2 * sp.diff(m, th, 2)) == 0)
     # the azimuthal coordinate, on random states in QuTiP
-    import qutip
-    rng = np.random.default_rng(7)
-    errs = []
-    for _ in range(50):
-        t, f = rng.uniform(0.1, math.pi - 0.1), rng.uniform(0, 2 * math.pi)
-        st = (math.cos(t / 2) * qutip.basis(2, 0) + np.exp(1j * f) * math.sin(t / 2) * qutip.basis(2, 1)).unit()
-        x, y = qutip.expect(qutip.sigmax(), st), qutip.expect(qutip.sigmay(), st)
-        errs.append(abs((math.atan2(y, x) % (2 * math.pi)) / (2 * math.pi) * 1000 - f / (2 * math.pi) * 1000))
-    check("QuTiP: φ = atan2(qg_Y, qg_X) recupera la fase; qg_φ·1000 = φ en qga (50 estados)", max(errs) < 1e-9,
-          f"error máx {max(errs):.1e} qga")
+    qt = need_qutip("φ = atan2(qg_Y, qg_X) en 50 estados")
+    if qt is not None:
+        rng = np.random.default_rng(7)
+        errs = []
+        for _ in range(50):
+            t, f = rng.uniform(0.1, math.pi - 0.1), rng.uniform(0, 2 * math.pi)
+            st = (math.cos(t / 2) * qt.basis(2, 0) + np.exp(1j * f) * math.sin(t / 2) * qt.basis(2, 1)).unit()
+            x, y = qt.expect(qt.sigmax(), st), qt.expect(qt.sigmay(), st)
+            errs.append(abs((math.atan2(y, x) % (2 * math.pi)) / (2 * math.pi) * 1000 - f / (2 * math.pi) * 1000))
+        check("QuTiP: φ = atan2(qg_Y, qg_X) recupera la fase; qg_φ·1000 = φ en qga (50 estados)", max(errs) < 1e-9,
+              f"error máx {max(errs):.1e} qga")
     # relativistic proposal: identities only
     beta = sp.symbols("beta", positive=True)
     gam = 1 / sp.sqrt(1 - beta ** 2)
@@ -567,7 +598,7 @@ def part_qga():
 def part_derivadas():
     """Sección «Magnitudes derivadas de la lectura» (2026-11-12): qg_κ, qg_SNR, qg_L y qg_τ, sin qang salvo al final."""
     print("\n9. Magnitudes derivadas: qg_κ, qg_SNR, qg_L, qg_τ (sympy, QuTiP, scipy)")
-    import qutip as qt
+    qt = need_qutip("qg_SNR, qg_L y qg_τ en QuTiP")
     import sympy as sp
     from scipy.stats import binom
 
@@ -585,13 +616,14 @@ def part_derivadas():
     check("qg_κ(0) = 1/ln 2 = 1,443", round(1 / math.log(2), 3) == 1.443)
 
     # qg_SNR: mean and standard deviation of one ±1 shot, on random mixed states (QuTiP)
-    worst = 0.0
-    for seed in range(50):
-        rho = qt.rand_dm(2, seed=seed)
-        zz = qt.expect(qt.sigmaz(), rho)
-        var = qt.expect(qt.sigmaz() ** 2, rho) - zz ** 2
-        worst = max(worst, abs(var - (1 - zz ** 2)))
-    check("QuTiP: un disparo tiene varianza 1 − qg_Z² para cualquier estado (50 matrices densidad)", worst < 1e-12)
+    if qt is not None:
+        worst = 0.0
+        for seed in range(50):
+            rho = qt.rand_dm(2, seed=seed)
+            zz = qt.expect(qt.sigmaz(), rho)
+            var = qt.expect(qt.sigmaz() ** 2, rho) - zz ** 2
+            worst = max(worst, abs(var - (1 - zz ** 2)))
+        check("QuTiP: un disparo tiene varianza 1 − qg_Z² para cualquier estado (50 matrices densidad)", worst < 1e-12)
     snr60 = abs(math.cos(math.pi / 3)) / math.sin(math.pi / 3)
     check("qg_SNR a 60° = |cot θ| = 0,577", round(snr60, 3) == 0.577 and abs(snr60 - 1 / math.tan(math.pi / 3)) < 1e-12)
     ns = [math.ceil((3 / (abs(math.cos(math.radians(d))) / math.sin(math.radians(d)))) ** 2 - 1e-9) for d in (60, 80, 89)]
@@ -605,38 +637,40 @@ def part_derivadas():
     bc = sp.sqrt(sp.cos(t1 / 2) ** 2 * sp.cos(t2 / 2) ** 2) + sp.sqrt(sp.sin(t1 / 2) ** 2 * sp.sin(t2 / 2) ** 2)
     vals = [float(bc.subs({t1: a, t2: b})) - math.cos((a - b) / 2) for a in (0.2, 1.1, 2.9) for b in (0.5, 1.6, 3.0)]
     check("sympy: √(p0 p0') + √(p1 p1') = cos((θ − θ')/2) en [0, π]", max(abs(v) for v in vals) < 1e-12)
-    rng = np.random.default_rng(7)
-    ok_meridian, ok_bound = True, True
-    for _ in range(300):
-        a, b = rng.uniform(0, math.pi, 2)
-        pa, pb2 = rng.uniform(0, 2 * math.pi, 2)
-        s1 = (math.cos(a / 2) * qt.basis(2, 0) + np.exp(1j * pa) * math.sin(a / 2) * qt.basis(2, 1))
-        s2 = (math.cos(b / 2) * qt.basis(2, 0) + np.exp(1j * pb2) * math.sin(b / 2) * qt.basis(2, 1))
-        s3 = (math.cos(b / 2) * qt.basis(2, 0) + np.exp(1j * pa) * math.sin(b / 2) * qt.basis(2, 1))
-        qgl = abs(a - b) / 2
-        fs = math.acos(min(1.0, abs(s1.overlap(s2))))
-        fs_m = math.acos(min(1.0, abs(s1.overlap(s3))))
-        ok_bound &= qgl <= fs + 1e-12
-        ok_meridian &= abs(qgl - fs_m) < 1e-7
-    check("QuTiP: qg_L = Fubini–Study en un meridiano común (300 pares)", ok_meridian)
-    check("QuTiP: qg_L ≤ Fubini–Study con azimutes distintos (300 pares)", ok_bound)
+    if qt is not None:
+        rng = np.random.default_rng(7)
+        ok_meridian, ok_bound = True, True
+        for _ in range(300):
+            a, b = rng.uniform(0, math.pi, 2)
+            pa, pb2 = rng.uniform(0, 2 * math.pi, 2)
+            s1 = (math.cos(a / 2) * qt.basis(2, 0) + np.exp(1j * pa) * math.sin(a / 2) * qt.basis(2, 1))
+            s2 = (math.cos(b / 2) * qt.basis(2, 0) + np.exp(1j * pb2) * math.sin(b / 2) * qt.basis(2, 1))
+            s3 = (math.cos(b / 2) * qt.basis(2, 0) + np.exp(1j * pa) * math.sin(b / 2) * qt.basis(2, 1))
+            qgl = abs(a - b) / 2
+            fs = math.acos(min(1.0, abs(s1.overlap(s2))))
+            fs_m = math.acos(min(1.0, abs(s1.overlap(s3))))
+            ok_bound &= qgl <= fs + 1e-12
+            ok_meridian &= abs(qgl - fs_m) < 1e-7
+        check("QuTiP: qg_L = Fubini–Study en un meridiano común (300 pares)", ok_meridian)
+        check("QuTiP: qg_L ≤ Fubini–Study con azimutes distintos (300 pares)", ok_bound)
 
     # qg_τ = sqrt(1 − r²) = 2 sqrt(det ρ), Tr ρ² = 1 − qg_τ²/2
-    worst = 0.0
-    for seed in range(50):
-        rho = qt.rand_dm(2, seed=100 + seed)
-        r2 = sum(qt.expect(op, rho) ** 2 for op in (qt.sigmax(), qt.sigmay(), qt.sigmaz()))
-        tau = math.sqrt(max(0.0, 1 - r2))
-        det = float(np.real(np.linalg.det(rho.full())))
-        worst = max(worst, abs(tau - 2 * math.sqrt(max(det, 0.0))), abs((rho * rho).tr().real - (1 - tau ** 2 / 2)))
-    check("QuTiP: qg_τ = 2√det ρ y Tr ρ² = 1 − qg_τ²/2 (50 matrices densidad)", worst < 1e-10, f"{worst:.1e}")
-    mix = 0.2 * qt.ket2dm(qt.basis(2, 0)) + 0.8 * qt.ket2dm(qt.basis(2, 1))
-    r_mix = abs(qt.expect(qt.sigmaz(), mix))
-    bell = (qt.tensor(qt.basis(2, 0), qt.basis(2, 0)) + qt.tensor(qt.basis(2, 1), qt.basis(2, 1))).unit()
-    local = bell.ptrace(0)
-    r_bell = math.sqrt(sum(qt.expect(op, local) ** 2 for op in (qt.sigmax(), qt.sigmay(), qt.sigmaz())))
-    check("mezcla 0,2/0,8: r = 0,6, qg_τ = 0,8; qubit de Bell: qg_τ = 1",
-          round(r_mix, 6) == 0.6 and round(math.sqrt(1 - r_mix ** 2), 6) == 0.8 and round(math.sqrt(1 - r_bell ** 2), 6) == 1.0)
+    if qt is not None:
+        worst = 0.0
+        for seed in range(50):
+            rho = qt.rand_dm(2, seed=100 + seed)
+            r2 = sum(qt.expect(op, rho) ** 2 for op in (qt.sigmax(), qt.sigmay(), qt.sigmaz()))
+            tau = math.sqrt(max(0.0, 1 - r2))
+            det = float(np.real(np.linalg.det(rho.full())))
+            worst = max(worst, abs(tau - 2 * math.sqrt(max(det, 0.0))), abs((rho * rho).tr().real - (1 - tau ** 2 / 2)))
+        check("QuTiP: qg_τ = 2√det ρ y Tr ρ² = 1 − qg_τ²/2 (50 matrices densidad)", worst < 1e-10, f"{worst:.1e}")
+        mix = 0.2 * qt.ket2dm(qt.basis(2, 0)) + 0.8 * qt.ket2dm(qt.basis(2, 1))
+        r_mix = abs(qt.expect(qt.sigmaz(), mix))
+        bell = (qt.tensor(qt.basis(2, 0), qt.basis(2, 0)) + qt.tensor(qt.basis(2, 1), qt.basis(2, 1))).unit()
+        local = bell.ptrace(0)
+        r_bell = math.sqrt(sum(qt.expect(op, local) ** 2 for op in (qt.sigmax(), qt.sigmay(), qt.sigmaz())))
+        check("mezcla 0,2/0,8: r = 0,6, qg_τ = 0,8; qubit de Bell: qg_τ = 1",
+              round(r_mix, 6) == 0.6 and round(math.sqrt(1 - r_mix ** 2), 6) == 0.8 and round(math.sqrt(1 - r_bell ** 2), 6) == 1.0)
 
     from qang import probability as pb  # final comparison only
     check("qang coincide: quantum_snr, shots_for_sign, information_curvature, dissipative_deficit",

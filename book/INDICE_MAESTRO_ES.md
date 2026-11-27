@@ -405,6 +405,55 @@ hasta que exista una corrida real (Parte X).
 ### Capítulo 35. qang como módulo: modificaciones a las librerías cuánticas y de aprendizaje
 35.0 ✅ escrito (qang 0.13.0, `qang.integrations`; tests/test_integrations.py; cifras de tools/make_cap35_numbers.py en tres entornos: .venv-int, .venv-dyn para Qiskit Dynamics y WSL para CUDA-Q): mitiq (filtro + ZNE: 55,9 → 1,1 m-qg con T1 y desfase; post_select ya existía), qiskit-experiments (HeraldedReadout: e01, p y T_eff sin sesgo, la estándar ve el qubit frío), QuTiP, Stim, scikit-learn (API completa, exactitud igual 0,833 vs 0,842), JAX (grad a 2·10⁻¹⁰; PennyLane 0.45 pide JAX < 0.9), PyTorch, Qiskit Dynamics (pide qiskit ≤ 1.3), Qibo, pytket (medias vueltas), Braket y CUDA-Q 0.16 (CPU; la GPU pide un controlador de NVIDIA más nuevo); tabla de propuestas para cada proyecto
 
+### Capítulo 36. Arquitectura de software y ecosistema multi-SDK
+36.0 ✅ escrito: requisitos de importación por módulo, instalación en CI y costo de leer con el orden de qubits equivocado; `tests/test_public_api.py`
+
+### Capítulo 37. Nanocuántica: túnel, Landauer, ruido de partición y centros NV
+37.0 ✅ escrito: la ecuación de qang aplicada a transmisión, conductancia, ruido de partición, ocupación, espines y ODMR
+
+### Capítulo 38. Aplicaciones transversales leídas con qang
+38.0 ✅ escrito: fermiones y Jordan–Wigner, eco de Hahn, Ising, Aharonov–Bohm, Wigner, Fresnel y vacío de Unruh
+
+### Capítulo 39. `qang.integrations`: doce librerías, un solo contrato de lectura
+39.0 ✅ escrito: auditoría con código de las integraciones y su contrato común
+
+### Capítulo 40. Materia y antimateria leídas con qang
+40.0 ✅ escrito: conjugación de carga, Zitterbewegung, creación de pares y el par invisible
+
+### Capítulo 41. Viajes en el tiempo leídos con qang
+41.0 ✅ escrito: balance de información de la postselección, paradoja del abuelo y puntos fijos por ángulo
+
+### Capítulo 42. La teoría de cuerdas leída con qang
+42.0 ✅ escrito: conteo exacto, nivel como lectura $Z$, T-dualidad y radio de un análogo de red
+
+## PARTE XIV. Sistemas autónomos: robótica e IA agéntica cuánticas 🆕
+
+### Capítulo 43. Robótica cuántica y control autónomo leídos con qang: un qubit por articulación, el presupuesto de disparos, el tiempo real y Grover para elegir trayectorias
+43.0 ✅ escrito: presupuesto $N=\lceil z^2\,\mathrm{tr}(JJ^{\mathsf T})/\varepsilon^2\rceil$, correlación exacta de lecturas, límite de tiempo real y ahorro de consultas de Grover; `tools/verify_cap43.py`, `tests/test_qrobot.py`
+
+### Capítulo 44. IA agéntica cuántica leída con qang: políticas de Born, el ángulo como gradiente natural, la lectura de decisión y el reparto de disparos entre herramientas
+44.0 ✅ escrito: $I(\theta)=1$, flujo $\phi_t=\phi_0+\eta\Delta t$, polo y piso de exploración, $qg_Z$ de decisión y reparto $n_i\propto\sin\theta_i$; `tools/verify_cap44.py`, `tests/test_qagent.py`; sin `measured gain`
+
+### Capítulo 45. Benchmark de ruido en cinco stacks: la fase qga sobrevive al qecho y al filtro de sector
+45.0 ✅ escrito: $\sigma=0{,}621699$ qga, inversión afín $250{,}0$ qga y MSE $1615{,}2\to19{,}4$ m-qg² ($83{,}39\times$); `tools/verify_exp_f13.py`; sin QPU
+
+### Capítulo 46. Auditoría metrológica: compatibilidad y anatomía de las métricas
+46.0 ✅ escrito: matriz de compatibilidad y anatomía de métricas, addendum del Bloque B3; `tools/verify_exp_a.py`
+
+## PARTE XV. Protocolos de medición, ruido y entrenamiento en qga 🆕
+
+### Capítulo 47. Lecturas auditables: conteos, estimadores y covarianzas
+47.0 ✅ escrito: prerregistro de cinco campos, `canonical_counts`, `analyze`, `qg_estimate`, covarianzas y radio/dirección en tres bases; `tools/verify_cap47.py`
+
+### Capítulo 48. Amplitudes y fase azimutal: lo que una lectura $Z$ no puede estimar
+48.0 ✅ escrito: separación depolar, azimut y fase de cono; asignar un azimut a una muestra sigue `unverified` sin medir $X$ e $Y$
+
+### Capítulo 49. Filtro de simetría y presupuesto de disparos: exposición, eco y desenmarañado
+49.0 ✅ escrito: filtro, reweight, exposición por sector, matriz de eco y mochila de estabilizadores cotejada con fuerza bruta; `tools/verify_cap49.py`; sin prerregistro ni hardware
+
+### Capítulo 50. Mesetas planas y límites de entrenamiento: jacobiano, Fisher y cotas de disparos
+50.0 ✅ escrito: diagnóstico de meseta y cotas de disparos `exact`; extrapolación a hardware `sin_verificar`
+
 ---
 
 ## Apéndices

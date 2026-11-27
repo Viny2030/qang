@@ -86,6 +86,33 @@ jobs:
       - run: pip install -e ".[qiskit,pennylane,cirq]"
       - run: python tools/verify_backend_invariance.py
 
+  checks:
+    name: book + verifiers
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package with all extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[all]"
+      - name: Check master indices and book parity
+        run: |
+          python tools/check_indices.py
+          python tools/check_book_parity.py
+          python tools/check_book_api.py
+          python tools/check_baselines.py
+      - name: Run chapter verifiers used by the checks
+        run: |
+          python tools/verify_cap01.py
+          python tools/verify_cap32.py
+          python tools/verify_cap47.py
+          python tools/verify_cap49.py
+
   tensorcircuit:
     name: adapters (tensorcircuit)
     runs-on: ubuntu-24.04

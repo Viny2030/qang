@@ -16,7 +16,9 @@ Budget to certify $H_{\min}\ge0.99$ ($|qg_Z|\le7.0$ m-qg with $0.1\%$ tails): $N
 
 ## 21.2 Channel audit: stationarity of qgZ by blocks
 
-$\chi^2$ of homogeneity of $p_0$ between blocks of $10^4$ ($19$ d.o.f.): stationary channel $27.1$; linear drift from $0\to80$ m-qg: $130.7$, with per-block readings $+7,-32,-22,-49,-71$ m-qg. The drift invalidates the i.i.d. hypothesis of §21.1 before the point value shows it (`exact` statistical). Extraction (Toeplitz/Trevisan) and certification by Bell inequalities are referenced (§41, §42), not reproduced.
+$\chi^2$ of homogeneity of $p_0$ between blocks of $10^4$ ($19$ d.o.f.): stationary channel $27.1$; linear drift from $0\to80$ m-qg: $130.7$, with per-block readings $+7,-32,-22,-49,-71$ m-qg. The drift invalidates the i.i.d. hypothesis of §21.1 before the point value shows it (`exact` statistical). Toeplitz extraction and CHSH arithmetic are checked in `tools/verify_cap21.py`; Trevisan and device-independent certification are referenced (§41, §42), not reproduced.
+
+A $2\times B$ homogeneity table has $B-1$ degrees of freedom; with $B=20$ blocks there are $19$. Rejecting homogeneity ($130.7$ versus $27.1$) diagnoses drift but does not identify its cause or certify cryptographic randomness. Trevisan and device-independent certification therefore stay referenced and marked `unverified` here: `bell_chsh` only evaluates already-measured correlations and does not accredit space-like separation or free choice of settings. Toeplitz extraction and CHSH arithmetic are `exact` within the audited i.i.d. model.
 
 ## 21.3 Operational contrast: Without qang vs. With qang
 
@@ -26,7 +28,7 @@ $\chi^2$ of homogeneity of $p_0$ between blocks of $10^4$ ($19$ d.o.f.): station
 | Shots for $H_{\min}\ge0.99$ | — | $1.97\cdot10^5$ | (`exact`) |
 | Hidden bias of $30$ m-qg | point $0.953>$ true | cert $0.943<$ true | (`exact`) |
 | Channel drift | — | $\chi^2$ $27\to131$; blocks in m-qg | (`exact`) |
-| Certification by Bell / extractors | §41–42 | referenced | `unverified` here |
+| CHSH and Toeplitz extraction | §41–42 (DI and Trevisan out of scope) | `bell_chsh`, `toeplitz_extract` | `exact` arithmetic; DI and Trevisan `unverified` |
 
 ## 21.4 Block (`qang/qrng.py`)
 
@@ -35,6 +37,9 @@ def posterior_qz_quantiles(k0, N, q=0.999):   # quantiles [1−q, q] = [0.001, 0
 def certified_min_entropy(k0, N, q=0.999):    # −log2((1 + max|qg_Z| in the interval)/2)
 def shots_for_certified_hmin(h, z=3.09):      # q_max = 2·2^−h − 1 ; N = (z/q_max)²
 def block_drift_chi2(bits, block):            # homogeneity χ²; returns qg_Z per block in m-qg
+def toeplitz_matrix(n_input, n_output, seed): # T[i,j] = t[i-j+n_input-1], shape (n_output, n_input)
+def toeplitz_extract(bits, n_output, seed):   # y = T x mod 2; linear and seeded
+def bell_chsh(correlators):                   # S = E00+E01+E10−E11; |S|≤2 local, 2√2 Tsirelson
 ```
 
 ## 21.5 Verification — `tools/verify_cap21.py`
@@ -44,18 +49,22 @@ def block_drift_chi2(bits, block):            # homogeneity χ²; returns qg_Z p
 [2] H_min ≥ 0.99 certified: |qg_Z| ≤ 7.0 m-qg ⇒ N ≈ 197358 shots
 [3] real bias 30 m-qg, N=2e5: point H_min=0.9528, cert=0.9431, true=0.9574
 [4] χ²(19 d.o.f.): stationary 27.1 | drift 130.7
+[5] Toeplitz: y=T x mod 2 with T 128×512; linear and reproducible with seed=7; output [1, 0, 1, 1, 1, 1, 0, 1]... (exact)
+[6] CHSH: S=E00+E01+E10−E11; local |S|≤2, quantum |S|=2.8284=2√2 (exact arithmetic); DI and Trevisan out of scope
 verify_cap21: OK
 ```
-The reproducible validation of this review is `verify_cap21: OK`: cert$(10^6)>0.99$, cert$(10^3)<0.9$; certificate $\le$ true value with a $30$ m-qg bias; $\chi^2_{\text{drift}}>3\chi^2_{\text{stat}}$; `tests/test_qrng.py` passes with `2 passed`.
+The reproducible validation of this review is `verify_cap21: OK`: cert$(10^6)>0.99$, cert$(10^3)<0.9$; certificate $\le$ true value with a $30$ m-qg bias; $\chi^2_{\text{drift}}>3\chi^2_{\text{stat}}$; Toeplitz linear and reproducible; CHSH respects the local bound and reaches $2\sqrt2$; `tests/test_qrng.py` passes with `4 passed`.
 
-Asserts: cert$(10^6)>0.99$, cert$(10^3)<0.9$; cert $\le$ true with bias; $\chi^2_{\text{drift}}>3\chi^2_{\text{stat}}$.
+Asserts: cert$(10^6)>0.99$, cert$(10^3)<0.9$; cert $\le$ true with bias; $\chi^2_{\text{drift}}>3\chi^2_{\text{stat}}$; $T[1:,1:]=T[:-1,:-1]$ and $T(x\oplus y)=Tx\oplus Ty$; $|S|>2$ only if the input correlations allow it.
 
 ### `tests/test_qrng.py`
 ```python
 import pytest; jax = pytest.importorskip("jax")
-from qang.qrng import certified_min_entropy, point_min_entropy
+from qang.qrng import certified_min_entropy, point_min_entropy, toeplitz_matrix, toeplitz_extract, bell_chsh
 def test_cert_below_point(): assert certified_min_entropy(5000, 10000) < point_min_entropy(5000, 10000)
 def test_cert_grows_with_N(): assert certified_min_entropy(500000, 1000000) > certified_min_entropy(5000, 10000)
+def test_toeplitz_extract_is_seeded_and_linear(): ...
+def test_bell_chsh_bounds(): ...
 ```
 
 ## 21.6 Appendix H
@@ -65,6 +74,9 @@ def test_cert_grows_with_N(): assert certified_min_entropy(500000, 1000000) > ce
 | `hmin_certified_haar` | cryptography | Beta credible interval → $H_{\min}$ | `certified_min_entropy` | `exact` (i.i.d.) |
 | `hmin_shots` | statistics | $N=(z/(2\cdot2^{-h}-1))^2$ | `shots_for_certified_hmin` | `exact` |
 | `channel_drift_chi2` | audit | block $\chi^2$ in m-qg | `block_drift_chi2` | `exact` |
+| `toeplitz_hash` | cryptography | $y=Tx \bmod 2$, $T[i,j]=t_{i-j+n-1}$ | `toeplitz_matrix`, `toeplitz_extract` | `exact` (i.i.d.; does not accredit the source) |
+| `bell_chsh_arithmetic` | cryptography | $S=E_{00}+E_{01}+E_{10}-E_{11}$, $\|S\|\le2$ | `bell_chsh` | `exact` arithmetic; DI `unverified` |
+| `trevisan_extractor` | cryptography | reference §41–42, not implemented | — | `unverified` (referenced) |
 
 `CHANGELOG.md [Unreleased]`: `qang.qrng`; `tools/verify_cap21.py`; `tests/test_qrng.py`.
 Commit: `docs(cap21): certified QRNG and channel audit rewritten on Ch. 1–20 + qang.qrng + verify_cap21`.

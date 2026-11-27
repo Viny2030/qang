@@ -1,7 +1,8 @@
 # Capítulo 49 — Filtro de simetría y presupuesto de disparos: exposición, eco y desenmarañado {#sec-qjax49 .unnumbered}
 
-`exact` | `sin_verificar` — El filtro y la calibración eco se definen en `qang.sectors`; la optimización de
-estabilizadores queda marcada como `sin_verificar` hasta compararla con un modelo de ruido de dispositivo.
+`exact` | `sin_verificar` — El filtro y la calibración eco se definen en `qang.sectors` y se comprueban en
+`tools/verify_cap49.py`; la optimización de estabilizadores queda marcada como `sin_verificar` hasta compararla con
+un modelo de ruido de dispositivo.
 
 ## 49.1 El filtro como operación (`exact`)
 
@@ -38,7 +39,9 @@ no recupera los disparos descartados ni reduce por sí sola la varianza.
 
 `stabilizer_shot_budget` resuelve una mochila 0/1: qué comprobaciones agregar dado un peso de error detectado y un
 costo en disparos o profundidad. Es una decisión de diseño en unidades qg, no nueva física. El estatus `sin_verificar`
-impide promoverla a evidencia de hardware sin una comparación con ruido real.
+impide promoverla a evidencia de hardware sin una comparación con ruido real. No hay prerregistro ni corrida en
+hardware: `tools/verify_cap49.py` comprueba la mochila contra fuerza bruta y confirma que el catálogo mantiene
+`sin_verificar`, sin `measured gain`.
 
 ## 49.5 Sin `qang` y con `qang`
 

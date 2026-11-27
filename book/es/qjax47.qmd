@@ -2,7 +2,7 @@
 
 `exact` | `simulado` — Bloque de primitivas de medición. Este capítulo reemplaza la idea de un informe agregador por
 piezas verificables: normalización, lectura, intervalo y declaración previa del estimador. No se añade una nueva API.
-Verificadores relacionados: `tools/check_book_api.py`, `tools/check_book_parity.py`.
+Verificadores relacionados: `tools/verify_cap47.py`, `tools/check_book_api.py`, `tools/check_book_parity.py`.
 
 ## 47.1 Por qué no hay un objeto agregador (`exact`)
 
@@ -53,3 +53,11 @@ estructura que decida por el usuario qué significa «informe».
 | Varianza multiqubit | fórmula artesanal | `qg_covariance`, `register_witness_variance` |
 | Fase declarada | mezclada con la lectura | se registra aparte; $Z$ no la estima |
 | Auditoría | texto libre | cadena de funciones y parámetros registrada |
+
+## 47.6 Verificación — `tools/verify_cap47.py`
+
+```bash
+python tools/verify_cap47.py
+```
+
+Seis bloques sin QPU: [1] los cinco campos del prerregistro están en las dos ediciones; [2] `canonical_counts` respeta el orden de Qiskit y Cirq sobre el mismo diccionario; [3] `analyze` y `readings_from_p0` dan la misma lectura $p_0=0{,}75$, $qg_Z=0{,}5$, $m=500$ y $\theta=\arccos(0{,}5)$; [4] `qg_estimate` declara `bayes`, `wilson` o `delta` y en el polo Wilson no colapsa mientras delta sí; [5] `qg_covariance` y `register_witness_variance` conservan la correlación de Bell (testigo $0{,}001$ frente a $0{,}0005$ ingenua); [6] `radius2_estimate` y `direction_estimate` declaran las tres bases. Salida: `verify_cap47: OK`. No hay `measured gain`.

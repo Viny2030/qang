@@ -2,7 +2,7 @@
 
 `exact` | `simulated` — Measurement-primitives block. This chapter replaces the idea of an aggregator report with
 verifiable pieces: normalization, reading, interval and prior declaration of the estimator. It adds no new API.
-Related verifiers: `tools/check_book_api.py`, `tools/check_book_parity.py`.
+Related verifiers: `tools/verify_cap47.py`, `tools/check_book_api.py`, `tools/check_book_parity.py`.
 
 ## 47.1 Why there is no aggregator object (`exact`)
 
@@ -54,3 +54,11 @@ structure that decides for the user what a "report" means.
 | Multiqubit variance | hand-made formula | `qg_covariance`, `register_witness_variance` |
 | Declared phase | mixed with the reading | recorded separately; $Z$ cannot estimate it |
 | Audit | free text | registered chain of functions and parameters |
+
+## 47.6 Verification — `tools/verify_cap47.py`
+
+```bash
+python tools/verify_cap47.py
+```
+
+Six blocks with no QPU: [1] the five preregistration fields appear in both editions; [2] `canonical_counts` respects the Qiskit and Cirq conventions for the same raw dict; [3] `analyze` and `readings_from_p0` give the same reading $p_0=0.75$, $qg_Z=0.5$, $m=500$ and $\theta=\arccos(0.5)$; [4] `qg_estimate` declares `bayes`, `wilson` or `delta` and Wilson does not collapse at the pole while delta does; [5] `qg_covariance` and `register_witness_variance` keep the Bell correlation (witness $0.001$ against $0.0005$ naive); [6] `radius2_estimate` and `direction_estimate` declare the three bases. Output: `verify_cap47: OK`. There is no `measured gain`.
