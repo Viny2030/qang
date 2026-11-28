@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for Δ m² – Quantum Computing, Information and Physics in qang Space</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./qjax13.html" rel="next">
+<link href="./qjax11.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-06d6bd6e489181030889a02c125f20ad.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./qjax12.html">V. Neutrinos: oscillation, matter and Majorana</a></li><li class="breadcrumb-item"><a href="./qjax12.html">Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for Δ m²</a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Quantum Computing, Information and Physics in qang Space</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="./../es/" title="Edición en español" class="quarto-navigation-tool px-1" aria-label="Edición en español"><i class="bi bi-"></i></a>
+    <a href="https://github.com/Viny2030/qang/tree/main/book/en/" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Download" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Download"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-book-en.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Download PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./qang-book-en.docx">
+              <i class="bi bi-file-word pe-1"></i>
+            Download Docx
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">I. Foundations: the angular–probabilistic metric (the qang unit)</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The qang unit: definition, milli-qang and the probability equation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Native gates, closed algebra and the universal operator</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Reflections, Householder and Grover dynamics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Sampling statistics, Bayesian inference and the Haar distribution</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label">II. Local geometry and quantum optics</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">The local Bloch radius as a measure of purity and entanglement</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Optical polarization and Stokes parameters in qg units</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label">III. QAN, information and information geometry (<code>qang.qan</code>, <code>qang.qdist</code>, <code>qang.qfisher</code>)</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 7 — Quantum Angular Networks (QAN), Mutual Information in qang Space and Regularized Inversion (IQAN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 8 — Coupling QAN to Probability Distributions: qg Moments, k-Local Truncation, Divergences and Shot Budget</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 9 — Fisher Information in qga: Z Readout versus Fubini–Study, Regularized Natural Gradient and Barren Plateaus</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label">IV. Geometric phases and metrology</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 10 — Geometric Phases and Stokes’ Theorem on the Sphere: Holonomy in qga, Bargmann Invariant and Single-Basis Readout</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 11 — Metrology in qga: Ramsey Operating Point, GHZ under Dephasing, tanh Thermometry and Clock Comparison</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label">V. Neutrinos: oscillation, matter and Majorana</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax12.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for Δ m²</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax13.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 13 — Matter Effects (MSW): Resonance as the Equator, Adiabatic Readout as a Product of Two qg Values, and the Trotter Cost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax14.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 14 — Majorana Phases, 0νββ, Sterile Neutrinos in the |11⟩ Sector and Angular Projections</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label">VI. Teleportation, time loops and black holes</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax15.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 15 — Optical Teleportation and the Bell-Pair Limit: the Channel as a Linear m-qg Contraction and the 333 m-qg Threshold</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax16.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 16 — Dual Rail, Loss as Heralded Erasure and Long-Distance Fidelity: Rate and Fidelity Decouple after the Sector Filter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax17.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 17 — Postselected Closed Timelike Curves (P-CTC) versus D-CTC: Two Maps, Two m-qg Readouts and the Shot Price</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax18.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 18 — Black Holes as Scramblers: Hayden–Preskill, the P·F=1/4 Law of the Yoshida–Kitaev Decoder, OTOC and Why qgS Cannot See the Page Curve</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label">VII. Cryptography and certified random numbers</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax19.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 19 — Demarcation: Quantum Cryptography (QKD/QRNG) versus Post-Quantum Cryptography (PQC). Where There Is a Qubit to Read in m-qg and Where There Is None</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax20.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 20 — BB84 in qg Space: Four States in qga, QBER as an m-qg Readout and the Sifted-Bit Budget</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax21.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 21 — Certified Random Numbers and Channel Audit: Min-Entropy with a Credible Interval and Block Drift in m-qg</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-controls="quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-8-label">VIII. Batteries, quantum learning and the symmetry filter</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-8" aria-labelledby="quarto-sidebar-section-8-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax22.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 22 — Quantum Batteries and Networks: Ergotropy as (r-qgZ)/2 and Repeater Chains with Visibility V^k</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax23.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 23 — Weight-Preserving Quantum Neural Networks: Unary Loader, RBS Gates in qga, Symmetry Filter under T1 and QSP as a Chebyshev Polynomial in qg</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax24.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 24 — The Symmetry Filter with Density Matrices: Exact under Uniform T1 Relaxation (Even Mid-Circuit), T1 Ratios, Failure under Dephasing and ZNE Rescue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax25.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 25 — Echo Calibration and Noise Bias: Readout Drag as an Affine Map in m-qg, When <strong>Not</strong> to Invert (§108) and Drag-Free Readout</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax26.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 26 — Applied Information Geometry: Quantum Kernels in qg Space, Exponential Concentration and the Non-Concentrating Unary Sector Kernel</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-controls="quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-9-label">IX. Many-body dynamics, chemistry and error correction</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-9" aria-labelledby="quarto-sidebar-section-9-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax27.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 27 — Many-Body Dynamics in the Weight-1 Sector: XY as a Quantum Walk of RBS Gates, Affine Bloch Channels and One-Parameter varQTE</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax28.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 28 — Chemistry and Optimization in the Weight Sector: the Electron-Count Witness in m-qg, Number Checks, RBS-Based PCA and “Exactly-K” QAOA</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax29.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 29 — Error Correction: the Syndrome as a qg_ZZZZ Reading, the Amplitude-Damping Code, Erasure vs.&nbsp;Bit Error, Schmidt Rank of the Cut and ZNE Cost</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-controls="quarto-sidebar-section-10" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-10-label">X. Characterization, method and ledger</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-10" aria-labelledby="quarto-sidebar-section-10-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax30.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 30 — Hardware Characterization in m-qg: T1 with Optimal Delay, Read-out Calibration with Error Bars, XEB/HOP, ZZ Shift and Control Quantization</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax31.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 31 — Methodology: Pre-Registered Falsification with SHA-256, Exact p-values, Holm Correction and Shot Budget</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax32.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 32 — What Was Confirmed and What Was Not: the Ledger of 90 Sub-measures (Chapters 7–31), with Evidence and Negative Findings</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" aria-controls="quarto-sidebar-section-11" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-11-label">XI. Scope, limits, real hardware and architecture</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-11" aria-labelledby="quarto-sidebar-section-11-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax33.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 33 — String Theory: What qang Measures Can and Cannot Say (the XX Chain as a c = 1 Free Boson)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax34.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 34 — Structural Limits, Equivalences and Negative Results: What the qg Reading Cannot See (and Where the Filter Does Not Reach)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax35.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 35 — First Real-Hardware Runs: IQM Garnet (Neutrinos §165, Milli-qang §168, E=mc² §170) Recomputed from the Stored Files</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax36.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 36 — Software Architecture and the Multi-SDK Ecosystem: What Each Module Requires, What CI Installs, and What a Wrong Qubit Order Costs</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" aria-controls="quarto-sidebar-section-12" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-12-label">XII. Nanoquantum, cross-cutting applications and integrations</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-12" aria-labelledby="quarto-sidebar-section-12-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax37.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 37 — Nanoquantum Systems: Tunnelling, Landauer, Partition Noise, Level Occupation, Quantum-Dot Spins and NV Centres Read with the qang Equation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax38.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 38 — Cross-Cutting Applications Read with qang: Fermions and Jordan–Wigner, Hahn Echo, Transverse-Field Ising, Aharonov–Bohm, Wigner, Fresnel and the Unruh Vacuum</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax39.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 39 — <code>qang.integrations</code>: Twelve Libraries, One Reading Contract, Audited with Code</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" aria-controls="quarto-sidebar-section-13" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-13-label">XIII. Extended physics: matter and antimatter, time travel and strings</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-13" aria-labelledby="quarto-sidebar-section-13-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax40.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 40 — Matter and Antimatter Read with qang: Charge Conjugation, Zitterbewegung, Pair Creation and the Invisible Pair</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax41.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 41 — Time Travel Read with qang: the Information Balance of Postselection, the Grandfather Paradox and Fixed Points by Angle</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax42.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 42 — String Theory Read with qang: Exact Counting, the Level as a Z Reading, T-Duality and the Radius of a Lattice Analogue</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" aria-controls="quarto-sidebar-section-14" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-14-label">XIV. Autonomous systems: quantum robotics and agentic AI</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-14" aria-labelledby="quarto-sidebar-section-14-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax43.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 43 — Quantum Robotics and Autonomous Control Read with qang: One Qubit per Joint, the Shot Budget, Real Time and Grover for Trajectory Selection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax44.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 44 — Quantum Agentic AI Read with qang: Born Policies, the Angle as Natural Gradient, the Decision Reading and Shot Allocation Across Tools</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax45.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 45 — Noise Benchmark Across Five Stacks: the qga Phase Survives qecho and Sector Filtering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax46.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 46 — Metrological audit: compatibility and anatomy of the metrics</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" aria-controls="quarto-sidebar-section-15" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-15-label">XV. Measurement, noise and training protocols in qga</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-15" aria-labelledby="quarto-sidebar-section-15-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax47.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 47 — Auditable readings: counts, estimators and covariances</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax48.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 48 — Amplitudes and azimuthal phase: what a <span class="math inline">\(Z\)</span> readout cannot estimate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax49.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 49 — Symmetry filter and shot budget: exposure, echo and unmixing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qjax50.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 50 — Barren plateaus and training limits: Jacobian, Fisher and shot bounds</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" aria-controls="quarto-sidebar-section-16" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-16-label">Appendices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-16" aria-labelledby="quarto-sidebar-section-16-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Catalogue of the 15 fundamental gates in qg representation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Transition formulas, Gell-Mann matrices and Chebyshev polynomials</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_c.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">The echo-calibration protocol and inversion in Hamming sectors (§105–§108)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_d.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Quick reference of the qang 0.16.0 API</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_e.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Falsification register: the predictions the repository allows one to check</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_f.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Functional-analysis foundation: Riesz–Fréchet</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_g.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">Relativistic energy and antimatter as qang readings</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix_h.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Catalogue of qang sub-measures</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#two-flavors-one-qubit-the-oscillation-phase-in-qga" id="toc-two-flavors-one-qubit-the-oscillation-phase-in-qga" class="nav-link active" data-scroll-target="#two-flavors-one-qubit-the-oscillation-phase-in-qga">12.1 Two flavors = one qubit: the oscillation phase in qga</a></li>
+  <li><a href="#operating-point-θ-versus-δ-m²" id="toc-operating-point-θ-versus-δ-m²" class="nav-link" data-scroll-target="#operating-point-θ-versus-δ-m²">12.2 Operating point: θ versus Δ m²</a></li>
+  <li><a href="#three-flavors-in-two-qubits-and-the-sector-filter" id="toc-three-flavors-in-two-qubits-and-the-sector-filter" class="nav-link" data-scroll-target="#three-flavors-in-two-qubits-and-the-sector-filter">12.3 Three flavors in two qubits and the sector filter</a></li>
+  <li><a href="#operational-contrast-without-qang-vs.-with-qang" id="toc-operational-contrast-without-qang-vs.-with-qang" class="nav-link" data-scroll-target="#operational-contrast-without-qang-vs.-with-qang">12.4 Operational contrast — Without <code>qang</code> vs.&nbsp;with <code>qang</code></a></li>
+  <li><a href="#jax-block-qangqneutrino.py" id="toc-jax-block-qangqneutrino.py" class="nav-link" data-scroll-target="#jax-block-qangqneutrino.py">12.5 JAX block (<code>qang/qneutrino.py</code>)</a></li>
+  <li><a href="#verification-toolsverify_cap12.py-reproducible-output" id="toc-verification-toolsverify_cap12.py-reproducible-output" class="nav-link" data-scroll-target="#verification-toolsverify_cap12.py-reproducible-output">12.6 Verification — <code>tools/verify_cap12.py</code> (reproducible output)</a>
+  <ul class="collapse">
+  <li><a href="#teststest_qneutrino_vacuum.py" id="toc-teststest_qneutrino_vacuum.py" class="nav-link" data-scroll-target="#teststest_qneutrino_vacuum.py"><code>tests/test_qneutrino_vacuum.py</code></a></li>
+  </ul></li>
+  <li><a href="#appendix-h-new-entries-in-qang.measures" id="toc-appendix-h-new-entries-in-qang.measures" class="nav-link" data-scroll-target="#appendix-h-new-entries-in-qang.measures">12.7 Appendix H — new entries in <code>qang.measures</code></a>
+  <ul class="collapse">
+  <li><a href="#changelog.md-unreleased" id="toc-changelog.md-unreleased" class="nav-link" data-scroll-target="#changelog.md-unreleased"><code>CHANGELOG.md</code> — <code>[Unreleased]</code></a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./qjax12.html">V. Neutrinos: oscillation, matter and Majorana</a></li><li class="breadcrumb-item"><a href="./qjax12.html">Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for Δ m²</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-qjax12" class="quarto-section-identifier">Chapter 12 — Vacuum Flavor Oscillation: One Qubit per Flavor Pair, m-qg Readout and the Operating Point for Δ m²</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Analysis and update date:</strong> November 22, 2026</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>Rewrite of the old Ch. 9 on the basis of Ch. 1–11. Module: <code>qang.qneutrino</code> (JAX, <code>jax&lt;0.9</code>; aligned with <code>qang.neutrino</code>). Verification: <code>tools/verify_cap12.py</code>. Hardware: §165 IQM Garnet (<code>tested on hardware</code>).</p>
+</blockquote>
+<hr>
+<section id="two-flavors-one-qubit-the-oscillation-phase-in-qga" class="level2">
+<h2 class="anchored" data-anchor-id="two-flavors-one-qubit-the-oscillation-phase-in-qga">12.1 Two flavors = one qubit: the oscillation phase in qga</h2>
+<p>The flavor state <span class="math inline">\(|\nu_e\rangle=\cos\theta|\nu_1\rangle+\sin\theta|\nu_2\rangle\)</span> is a qubit whose mass axis forms a Bloch angle <span class="math inline">\(2\theta\)</span> with the flavor axis. Propagation is a rotation <span class="math inline">\(R_Z(\phi)\)</span> in the mass basis, <span class="math display">\[\phi=2\cdot1.267\,\frac{\Delta m^2[\mathrm{eV^2}]\,L[\mathrm{km}]}{E[\mathrm{GeV}]}\ \text{rad},\qquad \phi_{\text{qga}}=\frac{1000}{2\pi}\phi,\qquad L_{\text{osc}}=\frac{4\pi E}{\Delta m^2}\equiv1000\ \text{qga}.\]</span> Exact circuit: <span class="math inline">\(R_Y(-2\theta)\,R_Z(\phi)\,R_Y(2\theta)|0\rangle\)</span> — two physical pulses and one <strong>virtual</strong> <span class="math inline">\(R_Z\)</span> (Ch. 2). Reading: <span class="math display">\[P(\nu_\alpha\to\nu_\beta)=\sin^22\theta\,\sin^2\tfrac\phi2,\qquad qg_Z=1-2P,\qquad m\text{-qg}=1000-2000P .\]</span> All two-flavor phenomenology is therefore an <code>m-qg</code> reading of one qubit with a single angular parameter <span class="math inline">\(\phi_{\text{qga}}\)</span> (<code>exact</code>). One oscillation length is one qga turn.</p>
+<p>The encoding <span class="math inline">\(|\nu_e\rangle=|0\rangle\)</span>, <span class="math inline">\(|\nu_\mu\rangle=|1\rangle\)</span> and the phase <span class="math inline">\(\phi=\Delta m^2L/(2E)\)</span> are the standard scheme in quantum simulation of oscillations (Argüelles and Jones): <span class="math inline">\(U_{\mathrm{PMNS}}^{2\times2}=U3(2\theta,0,0)\)</span> and a phase gate in the mass basis. The order <span class="math inline">\(R_Y(-2\theta)R_Z(\phi)R_Y(2\theta)|0\rangle\)</span> used by the verifier is the same construction with <span class="math inline">\(|\nu_e\rangle=|0\rangle\)</span>; reversing the order or changing the sign is a phase redefinition of <span class="math inline">\(|\nu_\mu\rangle\)</span> that does not alter probabilities. The virtual <span class="math inline">\(R_Z\)</span> replaces the physical rotation by a reference-frame shift: zero duration and no calibration error, so the circuit needs two physical pulses, not three.</p>
+<p>The form <span class="math inline">\(L_{\mathrm{osc}}=4\pi E/\Delta m^2\)</span> is in natural units (<span class="math inline">\(\hbar=c=1\)</span>). In the practical units of the chapter, <span class="math inline">\(\kappa=1.267\)</span> converts <span class="math inline">\(\Delta m^2[\mathrm{eV^2}]\,L[\mathrm{km}]/E[\mathrm{GeV}]\)</span> and <span class="math inline">\(\phi=2\kappa\Delta m^2L/E\)</span>, so <span class="math inline">\(L_{\mathrm{osc}}[\mathrm{km}]=\pi E/(\kappa\Delta m^2)=4\pi E/(2\cdot1.267\cdot2\Delta m^2)\)</span>, which for <span class="math inline">\(\Delta m^2_{21}=7.42\times10^{-5}\)</span> eV<span class="math inline">\(^2\)</span> and <span class="math inline">\(E=2.5\)</span> GeV gives <span class="math inline">\(83\,543\)</span> km. Mixing the natural formula with <span class="math inline">\(\kappa\)</span> without converting would give a wrong factor <span class="math inline">\(4\pi\)</span>.</p>
+<p><strong>Sources for this section.</strong> C. A. Argüelles and B. J. P. Jones, “Neutrino Oscillations in a Quantum Processor”, <em>Phys. Rev.&nbsp;Research</em> 1, 033176 (2019), <a href="https://arxiv.org/html/1904.10559v3" class="uri">https://arxiv.org/html/1904.10559v3</a>; R. Joshi et al., “Simulating neutrino oscillations on a quantum circuit using virtual-Z gates”, <em>DAE Symp. Nucl. Phys.</em> 68 (2024) 1051, <a href="https://inspirehep.net/files/f181b1d4e2698810dab5879baf3a5aed" class="uri">https://inspirehep.net/files/f181b1d4e2698810dab5879baf3a5aed</a>.</p>
+</section>
+<section id="operating-point-θ-versus-δ-m²" class="level2">
+<h2 class="anchored" data-anchor-id="operating-point-θ-versus-δ-m²">12.2 Operating point: θ versus Δ m²</h2>
+<p>Fisher information per event (Ch. 9, via <code>jax.grad</code>): <span class="math display">\[I_F(\theta)=\frac{(\partial_\theta P)^2}{P(1-P)},\quad\max\ \text{at }\phi=\pi\ (\text{oscillation maximum}),\qquad I_F(\phi)=\frac{\sin^22\theta\cos^2\frac\phi2}{1-\sin^22\theta\sin^2\frac\phi2},\quad\text{decreasing on }[0,\pi],\ I_F(\pi)=0 .\]</span> <strong>Finding</strong>: the oscillation maximum, optimal for <span class="math inline">\(\theta\)</span> (<span class="math inline">\(16.0\)</span>/event for <span class="math inline">\(\theta_{12}\)</span>), is the <strong>worst</strong> point for <span class="math inline">\(\Delta m^2\)</span> (<span class="math inline">\(1.4\cdot10^{-6}\)</span>/event). At <span class="math inline">\(\phi=\pi/2\)</span> (phase <span class="math inline">\(250\)</span> qga) <span class="math inline">\(I_F(\phi)=0.731\)</span> against <span class="math inline">\(0.444\)</span> at <span class="math inline">\(\phi=0.75\pi\)</span>: <span class="math inline">\(\times1.65\)</span> fewer events for the same <span class="math inline">\(\sigma_{\Delta m^2}\)</span> (<code>exact</code>, per event; flux and cross section enter separately).</p>
+<p>With <span class="math inline">\(S=\sin^22\theta\)</span> and <span class="math inline">\(u=\sin^2(\phi/2)\)</span>, <span class="math inline">\(P=Su\)</span>, <span class="math inline">\(I_F(\theta)=4\sin^24\theta\,u/[S(1-Su)]\)</span> and <span class="math inline">\(I_F(\phi)=S(1-u)/(1-Su)\)</span>. On <span class="math inline">\([0,\pi]\)</span>, <span class="math inline">\(u\)</span> grows monotonically: <span class="math inline">\(I_F(\theta)\)</span> is maximal at <span class="math inline">\(u=1\)</span> (<span class="math inline">\(\phi=\pi\)</span>, <span class="math inline">\(16.0\)</span>/event for <span class="math inline">\(\theta_{12}\)</span>), while <span class="math inline">\(I_F(\phi)\to S\)</span> as <span class="math inline">\(\phi\to0\)</span>, falls to <span class="math inline">\(0\)</span> at <span class="math inline">\(\phi=\pi\)</span> and is strictly decreasing because <span class="math inline">\(dI_F/du=S(S-1)/(1-Su)^2&lt;0\)</span>. To estimate <span class="math inline">\(\Delta m^2\)</span> with <span class="math inline">\(L,E\)</span> fixed, apply the chain rule: <span class="math inline">\(I_F(\Delta m^2)=I_F(\phi)(2\kappa L/E)^2\)</span>; in natural units the factor is <span class="math inline">\((L/2E)^2\)</span>. The <span class="math inline">\(\times1.65\)</span> fewer-events comparison is the ratio <span class="math inline">\(0.7313/0.4436=1.65\)</span>, assuming binomial counting, constant flux and efficiency; it is not a full experimental sensitivity with energy spectrum, resolution or cross section.</p>
+<p>The Fisher information used here is classical and per event; the QFI of the pure state for <span class="math inline">\(\theta\)</span> is <span class="math inline">\(4\)</span> and flavor measurement saturates it only at specific phases, so the <span class="math inline">\(16.0\)</span>/event maximum in the table is not a global quantum bound.</p>
+<p><strong>Sources for this section.</strong> E. C. Nogueira et al., “Quantum Estimation in Neutrino Oscillations”, <em>Int. J. Quant. Inf.</em> 15, 1750045 (2017), <a href="https://arxiv.org/html/1610.05388v2" class="uri">https://arxiv.org/html/1610.05388v2</a>; N. R. S. Chundawat and Y.-F. Li, “Information-Theoretic Gaps in Solar and Reactor Neutrino Oscillation Measurements” (2026), <a href="https://arxiv.org/html/2602.07991v1" class="uri">https://arxiv.org/html/2602.07991v1</a>.</p>
+</section>
+<section id="three-flavors-in-two-qubits-and-the-sector-filter" class="level2">
+<h2 class="anchored" data-anchor-id="three-flavors-in-two-qubits-and-the-sector-filter">12.3 Three flavors in two qubits and the sector filter</h2>
+<p>Encoding <span class="math inline">\(e,\mu,\tau\mapsto|00\rangle,|01\rangle,|10\rangle\)</span>; <span class="math inline">\(|11\rangle\)</span> (Hamming weight 2) is <strong>unphysical</strong>: <span class="math inline">\(P(|11\rangle)=0\)</span> ideally, so any weight there is diagnosable noise and the sector filter (<code>qang.sectors</code>) discards it and renormalizes. Under depolarization <span class="math inline">\(\varepsilon\)</span> the mean error per flavor falls <span class="math inline">\(\times1.18\)</span>–<span class="math inline">\(1.22\)</span> in simulation; on hardware (IQM Garnet, §165, <span class="math inline">\(8\times300\)</span> shots) it fell <span class="math inline">\(\times1.59\)</span> (<span class="math inline">\(0.062\to0.039\)</span>) and recovered the minimum of <span class="math inline">\(P_{\mu e}\)</span> at <span class="math inline">\(2.6\)</span> GeV (<code>tested on hardware</code>; THEORY_CORE §3). Reference PMNS: <span class="math inline">\(\theta_{12}=33.4^\circ,\theta_{13}=8.57^\circ,\theta_{23}=49^\circ,\delta=195^\circ\)</span>, <span class="math inline">\(\Delta m^2_{21}=7.42\cdot10^{-5}\)</span>, <span class="math inline">\(\Delta m^2_{31}=2.51\cdot10^{-3}\)</span> eV<span class="math inline">\(^2\)</span>.</p>
+<p>The reading <span class="math inline">\(qg_Z=1-2P\)</span> and <span class="math inline">\(m\text{-qg}=1000-2000P\)</span> is an affine transformation of the book, not a new observable: for <span class="math inline">\(P=0.9739\)</span> it gives <span class="math inline">\(-947.8\)</span> m-qg. The condition <span class="math inline">\(P(|11\rangle)=0\)</span> follows from embedding a 3-dimensional space in a 2-qubit register; the sector filter is a classical postselection that discards weight in <span class="math inline">\(|11\rangle\)</span> and renormalizes. The <span class="math inline">\(1.18\)</span>–<span class="math inline">\(1.22\)</span> gains correspond to the toy depolarizing channel of the verifier; the <span class="math inline">\(1.59\)</span> factor from IQM Garnet (§165, <span class="math inline">\(8\times300\)</span> shots) is quoted as a hardware result, not recalculated here. For three flavors, <code>p3_vacuum</code> uses the amplitude <span class="math inline">\(\sum_i U_{\beta i}e^{-i\phi_i}U^*_{\alpha i}\)</span>, convenient for the global phase of <span class="math inline">\(\nu_1\)</span>; Majorana phases cancel in oscillation probabilities (PDG).</p>
+<p>The values <span class="math inline">\(\theta_{12}=33.4^\circ\)</span>, <span class="math inline">\(\theta_{13}=8.57^\circ\)</span>, <span class="math inline">\(\theta_{23}=49^\circ\)</span>, <span class="math inline">\(\delta=195^\circ\)</span>, <span class="math inline">\(\Delta m^2_{21}=7.42\times10^{-5}\)</span> and <span class="math inline">\(\Delta m^2_{31}=2.51\times10^{-3}\)</span> eV<span class="math inline">\(^2\)</span> are a rounded reference set, not a new global fit; PDG 2024 and NuFIT 6.0 give nearby central values with uncertainties and octant/hierarchy ambiguity in <span class="math inline">\(\theta_{23}\)</span> and <span class="math inline">\(\delta_{\mathrm{CP}}\)</span>. The review does not change those numbers: it only verifies that the circuit, readout and operating point are internally consistent with that set.</p>
+<p><strong>Sources for this section.</strong> S. Navas et al.&nbsp;(Particle Data Group), <em>Phys. Rev.&nbsp;D</em> 110, 030001 (2024), <a href="https://pdg.lbl.gov/2024/reviews/rpp2024-rev-neutrino-mixing.pdf" class="uri">https://pdg.lbl.gov/2024/reviews/rpp2024-rev-neutrino-mixing.pdf</a>; I. Esteban et al., “NuFit-6.0: updated global analysis of three-flavor neutrino oscillations”, <em>JHEP</em> 12 (2024) 216, <a href="https://arxiv.org/abs/2410.05380" class="uri">https://arxiv.org/abs/2410.05380</a>.</p>
+</section>
+<section id="operational-contrast-without-qang-vs.-with-qang" class="level2">
+<h2 class="anchored" data-anchor-id="operational-contrast-without-qang-vs.-with-qang">12.4 Operational contrast — Without <code>qang</code> vs.&nbsp;with <code>qang</code></h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric</th>
+<th style="text-align: left;">Standard (without <code>qang</code>)</th>
+<th style="text-align: left;"><code>qang</code> (<code>qang.qneutrino</code> + JAX)</th>
+<th style="text-align: left;">Gain / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2-flavor circuit</td>
+<td style="text-align: left;">3 physical rotations</td>
+<td style="text-align: left;"><span class="math inline">\(R_Y,R_Y\)</span> + virtual <span class="math inline">\(R_Z\)</span>: 2 pulses</td>
+<td style="text-align: left;"><span class="math inline">\(-1\)</span> pulse (<code>exact</code>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Reading, DUNE-like (<span class="math inline">\(1300\)</span> km, <span class="math inline">\(2.5\)</span> GeV, atm. sector)</td>
+<td style="text-align: left;"><span class="math inline">\(P_{\mu\tau}=0.9739\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\phi=526.4\)</span> qga, <span class="math inline">\(-948\)</span> m-qg</td>
+<td style="text-align: left;">(<code>exact</code>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Events for a given <span class="math inline">\(\sigma_{\Delta m^2}\)</span>, <span class="math inline">\(\theta_{12}\)</span></td>
+<td style="text-align: left;">at <span class="math inline">\(\phi=0.75\pi\)</span>: <span class="math inline">\(I_F=0.444\)</span></td>
+<td style="text-align: left;">at <span class="math inline">\(\phi=\pi/2\)</span>: <span class="math inline">\(0.731\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\times1.65\)</span> fewer events (<code>exact</code>, per event)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Error per flavor, 3 flavors / 2 qubits, <span class="math inline">\(\varepsilon=0.10\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(0.0371\)</span></td>
+<td style="text-align: left;">sector filter: <span class="math inline">\(0.0307\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\times1.21\)</span> sim.; hw §165 <span class="math inline">\(\times1.59\)</span> (<code>tested on hardware</code>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Qubits for 3 flavors</td>
+<td style="text-align: left;">3 (one-hot)</td>
+<td style="text-align: left;">2 + physical sector</td>
+<td style="text-align: left;"><span class="math inline">\(-1\)</span> qubit (<code>exact</code>)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="jax-block-qangqneutrino.py" class="level2">
+<h2 class="anchored" data-anchor-id="jax-block-qangqneutrino.py">12.5 JAX block (<code>qang/qneutrino.py</code>)</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@jax.jit</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> osc_phase_qga(dm2, L, E):                <span class="co"># 1000/(2π) · 2·1.267·Δm² L/E</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">2.0</span> <span class="op">*</span> <span class="fl">1.267</span> <span class="op">*</span> dm2 <span class="op">*</span> L <span class="op">/</span> E <span class="op">/</span> RAD_PER_QGA</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">@jax.jit</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> survival_qz(theta, phi):                 <span class="co"># qg_Z = 1 − 2 sin²2θ sin²(φ/2)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">1.0</span> <span class="op">-</span> <span class="fl">2.0</span> <span class="op">*</span> jnp.sin(<span class="dv">2</span> <span class="op">*</span> theta) <span class="op">**</span> <span class="dv">2</span> <span class="op">*</span> jnp.sin(phi <span class="op">/</span> <span class="dv">2</span>) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">@jax.jit</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fisher_phi(theta, phi):                  <span class="co"># (∂φ P)² / (P(1−P)) via jax.grad</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> p_transition(theta, phi)<span class="op">;</span> dp <span class="op">=</span> jax.grad(p_transition, argnums<span class="op">=</span><span class="dv">1</span>)(theta, phi)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dp <span class="op">**</span> <span class="dv">2</span> <span class="op">/</span> jnp.clip(p <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p), <span class="fl">1e-300</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> p3_vacuum(U, m2, L, E, alpha):           <span class="co"># P(ν_α→ν_β) = |Σ_i U_βi e^{−iφ_i} U*_αi|²</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    ph <span class="op">=</span> jnp.exp(<span class="op">-</span><span class="ot">1j</span> <span class="op">*</span> <span class="fl">2.0</span> <span class="op">*</span> <span class="fl">1.267</span> <span class="op">*</span> m2 <span class="op">*</span> L <span class="op">/</span> E)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jnp.<span class="bu">abs</span>(U <span class="op">@</span> (ph <span class="op">*</span> jnp.conj(U)[alpha, :])) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="at">@jax.jit</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sector_filter(p4):                       <span class="co"># discards |11&gt;, renormalizes {|00&gt;,|01&gt;,|10&gt;}</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> p4.at[<span class="dv">3</span>].<span class="bu">set</span>(<span class="fl">0.0</span>)<span class="op">;</span> <span class="cf">return</span> q <span class="op">/</span> jnp.<span class="bu">sum</span>(q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="verification-toolsverify_cap12.py-reproducible-output" class="level2">
+<h2 class="anchored" data-anchor-id="verification-toolsverify_cap12.py-reproducible-output">12.6 Verification — <code>tools/verify_cap12.py</code> (reproducible output)</h2>
+<pre><code>[1] 1-qubit circuit = formula (1e-14); L_osc(Δm²21, 2.5 GeV) = 83543 km ≡ 1000 qga; 2 physical pulses + virtual RZ
+[2] θ12: I_F(θ) max at φ=3.1416 (=π), 16.000/event
+    I_F(φ) per event: φ→0: 0.8448 (=sin²2θ) | φ=π/2 (250 qga): 0.7313 | φ=0.75π: 0.4436 | φ=π: 1.36e-06
+[3] L=1300 km, E=2.5 GeV: φ=3.307 rad = 526.4 qga; P(νμ→ντ)=0.9739; qg_Z=-0.9478 → -948 m-qg
+[4] ε=0.05: 0.0185 → 0.0151 (×1.22) | ε=0.10: 0.0371 → 0.0307 (×1.21) | ε=0.20: 0.0742 → 0.0629 (×1.18)
+    hardware IQM Garnet §165 (8×300 shots): 0.062 → 0.039 (×1.59) [tested on hardware]
+verify_cap12: OK</code></pre>
+<p>The reproducible validation of this review is <code>verify_cap12: OK</code>: circuit = formula to <span class="math inline">\(10^{-14}\)</span>, <span class="math inline">\(L_{\mathrm{osc}}=83\,543\)</span> km <span class="math inline">\(\equiv1000\)</span> qga, <span class="math inline">\(I_F(\theta)\)</span> maximum <span class="math inline">\(16.000\)</span>/event at <span class="math inline">\(\phi=\pi\)</span>, <span class="math inline">\(I_F(\phi)=0.8448/0.7313/0.4436/1.36\times10^{-6}\)</span> for <span class="math inline">\(\phi\to0/\pi/2/0.75\pi/\pi\)</span>, <span class="math inline">\(\phi=3.307\)</span> rad <span class="math inline">\(=526.4\)</span> qga with <span class="math inline">\(P_{\mu\tau}=0.9739\)</span> and <span class="math inline">\(-948\)</span> m-qg, and filter gains <span class="math inline">\(1.22/1.21/1.18\)</span> for <span class="math inline">\(\varepsilon=0.05/0.10/0.20\)</span>; <code>tests/test_qneutrino_vacuum.py</code> passes with <code>3 passed</code>.</p>
+<section id="teststest_qneutrino_vacuum.py" class="level3">
+<h3 class="anchored" data-anchor-id="teststest_qneutrino_vacuum.py"><code>tests/test_qneutrino_vacuum.py</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest<span class="op">;</span> jax <span class="op">=</span> pytest.importorskip(<span class="st">"jax"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np, jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qang.qneutrino <span class="im">import</span> osc_phase_qga, survival_qz, pmns, p3_vacuum, sector_filter, embed_two_qubits</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_one_turn_is_one_oscillation_length():</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    dm2, E <span class="op">=</span> <span class="fl">7.42e-5</span>, <span class="fl">2.5</span><span class="op">;</span> L <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> np.pi <span class="op">*</span> E <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> <span class="fl">1.267</span> <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> dm2)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">abs</span>(<span class="bu">float</span>(osc_phase_qga(dm2, L, E)) <span class="op">-</span> <span class="fl">1000.0</span>) <span class="op">&lt;</span> <span class="fl">1e-9</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_unitarity_three_flavors():</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    U <span class="op">=</span> pmns(<span class="fl">0.583</span>, <span class="fl">0.1496</span>, <span class="fl">0.855</span>, <span class="fl">3.4</span>)<span class="op">;</span> p <span class="op">=</span> p3_vacuum(U, jnp.array([<span class="fl">0.0</span>, <span class="fl">7.42e-5</span>, <span class="fl">2.51e-3</span>]), <span class="fl">1300.0</span>, <span class="fl">2.5</span>, <span class="dv">1</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">abs</span>(<span class="bu">float</span>(p.<span class="bu">sum</span>()) <span class="op">-</span> <span class="dv">1</span>) <span class="op">&lt;</span> <span class="fl">1e-12</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_sector_filter_removes_11():</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> sector_filter(jnp.array([<span class="fl">0.4</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>]))<span class="op">;</span> <span class="cf">assert</span> <span class="bu">float</span>(q[<span class="dv">3</span>]) <span class="op">==</span> <span class="fl">0.0</span> <span class="kw">and</span> <span class="bu">abs</span>(<span class="bu">float</span>(q.<span class="bu">sum</span>()) <span class="op">-</span> <span class="dv">1</span>) <span class="op">&lt;</span> <span class="fl">1e-15</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="appendix-h-new-entries-in-qang.measures" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-h-new-entries-in-qang.measures">12.7 Appendix H — new entries in <code>qang.measures</code></h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">id</th>
+<th style="text-align: left;">family</th>
+<th style="text-align: left;">formula</th>
+<th style="text-align: left;">function</th>
+<th style="text-align: left;">status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>osc_phase_qga</code></td>
+<td style="text-align: left;">neutrinos</td>
+<td style="text-align: left;"><span class="math inline">\(\phi_{\text{qga}}=\frac{1000}{2\pi}\cdot2.534\,\Delta m^2L/E\)</span></td>
+<td style="text-align: left;"><code>osc_phase_qga</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>survival_mqg</code></td>
+<td style="text-align: left;">neutrinos</td>
+<td style="text-align: left;"><span class="math inline">\(m=1000-2000P\)</span></td>
+<td style="text-align: left;"><code>survival_qz</code></td>
+<td style="text-align: left;"><code>exact</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>dm2_operating_point</code></td>
+<td style="text-align: left;">metrology</td>
+<td style="text-align: left;"><span class="math inline">\(I_F(\phi)\downarrow\)</span> on <span class="math inline">\([0,\pi]\)</span>; <span class="math inline">\(I_F(\pi)=0\)</span></td>
+<td style="text-align: left;"><code>fisher_phi</code>, <code>fisher_theta</code></td>
+<td style="text-align: left;"><code>exact</code> (per event)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>flavor_sector_filter</code></td>
+<td style="text-align: left;">compilation</td>
+<td style="text-align: left;">discard <span class="math inline">\(|11\rangle\)</span></td>
+<td style="text-align: left;"><code>sector_filter</code>, <code>flavor_error</code></td>
+<td style="text-align: left;">sim. <code>exact</code>; §165 <code>tested on hardware</code></td>
+</tr>
+</tbody>
+</table>
+<section id="changelog.md-unreleased" class="level3">
+<h3 class="anchored" data-anchor-id="changelog.md-unreleased"><code>CHANGELOG.md</code> — <code>[Unreleased]</code></h3>
+<pre><code>### Added
+- `qang.qneutrino` (vacuum part): `osc_phase_rad/qga`, `p_transition`, `survival_qz`, `fisher_phi`, `fisher_theta`,
+  `pmns`, `p3_vacuum`, `embed_two_qubits`, `depolarize`, `sector_filter`, `flavor_error` (JAX, `jax&lt;0.9`).
+- `tools/verify_cap12.py`, `tests/test_qneutrino_vacuum.py`; Appendix H: 4 entries.</code></pre>
+<p>Commit: <code>docs(cap12): vacuum oscillation rewritten on Ch. 1–11 + qang.qneutrino + verify_cap12</code>.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+<nav class="page-navigation" aria-label="Page">
+  <div class="nav-page nav-page-previous">
+      <a href="./qjax11.html" class="pagination-link" aria-label="Chapter 11 — Metrology in qga: Ramsey Operating Point, GHZ under Dephasing, tanh Thermometry and Clock Comparison">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Chapter 11 — Metrology in qga: Ramsey Operating Point, GHZ under Dephasing, tanh Thermometry and Clock Comparison</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./qjax13.html" class="pagination-link" aria-label="Chapter 13 — Matter Effects (MSW): Resonance as the Equator, Adiabatic Readout as a Product of Two qg Values, and the Trotter Cost">
+        <span class="nav-page-text">Chapter 13 — Matter Effects (MSW): Resonance as the Equator, Adiabatic Readout as a Product of Two qg Values, and the Trotter Cost</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Viny2030/qang/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
