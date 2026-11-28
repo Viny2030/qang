@@ -470,6 +470,13 @@ General bibliography and Zenodo DOI record (10.5281/zenodo.22832150 and associat
 
 ---
 
+## Domains under evaluation (no `measured_gain`) ??
+
+- **FLUIDS (F1-F4):** verified hooks `qang.integrations.jax.transition_matrix` (:156), `transition_probability` (:176), `qg_from_p0` (:54), `filtered_qg_z` (:79), `block_weight_variance` (`qang/qstring.py:234`), `luttinger_k_from_variance` (:243), `information_curvature` (`qang/integrations/jax.py:127`), `dissipative_deficit` (:132), `amplitude_damping` (`qang/channels.py:43`), `phase_damping` (:47), `thermal_relaxation` (:55), `solid_angle` (`qang/geometric.py:71`), `berry_phase_from_solid_angle` (:83), `geometric_phase_qg` (:105). Status: no dataset/benchmark; not measured coverage.
+- **EARTH SCIENCES (E1-E3):** E1 `qang.clock_comparison.redshift_phase` (:53), `ellipse_estimate` (:73), `moment_estimate` (:97), `simulate_pairs` (:109); E2 `qang.proportions.theta_from_proportion` (:61), `proportion_interval` (:109), `cohens_h` (:127), `compare_proportions` (:132); E3 no verified domain API (F2/F4 analogues). Discard: "Earth/Tierra" in `book/es/qjax13.qmd:1,13,17` is neutrino MSW, not geoscience.
+- **NATURE (N1-N4, biological/ecological):** N1 `WeightQNNClassifier` (`qang/integrations/sklearn.py:43`), `MultiClassQNNClassifier` (:78), `WeightQNNTorch` (`qang/integrations/torch.py:41`), data `examples/qnn_classifier_qg.py:12-19`; N2 `renyi2_subsystem` (`qang/qscramble.py:87`), `qg_S_mean` (:93), `von_neumann_entropy_bits` (`qang/complementarity.py:63`), `entropic_sum` (:70); N3 `transition_matrix` (:156), `transition_probability` (:176), `chebyshev_trajectory` (:182); N4 `dissipative_deficit` (:132), `phase_damping` (`qang/channels.py:47`), `geometric_phase_qg` (:105). Discard: "nature/natural gradient" or *Nature* citations do not count as natural domain.
+- **P1 (QRNG→PQC bridge, peripheral):** `toeplitz_extract` (`qang/qrng.py:65`), `bell_chsh` (:76), `proportion_interval` (`qang/proportions.py:109`), `shots_to_resolve_bias` (`qang/qdemarc.py:57`). Conditioned by `pqc_out_of_scope = against`; does not reopen PQC domain.
+
 ## Open items before writing
 
 **To prove or drop (🔬):** the decibel analogy (1.6); U3_qang and its verification (2.2–2.3); qudits with Gell-Mann

@@ -45,6 +45,10 @@ EXPECTED = [
     ("navegación / SLAM", "navigation / SLAM", "unverified"),
     ("espacio", "space", "not adopted"),
     ("biofinanzas", "biofinance", "not adopted"),
+    ("fluidos (F1-F4)", "fluids (F1-F4)", "unverified"),
+    ("ciencias de la Tierra (E1-E3)", "earth sciences (E1-E3)", "unverified"),
+    ("naturaleza (N1-N4)", "nature / biology-ecology (N1-N4)", "unverified"),
+    ("PQC puente QRNG→PQC (P1)", "PQC QRNG→PQC bridge (P1)", "not adopted"),
 ]
 _PATH = re.compile(r"`((?:tools|tests|examples|book)/[^`]+)`")
 
@@ -124,7 +128,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 1
-    print("check_baselines: OK (6 dominios, 0 ganancias medidas, ES/EN de acuerdo)")
+    print("check_baselines: OK (10 dominios, 0 ganancias medidas, ES/EN de acuerdo)")
     return 0
 
 

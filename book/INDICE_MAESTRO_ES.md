@@ -469,6 +469,13 @@ Bibliografía general y registro DOI de Zenodo (10.5281/zenodo.22832150 y prepri
 
 ---
 
+## Dominios en evaluación (sin `measured_gain`) ??
+
+- **FLUIDOS (F1-F4):** ganchos verificados `qang.integrations.jax.transition_matrix` (:156), `transition_probability` (:176), `qg_from_p0` (:54), `filtered_qg_z` (:79), `block_weight_variance` (`qang/qstring.py:234`), `luttinger_k_from_variance` (:243), `information_curvature` (`qang/integrations/jax.py:127`), `dissipative_deficit` (:132), `amplitude_damping` (`qang/channels.py:43`), `phase_damping` (:47), `thermal_relaxation` (:55), `solid_angle` (`qang/geometric.py:71`), `berry_phase_from_solid_angle` (:83), `geometric_phase_qg` (:105). Estado: sin dataset/benchmark; no listado como cobertura medida.
+- **CIENCIAS DE LA TIERRA (E1-E3):** E1 `qang.clock_comparison.redshift_phase` (:53), `ellipse_estimate` (:73), `moment_estimate` (:97), `simulate_pairs` (:109); E2 `qang.proportions.theta_from_proportion` (:61), `proportion_interval` (:109), `cohens_h` (:127), `compare_proportions` (:132); E3 sin API de dominio verificada (análogos F2/F4). Descarte: "Tierra" en `book/es/qjax13.qmd:1,13,17` es MSW de neutrinos, no geociencias.
+- **NATURALEZA (N1-N4, biológico/ecológico):** N1 `WeightQNNClassifier` (`qang/integrations/sklearn.py:43`), `MultiClassQNNClassifier` (:78), `WeightQNNTorch` (`qang/integrations/torch.py:41`), datos `examples/qnn_classifier_qg.py:12-19`; N2 `renyi2_subsystem` (`qang/qscramble.py:87`), `qg_S_mean` (:93), `von_neumann_entropy_bits` (`qang/complementarity.py:63`), `entropic_sum` (:70); N3 `transition_matrix` (:156), `transition_probability` (:176), `chebyshev_trajectory` (:182); N4 `dissipative_deficit` (:132), `phase_damping` (`qang/channels.py:47`), `geometric_phase_qg` (`qang/geometric.py:105`). Descarte: "nature/natural gradient" o citas a *Nature* no cuentan como dominio natural.
+- **P1 (puente QRNG→PQC, periférico):** `toeplitz_extract` (`qang/qrng.py:65`), `bell_chsh` (:76), `proportion_interval` (`qang/proportions.py:109`), `shots_to_resolve_bias` (`qang/qdemarc.py:57`). Condicionado por `pqc_out_of_scope = against` (`book/INDICE_MAESTRO_ES.md:198,200-206`, `book/es/apendice_h.qmd` fila `pqc_out_of_scope`); no reabre PQC como dominio.
+
 ## Resumen de pendientes antes de escribir
 
 **Por demostrar o sacar (🔬):** analogía del decibelio (1.6); U3_qang y su verificación (2.2–2.3); qudits con Gell-Mann
